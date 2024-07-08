@@ -1,28 +1,15 @@
 using UnityEngine;
 
-public enum TileType
-{
-    Ground,
-    Hill,
-    Start,
-    End,
-    Empty
-}
-
-
+[ExecuteAlways] // 에디터, 런타임 모두에서 스크립트 실행
 public class Tile : MonoBehaviour
 {
-    public TileType Type { get ; private set; }
+    public TileData data;
     public Vector2Int GridPosition { get; private set; }
+    public bool IsOccupied { get; private set; }
 
-    public bool IsWalkable => Type != TileType.Hill && Type != TileType.Empty; // &&이 맞음. 
-
-    public bool IsOccupied { get; private set; } // 해당 타일에 이미 배치가 되었는가
-
+    [SerializeField] private Material baseTileMaterial; // Inspector에서 할당함
     private Renderer tileRenderer;
-    //private Material originalMaterial;
-    private Color originalColor;
-    private static readonly int ColorProperty = Shader.PropertyToID("_Color");
+    private MaterialPropertyBlock propBlock; // 머티리얼 속성을 오버라이드하는 경량 객체. 모든 타일이 동일한 머티리얼을 공유하되 색을 개별적으로 설정할 수 있다.
 
     // 길찾기 알고리즘을 위한 속성들
     public int GCost { get; set; }
@@ -30,60 +17,70 @@ public class Tile : MonoBehaviour
     public int FCost => GCost + HCost;
     public Tile Parent { get; set; }
 
-    private void Awake()
+    // 오브젝트 활성화마다 호출
+    private void OnEnable()
     {
-        // 자식 오브젝트 Cube의 Renderer를 가져온다.
-        tileRenderer = GetComponentInChildren<Renderer>();
-        if (tileRenderer != null)
-        {
-            originalColor = tileRenderer.material.GetColor(ColorProperty);
-        }
+        Initialize();
     }
 
-    public void Initialize(TileType type, Vector2Int gridPosition, float height)
+    // 인스펙터에서 컴포넌트 값이 변경될 때마다 호출 - 에디터에서 바로 확인 가능
+    private void OnValidate()
     {
-        Type = type;
-        GridPosition = gridPosition;
-        SetHeight(height);
+        Initialize();
+    }
+
+    private void Initialize()
+    {
+        // 자식 오브젝트 Cube의 Renderer를 가져온다.
+        if (tileRenderer == null)
+        {
+            tileRenderer = GetComponentInChildren<Renderer>();
+        }
+
+        else
+        {
+            tileRenderer.sharedMaterial = baseTileMaterial;
+        }
+
+        propBlock = new MaterialPropertyBlock();
         UpdateVisuals();
     }
 
-    public void SetHeight(float height)
+    public void SetTileData(TileData tileData, Vector2Int gridPosition)
     {
-        transform.localScale = new Vector3(transform.localScale.x, height, transform.localScale.z);
+        data = tileData;
+        GridPosition = gridPosition;
+        SetScale();
+        UpdateVisuals();
+    }
+
+    public void SetScale()
+    {
+        if (data == null) return;
+        float height = (data.terrain == TileData.TerrainType.Hill) ? 0.5f : 0.1f;
+        transform.localScale = new Vector3(transform.localScale.x * 0.98f, height, transform.localScale.z * 0.98f);
         transform.localPosition = new Vector3(transform.localPosition.x, height / 2f, transform.localPosition.z);
+    }
+
+    public float GetHeight()
+    {
+        return transform.localScale.y;
     }
 
     private void UpdateVisuals()
     {
-        if (tileRenderer == null) return;
+        if (tileRenderer == null || data == null) return;
 
-        SetTileColor(GetColorForTileType());
+        tileRenderer.GetPropertyBlock(propBlock);
+        propBlock.SetColor("_Color", data.tileColor);
+        tileRenderer.SetPropertyBlock(propBlock);
+        
     }
 
-    private void SetTileColor(Color color)
-    {
-        if (tileRenderer != null && tileRenderer.material != null) 
-        {
-            tileRenderer.material.SetColor(ColorProperty, color);
-        }
-    }
-
-    private Color GetColorForTileType()
-    {
-        return Type switch
-        {
-            TileType.Ground => Color.gray,
-            TileType.Hill => Color.gray,
-            TileType.Start => Color.red,
-            TileType.End => Color.blue,
-            _ => originalColor
-        };
-    }
 
     public bool CanPlaceOperator()
     {
-        return (IsOccupied == false) && (Type == TileType.Ground || Type == TileType.Hill);
+        return (IsOccupied == false) && (data.canPlaceOperator);
     }
 
     public void SetOccupied(bool occupied)
@@ -95,8 +92,9 @@ public class Tile : MonoBehaviour
     {
         if (tileRenderer != null)
         {
-            // 기존 머티리얼의 색 변경
-            tileRenderer.material.color = color;
+            tileRenderer.GetPropertyBlock(propBlock);
+            propBlock.SetColor("_Color", color);
+            tileRenderer.SetPropertyBlock(propBlock);
         } 
     }
 
@@ -104,8 +102,7 @@ public class Tile : MonoBehaviour
     {
         if (tileRenderer != null)
         {
-            Debug.Log("Tile.cs : ResetHighlight 작동");
-            SetTileColor(GetColorForTileType());
+            UpdateVisuals();
         }
     }
 }

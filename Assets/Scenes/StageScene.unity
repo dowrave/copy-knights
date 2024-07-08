@@ -202,10 +202,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1558acb5cd5222b4484f8f043f0c3765, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  tilePrefab: {fileID: 7789165926143454462, guid: f7bbc5af5b120634abdfa391cf8a2c16, type: 3}
-  mapDataJson: {fileID: 4900000, guid: 0bc7a0bcf9a3e924194d1dcd48ed273b, type: 3}
-  planeMaterial: {fileID: 0}
-  planeColor: {r: 0, g: 0, b: 0, a: 0}
+  mapPrefab: {fileID: 2105518537537211523, guid: 9c195d514c67e38449b2ab297b69efd8, type: 3}
   enemySpawner: {fileID: 41093821}
   cameraHeight: 10
   cameraAngle: 80
@@ -508,7 +505,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2094b54e6ca94fe42a9b386f1a399f04, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  operatorPrefab: {fileID: 7765728002122669589, guid: ea382745c6b9f42429b46f3d17c47ec5, type: 3}
+  operatorPrefab: {fileID: 4844663318455565301, guid: d3dcd961b53c71f45b440db97cb72987, type: 3}
   mapManager: {fileID: 58073321}
   availableTileColor: {r: 0, g: 1, b: 0, a: 1}
   unavailableTileColor: {r: 1, g: 0, b: 0, a: 1}

@@ -59,7 +59,7 @@ public class PathFindingManager : MonoBehaviour
 
             foreach (Tile neighbor in GetNeighbors(currentTile))
             {
-                if (!neighbor.IsWalkable || closedSet.Contains(neighbor)) continue;
+                if (!neighbor.data.isWalkable || closedSet.Contains(neighbor)) continue;
 
                 int newMovementCostToNeighbor = currentTile.GCost + GetDistance(currentTile, neighbor);
                 if (newMovementCostToNeighbor < neighbor.GCost || !openSet.Contains(neighbor))
@@ -114,7 +114,7 @@ public class PathFindingManager : MonoBehaviour
 
                 Tile neighbor = mapManager.GetTile(checkX, checkY);
 
-                if (neighbor != null && neighbor.IsWalkable)
+                if (neighbor != null && neighbor.data.isWalkable)
                 {
                     // 대각선 이동
                     if (x != 0 && y != 0)
@@ -123,7 +123,7 @@ public class PathFindingManager : MonoBehaviour
                         Tile SideA = mapManager.GetTile(tile.GridPosition.x + x, tile.GridPosition.y);
                         Tile SideB = mapManager.GetTile(tile.GridPosition.x, tile.GridPosition.y + y);
 
-                        if (SideA != null && SideB != null && SideA.IsWalkable && SideB.IsWalkable)
+                        if (SideA != null && SideB != null && SideA.data.isWalkable && SideB.data.isWalkable)
                         {
                             neighbors.Add(neighbor);
                         }
