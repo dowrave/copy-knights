@@ -8,149 +8,111 @@ public class MapData
 {
     public int width;
     public int height;
-    public TileType[] tiles;
+    //public TileType[] tiles;
 }
 
 public class MapManager : MonoBehaviour
 {
-    private float groundHeight = 0.1f; // 바닥 타일의 높이
-    private float hillHeight = 0.5f; // 언덕 타일의 높이
-    private float tileScale = 0.98f;
-
-    [SerializeField] private GameObject tilePrefab;
-    [SerializeField] private TextAsset mapDataJson;
-    [SerializeField] private Material planeMaterial; // 바닥 Plane의 Material
-    [SerializeField] private Color planeColor = new Color(0.5f, 0.5f, 0.5f);
+    [SerializeField] private GameObject mapPrefab;
     [SerializeField] private EnemySpawner enemySpawner;
 
-    // 카메라 위치 / 회전 필드
+    // 카메라 설정
     [SerializeField] private float cameraHeight = 8f;
     [SerializeField] private float cameraAngle = 75f;
-    [SerializeField] private float cameraOffsetZ = 2f; // 값이 커지면 아래로, 작으면 위로 이동한다.
-
+    [SerializeField] private float cameraOffsetZ = 2f;
 
     private Vector3 startPoint;
     private Vector3 endPoint;
     private Tile[,] tiles;
-    private MapData mapData;
+    private int mapWidth, mapHeight;
 
     private void Start()
     {
-        LoadMapData();
-        CreateGroundPlane();
-        GenerateMap();
+        LoadMapFromPrefab();
         FindStartAndEndPoints();
         SetEnemySpawnerPosition();
         AdjustCameraPosition(); 
     }
 
-    private void LoadMapData()
+    private void LoadMapFromPrefab()
     {
-        mapData = JsonUtility.FromJson<MapData>(mapDataJson.text);
-    }
-
-    private void CreateGroundPlane()
-    {
-        GameObject planeObject = GameObject.CreatePrimitive(PrimitiveType.Plane);
-        planeObject.transform.SetParent(transform);
-        planeObject.transform.localPosition = new Vector3(mapData.width / 2f - 0.5f, 0, mapData.height / 2f - 0.5f);
-        planeObject.transform.localScale = new Vector3(mapData.width / 10f, 1, mapData.height / 10f);
-
-        Renderer planeRenderer = planeObject.GetComponent<Renderer>();
-        if (planeMaterial != null)
+        if (mapPrefab != null)
         {
-            Material newMaterial = new Material(planeMaterial);
-            newMaterial.color = planeColor;
-            planeRenderer.material = newMaterial;
-        }
-        else
-        {
-            planeRenderer.material.color = planeColor;
-        }
-    }
+            GameObject mapInstance = Instantiate(mapPrefab, transform);
+            Tile[] allTiles = mapInstance.GetComponentsInChildren<Tile>();
 
-    /// <summary>
-    /// 맵은 2차원으로 표현됨 - xy 평면이라는 말을 쓰되, 여기서의 y는 유니티 엔진 상에서 z축임! 
-    /// </summary>
-    private void GenerateMap()
-    {
-        tiles = new Tile[mapData.width, mapData.height];
-
-        for (int x = 0; x < mapData.width; x++)
-        {
-            for (int y = 0; y < mapData.height; y++)
+            // 맵 크기 결정
+            int maxX = 0, maxY = 0;
+            foreach (Tile tile in allTiles)
             {
-                //int index = y * mapData.width + x; // 이대로 맵을 구현하면 y축으로 반전돼서 구현됨
-                int index = (mapData.height - 1 - y) * mapData.width + x; // 맵을 보이는 그대로 구현시키기
+                Vector2Int gridPos = tile.GridPosition;
+                maxX = Mathf.Max(maxX, gridPos.x);
+                maxY = Mathf.Max(maxY, gridPos.y);
+            }
 
-                TileType tileType = mapData.tiles[index];
-                if (tileType != TileType.Empty) { 
-                    Vector3 position = new Vector3(x, 0.5f, y); // Plane 위에 배치되도록 y = 0.5로 설정
-                    GameObject tileObject = Instantiate(tilePrefab, position, Quaternion.identity, transform);
-                    tileObject.transform.localScale = new Vector3(tileScale, 1f, tileScale);
-                    Tile tile = tileObject.GetComponent<Tile>();
+            tiles = new Tile[maxX + 1, maxY + 1];
 
-                    float tileHeight = (tileType == TileType.Hill) ? hillHeight : groundHeight;
-                    tile.Initialize(tileType, new Vector2Int(x, y), tileHeight);
-
-                    tiles[x, y] = tile;
-                }
+            foreach (Tile tile in allTiles)
+            {
+                Vector2Int gridPos = tile.GridPosition;
+                tiles[gridPos.x, gridPos.y] = tile;
             }
         }
     }
 
     private void FindStartAndEndPoints()
     {
-        for (int x = 0; x <mapData.width;x++)
+        for (int x = 0; x < tiles.GetLength(0);x++)
         {
-            for (int y=0; y < mapData.height;y++)
+            for (int y=0; y < tiles.GetLength(1);y++)
             {
                 if (tiles[x, y] != null) 
                 { 
-                    if (tiles[x, y].Type == TileType.Start)
+                    if (tiles[x, y].data.isStartPoint)
                     {
-                        startPoint = new Vector3(x, tiles[x, y].transform.position.y + 0.5f, y);
+                        startPoint = tiles[x, y].transform.position + Vector3.up * 0.5f;
                     }
-                    else if (tiles[x, y].Type == TileType.End)
+                    else if (tiles[x, y].data.isEndPoint)
                     {
-                        endPoint = new Vector3(x, tiles[x, y].transform.position.y + 0.5f, y);
+                        endPoint = tiles[x, y].transform.position + Vector3.up * 0.5f;
                     }
                 } 
             }
         }
-
-        //if (startPoint != Vector3.zero && endPoint != Vector3.zero)
-        //{
-        //    enemySpawner.SetPathPoints(startPoint, endPoint);
-        //}
-        //Debug.LogError("Start Tile Not Found !");
     }
 
     public Vector3 GetStartPoint() => startPoint;
-    public Vector3 GetEndPoint() => endPoint; 
+    public Vector3 GetEndPoint() => endPoint;
 
     public bool IsTileWalkable(int x, int y)
     {
-        if (x < 0 || x >= mapData.width || y < 0 || y >= mapData.height) return false;
-        return tiles[x, y] != null && tiles[x, y].IsWalkable;
+        if (x < 0 || x >= mapWidth || y < 0 || y >= mapHeight) return false;
+        return tiles[x, y] != null && tiles[x, y].data.isWalkable;
     }
 
     public Vector3 GetTilePosition(int x, int y)
     {
-        return tiles[x, y].transform.position + Vector3.up * 0.5f;
+        if (tiles[x, y] != null) 
+        { 
+            return tiles[x, y].transform.position + Vector3.up * 0.5f;
+        }
+        return Vector3.zero; 
     }
 
     public Tile GetTile(int x, int y)
     {
-        if (x < 0 || x >= mapData.width || y < 0 || y >= mapData.height) return null;
-        return tiles[x, y];
+        if (x >= 0 && x < tiles.GetLength(0) && y >= 0 && y < tiles.GetLength(1))
+        {
+            return tiles[x, y];
+        }
+        return null;
     }
 
     public IEnumerable<Tile> GetAllTiles()
     {
-        for (int x = 0; x < mapData.width; x++)
+        for (int x = 0; x < tiles.GetLength(0); x++)
         {
-            for (int y = 0; y < mapData.height; y++)
+            for (int y = 0; y < tiles.GetLength(1); y++)
             {
                 if (tiles[x, y] != null)
                 {
@@ -160,7 +122,7 @@ public class MapManager : MonoBehaviour
         }
     }
 
-    private void SetEnemySpawnerPosition()
+        private void SetEnemySpawnerPosition()
     {
         if (enemySpawner != null && startPoint != Vector3.zero && endPoint != Vector3.zero) 
         {
@@ -176,7 +138,7 @@ public class MapManager : MonoBehaviour
         if (mainCamera != null)
         {
             // 맵의 중심
-            Vector3 mapCenter = new Vector3(mapData.width / 2f - 0.5f, 0f, mapData.height / 2f - 0.5f);
+            Vector3 mapCenter = new Vector3(mapWidth / 2f - 0.5f, 0f, mapHeight / 2f - 0.5f);
 
             mainCamera.transform.rotation = Quaternion.Euler(cameraAngle, 0f, 0f);
 
@@ -194,7 +156,7 @@ public class MapManager : MonoBehaviour
             mainCamera.transform.LookAt(mapCenter);
 
             // 시야각 조정
-            float mapSize = Mathf.Max(mapData.width, mapData.height);
+            float mapSize = Mathf.Max(mapWidth, mapHeight);
             mainCamera.fieldOfView = 2f * Mathf.Atan(mapSize / (2f * cameraHeight)) * Mathf.Rad2Deg;
         }
     }

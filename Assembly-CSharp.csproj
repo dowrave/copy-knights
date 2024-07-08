@@ -67,8 +67,10 @@
     <Compile Include="Assets\Scripts\EnemySpawner.cs" />
     <Compile Include="Assets\Scripts\OperatorManager.cs" />
     <Compile Include="Assets\Scripts\Unit.cs" />
+    <Compile Include="Assets\Scripts\TileData.cs" />
     <Compile Include="Assets\Scripts\MapManager.cs" />
     <Compile Include="Assets\Scripts\UnitStats.cs" />
+    <Compile Include="Assets\Scripts\MapEditorWindow.cs" />
     <Compile Include="Assets\Scripts\OperatorData.cs" />
     <Compile Include="Assets\Scripts\AttackType.cs" />
   </ItemGroup>

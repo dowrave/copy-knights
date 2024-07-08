@@ -171,8 +171,8 @@ public class OperatorManager : MonoBehaviour
         {
             if (tile != null && tile.CanPlaceOperator())
             {
-                if ((tile.Type == TileType.Ground && operatorScript.data.canDeployGround) ||
-                    (tile.Type == TileType.Hill && operatorScript.data.canDeployHill))
+                if ((tile.data.terrain == TileData.TerrainType.Ground && operatorScript.data.canDeployGround) ||
+                    (tile.data.terrain == TileData.TerrainType.Hill && operatorScript.data.canDeployHill))
                 {
                     tile.Highlight(availableTileColor);
                     highlightedTiles.Add(tile);
