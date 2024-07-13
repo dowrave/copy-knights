@@ -58,7 +58,7 @@ public class Tile : MonoBehaviour
     {
         if (data == null) return;
         float height = (data.terrain == TileData.TerrainType.Hill) ? 0.5f : 0.1f;
-        transform.localScale = new Vector3(transform.localScale.x * 0.98f, height, transform.localScale.z * 0.98f);
+        transform.localScale = new Vector3(transform.localScale.x * 0.99f, height, transform.localScale.z * 0.99f);
         transform.localPosition = new Vector3(transform.localPosition.x, height / 2f, transform.localPosition.z);
     }
 

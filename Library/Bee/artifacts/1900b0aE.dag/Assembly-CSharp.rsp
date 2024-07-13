@@ -359,6 +359,7 @@
 "Assets/Scripts/AttackType.cs"
 "Assets/Scripts/Enemy.cs"
 "Assets/Scripts/EnemySpawner.cs"
+"Assets/Scripts/Map.cs"
 "Assets/Scripts/MapEditorWindow.cs"
 "Assets/Scripts/MapManager.cs"
 "Assets/Scripts/Operator.cs"
