@@ -1,107 +1,179 @@
 using UnityEngine;
-using System;
-using UnityEditor.Build.Content;
 using System.Collections.Generic;
 
-[Serializable]
-public class MapData
-{
-    public int width;
-    public int height;
-    //public TileType[] tiles;
-}
-
+/*
+ MapManager의 역할
+1. 맵 데이터 로드 및 관리
+2. 타일 정보 제ㅈ공
+3. 경로 찾기 기능 제공
+4. 맵 관련 유틸리티 함수 제공(월드 <-> 그리드 좌표)
+ */
 public class MapManager : MonoBehaviour
 {
     [SerializeField] private GameObject mapPrefab;
-    [SerializeField] private EnemySpawner enemySpawner;
-
-    // 카메라 설정
-    [SerializeField] private float cameraHeight = 8f;
-    [SerializeField] private float cameraAngle = 75f;
-    [SerializeField] private float cameraOffsetZ = 2f;
-
-    private Vector3 startPoint;
-    private Vector3 endPoint;
+    private Map currentMap;
     private Tile[,] tiles;
+    [SerializeField] private List<PathData> availablePaths;
+
+
     private int mapWidth, mapHeight;
+
+    public void InitializeMap()
+    {
+        LoadMapFromPrefabOrScene();
+        InitializePaths();
+    }
+
 
     private void Start()
     {
-        LoadMapFromPrefab();
-        FindStartAndEndPoints();
-        SetEnemySpawnerPosition();
-        AdjustCameraPosition(); 
+        currentMap = FindObjectOfType<Map>(); // 하이어라키에 맵 오브젝트가 있는지 체크
+
+        if (currentMap == null) // 없다면 프리팹에서 맵 로드
+        {
+            LoadMapFromPrefab();
+        }
+        else // 있다면 씬에서 맵 로드
+        {
+            LoadMapFromScene();
+        }
+        InitializePaths();
+    }
+    private void LoadMapFromPrefabOrScene()
+    {
+        currentMap = FindObjectOfType<Map>();
+        Debug.Log($"맵 매니저 currentMap : {currentMap}");
+
+        if (currentMap == null)
+        {
+            LoadMapFromPrefab();
+        }
+        else
+        {
+            LoadMapFromScene();
+        }
+    }
+
+    // 씬에 맵을 같이 띄웠다면, 여기서 가져온다
+    private void LoadMapFromScene()
+    {
+        Debug.Log("맵 매니저 : 씬에서 맵 로드");
+        // Map 컴포넌트에서 타일 정보 로드
+        Tile[] allTiles = currentMap.GetComponentsInChildren<Tile>();
+
+        SetupMapDimensions(allTiles);
+        SetupTilesArray(allTiles);
+
+        // Map 초기화
+        currentMap.Initialize(mapWidth, mapHeight, true, this);
+
+        InitializeEnemySpawners();
     }
 
     private void LoadMapFromPrefab()
     {
+        Debug.Log("맵 매니저 : 프리팹에서 맵 로드");
+
         if (mapPrefab != null)
         {
             GameObject mapInstance = Instantiate(mapPrefab, transform);
-            Tile[] allTiles = mapInstance.GetComponentsInChildren<Tile>();
-
-            // 맵 크기 결정
-            int maxX = 0, maxY = 0;
-            foreach (Tile tile in allTiles)
+            currentMap = mapInstance.GetComponent<Map>();
+            if (currentMap != null)
             {
-                Vector2Int gridPos = tile.GridPosition;
-                maxX = Mathf.Max(maxX, gridPos.x);
-                maxY = Mathf.Max(maxY, gridPos.y);
-            }
+                Tile[] allTiles = mapInstance.GetComponentsInChildren<Tile>();
 
-            tiles = new Tile[maxX + 1, maxY + 1];
+                SetupMapDimensions(allTiles);
+                SetupTilesArray(allTiles);
 
-            foreach (Tile tile in allTiles)
-            {
-                Vector2Int gridPos = tile.GridPosition;
-                tiles[gridPos.x, gridPos.y] = tile;
+                // 맵 초기화
+                currentMap.Initialize(mapWidth, mapHeight, true, this);
+
+                InitializeEnemySpawners();
             }
         }
     }
 
-    private void FindStartAndEndPoints()
+    private void SetupMapDimensions(Tile[] allTiles)
     {
-        for (int x = 0; x < tiles.GetLength(0);x++)
+        int maxX = 0, maxY = 0;
+        foreach (Tile tile in allTiles)
         {
-            for (int y=0; y < tiles.GetLength(1);y++)
+            Vector2Int gridPos = tile.GridPosition;
+            maxX = Mathf.Max(maxX, gridPos.x);
+            maxY = Mathf.Max(maxY, gridPos.y);
+
+            mapWidth = maxX + 1;
+            mapHeight = maxY + 1;
+        }
+    }
+
+    private void SetupTilesArray(Tile[] allTiles)
+    {
+        tiles = new Tile[mapWidth, mapHeight];
+        foreach (Tile tile in allTiles)
+        {
+            Vector2Int gridPos = tile.GridPosition;
+            tiles[gridPos.x, gridPos.y] = tile;
+        }
+    }
+
+    private void InitializePaths()
+    {
+        foreach (PathData path in availablePaths)
+        {
+            ValidatePath(path);
+        }
+    }
+    
+    private void InitializeEnemySpawners()
+    {
+        EnemySpawner[] spawners = currentMap.GetComponentsInChildren<EnemySpawner>();
+        foreach (var spawner in spawners)
+        {
+            spawner.Initialize(this);
+        }
+    }
+
+    private void ValidatePath(PathData path)
+    {
+        foreach (PathNode node in path.nodes)
+        {
+            Vector2Int gridPos = WorldToGridPosition(node.position);
+            if (!IsValidGridPosition(gridPos))
             {
-                if (tiles[x, y] != null) 
-                { 
-                    if (tiles[x, y].data.isStartPoint)
-                    {
-                        startPoint = tiles[x, y].transform.position + Vector3.up * 0.5f;
-                    }
-                    else if (tiles[x, y].data.isEndPoint)
-                    {
-                        endPoint = tiles[x, y].transform.position + Vector3.up * 0.5f;
-                    }
-                } 
+                Debug.LogWarning($"Invalid path node position in path {path.name}: {node.position}");
             }
         }
     }
 
-    public Vector3 GetStartPoint() => startPoint;
-    public Vector3 GetEndPoint() => endPoint;
-
-    public bool IsTileWalkable(int x, int y)
+    private Vector2Int WorldToGridPosition(Vector3 worldPosition)
     {
-        if (x < 0 || x >= mapWidth || y < 0 || y >= mapHeight) return false;
-        return tiles[x, y] != null && tiles[x, y].data.isWalkable;
+        return new Vector2Int(Mathf.RoundToInt(worldPosition.x), Mathf.RoundToInt(worldPosition.z));
+    }
+
+    private bool IsValidGridPosition(Vector2Int gridPos)
+    {
+        return gridPos.x >= 0 && gridPos.x < mapWidth && gridPos.y >= 0 && gridPos.y < mapHeight;
+    }
+
+    public bool IsPositionWalkable(Vector3 worldPosition)
+    {
+        Vector2Int gridPos = WorldToGridPosition(worldPosition);
+        return IsValidGridPosition(gridPos) && tiles[gridPos.x, gridPos.y].data.isWalkable;
     }
 
     public Vector3 GetTilePosition(int x, int y)
     {
-        if (tiles[x, y] != null) 
-        { 
+        if (IsValidGridPosition(new Vector2Int(x, y)) && tiles[x, y] != null)
+        {
             return tiles[x, y].transform.position + Vector3.up * 0.5f;
         }
-        return Vector3.zero; 
+        return Vector3.zero;
     }
 
     public Tile GetTile(int x, int y)
     {
-        if (x >= 0 && x < tiles.GetLength(0) && y >= 0 && y < tiles.GetLength(1))
+        if (IsValidGridPosition(new Vector2Int(x, y)))
         {
             return tiles[x, y];
         }
@@ -110,9 +182,9 @@ public class MapManager : MonoBehaviour
 
     public IEnumerable<Tile> GetAllTiles()
     {
-        for (int x = 0; x < tiles.GetLength(0); x++)
+        for (int x = 0; x < mapWidth; x++)
         {
-            for (int y = 0; y < tiles.GetLength(1); y++)
+            for (int y = 0; y < mapHeight; y++)
             {
                 if (tiles[x, y] != null)
                 {
@@ -122,42 +194,10 @@ public class MapManager : MonoBehaviour
         }
     }
 
-        private void SetEnemySpawnerPosition()
+    public Vector3 GetEndPoint()
     {
-        if (enemySpawner != null && startPoint != Vector3.zero && endPoint != Vector3.zero) 
-        {
-            enemySpawner.transform.position = startPoint;
-            enemySpawner.SetPathPoints(startPoint, endPoint);
-        }
+        return currentMap.FindEndPoint();
     }
 
-    // 맵의 크기에 따른 카메라 위치 자동 조정
-    private void AdjustCameraPosition()
-    {
-        Camera mainCamera = Camera.main;
-        if (mainCamera != null)
-        {
-            // 맵의 중심
-            Vector3 mapCenter = new Vector3(mapWidth / 2f - 0.5f, 0f, mapHeight / 2f - 0.5f);
-
-            mainCamera.transform.rotation = Quaternion.Euler(cameraAngle, 0f, 0f);
-
-            // 카메라 위치 계산
-            float zOffset = cameraOffsetZ * Mathf.Tan((90f - cameraAngle) * Mathf.Deg2Rad);
-
-            Vector3 cameraPosition = new Vector3(
-                mapCenter.x,
-                cameraHeight,
-                mapCenter.z - zOffset
-            );
-            mainCamera.transform.position = cameraPosition;
-
-            // 카메라가 맵 중심을 보도록 설정
-            mainCamera.transform.LookAt(mapCenter);
-
-            // 시야각 조정
-            float mapSize = Mathf.Max(mapWidth, mapHeight);
-            mainCamera.fieldOfView = 2f * Mathf.Atan(mapSize / (2f * cameraHeight)) * Mathf.Rad2Deg;
-        }
-    }
+    
 }

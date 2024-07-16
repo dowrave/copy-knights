@@ -1,6 +1,8 @@
 using System.Collections;
 using System.Collections.Generic;
-using System.Net;
+using System.Linq;
+using Unity.VisualScripting;
+using Unity.VisualScripting.Antlr3.Runtime.Misc;
 using UnityEngine;
 
 public class EnemySpawner : MonoBehaviour
@@ -12,68 +14,119 @@ public class EnemySpawner : MonoBehaviour
         public float spawnTime;
     }
 
-    public List<EnemySpawnInfo> enemySpawnList; // 생성되는 적들
+    //[System.Serializable]
+    //public class PathNode
+    //{
+    //    public Vector2Int position;
+    //    public float waitTime;
+    //}
 
-    private bool isInitialized = false; // 맵 생성 후에 true로 변경됨
+    public List<EnemySpawnInfo> enemySpawnList = new List<EnemySpawnInfo>(); // 생성되는 적, 시간이 적혀 있음
+    //public List<PathNode> path = new List<PathNode>();
+
+    private bool isInitialized = false;
     private Vector3 startPoint;
     private Vector3 endPoint;
-
+    private PathFindingManager pathFindingManager;
     private MapManager mapManager;
-    private PathFindingManager pathfindingManager;
 
-    private void Start()
+    public void Initialize(MapManager manager)
     {
-        mapManager = FindObjectOfType<MapManager>();
-        pathfindingManager = FindObjectOfType<PathFindingManager>();   
-        // MapManager가 SetSpawnPosition을 호출할 때까지 대기
+        Debug.Log("EnemySpawner Initialize 작동 시작");
+        mapManager = manager;
+        pathFindingManager = PathFindingManager.Instance;
+
+        startPoint = transform.position;
+        endPoint = mapManager.GetEndPoint(); 
+
         StartCoroutine(WaitForInitialization());
     }
 
-    // 맵 생성을 기다림
     private IEnumerator WaitForInitialization()
     {
         while (!isInitialized)
         {
             yield return null;
         }
-        StartCoroutine(SpawnEnemies());
     }
 
-    public void SetPathPoints(Vector3 start, Vector3 end)
+    //public void SetPathPoints(Vector3 start, Vector3 end)
+    //{
+    //    startPoint = start;
+    //    endPoint = end;
+    //    transform.position = startPoint;
+    //    isInitialized = true;
+    //}
+
+    public void StartSpawning()
     {
-        startPoint = start;
-        endPoint = end;
-        transform.position = startPoint; // 시작점에 스포너 배치
-        isInitialized = true;
+        Debug.Log("EnemySpawner : 적 생성 시작");
+        if (isInitialized)
+        {
+            StartCoroutine(SpawnEnemies());
+        }
+
     }
 
     private IEnumerator SpawnEnemies()
     {
+        if (enemySpawnList.Count == 0)
+        {
+            yield break;
+        }
         float startTime = Time.time;
-
         foreach (var spawnInfo in enemySpawnList)
         {
+            Debug.Log("SpawnEnemies 작동 중..");
             yield return new WaitForSeconds(spawnInfo.spawnTime - (Time.time - startTime));
             SpawnEnemy(spawnInfo.enemyPrefab);
         }
     }
-
+    
     private void SpawnEnemy(GameObject enemyPrefab)
     {
+        Debug.Log("SpawnEnemy 작동");
+        if (enemyPrefab == null) return;
+        Debug.Log("EnemyPrefab은 Null이 아님");
+
         GameObject enemyObject = Instantiate(enemyPrefab, transform.position, Quaternion.identity);
         Enemy enemy = enemyObject.GetComponent<Enemy>();
         if (enemy != null)
         {
-            UnitStats stats = GenerateEnemyStats();
+            UnitStats Stats = GenerateEnemyStats();
             float movementSpeed = 1f;
-
-            enemy.Initialize(stats, movementSpeed, startPoint, endPoint);
+            enemy.Initialize(Stats, movementSpeed, startPoint, endPoint);
+            SetEnemyPathAuto(enemy); // PathFindingManager를 이용한 자동 길찾기 
         }
         else
         {
             Destroy(enemyObject);
         }
     }
+
+    private void SetEnemyPathAuto(Enemy enemy)
+    {
+        List<Vector3> path = pathFindingManager.FindPath(startPoint, endPoint); 
+        if (path != null && path.Count > 0)
+        {
+            enemy.SetPath(path, new List<float>(new float[path.Count]));
+        }
+        else
+        {
+            Destroy(enemy.gameObject);
+        }
+    }
+
+    //private void SetEnemyPath(Enemy enemy)
+    //{
+    //    List<Vector3> worldPath = new List<Vector3>();
+    //    foreach (var node in path)
+    //    {
+    //        Vector3 worldPos = mapManager.GetTilePosition(node.position.x, node.position.y);
+    //        worldPath.Add(worldPos);
+    //    }
+    //    enemy.SetPath(worldPath, path.Select(node => node.waitTime).ToList());
+    //}
 
     private UnitStats GenerateEnemyStats()
     {

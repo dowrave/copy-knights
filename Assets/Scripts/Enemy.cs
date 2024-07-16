@@ -2,31 +2,43 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using UnityEngine.UIElements;
 using static UnityEngine.GraphicsBuffer;
 
 public class Enemy : Unit
 {
     public float MovementSpeed { get; private set; } // 이동 속도
-    private int currentWaypointIndex = 0; // 경로 중 현재 인덱스
-    private Vector3[] path; // 경로는 PathFindingManager에서 받아옴
+    private int currentPathIndex = 0; // 경로 중 현재 인덱스
+    private List<Vector3> path;
+    private List<float> waitTimes; 
+
     public float attackRange; // 공격 범위
     private Operator blockingOperator; // 자신을 저지 중인 오퍼레이터
     private bool isBlocked = false;
+    private bool isWaiting = false; 
 
     public void Initialize(UnitStats initialStats, float movementSpeed, Vector3 startPoint, Vector3 endPoint)
     {
         base.Initialize(initialStats);
         MovementSpeed = movementSpeed;
+        transform.position = startPoint; // 시작 위치 설정
         RequestPath(startPoint, endPoint);
         // stats을 사용하는 로직은 이후에 추가
     }
 
+    public void SetPath(List<Vector3> newPath, List<float> newWaitTimes)
+    {
+        path = newPath;
+        waitTimes = newWaitTimes;
+        currentPathIndex = 0;
+    }
+    
     private void RequestPath(Vector3 startPoint, Vector3 endPoint)
     {
         List<Vector3> pathList = PathFindingManager.Instance.FindPath(startPoint, endPoint);
         if (pathList != null && pathList.Count > 0)
         {
-            path = pathList.ToArray();
+            SetPath(pathList, new List<float>(new float[pathList.Count]));
         }
         else
         {
@@ -36,23 +48,27 @@ public class Enemy : Unit
 
     private void Update()
     {
-        if (path != null && currentWaypointIndex < path.Length)
+        if (path != null && currentPathIndex < path.Count)
         {
             
-            if (!isBlocked)
+            if (!isBlocked && !isWaiting)
             {
-                Move();
+                MoveAlongPath();
+            }
+            else if (isBlocked)
+            {
+                //AttemptToUnblock();
             }
 
             FindAndAttackTarget();
         }
     }
 
-    // PathManager로 받은 경로를 따라 이동한다
-    private void Move()
+    // PathManager로 받은 경로를 따라 다음 노드로 이동한다
+    private void MoveAlongPath()
     {
-        Vector3 targetPosition = path[currentWaypointIndex];
-        Vector3 newPosition = transform.position = Vector3.MoveTowards(transform.position, targetPosition, MovementSpeed * Time.deltaTime);
+        Vector3 targetPosition = path[currentPathIndex];
+        Vector3 newPosition = Vector3.MoveTowards(transform.position, targetPosition, MovementSpeed * Time.deltaTime);
 
         Operator blockingOp = CheckForBlockingOperator(newPosition);
         if (blockingOp != null && blockingOp.CanBlockEnemy()) // 저지 중인 오퍼레이터가 있고, 그 오퍼레이터가 적을 저지할 수 있는 상태인가?
@@ -66,16 +82,43 @@ public class Enemy : Unit
             transform.position = newPosition;
             if (Vector3.Distance(transform.position, targetPosition) < 0.1f)
             {
-                currentWaypointIndex++;
+                // 대기 중
+                if (currentPathIndex < waitTimes.Count && waitTimes[currentPathIndex] > 0)
+                {
+                    StartCoroutine(WaitAtNode(waitTimes[currentPathIndex]));
+                }
 
-                if (currentWaypointIndex >= path.Length) // 목적 지점 도착
+                // 이동 중 *이거 불확실할 수도 있음
+                else
+                {
+                    currentPathIndex++;
+                }
+
+                if (currentPathIndex >= path.Count) // 목적 지점 도착
                 {
                     ReachDestination();
                 }
             }
         }
-
     }
+
+    // 대기 중일 때 실행
+    private IEnumerator WaitAtNode(float waitTime)
+    {
+        isWaiting = true;
+        yield return new WaitForSeconds(waitTime);
+        isWaiting = false;
+        currentPathIndex++;
+    }
+
+    private void AttackBlockingOperator()
+    {
+        if (blockingOperator != null)
+        {
+            Attack(blockingOperator);
+        }
+    }
+
     
     // 적(나)을 저지 중인 오퍼레이터를 반환하거나, 없다면 null
     private Operator CheckForBlockingOperator(Vector3 newPosition)
