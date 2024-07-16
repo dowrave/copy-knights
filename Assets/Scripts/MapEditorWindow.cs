@@ -12,9 +12,13 @@ public class MapEditorWindow : EditorWindow
     private List<TileData> availableTileData = new List<TileData>();
 
     private GameObject loadedMapPrefab;
+    private List<Vector2Int> startTilePositions = new List<Vector2Int>();
 
     private const string MAP_OBJECT_NAME = "EditorMap"; 
     private const string MAP_PREFAB_PATH = "Assets/Prefabs/Map";
+
+    //[SerializeField] private GameObject spawnerPrefab; // 인스펙터에서 할당
+    private GameObject spawnerPrefab;
 
     [MenuItem("Window/Map Editor")]
     public static void ShowWindow()
@@ -22,11 +26,40 @@ public class MapEditorWindow : EditorWindow
         GetWindow<MapEditorWindow>("Map Editor");
     }
 
+    // 윈도우 창을 띄울 때 실행됨
     private void OnEnable()
     {
         LoadAvailableTileData();
         //InitializeMap();
+        LoadExistingMap();
+        LoadSpawnerPrefab();
+    }
 
+    // 하이어라키에 있는 맵 오브젝트의 정보를 가져온다
+    private void LoadExistingMap()
+    {
+        //GameObject existingMap = GameObject.Find(MAP_OBJECT_NAME);
+
+        
+        Map currentMap = FindObjectOfType<Map>(); // "컴포넌트"를 찾는 메서드임!!
+        //GameObject existingMap = mapComponent.gameObject; // 컴포넌트를 갖는 오브젝트 찾기
+
+        //if (existingMap != null)
+        //{
+        //currentMap = existingMap.GetComponent<Map>();
+        if (currentMap != null)
+        {
+            mapWidth = currentMap.Width;
+            mapHeight = currentMap.Height;
+
+            // 기존 맵 로드
+            currentMap.Initialize(mapWidth, mapHeight, true);
+
+            // 에디터 UI 갱신
+            Repaint();
+            SceneView.RepaintAll();
+        }
+        //}
     }
 
     //private void OnDisable()
@@ -58,6 +91,16 @@ public class MapEditorWindow : EditorWindow
         }
     }
 
+    // 프리팹 자동 할당하기
+    private void LoadSpawnerPrefab()
+    {
+        spawnerPrefab = AssetDatabase.LoadAssetAtPath<GameObject>("Assets/Prefabs/Enemy Spawner.prefab");
+        if (spawnerPrefab == null)
+        {
+            Debug.LogError("맵에 프리팹이 할당되지 않은 상태");
+        }
+    }
+
 
     private void InitializeNewMap()
     {
@@ -67,6 +110,16 @@ public class MapEditorWindow : EditorWindow
         // 새 맵 게임 오브젝트 생성
         GameObject mapObject = new GameObject(MAP_OBJECT_NAME);
         currentMap = mapObject.AddComponent<Map>();
+
+        // Spawner 프리팹 Map에 할당
+        if (spawnerPrefab != null)
+        {
+            currentMap.SetEnemySpawnerPrefab(spawnerPrefab);
+        }
+        else
+        {
+            Debug.LogWarning("맵에 프리팹 할당 중 : 프리팹에 로드되지 않았음");
+        }
 
         // 새 맵 초기화(load = false)
         currentMap.Initialize(mapWidth, mapHeight, false);
@@ -121,6 +174,8 @@ public class MapEditorWindow : EditorWindow
         // 맵 그리드 그리기
         DrawMapGrid();
 
+        EditorGUILayout.EndScrollView();
+
         if (GUILayout.Button("Reset Map"))
         {
             InitializeNewMap();
@@ -154,7 +209,7 @@ public class MapEditorWindow : EditorWindow
             }
             EditorGUILayout.EndHorizontal();
         }
-        EditorGUILayout.EndScrollView();
+        
     }
 
     private void HandleTileClick(int x, int y)
@@ -195,19 +250,73 @@ public class MapEditorWindow : EditorWindow
             {
                 GameObject tileInstance = PrefabUtility.InstantiatePrefab(tilePrefab) as GameObject;
                 tileInstance.transform.SetParent(currentMap.transform);
-                tileInstance.transform.localPosition = new Vector3(x, 0, mapHeight - 1 - y);
-                tileInstance.name = $"Tile_{x}_{y}";
+                tileInstance.transform.localPosition = new Vector3(x, 0, mapHeight - 1 - y); // 실제 그리드에는 이런 좌표로 들어간다
+                tileInstance.name = $"Tile_{x}_{y}"; // 이름은 이런 식으로 들어간다. 아래의 메서드들에 들어가는 x, y는 이름을 따른다.
+
+                tileInstance.transform.localScale = new Vector3(0.98f, tileInstance.transform.localScale.y, 0.98f);
                 
                 Tile tileComponent = tileInstance.GetComponent<Tile>();
                 if (tileComponent != null)
                 {
                     tileComponent.SetTileData(tileData, new Vector2Int(x, y));
                 }
+
+                if (tileData.isStartPoint)
+                {
+                    Debug.Log("Start 타일 생성 클릭");
+                    CreateSpawner(x, y, tileInstance);
+                }
+                else if (startTilePositions.Contains(new Vector2Int(x, y)))
+                {
+                    // Start 타일 위치에 다른 타일을 배치하는 경우
+                    RemoveSpawner(new Vector2Int(x, y));
+                }
             }
         }
 
         Repaint();
     }    
+
+    private void CreateSpawner(int x, int y, GameObject tileInstance)
+    {
+
+        if (spawnerPrefab != null)
+        {
+            Vector2Int pos = new Vector2Int(x, y);
+            if (!startTilePositions.Contains(pos))
+            {
+                startTilePositions.Add(pos);
+            }
+
+            // 자식 오브젝트로 Spawner 생성
+            GameObject spawnerObject = PrefabUtility.InstantiatePrefab(spawnerPrefab) as GameObject;
+            spawnerObject.transform.SetParent(tileInstance.transform);
+            spawnerObject.transform.localPosition = Vector3.zero;
+            spawnerObject.name = "EnemySpawner";
+            Debug.Log("Start 타일 생성 시 스포너 자식 오브젝트도 생성");
+
+            EnemySpawner spawner = spawnerObject.GetComponent<EnemySpawner>();
+            if (spawner == null)
+            {
+                spawner = spawnerObject.AddComponent<EnemySpawner>();
+            }
+        }
+    }
+
+    private void RemoveSpawner(Vector2Int pos)
+    {
+        startTilePositions.Remove(pos);
+        Transform startTile = currentMap.transform.Find($"Tile_{pos.x}_{pos.y}");
+
+        if (startTile != null)
+        {
+            EnemySpawner spawner = startTile.GetComponent<EnemySpawner>();
+            if (spawner != null)
+            {
+                DestroyImmediate(spawner);
+            }
+        }
+    }
 
     // 맵 에디터에서 생성한 맵을 프리팹으로 저장한다.
     private void SaveMap()
@@ -258,6 +367,15 @@ public class MapEditorWindow : EditorWindow
         mapWidth = currentMap.Width;
         mapHeight = currentMap.Height;
 
+        if (spawnerPrefab != null)
+        {
+            currentMap.SetEnemySpawnerPrefab(spawnerPrefab);
+        }
+        else
+        {
+            Debug.LogWarning("맵 불러오기 중 : 적 생성기 프리팹이 할당되지 않음");
+        }
+
         // 기존 맵 로드
         currentMap.Initialize(mapWidth, mapHeight, true);
 
@@ -275,30 +393,6 @@ public class MapEditorWindow : EditorWindow
             DestroyImmediate(map.gameObject);
         }
         currentMap = null; 
-    }
-    private void UpdateEditorGrid()
-    {
-        if (currentMap == null) return;
-
-        for (int x = 0; x < mapWidth; x++)
-        {
-            for (int y = 0; y < mapHeight; y++)
-            {
-                TileData tileData = currentMap.GetTile(x, y);
-                if (tileData != null)
-                {
-                    Debug.Log($"Updating grid at ({x}, {y}): {tileData.TileName}");
-                    // 여기서 그리드의 각 셀을 업데이트합니다.
-                    // 예를 들어, PlaceTile 메서드를 호출하거나 
-                    // 또는 그리드 데이터 구조를 직접 업데이트할 수 있습니다.
-                    PlaceTile(x, y, tileData);
-                }
-                else
-                {
-                    Debug.Log($"No tile data at ({x}, {y})");
-                }
-            }
-        }
     }
 
     private void ResizeMap(int newWidth, int newHeight)
@@ -369,6 +463,7 @@ public class MapEditorWindow : EditorWindow
                         tileComponent.SetTileData(tileData, new Vector2Int(x, y));
                     }
                     existingTile.localPosition = new Vector3(x, 0, mapHeight - 1 - y);
+                    existingTile.localScale = new Vector3(0.98f, existingTile.localScale.y, 0.98f);
                 }
                 else if (tileData != null && tileData.terrain != TileData.TerrainType.Empty)
                 {

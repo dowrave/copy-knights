@@ -12,11 +12,15 @@ public class Map : MonoBehaviour
     public int Width => width;
     public int Height => height;
 
+    [SerializeField] private GameObject enemySpawnerPrefab;
+    private MapManager mapManager; 
 
-    public void Initialize(int width, int height, bool load = false)
+
+    public void Initialize(int width, int height, bool load = false, MapManager manager = null)
     {
         this.width = width;
         this.height = height;
+        this.mapManager = manager;
 
         // 맵을 불러오는 상황과 새로 생성하는 상황을 구분한다.
         if (load)
@@ -27,6 +31,7 @@ public class Map : MonoBehaviour
         {
             CreateNewMap();
         }
+        AssignSpawnersToStartTiles();
     }
 
     private void CreateNewMap()
@@ -41,6 +46,7 @@ public class Map : MonoBehaviour
         {
             tiles = new TileData[width, height];
         }
+
         LoadTilesFromChildren();
     }
 
@@ -50,8 +56,6 @@ public class Map : MonoBehaviour
         {
             if (child.TryGetComponent<Tile>(out Tile tile))
             {
-                //Vector2Int gridPos = tile.GridPosition;
-
                 // 타일의 로컬 위치를 기반으로 그리드 위치 계산
                 int x = Mathf.RoundToInt(child.localPosition.x);
                 int y = Mathf.RoundToInt(height - 1 - child.localPosition.z); // Z 좌표를 Y 그리드 위치로 변환
@@ -60,18 +64,77 @@ public class Map : MonoBehaviour
                 {
                     tile.SetTileData(tile.data, new Vector2Int(x, y));
                     tiles[x, y] = tile.data;
-                    Debug.Log($"Loaded tile at ({x}, {y}): {tile.data.TileName}");
+                    Debug.Log($"Loaded tile at ({x}, {y}): {tile.data.TileName}, IsEndPoint: {tile.data.isEndPoint}");
+
                 }
             }
         }
+        Debug.Log($"Finished loading tiles. Array dimensions: {tiles.GetLength(0)}x{tiles.GetLength(1)}");
     }
-
+    public void SetEnemySpawnerPrefab(GameObject prefab)
+    {
+        enemySpawnerPrefab = prefab;
+    }
 
     public void SetTile(int x, int y, TileData tileData)
     {
         if (IsValidPosition(x, y))
         {
             tiles[x, y] = tileData;
+            //UpdateTileVisuals(x, y);
+
+            AssignOrRemoveSpawner(x, y, tileData != null && tileData.isStartPoint);
+        }
+    }
+
+    private void AssignSpawnersToStartTiles()
+    {
+        for (int x = 0; x < width; x++)
+        {
+            for (int y = 0; y < height; y++)
+            {
+                if (tiles[x, y] != null && tiles[x, y].isStartPoint)
+                {
+                    AssignOrRemoveSpawner(x, y, true);
+                }
+            }
+        }
+    }
+    private void AssignOrRemoveSpawner(int x, int y, bool assign)
+    {
+        GameObject tileObject = transform.Find($"Tile_{x}_{y}")?.gameObject;
+        if (tileObject != null)
+        {
+            Transform spawnerTransform = tileObject.transform.Find("EnemySpawner");
+            //Renderer renderer = tileObject.GetComponentInChildren<Renderer>();
+            if (assign)
+            {
+                if (spawnerTransform == null)
+                {
+                    // 자식 오브젝트로 스포너 추가
+                    GameObject spawnerObject; 
+                    if (enemySpawnerPrefab != null)
+                    {
+                        spawnerObject = Instantiate(enemySpawnerPrefab, tileObject.transform);
+                    }
+                    else
+                    {
+                        spawnerObject = new GameObject("EnemySpawner");
+                        spawnerObject.transform.SetParent(tileObject.transform);
+                        spawnerObject.AddComponent<EnemySpawner>();
+                    }
+                    spawnerObject.transform.localPosition = Vector3.zero;
+                }
+            }
+            else
+            {
+                if (spawnerTransform != null)
+                {
+                    DestroyImmediate(spawnerTransform.gameObject);
+                }
+                // 타일 색상 원래대로 복구
+                //tileObject.GetComponent<Renderer>()?.material.SetColor("_Color", Color.white);
+            }
         }
     }
 
@@ -90,21 +153,23 @@ public class Map : MonoBehaviour
         return x >= 0 && x < width && y >= 0 && y < height; 
     }
 
-    public List<Vector2Int> GetTilesOfType(TileData.TerrainType terrainType)
+    public IEnumerable<Tile> GetAllTiles()
     {
-        List<Vector2Int> result = new List<Vector2Int>();
-        for (int x=0; x < width; x++)
+        for (int x = 0; x < width; x++)
         {
-            for (int y=0; y < height; y++)
+            for (int y = 0; y < height; y++)
             {
-                if (tiles[x, y] != null && tiles[x, y].terrain == terrainType)
+                GameObject tileObject = transform.Find($"Tile_{x}_{y}")?.gameObject;
+                if (tileObject != null)
                 {
-                    result.Add(new Vector2Int(x, y));
+                    Tile tile = tileObject.GetComponent<Tile>();
+                    if (tile != null)
+                    {
+                        yield return tile;
+                    }
                 }
             }
         }
-
-        return result;
     }
 
     public void Resize(int newWidth, int newHeight, TileData[,] newTiles)
@@ -112,20 +177,28 @@ public class Map : MonoBehaviour
         width = newWidth;
         height = newHeight;
         tiles = newTiles;
+    }
 
-        // 기존 타일 게임 오브젝트 제거
-        //foreach (Transform child in transform)
-        //{
-        //    DestroyImmediate(child.gameObject);
-        //}
+    public Vector3 FindEndPoint()
+    {
+        for (int x = 0; x < width; x++)
+        {
+            for (int y = 0; y < height; y++)
+            {
+                TileData tileData = GetTile(x, y);
+                Debug.Log(tileData);
+                if (tileData != null && tileData.isEndPoint)
+                {
+                    return GetTilePosition(x, y);
+                }
+            }
+        }
+        Debug.LogWarning("도착점이 맵에 존재하지 않음!");
+        return Vector3.zero;
+    }
 
-        // 새로운 타일에 대한 게임 오브젝트 생성
-        //for (int x = 0; x < width; x++)
-        //{
-        //    for (int y=0; y < height; y++)
-        //    {
-        //        SetTile(x, y, tiles[x, y]);
-        //    }
-        //}
+    private Vector3 GetTilePosition(int x, int y)
+    {
+        return new Vector3(x, 0, y) + Vector3.up * 0.5f; // 타일 중앙의 상단에 위치함
     }
 }

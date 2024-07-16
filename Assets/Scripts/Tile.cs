@@ -7,6 +7,10 @@ public class Tile : MonoBehaviour
     public Vector2Int GridPosition { get; private set; }
     public bool IsOccupied { get; private set; }
 
+    // spawner 관련 설정
+    //public bool isSpawnPoint; // Start 타일만 체크하면 되므로
+    //public EnemySpawner spawner; // EnemySpawner 컴포넌트에 대한 참조
+
     [SerializeField] private Material baseTileMaterial; // Inspector에서 할당함
     private Renderer tileRenderer;
     private MaterialPropertyBlock propBlock; // 머티리얼 속성을 오버라이드하는 경량 객체. 모든 타일이 동일한 머티리얼을 공유하되 색을 개별적으로 설정할 수 있다.
@@ -104,5 +108,15 @@ public class Tile : MonoBehaviour
         {
             UpdateVisuals();
         }
+    }
+
+    public EnemySpawner GetSpawner()
+    {
+        return GetComponentInChildren<EnemySpawner>();
+    }
+
+    public bool HasSpawner()
+    {
+        return GetSpawner() != null;
     }
 }
