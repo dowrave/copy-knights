@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using Unity.VisualScripting.Antlr3.Runtime;
 using UnityEngine;
 
@@ -31,6 +32,8 @@ public class Map : MonoBehaviour
         {
             CreateNewMap();
         }
+
+        UpdateTilePositions();
         AssignSpawnersToStartTiles();
     }
 
@@ -148,21 +151,22 @@ public class Map : MonoBehaviour
 
     public IEnumerable<Tile> GetAllTiles()
     {
-        for (int x = 0; x < width; x++)
+        List<Tile> allTiles = new List<Tile>();
+
+        foreach (Transform child in transform)
         {
-            for (int y = 0; y < height; y++)
+            if (child.name.StartsWith("Tile"))
             {
-                GameObject tileObject = transform.Find($"Tile_{x}_{y}")?.gameObject;
-                if (tileObject != null)
+                Tile tile = child.GetComponent<Tile>();
+                if (tile != null)
                 {
-                    Tile tile = tileObject.GetComponent<Tile>();
-                    if (tile != null)
-                    {
-                        yield return tile;
-                    }
+                    allTiles.Add(tile);
                 }
             }
         }
+
+        // GridPosition을 기준으로 정렬 (y좌표 정렬 후 x좌표 정렬, 좌상단 -> 우하단 순으로 타일을 얻을 수 있다.)
+        return allTiles.OrderBy(t => t.GridPosition.y).ThenBy(t => t.GridPosition.x);
     }
 
     public void Resize(int newWidth, int newHeight, TileData[,] newTiles)
@@ -191,5 +195,22 @@ public class Map : MonoBehaviour
     private Vector3 GetTilePosition(int x, int y)
     {
         return new Vector3(x, 0, y) + Vector3.up * 0.5f; // 타일 중앙의 상단에 위치함
+    }
+
+    private void UpdateTilePositions()
+    {
+        foreach (Transform child in transform)
+        {
+            if (child.TryGetComponent<Tile>(out Tile tile))
+            {
+                string[] nameParts = child.name.Split('_');
+                if (nameParts.Length >= 3 && int.TryParse(nameParts[1], out int x) && int.TryParse(nameParts[2], out int y))
+                {
+                    Vector2Int gridPos = new Vector2Int(x, y);
+                    tile.SetTileData(tile.data, gridPos);
+                    tile.transform.localPosition = new Vector3(x, 0, height - 1 - y);
+                }
+            }
+        }
     }
 }

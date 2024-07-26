@@ -35,10 +35,8 @@ public class EnemySpawner : MonoBehaviour
         Debug.Log("EnemySpawner Initialize 작동 시작");
         mapManager = manager;
         pathFindingManager = PathFindingManager.Instance;
-
         startPoint = transform.position;
         endPoint = mapManager.GetEndPoint(); 
-
         isInitialized = true;
     }
 
@@ -72,14 +70,16 @@ public class EnemySpawner : MonoBehaviour
     {
         Debug.Log("SpawnEnemy 작동");
         if (enemyPrefab == null) return;
-        Debug.Log("EnemyPrefab은 Null이 아님");
 
         GameObject enemyObject = Instantiate(enemyPrefab, transform.position, Quaternion.identity);
         Enemy enemy = enemyObject.GetComponent<Enemy>();
+        
         if (enemy != null)
         {
+            Debug.Log("SpawnEnemy : enemy 포착");
             UnitStats Stats = GenerateEnemyStats();
             float movementSpeed = 1f;
+            //Debug.Log($"EnemySpawner - SpawnEnemy 메서드 : 시작점 {startPoint}, 도착점 {endPoint}");
             enemy.Initialize(Stats, movementSpeed, startPoint, endPoint);
             SetEnemyPathAuto(enemy); // PathFindingManager를 이용한 자동 길찾기 
         }
@@ -92,6 +92,7 @@ public class EnemySpawner : MonoBehaviour
     private void SetEnemyPathAuto(Enemy enemy)
     {
         List<Vector3> path = pathFindingManager.FindPath(startPoint, endPoint); 
+
         if (path != null && path.Count > 0)
         {
             enemy.SetPath(path, new List<float>(new float[path.Count]));

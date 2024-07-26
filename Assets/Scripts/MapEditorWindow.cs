@@ -276,10 +276,13 @@ public class MapEditorWindow : EditorWindow
             {
                 GameObject tileInstance = PrefabUtility.InstantiatePrefab(tilePrefab) as GameObject;
                 tileInstance.transform.SetParent(currentMap.transform);
-                tileInstance.transform.localPosition = new Vector3(x, 0, mapHeight - 1 - y); // 실제 그리드에는 이런 좌표로 들어간다
+
+                // 윈도우에 보이는 대로 타일을 배치하기 위해 mapHeight - 1 - y 값으로 z값이 설정된다.
+                tileInstance.transform.localPosition = new Vector3(x, 0, mapHeight - 1 - y); 
 
                 // 타일 이름 설정
-                string tileName = $"Tile_{x}_{y}";
+                //string tileName = $"Tile_{x}_{y}";
+                string tileName = $"Tile";
                 if (tileData.isStartPoint)
                 {
                     tileName += "_Start";
@@ -294,7 +297,7 @@ public class MapEditorWindow : EditorWindow
                 Tile tileComponent = tileInstance.GetComponent<Tile>();
                 if (tileComponent != null)
                 {
-                    tileComponent.SetTileData(tileData, new Vector2Int(x, y));
+                    tileComponent.SetTileData(tileData, new Vector2Int(x, y)); // 여기서 해당 타일에 gridPosition이 적용된다.
                 }
 
                 if (tileData.isStartPoint)
@@ -529,5 +532,11 @@ public class MapEditorWindow : EditorWindow
                 }
             }
         }
+    }
+
+    // 그리드 좌표계를 유지하고, 필요할 떄만 변환 로직을 적용한다.
+    private Vector3 GridToWorldPosition(int x, int y)
+    {
+        return new Vector3(x, 0, mapHeight - 1 - y);
     }
 }
