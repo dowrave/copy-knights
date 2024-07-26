@@ -5,6 +5,7 @@ public class Tile : MonoBehaviour
 {
     public TileData data;
     public Vector2Int GridPosition { get; private set; }
+    //public Vector2Int GridPosition;
     public bool IsOccupied { get; private set; }
     private Transform cubeTransform;
 
@@ -62,6 +63,7 @@ public class Tile : MonoBehaviour
         GridPosition = gridPosition;
         AdjustCubeScale();
         UpdateVisuals();
+        //UpdateName();
     }
 
     public void AdjustCubeScale()
@@ -147,4 +149,24 @@ public class Tile : MonoBehaviour
     {
         GridPosition = gridPos;
     }
+
+    public Vector3 GetWorldPosition()
+    {
+        Map map = GetComponentInParent<Map>();
+        return new Vector3(GridPosition.x, 0, map.Height - 1 - GridPosition.y);
+    }
+
+    //private void UpdateName()
+    //{
+    //    string tileName = $"Tile_{GridPosition.x}_{GridPosition.y}";
+    //    if (data.isStartPoint)
+    //    {
+    //        tileName += "_Start";
+    //    }
+    //    else if (data.isEndPoint)
+    //    {
+    //        tileName += "_End";
+    //    }
+    //    gameObject.name = tileName;
+    //}
 }
