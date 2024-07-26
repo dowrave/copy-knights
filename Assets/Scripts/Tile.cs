@@ -6,6 +6,7 @@ public class Tile : MonoBehaviour
     public TileData data;
     public Vector2Int GridPosition { get; private set; }
     public bool IsOccupied { get; private set; }
+    private Transform cubeTransform;
 
     // spawner 관련 설정
     //public bool isSpawnPoint; // Start 타일만 체크하면 되므로
@@ -20,6 +21,11 @@ public class Tile : MonoBehaviour
     public int HCost { get; set; }
     public int FCost => GCost + HCost;
     public Tile Parent { get; set; }
+
+    private void Awake()
+    {
+        cubeTransform = transform.Find("Cube");
+    }
 
     // 오브젝트 활성화마다 호출
     private void OnEnable()
@@ -54,16 +60,33 @@ public class Tile : MonoBehaviour
     {
         data = tileData;
         GridPosition = gridPosition;
-        SetScale();
+        AdjustCubeScale();
         UpdateVisuals();
     }
 
-    public void SetScale()
+    public void AdjustCubeScale()
     {
-        if (data == null) return;
-        float height = (data.terrain == TileData.TerrainType.Hill) ? 0.5f : 0.1f;
-        transform.localScale = new Vector3(transform.localScale.x * 0.99f, height, transform.localScale.z * 0.99f);
-        transform.localPosition = new Vector3(transform.localPosition.x, height / 2f, transform.localPosition.z);
+        if (cubeTransform != null)
+        {
+            float tileScale = 0.98f;
+            cubeTransform.localScale = new Vector3(tileScale, GetHeightScale(), tileScale);
+
+            // BoxCollider 크기 조정
+            BoxCollider boxCollider = cubeTransform.GetComponent<BoxCollider>();
+            if (boxCollider != null)
+            {
+                boxCollider.size = new Vector3(1f / tileScale, 1f / GetHeightScale(), 1f / tileScale); // 부모 오브젝트의 스케일 변경을 대비
+            }
+            //if (data == null) return;
+            //float height = (data.terrain == TileData.TerrainType.Hill) ? 0.5f : 0.1f;
+            //transform.localScale = new Vector3(transform.localScale.x , height, transform.localScale.z);
+            //transform.localPosition = new Vector3(transform.localPosition.x, height / 2f, transform.localPosition.z);
+
+        }
+    }
+    private float GetHeightScale()
+    {
+        return (data != null && data.terrain == TileData.TerrainType.Hill) ? 0.5f : 0.1f;
     }
 
     public float GetHeight()
@@ -118,5 +141,10 @@ public class Tile : MonoBehaviour
     public bool HasSpawner()
     {
         return GetSpawner() != null;
+    }
+
+    public void SetGridPosition(Vector2Int gridPos)
+    {
+        GridPosition = gridPos;
     }
 }

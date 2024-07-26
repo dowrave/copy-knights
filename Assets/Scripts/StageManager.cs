@@ -15,9 +15,7 @@ public class StageManager : MonoBehaviour
 {
     public static StageManager Instance { get; private set; }
     [SerializeField] private MapManager mapManager;
-    [SerializeField] private SpawnerManager spawnerManager; 
-    [SerializeField] private List<EnemySpawner> enemySpawners;
-
+    [SerializeField] private SpawnerManager spawnerManager;
     private GameState currentState;
 
     private void Awake()
@@ -52,10 +50,7 @@ public class StageManager : MonoBehaviour
     public void StartBattle()
     {
         SetGameState(GameState.Battle);
-        foreach (var spawner in enemySpawners)
-        {
-            spawner.StartSpawning();
-        }
+        spawnerManager.StartSpawning();
     }
 
     private void SetGameState(GameState gameState)

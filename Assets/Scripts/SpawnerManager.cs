@@ -24,11 +24,20 @@ public class SpawnerManager : MonoBehaviour
         }
     }
 
+
+    // 스테이지 매니저에서 실행
     public void StartSpawning()
     {
         foreach (EnemySpawner spawner in spawners)
         {
-            spawner.StartSpawning();
+            if (spawner != null)
+            {
+                spawner.StartSpawning();
+            }
+            else
+            {
+                Debug.LogWarning("Null EnemySpawner found in the list.");
+            }
         }
     }
 

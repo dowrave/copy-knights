@@ -46,8 +46,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   mapManager: {fileID: 1255909598239862411}
   spawnerManager: {fileID: 826761011560823892}
-  enemySpawners:
-  - {fileID: 8990592911857092938}
 --- !u!1 &1818945865418368289
 GameObject:
   m_ObjectHideFlags: 0
@@ -301,7 +299,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1558acb5cd5222b4484f8f043f0c3765, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  mapPrefab: {fileID: 3716121334793265366}
+  currentMap: {fileID: 0}
   availablePaths: []
 --- !u!1 &7386536423354354944
 GameObject:
