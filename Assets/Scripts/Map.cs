@@ -64,12 +64,10 @@ public class Map : MonoBehaviour
                 {
                     tile.SetTileData(tile.data, new Vector2Int(x, y));
                     tiles[x, y] = tile.data;
-                    Debug.Log($"Loaded tile at ({x}, {y}): {tile.data.TileName}, IsEndPoint: {tile.data.isEndPoint}");
 
                 }
             }
         }
-        Debug.Log($"Finished loading tiles. Array dimensions: {tiles.GetLength(0)}x{tiles.GetLength(1)}");
     }
     public void SetEnemySpawnerPrefab(GameObject prefab)
     {
@@ -140,11 +138,6 @@ public class Map : MonoBehaviour
 
     public TileData GetTile(int x, int y)
     {
-        if (tiles == null)
-        {
-            Debug.LogError("타일 배열이 초기화되지 않음");
-            return null;
-        }
         return IsValidPosition(x, y) ? tiles[x, y] : null; 
     }
 
@@ -186,14 +179,12 @@ public class Map : MonoBehaviour
             for (int y = 0; y < height; y++)
             {
                 TileData tileData = GetTile(x, y);
-                Debug.Log(tileData);
                 if (tileData != null && tileData.isEndPoint)
                 {
                     return GetTilePosition(x, y);
                 }
             }
         }
-        Debug.LogWarning("도착점이 맵에 존재하지 않음!");
         return Vector3.zero;
     }
 

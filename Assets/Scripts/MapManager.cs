@@ -4,14 +4,14 @@ using System.Collections.Generic;
 /*
  MapManager의 역할
 1. 맵 데이터 로드 및 관리
-2. 타일 정보 제ㅈ공
+2. 타일 정보 제공
 3. 경로 찾기 기능 제공
 4. 맵 관련 유틸리티 함수 제공(월드 <-> 그리드 좌표)
  */
 public class MapManager : MonoBehaviour
 {
-    [SerializeField] private GameObject mapPrefab;
-    private Map currentMap;
+    //[SerializeField] private GameObject mapPrefab;
+    [SerializeField] private Map currentMap;
     private Tile[,] tiles;
     [SerializeField] private List<PathData> availablePaths;
 
@@ -20,100 +20,98 @@ public class MapManager : MonoBehaviour
 
     public void InitializeMap()
     {
-        LoadMapFromPrefabOrScene();
+        LoadMapFromScene();
+        //LoadMapFromPrefabOrScene();
         InitializePaths();
     }
 
 
     private void Start()
     {
-        currentMap = FindObjectOfType<Map>(); // 하이어라키에 맵 오브젝트가 있는지 체크
-
-        if (currentMap == null) // 없다면 프리팹에서 맵 로드
-        {
-            LoadMapFromPrefab();
-        }
-        else // 있다면 씬에서 맵 로드
-        {
-            LoadMapFromScene();
-        }
+        LoadMapFromScene();
+        //currentMap = FindObjectOfType<Map>(); // 하이어라키에 맵 오브젝트가 있는지 체크
+        
+        //if (currentMap == null) // 없다면 프리팹에서 맵 로드
+        //{
+        //    LoadMapFromPrefab();
+        //}
+        //else // 있다면 씬에서 맵 로드
+        //{
+        //    LoadMapFromScene();
+        //}
         InitializePaths();
     }
-    private void LoadMapFromPrefabOrScene()
-    {
-        currentMap = FindObjectOfType<Map>();
-        Debug.Log($"맵 매니저 currentMap : {currentMap}");
+    //private void LoadMapFromPrefabOrScene()
+    //{
+    //    currentMap = FindObjectOfType<Map>();
 
-        if (currentMap == null)
-        {
-            LoadMapFromPrefab();
-        }
-        else
-        {
-            LoadMapFromScene();
-        }
-    }
+    //    if (currentMap == null)
+    //    {
+    //        LoadMapFromPrefab();
+    //    }
+    //    else
+    //    {
+    //        LoadMapFromScene();
+    //    }
+    //}
 
     // 씬에 맵을 같이 띄웠다면, 여기서 가져온다
     private void LoadMapFromScene()
     {
-        Debug.Log("맵 매니저 : 씬에서 맵 로드");
-        // Map 컴포넌트에서 타일 정보 로드
-        Tile[] allTiles = currentMap.GetComponentsInChildren<Tile>();
+        currentMap = FindObjectOfType<Map>();
 
-        SetupMapDimensions(allTiles);
-        SetupTilesArray(allTiles);
-
-        // Map 초기화
-        currentMap.Initialize(mapWidth, mapHeight, true, this);
-
-        InitializeEnemySpawners();
-    }
-
-    private void LoadMapFromPrefab()
-    {
-        Debug.Log("맵 매니저 : 프리팹에서 맵 로드");
-
-        if (mapPrefab != null)
+        if (currentMap != null)
         {
-            GameObject mapInstance = Instantiate(mapPrefab, transform);
-            currentMap = mapInstance.GetComponent<Map>();
-            if (currentMap != null)
-            {
-                Tile[] allTiles = mapInstance.GetComponentsInChildren<Tile>();
+            mapWidth = currentMap.Width;
+            mapHeight = currentMap.Height;
 
-                SetupMapDimensions(allTiles);
-                SetupTilesArray(allTiles);
+            SetupTilesArray();
 
-                // 맵 초기화
-                currentMap.Initialize(mapWidth, mapHeight, true, this);
-
-                InitializeEnemySpawners();
-            }
+            // 맵 초기화
+            currentMap.Initialize(mapWidth, mapHeight, true, this);
+            InitializeEnemySpawners();
         }
+
     }
 
-    private void SetupMapDimensions(Tile[] allTiles)
-    {
-        int maxX = 0, maxY = 0;
-        foreach (Tile tile in allTiles)
-        {
-            Vector2Int gridPos = tile.GridPosition;
-            maxX = Mathf.Max(maxX, gridPos.x);
-            maxY = Mathf.Max(maxY, gridPos.y);
+    //private void LoadMapFromPrefab()
+    //{
+    //    if (mapPrefab != null)
+    //    {
+    //        GameObject mapInstance = Instantiate(mapPrefab, transform);
+    //        currentMap = mapInstance.GetComponent<Map>();
 
-            mapWidth = maxX + 1;
-            mapHeight = maxY + 1;
-        }
-    }
+    //        if (currentMap != null)
+    //        {
+    //            mapWidth = currentMap.Width;
+    //            mapHeight = currentMap.Height;
 
-    private void SetupTilesArray(Tile[] allTiles)
+    //            SetupTilesArray();
+
+    //            // 맵 초기화
+    //            currentMap.Initialize(mapWidth, mapHeight, true, this);
+
+    //            InitializeEnemySpawners();
+    //        }
+    //    }
+    //}
+
+    private void SetupTilesArray()
     {
         tiles = new Tile[mapWidth, mapHeight];
-        foreach (Tile tile in allTiles)
+
+        // Map의 GetAllTiles 메소드를 사용하여 모든 타일을 가져옵니다.
+        foreach (Tile tile in currentMap.GetAllTiles())
         {
             Vector2Int gridPos = tile.GridPosition;
-            tiles[gridPos.x, gridPos.y] = tile;
+            if (IsValidGridPosition(gridPos))
+            {
+                tiles[gridPos.x, gridPos.y] = tile;
+            }
+            else
+            {
+                Debug.LogWarning($"타일 위치가 맵 범위를 벗어남: {gridPos}");
+            }
         }
     }
 

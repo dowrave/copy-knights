@@ -1,6 +1,7 @@
 using UnityEngine;
 using UnityEditor;
 using System.Collections.Generic;
+using System;
 
 public class MapEditorWindow : EditorWindow
 {
@@ -30,7 +31,6 @@ public class MapEditorWindow : EditorWindow
     private void OnEnable()
     {
         LoadAvailableTileData();
-        //InitializeMap();
         LoadExistingMap();
         LoadSpawnerPrefab();
     }
@@ -38,15 +38,9 @@ public class MapEditorWindow : EditorWindow
     // 하이어라키에 있는 맵 오브젝트의 정보를 가져온다
     private void LoadExistingMap()
     {
-        //GameObject existingMap = GameObject.Find(MAP_OBJECT_NAME);
+        currentMap = FindObjectOfType<Map>(); // "컴포넌트"를 찾는 메서드임!!
+        //CheckMapInHierarchy()
 
-        
-        Map currentMap = FindObjectOfType<Map>(); // "컴포넌트"를 찾는 메서드임!!
-        //GameObject existingMap = mapComponent.gameObject; // 컴포넌트를 갖는 오브젝트 찾기
-
-        //if (existingMap != null)
-        //{
-        //currentMap = existingMap.GetComponent<Map>();
         if (currentMap != null)
         {
             mapWidth = currentMap.Width;
@@ -54,12 +48,30 @@ public class MapEditorWindow : EditorWindow
 
             // 기존 맵 로드
             currentMap.Initialize(mapWidth, mapHeight, true);
+            UpdateExistingTiles();
+
+            // 맵 오브젝트의 크기 복원
+            currentMap.transform.localScale = Vector3.one;
 
             // 에디터 UI 갱신
             Repaint();
             SceneView.RepaintAll();
         }
         //}
+    }
+
+    private void UpdateExistingTiles()
+    {
+        if (currentMap == null) return;
+
+        foreach (Transform tileTransform in currentMap.transform)
+        {
+            Tile tileComponent = tileTransform.GetComponent<Tile>();
+            if (tileComponent != null)
+            {
+                tileComponent.AdjustCubeScale();
+            }
+        }
     }
 
     //private void OnDisable()
@@ -69,6 +81,15 @@ public class MapEditorWindow : EditorWindow
     //        DestroyImmediate(currentMap.gameObject);
     //    }
     //}
+
+
+    private bool CheckMapInHierarchy()
+    {
+        Map currentMap = FindObjectOfType<Map>();
+        if (currentMap) return true;
+        return false;
+    }
+
 
     // 사전에 ScriptableObject로 생성한 tileData들을 불러오는 로직
     private void LoadAvailableTileData()
@@ -124,24 +145,20 @@ public class MapEditorWindow : EditorWindow
         // 새 맵 초기화(load = false)
         currentMap.Initialize(mapWidth, mapHeight, false);
 
-        //for (int x = 0; x < mapWidth; x++)
-        //{
-        //    for (int y = 0; y < mapHeight; y++)
-        //    {
-        //        TileData emptyTile = availableTileData.Find(t => t.terrain == TileData.TerrainType.Empty);
-        //        currentMap.SetTile(x, y, emptyTile);
-        //    }
-        //}
-
         // 에디터 UI 갱신
         Repaint();
         SceneView.RepaintAll();
     }
 
+
     private void OnGUI()
     {
-        
         if (currentMap == null)
+        {
+            LoadExistingMap();
+        }
+        
+        if (!CheckMapInHierarchy())
         { 
             GUILayout.Label("맵이 없습니다. 새로운 맵을 생성하거나 로드하세요.", EditorStyles.boldLabel);
             if (GUILayout.Button("Create New Map"))
@@ -192,36 +209,43 @@ public class MapEditorWindow : EditorWindow
         }
     }
 
+
     private void DrawMapGrid()
     {
+        if (currentMap == null)
+        {
+            Debug.LogError("현재 맵 정보가 없음");
+            return;
+        }
+
         for (int y = 0; y < mapHeight; y++)
         {
             EditorGUILayout.BeginHorizontal();
             for (int x = 0; x < mapWidth; x++)
             {
                 TileData tileData = currentMap.GetTile(x, y);
+                
                 string tileSymbol = GetTileSymbol(tileData);
                 if (GUILayout.Button(tileSymbol, GUILayout.Width(30), GUILayout.Height(30)))
                 {
-                    //PlaceTile(x, y, selectedTileData);
                     HandleTileClick(x, y);
                 }
             }
             EditorGUILayout.EndHorizontal();
         }
-        
     }
+
 
     private void HandleTileClick(int x, int y)
     {
         // 선택된 타일 데이터로 타일 설정
         if (selectedTileData != null)
         {
-            //currentMap.SetTile(x, y, selectedTileData);
             PlaceTile(x, y, selectedTileData);
             Repaint();
         }
     }
+
 
     private string GetTileSymbol(TileData tileData)
     {
@@ -230,8 +254,9 @@ public class MapEditorWindow : EditorWindow
         // tileName의 첫 글자를 대문자로 따와서 그리드에 표시함(추후 변경 가능)
         return tileData.TileName.Substring(0, 1).ToUpper(); 
     }
+    
 
-    // 에디터를 통한 타일 배치
+    // 에디터를 통한 타일 생성 및 배치
     private void PlaceTile(int x, int y, TileData tileData)
     {
         currentMap.SetTile(x, y, tileData);
@@ -243,7 +268,8 @@ public class MapEditorWindow : EditorWindow
             DestroyImmediate(existingTile.gameObject);
         }
 
-        if (tileData != null)
+        // 타일 배치 처리
+        if (tileData != null && tileData.terrain != TileData.TerrainType.Empty)
         {
             GameObject tilePrefab = AssetDatabase.LoadAssetAtPath<GameObject>("Assets/Prefabs/Tiles/DefaultTile.prefab");
             if (tilePrefab != null && tileData.terrain != TileData.TerrainType.Empty)
@@ -251,10 +277,20 @@ public class MapEditorWindow : EditorWindow
                 GameObject tileInstance = PrefabUtility.InstantiatePrefab(tilePrefab) as GameObject;
                 tileInstance.transform.SetParent(currentMap.transform);
                 tileInstance.transform.localPosition = new Vector3(x, 0, mapHeight - 1 - y); // 실제 그리드에는 이런 좌표로 들어간다
-                tileInstance.name = $"Tile_{x}_{y}"; // 이름은 이런 식으로 들어간다. 아래의 메서드들에 들어가는 x, y는 이름을 따른다.
 
-                tileInstance.transform.localScale = new Vector3(0.98f, tileInstance.transform.localScale.y, 0.98f);
-                
+                // 타일 이름 설정
+                string tileName = $"Tile_{x}_{y}";
+                if (tileData.isStartPoint)
+                {
+                    tileName += "_Start";
+                }
+                else if (tileData.isEndPoint)
+                {
+                    tileName += "_End";
+                }
+                tileInstance.name = tileName;
+
+
                 Tile tileComponent = tileInstance.GetComponent<Tile>();
                 if (tileComponent != null)
                 {
@@ -276,6 +312,7 @@ public class MapEditorWindow : EditorWindow
 
         Repaint();
     }    
+
 
     private void CreateSpawner(int x, int y, GameObject tileInstance)
     {
@@ -303,6 +340,7 @@ public class MapEditorWindow : EditorWindow
         }
     }
 
+
     private void RemoveSpawner(Vector2Int pos)
     {
         startTilePositions.Remove(pos);
@@ -318,6 +356,7 @@ public class MapEditorWindow : EditorWindow
         }
     }
 
+
     // 맵 에디터에서 생성한 맵을 프리팹으로 저장한다.
     private void SaveMap()
     {
@@ -329,6 +368,7 @@ public class MapEditorWindow : EditorWindow
             AssetDatabase.Refresh();
         }
     }
+
 
     private void LoadMap()
     {
@@ -384,6 +424,7 @@ public class MapEditorWindow : EditorWindow
         SceneView.RepaintAll(); 
     }
 
+
     // 기존 맵 제거하기
     private void RemoveExistingMaps()
     {
@@ -394,6 +435,7 @@ public class MapEditorWindow : EditorWindow
         }
         currentMap = null; 
     }
+
 
     private void ResizeMap(int newWidth, int newHeight)
     {
@@ -444,6 +486,7 @@ public class MapEditorWindow : EditorWindow
         SceneView.RepaintAll();
         Repaint();
     }
+
 
     private void UpdateTileObjects()
     {

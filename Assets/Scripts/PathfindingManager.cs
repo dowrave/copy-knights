@@ -16,6 +16,10 @@ public class PathFindingManager : MonoBehaviour
         else Destroy(gameObject);
 
         mapManager = FindObjectOfType<MapManager>();
+        if (mapManager == null)
+        {
+            Debug.LogError("MapManager not found in the scene!");
+        }
     }
 
 
@@ -27,12 +31,19 @@ public class PathFindingManager : MonoBehaviour
     /// </summary>
     public List<Vector3> FindPath(Vector3 startPos, Vector3 targetPos)
     {
-
+        Debug.Log($"Attempting to find path from {startPos} to {targetPos}");
         Vector2Int start = new Vector2Int(Mathf.RoundToInt(startPos.x), Mathf.RoundToInt(startPos.z));
         Vector2Int end = new Vector2Int(Mathf.RoundToInt(targetPos.x), Mathf.RoundToInt(targetPos.z));
 
         Tile startTile = mapManager.GetTile(start.x, start.y);
         Tile endTile = mapManager.GetTile(end.x, end.y);
+
+        if (startTile == null) { Debug.LogWarning("startTile이 null!"); };
+        if (endTile == null) { Debug.LogWarning("endTile이 null!"); };
+
+
+        Debug.Log($"Start tile: {startTile?.GridPosition}, End tile: {endTile?.GridPosition}");
+        Debug.Log($"Start tile walkable: {startTile?.data.isWalkable}, End tile walkable: {endTile?.data.isWalkable}");
 
         List<Tile> openSet = new List<Tile>();
         HashSet<Tile> closedSet = new HashSet<Tile>();
@@ -75,6 +86,7 @@ public class PathFindingManager : MonoBehaviour
                 }
             }
         }
+        Debug.LogWarning("No path found!");
         return null; // 경로가 없는 경우
     }
 
@@ -86,11 +98,18 @@ public class PathFindingManager : MonoBehaviour
         List<Vector3> path = new List<Vector3>();
         Tile currentTile = endTile;
 
-        while (currentTile != startTile)
+        while (currentTile != null && currentTile != startTile)
         {
             path.Add(mapManager.GetTilePosition(currentTile.GridPosition.x, currentTile.GridPosition.y));
             currentTile = currentTile.Parent;
         }
+
+        if (currentTile == null)
+        {
+            Debug.LogError("Path is incomplete!");
+            return null;
+        }
+
         path.Add(mapManager.GetTilePosition(startTile.GridPosition.x, startTile.GridPosition.y));
         path.Reverse();
         return path;

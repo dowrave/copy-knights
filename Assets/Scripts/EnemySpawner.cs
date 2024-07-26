@@ -39,33 +39,18 @@ public class EnemySpawner : MonoBehaviour
         startPoint = transform.position;
         endPoint = mapManager.GetEndPoint(); 
 
-        StartCoroutine(WaitForInitialization());
+        isInitialized = true;
     }
 
-    private IEnumerator WaitForInitialization()
-    {
-        while (!isInitialized)
-        {
-            yield return null;
-        }
-    }
-
-    //public void SetPathPoints(Vector3 start, Vector3 end)
-    //{
-    //    startPoint = start;
-    //    endPoint = end;
-    //    transform.position = startPoint;
-    //    isInitialized = true;
-    //}
 
     public void StartSpawning()
     {
         Debug.Log("EnemySpawner : 적 생성 시작");
         if (isInitialized)
         {
+            Debug.Log("EnemySpawner : initialize됨");
             StartCoroutine(SpawnEnemies());
         }
-
     }
 
     private IEnumerator SpawnEnemies()
