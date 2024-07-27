@@ -1,29 +1,36 @@
-using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
-using Unity.VisualScripting.Antlr3.Runtime;
 using UnityEngine;
+using UnityEditor;
+using System.Collections.Generic;
 
 public class Map : MonoBehaviour
 {
     [SerializeField] private int width;
     [SerializeField] private int height;
-    [SerializeField] private TileData[,] tiles;
+    [SerializeField] private TileData[,] tileDataArray;
+    [SerializeField] private GameObject tilePrefab;
+    [SerializeField] private GameObject enemySpawnerPrefab;
 
     public int Width => width;
     public int Height => height;
 
-    [SerializeField] private GameObject enemySpawnerPrefab;
-    private MapManager mapManager; 
+    private Dictionary<Vector2Int, GameObject> tileObjects;
 
-
-    public void Initialize(int width, int height, bool load = false, MapManager manager = null)
+    public void Initialize(int width, int height, bool load = false)
     {
         this.width = width;
         this.height = height;
-        this.mapManager = manager;
+        tileDataArray = new TileData[width, height];
+        tileObjects = new Dictionary<Vector2Int, GameObject>();
 
-        // 맵을 불러오는 상황과 새로 생성하는 상황을 구분한다.
+        if (tilePrefab == null)
+        {
+            tilePrefab = AssetDatabase.LoadAssetAtPath<GameObject>("Assets/Prefabs/Tiles/DefaultTile.prefab");
+            if (tilePrefab == null)
+            {
+                Debug.LogError("Default tile prefab not found at Assets/Prefabs/Tiles/DefaultTile.prefab");
+            }
+        }
+
         if (load)
         {
             LoadExistingMap();
@@ -32,148 +39,182 @@ public class Map : MonoBehaviour
         {
             CreateNewMap();
         }
-
-        UpdateTilePositions();
-        AssignSpawnersToStartTiles();
     }
 
     private void CreateNewMap()
-    {
-        tiles = new TileData[width, height];
-    }
-
-    // 프리팹의 자식 오브젝트들로부터 타일 데이터들을 로드한다
-    public void LoadExistingMap()
-    {
-        if (tiles == null || tiles.GetLength(0) != width || tiles.GetLength(1) != height)
-        {
-            tiles = new TileData[width, height];
-        }
-
-        LoadTilesFromChildren();
-    }
-
-    private void LoadTilesFromChildren()
-    {
-        foreach (Transform child in transform)
-        {
-            if (child.TryGetComponent<Tile>(out Tile tile))
-            {
-                // 타일의 로컬 위치를 기반으로 그리드 위치 계산
-                int x = Mathf.RoundToInt(child.localPosition.x);
-                int y = Mathf.RoundToInt(height - 1 - child.localPosition.z); // Z 좌표를 Y 그리드 위치로 변환
-
-                if (IsValidPosition(x, y))
-                {
-                    tile.SetTileData(tile.data, new Vector2Int(x, y));
-                    tiles[x, y] = tile.data;
-
-                }
-            }
-        }
-    }
-    public void SetEnemySpawnerPrefab(GameObject prefab)
-    {
-        enemySpawnerPrefab = prefab;
-    }
-
-    public void SetTile(int x, int y, TileData tileData)
-    {
-        if (IsValidPosition(x, y))
-        {
-            tiles[x, y] = tileData;
-            //UpdateTileVisuals(x, y);
-
-            AssignOrRemoveSpawner(x, y, tileData != null && tileData.isStartPoint);
-        }
-    }
-
-    private void AssignSpawnersToStartTiles()
     {
         for (int x = 0; x < width; x++)
         {
             for (int y = 0; y < height; y++)
             {
-                if (tiles[x, y] != null && tiles[x, y].isStartPoint)
+                SetTile(x, y, null);
+            }
+        }
+    }
+
+    private void LoadExistingMap()
+    {
+        foreach (Transform child in transform)
+        {
+            if (child.TryGetComponent<Tile>(out Tile tile))
+            {
+                Vector2Int gridPos = tile.GridPosition;
+                if (IsValidGridPosition(gridPos.x, gridPos.y))
                 {
-                    AssignOrRemoveSpawner(x, y, true);
+                    tileDataArray[gridPos.x, gridPos.y] = tile.data;
+                    tileObjects[gridPos] = child.gameObject;
+                }
+                else
+                {
+                    Debug.LogWarning($"Invalid tile position found: {gridPos}");
                 }
             }
         }
     }
-    private void AssignOrRemoveSpawner(int x, int y, bool assign)
+
+    /// <summary>
+    /// 타일 데이터 설정, 필요한 경우 타일을 생성하거나 제거함
+    /// </summary>
+    public void SetTile(int x, int y, TileData newTileData)
     {
-        GameObject tileObject = transform.Find($"Tile_{x}_{y}")?.gameObject;
-        if (tileObject != null)
+        if (!IsValidGridPosition(x, y)) return;
+
+        if (newTileData == null || newTileData.terrain == TileData.TerrainType.Empty)
         {
-            Transform spawnerTransform = tileObject.transform.Find("EnemySpawner");
-            //Renderer renderer = tileObject.GetComponentInChildren<Renderer>();
-            if (assign)
+            RemoveTile(x, y);
+        }
+        else
+        {
+            tileDataArray[x, y] = newTileData;
+            UpdateTileVisual(x, y);
+            if (newTileData.isStartPoint)
             {
-                if (spawnerTransform == null)
-                {
-                    // 자식 오브젝트로 스포너 추가
-                    GameObject spawnerObject; 
-                    if (enemySpawnerPrefab != null)
-                    {
-                        spawnerObject = Instantiate(enemySpawnerPrefab, tileObject.transform);
-                    }
-                    else
-                    {
-                        spawnerObject = new GameObject("EnemySpawner");
-                        spawnerObject.transform.SetParent(tileObject.transform);
-                        spawnerObject.AddComponent<EnemySpawner>();
-                    }
-                    spawnerObject.transform.localPosition = Vector3.zero;
-                }
+                CreateSpawner(x, y);
+            }
+        }
+    }
+
+    private void CreateSpawner(int x, int y)
+    {
+        if (enemySpawnerPrefab == null)
+        {
+            Debug.LogError("Enemy spawner prefab is not set");
+            return;
+        }
+
+        Vector2Int gridPos = new Vector2Int(x, y);
+        if (tileObjects.TryGetValue(gridPos, out GameObject tileObj))
+        {
+            GameObject spawnerObj = Instantiate(enemySpawnerPrefab, tileObj.transform);
+            spawnerObj.transform.localPosition = new Vector3(0, 0.5f, 0);
+            spawnerObj.name = "EnemySpawner";
+        }
+        else
+        {
+            Debug.LogError($"Tile not found at position ({x}, {y}) for spawner creation");
+        }
+    }
+
+    private void UpdateTileVisual(int x, int y)
+    {
+        Vector2Int gridPos = new Vector2Int(x, y);
+        TileData tileData = tileDataArray[x, y];
+
+        if (tileObjects.TryGetValue(gridPos, out GameObject existingTileObj))
+        {
+            if (tileData == null || tileData.terrain == TileData.TerrainType.Empty)
+            {
+                RemoveTile(x, y);
             }
             else
             {
-                if (spawnerTransform != null)
-                {
-                    DestroyImmediate(spawnerTransform.gameObject);
-                }
-                // 타일 색상 원래대로 복구
-                //tileObject.GetComponent<Renderer>()?.material.SetColor("_Color", Color.white);
+                Tile tileComponent = existingTileObj.GetComponent<Tile>();
+                tileComponent.SetTileData(tileData, gridPos);
             }
+        }
+        else if (tileData != null && tileData.terrain != TileData.TerrainType.Empty)
+        {
+            CreateTile(x, y, tileData);
         }
     }
 
-    public TileData GetTile(int x, int y)
+    /// <summary>
+    /// 실제 타일 오브젝트를 생성하고 설정하는 역할을 수행한다.
+    /// </summary>
+    private void CreateTile(int x, int y, TileData data)
     {
-        return IsValidPosition(x, y) ? tiles[x, y] : null; 
+        if (tilePrefab == null) return;
+
+        Vector2Int gridPos = new Vector2Int(x, y);
+        Vector3 worldPos = GridToWorldPosition(gridPos);
+        GameObject tileObj = Instantiate(tilePrefab, transform);
+        tileObj.name = GenerateTileName(x, y, data);
+        tileObj.transform.localPosition = worldPos;
+
+        Tile tileComponent = tileObj.GetComponent<Tile>();
+        if (tileComponent != null)
+        {
+            tileComponent.SetTileData(data, gridPos);
+        }
+        else
+        {
+            Debug.LogError($"Tile component not found on prefab for position ({x}, {y})");
+        }
+
+        tileObjects[gridPos] = tileObj;
     }
 
-    public bool IsValidPosition(int x, int y)
+    private string GenerateTileName(int x, int y, TileData data)
     {
-        return x >= 0 && x < width && y >= 0 && y < height; 
+        string baseName = $"Tile_{x}_{y}";
+        if (data != null)
+        {
+            if (data.isStartPoint) return $"{baseName}_start";
+            if (data.isEndPoint) return $"{baseName}_end";
+        }
+        return baseName;
+    }
+
+    public void RemoveTile(int x, int y)
+    {
+        if (!IsValidGridPosition(x, y)) return;
+
+        Vector2Int gridPos = new Vector2Int(x, y);
+        if (tileObjects.TryGetValue(gridPos, out GameObject tileObj))
+        {
+            DestroyImmediate(tileObj);
+            tileObjects.Remove(gridPos);
+        }
+        tileDataArray[x, y] = null;
+    }
+
+    public TileData GetTileData(int x, int y)
+    {
+        return IsValidGridPosition(x, y) ? tileDataArray[x, y] : null;
+    }
+
+    public Tile GetTile(int x, int y)
+    {
+        if (!IsValidGridPosition(x, y)) return null;
+        Vector2Int gridPos = new Vector2Int(x, y);
+        return tileObjects.TryGetValue(gridPos, out GameObject tileObj) ? tileObj.GetComponent<Tile>() : null;
+    }
+
+    public bool IsValidGridPosition(int x, int y)
+    {
+        return x >= 0 && x < width && y >= 0 && y < height;
     }
 
     public IEnumerable<Tile> GetAllTiles()
     {
-        List<Tile> allTiles = new List<Tile>();
-
-        foreach (Transform child in transform)
+        foreach (var tileObj in tileObjects.Values)
         {
-            if (child.name.StartsWith("Tile"))
+            if (tileObj != null)
             {
-                Tile tile = child.GetComponent<Tile>();
-                if (tile != null)
-                {
-                    allTiles.Add(tile);
-                }
+                Tile tile = tileObj.GetComponent<Tile>();
+                if (tile != null) yield return tile;
             }
         }
-
-        // GridPosition을 기준으로 정렬 (y좌표 정렬 후 x좌표 정렬, 좌상단 -> 우하단 순으로 타일을 얻을 수 있다.)
-        return allTiles.OrderBy(t => t.GridPosition.y).ThenBy(t => t.GridPosition.x);
-    }
-
-    public void Resize(int newWidth, int newHeight, TileData[,] newTiles)
-    {
-        width = newWidth;
-        height = newHeight;
-        tiles = newTiles;
     }
 
     public Vector3 FindEndPoint()
@@ -182,35 +223,27 @@ public class Map : MonoBehaviour
         {
             for (int y = 0; y < height; y++)
             {
-                TileData tileData = GetTile(x, y);
-                if (tileData != null && tileData.isEndPoint)
+                if (tileDataArray[x, y]?.isEndPoint == true)
                 {
-                    return GetTilePosition(x, y);
+                    return GridToWorldPosition(new Vector2Int(x, y)) + Vector3.up * 0.5f;
                 }
             }
         }
         return Vector3.zero;
     }
 
-    private Vector3 GetTilePosition(int x, int y)
+    public Vector3 GridToWorldPosition(Vector2Int gridPos)
     {
-        return new Vector3(x, 0, y) + Vector3.up * 0.5f; // 타일 중앙의 상단에 위치함
+        return new Vector3(gridPos.x, 0, height - 1 - gridPos.y);
     }
 
-    private void UpdateTilePositions()
+    public Vector2Int WorldToGridPosition(Vector3 worldPos)
     {
-        foreach (Transform child in transform)
-        {
-            if (child.TryGetComponent<Tile>(out Tile tile))
-            {
-                string[] nameParts = child.name.Split('_');
-                if (nameParts.Length >= 3 && int.TryParse(nameParts[1], out int x) && int.TryParse(nameParts[2], out int y))
-                {
-                    Vector2Int gridPos = new Vector2Int(x, y);
-                    tile.SetTileData(tile.data, gridPos);
-                    tile.transform.localPosition = new Vector3(x, 0, height - 1 - y);
-                }
-            }
-        }
+        return new Vector2Int(Mathf.RoundToInt(worldPos.x), height - 1 - Mathf.RoundToInt(worldPos.z));
+    }
+
+    public void SetEnemySpawnerPrefab(GameObject prefab)
+    {
+        enemySpawnerPrefab = prefab;
     }
 }

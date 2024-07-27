@@ -12,62 +12,28 @@ public class MapManager : MonoBehaviour
 {
     //[SerializeField] private GameObject mapPrefab;
     private Map currentMap;
-    private Tile[,] tiles;
+    //private Tile[,] tiles;
     [SerializeField] private List<PathData> availablePaths;
 
-    private int mapWidth, mapHeight;
+    //private int mapWidth, mapHeight;
 
     public void InitializeMap()
     {
-        LoadMapFromScene();
-        InitializePaths();
+        if (currentMap != null)
+        {
+            currentMap.Initialize(currentMap.Width, currentMap.Height, true);
+            InitializePaths(); 
+        }
+        else
+        {
+            Debug.LogError("Current Map is Not Assigned in MapManager");
+        }
     }
 
 
     private void Start()
     {
-        LoadMapFromScene();
-        InitializePaths();
-    }
-
-    // 씬에 맵을 같이 띄웠다면, 여기서 가져온다
-    private void LoadMapFromScene()
-    {
-        currentMap = FindObjectOfType<Map>();
-
-        if (currentMap != null)
-        {
-            mapWidth = currentMap.Width;
-            mapHeight = currentMap.Height;
-
-            SetupTilesArray();
-
-            // 맵 초기화
-            currentMap.Initialize(mapWidth, mapHeight, true, this);
-            InitializeEnemySpawners();
-        }
-
-    }
-
-    private void SetupTilesArray()
-    {
-        Debug.Log($"SetupTilesArray 시작: mapWidth={mapWidth}, mapHeight={mapHeight}");
-        tiles = new Tile[mapWidth, mapHeight];
-
-        // Map의 GetAllTiles 메소드를 사용하여 모든 타일을 가져옵니다.
-        foreach (Tile tile in currentMap.GetAllTiles())
-        {
-            Vector2Int gridPos = tile.GridPosition;
-            Debug.Log($"처리 중인 타일: 위치=({gridPos.x}, {gridPos.y})");
-            if (IsValidGridPosition(gridPos))
-            {
-                tiles[gridPos.x, gridPos.y] = tile;
-            }
-            else
-            {
-                Debug.LogWarning($"타일 위치가 맵 범위를 벗어남: {gridPos}");
-            }
-        }
+        InitializeMap();
     }
 
     private void InitializePaths()
@@ -77,81 +43,39 @@ public class MapManager : MonoBehaviour
             ValidatePath(path);
         }
     }
-    
-    private void InitializeEnemySpawners()
-    {
-        EnemySpawner[] spawners = currentMap.GetComponentsInChildren<EnemySpawner>();
-        foreach (var spawner in spawners)
-        {
-            spawner.Initialize(this);
-        }
-    }
 
     private void ValidatePath(PathData path)
     {
         foreach (PathNode node in path.nodes)
         {
-            Vector2Int gridPos = WorldToGridPosition(node.position);
-            if (!IsValidGridPosition(gridPos))
+            Vector2Int gridPos = currentMap.WorldToGridPosition(node.position);
+            if (!currentMap.IsValidGridPosition(gridPos.x, gridPos.y))
             {
                 Debug.LogWarning($"Invalid path node position in path {path.name}: {node.position}");
             }
         }
     }
 
-    private Vector2Int WorldToGridPosition(Vector3 worldPosition)
-    {
-        return new Vector2Int(Mathf.RoundToInt(worldPosition.x), Mathf.RoundToInt(worldPosition.z));
-    }
-
-    private bool IsValidGridPosition(Vector2Int gridPos)
-    {
-        return gridPos.x >= 0 && gridPos.x < mapWidth && gridPos.y >= 0 && gridPos.y < mapHeight;
-    }
-
     public bool IsPositionWalkable(Vector3 worldPosition)
     {
-        Vector2Int gridPos = WorldToGridPosition(worldPosition);
-        return IsValidGridPosition(gridPos) && tiles[gridPos.x, gridPos.y].data.isWalkable;
+        Vector2Int gridPos = currentMap.WorldToGridPosition(worldPosition);
+        TileData tileData = currentMap.GetTileData(gridPos.x, gridPos.y);
+        return tileData != null && tileData.isWalkable;
     }
 
     public Vector3 GetTilePosition(int x, int y)
     {
-        if (IsValidGridPosition(new Vector2Int(x, y)) && tiles[x, y] != null)
-        {
-            return tiles[x, y].transform.position + Vector3.up * 0.5f;
-        }
-        return Vector3.zero;
+        return currentMap.GridToWorldPosition(new Vector2Int(x, y)) + Vector3.up * 0.5f;
     }
 
     public Tile GetTile(int x, int y)
     {
-        if (IsValidGridPosition(new Vector2Int(x, y)))
-        {
-            Debug.Log($"Tile 전체 : {tiles}");
-            Tile tile = tiles[x, y];
-            if (tile == null)
-            {
-                Debug.LogWarning($"GetTile: 위치 ({x}, {y})에 타일이 없습니다.");
-            }
-            return tile;
-        }
-        Debug.LogWarning($"GetTile: 유효하지 않은 위치 ({x}, {y})");
-        return null;
+        return currentMap.GetTile(x, y);
     }
 
     public IEnumerable<Tile> GetAllTiles()
     {
-        for (int x = 0; x < mapWidth; x++)
-        {
-            for (int y = 0; y < mapHeight; y++)
-            {
-                if (tiles[x, y] != null)
-                {
-                    yield return tiles[x, y];
-                }
-            }
-        }
+        return currentMap.GetAllTiles();
     }
 
     public Vector3 GetEndPoint()
@@ -159,5 +83,4 @@ public class MapManager : MonoBehaviour
         return currentMap.FindEndPoint();
     }
 
-    
 }

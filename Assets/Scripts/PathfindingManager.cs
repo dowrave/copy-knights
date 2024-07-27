@@ -8,17 +8,17 @@ public class PathFindingManager : MonoBehaviour
     private static PathFindingManager instance; // 필드
     public static PathFindingManager Instance => instance;
 
-    private MapManager mapManager;
+    private Map currentMap;
 
     private void Awake()
     {
         if (instance == null) { instance = this; }
         else Destroy(gameObject);
 
-        mapManager = FindObjectOfType<MapManager>();
-        if (mapManager == null)
+        currentMap = FindObjectOfType<Map>();
+        if (currentMap == null)
         {
-            Debug.LogError("MapManager not found in the scene!");
+            Debug.LogError("Map not found in the scene!");
         }
     }
 
@@ -31,21 +31,17 @@ public class PathFindingManager : MonoBehaviour
     /// </summary>
     public List<Vector3> FindPath(Vector3 startPos, Vector3 targetPos)
     {
-        Debug.Log($"Attempting to find path from {startPos} to {targetPos}");
-        Vector2Int start = new Vector2Int(Mathf.RoundToInt(startPos.x), Mathf.RoundToInt(startPos.z));
-        Vector2Int end = new Vector2Int(Mathf.RoundToInt(targetPos.x), Mathf.RoundToInt(targetPos.z));
+        Vector2Int start = currentMap.WorldToGridPosition(startPos);
+        Vector2Int end = currentMap.WorldToGridPosition(targetPos);
 
-        Debug.Log($"PathFindingManager - FindPath start 값 : {start}");
-        Debug.Log($"PathFindingManager - FindPath end 값 : {end}");
+        Tile startTile = currentMap.GetTile(start.x, start.y);
+        Tile endTile = currentMap.GetTile(end.x, end.y);
 
-        Tile startTile = mapManager.GetTile(start.x, start.y);
-        Tile endTile = mapManager.GetTile(end.x, end.y);
-
-        if (startTile == null) { Debug.LogWarning("startTile이 null!"); };
-        if (endTile == null) { Debug.LogWarning("endTile이 null!"); };
-
-        Debug.Log($"Start tile: {startTile?.GridPosition}, End tile: {endTile?.GridPosition}");
-        Debug.Log($"Start tile walkable: {startTile?.data.isWalkable}, End tile walkable: {endTile?.data.isWalkable}");
+        if (startTile == null || endTile == null)
+        {
+            Debug.LogWarning("Invalid Start or End Tile");
+            return null;
+        }
 
         List<Tile> openSet = new List<Tile>();
         HashSet<Tile> closedSet = new HashSet<Tile>();
@@ -102,17 +98,11 @@ public class PathFindingManager : MonoBehaviour
 
         while (currentTile != null && currentTile != startTile)
         {
-            path.Add(mapManager.GetTilePosition(currentTile.GridPosition.x, currentTile.GridPosition.y));
+            path.Add(currentMap.GridToWorldPosition(currentTile.GridPosition) + Vector3.up * 0.5f);
             currentTile = currentTile.Parent;
         }
 
-        if (currentTile == null)
-        {
-            Debug.LogError("Path is incomplete!");
-            return null;
-        }
-
-        path.Add(mapManager.GetTilePosition(startTile.GridPosition.x, startTile.GridPosition.y));
+        path.Add(currentMap.GridToWorldPosition(startTile.GridPosition) + Vector3.up * 0.5f);
         path.Reverse();
         return path;
     }
@@ -133,27 +123,30 @@ public class PathFindingManager : MonoBehaviour
                 int checkX = tile.GridPosition.x + x;
                 int checkY = tile.GridPosition.y + y;
 
-                Tile neighbor = mapManager.GetTile(checkX, checkY);
-
-                if (neighbor != null && neighbor.data.isWalkable)
+                if (currentMap.IsValidGridPosition(checkX, checkY))
                 {
-                    // 대각선 이동
-                    if (x != 0 && y != 0)
+                    Tile neighbor = currentMap.GetTile(checkX, checkY);
+                    if (neighbor != null && neighbor.data.isWalkable)
                     {
-                        // 대각선 이동 시, 양쪽 타일 모두 걸을 수 있어야 함
-                        Tile SideA = mapManager.GetTile(tile.GridPosition.x + x, tile.GridPosition.y);
-                        Tile SideB = mapManager.GetTile(tile.GridPosition.x, tile.GridPosition.y + y);
-
-                        if (SideA != null && SideB != null && SideA.data.isWalkable && SideB.data.isWalkable)
+                        // 대각선 이동
+                        if (x != 0 && y != 0)
                         {
+                            // 대각선 이동 시, 양쪽 타일 모두 걸을 수 있어야 함
+                            Tile SideA = currentMap.GetTile(tile.GridPosition.x + x, tile.GridPosition.y);
+                            Tile SideB = currentMap.GetTile(tile.GridPosition.x, tile.GridPosition.y + y);
+
+                            if (SideA != null && SideB != null && SideA.data.isWalkable && SideB.data.isWalkable)
+                            {
+                                neighbors.Add(neighbor);
+                            }
+
+                        }
+                        // 직선 이동
+                        else
+                        { 
                             neighbors.Add(neighbor);
                         }
 
-                    }
-                    // 직선 이동
-                    else
-                    { 
-                        neighbors.Add(neighbor);
                     }
                 }
             }

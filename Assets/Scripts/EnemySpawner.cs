@@ -14,29 +14,20 @@ public class EnemySpawner : MonoBehaviour
         public float spawnTime;
     }
 
-    //[System.Serializable]
-    //public class PathNode
-    //{
-    //    public Vector2Int position;
-    //    public float waitTime;
-    //}
-
     public List<EnemySpawnInfo> enemySpawnList = new List<EnemySpawnInfo>(); // 생성되는 적, 시간이 적혀 있음
-    //public List<PathNode> path = new List<PathNode>();
 
     private bool isInitialized = false;
     private Vector3 startPoint;
     private Vector3 endPoint;
     private PathFindingManager pathFindingManager;
-    private MapManager mapManager;
+    private Map currentMap;
 
-    public void Initialize(MapManager manager)
+    public void Initialize(Map map)
     {
-        Debug.Log("EnemySpawner Initialize 작동 시작");
-        mapManager = manager;
+        currentMap = map;
         pathFindingManager = PathFindingManager.Instance;
         startPoint = transform.position;
-        endPoint = mapManager.GetEndPoint(); 
+        endPoint = currentMap.FindEndPoint(); 
         isInitialized = true;
     }
 
@@ -71,7 +62,7 @@ public class EnemySpawner : MonoBehaviour
         Debug.Log("SpawnEnemy 작동");
         if (enemyPrefab == null) return;
 
-        GameObject enemyObject = Instantiate(enemyPrefab, transform.position, Quaternion.identity);
+        GameObject enemyObject = Instantiate(enemyPrefab, startPoint, Quaternion.identity);
         Enemy enemy = enemyObject.GetComponent<Enemy>();
         
         if (enemy != null)
@@ -79,7 +70,6 @@ public class EnemySpawner : MonoBehaviour
             Debug.Log("SpawnEnemy : enemy 포착");
             UnitStats Stats = GenerateEnemyStats();
             float movementSpeed = 1f;
-            //Debug.Log($"EnemySpawner - SpawnEnemy 메서드 : 시작점 {startPoint}, 도착점 {endPoint}");
             enemy.Initialize(Stats, movementSpeed, startPoint, endPoint);
             SetEnemyPathAuto(enemy); // PathFindingManager를 이용한 자동 길찾기 
         }
