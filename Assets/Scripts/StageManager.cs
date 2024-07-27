@@ -13,9 +13,11 @@ using System.Collections.Generic;
  */
 public class StageManager : MonoBehaviour
 {
+    private static StageManager instance;
     public static StageManager Instance { get; private set; }
     [SerializeField] private MapManager mapManager;
     [SerializeField] private SpawnerManager spawnerManager;
+    [SerializeField] private Map currentMap;
     private GameState currentState;
 
     private void Awake()
@@ -42,8 +44,13 @@ public class StageManager : MonoBehaviour
 
     private void InitializeStage()
     {
+        if (currentMap == null)
+        {
+            Debug.LogError("스테이지 매니저에 맵이 할당되지 않음");
+        }
+        currentMap.Initialize(currentMap.Width, currentMap.Height, true);
         mapManager.InitializeMap();
-        spawnerManager.Initialize(mapManager);
+        spawnerManager.Initialize(currentMap);
         SetGameState(GameState.Preparation);
     }
 
@@ -56,6 +63,23 @@ public class StageManager : MonoBehaviour
     private void SetGameState(GameState gameState)
     {
         currentState = gameState; 
+    }
+
+    public static GameObject FindStageObject()
+    {
+        // 모든 루트 게임 오브젝트 찾기
+        GameObject[] rootObjects = UnityEngine.SceneManagement.SceneManager.GetActiveScene().GetRootGameObjects();
+
+        // "Stage"로 시작하는 이름을 가진 게임 오브젝트를 찾습니다.
+        foreach (GameObject obj in rootObjects)
+        {
+            if (obj.name.StartsWith("Stage"))
+            {
+                return obj;
+            }
+        }
+
+        return null; // Stage를 찾지 못한 경우
     }
 }
 

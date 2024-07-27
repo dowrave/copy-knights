@@ -46,6 +46,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   mapManager: {fileID: 1255909598239862411}
   spawnerManager: {fileID: 826761011560823892}
+  currentMap: {fileID: 0}
 --- !u!1 &1818945865418368289
 GameObject:
   m_ObjectHideFlags: 0
@@ -206,6 +207,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   width: 5
   height: 5
+  tilePrefab: {fileID: 0}
   enemySpawnerPrefab: {fileID: 2919812726486536999, guid: 7f67aa5fcbb982a4b8201f06b95a6b48, type: 3}
 --- !u!1 &4970674207162360143
 GameObject:

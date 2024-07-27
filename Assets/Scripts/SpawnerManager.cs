@@ -5,11 +5,12 @@ using UnityEngine;
 public class SpawnerManager : MonoBehaviour
 {
     public List<EnemySpawner> spawners = new List<EnemySpawner>();
-    private MapManager mapManager; 
+    //private MapManager mapManager; 
+    private Map currentMap;
 
-    public void Initialize(MapManager manager)
+    public void Initialize(Map map)
     {
-        mapManager = manager;
+        currentMap = map;
         FindAllSpawners();
     }
 
@@ -20,7 +21,7 @@ public class SpawnerManager : MonoBehaviour
         foreach (EnemySpawner spawner in foundSpawners)
         {
             spawners.Add(spawner);
-            spawner.Initialize(mapManager); // 각 스포너에 mapManager 전달
+            spawner.Initialize(currentMap); // 각 스포너에 mapManager 전달
         }
     }
 

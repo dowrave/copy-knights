@@ -16,9 +16,12 @@ public class Operator : Unit
 
     [HideInInspector] public bool isBlocking = false; // 저지 중인가
 
+    private Map currentMap;
+
     private void Start()
     {
         base.Initialize(data.baseStats);
+        currentMap = FindObjectOfType<Map>();
     }
 
     public Vector2Int[] GetAttackableTiles()
@@ -39,7 +42,12 @@ public class Operator : Unit
 
     private Vector2Int WorldToRelativeGridPosition(Vector3 worldPosition)
     {
-        // 월드 좌표 -> 상대적 그리드 좌표로 변환하는 로직
+        if (currentMap != null)
+        {
+            Vector2Int absoluteGridPos = currentMap.WorldToGridPosition(worldPosition);
+            Vector2Int operatorGridPos = currentMap.WorldToGridPosition(transform.position);
+            return absoluteGridPos - operatorGridPos;
+        }
         return Vector2Int.zero;
     }
     
