@@ -1,19 +1,23 @@
 using UnityEngine;
 using UnityEditor;
 using System.Collections.Generic;
+using System.Text;
+using UnityEngine.AI;
 
 public class Map : MonoBehaviour
 {
     [SerializeField] private int width;
     [SerializeField] private int height;
-    [SerializeField] private TileData[,] tileDataArray;
-    [SerializeField] private GameObject tilePrefab;
-    [SerializeField] private GameObject enemySpawnerPrefab;
-
     public int Width => width;
     public int Height => height;
 
-    private Dictionary<Vector2Int, GameObject> tileObjects;
+    [SerializeField] private GameObject tilePrefab;
+    [SerializeField] private GameObject enemySpawnerPrefab;
+    [SerializeField] private TileData[] serializedTileData;
+    private TileData[,] tileDataArray;
+    private Dictionary<Vector2Int, GameObject> tileObjects; // 좌표에 Tile 오브젝트 할당.
+
+
 
     public void Initialize(int width, int height, bool load = false)
     {
@@ -21,15 +25,6 @@ public class Map : MonoBehaviour
         this.height = height;
         tileDataArray = new TileData[width, height];
         tileObjects = new Dictionary<Vector2Int, GameObject>();
-
-        if (tilePrefab == null)
-        {
-            tilePrefab = AssetDatabase.LoadAssetAtPath<GameObject>("Assets/Prefabs/Tiles/DefaultTile.prefab");
-            if (tilePrefab == null)
-            {
-                Debug.LogError("Default tile prefab not found at Assets/Prefabs/Tiles/DefaultTile.prefab");
-            }
-        }
 
         if (load)
         {
@@ -43,20 +38,30 @@ public class Map : MonoBehaviour
 
     private void CreateNewMap()
     {
+        tileDataArray = new TileData[width, height];
+        tileObjects = new Dictionary<Vector2Int, GameObject>();
+
         for (int x = 0; x < width; x++)
         {
             for (int y = 0; y < height; y++)
             {
+                // 기본 타일 데이터로 초기화
                 SetTile(x, y, null);
+                //UpdateTileVisual(x, y);
             }
         }
+
+        // 맵 생성 후 데이터 저장
+        SaveTileData();
     }
 
     private void LoadExistingMap()
     {
+        // 기존 자식 Tile 오브젝트에서 데이터 로드
         foreach (Transform child in transform)
         {
-            if (child.TryGetComponent<Tile>(out Tile tile))
+            Tile tile = child.GetComponent<Tile>();
+            if (tile != null)
             {
                 Vector2Int gridPos = tile.GridPosition;
                 if (IsValidGridPosition(gridPos.x, gridPos.y))
@@ -64,12 +69,9 @@ public class Map : MonoBehaviour
                     tileDataArray[gridPos.x, gridPos.y] = tile.data;
                     tileObjects[gridPos] = child.gameObject;
                 }
-                else
-                {
-                    Debug.LogWarning($"Invalid tile position found: {gridPos}");
-                }
             }
         }
+        SaveTileData(); // 로드 후 serializedTileData 업데이트
     }
 
     /// <summary>
@@ -94,6 +96,11 @@ public class Map : MonoBehaviour
         }
     }
 
+
+    /// </summary>
+    /// Start 타일에는 EnemySpawner 자식 오브젝트를 배치한다.
+    /// SetTile을 할 때 작동하므로, 맵을 불러오거나 할 때 별도로 작동시킬 필요 없다.
+    /// </summary>
     private void CreateSpawner(int x, int y)
     {
         if (enemySpawnerPrefab == null)
@@ -115,6 +122,12 @@ public class Map : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// 맵의 각 타일에 대한 시각적 표현을 업데이트하거나 생성한다.
+    /// 1. 저장된 데이터 - 씬의 타일 오브젝트 동기화
+    /// 2. 누락된 타일 생성, 더 이상 필요없는 타일 제거
+    /// 3. 각 타일의 시각적 표현이 저장된 데이터와 일치하도록 보장
+    /// </summary>
     private void UpdateTileVisual(int x, int y)
     {
         Vector2Int gridPos = new Vector2Int(x, y);
@@ -177,11 +190,13 @@ public class Map : MonoBehaviour
 
     public void RemoveTile(int x, int y)
     {
+        Debug.Log($"RemoveTile : 들어온 좌표 {x}, {y}");
         if (!IsValidGridPosition(x, y)) return;
 
         Vector2Int gridPos = new Vector2Int(x, y);
         if (tileObjects.TryGetValue(gridPos, out GameObject tileObj))
         {
+            Debug.Log($"RemoveTile : {gridPos} 값이 들어왔음 : 발견한 오브젝트 : {tileObj.name}");
             DestroyImmediate(tileObj);
             tileObjects.Remove(gridPos);
         }
@@ -190,7 +205,11 @@ public class Map : MonoBehaviour
 
     public TileData GetTileData(int x, int y)
     {
-        return IsValidGridPosition(x, y) ? tileDataArray[x, y] : null;
+        if (IsValidGridPosition(x, y))
+        {
+            return tileDataArray[x, y];
+        }
+        return null;
     }
 
     public Tile GetTile(int x, int y)
@@ -245,5 +264,48 @@ public class Map : MonoBehaviour
     public void SetEnemySpawnerPrefab(GameObject prefab)
     {
         enemySpawnerPrefab = prefab;
+    }
+
+    // 2차원 타일 배열을 1차원으로 변환해서 저장
+    public void SaveTileData()
+    {
+        serializedTileData = new TileData[width * height];
+        for (int y = 0; y < height; y++)
+        {
+            for (int x = 0; x < width; x++)
+            {
+                serializedTileData[y * width + x] = tileDataArray[x, y];
+            }
+        }
+    }
+
+    // 디버그 용 모든 타일 보기
+    public string GetTileDataDebugString()
+    {
+        StringBuilder sb = new StringBuilder();
+        sb.AppendLine("Map Tile Data:");
+        for (int y = 0; y < height; y++)
+        {
+            for (int x = 0; x < width; x++)
+            {
+                TileData tileData = tileDataArray[x, y];
+                string tileInfo = tileData != null
+                    ? $"{tileData.TileName} ({tileData.terrain})"
+                    : "Empty";
+                sb.AppendLine($"  Position ({x}, {y}): {tileInfo}");
+            }
+        }
+        return sb.ToString();
+    }
+
+    public void RemoveAllTiles()
+    {
+        for (int x = 0; x < Width; x++)
+        {
+            for (int y = 0; y < Height; y++)
+            {
+                RemoveTile(x, y);
+            }
+        }
     }
 }

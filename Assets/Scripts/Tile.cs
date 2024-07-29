@@ -4,14 +4,21 @@ using UnityEngine;
 public class Tile : MonoBehaviour
 {
     public TileData data;
-    public Vector2Int GridPosition { get; private set; }
-    //public Vector2Int GridPosition;
     public bool IsOccupied { get; private set; }
     private Transform cubeTransform;
 
-    // spawner 관련 설정
-    //public bool isSpawnPoint; // Start 타일만 체크하면 되므로
-    //public EnemySpawner spawner; // EnemySpawner 컴포넌트에 대한 참조
+    /* 
+     * 중요! 프로퍼티만 설정하면 변수 저장은 불가능하다
+     * 필드와 프로퍼티를 함께 설정하고, 필드를 저장해야 프리팹 내부에 그리드 좌표를 저장할 수 있게 된다.
+     * 즉, 아래처럼 설정하는 건 각 타일이 스스로 gridPosition 정보를 갖게 하기 위함이다.
+     * public Vector2Int GridPosition {get; set;} 만 설정하면, 프리팹을 저장했다가 불러올 때 각 타일의 그리드 좌표가 날아간다.
+    */
+    [SerializeField] private Vector2Int gridPosition; 
+    public Vector2Int GridPosition
+    {
+        get { return gridPosition; }
+        set { gridPosition = value; }
+    }
 
     [SerializeField] private Material baseTileMaterial; // Inspector에서 할당함
     private Renderer tileRenderer;
@@ -26,18 +33,21 @@ public class Tile : MonoBehaviour
     private void Awake()
     {
         cubeTransform = transform.Find("Cube");
+        InitializeGridPosition();
+    }
+    private void OnValidate()
+    {
+        Initialize();
+        InitializeGridPosition();
+
     }
 
     // 오브젝트 활성화마다 호출
     private void OnEnable()
     {
         Initialize();
-    }
+        InitializeGridPosition();
 
-    // 인스펙터에서 컴포넌트 값이 변경될 때마다 호출 - 에디터에서 바로 확인 가능
-    private void OnValidate()
-    {
-        Initialize();
     }
 
     private void Initialize()
@@ -154,6 +164,23 @@ public class Tile : MonoBehaviour
     {
         Map map = GetComponentInParent<Map>();
         return new Vector3(GridPosition.x, 0, map.Height - 1 - GridPosition.y);
+    }
+
+    // 각 타일
+    private void InitializeGridPosition()
+    {
+        GridPosition = ExtractGridPositionFromName(name);
+    }
+
+    private Vector2Int ExtractGridPositionFromName(string tileName)
+    {
+        string[] parts = tileName.Split('_');
+        if (parts.Length >= 3 && int.TryParse(parts[1], out int x) && int.TryParse(parts[2], out int y))
+        {
+            return new Vector2Int(x, y);
+        }
+        Debug.LogWarning($"타일 이름에서 그리드 좌표 추출 실패: {tileName}");
+        return Vector2Int.zero;
     }
 
     //private void UpdateName()
