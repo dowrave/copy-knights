@@ -17,8 +17,11 @@ public class MapManager : MonoBehaviour
 
     //private int mapWidth, mapHeight;
 
-    public void InitializeMap()
+    // currentMap 자체는 StageManager에서 관리, MapManager에서는 이를 받는 구조를 취한다.
+    public void InitializeMap(Map map)
     {
+        currentMap = map;
+
         if (currentMap != null)
         {
             currentMap.Initialize(currentMap.Width, currentMap.Height, true);
@@ -28,12 +31,6 @@ public class MapManager : MonoBehaviour
         {
             Debug.LogError("Current Map is Not Assigned in MapManager");
         }
-    }
-
-
-    private void Start()
-    {
-        InitializeMap();
     }
 
     private void InitializePaths()

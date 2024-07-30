@@ -19,6 +19,15 @@ public class Map : MonoBehaviour
 
 
 
+    // 스크립트 활성화마다 초기화를 확인한다
+    private void OnEnable()
+    {
+        if (tileDataArray == null || tileObjects == null)
+        {
+            Initialize(width, height, true);
+        }
+    }
+
     public void Initialize(int width, int height, bool load = false)
     {
         this.width = width;
@@ -250,7 +259,7 @@ public class Map : MonoBehaviour
         }
         return Vector3.zero;
     }
-
+    //1
     public Vector3 GridToWorldPosition(Vector2Int gridPos)
     {
         return new Vector3(gridPos.x, 0, height - 1 - gridPos.y);
