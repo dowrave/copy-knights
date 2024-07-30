@@ -19,7 +19,7 @@ MonoBehaviour:
     width: 1920
     height: 997
   m_ShowMode: 4
-  m_Title: Hierarchy
+  m_Title: Inspector
   m_RootView: {fileID: 2}
   m_MinSize: {x: 875, y: 492}
   m_MaxSize: {x: 10000, y: 10000}
@@ -120,7 +120,7 @@ MonoBehaviour:
   m_MinSize: {x: 300, y: 100}
   m_MaxSize: {x: 24288, y: 16192}
   vertical: 0
-  controlID: 118
+  controlID: 116
   draggingID: 0
 --- !u!114 &6
 MonoBehaviour:
@@ -167,8 +167,8 @@ MonoBehaviour:
     y: 0
     width: 783
     height: 486
-  m_MinSize: {x: 200, y: 200}
-  m_MaxSize: {x: 4000, y: 4000}
+  m_MinSize: {x: 201, y: 221}
+  m_MaxSize: {x: 4001, y: 4021}
   m_ActualView: {fileID: 17}
   m_Panes:
   - {fileID: 17}
@@ -304,7 +304,7 @@ MonoBehaviour:
   m_MinSize: {x: 100, y: 100}
   m_MaxSize: {x: 8096, y: 16192}
   vertical: 1
-  controlID: 119
+  controlID: 117
   draggingID: 0
 --- !u!114 &13
 MonoBehaviour:
@@ -810,9 +810,9 @@ MonoBehaviour:
   m_PlayAudio: 0
   m_AudioPlay: 0
   m_Position:
-    m_Target: {x: 2.710246, y: -0.87355554, z: 4.411217}
+    m_Target: {x: -0.46969357, y: 5.2688336, z: -4.0735865}
     speed: 2
-    m_Value: {x: 2.710246, y: -0.87355554, z: 4.411217}
+    m_Value: {x: -0.46969357, y: 5.2688336, z: -4.0735865}
   m_RenderMode: 0
   m_CameraMode:
     drawMode: 0
@@ -858,20 +858,20 @@ MonoBehaviour:
     m_GridAxis: 1
     m_gridOpacity: 0.5
   m_Rotation:
-    m_Target: {x: 0.54918593, y: -0.00501388, z: 0.0032952568, w: 0.8356804}
+    m_Target: {x: 0.21216038, y: 0.25175086, z: -0.05666259, w: 0.9425528}
     speed: 2
-    m_Value: {x: 0.54918516, y: -0.005013873, z: 0.003295252, w: 0.83567923}
+    m_Value: {x: 0.21215965, y: 0.25175, z: -0.056662392, w: 0.9425495}
   m_Size:
-    m_Target: 3.640055
+    m_Target: 3.0950599
     speed: 2
-    m_Value: 3.640055
+    m_Value: 3.0950599
   m_Ortho:
-    m_Target: 0
+    m_Target: 1
     speed: 2
-    m_Value: 0
+    m_Value: 1
   m_CameraSettings:
-    m_Speed: 0.6467999
-    m_SpeedNormalized: 0.31999996
+    m_Speed: 0.34829992
+    m_SpeedNormalized: 0.16999996
     m_SpeedMin: 0.01
     m_SpeedMax: 2
     m_EasingEnabled: 1
@@ -1096,7 +1096,7 @@ MonoBehaviour:
       scrollPos: {x: 0, y: 0}
       m_SelectedIDs: 
       m_LastClickedID: 0
-      m_ExpandedIDs: fed3fefff6dcfeff4eeefeff3af1feff38f5feffcef7feff1400fffff014ffff0015ffff881bffffa21effff7023ffffb828ffffba30ffff2851ffff2e56ffff4457ffffca81ffff4884ffffae84ffff948affff3ec2ffffb4c2ffff96ccffffa0d1ffffe8e7ffff2afbffff2cfbffff
+      m_ExpandedIDs: f045ffff7a49ffffd86effffe0a2ffff40a3ffff70a3ffff90a3ffffb0a3ffff76a4ffff86b2ffffdcd6ffff54e8ffff70ecffffe6f9fffffcf9ffff0cfaffff1cfaffff2cfaffff3cfaffff4cfaffff5cfaffff6cfaffff7cfaffff2afbffff2cfbffff
       m_RenameOverlay:
         m_UserAcceptedRename: 0
         m_Name: 
@@ -1165,7 +1165,7 @@ MonoBehaviour:
     m_SkipHidden: 1
     m_SearchArea: 1
     m_Folders:
-    - Assets/Scripts
+    - Assets/Prefabs/Stage
     m_Globs: []
     m_OriginalText: 
     m_ImportLogFlags: 0
@@ -1173,16 +1173,16 @@ MonoBehaviour:
   m_ViewMode: 1
   m_StartGridSize: 16
   m_LastFolders:
-  - Assets/Scripts
+  - Assets/Prefabs/Stage
   m_LastFoldersGridSize: 16
   m_LastProjectPath: C:\Users\HyeonTae Lee\CopycatKnights
   m_LockTracker:
     m_IsLocked: 0
   m_FolderTreeState:
     scrollPos: {x: 0, y: 0}
-    m_SelectedIDs: 3c5b0000
-    m_LastClickedID: 23356
-    m_ExpandedIDs: 000000001e5b0000205b0000225b00002a5b000000ca9a3b
+    m_SelectedIDs: e85b0000
+    m_LastClickedID: 23528
+    m_ExpandedIDs: 00000000d65b0000d85b0000e05b000000ca9a3b
     m_RenameOverlay:
       m_UserAcceptedRename: 0
       m_Name: 
@@ -1210,7 +1210,7 @@ MonoBehaviour:
     scrollPos: {x: 0, y: 0}
     m_SelectedIDs: 
     m_LastClickedID: 0
-    m_ExpandedIDs: 000000001e5b0000205b0000225b0000
+    m_ExpandedIDs: 00000000d45b0000d65b0000d85b0000
     m_RenameOverlay:
       m_UserAcceptedRename: 0
       m_Name: 
@@ -1241,18 +1241,18 @@ MonoBehaviour:
     m_ExpandedInstanceIDs: 5c7900004e550000ec54000000000000
     m_RenameOverlay:
       m_UserAcceptedRename: 0
-      m_Name: 
-      m_OriginalName: 
+      m_Name: SniperProjectile
+      m_OriginalName: SniperProjectile
       m_EditFieldRect:
         serializedVersion: 2
         x: 0
         y: 0
         width: 0
         height: 0
-      m_UserData: 0
+      m_UserData: -54060
       m_IsWaitingForDelay: 0
       m_IsRenaming: 0
-      m_OriginalEventType: 11
+      m_OriginalEventType: 0
       m_IsRenamingFilename: 1
       m_ClientGUIView: {fileID: 11}
     m_CreateAssetUtility:

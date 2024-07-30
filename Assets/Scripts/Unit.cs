@@ -2,6 +2,19 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+public enum AttackType
+{
+    Physical,
+    Magical,
+    True
+}
+
+public enum AttackRangeType
+{
+    Melee,
+    Ranged
+}
+
 public abstract class Unit : MonoBehaviour
 {
     [SerializeField, HideInInspector]
@@ -16,6 +29,7 @@ public abstract class Unit : MonoBehaviour
      */
 
     protected bool canAttack = true;
+    public AttackRangeType attackRangeType;
 
     public virtual void Initialize(UnitStats initialStats)
     {
@@ -26,6 +40,8 @@ public abstract class Unit : MonoBehaviour
     {
         // 물리, 마법 대미지 여부는 나중에 구현함 (AttackType에 따라 구분)
         float actualDamage = Mathf.Max(damage - stats.Defense, 0);
+
+
         stats.Health -= actualDamage;
         if (stats.Health <= 0)
         {

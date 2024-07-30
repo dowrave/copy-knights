@@ -31,6 +31,7 @@ public class PathFindingManager : MonoBehaviour
     /// </summary>
     public List<Vector3> FindPath(Vector3 startPos, Vector3 targetPos)
     {
+
         Vector2Int start = currentMap.WorldToGridPosition(startPos);
         Vector2Int end = currentMap.WorldToGridPosition(targetPos);
 

@@ -191,7 +191,7 @@ public class OperatorManager : MonoBehaviour
 
         foreach (Vector2Int offset in attackRange)
         {
-            Vector2Int rotatedOffset = RotateOffset(offset, direction);
+            Vector2Int rotatedOffset = operatorScript.RotateOffset(offset, direction);
             Vector2Int targetPos = new Vector2Int(tile.GridPosition.x + rotatedOffset.x,
                                                   tile.GridPosition.y + rotatedOffset.y);
             Tile targetTile = mapManager.GetTile(targetPos.x, targetPos.y);
@@ -203,14 +203,6 @@ public class OperatorManager : MonoBehaviour
         }
     }
 
-    private Vector2Int RotateOffset(Vector2Int offset, Vector3 direction)
-    {
-        if (direction == Vector3.left) return offset;
-        if (direction == Vector3.right) return new Vector2Int(-offset.x, -offset.y);
-        if (direction == Vector3.forward) return new Vector2Int(offset.y, -offset.x);
-        if (direction == Vector3.back) return new Vector2Int(-offset.y, offset.x);
-        return offset;
-    }
 
     private Vector3 DetermineDirection(Vector3 dragVector)
     {

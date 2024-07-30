@@ -34,10 +34,8 @@ public class EnemySpawner : MonoBehaviour
 
     public void StartSpawning()
     {
-        Debug.Log("EnemySpawner : 적 생성 시작");
         if (isInitialized)
         {
-            Debug.Log("EnemySpawner : initialize됨");
             StartCoroutine(SpawnEnemies());
         }
     }
@@ -51,7 +49,6 @@ public class EnemySpawner : MonoBehaviour
         float startTime = Time.time;
         foreach (var spawnInfo in enemySpawnList)
         {
-            Debug.Log("SpawnEnemies 작동 중..");
             yield return new WaitForSeconds(spawnInfo.spawnTime - (Time.time - startTime));
             SpawnEnemy(spawnInfo.enemyPrefab);
         }
@@ -59,7 +56,6 @@ public class EnemySpawner : MonoBehaviour
     
     private void SpawnEnemy(GameObject enemyPrefab)
     {
-        Debug.Log("SpawnEnemy 작동");
         if (enemyPrefab == null) return;
 
         GameObject enemyObject = Instantiate(enemyPrefab, startPoint, Quaternion.identity);
@@ -67,7 +63,6 @@ public class EnemySpawner : MonoBehaviour
         
         if (enemy != null)
         {
-            Debug.Log("SpawnEnemy : enemy 포착");
             UnitStats Stats = GenerateEnemyStats();
             float movementSpeed = 1f;
             enemy.Initialize(Stats, movementSpeed, startPoint, endPoint);

@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 [ExecuteAlways] // 에디터, 런타임 모두에서 스크립트 실행
@@ -6,6 +7,11 @@ public class Tile : MonoBehaviour
     public TileData data;
     public bool IsOccupied { get; private set; }
     private Transform cubeTransform;
+    float tileScale = 0.98f;
+    public Vector2 size2D;
+
+    // 타일 위에 있는 적들을 저장하는 리스트
+    public List<Enemy> enemiesOnTile = new List<Enemy>();
 
     /* 
      * 중요! 프로퍼티만 설정하면 변수 저장은 불가능하다
@@ -34,6 +40,7 @@ public class Tile : MonoBehaviour
     {
         cubeTransform = transform.Find("Cube");
         InitializeGridPosition();
+        size2D = new Vector2(tileScale, tileScale);
     }
     private void OnValidate()
     {
@@ -80,7 +87,7 @@ public class Tile : MonoBehaviour
     {
         if (cubeTransform != null)
         {
-            float tileScale = 0.98f;
+
             cubeTransform.localScale = new Vector3(tileScale, GetHeightScale(), tileScale);
 
             // BoxCollider 크기 조정
@@ -196,4 +203,63 @@ public class Tile : MonoBehaviour
     //    }
     //    gameObject.name = tileName;
     //}
+
+    // 타일에 올라간 적 관리하는 메서드들 -------
+    public bool IsEnemyOnTile(Enemy enemy)
+    {
+        Vector3 enemyPosition = enemy.transform.position;
+        Vector3 tilePosition = transform.position;
+
+        // 3D -> 2D 좌표로 변환
+        Vector2 enemyPosition2D = new Vector2(enemyPosition.x, enemyPosition.z);
+        Vector2 tilePosition2D = new Vector2(tilePosition.x, tilePosition.z);
+
+        // 타일 경계 계산
+        float minX = tilePosition2D.x - size2D.x / 2;
+        float maxX = tilePosition2D.x + size2D.x / 2;
+        float minY = tilePosition2D.y - size2D.y / 2;
+        float maxY = tilePosition2D.y + size2D.y / 2;
+
+        // 적의 x, z 좌표가 타일 경계 내에 있는지 확인
+        return enemyPosition2D.x >= minX && enemyPosition2D.x <= maxX && enemyPosition2D.y >= minY && enemyPosition2D.y <= maxY;
+    }
+
+    // 타일 위의 모든 적 반환
+    public List<Enemy> GetEnemiesOnTile()
+    {
+        UpdateEnemiesOnTile();
+        return new List<Enemy>(enemiesOnTile);
+    }
+
+    // 타일 위의 적 목록 업데이트
+    private void UpdateEnemiesOnTile()
+    {
+        enemiesOnTile.Clear();
+        Enemy[] allEnemies = FindObjectsOfType<Enemy>();
+        foreach (Enemy enemy in allEnemies)
+        {
+            if (IsEnemyOnTile(enemy))
+            {
+                enemiesOnTile.Add(enemy);
+            }
+        }
+    }
+
+    // 적이 타일에 진입
+    public void EnemyEntered(Enemy enemy)
+    {
+        if (!enemiesOnTile.Contains(enemy))
+        {
+            enemiesOnTile.Add(enemy);
+        }
+    }
+
+    // 적이 타일에서 나감
+    public void EnemyExited(Enemy enemy)
+    {
+        enemiesOnTile.Remove(enemy);
+    }
+
+
+    // 타일에 올라간 적 관리하는 메서드들 끝 -------
 }

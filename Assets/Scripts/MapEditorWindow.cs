@@ -34,7 +34,6 @@ public class MapEditorWindow : EditorWindow
             currentMapWidth = currentMap.Width;
             currentMapHeight = currentMap.Height;
         }
-
         else
         {
             currentMapWidth = 5;
@@ -184,6 +183,9 @@ public class MapEditorWindow : EditorWindow
             {
                 currentMapWidth = currentMap.Width;
                 currentMapHeight = currentMap.Height;
+
+                // 맵 다시 초기화 - 컴파일이 다시 된 다음에 MapEditorWindow에 참조를 유실하는 문제가 있음
+                currentMap.Initialize(currentMapWidth, currentMapHeight, true);
             }
         }
     }

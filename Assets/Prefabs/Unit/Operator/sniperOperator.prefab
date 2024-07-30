@@ -127,6 +127,7 @@ MonoBehaviour:
     AttackType: 0
     Defense: 0
     MagicResistance: 0
+  attackRangeType: 1
   data: {fileID: 11400000, guid: 83744f49d25da9b45843b804cc14e510, type: 2}
   facingDirection: {x: 0, y: 0, z: 0}
   currentBlockedEnemies: 0

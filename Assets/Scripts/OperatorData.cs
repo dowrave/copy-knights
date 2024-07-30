@@ -12,4 +12,7 @@ public class OperatorData : ScriptableObject
 
     public float deploymentCost;
     public float reDeployTime = 70f;
+
+    public AttackRangeType attackRangeType;
+    public GameObject projectilePrefab;
 }

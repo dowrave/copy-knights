@@ -64,6 +64,8 @@
     <Compile Include="Assets\Scripts\Enemy.cs" />
     <Compile Include="Assets\Scripts\PathfindingManager.cs" />
     <Compile Include="Assets\Scripts\Map.cs" />
+    <Compile Include="Assets\Scripts\Projectile.cs" />
+    <Compile Include="Assets\Scripts\SniperBaseData.cs" />
     <Compile Include="Assets\Scripts\Tile.cs" />
     <Compile Include="Assets\Scripts\EnemySpawner.cs" />
     <Compile Include="Assets\Scripts\OperatorManager.cs" />
@@ -76,7 +78,6 @@
     <Compile Include="Assets\Scripts\UnitStats.cs" />
     <Compile Include="Assets\Scripts\MapEditorWindow.cs" />
     <Compile Include="Assets\Scripts\OperatorData.cs" />
-    <Compile Include="Assets\Scripts\AttackType.cs" />
     <Compile Include="Assets\Scripts\PathData.cs" />
     <Compile Include="Assets\Scripts\StageData.cs" />
   </ItemGroup>
