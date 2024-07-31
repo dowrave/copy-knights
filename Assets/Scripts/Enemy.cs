@@ -15,15 +15,34 @@ public class Enemy : Unit
     public float attackRange; // 공격 범위
     private Operator blockingOperator; // 자신을 저지 중인 오퍼레이터
     private bool isBlocked = false;
-    private bool isWaiting = false; 
+    private bool isWaiting = false;
+
+    private float maxHealth;
+    private EnemyCanvas enemyCanvas;
 
     public void Initialize(UnitStats initialStats, float movementSpeed, Vector3 startPoint, Vector3 endPoint)
     {
+        enemyCanvas = GetComponentInChildren<EnemyCanvas>(); // Enemy의 자식 오브젝트로 EnemyCanvas가 있어야 함
         base.Initialize(initialStats);
         MovementSpeed = movementSpeed;
         transform.position = startPoint; // 시작 위치 설정
         RequestPath(startPoint, endPoint);
+
+        maxHealth = stats.Health; // 초기 체력 설정, 이후에 현재 체력과 비교해서 체력바 표시 여부 결정
+        InitializeCanvas();
+
         // stats을 사용하는 로직은 이후에 추가
+    }
+
+    private void InitializeCanvas()
+    {
+        enemyCanvas = GetComponentInChildren<EnemyCanvas>();
+
+        if (enemyCanvas != null)
+        {
+            enemyCanvas.UpdateHealthBar(stats.Health, maxHealth);
+            enemyCanvas.SetHealthBarVisible(false);
+        }
     }
 
     public void SetPath(List<Vector3> newPath, List<float> newWaitTimes)
@@ -202,6 +221,18 @@ public class Enemy : Unit
 
         // 오브젝트 파괴
         base.Die();
+    }
+
+    public override void TakeDamage(float damage)
+    {
+        base.TakeDamage(damage);
+        
+        // 오버라이드 내용 : 대미지를 받으면 체력 게이지 바가 보이게 한다
+        if (healthBar != null)
+        {
+            enemyCanvas.SetHealthBarVisible(stats.Health < maxHealth);
+            enemyCanvas.UpdateHealthBar(stats.Health, maxHealth);
+        }
     }
 
 }

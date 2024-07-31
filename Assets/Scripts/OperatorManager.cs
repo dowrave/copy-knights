@@ -149,6 +149,8 @@ public class OperatorManager : MonoBehaviour
         if (previewOperator == null)
         {
             previewOperator = Instantiate(operatorPrefab, hoveredTile.transform.position, Quaternion.identity);
+            Operator previewOperatorScript = previewOperator.GetComponent<Operator>();
+            previewOperatorScript.IsPreviewMode = true;
             SetPreviewTransparency(0.5f);
         }
 
@@ -186,7 +188,6 @@ public class OperatorManager : MonoBehaviour
         Debug.Log("공격범위 표시 로직 작동");
 
         Operator operatorScript = operatorPrefab.GetComponent<Operator>();
-        operatorScript.SetFacingDirection(direction);
         Vector2Int[] attackRange = operatorScript.data.attackableTiles;
 
         foreach (Vector2Int offset in attackRange)
@@ -215,12 +216,12 @@ public class OperatorManager : MonoBehaviour
 
     private void PlaceOperator(Tile tile)
     {
-        GameObject placedOperator = Instantiate(operatorPrefab, tile.transform.position + Vector3.up * 0.5f, Quaternion.LookRotation(placementDirection));
+        GameObject placedOperator = Instantiate(operatorPrefab, tile.transform.position, Quaternion.LookRotation(placementDirection));
         Operator operatorScript = placedOperator.GetComponent<Operator>();
-        operatorScript.SetFacingDirection(placementDirection);
+        operatorScript.Deploy(tile.transform.position + Vector3.up * 0.5f, placementDirection);
 
         tile.SetOccupied(true);
-        Debug.Log("오퍼레이터 배치 완료");
+        Debug.Log($"오퍼레이터 배치 완료 : {tile.GridPosition}");
         ResetPlacement();
     }
 

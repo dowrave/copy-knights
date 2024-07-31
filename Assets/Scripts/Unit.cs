@@ -31,18 +31,28 @@ public abstract class Unit : MonoBehaviour
     protected bool canAttack = true;
     public AttackRangeType attackRangeType;
 
+    protected HealthBar healthBar;
+
     public virtual void Initialize(UnitStats initialStats)
     {
         stats = initialStats;
+        healthBar = GetComponentInChildren<HealthBar>();
+        if (healthBar != null)
+        {
+            healthBar.UpdateHealthBar(stats.Health, stats.Health);
+        }
     }
 
     public virtual void TakeDamage(float damage)
     {
         // 물리, 마법 대미지 여부는 나중에 구현함 (AttackType에 따라 구분)
         float actualDamage = Mathf.Max(damage - stats.Defense, 0);
-
-
         stats.Health -= actualDamage;
+
+        if (healthBar != null)
+        {
+            healthBar.UpdateHealthBar(stats.Health, stats.Health);
+        }
         if (stats.Health <= 0)
         {
             Die();

@@ -15,4 +15,10 @@ public class OperatorData : ScriptableObject
 
     public AttackRangeType attackRangeType;
     public GameObject projectilePrefab;
+
+    // SP
+    public float maxSP = 30f; // 스킬의 SP와 일치하는 게 맞을 듯?
+    public float initialSP = 0f; // 초기 SP
+    public bool autoRecoverSP = true; // SP 자동 회복 여부. 적을 공격할 때만 회복되게 할 수도 있다.
+    public float SpRecoveryRate = 1f; // 오퍼레이터마다 다름
 }
