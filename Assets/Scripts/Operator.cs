@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class Operator : Unit
 {
@@ -11,38 +12,87 @@ public class Operator : Unit
     [SerializeField, HideInInspector]
     public Vector3 facingDirection = Vector3.left;
 
-
     public int currentBlockedEnemies; // 현재 저지 수
     public int deploymentOrder { get; private set; } // 배치 순서
-
+    private bool isDeployed = false;
+    private Map currentMap;
+    private Enemy currentTarget;
+    private float attackCooldown = 0f; // data.baseStats에서 들어오는 AttackSpeed 값에 의해 결정됨
     [HideInInspector] public bool isBlocking = false; // 저지 중인가
 
-    private Map currentMap;
-    private float attackCooldown = 0f; // data.baseStats에서 들어오는 AttackSpeed 값에 의해 결정됨
+    // SP 관련
+    private float currentSP;
 
-    // 원거리 공격을 위한 변수들
-    private Enemy currentTarget;
+    // 캔버스
+    private OperatorCanvas operatorCanvas;
 
+    // 미리보기 관련
+    private bool isPreviewMode = false;
+    public bool IsPreviewMode
+    {
+        get { return isPreviewMode; }
+        set
+        {
+            isPreviewMode = value;
+            UpdateVisuals();
+        }
+    }
+    private MeshRenderer meshRenderer;
+    private Material originalMaterial;
+    private Material previewMaterial;
 
+    private void Awake()
+    {
+        PrepareTransparentMaterial();
+    }
+
+    // 배치에 상관 없는 초기화 수행
     private void Start()
+    {
+        currentSP = data.initialSP; // SP 초기화
+        attackRangeType = data.attackRangeType;
+        InitializeStats();
+    }
+
+    public void Deploy(Vector3 position, Vector3 direction)
+    {
+        if (!isDeployed)
+        {
+            isDeployed = true;
+            transform.position = position;
+            facingDirection = direction;
+            currentMap = FindObjectOfType<Map>();
+            InitializeCanvas();
+        }
+    }
+
+    public void InitializeStats()
     {
         base.Initialize(data.baseStats);
         attackRangeType = data.attackRangeType;
-        currentMap = FindObjectOfType<Map>();
     }
+
 
     private void Update()
     {
-        if (attackCooldown > 0)
-        {
-            // 공격 속도에 의한 딜레이
-            attackCooldown -= Time.deltaTime; 
-        }
-        else
+        attackCooldown -= Time.deltaTime;
+
+        if (attackCooldown <= 0 && isDeployed)
         {
             FindAndAttackTarget();
         }
-        Debug.Log(attackCooldown);
+
+        RecoverSP();
+    }
+    
+    private void InitializeCanvas()
+    {
+        operatorCanvas = GetComponentInChildren<OperatorCanvas>();
+        if (operatorCanvas != null)
+        { 
+            operatorCanvas.UpdateHealthBar(stats.Health, data.baseStats.Health);
+            operatorCanvas.UpdateSPBar(currentSP, data.maxSP);
+        }
     }
 
     private void FindAndAttackTarget()
@@ -136,11 +186,6 @@ public class Operator : Unit
     {
         return data.attackableTiles;
     }
-    
-    public void SetFacingDirection(Vector3 direction)
-    {
-        facingDirection = direction;
-    }
 
     public override bool CanAttack(Vector3 targetPosition)
     {
@@ -189,6 +234,61 @@ public class Operator : Unit
         if (currentBlockedEnemies > 0)
         {
             currentBlockedEnemies--;
+        }
+    }
+
+    // SP 로직 추가
+    private void RecoverSP()
+    {
+        currentSP = Mathf.Min(currentSP + data.SpRecoveryRate * Time.deltaTime, data.maxSP);
+        operatorCanvas.UpdateSPBar(currentSP, data.maxSP);
+    }
+
+    public bool TryUseSkill(float spCost)
+    {
+        if (currentSP >= spCost)
+        {
+            currentSP -= spCost;
+            operatorCanvas.UpdateSPBar(currentSP, data.maxSP);
+            return true;
+        }
+        return false; 
+    }
+
+    protected override void Die()
+    {
+        // 사망 후 작동해야 하는 로직이 있을 듯?
+
+        // 오브젝트 파괴
+        base.Die();
+    }
+
+    private void PrepareTransparentMaterial()
+    {
+        meshRenderer = GetComponentInChildren<MeshRenderer>();
+        if (meshRenderer != null)
+        {
+            originalMaterial = meshRenderer.material;
+            previewMaterial = new Material(originalMaterial);
+            previewMaterial.SetFloat("_Mode", 3); // TransParent 모드로 설정
+            Color previewColor = previewMaterial.color;
+            previewColor.a = 0.5f;
+            previewMaterial.color = previewColor;
+        }
+    }
+
+    private void UpdateVisuals()
+    {
+        if (isPreviewMode)
+        {
+            // 프리뷰 모드일 때의 시각 설정
+            meshRenderer.material = previewMaterial;
+        }
+        else
+        {
+            // 실제 배치 모드일 때의 시각 설정
+            meshRenderer.material = originalMaterial;
+
         }
     }
 

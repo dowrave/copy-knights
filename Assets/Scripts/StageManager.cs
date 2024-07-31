@@ -18,7 +18,7 @@ public class StageManager : MonoBehaviour
 
     [SerializeField] private MapManager mapManager;
     [SerializeField] private SpawnerManager spawnerManager;
-    [SerializeField] private Map currentMap;
+    private Map currentMap;
     private GameState currentState;
 
     private void Awake()

@@ -10,21 +10,33 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: fd69fe121c428fa40b981892f9a7fe11, type: 3}
-  m_Name: melee_1block
+  m_Name: Ranged(Base)
   m_EditorClassIdentifier: 
-  operatorName: 
+  operatorName: Sniper1
   baseStats:
     Health: 600
-    AttackPower: 0
-    AttackSpeed: 0
+    AttackPower: 50
+    AttackSpeed: 1.5
     AttackType: 0
-    Defense: 0
-    MagicResistance: 0
+    Defense: 100
+    MagicResistance: 100
   attackableTiles:
   - {x: 0, y: 0}
+  - {x: 0, y: -1}
+  - {x: 0, y: 1}
   - {x: -1, y: 0}
-  canDeployGround: 1
-  canDeployHill: 0
+  - {x: -1, y: -1}
+  - {x: -1, y: 1}
+  - {x: -2, y: 0}
+  - {x: -2, y: -1}
+  - {x: -2, y: 1}
+  - {x: -3, y: 0}
+  - {x: -3, y: -1}
+  - {x: -3, y: 1}
+  canDeployGround: 0
+  canDeployHill: 1
   maxBlockableEnemies: 1
   deploymentCost: 0
   reDeployTime: 70
+  attackRangeType: 1
+  projectilePrefab: {fileID: 491002625568547402, guid: 768a4d8f960f50f43b581b2790a5639e, type: 3}
