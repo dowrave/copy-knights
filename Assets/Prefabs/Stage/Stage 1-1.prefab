@@ -44,8 +44,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 207e6786179b7e74d97af8d35217b629, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  mapManager: {fileID: 1255909598239862411}
-  spawnerManager: {fileID: 826761011560823892}
 --- !u!1 &1818945865418368289
 GameObject:
   m_ObjectHideFlags: 0
