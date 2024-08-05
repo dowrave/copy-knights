@@ -6,8 +6,8 @@ using System.Linq;
 
 public class MapEditorWindow : EditorWindow
 {
-    public int currentMapWidth;
-    public int currentMapHeight;
+    public int currentMapWidth = 5;
+    public int currentMapHeight = 5;
     private int newMapWidth;
     private int newMapHeight;
     private Map currentMap;
@@ -29,24 +29,15 @@ public class MapEditorWindow : EditorWindow
 
     private void OnEnable()
     {
-        if (currentMap != null)
-        {
-            currentMapWidth = currentMap.Width;
-            currentMapHeight = currentMap.Height;
-        }
-        else
-        {
-            currentMapWidth = 5;
-            currentMapHeight = 5;
-        }
-
-        newMapWidth = currentMapWidth;
-        newMapHeight = currentMapHeight;
 
         LoadAvailableTileData(); // 사용 가능한 타일 정보 준비
         LoadSpawnerPrefab(); // 스포너 준비
         LoadTilePrefab(); // 타일 정보 준비
         FindExistingMap();
+
+        // 윈도우에 나타나는 Width, Height 초기화
+        newMapWidth = currentMapWidth;
+        newMapHeight = currentMapHeight;
     }
 
     private void OnGUI()

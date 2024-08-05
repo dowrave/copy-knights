@@ -14,8 +14,7 @@ using System.Collections.Generic;
 public class StageManager : MonoBehaviour
 {
     public static StageManager Instance { get; private set; }
-    private Map currentMap;
-    private GameState currentState;
+    public GameState currentState;
 
     private void Awake()
     {
@@ -41,39 +40,8 @@ public class StageManager : MonoBehaviour
 
     private void InitializeStage()
     {
-        
-        AssignMap(); // currentMap에 하이어라키에 떠 있는 Map 할당
-
-        if (currentMap == null)
-        {
-            Debug.LogError("스테이지 매니저에 맵이 할당되지 않음");
-        }
-
-        currentMap.Initialize(currentMap.Width, currentMap.Height, true);
-        MapManager.Instance.InitializeMap(currentMap);
-        SpawnerManager.Instance.Initialize(currentMap);
-        CameraManager.Instance.AdjustCameraToMap(currentMap.Width, currentMap.Height);
+        MapManager.Instance.InitializeMap();
         SetGameState(GameState.Preparation);
-    }
-
-    // 맵 자동 할당 메서드
-    private void AssignMap()
-    {
-        currentMap = FindObjectOfType<Map>();
-
-        if (currentMap == null)
-        {
-            GameObject stageObject = FindStageObject();
-            if (stageObject != null)
-            {
-                currentMap = stageObject.GetComponentInChildren<Map>();
-            }
-        }
-
-        if (currentMap == null)
-        {
-            Debug.LogError("맵을 찾을 수 없습니다.");
-        }
     }
 
     public void StartBattle()

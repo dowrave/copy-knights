@@ -19,7 +19,6 @@ public class MapManager : MonoBehaviour
         if (Instance == null)
         {
             Instance = this;
-            DontDestroyOnLoad(gameObject);
         }
         else
         {
@@ -27,16 +26,22 @@ public class MapManager : MonoBehaviour
         }
     }
 
+    private void Start()
+    {
+        InitializeMap();
+    }
 
     //private int mapWidth, mapHeight;
 
     // currentMap 자체는 StageManager에서 관리, MapManager에서는 이를 받는 구조를 취한다.
-    public void InitializeMap(Map map)
+    public void InitializeMap()
     {
-        currentMap = map;
-
+        currentMap = FindObjectOfType<Map>();
         if (currentMap != null)
         {
+            currentMap.Initialize(currentMap.Width, currentMap.Height, true);
+            SpawnerManager.Instance.Initialize(currentMap);
+            //CameraManager.Instance.AdjustCameraToMap(currentMap.Width, currentMap.Height);
             InitializePaths(); 
         }
         else
@@ -90,6 +95,11 @@ public class MapManager : MonoBehaviour
     public Vector3 GetEndPoint()
     {
         return currentMap.FindEndPoint();
+    }
+
+    public Map GetCurrentMap()
+    {
+        return currentMap;
     }
 
 }

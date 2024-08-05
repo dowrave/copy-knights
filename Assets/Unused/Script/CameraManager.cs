@@ -17,7 +17,7 @@ public class CameraManager : MonoBehaviour
         if (Instance == null)
         {
             Instance = this;
-            DontDestroyOnLoad(gameObject);
+            //DontDestroyOnLoad(gameObject);
         }
         else
         {
@@ -39,7 +39,7 @@ public class CameraManager : MonoBehaviour
             Vector3 mapCenter = new Vector3(mapWidth / 2f - 0.5f, 0f, mapHeight / 2f - 0.5f);
 
             // 카메라 회전 설정
-            mainCamera.transform.rotation = Quaternion.Euler(cameraAngle, 0f, 0f);
+            //mainCamera.transform.rotation = Quaternion.Euler(cameraAngle, 0f, 0f);
 
             // 카메라 위치 계산 및 설정
             float zOffset = cameraOffsetZ * Mathf.Tan((90f - cameraAngle) * Mathf.Deg2Rad);

@@ -1,33 +1,37 @@
 using UnityEngine;
 using UnityEngine.UI;
 
-
+// Enemy 오브젝트의 UI를 관리하는 클래스
 public class EnemyUI : MonoBehaviour
 {
-    [SerializeField] private HealthBar healthBar;
+    private float backOffset = 0; // UI의 높이 오프셋
+    private HealthBar healthBar;
     private Canvas canvas;
-    private Enemy target;
+    private Enemy enemy;
 
     private void Awake()
     {
         canvas = GetComponent<Canvas>();
         canvas.renderMode = RenderMode.WorldSpace;
         canvas.worldCamera = Camera.main;
+
+        healthBar = GetComponentInChildren<HealthBar>();
     }
 
-    public void SetTarget(Enemy enemy)
+    public void Initialize(Enemy enemy)
     {
-        target = enemy;
-        UpdatePosition();
+        this.enemy = enemy;
         UpdateUI();
     }
 
-    private void Update()
+    private void LateUpdate()
     {
-        if (target != null)
+        if (enemy != null)
         {
             UpdatePosition();
-        } else 
+            UpdateUI();
+        }
+        else
         {
             Destroy(gameObject);
         }
@@ -35,9 +39,9 @@ public class EnemyUI : MonoBehaviour
 
     public void UpdateUI()
     {
-        if (target != null)
+        if (enemy != null)
         {
-            UpdateHealthBar(target.Stats.Health, target.MaxHealth);
+            UpdateHealthBar(enemy.Stats.Health, enemy.MaxHealth);
         }
     }
 
@@ -58,10 +62,14 @@ public class EnemyUI : MonoBehaviour
 
     private void UpdatePosition()
     {
-        if (target != null)
+        if (enemy != null)
         {
-            transform.position = target.transform.position + new Vector3(0, 0, -0.4f);
-            transform.rotation = Camera.main.transform.rotation;
+            transform.position = enemy.transform.position + Vector3.back * backOffset;
         }
+
+        transform.rotation = Quaternion.Euler(90, 0, 0);
+
+        // Canvas가 항상 카메라를 향하도록 회전 설정
+        //transform.rotation = Camera.main.transform.rotation;
     }
 }

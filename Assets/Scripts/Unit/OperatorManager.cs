@@ -1,11 +1,11 @@
 using UnityEngine;
 using System.Collections.Generic;
 using Unity.VisualScripting;
+using System.Collections;
 
 public class OperatorManager : MonoBehaviour
 {
     public GameObject operatorPrefab;
-    public MapManager mapManager;
     public Color availableTileColor = Color.green;
     public Color unavailableTileColor = Color.red;
     public Color attackRangeTileColor = new Color(255, 127, 0);
@@ -25,15 +25,14 @@ public class OperatorManager : MonoBehaviour
     private float minDirectionDistance = 1f;
     private const float INDICATOR_SIZE = 2.5f;
 
-    [SerializeField] private LayerMask tileLayerMask; 
+    [SerializeField] private LayerMask tileLayerMask;
 
-    public void Start()
-    {
-        StartDraggingFromUI();
-    }
 
     private void Update()
     {
+        if (StageManager.Instance.currentState != GameState.Battle) { return; }
+
+        // Battle 중일 때에만 동작한다.
         if (isDraggingFromUI)
         {
             HandleDraggingFromUI();
@@ -52,15 +51,16 @@ public class OperatorManager : MonoBehaviour
     public void StartDraggingFromUI()
     {
         isDraggingFromUI = true;
-        HighlightAvailableTiles();
+        //HighlightAvailableTiles();
     }
 
     private void HandleDraggingFromUI()
     {
+        HighlightAvailableTiles();
+
         Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
         RaycastHit hit;
         Tile hoveredTile = null;
-
 
         if (Physics.Raycast(ray, out hit, Mathf.Infinity, tileLayerMask))
         {
@@ -183,7 +183,7 @@ public class OperatorManager : MonoBehaviour
         ResetHighlights();
         Operator operatorScript = operatorPrefab.GetComponent<Operator>();
 
-        foreach (Tile tile in mapManager.GetAllTiles())
+        foreach (Tile tile in MapManager.Instance.GetAllTiles())
         {
             if (tile != null && tile.CanPlaceOperator())
             {
@@ -207,7 +207,7 @@ public class OperatorManager : MonoBehaviour
             Vector2Int rotatedOffset = operatorScript.RotateOffset(offset, direction);
             Vector2Int targetPos = new Vector2Int(tile.GridPosition.x + rotatedOffset.x,
                                                   tile.GridPosition.y + rotatedOffset.y);
-            Tile targetTile = mapManager.GetTile(targetPos.x, targetPos.y);
+            Tile targetTile = MapManager.Instance.GetTile(targetPos.x, targetPos.y);
             if (targetTile != null)
             {
                 targetTile.Highlight(attackRangeTileColor);
@@ -231,8 +231,9 @@ public class OperatorManager : MonoBehaviour
         GameObject placedOperator = Instantiate(operatorPrefab, tile.transform.position, Quaternion.LookRotation(placementDirection));
         Operator operatorScript = placedOperator.GetComponent<Operator>();
         operatorScript.Deploy(tile.transform.position + Vector3.up * 0.5f, placementDirection);
-
         tile.SetOccupied(true);
+        operatorPrefab = null;
+
         Debug.Log($"오퍼레이터 배치 완료 : {tile.GridPosition}");
         ResetPlacement();
     }

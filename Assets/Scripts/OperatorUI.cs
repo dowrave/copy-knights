@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.Timeline;
 using UnityEngine.UI;
 
 
@@ -6,28 +7,32 @@ public class OperatorUI : MonoBehaviour
 {
     [SerializeField] private HealthBar healthBar;
     [SerializeField] private HealthBar spBar;
+    private float backOffset = 0; // UI의 높이 오프셋
     private Canvas canvas; 
-    private Operator target;
+    private Operator op;
 
     private void Awake()
     {
         canvas = GetComponent<Canvas>();
         canvas.renderMode = RenderMode.WorldSpace;
         canvas.worldCamera = Camera.main;
+
+        healthBar = transform.Find("HealthBar").GetComponent<HealthBar>();
+        spBar = transform.Find("SPBar").GetComponent<HealthBar>();
     }
 
-    public void SetTarget(Operator op)
+    public void Initialize(Operator op)
     {
-        target = op;
-        UpdatePosition();
+        this.op = op;
         UpdateUI();
     }
 
     private void Update()
     {
-        if (target != null)
+        if (op != null)
         {
             UpdatePosition();
+            UpdateUI();
         }
         else
         {
@@ -37,10 +42,10 @@ public class OperatorUI : MonoBehaviour
 
     public void UpdateUI()
     {
-        if (target != null)
+        if (op != null)
         {
-            UpdateHealthBar(target.Stats.Health, target.MaxHealth);
-            UpdateSPBar(target.CurrentSP, target.data.maxSP);
+            UpdateHealthBar(op.Stats.Health, op.MaxHealth);
+            UpdateSPBar(op.CurrentSP, op.data.maxSP);
         }
     }
     public void UpdateHealthBar(float currentHealth, float maxHealth)
@@ -65,10 +70,14 @@ public class OperatorUI : MonoBehaviour
 
     private void UpdatePosition()
     {
-        if (target != null)
+        if (op != null)
         {
-            transform.position = target.transform.position + new Vector3(0, 0, -0.4f); // UI를 Operator 아래에 배치
-            transform.rotation = Camera.main.transform.rotation; // UI가 항상 카메라를 향하도록 함
+            transform.position = op.transform.position + Vector3.back * backOffset;
         }
+
+        transform.rotation = Quaternion.Euler(90, 0, 0);
+
+        // Canvas가 항상 카메라를 향하도록 회전 설정
+        //transform.rotation = Camera.main.transform.rotation;
     }
 }
