@@ -24,8 +24,9 @@ public class Operator : Unit
     private float currentSP;
     public float CurrentSP => currentSP;
 
-    // 캔버스
-    //private OperatorCanvas operatorCanvas;
+    [SerializeField] private GameObject operatorUIPrefab;
+    private OperatorUI operatorUI;
+    
 
     // 최대 체력
     private float maxHealth;
@@ -45,6 +46,8 @@ public class Operator : Unit
     private MeshRenderer meshRenderer;
     private Material originalMaterial;
     private Material previewMaterial;
+
+    // 필드 끝 --------------------------------------------------------
 
     private void Awake()
     {
@@ -67,9 +70,21 @@ public class Operator : Unit
             transform.position = position;
             facingDirection = direction;
             currentMap = FindObjectOfType<Map>();
-            maxHealth = data.baseStats.Health; 
-            UIManager.Instance.CreateOperatorUI(this);
-            //InitializeCanvas();
+            maxHealth = data.baseStats.Health;
+
+            CreateOperatorUI();
+        }
+    }
+    private void CreateOperatorUI()
+    {
+        if (operatorUIPrefab != null)
+        {
+            GameObject uiObject = Instantiate(operatorUIPrefab, transform);
+            operatorUI = uiObject.GetComponent<OperatorUI>();
+            if (operatorUI != null)
+            {
+                operatorUI.Initialize(this);
+            }
         }
     }
 
@@ -237,8 +252,9 @@ public class Operator : Unit
     // SP 로직 추가
     private void RecoverSP()
     {
-        float oldSP = currentSP;
+        if (isDeployed == false) { return;  }
 
+        float oldSP = currentSP;
         if (data.autoRecoverSP)
         {
             currentSP = Mathf.Min(currentSP + data.SpRecoveryRate * Time.deltaTime, data.maxSP);    
@@ -247,8 +263,8 @@ public class Operator : Unit
 
         if (currentSP != oldSP)
         {
-            //operatorCanvas.UpdateSPBar(currentSP, data.maxSP);
-            UIManager.Instance.UpdateOperatorUI(this);
+            operatorUI.UpdateSPBar(currentSP, data.maxSP);
+            //operatorUI.UpdateOperatorUI(this);
         }
     }
 
@@ -257,8 +273,7 @@ public class Operator : Unit
         if (currentSP >= spCost)
         {
             currentSP -= spCost;
-            //operatorCanvas.UpdateSPBar(currentSP, data.maxSP);
-            UIManager.Instance.UpdateOperatorUI(this);
+
             return true;
         }
         return false; 
@@ -267,7 +282,8 @@ public class Operator : Unit
     public override void TakeDamage(float damage)
     {
         base.TakeDamage(damage);
-        UIManager.Instance.UpdateOperatorUI(this);
+        //operatorUI.UpdateOperatorUI(this);
+        operatorUI.UpdateUI();
     }
 
     protected override void Die()
@@ -275,7 +291,7 @@ public class Operator : Unit
         // 사망 후 작동해야 하는 로직이 있을 듯?
 
         // 오브젝트 파괴
-        UIManager.Instance.RemoveOperatorUI(this);
+        Destroy(operatorUI.gameObject);
         base.Die();
     }
 

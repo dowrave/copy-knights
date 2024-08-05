@@ -20,11 +20,11 @@ public class Enemy : Unit
     private float maxHealth;
     public float MaxHealth => maxHealth;
 
-    private EnemyCanvas enemyCanvas;
+    [SerializeField] private GameObject enemyUIPrefab;
+    private EnemyUI enemyUI;
 
     public void Initialize(UnitStats initialStats, float movementSpeed, Vector3 startPoint, Vector3 endPoint)
     {
-        //enemyCanvas = GetComponentInChildren<EnemyCanvas>(); // Enemy의 자식 오브젝트로 EnemyCanvas가 있어야 함
         base.Initialize(initialStats);
         MovementSpeed = movementSpeed;
         transform.position = startPoint; // 시작 위치 설정
@@ -33,19 +33,22 @@ public class Enemy : Unit
         maxHealth = stats.Health; // 초기 체력 설정, 이후에 현재 체력과 비교해서 체력바 표시 여부 결정
         //InitializeCanvas();
 
-        UIManager.Instance.CreateEnemyUI(this);
+        //UIManager.Instance.CreateEnemyUI(this); // Enemy - EnemyUI 간의 매칭
+
+        CreateEnemyUI();
 
         // stats을 사용하는 로직은 이후에 추가
     }
-
-    private void InitializeCanvas()
+    private void CreateEnemyUI()
     {
-        enemyCanvas = GetComponentInChildren<EnemyCanvas>();
-
-        if (enemyCanvas != null)
+        if (enemyUIPrefab != null)
         {
-            enemyCanvas.UpdateHealthBar(stats.Health, maxHealth);
-            enemyCanvas.SetHealthBarVisible(false);
+            GameObject uiObject = Instantiate(enemyUIPrefab, transform);
+            enemyUI = uiObject.GetComponent<EnemyUI>();
+            if (enemyUI != null)
+            {
+                enemyUI.Initialize(this);
+            }
         }
     }
 
@@ -223,8 +226,11 @@ public class Enemy : Unit
 
         // 계획) 스테이지 매니저를 만들고 나서 사망한 적 카운트를 +1 해줌
 
-        // 오브젝트 파괴
-        UIManager.Instance.RemoveEnemyUI(this);
+        if (enemyUI != null)
+        {
+            Destroy(enemyUI.gameObject);
+        }
+
         base.Die();
     }
 
@@ -232,13 +238,10 @@ public class Enemy : Unit
     {
         base.TakeDamage(damage);
 
-        // 오버라이드 내용 : 대미지를 받으면 체력 게이지 바가 보이게 한다
-        UIManager.Instance.UpdateEnemyUI(this);
-        //if (healthBar != null)
-        //{
-        //    enemyCanvas.SetHealthBarVisible(stats.Health < maxHealth);
-        //    enemyCanvas.UpdateHealthBar(stats.Health, maxHealth);
-        //}
+        if (enemyUI != null)
+        {
+            enemyUI.UpdateUI();
+        }
     }
 
 }
