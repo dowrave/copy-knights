@@ -9,10 +9,6 @@ public class HealthBar : MonoBehaviour
 
     private void Awake()
     {
-        //if (fillImage == null)
-        //{
-        //    fillImage = transform.Find("Fill Area/Fill")?.GetComponent<Image>();
-        //}
         if (slider == null)
         {
             slider = GetComponent<Slider>();
@@ -24,13 +20,6 @@ public class HealthBar : MonoBehaviour
     /// </summary>
     public void UpdateHealthBar(float currentHealth, float maxHealth)
     {
-        //if (fillImage != null)
-        //{
-        //    fillImage.fillAmount = currentHealth / maxHealth;
-
-        //    Debug.Log($"HealthBar Updated - Current Health: {currentHealth}, Max Health: {maxHealth}, Fill Amount: {fillImage.fillAmount}");
-        //}
-
         slider.maxValue = maxHealth;
         slider.value = currentHealth;
 

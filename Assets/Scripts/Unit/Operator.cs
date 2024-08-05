@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,22 +13,27 @@ public class Operator : Unit
     [SerializeField, HideInInspector]
     public Vector3 facingDirection = Vector3.left;
 
-    public int currentBlockedEnemies; // 현재 저지 수
+    // 저지 관련
+    private Enemy[] blockedEnemies;
+    public IReadOnlyList<Enemy> BlockedEnemies => Array.AsReadOnly(blockedEnemies);
+    private int currentBlockedEnemiesCount = 0;
+    public int CurrentBlockedEnemiesCount => currentBlockedEnemiesCount;
+
     public int deploymentOrder { get; private set; } // 배치 순서
     private bool isDeployed = false;
     private Map currentMap;
     private Enemy currentTarget;
     private float attackCooldown = 0f; // data.baseStats에서 들어오는 AttackSpeed 값에 의해 결정됨
-    [HideInInspector] public bool isBlocking = false; // 저지 중인가
+    //[HideInInspector] public bool isBlocking = false; // 저지 중인가
 
     // SP 관련
     private float currentSP;
     public float CurrentSP => currentSP;
 
-    [SerializeField] private GameObject operatorUIPrefab;
+    //[SerializeField] private GameObject operatorUIPrefab;
     private OperatorUI operatorUI;
-    
 
+    public float currentHealth => stats.Health;
     // 최대 체력
     private float maxHealth;
     public float MaxHealth => maxHealth;
@@ -77,21 +83,23 @@ public class Operator : Unit
     }
     private void CreateOperatorUI()
     {
-        if (operatorUIPrefab != null)
+        //if (operatorUIPrefab != null)
+        //{
+            //GameObject uiObject = Instantiate(operatorUIPrefab, transform);
+        operatorUI = GetComponentInChildren<OperatorUI>();
+        if (operatorUI != null)
         {
-            GameObject uiObject = Instantiate(operatorUIPrefab, transform);
-            operatorUI = uiObject.GetComponent<OperatorUI>();
-            if (operatorUI != null)
-            {
-                operatorUI.Initialize(this);
-            }
+            operatorUI.Initialize(this);
         }
+        //}
     }
 
     public void InitializeStats()
     {
         base.Initialize(data.baseStats);
         attackRangeType = data.attackRangeType;
+        blockedEnemies = new Enemy[data.maxBlockableEnemies];
+        currentBlockedEnemiesCount = 0;
     }
 
 
@@ -109,14 +117,31 @@ public class Operator : Unit
 
     private void FindAndAttackTarget()
     {
+        
+        // 1. 저지 중일 때에는 저지 중인 적 중에서 공격
+        if (blockedEnemies.Length > 0)
+        {
+            Enemy target = blockedEnemies[0]; // 일단 떔빵
+            if (target != null)
+            {
+                Debug.Log("저지 중인 적을 공격함");
+                Attack(target);
+                return; 
+            }
+        }
+
         List<Enemy> enemiesInRange = GetEnemiesInAttackRange();
+        // 2. 저지 중이 아닐 때에는 공격 범위 내의 적 중에서 공격함
         if (enemiesInRange.Count > 0 )
         {
             // 타겟 우선순위 선정 로직이 필요함
             Enemy target = enemiesInRange[0]; // 일단 떔빵
-            Debug.Log("공격 범위 내에 적이 들어옴");
-
-            Attack(target);
+            if (target != null)
+            {
+                Debug.Log("저지 X / 공격 범위 내의 적을 공격함");
+                Attack(target);
+                return;
+            }
         }
     }
 
@@ -225,28 +250,60 @@ public class Operator : Unit
     }
 
     // --- 저지 관련 메서드들
-    
+
     // 이 오퍼레이터가 적을 저지할 수 있는 상태인가?
     public bool CanBlockEnemy()
     {
-        return isBlocking && currentBlockedEnemies < data.maxBlockableEnemies;
+        return currentBlockedEnemiesCount < data.maxBlockableEnemies;
     }
 
     // 저지 가능하다면 현 저지수 + 1
-    public void BlockEnemy()
+    public bool TryBlockEnemy(Enemy enemy)
     {
         if (CanBlockEnemy())
         {
-            currentBlockedEnemies++;
+            for (int i = 0; i < blockedEnemies.Length; i++)
+            {
+                if (blockedEnemies[i] == null)
+                {
+                    blockedEnemies[i] = enemy;
+                    currentBlockedEnemiesCount++;
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    public void UnblockEnemy(Enemy enemy)
+    {
+        for (int i = 0; i < blockedEnemies.Length; i++)
+        {
+            if (blockedEnemies[i] == enemy)
+            {
+                // 해당 적을 제거하고 나머지를 앞으로 당깁니다.
+                for (int j = i; j < blockedEnemies.Length - 1; j++)
+                {
+                    blockedEnemies[j] = blockedEnemies[j + 1];
+                }
+                blockedEnemies[blockedEnemies.Length - 1] = null;
+                currentBlockedEnemiesCount--;
+                break;
+            }
         }
     }
 
-    public void UnblockEnemy()
+    // 저지된 모든 적 제거
+    public void UnblockAllEnemies()
     {
-        if (currentBlockedEnemies > 0)
+        for (int i = 0; i < blockedEnemies.Length; i++)
         {
-            currentBlockedEnemies--;
+            if (blockedEnemies[i] != null)
+            {
+                blockedEnemies[i] = null;
+            }
         }
+        currentBlockedEnemiesCount = 0;
     }
 
     // SP 로직 추가
@@ -281,6 +338,8 @@ public class Operator : Unit
 
     public override void TakeDamage(float damage)
     {
+        Debug.Log($"Operator 공격 받음 : {damage}, {stats.Health}, {maxHealth}");
+
         base.TakeDamage(damage);
         //operatorUI.UpdateOperatorUI(this);
         operatorUI.UpdateUI();
@@ -289,6 +348,7 @@ public class Operator : Unit
     protected override void Die()
     {
         // 사망 후 작동해야 하는 로직이 있을 듯?
+        UnblockAllEnemies();
 
         // 오브젝트 파괴
         Destroy(operatorUI.gameObject);

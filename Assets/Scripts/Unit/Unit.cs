@@ -37,22 +37,17 @@ public abstract class Unit : MonoBehaviour
     {
         stats = initialStats;
         healthBar = GetComponentInChildren<HealthBar>();
-        if (healthBar != null)
-        {
-            healthBar.UpdateHealthBar(stats.Health, stats.Health);
-        }
     }
 
     public virtual void TakeDamage(float damage)
     {
         // 물리, 마법 대미지 여부는 나중에 구현함 (AttackType에 따라 구분)
-        float actualDamage = Mathf.Max(damage - stats.Defense, 0);
+
+        // 실제 대미지 대비 5%는 무조건 들어가게 구현되었을 거임
+        float actualDamage = Mathf.Max(damage - stats.Defense, damage * 0.05f);
+
         stats.Health -= actualDamage;
 
-        if (healthBar != null)
-        {
-            healthBar.UpdateHealthBar(stats.Health, stats.Health);
-        }
         if (stats.Health <= 0)
         {
             Die();

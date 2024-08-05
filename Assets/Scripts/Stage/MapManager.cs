@@ -77,20 +77,31 @@ public class MapManager : MonoBehaviour
         return tileData != null && tileData.isWalkable;
     }
 
-    public Vector3 GetTilePosition(int x, int y)
+
+    public Vector3 GetTilePosition(int gridX, int gridY)
     {
-        return currentMap.GridToWorldPosition(new Vector2Int(x, y)) + Vector3.up * 0.5f;
+        return currentMap.GridToWorldPosition(new Vector2Int(gridX, gridY)) + Vector3.up * 0.5f;
     }
 
-    public Tile GetTile(int x, int y)
+
+    public Tile GetTile(int worldX, int worldZ)
     {
-        return currentMap.GetTile(x, y);
+        return currentMap.GetTile(worldX, worldZ);
     }
 
     public IEnumerable<Tile> GetAllTiles()
     {
         return currentMap.GetAllTiles();
     }
+
+    /// <summary>
+    /// 해당 오브젝트의 월드 좌표를 인풋으로 받아 그리드 좌표를 반환함
+    /// </summary>
+    public Vector2Int GetGridPosition(Vector3 worldPosition)
+    {
+        return currentMap.WorldToGridPosition(worldPosition);
+    }
+
 
     public Vector3 GetEndPoint()
     {

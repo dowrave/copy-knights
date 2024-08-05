@@ -221,6 +221,9 @@ public class Map : MonoBehaviour
         return null;
     }
 
+    /// <summary>
+    /// 해당 "그리드" 좌표를 갖고 있는 타일을 반환함. 월드 좌표가 아님!!
+    /// </summary>
     public Tile GetTile(int x, int y)
     {
         if (!IsValidGridPosition(x, y)) return null;
