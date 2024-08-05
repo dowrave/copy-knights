@@ -74,16 +74,17 @@
     <Compile Include="Assets\Scripts\HealthBar.cs" />
     <Compile Include="Assets\Scripts\Stage\StageManager.cs" />
     <Compile Include="Assets\Unused\Script\UIManager.cs" />
-    <Compile Include="Assets\Scripts\Unit\EnemySpawner.cs" />
     <Compile Include="Assets\Scripts\Unit\Projectile.cs" />
     <Compile Include="Assets\Scripts\Unit\OperatorData.cs" />
     <Compile Include="Assets\Scripts\Unit\Operator.cs" />
     <Compile Include="Assets\Scripts\Unit\OperatorManager.cs" />
+    <Compile Include="Assets\Scripts\Stage\EnemySpawner.cs" />
     <Compile Include="Assets\Scripts\Unit\Unit.cs" />
     <Compile Include="Assets\Unused\Script\CameraManager.cs" />
     <Compile Include="Assets\Scripts\Stage\TileData.cs" />
     <Compile Include="Assets\Scripts\Stage\PathfindingManager.cs" />
     <Compile Include="Assets\Scripts\Stage\Map.cs" />
+    <Compile Include="Assets\Scripts\Unit\EnemyData.cs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="UnityEngine">

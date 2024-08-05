@@ -15,7 +15,7 @@ MonoBehaviour:
   operatorName: 
   baseStats:
     Health: 600
-    AttackPower: 50
+    AttackPower: 25
     AttackSpeed: 1
     AttackType: 0
     Defense: 0

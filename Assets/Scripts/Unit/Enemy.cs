@@ -7,49 +7,62 @@ using static UnityEngine.GraphicsBuffer;
 
 public class Enemy : Unit
 {
-    public float MovementSpeed { get; private set; } // 이동 속도
     private int currentPathIndex = 0; // 경로 중 현재 인덱스
     private List<Vector3> path;
     private List<float> waitTimes; 
 
     public float attackRange; // 공격 범위
     private Operator blockingOperator; // 자신을 저지 중인 오퍼레이터
-    private bool isBlocked = false;
-    private bool isWaiting = false;
 
+    // 현재 체력 접근자
+    public float CurrentHealth => stats.Health;
+
+    // 최대 체력 접근자
     private float maxHealth;
     public float MaxHealth => maxHealth;
 
-    [SerializeField] private GameObject enemyUIPrefab;
     private EnemyUI enemyUI;
 
-    public void Initialize(UnitStats initialStats, float movementSpeed, Vector3 startPoint, Vector3 endPoint)
+    public EnemyData data;
+
+    public float MovementSpeed { get; private set; } // 이동 속도
+    public int BlockCount { get; private set; }
+
+    public float DamageMultiplier { get; private set; }
+    public float DefenseMultiplier { get; private set; }
+
+    public void Initialize(EnemyData enemyData, Vector3 startPoint, Vector3 endPoint)
     {
-        base.Initialize(initialStats);
-        MovementSpeed = movementSpeed;
-        transform.position = startPoint; // 시작 위치 설정
+        InitializeStats(enemyData);
+
         RequestPath(startPoint, endPoint);
-
-        maxHealth = stats.Health; // 초기 체력 설정, 이후에 현재 체력과 비교해서 체력바 표시 여부 결정
-        //InitializeCanvas();
-
-        //UIManager.Instance.CreateEnemyUI(this); // Enemy - EnemyUI 간의 매칭
-
+        transform.position = startPoint; // 시작 위치 설정
         CreateEnemyUI();
 
-        // stats을 사용하는 로직은 이후에 추가
+        // stats을 사용하는 로직은 이후에 추가(?)
     }
+
     private void CreateEnemyUI()
     {
-        if (enemyUIPrefab != null)
+        enemyUI = GetComponentInChildren<EnemyUI>();
+        if (enemyUI != null)
         {
-            GameObject uiObject = Instantiate(enemyUIPrefab, transform);
-            enemyUI = uiObject.GetComponent<EnemyUI>();
-            if (enemyUI != null)
-            {
-                enemyUI.Initialize(this);
-            }
+            enemyUI.Initialize(this);
         }
+    }
+
+    private void InitializeStats(EnemyData enemyData)
+    {
+        data = enemyData;
+
+        base.Initialize(data.baseStats);
+    
+        MovementSpeed = data.movementSpeed;
+        BlockCount = data.blockCount;
+        DamageMultiplier = data.damageMultiplier;
+        DefenseMultiplier = data.defenseMultiplier;
+
+        maxHealth = stats.Health; // 초기 체력 설정, 이후에 현재 체력과 비교해서 체력바 표시 여부 결정
     }
 
     public void SetPath(List<Vector3> newPath, List<float> newWaitTimes)
@@ -74,66 +87,73 @@ public class Enemy : Unit
 
     private void Update()
     {
+        // 사실 공격할 적이 있으면 공격하고, 그게 아니라면 이동하는 로직이 맞음
+        // 근거리 적은 저지를 당할 때에만 오퍼레이터를 공격하고, 원거리 적은 공격 범위 내에 있는 오퍼레이터를 공격하는 방식.
+
+        // 진행할 경로가 있다
         if (path != null && currentPathIndex < path.Count)
         {
-            
-            if (!isBlocked && !isWaiting)
+
+            // 저지를 당하고 있지 않다면 이동한다
+            if (!blockingOperator)
             {
                 MoveAlongPath();
+                CheckAndAddOperator();
             }
-            else if (isBlocked)
+            else
             {
-                //AttemptToUnblock();
+                AttackBlockingOperator();
             }
-
-            FindAndAttackTarget();
         }
     }
 
-    // PathManager로 받은 경로를 따라 다음 노드로 이동한다
+    private void CheckAndAddOperator()
+    {
+        // 현재 밟은 타일에 오퍼레이터가 있는지 검사
+        Vector2Int nowGridPosition = MapManager.Instance.GetGridPosition(transform.position);
+        Tile currentTile = MapManager.Instance.GetTile(nowGridPosition.x, nowGridPosition.y);
+
+        // 최초로 자신을 저지하는 오퍼레이터를 추가
+        if (!blockingOperator && currentTile.OccupyingOperator)
+        {
+            blockingOperator = currentTile.OccupyingOperator;
+            blockingOperator.TryBlockEnemy(this); // 오퍼레이터에서도 저지 중인 Enemy를 추가
+        }
+
+    }
+
+
     private void MoveAlongPath()
     {
+        // 이동하며 경로의 타일 인덱스를 갱신함
         Vector3 targetPosition = path[currentPathIndex];
         Vector3 newPosition = Vector3.MoveTowards(transform.position, targetPosition, MovementSpeed * Time.deltaTime);
-
-        Operator blockingOp = CheckForBlockingOperator(newPosition);
-        if (blockingOp != null && blockingOp.CanBlockEnemy()) // 저지 중인 오퍼레이터가 있고, 그 오퍼레이터가 적을 저지할 수 있는 상태인가?
+        transform.position = newPosition;
+        if (Vector3.Distance(transform.position, targetPosition) < 0.1f)
         {
-            isBlocked = true;
-            blockingOperator = blockingOp;
-            blockingOperator.BlockEnemy();
-        }
-        else
-        {
-            transform.position = newPosition;
-            if (Vector3.Distance(transform.position, targetPosition) < 0.1f)
+            // 대기 중
+            if (currentPathIndex < waitTimes.Count && waitTimes[currentPathIndex] > 0)
             {
-                // 대기 중
-                if (currentPathIndex < waitTimes.Count && waitTimes[currentPathIndex] > 0)
-                {
-                    StartCoroutine(WaitAtNode(waitTimes[currentPathIndex]));
-                }
+                StartCoroutine(WaitAtNode(waitTimes[currentPathIndex]));
+            }
+            // 이동 중 *이거 불확실할 수도 있음
+            else
+            {
+                currentPathIndex++;
+            }
 
-                // 이동 중 *이거 불확실할 수도 있음
-                else
-                {
-                    currentPathIndex++;
-                }
-
-                if (currentPathIndex >= path.Count) // 목적 지점 도착
-                {
-                    ReachDestination();
-                }
+            if (currentPathIndex >= path.Count) // 목적 지점 도착
+            {
+                ReachDestination();
             }
         }
+        
     }
 
     // 대기 중일 때 실행
     private IEnumerator WaitAtNode(float waitTime)
     {
-        isWaiting = true;
         yield return new WaitForSeconds(waitTime);
-        isWaiting = false;
         currentPathIndex++;
     }
 
@@ -146,20 +166,25 @@ public class Enemy : Unit
     }
 
     
-    // 적(나)을 저지 중인 오퍼레이터를 반환하거나, 없다면 null
-    private Operator CheckForBlockingOperator(Vector3 newPosition)
-    {
-        Collider[] colliders = Physics.OverlapSphere(newPosition, 0.1f);
-        foreach (Collider collider in colliders)
-        {
-            Operator op = collider.GetComponent<Operator>();
-            if (op != null && op.isBlocking)
-            {
-                return op;
-            }
-        }
-        return null;
-    }
+    // 
+    //private void CheckForBlockingOperator()
+    //{
+    //    // 현재 위치의 타일을 체크
+    //    Tile currentTile = MapManager.Instance.GetTile(Mathf.RoundToInt(transform.position.x), Mathf.RoundToInt(transform.position.z));
+    //    Operator operatorOnTile = currentTile.OccupyingOperator; // 타일에 배치된 오퍼레이터 확인
+
+    //    // 오퍼레이터가 있음 & 저지 가능한 상태
+    //    if (operatorOnTile != null && !isBlocked)
+    //    {
+    //        if (operatorOnTile.TryBlockEnemy(this))
+    //        {
+    //            isBlocked = true;
+    //            blockingOperator = operatorOnTile;
+    //        }
+    //    }
+
+    //}
+
     private void ReachDestination()
     {
         // 목적지 도달 시 로직 - 스테이지 라이프만 1 깎으면 됨
@@ -203,6 +228,7 @@ public class Enemy : Unit
 
     public override void Attack(Unit target)
     {
+        float damage = Stats.AttackPower * DamageMultiplier;
         base.Attack(target);
         // 적 특유의 공격 효과를 구현할 수 있다
     }
@@ -218,10 +244,10 @@ public class Enemy : Unit
 
     protected override void Die()
     {
-        // 자신을 저지 중인 적이 있다면 저지 수를 -1 해줌
+        // 자신을 저지 중인 오퍼레이터의 저지를 해제해줌(해제 자체는 Operator에서 이뤄짐)
         if (blockingOperator)
         {
-            blockingOperator.UnblockEnemy();
+            blockingOperator.UnblockEnemy(this);
         }
 
         // 계획) 스테이지 매니저를 만들고 나서 사망한 적 카운트를 +1 해줌
@@ -236,6 +262,7 @@ public class Enemy : Unit
 
     public override void TakeDamage(float damage)
     {
+        //float actualDamage = damage / (Stats.Defense * DefenseMultiplier);
         base.TakeDamage(damage);
 
         if (enemyUI != null)

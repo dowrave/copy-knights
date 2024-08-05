@@ -10,7 +10,7 @@ public class EnemySpawner : MonoBehaviour
     [System.Serializable]
     public class EnemySpawnInfo
     {
-        public GameObject enemyPrefab;
+        public EnemyData enemyData;
         public float spawnTime;
     }
 
@@ -50,22 +50,18 @@ public class EnemySpawner : MonoBehaviour
         foreach (var spawnInfo in enemySpawnList)
         {
             yield return new WaitForSeconds(spawnInfo.spawnTime - (Time.time - startTime));
-            SpawnEnemy(spawnInfo.enemyPrefab);
+            SpawnEnemy(spawnInfo);
         }
     }
     
-    private void SpawnEnemy(GameObject enemyPrefab)
+    private void SpawnEnemy(EnemySpawnInfo spawnInfo)
     {
-        if (enemyPrefab == null) return;
-
-        GameObject enemyObject = Instantiate(enemyPrefab, startPoint, Quaternion.identity);
+        GameObject enemyObject = Instantiate(spawnInfo.enemyData.prefab, startPoint, Quaternion.identity);
         Enemy enemy = enemyObject.GetComponent<Enemy>();
         
         if (enemy != null)
         {
-            UnitStats Stats = GenerateEnemyStats();
-            float movementSpeed = 1f;
-            enemy.Initialize(Stats, movementSpeed, startPoint, endPoint);
+            enemy.Initialize(spawnInfo.enemyData, startPoint, endPoint);
             SetEnemyPathAuto(enemy); // PathFindingManager를 이용한 자동 길찾기 
         }
         else
@@ -99,15 +95,4 @@ public class EnemySpawner : MonoBehaviour
     //    enemy.SetPath(worldPath, path.Select(node => node.waitTime).ToList());
     //}
 
-    private UnitStats GenerateEnemyStats()
-    {
-        return new UnitStats
-        {
-            Health = 100,
-            AttackPower = 10,
-            Defense = 5,
-            MagicResistance = 2,
-            AttackSpeed = 1f
-        };
-    }
 }

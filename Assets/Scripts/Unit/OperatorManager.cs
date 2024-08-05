@@ -161,8 +161,8 @@ public class OperatorManager : MonoBehaviour
         if (previewOperator == null)
         {
             previewOperator = Instantiate(operatorPrefab, cursorWorldPosition, Quaternion.identity);
-            Operator previewOperatorScript = previewOperator.GetComponent<Operator>();
-            previewOperatorScript.IsPreviewMode = true;
+            Operator previewOp = previewOperator.GetComponent<Operator>();
+            previewOp.IsPreviewMode = true;
             SetPreviewTransparency(0.5f);
         }
 
@@ -181,14 +181,14 @@ public class OperatorManager : MonoBehaviour
     private void HighlightAvailableTiles()
     {
         ResetHighlights();
-        Operator operatorScript = operatorPrefab.GetComponent<Operator>();
+        Operator op = operatorPrefab.GetComponent<Operator>();
 
         foreach (Tile tile in MapManager.Instance.GetAllTiles())
         {
             if (tile != null && tile.CanPlaceOperator())
             {
-                if ((tile.data.terrain == TileData.TerrainType.Ground && operatorScript.data.canDeployGround) ||
-                    (tile.data.terrain == TileData.TerrainType.Hill && operatorScript.data.canDeployHill))
+                if ((tile.data.terrain == TileData.TerrainType.Ground && op.data.canDeployGround) ||
+                    (tile.data.terrain == TileData.TerrainType.Hill && op.data.canDeployHill))
                 {
                     tile.Highlight(availableTileColor);
                     highlightedTiles.Add(tile);
@@ -199,12 +199,12 @@ public class OperatorManager : MonoBehaviour
 
     private void HighlightAttackRange(Tile tile, Vector3 direction)
     {
-        Operator operatorScript = operatorPrefab.GetComponent<Operator>();
-        Vector2Int[] attackRange = operatorScript.data.attackableTiles;
+        Operator op = operatorPrefab.GetComponent<Operator>();
+        Vector2Int[] attackRange = op.data.attackableTiles;
 
         foreach (Vector2Int offset in attackRange)
         {
-            Vector2Int rotatedOffset = operatorScript.RotateOffset(offset, direction);
+            Vector2Int rotatedOffset = op.RotateOffset(offset, direction);
             Vector2Int targetPos = new Vector2Int(tile.GridPosition.x + rotatedOffset.x,
                                                   tile.GridPosition.y + rotatedOffset.y);
             Tile targetTile = MapManager.Instance.GetTile(targetPos.x, targetPos.y);
@@ -229,9 +229,9 @@ public class OperatorManager : MonoBehaviour
     private void PlaceOperator(Tile tile)
     {
         GameObject placedOperator = Instantiate(operatorPrefab, tile.transform.position, Quaternion.LookRotation(placementDirection));
-        Operator operatorScript = placedOperator.GetComponent<Operator>();
-        operatorScript.Deploy(tile.transform.position + Vector3.up * 0.5f, placementDirection);
-        tile.SetOccupied(true);
+        Operator op = placedOperator.GetComponent<Operator>();
+        op.Deploy(tile.transform.position + Vector3.up * 0.5f, placementDirection);
+        tile.SetOccupied(op);
         operatorPrefab = null;
 
         Debug.Log($"오퍼레이터 배치 완료 : {tile.GridPosition}");

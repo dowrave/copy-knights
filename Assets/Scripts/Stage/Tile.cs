@@ -5,7 +5,8 @@ using UnityEngine;
 public class Tile : MonoBehaviour
 {
     public TileData data;
-    public bool IsOccupied { get; private set; }
+    public Operator OccupyingOperator { get; private set; }
+
     private Transform cubeTransform;
     float tileScale = 0.98f;
     public Vector2 size2D;
@@ -126,12 +127,17 @@ public class Tile : MonoBehaviour
 
     public bool CanPlaceOperator()
     {
-        return (IsOccupied == false) && (data.canPlaceOperator);
+        return (OccupyingOperator == null) && (data.canPlaceOperator);
     }
 
-    public void SetOccupied(bool occupied)
+    public void SetOccupied(Operator op)
     {
-        IsOccupied = occupied;
+        OccupyingOperator = op;
+    }
+
+    public void ClearOccupied()
+    {
+        OccupyingOperator = null;
     }
 
     public void Highlight(Color color)
