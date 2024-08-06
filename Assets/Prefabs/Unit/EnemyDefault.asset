@@ -14,15 +14,14 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   enemyName: 
   baseStats:
-    Health: 100
-    AttackPower: 50
-    AttackSpeed: 0.5
+    Health: 550
+    AttackPower: 250
+    AttackSpeed: 2
     AttackType: 0
-    Defense: 50
-    MagicResistance: 50
+    Defense: 100
+    MagicResistance: 0.1
   movementSpeed: 1
   blockCount: 1
   prefab: {fileID: 6542749020257112806, guid: b64bfbf4c6a80384295e7286bbcc9d3e, type: 3}
-  icon: {fileID: 0}
   damageMultiplier: 1
   defenseMultiplier: 1

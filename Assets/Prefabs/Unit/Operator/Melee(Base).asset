@@ -15,7 +15,7 @@ MonoBehaviour:
   operatorName: 
   baseStats:
     Health: 600
-    AttackPower: 25
+    AttackPower: 300
     AttackSpeed: 1
     AttackType: 0
     Defense: 0
@@ -29,8 +29,10 @@ MonoBehaviour:
   deploymentCost: 0
   reDeployTime: 70
   attackRangeType: 0
+  prefab: {fileID: 5185628148525671535, guid: 81719ee7b084ab740915d07222eb2ab8, type: 3}
   projectilePrefab: {fileID: 0}
   maxSP: 30
   initialSP: 0
-  autoRecoverSP: 1
+  autoRecoverSP: 0
   SpRecoveryRate: 1
+  icon: {fileID: 0}
