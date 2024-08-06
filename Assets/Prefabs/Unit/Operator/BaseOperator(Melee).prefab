@@ -163,8 +163,6 @@ MonoBehaviour:
   attackRangeType: 0
   data: {fileID: 11400000, guid: 36d2493e462c8ee4aaef757657564e7a, type: 2}
   facingDirection: {x: 0, y: 0, z: 0}
-  currentBlockedEnemies: 0
-  isBlocking: 0
 --- !u!1001 &3875474539562639861
 PrefabInstance:
   m_ObjectHideFlags: 0

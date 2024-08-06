@@ -39,4 +39,10 @@ MonoBehaviour:
   deploymentCost: 0
   reDeployTime: 70
   attackRangeType: 1
+  prefab: {fileID: 4844663318455565301, guid: d3dcd961b53c71f45b440db97cb72987, type: 3}
   projectilePrefab: {fileID: 491002625568547402, guid: 768a4d8f960f50f43b581b2790a5639e, type: 3}
+  maxSP: 30
+  initialSP: 0
+  autoRecoverSP: 1
+  SpRecoveryRate: 1
+  icon: {fileID: 0}

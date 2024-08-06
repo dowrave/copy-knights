@@ -1,17 +1,27 @@
 using UnityEngine;
+using UnityEngine.UI;
 using System.Collections.Generic;
 using Unity.VisualScripting;
 using System.Collections;
 
 public class OperatorManager : MonoBehaviour
 {
-    public GameObject operatorPrefab;
+    public static OperatorManager Instance { get; private set; }
+    // UI 관련 변수
+    public GameObject bottomPanelOperatorBoxPrefab; // 개별 오퍼레이터 아이콘, 배치 코스트 등을 감쌀 오퍼레이터 프리팹
+    public RectTransform bottomPanel;
+
+    // Operator 관련 변수
+    public List<OperatorData> availableOperators = new List<OperatorData>();
+    private List<GameObject> operatorUIBoxes = new List<GameObject>();
+    private GameObject currentOperatorPrefab; 
+
     public Color availableTileColor = Color.green;
     public Color unavailableTileColor = Color.red;
     public Color attackRangeTileColor = new Color(255, 127, 0);
     public GameObject dragIndicatorPrefab;
 
-    private bool isDraggingFromUI = true;
+    private bool isDraggingFromUI = false;
     private bool isPlacingOperator = false;
     private bool isSelectingDirection = false;
 
@@ -27,6 +37,37 @@ public class OperatorManager : MonoBehaviour
 
     [SerializeField] private LayerMask tileLayerMask;
 
+    private OperatorData currentOperatorData;
+
+    private void Awake()
+    {
+        if (Instance == null)
+        {
+            Instance = this;
+        } 
+        else
+        {
+            Destroy(gameObject);
+        }
+    }
+
+    private void Start()
+    {
+        InitializeOperatorUI();
+    }
+
+    private void InitializeOperatorUI()
+    {
+        foreach (OperatorData operatorData in availableOperators)
+        {
+            GameObject boxObject = Instantiate(bottomPanelOperatorBoxPrefab, bottomPanel);
+            BottomPanelOperatorBox box = boxObject.GetComponent<BottomPanelOperatorBox>();
+            if (box != null)
+            {
+                box.Initialize(operatorData);
+            }
+        }
+    }
 
     private void Update()
     {
@@ -48,29 +89,21 @@ public class OperatorManager : MonoBehaviour
     }
 
     // UI에서 오퍼레이터를 클릭했을 때 작동됨
-    public void StartDraggingFromUI()
+    public void StartDraggingFromUI(int operatorIndex)
     {
         isDraggingFromUI = true;
-        //HighlightAvailableTiles();
+        currentOperatorData = availableOperators[operatorIndex];
+        UpdatePreviewOperator();
     }
 
     private void HandleDraggingFromUI()
     {
         HighlightAvailableTiles();
-
-        Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
-        RaycastHit hit;
-        Tile hoveredTile = null;
-
-        if (Physics.Raycast(ray, out hit, Mathf.Infinity, tileLayerMask))
-        {
-            hoveredTile = hit.collider.GetComponentInParent<Tile>();
-        }
-
-        UpdatePreviewOperator(hoveredTile);
+        UpdatePreviewOperator();
 
         if (Input.GetMouseButtonUp(0))
         {
+            Tile hoveredTile = GetHoveredTile();
             if (hoveredTile != null && highlightedTiles.Contains(hoveredTile))
             {
                 StartPlacingOperator(hoveredTile);
@@ -143,7 +176,7 @@ public class OperatorManager : MonoBehaviour
     }
 
     // 배치 중일 때 오퍼레이커 미리 보기 표현
-    private void UpdatePreviewOperator(Tile hoveredTile)
+    private void UpdatePreviewOperator()
     {
         // 항상 커서 위치에 대한 월드 좌표 계산
         Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
@@ -160,11 +193,13 @@ public class OperatorManager : MonoBehaviour
 
         if (previewOperator == null)
         {
-            previewOperator = Instantiate(operatorPrefab, cursorWorldPosition, Quaternion.identity);
+            previewOperator = Instantiate(currentOperatorPrefab, cursorWorldPosition, Quaternion.identity);
             Operator previewOp = previewOperator.GetComponent<Operator>();
             previewOp.IsPreviewMode = true;
             SetPreviewTransparency(0.5f);
         }
+
+        Tile hoveredTile = GetHoveredTile();
 
         // 배치 가능한 타일 위라면 타일 위치로 스냅
         if (hoveredTile != null && highlightedTiles.Contains(hoveredTile))
@@ -178,10 +213,21 @@ public class OperatorManager : MonoBehaviour
         }
     }
 
+    private Tile GetHoveredTile()
+    {
+        Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+        RaycastHit hit;
+        if (Physics.Raycast(ray, out hit, Mathf.Infinity, tileLayerMask))
+        {
+            return hit.collider.GetComponentInParent<Tile>();
+        }
+        return null; 
+    }
+
     private void HighlightAvailableTiles()
     {
         ResetHighlights();
-        Operator op = operatorPrefab.GetComponent<Operator>();
+        Operator op = currentOperatorPrefab.GetComponent<Operator>();
 
         foreach (Tile tile in MapManager.Instance.GetAllTiles())
         {
@@ -199,7 +245,7 @@ public class OperatorManager : MonoBehaviour
 
     private void HighlightAttackRange(Tile tile, Vector3 direction)
     {
-        Operator op = operatorPrefab.GetComponent<Operator>();
+        Operator op = currentOperatorPrefab.GetComponent<Operator>();
         Vector2Int[] attackRange = op.data.attackableTiles;
 
         foreach (Vector2Int offset in attackRange)
@@ -216,6 +262,27 @@ public class OperatorManager : MonoBehaviour
         }
     }
 
+    public void StartOperatorPlacement(OperatorData operatorData)
+    {
+        if (isPlacingOperator)
+        {
+            CancelPlacement();
+        }
+
+        int index = availableOperators.IndexOf(operatorData);
+        if (index != -1)
+        {
+            currentOperatorPrefab = operatorData.prefab;
+            isPlacingOperator = true;
+            StartDraggingFromUI(availableOperators.IndexOf(operatorData));
+        }
+        else
+        {
+            Debug.LogError("오퍼레이터 데이터가 availableOperators List에 없음");
+        }
+        
+    }
+
 
     private Vector3 DetermineDirection(Vector3 dragVector)
     {
@@ -228,11 +295,11 @@ public class OperatorManager : MonoBehaviour
 
     private void PlaceOperator(Tile tile)
     {
-        GameObject placedOperator = Instantiate(operatorPrefab, tile.transform.position, Quaternion.LookRotation(placementDirection));
+        GameObject placedOperator = Instantiate(currentOperatorPrefab, tile.transform.position, Quaternion.LookRotation(placementDirection));
         Operator op = placedOperator.GetComponent<Operator>();
         op.Deploy(tile.transform.position + Vector3.up * 0.5f, placementDirection);
         tile.SetOccupied(op);
-        operatorPrefab = null;
+        currentOperatorPrefab = null;
 
         Debug.Log($"오퍼레이터 배치 완료 : {tile.GridPosition}");
         ResetPlacement();
@@ -244,6 +311,7 @@ public class OperatorManager : MonoBehaviour
         isPlacingOperator = false;
         isSelectingDirection = false;
         ResetHighlights();
+
         if (previewOperator != null)
         {
             Destroy(previewOperator);
