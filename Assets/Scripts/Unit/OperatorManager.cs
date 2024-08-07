@@ -24,6 +24,7 @@ public class OperatorManager : MonoBehaviour
     private bool isDraggingFromUI = false;
     private bool isPlacingOperator = false;
     private bool isSelectingDirection = false;
+    private int operatorIndex = -1; 
 
     private List<Tile> highlightedTiles = new List<Tile>();
     private Tile currentHoverTile;
@@ -32,7 +33,7 @@ public class OperatorManager : MonoBehaviour
     private GameObject previewOperator;
     private GameObject dragIndicator;
 
-    private float minDirectionDistance = 1f;
+    private float minDirectionDistance = 85f; // 직접 테스트해서 얻은 값
     private const float INDICATOR_SIZE = 2.5f;
 
     [SerializeField] private LayerMask tileLayerMask;
@@ -71,9 +72,9 @@ public class OperatorManager : MonoBehaviour
 
     private void Update()
     {
+        Debug.Log($"{operatorIndex}");
         if (StageManager.Instance.currentState != GameState.Battle) { return; }
 
-        // Battle 중일 때에만 동작한다.
         if (isDraggingFromUI)
         {
             HandleDraggingFromUI();
@@ -88,32 +89,34 @@ public class OperatorManager : MonoBehaviour
         }
     }
 
-    // UI에서 오퍼레이터를 클릭했을 때 작동됨
-    public void StartDraggingFromUI(int operatorIndex)
+    // BottomPanelOperatorBox 클릭 시 호출됨
+    public void StartOperatorPlacement(OperatorData operatorData)
     {
-        isDraggingFromUI = true;
-        currentOperatorData = availableOperators[operatorIndex];
-        UpdatePreviewOperator();
+        operatorIndex = availableOperators.IndexOf(operatorData);
+        if (operatorIndex != -1)
+        {
+            currentOperatorPrefab = operatorData.prefab;
+            currentOperatorData = availableOperators[operatorIndex];
+            isDraggingFromUI = true;
+        }
+        else
+        {
+            Debug.LogError("오퍼레이터 데이터가 availableOperators List에 없음");
+        }
     }
 
     private void HandleDraggingFromUI()
     {
+
         HighlightAvailableTiles();
         UpdatePreviewOperator();
 
-        if (Input.GetMouseButtonUp(0))
+        Tile hoveredTile = GetHoveredTile();
+
+        if (hoveredTile && highlightedTiles.Contains(hoveredTile) && Input.GetMouseButton(0))
         {
-            Tile hoveredTile = GetHoveredTile();
-            if (hoveredTile != null && highlightedTiles.Contains(hoveredTile))
-            {
-                StartPlacingOperator(hoveredTile);
-            }
-            else
-            {
-                CancelPlacement();
-            }
+            StartPlacingOperator(hoveredTile);
         }
-        
     }
 
     private void StartPlacingOperator(Tile tile)
@@ -140,12 +143,14 @@ public class OperatorManager : MonoBehaviour
         ResetHighlights();
         Vector3 dragVector = Input.mousePosition - Camera.main.WorldToScreenPoint(currentHoverTile.transform.position);
         float dragDistance = dragVector.magnitude;
-
+        
         Vector3 newDirection = DetermineDirection(dragVector);
 
         placementDirection = newDirection;
         HighlightAttackRange(currentHoverTile, placementDirection);
         UpdatePreviewOperatorRotation();
+
+        Debug.Log($"dragDistance : {dragDistance}");
 
         if (Input.GetMouseButtonUp(0))
         {
@@ -154,13 +159,14 @@ public class OperatorManager : MonoBehaviour
             {
                 PlaceOperator(currentHoverTile);
                 Destroy(dragIndicator);
+                isSelectingDirection = false;
             }
             else
             {
                 isPlacingOperator = true;
             }
 
-            isSelectingDirection = false;
+            
         }
     }
 
@@ -182,6 +188,7 @@ public class OperatorManager : MonoBehaviour
         Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
         Plane groundPlane = new Plane(Vector3.up, Vector3.zero);
         Vector3 cursorWorldPosition;
+
         if (groundPlane.Raycast(ray, out float distance))
         {
             cursorWorldPosition = ray.GetPoint(distance) + Vector3.up * 0.5f;
@@ -228,7 +235,6 @@ public class OperatorManager : MonoBehaviour
     {
         ResetHighlights();
         Operator op = currentOperatorPrefab.GetComponent<Operator>();
-
         foreach (Tile tile in MapManager.Instance.GetAllTiles())
         {
             if (tile != null && tile.CanPlaceOperator())
@@ -262,26 +268,7 @@ public class OperatorManager : MonoBehaviour
         }
     }
 
-    public void StartOperatorPlacement(OperatorData operatorData)
-    {
-        if (isPlacingOperator)
-        {
-            CancelPlacement();
-        }
 
-        int index = availableOperators.IndexOf(operatorData);
-        if (index != -1)
-        {
-            currentOperatorPrefab = operatorData.prefab;
-            isPlacingOperator = true;
-            StartDraggingFromUI(availableOperators.IndexOf(operatorData));
-        }
-        else
-        {
-            Debug.LogError("오퍼레이터 데이터가 availableOperators List에 없음");
-        }
-        
-    }
 
 
     private Vector3 DetermineDirection(Vector3 dragVector)
@@ -307,9 +294,12 @@ public class OperatorManager : MonoBehaviour
 
     private void ResetPlacement()
     {
+        Debug.Log("ResetPlacement 작동");
         isDraggingFromUI = false;
         isPlacingOperator = false;
         isSelectingDirection = false;
+        operatorIndex = -1;
+
         ResetHighlights();
 
         if (previewOperator != null)
@@ -324,6 +314,7 @@ public class OperatorManager : MonoBehaviour
 
     private void CancelPlacement()
     {
+        Debug.Log("CancelPlacement 작동");
         ResetPlacement();
     }
 
