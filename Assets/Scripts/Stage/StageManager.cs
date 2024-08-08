@@ -1,5 +1,6 @@
 using UnityEngine;
-using System.Collections.Generic;
+//using System.Collections.Generic; // IEnumerator<T> - 제네릭 버전
+using System.Collections; // IEnumerator - 코루틴에서 주로 사용하는 버전
 
 /*
  StageManager의 역할
@@ -15,6 +16,31 @@ public class StageManager : MonoBehaviour
 {
     public static StageManager Instance { get; private set; }
     public GameState currentState;
+
+    // 배치 코스트
+    // 편한 수정을 위해 엔진 상에서는 오픈
+    [SerializeField] private float costIncreaseInterval = 1f; // 코스트 회복 속도의 역수
+    [SerializeField] private int maxDeploymentCost = 99;
+    [SerializeField] private int currentDeploymentCost = 10;
+    private float currentCostGauge = 0f;
+
+    public int CurrentDeploymentCost
+    {
+        get => currentDeploymentCost;
+        private set
+        {
+            // 불필요한 업데이트 방지 - 값이 변경될 때만 코드가 실행된다
+            if (currentDeploymentCost != value)
+            {
+                currentDeploymentCost = value;
+                OnDeploymentCostChanged?.Invoke(); // 값이 변경될 때 이벤트 발생. 
+            }
+        }
+    }
+    public float CurrentCostGauge => currentCostGauge;
+
+    // 이벤트 : System.Action은 매개변수와 반환값이 없는 메서드를 나타내는 델리게이트 타입.
+    public event System.Action OnDeploymentCostChanged; // 이벤트 발동 조건은 currentDeploymentCost 값이 변할 때, 여기 등록된 함수들이 동작한다.
 
     private void Awake()
     {
@@ -42,6 +68,7 @@ public class StageManager : MonoBehaviour
     {
         MapManager.Instance.InitializeMap();
         SetGameState(GameState.Preparation);
+        StartCoroutine(IncreaseCostOverTime());
     }
 
     public void StartBattle()
@@ -71,6 +98,36 @@ public class StageManager : MonoBehaviour
 
         return null; // Stage를 찾지 못한 경우
     }
+
+    private IEnumerator IncreaseCostOverTime()
+    {
+        while (true)
+        {
+            yield return null; // 매 프레임마다 실행
+            currentCostGauge += Time.deltaTime / costIncreaseInterval;
+
+            if (currentCostGauge >= 1f)
+            {
+                currentCostGauge -= 1f;
+                if (currentDeploymentCost < maxDeploymentCost)
+                {
+                    CurrentDeploymentCost++; // 프로퍼티의 세터도 이렇게 사용할 수 있는 듯
+                }
+            }
+        }
+    }
+
+    // 배치 시 코스트 감소
+    public bool TryUseDeploymentCost(int cost)
+    {
+        if (CurrentDeploymentCost >= cost)
+        {
+            CurrentDeploymentCost -= cost;
+            return true;
+        }
+        return false; 
+    }
+
 }
 
 public enum GameState
