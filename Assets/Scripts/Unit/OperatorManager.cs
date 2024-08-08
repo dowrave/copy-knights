@@ -72,7 +72,6 @@ public class OperatorManager : MonoBehaviour
 
     private void Update()
     {
-        Debug.Log($"{operatorIndex}");
         if (StageManager.Instance.currentState != GameState.Battle) { return; }
 
         if (isDraggingFromUI)
@@ -92,16 +91,20 @@ public class OperatorManager : MonoBehaviour
     // BottomPanelOperatorBox 클릭 시 호출됨
     public void StartOperatorPlacement(OperatorData operatorData)
     {
-        operatorIndex = availableOperators.IndexOf(operatorData);
-        if (operatorIndex != -1)
+        if (StageManager.Instance.CurrentDeploymentCost >= operatorData.deploymentCost)
         {
-            currentOperatorPrefab = operatorData.prefab;
-            currentOperatorData = availableOperators[operatorIndex];
-            isDraggingFromUI = true;
-        }
-        else
-        {
-            Debug.LogError("오퍼레이터 데이터가 availableOperators List에 없음");
+            operatorIndex = availableOperators.IndexOf(operatorData);
+            if (operatorIndex != -1)
+            {
+                currentOperatorPrefab = operatorData.prefab;
+                currentOperatorData = availableOperators[operatorIndex];
+                isDraggingFromUI = true;
+            }
+            else
+            {
+                Debug.LogError("오퍼레이터 데이터가 availableOperators List에 없음");
+            }
+
         }
     }
 
@@ -150,8 +153,6 @@ public class OperatorManager : MonoBehaviour
         HighlightAttackRange(currentHoverTile, placementDirection);
         UpdatePreviewOperatorRotation();
 
-        Debug.Log($"dragDistance : {dragDistance}");
-
         if (Input.GetMouseButtonUp(0))
         {
             // 배치 완료
@@ -181,7 +182,7 @@ public class OperatorManager : MonoBehaviour
         dragIndicator.transform.localScale = Vector3.one * INDICATOR_SIZE;
     }
 
-    // 배치 중일 때 오퍼레이커 미리 보기 표현
+    // 배치 중일 때 오퍼레이터 미리 보기 표현
     private void UpdatePreviewOperator()
     {
         // 항상 커서 위치에 대한 월드 좌표 계산
@@ -282,19 +283,20 @@ public class OperatorManager : MonoBehaviour
 
     private void PlaceOperator(Tile tile)
     {
-        GameObject placedOperator = Instantiate(currentOperatorPrefab, tile.transform.position, Quaternion.LookRotation(placementDirection));
-        Operator op = placedOperator.GetComponent<Operator>();
-        op.Deploy(tile.transform.position + Vector3.up * 0.5f, placementDirection);
-        tile.SetOccupied(op);
-        currentOperatorPrefab = null;
+        if (StageManager.Instance.TryUseDeploymentCost((int)currentOperatorData.deploymentCost))
+        {
+            GameObject placedOperator = Instantiate(currentOperatorPrefab, tile.transform.position, Quaternion.LookRotation(placementDirection));
+            Operator op = placedOperator.GetComponent<Operator>();
+            op.Deploy(tile.transform.position + Vector3.up * 0.5f, placementDirection);
+            tile.SetOccupied(op);
+            currentOperatorPrefab = null;
 
-        Debug.Log($"오퍼레이터 배치 완료 : {tile.GridPosition}");
-        ResetPlacement();
+            ResetPlacement();
+        }
     }
 
     private void ResetPlacement()
     {
-        Debug.Log("ResetPlacement 작동");
         isDraggingFromUI = false;
         isPlacingOperator = false;
         isSelectingDirection = false;
@@ -314,7 +316,6 @@ public class OperatorManager : MonoBehaviour
 
     private void CancelPlacement()
     {
-        Debug.Log("CancelPlacement 작동");
         ResetPlacement();
     }
 

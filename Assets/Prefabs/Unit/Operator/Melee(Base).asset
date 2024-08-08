@@ -26,7 +26,7 @@ MonoBehaviour:
   canDeployGround: 1
   canDeployHill: 0
   maxBlockableEnemies: 1
-  deploymentCost: 0
+  deploymentCost: 5
   reDeployTime: 70
   attackRangeType: 0
   prefab: {fileID: 5185628148525671535, guid: 81719ee7b084ab740915d07222eb2ab8, type: 3}
