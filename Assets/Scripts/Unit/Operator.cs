@@ -353,6 +353,9 @@ public class Operator : Unit
         // 오브젝트 파괴
         Destroy(operatorUI.gameObject);
         base.Die();
+
+        // 하단 UI 활성화
+        OperatorManager.Instance.OnOperatorRemoved(data);
     }
 
     private void PrepareTransparentMaterial()

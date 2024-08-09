@@ -163,8 +163,6 @@ MonoBehaviour:
   attackRangeType: 1
   data: {fileID: 11400000, guid: 83744f49d25da9b45843b804cc14e510, type: 2}
   facingDirection: {x: 0, y: 0, z: 0}
-  currentBlockedEnemies: 0
-  isBlocking: 0
 --- !u!1001 &8373367482160193664
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -268,6 +266,10 @@ PrefabInstance:
     - target: {fileID: 4944114674744220620, guid: d39c58a7b8ae3eb43beb195d5f3164a8, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5942269116690765502, guid: d39c58a7b8ae3eb43beb195d5f3164a8, type: 3}
+      propertyPath: m_PresetInfoIsWorld
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 8911005229607826622, guid: d39c58a7b8ae3eb43beb195d5f3164a8, type: 3}
       propertyPath: m_Name

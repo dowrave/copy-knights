@@ -5,25 +5,34 @@ using UnityEngine.UI;
 
 public class BottomPanelOperatorBox : MonoBehaviour, IPointerClickHandler
 {
+    
+
     private Transform operatorIcon; // 오브젝트
     private Image operatorIconImage; // Image 컴포넌트
     private Color originalIconColor;
     private TextMeshProUGUI costText;
-    private OperatorData operatorData;
+    [SerializeField] private OperatorData operatorData;
+
+    // 쿨다운 관련
+    private Image cooldownImage;
+    private TextMeshProUGUI cooldownText;
+    private float cooldownTimer = 0f;
+    private bool isOnCooldown = false;
 
     public void Initialize(OperatorData data)
     {
         operatorData = data;
         operatorIcon = transform.Find("OperatorIcon");
+        operatorIconImage = operatorIcon.GetComponentInChildren<Image>(); // OperatorIcon의 Image 컴포넌트에 접근
+        costText = transform.Find("CostBackground/CostText").GetComponent<TextMeshProUGUI>(); // CostText의 TextMeshPro에 접근
+
+        // 쿨다운 UI 컴포넌트 찾기 # transform은 자기 자신과 1단계 자식 오브젝트를 검색함
+        cooldownImage = transform.Find("CooldownOverlay").GetComponent<Image>();
+        cooldownText = transform.Find("CooldownOverlay/CooldownText").GetComponent<TextMeshProUGUI>(); // 더 깊은 자식 오브젝트 찾기
+
+        InitializeVisuals();
 
 
-        if (operatorIcon != null)
-        {
-            operatorIconImage = operatorIcon.GetComponentInChildren<Image>(); // OperatorIcon의 Image 컴포넌트에 접근
-            costText = GetComponentInChildren<TextMeshProUGUI>(); // CostText의 TextMeshPro에 접근
-        }
-
-        UpdateVisuals();
         // 코스트 변할 때의 델리게이트에 이벤트 추가
         StageManager.Instance.OnDeploymentCostChanged += UpdateAvailability;
     }
@@ -33,7 +42,27 @@ public class BottomPanelOperatorBox : MonoBehaviour, IPointerClickHandler
         StageManager.Instance.OnDeploymentCostChanged -= UpdateAvailability;
     }
 
-    private void UpdateVisuals()
+    private void Update()
+    {
+        if (isOnCooldown)
+        {
+            cooldownTimer -= Time.deltaTime;
+            if (cooldownTimer <= 0)
+            {
+                EndCooldown();
+            }
+
+            else
+            {
+                UpdateCooldownVisuals();
+            }
+        }
+    }
+
+    /// <summary>
+    /// 일단은 초기화 때만 쓰고 있기는 하다
+    /// </summary>
+    private void InitializeVisuals()
     {
         // operatorData에 해당하는 아이콘이 있다면 그걸 넣고 
         if (operatorData.icon != null)
@@ -55,6 +84,9 @@ public class BottomPanelOperatorBox : MonoBehaviour, IPointerClickHandler
 
         costText.text = operatorData.deploymentCost.ToString();
         //UpdateAvailability();
+
+        cooldownImage.gameObject.SetActive(false);
+        cooldownText.gameObject.SetActive(false);
     }
 
     // eventData : 유니티에 의해 자동 제공, 클릭 이벤트 정보 포함. (그래서 operatorData랑은 별개로 인풋을 저렇게 작성해야 함)
@@ -64,6 +96,29 @@ public class BottomPanelOperatorBox : MonoBehaviour, IPointerClickHandler
         {
             OperatorManager.Instance.StartOperatorPlacement(operatorData);
         }
+    }
+
+    public void StartCooldown(float cooldownTime)
+    {
+        isOnCooldown = true;
+        cooldownTimer = cooldownTime;
+        gameObject.SetActive(true);
+        UpdateCooldownVisuals();
+    }
+
+    private void UpdateCooldownVisuals()
+    {
+        cooldownImage.gameObject.SetActive(true);
+        cooldownText.gameObject.SetActive(true);
+        cooldownImage.fillAmount = cooldownTimer / operatorData.reDeployTime;
+        cooldownText.text = Mathf.Ceil(cooldownTimer).ToString();
+    }
+
+    private void EndCooldown()
+    {
+        isOnCooldown = false;
+        cooldownImage.gameObject.SetActive(false);
+        cooldownText.gameObject.SetActive(false);
     }
 
     private void UpdateAvailability()

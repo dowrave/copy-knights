@@ -187,7 +187,7 @@ public class Enemy : Unit
 
     private void ReachDestination()
     {
-        // 목적지 도달 시 로직 - 스테이지 라이프만 1 깎으면 됨
+        StageManager.Instance.OnEnemyReachDestination();
         Destroy(gameObject);
     }
 
@@ -251,6 +251,7 @@ public class Enemy : Unit
         }
 
         // 계획) 스테이지 매니저를 만들고 나서 사망한 적 카운트를 +1 해줌
+        StageManager.Instance.OnEnemyDefeated();
 
         if (enemyUI != null)
         {
