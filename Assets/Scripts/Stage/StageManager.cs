@@ -1,6 +1,7 @@
 using UnityEngine;
 //using System.Collections.Generic; // IEnumerator<T> - 제네릭 버전
 using System.Collections; // IEnumerator - 코루틴에서 주로 사용하는 버전
+using TMPro;
 
 /*
  StageManager의 역할
@@ -23,6 +24,16 @@ public class StageManager : MonoBehaviour
     [SerializeField] private int maxDeploymentCost = 99;
     [SerializeField] private int currentDeploymentCost = 10;
     private float currentCostGauge = 0f;
+
+    // 상단 UI 요소
+    [SerializeField] private TextMeshProUGUI enemyCountText;
+    [SerializeField] private TextMeshProUGUI lifePointsText;
+
+    // 게임 상태 변수
+    private int totalEnemyCount;
+    private int currentEnemyCount;
+    private int maxLifePoints = 3;
+    private int currentLifePoints;
 
     public int CurrentDeploymentCost
     {
@@ -69,7 +80,39 @@ public class StageManager : MonoBehaviour
         MapManager.Instance.InitializeMap();
         SetGameState(GameState.Preparation);
         StartCoroutine(IncreaseCostOverTime());
+
+        // 게임 초기화
+        totalEnemyCount = CalculateTotalEnemyCount();
+        currentEnemyCount = 0;
+        currentLifePoints = maxLifePoints;
+
+        UpdateUI();
     }
+
+    private int CalculateTotalEnemyCount()
+    {
+        int count = 0;
+        EnemySpawner[] spawners = FindObjectsOfType<EnemySpawner>();
+        foreach (var spawner in spawners)
+        {
+            count += spawner.enemySpawnList.Count;
+        }
+        return count;
+    }
+
+    private void UpdateUI()
+    {
+        if (enemyCountText != null)
+        {
+            enemyCountText.text = $"{currentEnemyCount} / {totalEnemyCount}";
+
+        }
+
+        if (lifePointsText != null)
+        {
+            lifePointsText.text = $"{currentLifePoints}";
+        }
+    } 
 
     public void StartBattle()
     {
@@ -120,6 +163,8 @@ public class StageManager : MonoBehaviour
     // 배치 시 코스트 감소
     public bool TryUseDeploymentCost(int cost)
     {
+        if (currentState == GameState.GameOver) return false;
+
         if (CurrentDeploymentCost >= cost)
         {
             CurrentDeploymentCost -= cost;
@@ -128,6 +173,42 @@ public class StageManager : MonoBehaviour
         return false; 
     }
 
+    // 적 사망 시 호출
+    public void OnEnemyDefeated()
+    {
+        if (currentState == GameState.GameOver) return;
+
+        currentEnemyCount++;
+        UpdateUI();
+
+        if (currentEnemyCount >= totalEnemyCount)
+        {
+            GameWin();
+        }
+    }
+
+    public void OnEnemyReachDestination()
+    {
+        if (currentState == GameState.GameOver) return; 
+
+        currentLifePoints--;
+        UpdateUI();
+
+        if (currentLifePoints <= 0)
+        {
+            GameOver();
+        }
+    }
+
+    private void GameWin()
+    { 
+        SetGameState(GameState.GameOver); // GameWin이랑 GameOver를 분리해야 되나?
+    }
+
+    private void GameOver()
+    {
+        SetGameState(GameState.GameOver);
+    }
 }
 
 public enum GameState

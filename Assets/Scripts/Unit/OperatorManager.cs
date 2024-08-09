@@ -13,23 +13,26 @@ public class OperatorManager : MonoBehaviour
 
     // Operator 관련 변수
     public List<OperatorData> availableOperators = new List<OperatorData>();
-    private List<GameObject> operatorUIBoxes = new List<GameObject>();
-    private GameObject currentOperatorPrefab; 
+    private Dictionary<OperatorData, BottomPanelOperatorBox> operatorUIBoxes = new Dictionary<OperatorData, BottomPanelOperatorBox>();
+    private GameObject currentOperatorPrefab;
+    private OperatorData currentOperatorData;
+    private List<OperatorData> deployedOperators = new List<OperatorData>(); // 배치돼서 화면에 표시되지 않을 오퍼레이터
 
+    // 하이라이트 관련 변수
     public Color availableTileColor = Color.green;
     public Color unavailableTileColor = Color.red;
     public Color attackRangeTileColor = new Color(255, 127, 0);
     public GameObject dragIndicatorPrefab;
 
+    // 배치 과정 중 어떤 상태인지에 대한 변수
     private bool isDraggingFromUI = false;
     private bool isPlacingOperator = false;
     private bool isSelectingDirection = false;
     private int operatorIndex = -1; 
+    private Vector3 placementDirection = Vector3.left;
 
     private List<Tile> highlightedTiles = new List<Tile>();
     private Tile currentHoverTile;
-    private Vector3 placementDirection = Vector3.left;
-
     private GameObject previewOperator;
     private GameObject dragIndicator;
 
@@ -38,7 +41,8 @@ public class OperatorManager : MonoBehaviour
 
     [SerializeField] private LayerMask tileLayerMask;
 
-    private OperatorData currentOperatorData;
+
+
 
     private void Awake()
     {
@@ -66,6 +70,7 @@ public class OperatorManager : MonoBehaviour
             if (box != null)
             {
                 box.Initialize(operatorData);
+                operatorUIBoxes[operatorData] = box;
             }
         }
     }
@@ -291,6 +296,15 @@ public class OperatorManager : MonoBehaviour
             tile.SetOccupied(op);
             currentOperatorPrefab = null;
 
+            // 배치된 오퍼레이터 리스트에 추가
+            deployedOperators.Add(currentOperatorData);
+
+            // UI에서 해당 오퍼레이터 박스 제거
+            if (operatorUIBoxes.TryGetValue(currentOperatorData, out BottomPanelOperatorBox box))
+            {
+                box.gameObject.SetActive(false);
+            }
+
             ResetPlacement();
         }
     }
@@ -342,6 +356,16 @@ public class OperatorManager : MonoBehaviour
         if (previewOperator != null)
         {
             previewOperator.transform.rotation = Quaternion.LookRotation(placementDirection);
+        }
+    }
+
+    // 퇴각 / 사망 시 호출
+    public void OnOperatorRemoved(OperatorData operatorData)
+    {
+        deployedOperators.Remove(operatorData);
+        if (operatorUIBoxes.TryGetValue(operatorData, out BottomPanelOperatorBox box))
+        {
+            box.StartCooldown(operatorData.reDeployTime);
         }
     }
 }
