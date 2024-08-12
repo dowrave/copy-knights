@@ -124,7 +124,6 @@ public class Operator : Unit
             Enemy target = blockedEnemies[0]; // 일단 떔빵
             if (target != null)
             {
-                Debug.Log("저지 중인 적을 공격함");
                 Attack(target);
                 return; 
             }
@@ -138,7 +137,6 @@ public class Operator : Unit
             Enemy target = enemiesInRange[0]; // 일단 떔빵
             if (target != null)
             {
-                Debug.Log("저지 X / 공격 범위 내의 적을 공격함");
                 Attack(target);
                 return;
             }
@@ -268,6 +266,7 @@ public class Operator : Unit
                 {
                     blockedEnemies[i] = enemy;
                     currentBlockedEnemiesCount++;
+
                     return true;
                 }
             }
@@ -338,8 +337,6 @@ public class Operator : Unit
 
     public override void TakeDamage(float damage)
     {
-        Debug.Log($"Operator 공격 받음 : {damage}, {stats.Health}, {maxHealth}");
-
         base.TakeDamage(damage);
         //operatorUI.UpdateOperatorUI(this);
         operatorUI.UpdateUI();

@@ -2,6 +2,7 @@ using UnityEngine;
 //using System.Collections.Generic; // IEnumerator<T> - 제네릭 버전
 using System.Collections; // IEnumerator - 코루틴에서 주로 사용하는 버전
 using TMPro;
+using UnityEngine.SceneManagement;
 
 /*
  StageManager의 역할
@@ -34,6 +35,7 @@ public class StageManager : MonoBehaviour
     private int currentEnemyCount;
     private int maxLifePoints = 3;
     private int currentLifePoints;
+    private int passedEnemies;
 
     public int CurrentDeploymentCost
     {
@@ -181,7 +183,8 @@ public class StageManager : MonoBehaviour
         currentEnemyCount++;
         UpdateUI();
 
-        if (currentEnemyCount >= totalEnemyCount)
+        // 사실 "생성된" 적을 포함하면 조건을 조금 더 다르게 줘야 함
+        if (currentEnemyCount + passedEnemies >= totalEnemyCount)
         {
             GameWin();
         }
@@ -189,9 +192,10 @@ public class StageManager : MonoBehaviour
 
     public void OnEnemyReachDestination()
     {
-        if (currentState == GameState.GameOver) return; 
+        if (currentState == GameState.GameOver || currentState == GameState.GameWin) return; 
 
         currentLifePoints--;
+        passedEnemies++;
         UpdateUI();
 
         if (currentLifePoints <= 0)
@@ -202,12 +206,24 @@ public class StageManager : MonoBehaviour
 
     private void GameWin()
     { 
-        SetGameState(GameState.GameOver); // GameWin이랑 GameOver를 분리해야 되나?
+        SetGameState(GameState.GameWin);
+        Time.timeScale = 0;
+        UIManager.Instance.ShowGameWinUI();
+        StopAllCoroutines();
     }
 
     private void GameOver()
-    {
+    { 
         SetGameState(GameState.GameOver);
+        Time.timeScale = 0; // 게임 일시 정지
+        UIManager.Instance.ShowGameOverUI();
+        StopAllCoroutines();
+    }
+
+    private void ReturnToMenu()
+    {
+        Time.timeScale = 1; // 게임 속도 복구
+        SceneManager.LoadScene("MainMenu");
     }
 }
 
@@ -216,5 +232,6 @@ public enum GameState
     Preparation,
     Battle,
     Paused,
+    GameWin,
     GameOver
 }
