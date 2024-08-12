@@ -15,12 +15,12 @@ MonoBehaviour:
   enemyName: 
   baseStats:
     Health: 550
-    AttackPower: 250
+    AttackPower: 150
     AttackSpeed: 2
     AttackType: 0
     Defense: 100
     MagicResistance: 0.1
-  movementSpeed: 1
+  movementSpeed: 3.5
   blockCount: 1
   prefab: {fileID: 6542749020257112806, guid: b64bfbf4c6a80384295e7286bbcc9d3e, type: 3}
   damageMultiplier: 1

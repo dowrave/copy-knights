@@ -63,8 +63,7 @@
     <Compile Include="Assets\Scripts\Unit\UnitStats.cs" />
     <Compile Include="Assets\Scripts\EnemyUI.cs" />
     <Compile Include="Assets\Scripts\Stage\MapManager.cs" />
-    <Compile Include="Assets\Unused\Script\EnemyCanvas.cs" />
-    <Compile Include="Assets\Unused\Script\OperatorCanvas.cs" />
+    <Compile Include="Assets\Scripts\Stage\UIManager.cs" />
     <Compile Include="Assets\Scripts\Stage\PathData.cs" />
     <Compile Include="Assets\Scripts\Unit\Enemy.cs" />
     <Compile Include="Assets\Scripts\Stage\Tile.cs" />
@@ -74,14 +73,12 @@
     <Compile Include="Assets\Scripts\OperatorUI.cs" />
     <Compile Include="Assets\Scripts\HealthBar.cs" />
     <Compile Include="Assets\Scripts\Stage\StageManager.cs" />
-    <Compile Include="Assets\Unused\Script\UIManager.cs" />
     <Compile Include="Assets\Scripts\Unit\Projectile.cs" />
     <Compile Include="Assets\Scripts\Unit\OperatorData.cs" />
     <Compile Include="Assets\Scripts\Unit\Operator.cs" />
     <Compile Include="Assets\Scripts\Unit\OperatorManager.cs" />
     <Compile Include="Assets\Scripts\Stage\EnemySpawner.cs" />
     <Compile Include="Assets\Scripts\Unit\Unit.cs" />
-    <Compile Include="Assets\Unused\Script\CameraManager.cs" />
     <Compile Include="Assets\Scripts\Stage\TileData.cs" />
     <Compile Include="Assets\Scripts\Stage\DeploymentCostPanel.cs" />
     <Compile Include="Assets\Scripts\Stage\PathfindingManager.cs" />

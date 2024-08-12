@@ -112,9 +112,10 @@ public class Enemy : Unit
         // 현재 밟은 타일에 오퍼레이터가 있는지 검사
         Vector2Int nowGridPosition = MapManager.Instance.GetGridPosition(transform.position);
         Tile currentTile = MapManager.Instance.GetTile(nowGridPosition.x, nowGridPosition.y);
+        Operator tileOperator = currentTile?.OccupyingOperator;
 
-        // 최초로 자신을 저지하는 오퍼레이터를 추가
-        if (!blockingOperator && currentTile.OccupyingOperator)
+        // 자신을 저지하는 오퍼레이터가 없음 and 현재 타일에 오퍼레이터가 있음 and 그 오퍼레이터가 저지 가능한 상태
+        if (tileOperator != null && tileOperator.CanBlockEnemy() && blockingOperator == null)
         {
             blockingOperator = currentTile.OccupyingOperator;
             blockingOperator.TryBlockEnemy(this); // 오퍼레이터에서도 저지 중인 Enemy를 추가

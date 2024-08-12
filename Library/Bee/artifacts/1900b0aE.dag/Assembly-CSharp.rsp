@@ -371,6 +371,7 @@
 "Assets/Scripts/Stage/StageManager.cs"
 "Assets/Scripts/Stage/Tile.cs"
 "Assets/Scripts/Stage/TileData.cs"
+"Assets/Scripts/Stage/UIManager.cs"
 "Assets/Scripts/Unit/Enemy.cs"
 "Assets/Scripts/Unit/EnemyData.cs"
 "Assets/Scripts/Unit/Operator.cs"
@@ -379,10 +380,6 @@
 "Assets/Scripts/Unit/Projectile.cs"
 "Assets/Scripts/Unit/Unit.cs"
 "Assets/Scripts/Unit/UnitStats.cs"
-"Assets/Unused/Script/CameraManager.cs"
-"Assets/Unused/Script/EnemyCanvas.cs"
-"Assets/Unused/Script/OperatorCanvas.cs"
-"Assets/Unused/Script/UIManager.cs"
 -langversion:9.0
 /deterministic
 /optimize+

@@ -92,7 +92,7 @@ public class BottomPanelOperatorBox : MonoBehaviour, IPointerClickHandler
     // eventData : 유니티에 의해 자동 제공, 클릭 이벤트 정보 포함. (그래서 operatorData랑은 별개로 인풋을 저렇게 작성해야 함)
     public void OnPointerClick(PointerEventData eventData) 
     {
-        if (StageManager.Instance.CurrentDeploymentCost >= operatorData.deploymentCost)
+        if (!isOnCooldown && StageManager.Instance.CurrentDeploymentCost >= operatorData.deploymentCost)
         {
             OperatorManager.Instance.StartOperatorPlacement(operatorData);
         }
