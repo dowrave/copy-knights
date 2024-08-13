@@ -25,6 +25,7 @@ public class OperatorUI : MonoBehaviour
     {
         this.op = op;
         UpdateUI();
+        Debug.Log("Operator UI 초기화 완료");
     }
 
     private void Update()

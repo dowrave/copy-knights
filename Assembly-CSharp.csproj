@@ -65,6 +65,7 @@
     <Compile Include="Assets\Scripts\Stage\MapManager.cs" />
     <Compile Include="Assets\Scripts\Stage\UIManager.cs" />
     <Compile Include="Assets\Scripts\Stage\PathData.cs" />
+    <Compile Include="Assets\Scripts\ClickDetectionSystem.cs" />
     <Compile Include="Assets\Scripts\Unit\Enemy.cs" />
     <Compile Include="Assets\Scripts\Stage\Tile.cs" />
     <Compile Include="Assets\Scripts\BottomPanelOperatorBox.cs" />
@@ -76,6 +77,7 @@
     <Compile Include="Assets\Scripts\Unit\Projectile.cs" />
     <Compile Include="Assets\Scripts\Unit\OperatorData.cs" />
     <Compile Include="Assets\Scripts\Unit\Operator.cs" />
+    <Compile Include="Assets\Scripts\OperatorActionUI.cs" />
     <Compile Include="Assets\Scripts\Unit\OperatorManager.cs" />
     <Compile Include="Assets\Scripts\Stage\EnemySpawner.cs" />
     <Compile Include="Assets\Scripts\Unit\Unit.cs" />

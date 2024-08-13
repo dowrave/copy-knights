@@ -5,7 +5,7 @@ using System.Linq;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class Operator : Unit
+public class Operator : Unit, IClickable
 {
     [SerializeField] // 필드 직렬화, Inspector에서 이 필드 숨기기
     public OperatorData data;
@@ -30,8 +30,10 @@ public class Operator : Unit
     private float currentSP;
     public float CurrentSP => currentSP;
 
-    //[SerializeField] private GameObject operatorUIPrefab;
+    [SerializeField] private GameObject operatorUIPrefab;
     private OperatorUI operatorUI;
+    [SerializeField] private GameObject actionUIPrefab;
+    private OperatorActionUI actionUI; 
 
     public float currentHealth => stats.Health;
     // 최대 체력
@@ -83,15 +85,12 @@ public class Operator : Unit
     }
     private void CreateOperatorUI()
     {
-        //if (operatorUIPrefab != null)
-        //{
-            //GameObject uiObject = Instantiate(operatorUIPrefab, transform);
-        operatorUI = GetComponentInChildren<OperatorUI>();
-        if (operatorUI != null)
+        if (operatorUIPrefab != null)
         {
+            GameObject uiObject = Instantiate(operatorUIPrefab, transform);
+            operatorUI = uiObject.GetComponentInChildren<OperatorUI>();
             operatorUI.Initialize(this);
         }
-        //}
     }
 
     public void InitializeStats()
@@ -381,6 +380,40 @@ public class Operator : Unit
             // 실제 배치 모드일 때의 시각 설정
             meshRenderer.material = originalMaterial;
 
+        }
+    }
+    public void ShowActionUI()
+    {
+        if (actionUI == null)
+        {
+            GameObject actionUIObject = Instantiate(actionUIPrefab, transform);
+            actionUI = actionUIObject.GetComponent<OperatorActionUI>();
+            actionUI.Initialize(this);
+        }
+        actionUI.Show();
+    }
+
+    public void UseSkill()
+    {
+        // 스킬 사용 로직
+        Debug.LogWarning("Skill Used");
+    }
+
+    public void Retreat()
+    {
+        // 수정 필요) 사망 vs 퇴각의 차이가 필요 - 퇴각은 반환 배치 코스트가 있다
+        OperatorManager.Instance.OnOperatorRemoved(data);
+
+        Destroy(gameObject);
+
+    }
+
+    public void OnClick()
+    {
+        Debug.LogWarning($"Operator.OnClick 메서드 작동");
+        if (isDeployed && !IsPreviewMode && StageManager.Instance.currentState == GameState.Battle)
+        {
+            ShowActionUI();
         }
     }
 

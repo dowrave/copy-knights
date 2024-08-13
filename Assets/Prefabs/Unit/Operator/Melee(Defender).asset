@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fd69fe121c428fa40b981892f9a7fe11, type: 3}
   m_Name: Melee(Defender)
   m_EditorClassIdentifier: 
-  operatorName: 
+  operatorName: Base(Defender)
   baseStats:
     Health: 3000
     AttackPower: 200
@@ -32,6 +32,6 @@ MonoBehaviour:
   projectilePrefab: {fileID: 0}
   maxSP: 30
   initialSP: 0
-  autoRecoverSP: 0
+  autoRecoverSP: 1
   SpRecoveryRate: 1
   icon: {fileID: 0}

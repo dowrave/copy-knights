@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fd69fe121c428fa40b981892f9a7fe11, type: 3}
   m_Name: Melee(Base)
   m_EditorClassIdentifier: 
-  operatorName: 
+  operatorName: Base(Melee)
   baseStats:
     Health: 600
     AttackPower: 300
