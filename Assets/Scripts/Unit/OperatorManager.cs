@@ -103,6 +103,7 @@ public class OperatorManager : MonoBehaviour
             {
                 currentOperatorPrefab = operatorData.prefab;
                 currentOperatorData = availableOperators[operatorIndex];
+                Debug.Log($"오퍼레이터 배치 시작 : {currentOperatorData.operatorName}");
                 isDraggingFromUI = true;
             }
             else

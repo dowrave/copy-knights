@@ -94,6 +94,7 @@ public class BottomPanelOperatorBox : MonoBehaviour, IPointerClickHandler
     {
         if (!isOnCooldown && StageManager.Instance.CurrentDeploymentCost >= operatorData.deploymentCost)
         {
+
             OperatorManager.Instance.StartOperatorPlacement(operatorData);
         }
     }

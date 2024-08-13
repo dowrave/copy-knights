@@ -268,4 +268,13 @@ public class Tile : MonoBehaviour
 
 
     // 타일에 올라간 적 관리하는 메서드들 끝 -------
+
+    private void OnMouseDown()
+    {
+        Debug.Log("마우스 버튼 클릭함");
+       if(OccupyingOperator != null)
+        {
+            OccupyingOperator.ShowActionUI();
+        }
+    }
 }
