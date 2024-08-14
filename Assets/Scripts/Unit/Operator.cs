@@ -4,9 +4,11 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.UI;
+using static UnityEngine.EventSystems.EventTrigger;
 
 public class Operator : Unit, IClickable
 {
+
     [SerializeField] // 필드 직렬화, Inspector에서 이 필드 숨기기
     public OperatorData data;
 
@@ -14,19 +16,21 @@ public class Operator : Unit, IClickable
     public Vector3 facingDirection = Vector3.left;
 
     // 저지 관련
-    private Enemy[] blockedEnemies;
-    public IReadOnlyList<Enemy> BlockedEnemies => Array.AsReadOnly(blockedEnemies);
-    private int currentBlockedEnemiesCount = 0;
-    public int CurrentBlockedEnemiesCount => currentBlockedEnemiesCount;
+    private List<Enemy> blockedEnemies;
+    public IReadOnlyList<Enemy> BlockedEnemies => blockedEnemies.AsReadOnly();
 
     public int deploymentOrder { get; private set; } // 배치 순서
-    private bool isDeployed = false;
+    private bool isDeployed = false; // 배치 완료 시 true
     private Map currentMap;
     private Enemy currentTarget;
     private float attackCooldown = 0f; // data.baseStats에서 들어오는 AttackSpeed 값에 의해 결정됨
     //[HideInInspector] public bool isBlocking = false; // 저지 중인가
 
     // SP 관련
+    public float currentHealth => stats.Health;
+    // 최대 체력
+    private float maxHealth;
+    public float MaxHealth => maxHealth;
     private float currentSP;
     public float CurrentSP => currentSP;
 
@@ -35,10 +39,9 @@ public class Operator : Unit, IClickable
     [SerializeField] private GameObject actionUIPrefab;
     private OperatorActionUI actionUI; 
 
-    public float currentHealth => stats.Health;
-    // 최대 체력
-    private float maxHealth;
-    public float MaxHealth => maxHealth;
+
+    // 공격 범위 내에 있는 적들 
+    List<Enemy> enemiesInRange = new List<Enemy>();
 
     // 미리보기 관련
     private bool isPreviewMode = false;
@@ -97,51 +100,72 @@ public class Operator : Unit, IClickable
     {
         base.Initialize(data.baseStats);
         attackRangeType = data.attackRangeType;
-        blockedEnemies = new Enemy[data.maxBlockableEnemies];
-        currentBlockedEnemiesCount = 0;
+        blockedEnemies = new List<Enemy>(data.maxBlockableEnemies);
     }
 
 
     private void Update()
     {
-        attackCooldown -= Time.deltaTime;
-
-        if (attackCooldown <= 0 && isDeployed)
+        if (isDeployed)
         {
-            FindAndAttackTarget();
+            attackCooldown -= Time.deltaTime;
+
+            // 공격 대상
+            if (currentTarget == null)
+            {
+                FindTarget(); // currentTarget 업데이트 시도
+            }
+
+            if (attackCooldown <= 0 && currentTarget != null)
+            {
+                Attack(currentTarget);
+            }
+
+            RecoverSP();
         }
 
-        RecoverSP();
+
     }
 
-    private void FindAndAttackTarget()
+    // 적에게 공격 중인 오퍼레이터를 알림
+    private void SetAndNotifyTarget(Enemy newTarget)
     {
-        
-        // 1. 저지 중일 때에는 저지 중인 적 중에서 공격
-        if (blockedEnemies.Length > 0)
+        if (currentTarget != null)
         {
-            Enemy target = blockedEnemies[0]; // 일단 떔빵
-            if (target != null)
-            {
-                Attack(target);
-                return; 
-            }
+            newTarget.RemoveAttackingOperator(this);
         }
 
-        List<Enemy> enemiesInRange = GetEnemiesInAttackRange();
-        // 2. 저지 중이 아닐 때에는 공격 범위 내의 적 중에서 공격함
-        if (enemiesInRange.Count > 0 )
+        if (currentTarget != null)
         {
-            // 타겟 우선순위 선정 로직이 필요함
-            Enemy target = enemiesInRange[0]; // 일단 떔빵
-            if (target != null)
-            {
-                Attack(target);
-                return;
-            }
+            currentTarget = newTarget;
+            newTarget.AddAttackingOperator(this);
         }
     }
 
+    // currentTarget 설정 로직
+    private void FindTarget()
+    {
+        // 1. 저지 중일 때에는 저지 중인 적 중에서 공격
+        if (blockedEnemies.Count > 0)
+        {
+            currentTarget = blockedEnemies[0]; // 첫 번째 저지된 적을 타겟으로
+            SetAndNotifyTarget(currentTarget);
+        }
+
+        // 2. 저지 중이 아닐 때에는 공격 범위 내의 적 중에서 공격함
+        GetEnemiesInAttackRange(); // enemiesInRange 업데이트
+        if (enemiesInRange.Count > 0)
+        {
+            string enemiesInfo = string.Join(", ", enemiesInRange.Select((enemy, index) =>
+                $"Enemy {index}: {enemy.name} (Health: {enemy.CurrentHealth}/{enemy.MaxHealth}, Position: {enemy.transform.position})"));
+            Debug.LogWarning($"공격 범위 내 적 정보:\n{enemiesInfo}");
+
+
+            currentTarget = enemiesInRange[0];
+            SetAndNotifyTarget(currentTarget);
+        }
+
+    }
 
     public override void Attack(Unit target)
     {
@@ -185,9 +209,9 @@ public class Operator : Unit, IClickable
 
 
     // 공격 타일에 있는 적들을 반환함
-    private List<Enemy> GetEnemiesInAttackRange()
+    private void GetEnemiesInAttackRange()
     {
-        List<Enemy> enemiesInRange = new List<Enemy>();
+        //enemiesInRange = new List<Enemy>();
         Vector2Int operatorGridPos = currentMap.WorldToGridPosition(transform.position);
 
         foreach (Vector2Int offset in data.attackableTiles)
@@ -203,7 +227,8 @@ public class Operator : Unit, IClickable
                 enemiesInRange.AddRange(enemiesOnTile);
             }
         }
-        return enemiesInRange.Distinct().ToList(); // 중복 제거해서 반환
+
+        enemiesInRange = enemiesInRange.Distinct().ToList(); // 중복 제거해서 반환
     }
 
 
@@ -251,7 +276,7 @@ public class Operator : Unit, IClickable
     // 이 오퍼레이터가 적을 저지할 수 있는 상태인가?
     public bool CanBlockEnemy()
     {
-        return currentBlockedEnemiesCount < data.maxBlockableEnemies;
+        return blockedEnemies.Count < data.maxBlockableEnemies;
     }
 
     // 저지 가능하다면 현 저지수 + 1
@@ -259,49 +284,22 @@ public class Operator : Unit, IClickable
     {
         if (CanBlockEnemy())
         {
-            for (int i = 0; i < blockedEnemies.Length; i++)
-            {
-                if (blockedEnemies[i] == null)
-                {
-                    blockedEnemies[i] = enemy;
-                    currentBlockedEnemiesCount++;
-
-                    return true;
-                }
-            }
+            blockedEnemies.Add(enemy);
+            Debug.Log($"저지 시작: {enemy}");
+            return true;
         }
         return false;
     }
 
     public void UnblockEnemy(Enemy enemy)
     {
-        for (int i = 0; i < blockedEnemies.Length; i++)
-        {
-            if (blockedEnemies[i] == enemy)
-            {
-                // 해당 적을 제거하고 나머지를 앞으로 당깁니다.
-                for (int j = i; j < blockedEnemies.Length - 1; j++)
-                {
-                    blockedEnemies[j] = blockedEnemies[j + 1];
-                }
-                blockedEnemies[blockedEnemies.Length - 1] = null;
-                currentBlockedEnemiesCount--;
-                break;
-            }
-        }
+        Debug.LogWarning("적 저지 해제");
+        blockedEnemies.Remove(enemy);
     }
 
-    // 저지된 모든 적 제거
     public void UnblockAllEnemies()
     {
-        for (int i = 0; i < blockedEnemies.Length; i++)
-        {
-            if (blockedEnemies[i] != null)
-            {
-                blockedEnemies[i] = null;
-            }
-        }
-        currentBlockedEnemiesCount = 0;
+        blockedEnemies.Clear();
     }
 
     // SP 로직 추가
@@ -410,11 +408,23 @@ public class Operator : Unit, IClickable
 
     public void OnClick()
     {
-        Debug.LogWarning($"Operator.OnClick 메서드 작동");
         if (isDeployed && !IsPreviewMode && StageManager.Instance.currentState == GameState.Battle)
         {
             ShowActionUI();
         }
     }
 
+    // 공격 대상인 적이 죽었을 때 작동함. 저지 해제와 별개로 구현
+    public void OnTargetLost(Enemy enemy)
+    {
+
+        // 공격 대상에서 제거
+        if (currentTarget == enemy)
+        {
+            currentTarget = null;
+        }
+
+        // 범위 내 적 리스트에서 제거
+        enemiesInRange.Remove(enemy); // 안하면 리스트에 파괴된 오브젝트가 남아서 0번 인덱스를 캐치하지 못함
+    }
 }

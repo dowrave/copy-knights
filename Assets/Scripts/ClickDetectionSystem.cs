@@ -6,6 +6,7 @@ public class ClickDetectionSystem : MonoBehaviour
     public static ClickDetectionSystem Instance { get; private set; }
 
     private Camera mainCamera;
+    [SerializeField] private LayerMask clickableLayerMask;  // Inspector에서 설정
 
     private void Awake()
 
@@ -22,7 +23,7 @@ public class ClickDetectionSystem : MonoBehaviour
 
     private void Start()
     {
-        mainCamera = Camera.main; 
+        mainCamera = Camera.main;
     }
 
     private void Update()
@@ -45,10 +46,12 @@ public class ClickDetectionSystem : MonoBehaviour
 
         Ray ray = mainCamera.ScreenPointToRay(Input.mousePosition);
         RaycastHit hit;
+        Debug.DrawRay(ray.origin, ray.direction * 100, Color.red, 1f);
 
         // 모든 레이어에 대해 레이캐스트 수행
-        if (Physics.Raycast(ray, out hit, Mathf.Infinity, Physics.AllLayers))
+        if (Physics.Raycast(ray, out hit, Mathf.Infinity, clickableLayerMask))
         {
+            Debug.Log("레이캐스트가 클릭 가능한 레이어에 닿음");
             DebugClick(hit);
 
             // 클릭 로직 처리
@@ -67,6 +70,7 @@ public class ClickDetectionSystem : MonoBehaviour
                 }
             }
         }
+
         else
         {
             Debug.Log("레이캐스트가 어떤 오브젝트에도 닿지 않았습니다.");

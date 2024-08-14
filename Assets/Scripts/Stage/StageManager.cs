@@ -32,7 +32,7 @@ public class StageManager : MonoBehaviour
 
     // 게임 상태 변수
     private int totalEnemyCount;
-    private int currentEnemyCount;
+    private int killedEnemyCount;
     private int maxLifePoints = 3;
     private int currentLifePoints;
     private int passedEnemies;
@@ -85,7 +85,7 @@ public class StageManager : MonoBehaviour
 
         // 게임 초기화
         totalEnemyCount = CalculateTotalEnemyCount();
-        currentEnemyCount = 0;
+        killedEnemyCount = 0;
         currentLifePoints = maxLifePoints;
 
         UpdateUI();
@@ -106,7 +106,7 @@ public class StageManager : MonoBehaviour
     {
         if (enemyCountText != null)
         {
-            enemyCountText.text = $"{currentEnemyCount} / {totalEnemyCount}";
+            enemyCountText.text = $"{killedEnemyCount} / {totalEnemyCount}";
 
         }
 
@@ -180,11 +180,11 @@ public class StageManager : MonoBehaviour
     {
         if (currentState == GameState.GameOver) return;
 
-        currentEnemyCount++;
+        killedEnemyCount++;
         UpdateUI();
 
         // 사실 "생성된" 적을 포함하면 조건을 조금 더 다르게 줘야 함
-        if (currentEnemyCount + passedEnemies >= totalEnemyCount)
+        if (killedEnemyCount + passedEnemies >= totalEnemyCount)
         {
             GameWin();
         }
@@ -201,6 +201,10 @@ public class StageManager : MonoBehaviour
         if (currentLifePoints <= 0)
         {
             GameOver();
+        }
+        if (killedEnemyCount + passedEnemies >= totalEnemyCount)
+        {
+            GameWin();
         }
     }
 

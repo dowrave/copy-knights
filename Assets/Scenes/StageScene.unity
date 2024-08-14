@@ -3466,10 +3466,6 @@ MonoBehaviour:
   enemySpawnList:
   - enemyData: {fileID: 11400000, guid: 673037e1dec1a8445b3797044c9c07e2, type: 2}
     spawnTime: 1
-  - enemyData: {fileID: 11400000, guid: 673037e1dec1a8445b3797044c9c07e2, type: 2}
-    spawnTime: 2
-  - enemyData: {fileID: 11400000, guid: 673037e1dec1a8445b3797044c9c07e2, type: 2}
-    spawnTime: 3
 --- !u!1 &676740323
 GameObject:
   m_ObjectHideFlags: 0
@@ -5029,11 +5025,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   enemySpawnList:
   - enemyData: {fileID: 11400000, guid: 673037e1dec1a8445b3797044c9c07e2, type: 2}
+    spawnTime: 0.5
+  - enemyData: {fileID: 11400000, guid: 673037e1dec1a8445b3797044c9c07e2, type: 2}
     spawnTime: 1
-  - enemyData: {fileID: 11400000, guid: 673037e1dec1a8445b3797044c9c07e2, type: 2}
-    spawnTime: 2
-  - enemyData: {fileID: 11400000, guid: 673037e1dec1a8445b3797044c9c07e2, type: 2}
-    spawnTime: 3
 --- !u!1 &1206844153
 GameObject:
   m_ObjectHideFlags: 0
@@ -8269,6 +8263,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 06896b75e615b3841874fdde2d7c15e6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  clickableLayerMask:
+    serializedVersion: 2
+    m_Bits: 72
 --- !u!4 &1975916149
 Transform:
   m_ObjectHideFlags: 0
