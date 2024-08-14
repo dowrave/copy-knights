@@ -15,7 +15,7 @@ MonoBehaviour:
   operatorName: Base(Sniper)
   baseStats:
     Health: 600
-    AttackPower: 150
+    AttackPower: 500
     AttackSpeed: 1.5
     AttackType: 0
     Defense: 100

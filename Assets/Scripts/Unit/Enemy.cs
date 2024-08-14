@@ -12,7 +12,9 @@ public class Enemy : Unit
     private List<float> waitTimes; 
 
     public float attackRange; // 공격 범위
+
     private Operator blockingOperator; // 자신을 저지 중인 오퍼레이터
+    private List<Operator> attackingOperators = new List<Operator>(); // 자신을 공격 중인 오퍼레이터
 
     // 현재 체력 접근자
     public float CurrentHealth => stats.Health;
@@ -31,6 +33,8 @@ public class Enemy : Unit
     public float DamageMultiplier { get; private set; }
     public float DefenseMultiplier { get; private set; }
 
+
+
     public void Initialize(EnemyData enemyData, Vector3 startPoint, Vector3 endPoint)
     {
         InitializeStats(enemyData);
@@ -40,6 +44,27 @@ public class Enemy : Unit
         CreateEnemyUI();
 
         // stats을 사용하는 로직은 이후에 추가(?)
+    }
+    private void Update()
+    {
+        // 사실 공격할 적이 있으면 공격하고, 그게 아니라면 이동하는 로직이 맞음
+        // 근거리 적은 저지를 당할 때에만 오퍼레이터를 공격하고, 원거리 적은 공격 범위 내에 있는 오퍼레이터를 공격하는 방식.
+
+        // 진행할 경로가 있다
+        if (path != null && currentPathIndex < path.Count)
+        {
+
+            // 저지를 당하고 있지 않다면 이동한다
+            if (!blockingOperator)
+            {
+                MoveAlongPath();
+                CheckAndAddOperator();
+            }
+            else
+            {
+                AttackBlockingOperator();
+            }
+        }
     }
 
     private void CreateEnemyUI()
@@ -85,27 +110,7 @@ public class Enemy : Unit
         }
     }
 
-    private void Update()
-    {
-        // 사실 공격할 적이 있으면 공격하고, 그게 아니라면 이동하는 로직이 맞음
-        // 근거리 적은 저지를 당할 때에만 오퍼레이터를 공격하고, 원거리 적은 공격 범위 내에 있는 오퍼레이터를 공격하는 방식.
 
-        // 진행할 경로가 있다
-        if (path != null && currentPathIndex < path.Count)
-        {
-
-            // 저지를 당하고 있지 않다면 이동한다
-            if (!blockingOperator)
-            {
-                MoveAlongPath();
-                CheckAndAddOperator();
-            }
-            else
-            {
-                AttackBlockingOperator();
-            }
-        }
-    }
 
     private void CheckAndAddOperator()
     {
@@ -245,14 +250,20 @@ public class Enemy : Unit
 
     protected override void Die()
     {
-        // 자신을 저지 중인 오퍼레이터의 저지를 해제해줌(해제 자체는 Operator에서 이뤄짐)
-        if (blockingOperator)
+        Debug.LogWarning("적 사망");
+
+        // 저지 중인 오퍼레이터에게 저지를 해제시킴
+        if (blockingOperator != null)
         {
             blockingOperator.UnblockEnemy(this);
         }
 
-        // 계획) 스테이지 매니저를 만들고 나서 사망한 적 카운트를 +1 해줌
-        StageManager.Instance.OnEnemyDefeated();
+        foreach (Operator op in attackingOperators.ToList())
+        {
+            op.OnTargetLost(this);
+        }
+
+        StageManager.Instance.OnEnemyDefeated(); // 사망한 적 수 +1
 
         if (enemyUI != null)
         {
@@ -272,5 +283,20 @@ public class Enemy : Unit
             enemyUI.UpdateUI();
         }
     }
+
+    public void AddAttackingOperator(Operator op)
+    {
+        if (!attackingOperators.Contains(op))
+        {
+            attackingOperators.Add(op);
+        }
+    }
+
+    public void RemoveAttackingOperator(Operator op)
+    {
+        attackingOperators.Remove(op);
+    }
+
+
 
 }
