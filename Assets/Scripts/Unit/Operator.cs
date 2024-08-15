@@ -380,6 +380,7 @@ public class Operator : Unit, IClickable
 
         }
     }
+
     public void ShowActionUI()
     {
         if (actionUI == null)
@@ -388,13 +389,13 @@ public class Operator : Unit, IClickable
             actionUI = actionUIObject.GetComponent<OperatorActionUI>();
             actionUI.Initialize(this);
         }
+
         actionUI.Show();
     }
 
     public void UseSkill()
     {
         // 스킬 사용 로직
-        Debug.LogWarning("Skill Used");
     }
 
     public void Retreat()
@@ -410,6 +411,7 @@ public class Operator : Unit, IClickable
     {
         if (isDeployed && !IsPreviewMode && StageManager.Instance.currentState == GameState.Battle)
         {
+            Debug.Log("오퍼레이터 클릭이 감지됨");
             ShowActionUI();
         }
     }

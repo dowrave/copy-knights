@@ -1,5 +1,7 @@
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
+using static UnityEditor.Experimental.GraphView.GraphView;
 
 public class ClickDetectionSystem : MonoBehaviour
 {
@@ -24,35 +26,33 @@ public class ClickDetectionSystem : MonoBehaviour
     private void Start()
     {
         mainCamera = Camera.main;
+        //LogCameraCullingMask();
     }
 
     private void Update()
     {
-        if (Input.GetMouseButtonDown(0) && !IsPointerOverUIObject())
+        if (Input.GetMouseButtonDown(0) 
+            //&& !IsPointerOverUIObject()
+            )
         {
             HandleClick();
-            //DebugClick();
         }
     }
 
     private void HandleClick()
     {
-        // UI 요소 클릭 체크
-        if (EventSystem.current.IsPointerOverGameObject())
+        if (IsPointerOverUIObject())
         {
-            Debug.Log("UI 요소가 클릭되었습니다.");
+            Debug.Log("UI 요소 클릭됨");
             return;
         }
 
         Ray ray = mainCamera.ScreenPointToRay(Input.mousePosition);
         RaycastHit hit;
-        Debug.DrawRay(ray.origin, ray.direction * 100, Color.red, 1f);
 
         // 모든 레이어에 대해 레이캐스트 수행
-        if (Physics.Raycast(ray, out hit, Mathf.Infinity, clickableLayerMask))
+        if (Physics.Raycast(ray, out hit, Mathf.Infinity, clickableLayerMask.value))
         {
-            Debug.Log("레이캐스트가 클릭 가능한 레이어에 닿음");
-            DebugClick(hit);
 
             // 클릭 로직 처리
             IClickable clickable = hit.collider.GetComponent<IClickable>();
@@ -77,6 +77,38 @@ public class ClickDetectionSystem : MonoBehaviour
         }
     }
 
+    private bool IsPointerOverUIObject()
+    {
+        PointerEventData eventDataCurrentPosition = new PointerEventData(EventSystem.current);
+        eventDataCurrentPosition.position = new Vector2(Input.mousePosition.x, Input.mousePosition.y);
+        List<RaycastResult> results = new List<RaycastResult>();
+
+        // GraphicRaycaster 컴포넌트가 있는 모든 Canvas 위의 UI 요소에 대한 레이캐스트 수행
+        EventSystem.current.RaycastAll(eventDataCurrentPosition, results);
+
+        int operatorLayer = LayerMask.NameToLayer("Operator");
+        int uiLayer = LayerMask.NameToLayer("UI");
+
+        foreach (RaycastResult result in results)
+        {
+            string layerName = LayerMask.LayerToName(result.gameObject.layer);
+            Debug.Log("Hit layer: " + layerName);
+
+            // UI 레이어에 있는지 확인
+            if (result.gameObject.layer == uiLayer)
+            {
+                Debug.Log("UI clicked");
+                return true;
+            }
+        }
+
+        // UI 레이어가 아닌 경우 false 반환
+        return false;
+    }
+
+    /// <summary>
+    /// 클릭 디버깅용 - 해결됨
+    /// </summary>
     private void DebugClick(RaycastHit hit)
     {
         Debug.Log($"Hit 오브젝트: {hit.collider.gameObject.name}");
@@ -104,9 +136,27 @@ public class ClickDetectionSystem : MonoBehaviour
         Debug.Log("------------------------");
     }
 
-    private bool IsPointerOverUIObject()
+    private void LogCameraCullingMask()
     {
-        return EventSystem.current.IsPointerOverGameObject();
+        if (mainCamera != null)
+        {
+            int cullingMask = mainCamera.cullingMask;
+            Debug.Log($"Camera Culling Mask: {cullingMask}");
+
+            // 활성화된 레이어 이름 출력
+            for (int i = 0; i < 32; i++)
+            {
+                if ((cullingMask & (1 << i)) != 0)
+                {
+                    string layerName = LayerMask.LayerToName(i);
+                    Debug.Log($"Enabled Layer {i}: {layerName}");
+                }
+            }
+        }
+        else
+        {
+            Debug.LogError("Main Camera not found!");
+        }
     }
 }
 
