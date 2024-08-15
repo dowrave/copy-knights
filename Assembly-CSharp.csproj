@@ -81,6 +81,7 @@
     <Compile Include="Assets\Scripts\Unit\OperatorManager.cs" />
     <Compile Include="Assets\Scripts\Stage\EnemySpawner.cs" />
     <Compile Include="Assets\Scripts\Unit\Unit.cs" />
+    <Compile Include="Assets\Scripts\Stage\CameraManager.cs" />
     <Compile Include="Assets\Scripts\Stage\TileData.cs" />
     <Compile Include="Assets\Scripts\Stage\DeploymentCostPanel.cs" />
     <Compile Include="Assets\Scripts\Stage\PathfindingManager.cs" />

@@ -269,12 +269,14 @@ public class Tile : MonoBehaviour
 
     // 타일에 올라간 적 관리하는 메서드들 끝 -------
 
-    private void OnMouseDown()
-    {
-        Debug.Log("마우스 버튼 클릭함");
-       if(OccupyingOperator != null)
-        {
-            OccupyingOperator.ShowActionUI();
-        }
-    }
+
+    // 클릭 부분은 오퍼레이터가 배치되면 타일만큼의 터치 가능한 공간을 갖기 때문에 타일에 구현할 필요는 없어 보임
+    //private void OnMouseDown()
+    //{
+    //    Debug.Log("마우스 버튼 클릭함");
+    //   if(OccupyingOperator != null)
+    //    {
+    //        OccupyingOperator.ShowActionUI();
+    //    }
+    //}
 }

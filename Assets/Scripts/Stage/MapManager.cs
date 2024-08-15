@@ -42,11 +42,24 @@ public class MapManager : MonoBehaviour
             currentMap.Initialize(currentMap.Width, currentMap.Height, true);
             SpawnerManager.Instance.Initialize(currentMap);
             //CameraManager.Instance.AdjustCameraToMap(currentMap.Width, currentMap.Height);
+            InitializeCameraManager();
             InitializePaths(); 
         }
         else
         {
             Debug.LogError("Current Map is Not Assigned in MapManager");
+        }
+    }
+
+    private void InitializeCameraManager()
+    {
+        if (CameraManager.Instance != null)
+        {
+            CameraManager.Instance.SetupForMap(currentMap);
+        }
+        else
+        {
+            Debug.LogError("카메라 매니저 인스턴스를 찾을 수 없었음");
         }
     }
 
@@ -113,4 +126,12 @@ public class MapManager : MonoBehaviour
         return currentMap;
     }
 
+    public (Vector3 position, Vector3 rotation) GetCurrentMapCameraSettings()
+    {
+        if (currentMap != null)
+        {
+            return (currentMap.CameraPosition, currentMap.CameraRotation);
+        }
+        return (Vector3.zero, Vector3.zero);
+    }
 }

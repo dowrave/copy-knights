@@ -11,6 +11,12 @@ public class Map : MonoBehaviour
     public int Width => width;
     public int Height => height;
 
+    [SerializeField] private Vector3 cameraPosition;
+    private Vector3 cameraRotation = new Vector3(70, 0, 0);
+    public Vector3 CameraPosition => cameraPosition;
+    public Vector3 CameraRotation => cameraRotation;
+
+
     [SerializeField] private GameObject tilePrefab;
     [SerializeField] private GameObject enemySpawnerPrefab;
     [SerializeField] private TileData[] serializedTileData;

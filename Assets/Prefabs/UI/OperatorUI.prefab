@@ -10,7 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 4952294063304371530}
   - component: {fileID: 1158554644759658751}
-  m_Layer: 5
+  m_Layer: 6
   m_Name: Fill Area
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -55,7 +55,7 @@ GameObject:
   m_Component:
   - component: {fileID: 4907369539078572792}
   - component: {fileID: 6596775781124087801}
-  m_Layer: 5
+  m_Layer: 6
   m_Name: Fill Area
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -101,7 +101,7 @@ GameObject:
   - component: {fileID: 7092119469244009868}
   - component: {fileID: 8659519242163381655}
   - component: {fileID: 3863735090570115530}
-  m_Layer: 5
+  m_Layer: 6
   m_Name: Background
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -176,7 +176,7 @@ GameObject:
   - component: {fileID: 7866823910661503197}
   - component: {fileID: 5004770070037385582}
   - component: {fileID: 7003479243119132072}
-  m_Layer: 5
+  m_Layer: 6
   m_Name: HealthBar
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -278,7 +278,7 @@ GameObject:
   - component: {fileID: 3643192986107923893}
   - component: {fileID: 88260463581323461}
   - component: {fileID: 1687967202483196999}
-  m_Layer: 5
+  m_Layer: 6
   m_Name: Background
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -353,7 +353,7 @@ GameObject:
   - component: {fileID: 1480120675498864895}
   - component: {fileID: 2195272054448867537}
   - component: {fileID: 9120527560585655899}
-  m_Layer: 5
+  m_Layer: 6
   m_Name: Fill
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -428,7 +428,7 @@ GameObject:
   - component: {fileID: 2534930063935683581}
   - component: {fileID: 6657360889112329197}
   - component: {fileID: 4783088123192444652}
-  m_Layer: 5
+  m_Layer: 6
   m_Name: Fill
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -504,7 +504,7 @@ GameObject:
   - component: {fileID: 2844616093520082045}
   - component: {fileID: 4228604038704739717}
   - component: {fileID: 3892317916531660708}
-  m_Layer: 5
+  m_Layer: 6
   m_Name: SPBar
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -620,7 +620,7 @@ GameObject:
   - component: {fileID: 5942269116690765502}
   - component: {fileID: 5014289655642690059}
   - component: {fileID: 4721312079916021882}
-  m_Layer: 5
+  m_Layer: 6
   m_Name: OperatorUI
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -693,7 +693,7 @@ MonoBehaviour:
   m_FallbackScreenDPI: 96
   m_DefaultSpriteDPI: 96
   m_DynamicPixelsPerUnit: 1
-  m_PresetInfoIsWorld: 0
+  m_PresetInfoIsWorld: 1
 --- !u!114 &5014289655642690059
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -701,7 +701,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 8911005229607826622}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: dc42784cf147c0c48a680349fa168899, type: 3}
   m_Name: 
@@ -723,5 +723,5 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7b1f00f446a025c4fb33f0f7a0559523, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  healthBar: {fileID: 2659544842371958265, guid: 5dc49c4c819be13409b09d970d3173a7, type: 3}
-  spBar: {fileID: 2278276945759909899, guid: cd1f9ef6fe2f54645a226936b5b87f0d, type: 3}
+  healthBar: {fileID: 0}
+  spBar: {fileID: 0}
