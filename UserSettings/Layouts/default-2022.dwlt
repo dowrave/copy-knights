@@ -19,7 +19,7 @@ MonoBehaviour:
     width: 1920
     height: 997
   m_ShowMode: 4
-  m_Title: Project
+  m_Title: Hierarchy
   m_RootView: {fileID: 2}
   m_MinSize: {x: 875, y: 492}
   m_MaxSize: {x: 10000, y: 10000}
@@ -167,8 +167,8 @@ MonoBehaviour:
     y: 0
     width: 759
     height: 486
-  m_MinSize: {x: 201, y: 221}
-  m_MaxSize: {x: 4001, y: 4021}
+  m_MinSize: {x: 200, y: 200}
+  m_MaxSize: {x: 4000, y: 4000}
   m_ActualView: {fileID: 17}
   m_Panes:
   - {fileID: 17}
@@ -304,7 +304,7 @@ MonoBehaviour:
   m_MinSize: {x: 100, y: 100}
   m_MaxSize: {x: 8096, y: 16192}
   vertical: 1
-  controlID: 120
+  controlID: 123
   draggingID: 0
 --- !u!114 &13
 MonoBehaviour:
@@ -325,8 +325,8 @@ MonoBehaviour:
     y: 0
     width: 684
     height: 426
-  m_MinSize: {x: 276, y: 71}
-  m_MaxSize: {x: 4001, y: 4021}
+  m_MinSize: {x: 275, y: 50}
+  m_MaxSize: {x: 4000, y: 4000}
   m_ActualView: {fileID: 22}
   m_Panes:
   - {fileID: 22}
@@ -801,7 +801,7 @@ MonoBehaviour:
       sizeOverriden: 0
     m_OverlaysVisible: 1
   m_WindowGUID: 70a1b5cb38d5e354ca4cf2bb4fd73a6b
-  m_Gizmos: 1
+  m_Gizmos: 0
   m_OverrideSceneCullingMask: 6917529027641081856
   m_SceneIsLit: 1
   m_SceneLighting: 1
@@ -810,9 +810,9 @@ MonoBehaviour:
   m_PlayAudio: 0
   m_AudioPlay: 0
   m_Position:
-    m_Target: {x: 373.39606, y: 209.81943, z: -7.7241907}
+    m_Target: {x: 378.5, y: 209.5, z: 0}
     speed: 2
-    m_Value: {x: 373.39606, y: 209.81943, z: -7.7241907}
+    m_Value: {x: 378.5, y: 209.5, z: 0}
   m_RenderMode: 0
   m_CameraMode:
     drawMode: 0
@@ -862,9 +862,9 @@ MonoBehaviour:
     speed: 2
     m_Value: {x: 0.61380875, y: -0.0059207873, z: 0.0046036136, w: 0.7894191}
   m_Size:
-    m_Target: 52.61832
+    m_Target: 10
     speed: 2
-    m_Value: 52.61832
+    m_Value: 10
   m_Ortho:
     m_Target: 1
     speed: 2
@@ -926,7 +926,7 @@ MonoBehaviour:
   m_SerializedViewNames: []
   m_SerializedViewValues: []
   m_PlayModeViewName: GameView
-  m_ShowGizmos: 1
+  m_ShowGizmos: 0
   m_TargetDisplay: 0
   m_ClearColor: {r: 0, g: 0, b: 0, a: 0}
   m_TargetSize: {x: 758, y: 419}
@@ -936,7 +936,7 @@ MonoBehaviour:
   m_EnterPlayModeBehavior: 0
   m_UseMipMap: 0
   m_VSyncEnabled: 0
-  m_Gizmos: 1
+  m_Gizmos: 0
   m_Stats: 0
   m_SelectedSizes: 00000000000000000000000000000000000000000000000000000000000000000000000000000000
   m_ZoomArea:
@@ -1096,7 +1096,7 @@ MonoBehaviour:
       scrollPos: {x: 0, y: 0}
       m_SelectedIDs: 
       m_LastClickedID: 0
-      m_ExpandedIDs: 72e1feffd2e1feff96f7feffacf7feff62fcfeff78fcfeff7c04ffff9204ffff4a08ffff6008ffff6a27ffff8428ffff8034ffff9a34ffffe434fffffa34ffffb03cffff103dffff6257ffffc257ffffa292ffffaa92ffff0a93ffff76b0ffff88b0ffff90b0ffffdab0fffff0b0ffff50bdffffb0bdffff4ec2ffff64c2ffffacc5ffffe8f5ffff2cfbffff8e5a0000645d0000
+      m_ExpandedIDs: 7876ffff867affff7cceffff1ed4ffff3ad4ffff9ad4ffff0ce5ffff6ce5ffff96f2ffffa0f2ffff00f3ffff2cfbffff6c5d0000
       m_RenameOverlay:
         m_UserAcceptedRename: 0
         m_Name: 
@@ -1165,7 +1165,7 @@ MonoBehaviour:
     m_SkipHidden: 1
     m_SearchArea: 1
     m_Folders:
-    - Assets
+    - Assets/Prefabs/UI
     m_Globs: []
     m_OriginalText: 
     m_ImportLogFlags: 0
@@ -1173,16 +1173,16 @@ MonoBehaviour:
   m_ViewMode: 1
   m_StartGridSize: 16
   m_LastFolders:
-  - Assets
+  - Assets/Prefabs/UI
   m_LastFoldersGridSize: 16
   m_LastProjectPath: C:\Users\HyeonTae Lee\CopycatKnights
   m_LockTracker:
     m_IsLocked: 0
   m_FolderTreeState:
-    scrollPos: {x: 0, y: 0}
-    m_SelectedIDs: 565f0000
-    m_LastClickedID: 24406
-    m_ExpandedIDs: 00000000545f0000565f0000585f00005a5f00005c5f00000e090100100901001209010000ca9a3b
+    scrollPos: {x: 0, y: 79}
+    m_SelectedIDs: 785f0000
+    m_LastClickedID: 24440
+    m_ExpandedIDs: 000000005a5f00005c5f00005e5f0000605f0000625f0000645f0000665f0000685f00008a5f000000ca9a3b
     m_RenameOverlay:
       m_UserAcceptedRename: 0
       m_Name: 
@@ -1210,7 +1210,7 @@ MonoBehaviour:
     scrollPos: {x: 0, y: 0}
     m_SelectedIDs: 
     m_LastClickedID: 0
-    m_ExpandedIDs: 00000000545f0000565f0000585f00005a5f00005c5f0000
+    m_ExpandedIDs: 000000005a5f00005c5f00005e5f0000605f0000625f0000645f0000665f0000685f0000
     m_RenameOverlay:
       m_UserAcceptedRename: 0
       m_Name: 

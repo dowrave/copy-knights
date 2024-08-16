@@ -81,6 +81,8 @@ public class OperatorManager : MonoBehaviour
     {
         if (StageManager.Instance.currentState != GameState.Battle) { return; }
 
+        //if (currentActiveUI) { Debug.Log($"currentActiveUI : {currentActiveUI}"); } 
+
         if (isDraggingFromUI)
         {
             HandleDraggingFromUI();
@@ -278,8 +280,6 @@ public class OperatorManager : MonoBehaviour
     }
 
 
-
-
     private Vector3 DetermineDirection(Vector3 dragVector)
     {
         float angle = Mathf.Atan2(dragVector.y, dragVector.x) * Mathf.Rad2Deg;
@@ -374,21 +374,21 @@ public class OperatorManager : MonoBehaviour
 
     public void SetActiveActionUI(OperatorActionUI ui)
     {
-        if (currentActiveUI != null && currentActiveUI != ui)
+        if (CurrentActiveUI != null && CurrentActiveUI != ui)
         {
-            currentActiveUI.Hide();
+            CurrentActiveUI.Hide();
         }
-
-        currentActiveUI = ui;
-        Debug.Log($"currentActiveUI : {currentActiveUI}");
+        CurrentActiveUI = ui;
+        Debug.LogWarning($"CurrentActiveUI : {CurrentActiveUI}");
     }
+
 
     public void HideAllActionUIs()
     {
-        if (currentActiveUI != null)
+        if (CurrentActiveUI != null)
         {
-            currentActiveUI.Hide();
-            currentActiveUI = null;
+            CurrentActiveUI.Hide();
+            CurrentActiveUI = null;
         }
     }
 }
