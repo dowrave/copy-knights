@@ -39,30 +39,32 @@ public class ClickDetectionSystem : MonoBehaviour
         }
     }
 
+    // 전체적인 클릭 로직을 담당함
     private void HandleClick()
     {
-        if (IsPointerOverUIObject())
-        {
-            Debug.Log("UI 요소 클릭됨");
-            return;
-        }
+        //if (IsPointerOverUIObject())
+        //{
+        //    Debug.Log("UI 요소 클릭됨");
+        //    return;
+        //}
 
         Ray ray = mainCamera.ScreenPointToRay(Input.mousePosition);
         RaycastHit hit;
 
-        // 모든 레이어에 대해 레이캐스트 수행
+        // 지정된 레이어들에 대해 레이캐스트 수행
         if (Physics.Raycast(ray, out hit, Mathf.Infinity, clickableLayerMask.value))
         {
 
             // 클릭 로직 처리
             IClickable clickable = hit.collider.GetComponent<IClickable>();
+
             if (clickable != null)
             {
                 clickable.OnClick();
             }
             else
             {
-                // Tile에 Operator가 있는지 확인
+                // Tile에 Operator가 있는지 확인 <-- 배치된 Operator의 크기가 타일을 차지해서 꼭 이렇게 하지 않아도 되기는 함
                 Tile clickedTile = hit.collider.GetComponent<Tile>();
                 if (clickedTile != null && clickedTile.OccupyingOperator != null)
                 {
@@ -77,34 +79,34 @@ public class ClickDetectionSystem : MonoBehaviour
         }
     }
 
-    private bool IsPointerOverUIObject()
-    {
-        PointerEventData eventDataCurrentPosition = new PointerEventData(EventSystem.current);
-        eventDataCurrentPosition.position = new Vector2(Input.mousePosition.x, Input.mousePosition.y);
-        List<RaycastResult> results = new List<RaycastResult>();
+    //private bool IsPointerOverUIObject()
+    //{
+    //    PointerEventData eventDataCurrentPosition = new PointerEventData(EventSystem.current);
+    //    eventDataCurrentPosition.position = new Vector2(Input.mousePosition.x, Input.mousePosition.y);
+    //    List<RaycastResult> results = new List<RaycastResult>();
 
-        // GraphicRaycaster 컴포넌트가 있는 모든 Canvas 위의 UI 요소에 대한 레이캐스트 수행
-        EventSystem.current.RaycastAll(eventDataCurrentPosition, results);
+    //    // GraphicRaycaster 컴포넌트가 있는 모든 Canvas 위의 UI 요소에 대한 레이캐스트 수행
+    //    EventSystem.current.RaycastAll(eventDataCurrentPosition, results);
 
-        int operatorLayer = LayerMask.NameToLayer("Operator");
-        int uiLayer = LayerMask.NameToLayer("UI");
+    //    int operatorLayer = LayerMask.NameToLayer("Operator");
+    //    int uiLayer = LayerMask.NameToLayer("UI");
 
-        foreach (RaycastResult result in results)
-        {
-            string layerName = LayerMask.LayerToName(result.gameObject.layer);
-            Debug.Log("Hit layer: " + layerName);
+    //    foreach (RaycastResult result in results)
+    //    {
+    //        string layerName = LayerMask.LayerToName(result.gameObject.layer);
+    //        Debug.Log("Hit layer: " + layerName);
 
-            // UI 레이어에 있는지 확인
-            if (result.gameObject.layer == uiLayer)
-            {
-                Debug.Log("UI clicked");
-                return true;
-            }
-        }
+    //        // UI 레이어에 있는지 확인
+    //        if (result.gameObject.layer == uiLayer)
+    //        {
+    //            Debug.Log("UI clicked");
+    //            return true;
+    //        }
+    //    }
 
-        // UI 레이어가 아닌 경우 false 반환
-        return false;
-    }
+    //    // UI 레이어가 아닌 경우 false 반환
+    //    return false;
+    //}
 
     /// <summary>
     /// 클릭 디버깅용 - 해결됨

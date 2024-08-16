@@ -17,6 +17,8 @@ public class OperatorManager : MonoBehaviour
     private GameObject currentOperatorPrefab;
     private OperatorData currentOperatorData;
     private List<OperatorData> deployedOperators = new List<OperatorData>(); // 배치돼서 화면에 표시되지 않을 오퍼레이터
+    private OperatorActionUI currentActiveUI;
+    public OperatorActionUI CurrentActiveUI { get; private set; }
 
     // 하이라이트 관련 변수
     public Color availableTileColor = Color.green;
@@ -367,6 +369,26 @@ public class OperatorManager : MonoBehaviour
         if (operatorUIBoxes.TryGetValue(operatorData, out BottomPanelOperatorBox box))
         {
             box.StartCooldown(operatorData.reDeployTime);
+        }
+    }
+
+    public void SetActiveActionUI(OperatorActionUI ui)
+    {
+        if (currentActiveUI != null && currentActiveUI != ui)
+        {
+            currentActiveUI.Hide();
+        }
+
+        currentActiveUI = ui;
+        Debug.Log($"currentActiveUI : {currentActiveUI}");
+    }
+
+    public void HideAllActionUIs()
+    {
+        if (currentActiveUI != null)
+        {
+            currentActiveUI.Hide();
+            currentActiveUI = null;
         }
     }
 }

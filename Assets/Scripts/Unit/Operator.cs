@@ -383,6 +383,12 @@ public class Operator : Unit, IClickable
 
     public void ShowActionUI()
     {
+        // 기존에 활성화된 ActionUI가 있다면 제거
+        //if (OperatorManager.Instance.CurrentActiveUI)
+        //{
+        //    OperatorManager.Instance.HideAllActionUIs();
+        //}
+
         if (actionUI == null)
         {
             GameObject actionUIObject = Instantiate(actionUIPrefab, transform);
@@ -390,6 +396,7 @@ public class Operator : Unit, IClickable
             actionUI.Initialize(this);
         }
 
+        OperatorManager.Instance.SetActiveActionUI(actionUI); // 기존 활성화된 ActionUI를 비활성화, 이 ActionUI를 활성화
         actionUI.Show();
     }
 
