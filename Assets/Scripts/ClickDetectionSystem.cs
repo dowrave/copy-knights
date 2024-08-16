@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+using System;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using static UnityEditor.Experimental.GraphView.GraphView;
@@ -9,6 +9,7 @@ public class ClickDetectionSystem : MonoBehaviour
 
     private Camera mainCamera;
     [SerializeField] private LayerMask clickableLayerMask;  // Inspector에서 설정
+    [SerializeField] private LayerMask operatorUILayerMask; 
 
     private void Awake()
 
@@ -42,17 +43,34 @@ public class ClickDetectionSystem : MonoBehaviour
     // 전체적인 클릭 로직을 담당함
     private void HandleClick()
     {
-        //if (IsPointerOverUIObject())
-        //{
-        //    Debug.Log("UI 요소 클릭됨");
-        //    return;
-        //}
+        Ray ray = mainCamera.ScreenPointToRay(Input.mousePosition); // 카메라 -> 마우스 위치로 향하는 광선 생성
+        RaycastHit hit; // 레이캐스트 결과 저장 변수
 
-        Ray ray = mainCamera.ScreenPointToRay(Input.mousePosition);
-        RaycastHit hit;
+        // OperatorUI와의 충돌 검사
+        if (Physics.Raycast(ray, out hit, Mathf.Infinity, operatorUILayerMask))
+        {
+            // OperatorUI를 클릭한 경우, 여기서 처리하고 return
+            Debug.Log("OperatorUI clicked");
+            return;
+        }
+
+        // 활성화된 OperatorActionUI가 있고, 그 외의 영역을 클릭한 경우
+        Debug.Log(OperatorManager.Instance.CurrentActiveUI);
+
+        if (OperatorManager.Instance.CurrentActiveUI != null)
+        {
+            OperatorManager.Instance.HideAllActionUIs();
+            return;
+        }
+
+
 
         // 지정된 레이어들에 대해 레이캐스트 수행
-        if (Physics.Raycast(ray, out hit, Mathf.Infinity, clickableLayerMask.value))
+        // - ray : 시작점과 방향을 가진 광선
+        // - out hit : 레이캐스트 결과 저장 변수
+        // - Mathf.Infinity : 레이캐스트 최대 거리
+        // - ClickableLayerMask.value : 검사할 레이어 마스크
+        if (Physics.Raycast(ray, out hit, Mathf.Infinity, clickableLayerMask.value)) 
         {
 
             // 클릭 로직 처리
@@ -77,6 +95,15 @@ public class ClickDetectionSystem : MonoBehaviour
         {
             Debug.Log("레이캐스트가 어떤 오브젝트에도 닿지 않았습니다.");
         }
+    }
+
+    private bool IsPointerOverUIObject()
+    {
+        PointerEventData eventDataCurrentPosition = new PointerEventData(EventSystem.current);
+        eventDataCurrentPosition.position = Input.mousePosition;
+        System.Collections.Generic.List<RaycastResult> results = new System.Collections.Generic.List<RaycastResult>();
+        EventSystem.current.RaycastAll(eventDataCurrentPosition, results);
+        return results.Count > 0;
     }
 
     //private bool IsPointerOverUIObject()

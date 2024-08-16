@@ -8,13 +8,13 @@ TagManager:
   - Default
   - TransparentFX
   - Ignore Raycast
-  - Tile
+  - 
   - Water
   - UI
+  - BottomPanelUI
+  - OperatorUI
   - Operator
-  - 
-  - 
-  - 
+  - Tile
   - 
   - 
   - 
