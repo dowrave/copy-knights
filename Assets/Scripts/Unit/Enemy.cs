@@ -171,26 +171,6 @@ public class Enemy : Unit
         }
     }
 
-    
-    // 
-    //private void CheckForBlockingOperator()
-    //{
-    //    // 현재 위치의 타일을 체크
-    //    Tile currentTile = MapManager.Instance.GetTile(Mathf.RoundToInt(transform.position.x), Mathf.RoundToInt(transform.position.z));
-    //    Operator operatorOnTile = currentTile.OccupyingOperator; // 타일에 배치된 오퍼레이터 확인
-
-    //    // 오퍼레이터가 있음 & 저지 가능한 상태
-    //    if (operatorOnTile != null && !isBlocked)
-    //    {
-    //        if (operatorOnTile.TryBlockEnemy(this))
-    //        {
-    //            isBlocked = true;
-    //            blockingOperator = operatorOnTile;
-    //        }
-    //    }
-
-    //}
-
     private void ReachDestination()
     {
         StageManager.Instance.OnEnemyReachDestination();
@@ -214,6 +194,7 @@ public class Enemy : Unit
         {
             target = blockingOperator;
         }
+
         // 2. 저지 중이 아닐 경우, 공격 범위 내의 가장 마지막에 배치된 대상을 공격한다
         else
         {
