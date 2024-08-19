@@ -3,6 +3,7 @@ using UnityEngine.UI;
 using System.Collections.Generic;
 using Unity.VisualScripting;
 using System.Collections;
+using System.Runtime.CompilerServices;
 
 public class OperatorManager : MonoBehaviour
 {
@@ -14,11 +15,11 @@ public class OperatorManager : MonoBehaviour
     // Operator 관련 변수
     public List<OperatorData> availableOperators = new List<OperatorData>();
     private Dictionary<OperatorData, BottomPanelOperatorBox> operatorUIBoxes = new Dictionary<OperatorData, BottomPanelOperatorBox>();
-    private GameObject currentOperatorPrefab;
-    private OperatorData currentOperatorData;
+    private GameObject currentOperatorPrefab; // 현재 배치 중인 오퍼레이터 프리팹
+    private OperatorData currentOperatorData; // 현재 배치 중인 오퍼레이터 정보
     private List<OperatorData> deployedOperators = new List<OperatorData>(); // 배치돼서 화면에 표시되지 않을 오퍼레이터
-    private OperatorActionUI currentActiveUI;
-    public OperatorActionUI CurrentActiveUI { get; private set; }
+    private OperatorActionUI currentActiveActionUI;
+    public OperatorActionUI CurrentActiveActionUI { get; private set; }
 
     // 하이라이트 관련 변수
     public Color availableTileColor = Color.green;
@@ -27,9 +28,10 @@ public class OperatorManager : MonoBehaviour
     public GameObject dragIndicatorPrefab;
 
     // 배치 과정 중 어떤 상태인지에 대한 변수
-    private bool isDraggingFromUI = false;
-    private bool isPlacingOperator = false;
-    private bool isSelectingDirection = false;
+    private bool isOperatorSelecting = false; // 하단 UI에서 오퍼레이터를 클릭한 상태
+    private bool isDraggingOperator = false; // 타일 선택 상태 : 하단 UI에서 오퍼레이터를 MouseButtonDown한 상태로 드래그하고 있는 상태. 
+    private bool isSelectingDirection = false; // 방향 선택 상태 : 타일은 정해졌고 오퍼레이터의 방향을 설정함
+    private bool isMousePressed = false; // HandleDirectionSelection에서만 사용. 마우스가 클릭 중인지를 추적한다. 
     private int operatorIndex = -1; 
     private Vector3 placementDirection = Vector3.left;
 
@@ -81,25 +83,169 @@ public class OperatorManager : MonoBehaviour
     {
         if (StageManager.Instance.currentState != GameState.Battle) { return; }
 
-        //if (currentActiveUI) { Debug.Log($"currentActiveUI : {currentActiveUI}"); } 
-
-        if (isDraggingFromUI)
+        // 1. 하단 UI의 오퍼레이터 클릭 시 배치 가능한 타일들 하이라이트
+        if (isOperatorSelecting)
         {
-            HandleDraggingFromUI();
+            HighlightAvailableTiles();
         }
-        else if (isPlacingOperator)
+        // 2. 오퍼레이터를 드래그 중일 때 (타일 설정 상태)
+        else if (isDraggingOperator)
         {
-            HandleOperatorPlacement();
+            UpdatePreviewOperator();
         }
+        // 3. 오퍼레이터의 방향을 정할 때 (방향 설정 상태)
         else if (isSelectingDirection)
         {
             HandleDirectionSelection();
         }
     }
 
-    // BottomPanelOperatorBox 클릭 시 호출됨
+
+    private void HighlightAvailableTiles()
+    {
+        ResetHighlights();
+        Operator op = currentOperatorPrefab.GetComponent<Operator>();
+        foreach (Tile tile in MapManager.Instance.GetAllTiles())
+        {
+            if (tile != null && tile.CanPlaceOperator())
+            {
+                if ((tile.data.terrain == TileData.TerrainType.Ground && op.data.canDeployGround) ||
+                    (tile.data.terrain == TileData.TerrainType.Hill && op.data.canDeployHill))
+                {
+                    tile.Highlight(availableTileColor);
+                    highlightedTiles.Add(tile);
+                }
+            }
+        }
+    }
+
+
+    // BottomPanelOperatorBox 클릭 시 작동, 배치하려는 오퍼레이터의 정보를 변수에 넣는다.
+    public void StartOperatorSelection(OperatorData operatorData)
+    {
+        // 현재 선택된 오퍼레이터가 없거나, 기존 선택된 오퍼레이터와 다른 오퍼레이터가 선택됐을 때만 동작
+        if (currentOperatorData != operatorData)
+        {
+            ResetPlacement();
+            currentOperatorData = operatorData;
+            currentOperatorPrefab = operatorData.prefab;
+            isOperatorSelecting = true;
+            HighlightAvailableTiles();
+        }
+    }
+
+    
+    public void StartDragging(OperatorData operatorData)
+    {
+        if (currentOperatorData == operatorData)
+        {
+            isOperatorSelecting = false; // 드래그로 상태 변경
+            isDraggingOperator = true;
+            CreatePreviewOperator();
+        }
+    }
+
+    public void HandleDragging(OperatorData operatorData)
+    {
+        if (isDraggingOperator && currentOperatorData == operatorData)
+        {
+            //UpdatePreviewOperator(); // 얘가 작동 안해도 OperatorManager.Update()에서 이미 동작하고 있음
+        }
+    }
+
+    public void EndDragging(OperatorData operatorData)
+    {
+        if (isDraggingOperator && currentOperatorData == operatorData)
+        {
+            isDraggingOperator = false;
+            Tile hoveredTile = GetHoveredTile();
+            if (hoveredTile && highlightedTiles.Contains(hoveredTile))
+            {
+                StartDirectionSelection(hoveredTile);
+            }
+            else
+            {
+                CancelOperatorSelection();
+            }
+        }
+    }
+
+    private void CreatePreviewOperator()
+    {
+        if (previewOperator == null)
+        {
+            previewOperator = Instantiate(currentOperatorPrefab, Vector3.zero, Quaternion.identity);
+            Operator previewOp = previewOperator.GetComponent<Operator>();
+            previewOp.IsPreviewMode = true;
+            SetPreviewTransparency(0.5f);
+        }
+    }
+
+    private void StartDirectionSelection(Tile tile)
+    {
+        isSelectingDirection = true;
+
+        ResetHighlights();
+        currentHoverTile = tile;
+
+        CreateDragIndicator(tile);
+        //HighlightAttackRange(tile, placementDirection);
+        UpdatePreviewOperatorRotation();
+        ShowCancelButton(); // 오퍼레이터에 구현해야 하나?
+
+    }
+
+    // 방향 설정
+    public void HandleDirectionSelection()
+    { 
+        //if (!Input.GetMouseButton(0)) return;
+        if (Input.GetMouseButtonDown(0))
+        {
+            isMousePressed = true;
+        }
+
+        if (isMousePressed)
+        {
+            ResetHighlights();
+
+            Vector3 dragVector = Input.mousePosition - Camera.main.WorldToScreenPoint(currentHoverTile.transform.position);
+            float dragDistance = dragVector.magnitude;
+            Vector3 newDirection = DetermineDirection(dragVector);
+
+            placementDirection = newDirection;
+            HighlightAttackRange(currentHoverTile, placementDirection);
+            UpdatePreviewOperatorRotation();
+
+            if (Input.GetMouseButtonUp(0))
+            {
+                // 일정 거리 이상 커서 이동 시 배치
+                if (dragDistance > minDirectionDistance)
+                {
+                    PlaceOperator(currentHoverTile);
+                    EndDirectionSelection();
+                    isMousePressed = false;
+                }
+                // 바운더리 이내라면 다시 방향 설정(클릭 X) 상태
+                else
+                {
+                    isMousePressed = false;
+                    ResetHighlights();
+                }
+            }
+        }
+    }
+
+    private void EndDirectionSelection()
+    {
+        isSelectingDirection = false;
+        Destroy(dragIndicator);
+        ResetHighlights();
+    }
+
+    // 전체 배치 과정의 시작 : BottomPanelOperatorBox 클릭 시 호출됨 
     public void StartOperatorPlacement(OperatorData operatorData)
     {
+        // 전역 배치 코스트가 오퍼레이터의 배치 코스트보다 높을 때에만 배치 가능
         if (StageManager.Instance.CurrentDeploymentCost >= operatorData.deploymentCost)
         {
             operatorIndex = availableOperators.IndexOf(operatorData);
@@ -107,77 +253,13 @@ public class OperatorManager : MonoBehaviour
             {
                 currentOperatorPrefab = operatorData.prefab;
                 currentOperatorData = availableOperators[operatorIndex];
-                Debug.Log($"오퍼레이터 배치 시작 : {currentOperatorData.operatorName}");
-                isDraggingFromUI = true;
+                isOperatorSelecting = true;
             }
             else
             {
                 Debug.LogError("오퍼레이터 데이터가 availableOperators List에 없음");
             }
 
-        }
-    }
-
-    private void HandleDraggingFromUI()
-    {
-
-        HighlightAvailableTiles();
-        UpdatePreviewOperator();
-
-        Tile hoveredTile = GetHoveredTile();
-
-        if (hoveredTile && highlightedTiles.Contains(hoveredTile) && Input.GetMouseButton(0))
-        {
-            StartPlacingOperator(hoveredTile);
-        }
-    }
-
-    private void StartPlacingOperator(Tile tile)
-    {
-        isDraggingFromUI = false;
-        isPlacingOperator = true;
-        currentHoverTile = tile;
-        CreateDragIndicator(tile);
-        HighlightAttackRange(tile, placementDirection);
-    }
-
-    private void HandleOperatorPlacement()
-    {
-        ResetHighlights();
-        if (Input.GetMouseButton(0))
-        {
-            isPlacingOperator = false;
-            isSelectingDirection = true;
-        }
-    }
-
-    private void HandleDirectionSelection()
-    {
-        ResetHighlights();
-        Vector3 dragVector = Input.mousePosition - Camera.main.WorldToScreenPoint(currentHoverTile.transform.position);
-        float dragDistance = dragVector.magnitude;
-        
-        Vector3 newDirection = DetermineDirection(dragVector);
-
-        placementDirection = newDirection;
-        HighlightAttackRange(currentHoverTile, placementDirection);
-        UpdatePreviewOperatorRotation();
-
-        if (Input.GetMouseButtonUp(0))
-        {
-            // 배치 완료
-            if (dragDistance > minDirectionDistance)
-            {
-                PlaceOperator(currentHoverTile);
-                Destroy(dragIndicator);
-                isSelectingDirection = false;
-            }
-            else
-            {
-                isPlacingOperator = true;
-            }
-
-            
         }
     }
 
@@ -242,23 +324,7 @@ public class OperatorManager : MonoBehaviour
         return null; 
     }
 
-    private void HighlightAvailableTiles()
-    {
-        ResetHighlights();
-        Operator op = currentOperatorPrefab.GetComponent<Operator>();
-        foreach (Tile tile in MapManager.Instance.GetAllTiles())
-        {
-            if (tile != null && tile.CanPlaceOperator())
-            {
-                if ((tile.data.terrain == TileData.TerrainType.Ground && op.data.canDeployGround) ||
-                    (tile.data.terrain == TileData.TerrainType.Hill && op.data.canDeployHill))
-                {
-                    tile.Highlight(availableTileColor);
-                    highlightedTiles.Add(tile);
-                }
-            }
-        }
-    }
+
 
     private void HighlightAttackRange(Tile tile, Vector3 direction)
     {
@@ -314,9 +380,13 @@ public class OperatorManager : MonoBehaviour
 
     private void ResetPlacement()
     {
-        isDraggingFromUI = false;
-        isPlacingOperator = false;
+        isOperatorSelecting = false;
+        isDraggingOperator = false;
         isSelectingDirection = false;
+        isMousePressed = false;
+
+        currentOperatorData = null;
+        currentOperatorPrefab = null;
         operatorIndex = -1;
 
         ResetHighlights();
@@ -324,10 +394,12 @@ public class OperatorManager : MonoBehaviour
         if (previewOperator != null)
         {
             Destroy(previewOperator);
+            previewOperator = null;
         }
         if (dragIndicator != null)
         {
             Destroy(dragIndicator);
+            dragIndicator = null;
         }
     }
 
@@ -374,21 +446,37 @@ public class OperatorManager : MonoBehaviour
 
     public void SetActiveActionUI(OperatorActionUI ui)
     {
-        if (CurrentActiveUI != null && CurrentActiveUI != ui)
+        if (CurrentActiveActionUI != null && CurrentActiveActionUI != ui)
         {
-            CurrentActiveUI.Hide();
+            CurrentActiveActionUI.Hide();
         }
-        CurrentActiveUI = ui;
-        Debug.LogWarning($"CurrentActiveUI : {CurrentActiveUI}");
+        CurrentActiveActionUI = ui;
     }
 
 
     public void HideAllActionUIs()
     {
-        if (CurrentActiveUI != null)
+        if (CurrentActiveActionUI != null)
         {
-            CurrentActiveUI.Hide();
-            CurrentActiveUI = null;
+            CurrentActiveActionUI.Hide();
+            CurrentActiveActionUI = null;
         }
+    }
+
+    private void ShowCancelButton()
+    {
+        // 취소 버튼을 보여주는 로직 구현
+    }
+
+    private void HideCancelButton()
+    {
+        // 취소 버튼을 숨기는 로직 구현
+    }
+
+    public void CancelOperatorSelection()
+    {
+        isOperatorSelecting = false;
+        isDraggingOperator = false;
+        ResetPlacement();
     }
 }

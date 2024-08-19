@@ -55,9 +55,7 @@ public class ClickDetectionSystem : MonoBehaviour
         }
 
         // 활성화된 OperatorActionUI가 있고, 그 외의 영역을 클릭한 경우
-        Debug.Log(OperatorManager.Instance.CurrentActiveUI);
-
-        if (OperatorManager.Instance.CurrentActiveUI != null)
+        if (OperatorManager.Instance.CurrentActiveActionUI != null)
         {
             OperatorManager.Instance.HideAllActionUIs();
             return;
@@ -93,7 +91,7 @@ public class ClickDetectionSystem : MonoBehaviour
 
         else
         {
-            Debug.Log("레이캐스트가 어떤 오브젝트에도 닿지 않았습니다.");
+            //Debug.Log("레이캐스트가 어떤 오브젝트에도 닿지 않았습니다.");
         }
     }
 

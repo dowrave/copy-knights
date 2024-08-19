@@ -19,12 +19,18 @@ public class OperatorUI : MonoBehaviour
 
         healthBar = transform.Find("HealthBar").GetComponent<HealthBar>();
         spBar = transform.Find("SPBar").GetComponent<HealthBar>();
+
+        //gameObject.SetActive(false);
     }
 
     public void Initialize(Operator op)
     {
         this.op = op;
         UpdateUI();
+        UpdatePosition();
+
+        //gameObject.SetActive(true);
+
         Debug.Log("Operator UI 초기화 완료");
     }
 

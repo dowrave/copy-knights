@@ -3,10 +3,8 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
-public class BottomPanelOperatorBox : MonoBehaviour, IPointerClickHandler
+public class BottomPanelOperatorBox : MonoBehaviour, IPointerClickHandler, IBeginDragHandler, IDragHandler, IEndDragHandler
 {
-    
-
     private Transform operatorIcon; // 오브젝트
     private Image operatorIconImage; // Image 컴포넌트
     private Color originalIconColor;
@@ -18,6 +16,8 @@ public class BottomPanelOperatorBox : MonoBehaviour, IPointerClickHandler
     private TextMeshProUGUI cooldownText;
     private float cooldownTimer = 0f;
     private bool isOnCooldown = false;
+
+    private bool isDragging = false; 
 
     public void Initialize(OperatorData data)
     {
@@ -88,17 +88,6 @@ public class BottomPanelOperatorBox : MonoBehaviour, IPointerClickHandler
         cooldownImage.gameObject.SetActive(false);
         cooldownText.gameObject.SetActive(false);
     }
-
-    // eventData : 유니티에 의해 자동 제공, 클릭 이벤트 정보 포함. (그래서 operatorData랑은 별개로 인풋을 저렇게 작성해야 함)
-    public void OnPointerClick(PointerEventData eventData) 
-    {
-        if (!isOnCooldown && StageManager.Instance.CurrentDeploymentCost >= operatorData.deploymentCost)
-        {
-
-            OperatorManager.Instance.StartOperatorPlacement(operatorData);
-        }
-    }
-
     public void StartCooldown(float cooldownTime)
     {
         isOnCooldown = true;
@@ -128,5 +117,44 @@ public class BottomPanelOperatorBox : MonoBehaviour, IPointerClickHandler
         Color iconColor = isAvailable ? originalIconColor : new Color(originalIconColor.r, originalIconColor.g, originalIconColor.b, 0.3f);
         operatorIconImage.color = iconColor;
         //costText.color = isAvailable ? Color.white : Color.gray;
+    }
+
+    // 마우스 동작 관련 : 동작하지 않는다면 상속을 확인하라
+    // 마우스 버튼을 눌렀다가 같은 위치에서 뗐을 때 발생
+    public void OnPointerClick(PointerEventData eventData) 
+    {
+        if (CanInteract())
+        {
+            OperatorManager.Instance.StartOperatorSelection(operatorData);
+        }
+    }
+
+    // 버튼을 누르고 약간의 움직임이 있을 때 발생
+    public void OnBeginDrag(PointerEventData eventData)
+    {
+        if (CanInteract())
+        {
+            OperatorManager.Instance.StartDragging(operatorData);
+        }
+    }
+
+    // 버튼을 누른 상태에서 이동할 때 프레임마다 발생
+    public void OnDrag(PointerEventData eventData)
+    {
+        if (CanInteract())
+        {
+            OperatorManager.Instance.HandleDragging(operatorData);
+        }
+    }
+
+    // 드래그 중 마우스 버튼을 뗄 때 발생 
+    public void OnEndDrag(PointerEventData eventData)
+    {
+        OperatorManager.Instance.EndDragging(operatorData);
+    }
+
+    private bool CanInteract()
+    {
+        return !isOnCooldown && StageManager.Instance.CurrentDeploymentCost >= operatorData.deploymentCost;
     }
 }

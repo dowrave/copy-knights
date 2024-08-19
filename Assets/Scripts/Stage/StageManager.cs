@@ -202,7 +202,7 @@ public class StageManager : MonoBehaviour
         {
             GameOver();
         }
-        if (killedEnemyCount + passedEnemies >= totalEnemyCount)
+        else if (killedEnemyCount + passedEnemies >= totalEnemyCount)
         {
             GameWin();
         }
