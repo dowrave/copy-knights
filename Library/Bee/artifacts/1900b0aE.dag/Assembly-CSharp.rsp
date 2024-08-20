@@ -358,10 +358,7 @@
 -analyzer:"C:/Program Files/Unity/Hub/Editor/2022.3.34f1/Editor/Data/Tools/Unity.SourceGenerators/Unity.SourceGenerators.dll"
 "Assets/Scripts/BottomPanelOperatorBox.cs"
 "Assets/Scripts/ClickDetectionSystem.cs"
-"Assets/Scripts/EnemyUI.cs"
 "Assets/Scripts/HealthBar.cs"
-"Assets/Scripts/OperatorActionUI.cs"
-"Assets/Scripts/OperatorUI.cs"
 "Assets/Scripts/Stage/CameraManager.cs"
 "Assets/Scripts/Stage/DeploymentCostPanel.cs"
 "Assets/Scripts/Stage/EnemySpawner.cs"
@@ -383,6 +380,10 @@
 "Assets/Scripts/Unit/Projectile.cs"
 "Assets/Scripts/Unit/Unit.cs"
 "Assets/Scripts/Unit/UnitStats.cs"
+"Assets/Scripts/Unit/UnitUI/EnemyUI.cs"
+"Assets/Scripts/Unit/UnitUI/OperatorActionUI.cs"
+"Assets/Scripts/Unit/UnitUI/OperatorDeployingUI.cs"
+"Assets/Scripts/Unit/UnitUI/OperatorUI.cs"
 -langversion:9.0
 /deterministic
 /optimize+

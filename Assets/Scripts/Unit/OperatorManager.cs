@@ -25,7 +25,6 @@ public class OperatorManager : MonoBehaviour
     public Color availableTileColor = Color.green;
     public Color unavailableTileColor = Color.red;
     public Color attackRangeTileColor = new Color(255, 127, 0);
-    public GameObject dragIndicatorPrefab;
 
     // 배치 과정 중 어떤 상태인지에 대한 변수
     private bool isOperatorSelecting = false; // 하단 UI에서 오퍼레이터를 클릭한 상태
@@ -38,14 +37,13 @@ public class OperatorManager : MonoBehaviour
     private List<Tile> highlightedTiles = new List<Tile>();
     private Tile currentHoverTile;
     private GameObject previewOperator;
-    private GameObject dragIndicator;
 
     private float minDirectionDistance = 85f; // 직접 테스트해서 얻은 값
     private const float INDICATOR_SIZE = 2.5f;
 
     [SerializeField] private LayerMask tileLayerMask;
-
-
+    [SerializeField] private OperatorDeployingUI deployingUIPrefab;
+    private OperatorDeployingUI deployingUI;
 
 
     private void Awake()
@@ -82,6 +80,9 @@ public class OperatorManager : MonoBehaviour
     private void Update()
     {
         if (StageManager.Instance.currentState != GameState.Battle) { return; }
+
+        // 여기에는 해당 상태일 때 계속 작동하고 있어야 하는 함수가 들어감
+        // !! 상태를 변경할 때에만 작동되어야 하는 함수는 여기에 들어가면 안됨! !! 
 
         // 1. 하단 UI의 오퍼레이터 클릭 시 배치 가능한 타일들 하이라이트
         if (isOperatorSelecting)
@@ -188,11 +189,17 @@ public class OperatorManager : MonoBehaviour
         ResetHighlights();
         currentHoverTile = tile;
 
-        CreateDragIndicator(tile);
-        //HighlightAttackRange(tile, placementDirection);
+        ShowDeployingUI(tile.transform.position + Vector3.up * 0.5f);
         UpdatePreviewOperatorRotation();
-        ShowCancelButton(); // 오퍼레이터에 구현해야 하나?
+    }
 
+    private void ShowDeployingUI(Vector3 position)
+    {
+        if (deployingUI == null)
+        {
+            deployingUI = Instantiate(deployingUIPrefab);
+        }
+        deployingUI.Show(position);
     }
 
     // 방향 설정
@@ -238,8 +245,8 @@ public class OperatorManager : MonoBehaviour
     private void EndDirectionSelection()
     {
         isSelectingDirection = false;
-        Destroy(dragIndicator);
-        ResetHighlights();
+        //Destroy(dragIndicator);
+        ResetPlacement();
     }
 
     // 전체 배치 과정의 시작 : BottomPanelOperatorBox 클릭 시 호출됨 
@@ -263,16 +270,16 @@ public class OperatorManager : MonoBehaviour
         }
     }
 
-    private void CreateDragIndicator(Tile tile)
-    {
-        if (dragIndicator != null)
-        {
-            Destroy(dragIndicator);
-        }
+    //private void CreateDragIndicator(Tile tile)
+    //{
+    //    if (dragIndicator != null)
+    //    {
+    //        Destroy(dragIndicator);
+    //    }
 
-        dragIndicator = Instantiate(dragIndicatorPrefab, tile.transform.position + Vector3.up * 0.1f, Quaternion.Euler(90, 0, 0));
-        dragIndicator.transform.localScale = Vector3.one * INDICATOR_SIZE;
-    }
+    //    dragIndicator = Instantiate(dragIndicatorPrefab, tile.transform.position + Vector3.up * 0.1f, Quaternion.Euler(90, 0, 0));
+    //    dragIndicator.transform.localScale = Vector3.one * INDICATOR_SIZE;
+    //}
 
     // 배치 중일 때 오퍼레이터 미리 보기 표현
     private void UpdatePreviewOperator()
@@ -304,6 +311,7 @@ public class OperatorManager : MonoBehaviour
         // 배치 가능한 타일 위라면 타일 위치로 스냅
         if (hoveredTile != null && highlightedTiles.Contains(hoveredTile))
         {
+            
             previewOperator.transform.position = hoveredTile.transform.position + Vector3.up * 0.5f;
         }
         else
@@ -355,6 +363,10 @@ public class OperatorManager : MonoBehaviour
         return Vector3.back;
     }
 
+
+    /// <summary>
+    /// 방향까지 결정된 뒤의 최종 배치 로직
+    /// </summary>
     private void PlaceOperator(Tile tile)
     {
         if (StageManager.Instance.TryUseDeploymentCost((int)currentOperatorData.deploymentCost))
@@ -368,7 +380,7 @@ public class OperatorManager : MonoBehaviour
             // 배치된 오퍼레이터 리스트에 추가
             deployedOperators.Add(currentOperatorData);
 
-            // UI에서 해당 오퍼레이터 박스 제거
+            // 하단 패널 UI에서 해당 오퍼레이터 박스 제거
             if (operatorUIBoxes.TryGetValue(currentOperatorData, out BottomPanelOperatorBox box))
             {
                 box.gameObject.SetActive(false);
@@ -378,6 +390,9 @@ public class OperatorManager : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// 배치 관련 조작 전으로 상태를 되돌림
+    /// </summary>
     private void ResetPlacement()
     {
         isOperatorSelecting = false;
@@ -396,11 +411,17 @@ public class OperatorManager : MonoBehaviour
             Destroy(previewOperator);
             previewOperator = null;
         }
-        if (dragIndicator != null)
+
+        if (deployingUI != null)
         {
-            Destroy(dragIndicator);
-            dragIndicator = null;
+            Destroy(deployingUI.gameObject);
+            deployingUI = null;
         }
+        //if (dragIndicator != null)
+        //{
+        //    Destroy(dragIndicator);
+        //    dragIndicator = null;
+        //}
     }
 
     private void CancelPlacement()
@@ -463,20 +484,16 @@ public class OperatorManager : MonoBehaviour
         }
     }
 
-    private void ShowCancelButton()
-    {
-        // 취소 버튼을 보여주는 로직 구현
-    }
-
-    private void HideCancelButton()
-    {
-        // 취소 버튼을 숨기는 로직 구현
-    }
-
     public void CancelOperatorSelection()
     {
-        isOperatorSelecting = false;
-        isDraggingOperator = false;
         ResetPlacement();
+    }
+
+    private void HideDeployingUI()
+    {
+        if (deployingUI != null)
+        {
+            deployingUI.Hide();
+        }
     }
 }
