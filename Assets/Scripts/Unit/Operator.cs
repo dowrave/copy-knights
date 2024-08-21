@@ -383,11 +383,6 @@ public class Operator : Unit, IClickable
 
     public void ShowActionUI()
     {
-        // 기존에 활성화된 ActionUI가 있다면 제거
-        //if (OperatorManager.Instance.CurrentActiveUI)
-        //{
-        //    OperatorManager.Instance.HideAllActionUIs();
-        //}
 
         if (actionUI == null)
         {
@@ -403,10 +398,13 @@ public class Operator : Unit, IClickable
     public void UseSkill()
     {
         // 스킬 사용 로직
+        Debug.Log("스킬 버튼 클릭됨");
     }
 
     public void Retreat()
     {
+        Debug.Log("퇴각 버튼 클릭됨");
+
         // 수정 필요) 사망 vs 퇴각의 차이가 필요 - 퇴각은 반환 배치 코스트가 있다
         OperatorManager.Instance.OnOperatorRemoved(data);
 
@@ -419,6 +417,9 @@ public class Operator : Unit, IClickable
         if (isDeployed && !IsPreviewMode && StageManager.Instance.currentState == GameState.Battle)
         {
             Debug.Log("오퍼레이터 클릭이 감지됨");
+
+            OperatorManager.Instance.CancelPlacement(); // 오퍼레이터를 클릭했다면 현재 진행 중인 배치 로직이 취소되어야 함
+
             ShowActionUI();
         }
     }

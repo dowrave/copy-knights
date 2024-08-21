@@ -18,6 +18,8 @@ public class OperatorDeployingUI : MonoBehaviour
             dragIndicator = transform.Find("Drag Indicator").gameObject;
         if (cancelButton == null)
             cancelButton = transform.Find("Canvas/CancelButton").gameObject;
+
+        SetupCancelButton();
     }
 
     public void Show(Vector3 position)

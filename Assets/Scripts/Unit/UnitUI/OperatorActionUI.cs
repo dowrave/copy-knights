@@ -13,15 +13,10 @@ public class OperatorActionUI : MonoBehaviour
         op = _operator;
         mainCamera = Camera.main;
 
-
-
         // 버튼 위치는 인스펙터에서 설정
         // 버튼 이벤트 설정
         skillButton.onClick.AddListener(OnSkillButtonClicked);
-        Debug.Log("Skill button listener added");
         retreatButton.onClick.AddListener(OnRetreatButtonClicked);
-        Debug.Log("Retreat button listener added");
-
 
         // UI가 보는 방향 설정
         if (mainCamera != null)
