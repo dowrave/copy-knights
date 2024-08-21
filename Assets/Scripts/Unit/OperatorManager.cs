@@ -127,6 +127,8 @@ public class OperatorManager : MonoBehaviour
         // 현재 선택된 오퍼레이터가 없거나, 기존 선택된 오퍼레이터와 다른 오퍼레이터가 선택됐을 때만 동작
         if (currentOperatorData != operatorData)
         {
+            HideAllUnitUIs();
+
             ResetPlacement();
             currentOperatorData = operatorData;
             currentOperatorPrefab = operatorData.prefab;
@@ -195,10 +197,17 @@ public class OperatorManager : MonoBehaviour
 
     private void ShowDeployingUI(Vector3 position)
     {
+        // 어떤 UI를 보여줄 경우 현재 활성화된 UI를 모두 비활성화해야 함
+        if (currentActiveActionUI)
+        {
+            currentActiveActionUI.Hide(); // 이건 자식 오브젝트로 관리 중이라 숨겼다가 나타나게끔 함
+        }
+
         if (deployingUI == null)
         {
             deployingUI = Instantiate(deployingUIPrefab);
         }
+
         deployingUI.Show(position);
     }
 
@@ -270,16 +279,6 @@ public class OperatorManager : MonoBehaviour
         }
     }
 
-    //private void CreateDragIndicator(Tile tile)
-    //{
-    //    if (dragIndicator != null)
-    //    {
-    //        Destroy(dragIndicator);
-    //    }
-
-    //    dragIndicator = Instantiate(dragIndicatorPrefab, tile.transform.position + Vector3.up * 0.1f, Quaternion.Euler(90, 0, 0));
-    //    dragIndicator.transform.localScale = Vector3.one * INDICATOR_SIZE;
-    //}
 
     // 배치 중일 때 오퍼레이터 미리 보기 표현
     private void UpdatePreviewOperator()
@@ -417,14 +416,9 @@ public class OperatorManager : MonoBehaviour
             Destroy(deployingUI.gameObject);
             deployingUI = null;
         }
-        //if (dragIndicator != null)
-        //{
-        //    Destroy(dragIndicator);
-        //    dragIndicator = null;
-        //}
     }
 
-    private void CancelPlacement()
+    public void CancelPlacement()
     {
         ResetPlacement();
     }
@@ -467,21 +461,20 @@ public class OperatorManager : MonoBehaviour
 
     public void SetActiveActionUI(OperatorActionUI ui)
     {
+        // 배치 UI가 떠있다면 제거, 배치 초기화
+        if (deployingUI)
+        {
+            Destroy(deployingUI);
+            ResetPlacement();
+        }
+
+        // 현재 선택된 ui와 기존 선택된 actionUI가 다른 경우라면 숨김(자식 오브젝트라 숨김)
         if (CurrentActiveActionUI != null && CurrentActiveActionUI != ui)
         {
             CurrentActiveActionUI.Hide();
         }
+
         CurrentActiveActionUI = ui;
-    }
-
-
-    public void HideAllActionUIs()
-    {
-        if (CurrentActiveActionUI != null)
-        {
-            CurrentActiveActionUI.Hide();
-            CurrentActiveActionUI = null;
-        }
     }
 
     public void CancelOperatorSelection()
@@ -494,6 +487,20 @@ public class OperatorManager : MonoBehaviour
         if (deployingUI != null)
         {
             deployingUI.Hide();
+        }
+    }
+
+    private void HideAllUnitUIs()
+    {
+        if (CurrentActiveActionUI != null)
+        {
+            CurrentActiveActionUI.Hide();
+            CurrentActiveActionUI = null;
+        }
+
+        if (deployingUI != null)
+        {
+            Destroy(deployingUI);
         }
     }
 }
