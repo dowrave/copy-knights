@@ -18,8 +18,6 @@ public class OperatorManager : MonoBehaviour
     private GameObject currentOperatorPrefab; // 현재 배치 중인 오퍼레이터 프리팹
     private OperatorData currentOperatorData; // 현재 배치 중인 오퍼레이터 정보
     private List<OperatorData> deployedOperators = new List<OperatorData>(); // 배치돼서 화면에 표시되지 않을 오퍼레이터
-    private OperatorActionUI currentActiveActionUI;
-    public OperatorActionUI CurrentActiveActionUI { get; private set; }
 
     // 하이라이트 관련 변수
     public Color availableTileColor = Color.green;
@@ -43,7 +41,13 @@ public class OperatorManager : MonoBehaviour
 
     [SerializeField] private LayerMask tileLayerMask;
     [SerializeField] private OperatorDeployingUI deployingUIPrefab;
-    private OperatorDeployingUI deployingUI;
+    [SerializeField] private OperatorActionUI actionUIPrefab;
+
+    private OperatorDeployingUI currentDeployingUI;
+    private OperatorActionUI currentActionUI;
+
+    private const float PLACEMENT_TIME_SCALE = 0.2f;
+    private float originalTimeScale = 1f;
 
 
     private void Awake()
@@ -127,8 +131,7 @@ public class OperatorManager : MonoBehaviour
         // 현재 선택된 오퍼레이터가 없거나, 기존 선택된 오퍼레이터와 다른 오퍼레이터가 선택됐을 때만 동작
         if (currentOperatorData != operatorData)
         {
-            HideAllUnitUIs();
-
+            HideAllUIs();
             ResetPlacement();
             currentOperatorData = operatorData;
             currentOperatorPrefab = operatorData.prefab;
@@ -145,6 +148,7 @@ public class OperatorManager : MonoBehaviour
             isOperatorSelecting = false; // 드래그로 상태 변경
             isDraggingOperator = true;
             CreatePreviewOperator();
+            SlowDownTime(); // 시간 느리게 만들기
         }
     }
 
@@ -162,6 +166,7 @@ public class OperatorManager : MonoBehaviour
         {
             isDraggingOperator = false;
             Tile hoveredTile = GetHoveredTile();
+
             if (hoveredTile && highlightedTiles.Contains(hoveredTile))
             {
                 StartDirectionSelection(hoveredTile);
@@ -195,20 +200,33 @@ public class OperatorManager : MonoBehaviour
         UpdatePreviewOperatorRotation();
     }
 
-    private void ShowDeployingUI(Vector3 position)
+    public void ShowActionUI(Operator op)
     {
-        // 어떤 UI를 보여줄 경우 현재 활성화된 UI를 모두 비활성화해야 함
-        if (currentActiveActionUI)
+        HideAllUIs();
+        currentActionUI = Instantiate(actionUIPrefab, op.transform.position, Quaternion.identity);
+        currentActionUI.Initialize(op);
+    }
+
+    public void ShowDeployingUI(Vector3 position)
+    {
+        HideAllUIs();
+        currentDeployingUI = Instantiate(deployingUIPrefab, position, Quaternion.identity);
+        currentDeployingUI.Initialize(currentOperatorData);
+    }
+
+    private void HideAllUIs()
+    {
+        if (currentActionUI != null)
         {
-            currentActiveActionUI.Hide(); // 이건 자식 오브젝트로 관리 중이라 숨겼다가 나타나게끔 함
+            Destroy(currentActionUI.gameObject);
+            currentActionUI = null;
         }
 
-        if (deployingUI == null)
+        if (currentDeployingUI != null)
         {
-            deployingUI = Instantiate(deployingUIPrefab);
+            Destroy(currentDeployingUI.gameObject);
+            currentDeployingUI = null;
         }
-
-        deployingUI.Show(position);
     }
 
     // 방향 설정
@@ -310,7 +328,6 @@ public class OperatorManager : MonoBehaviour
         // 배치 가능한 타일 위라면 타일 위치로 스냅
         if (hoveredTile != null && highlightedTiles.Contains(hoveredTile))
         {
-            
             previewOperator.transform.position = hoveredTile.transform.position + Vector3.up * 0.5f;
         }
         else
@@ -324,10 +341,20 @@ public class OperatorManager : MonoBehaviour
     {
         Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
         RaycastHit hit;
+
         if (Physics.Raycast(ray, out hit, Mathf.Infinity, tileLayerMask))
         {
             return hit.collider.GetComponentInParent<Tile>();
         }
+
+        //RaycastHit[] hits = Physics.RaycastAll(ray, Mathf.Infinity);
+        //Debug.Log("클릭한 지점의 레이어들 ---------------");
+        //foreach (RaycastHit hit in hits)
+        //{
+        //    Debug.Log($"오브젝트: {hit.collider.gameObject.name}, 레이어: {LayerMask.LayerToName(hit.collider.gameObject.layer)}");
+        //}
+        //Debug.Log("클릭한 지점의 레이어들 끝 ---------------");
+
         return null; 
     }
 
@@ -386,6 +413,7 @@ public class OperatorManager : MonoBehaviour
             }
 
             ResetPlacement();
+            RestoreNormalTime();
         }
     }
 
@@ -403,18 +431,14 @@ public class OperatorManager : MonoBehaviour
         currentOperatorPrefab = null;
         operatorIndex = -1;
 
+        RestoreNormalTime();
         ResetHighlights();
+        HideAllUIs();
 
         if (previewOperator != null)
         {
             Destroy(previewOperator);
             previewOperator = null;
-        }
-
-        if (deployingUI != null)
-        {
-            Destroy(deployingUI.gameObject);
-            deployingUI = null;
         }
     }
 
@@ -461,20 +485,13 @@ public class OperatorManager : MonoBehaviour
 
     public void SetActiveActionUI(OperatorActionUI ui)
     {
-        // 배치 UI가 떠있다면 제거, 배치 초기화
-        if (deployingUI)
-        {
-            Destroy(deployingUI);
-            ResetPlacement();
-        }
-
         // 현재 선택된 ui와 기존 선택된 actionUI가 다른 경우라면 숨김(자식 오브젝트라 숨김)
-        if (CurrentActiveActionUI != null && CurrentActiveActionUI != ui)
+        if (currentActionUI != null && currentActionUI != ui)
         {
-            CurrentActiveActionUI.Hide();
+            Destroy(currentActionUI);
         }
 
-        CurrentActiveActionUI = ui;
+        currentActionUI = ui;
     }
 
     public void CancelOperatorSelection()
@@ -482,25 +499,13 @@ public class OperatorManager : MonoBehaviour
         ResetPlacement();
     }
 
-    private void HideDeployingUI()
+    private void SlowDownTime()
     {
-        if (deployingUI != null)
-        {
-            deployingUI.Hide();
-        }
+        Time.timeScale = PLACEMENT_TIME_SCALE;
     }
 
-    private void HideAllUnitUIs()
+    private void RestoreNormalTime()
     {
-        if (CurrentActiveActionUI != null)
-        {
-            CurrentActiveActionUI.Hide();
-            CurrentActiveActionUI = null;
-        }
-
-        if (deployingUI != null)
-        {
-            Destroy(deployingUI);
-        }
+        Time.timeScale = originalTimeScale;
     }
 }

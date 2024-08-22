@@ -36,9 +36,6 @@ public class Operator : Unit, IClickable
 
     [SerializeField] private GameObject operatorUIPrefab;
     private OperatorUI operatorUI;
-    [SerializeField] private GameObject actionUIPrefab;
-    private OperatorActionUI actionUI; 
-
 
     // 공격 범위 내에 있는 적들 
     List<Enemy> enemiesInRange = new List<Enemy>();
@@ -86,6 +83,7 @@ public class Operator : Unit, IClickable
             CreateOperatorUI();
         }
     }
+
     private void CreateOperatorUI()
     {
         if (operatorUIPrefab != null)
@@ -383,16 +381,7 @@ public class Operator : Unit, IClickable
 
     public void ShowActionUI()
     {
-
-        if (actionUI == null)
-        {
-            GameObject actionUIObject = Instantiate(actionUIPrefab, transform);
-            actionUI = actionUIObject.GetComponent<OperatorActionUI>();
-            actionUI.Initialize(this);
-        }
-
-        OperatorManager.Instance.SetActiveActionUI(actionUI); // 기존 활성화된 ActionUI를 비활성화, 이 ActionUI를 활성화
-        actionUI.Show();
+        OperatorManager.Instance.ShowActionUI(this);
     }
 
     public void UseSkill()
@@ -412,14 +401,14 @@ public class Operator : Unit, IClickable
 
     }
 
+    /// <summary>
+    /// 오퍼레이터가 클릭되었을 때의 동작 
+    /// </summary>
     public void OnClick()
     {
         if (isDeployed && !IsPreviewMode && StageManager.Instance.currentState == GameState.Battle)
         {
-            Debug.Log("오퍼레이터 클릭이 감지됨");
-
             OperatorManager.Instance.CancelPlacement(); // 오퍼레이터를 클릭했다면 현재 진행 중인 배치 로직이 취소되어야 함
-
             ShowActionUI();
         }
     }

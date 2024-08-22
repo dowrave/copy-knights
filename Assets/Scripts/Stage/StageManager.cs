@@ -125,6 +125,20 @@ public class StageManager : MonoBehaviour
     private void SetGameState(GameState gameState)
     {
         currentState = gameState; 
+
+        switch (gameState)
+        {
+            case GameState.Battle:
+                Time.timeScale = 1f;
+                break;
+
+            // switch문 한꺼번에 처리하기
+            case GameState.Paused:
+            case GameState.GameOver:
+            case GameState.GameWin:
+                Time.timeScale = 0f;
+                break;
+        }
     }
 
     public static GameObject FindStageObject()

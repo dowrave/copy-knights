@@ -6,17 +6,16 @@ public class OperatorActionUI : MonoBehaviour
 {
     [SerializeField] private Button skillButton;
     [SerializeField] private Button retreatButton;
-    private Operator op; // 연산자도 C#에서 operator로 사용하므로 변수명은 op로 지정한다
-    private Camera mainCamera; 
+    private Camera mainCamera;
+    private Operator op;
+
     public void Initialize(Operator _operator)
     {
         op = _operator;
         mainCamera = Camera.main;
 
-        // 버튼 위치는 인스펙터에서 설정
-        // 버튼 이벤트 설정
-        skillButton.onClick.AddListener(OnSkillButtonClicked);
-        retreatButton.onClick.AddListener(OnRetreatButtonClicked);
+        SetUpButtons();
+        UpdateSkillIcon();
 
         // UI가 보는 방향 설정
         if (mainCamera != null)
@@ -26,6 +25,20 @@ public class OperatorActionUI : MonoBehaviour
 
         gameObject.SetActive(true);
     }
+
+    private void SetUpButtons()
+    {
+        // 버튼 위치는 인스펙터에서 설정
+        // 버튼 이벤트 설정
+        skillButton.onClick.AddListener(OnSkillButtonClicked);
+        retreatButton.onClick.AddListener(OnRetreatButtonClicked);
+    }
+    
+    private void UpdateSkillIcon()
+    {
+        // 스킬 아이콘 업데이트 로직
+    }
+    
 
     private void OnSkillButtonClicked()
     {
