@@ -34,9 +34,7 @@ public class ClickDetectionSystem : MonoBehaviour
 
     private void Update()
     {
-        if (Input.GetMouseButtonDown(0) 
-            //&& !IsPointerOverUIObject()
-            )
+        if (Input.GetMouseButtonDown(0))
         {
             HandleClick();
         }
@@ -91,7 +89,7 @@ public class ClickDetectionSystem : MonoBehaviour
         }
         
 
-        // 디버깅을 위한 모든 레이어 출력
+         //디버깅을 위한 모든 레이어 출력
         //RaycastHit[] hits = Physics.RaycastAll(ray, Mathf.Infinity);
         //Debug.Log("클릭한 지점의 레이어들 ---------------");
         //foreach (RaycastHit hit in hits)

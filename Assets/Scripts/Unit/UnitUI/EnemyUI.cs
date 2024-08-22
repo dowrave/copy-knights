@@ -6,6 +6,8 @@ public class EnemyUI : MonoBehaviour
 {
     private float backOffset = 0; // UI의 높이 오프셋
     private HealthBar healthBar;
+    private Camera mainCamera;
+
     private Canvas canvas;
     private Enemy enemy;
 
@@ -16,6 +18,13 @@ public class EnemyUI : MonoBehaviour
         canvas.worldCamera = Camera.main;
 
         healthBar = GetComponentInChildren<HealthBar>();
+
+        mainCamera = Camera.main;
+        if (mainCamera != null)
+        {
+            transform.LookAt(transform.position + mainCamera.transform.rotation * Vector3.forward, mainCamera.transform.rotation * Vector3.up);
+        }
+
     }
 
     public void Initialize(Enemy enemy)
@@ -68,7 +77,7 @@ public class EnemyUI : MonoBehaviour
             transform.position = enemy.transform.position + Vector3.back * backOffset;
         }
 
-        transform.rotation = Quaternion.Euler(90, 0, 0);
+        //transform.rotation = Quaternion.Euler(90, 0, 0);
 
         // Canvas가 항상 카메라를 향하도록 회전 설정
         //transform.rotation = Camera.main.transform.rotation;

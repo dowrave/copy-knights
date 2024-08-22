@@ -7,19 +7,28 @@ public class OperatorDeployingUI : MonoBehaviour
 {
     // 자동으로 할당하지만 명시적으로 보여주는 게 좋다고 한다
     [SerializeField] private GameObject dragIndicator;
-    [SerializeField]  private GameObject cancelButton;
-
+    [SerializeField] private GameObject cancelButton;
+    private Camera mainCamera;
     private const float INDICATOR_SIZE = 2.5f; // ?
 
     private void Awake()
     {
+        mainCamera = Camera.main;
+
         // 시작 시 자식 오브젝트 참조 설정
         if (dragIndicator == null)
             dragIndicator = transform.Find("Drag Indicator").gameObject;
         if (cancelButton == null)
             cancelButton = transform.Find("Canvas/CancelButton").gameObject;
+    }
 
+    public void Initialize(OperatorData operatorData)
+    {
         SetupCancelButton();
+        if (mainCamera != null)
+        {
+            transform.LookAt(transform.position + mainCamera.transform.rotation * Vector3.forward, mainCamera.transform.rotation * Vector3.up);
+        }
     }
 
     public void Show(Vector3 position)
