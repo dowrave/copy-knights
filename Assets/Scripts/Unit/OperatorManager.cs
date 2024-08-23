@@ -147,6 +147,7 @@ public class OperatorManager : MonoBehaviour
             currentOperator.gameObject.SetActive(false);
 
             HighlightAvailableTiles();
+            ShowOperatorInfoPanel(currentOperatorData);
         }
     }
 
@@ -184,6 +185,7 @@ public class OperatorManager : MonoBehaviour
             else
             {
                 CancelOperatorSelection();
+                HideOperatorInfoPanel();
             }
         }
     }
@@ -271,7 +273,7 @@ public class OperatorManager : MonoBehaviour
                 // 일정 거리 이상 커서 이동 시 배치
                 if (dragDistance > minDirectionDistance)
                 {
-                    PlaceOperator(currentHoverTile);
+                    DeployOperator(currentHoverTile);
                     EndDirectionSelection();
                     isMousePressed = false;
                 }
@@ -410,7 +412,7 @@ public class OperatorManager : MonoBehaviour
     /// <summary>
     /// 방향까지 결정된 뒤의 최종 배치 로직
     /// </summary>
-    private void PlaceOperator(Tile tile)
+    private void DeployOperator(Tile tile)
     {
         if (StageManager.Instance.TryUseDeploymentCost((int)currentOperatorData.deploymentCost))
         {
@@ -538,5 +540,15 @@ public class OperatorManager : MonoBehaviour
         {
             op.SetDirection(direction);
         }
+    }
+
+    public void ShowOperatorInfoPanel(OperatorData operatorData)
+    {
+        OperatorInfoPanel.Instance.ShowOperatorInfo(operatorData);
+    }
+
+    public void HideOperatorInfoPanel()
+    {
+        OperatorInfoPanel.Instance.HideOperatorInfo();
     }
 }

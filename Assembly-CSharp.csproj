@@ -75,6 +75,7 @@
     <Compile Include="Assets\Scripts\Unit\UnitUI\EnemyUI.cs" />
     <Compile Include="Assets\Scripts\HealthBar.cs" />
     <Compile Include="Assets\Scripts\Stage\StageManager.cs" />
+    <Compile Include="Assets\Scripts\OperatorInfoPanel.cs" />
     <Compile Include="Assets\Scripts\Unit\Projectile.cs" />
     <Compile Include="Assets\Scripts\Unit\UnitUI\OperatorDeployingUI.cs" />
     <Compile Include="Assets\Scripts\Unit\OperatorData.cs" />

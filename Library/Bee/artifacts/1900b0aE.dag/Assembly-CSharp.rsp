@@ -359,6 +359,7 @@
 "Assets/Scripts/BottomPanelOperatorBox.cs"
 "Assets/Scripts/ClickDetectionSystem.cs"
 "Assets/Scripts/HealthBar.cs"
+"Assets/Scripts/OperatorInfoPanel.cs"
 "Assets/Scripts/Stage/CameraManager.cs"
 "Assets/Scripts/Stage/DeploymentCostPanel.cs"
 "Assets/Scripts/Stage/EnemySpawner.cs"
