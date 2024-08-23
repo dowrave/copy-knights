@@ -55,11 +55,14 @@ public class Operator : Unit, IClickable
     private Material originalMaterial;
     private Material previewMaterial;
 
+    private SpriteRenderer directionIndicator;
+
     // 필드 끝 --------------------------------------------------------
 
     private void Awake()
     {
         PrepareTransparentMaterial();
+        currentMap = FindObjectOfType<Map>();
     }
 
     // 배치에 상관 없는 초기화 수행
@@ -67,6 +70,7 @@ public class Operator : Unit, IClickable
     {
         currentSP = data.initialSP; // SP 초기화
         attackRangeType = data.attackRangeType;
+        CreateDirectionIndicator();
         InitializeStats();
     }
 
@@ -76,12 +80,20 @@ public class Operator : Unit, IClickable
         {
             isDeployed = true;
             transform.position = position;
-            facingDirection = direction;
-            currentMap = FindObjectOfType<Map>();
+            SetDirection(direction);
+
             maxHealth = data.baseStats.Health;
+            //currentMap = FindObjectOfType<Map>();
 
             CreateOperatorUI();
         }
+    }
+
+    public void SetDirection(Vector3 direction)
+    {
+        facingDirection = direction.normalized;
+        transform.forward = facingDirection;
+        UpdateDirectionIndicator(facingDirection);
     }
 
     private void CreateOperatorUI()
@@ -343,7 +355,8 @@ public class Operator : Unit, IClickable
         UnblockAllEnemies();
 
         // 오브젝트 파괴
-        Destroy(operatorUI.gameObject);
+        Destroy(operatorUI.gameObject); // 하단 체력/SP 바
+        Destroy(directionIndicator.gameObject); // 방향 표시기
         base.Die();
 
         // 하단 UI 활성화
@@ -426,4 +439,37 @@ public class Operator : Unit, IClickable
         // 범위 내 적 리스트에서 제거
         enemiesInRange.Remove(enemy); // 안하면 리스트에 파괴된 오브젝트가 남아서 0번 인덱스를 캐치하지 못함
     }
+
+    private void CreateDirectionIndicator()
+    {
+        GameObject indicator = new GameObject("DirectionIndicator");
+        indicator.transform.SetParent(transform);
+        indicator.transform.localPosition = new Vector3(0, -0.1f, 0);
+        indicator.transform.localRotation = Quaternion.Euler(90, 0, -90);
+        indicator.transform.localScale = new Vector3(0.3f, 0.3f, 0.3f);
+
+        directionIndicator = indicator.AddComponent<SpriteRenderer>();
+        directionIndicator.sprite = Resources.Load<Sprite>("direction_sprite");
+        directionIndicator.enabled = false;
+    }
+
+    public void UpdateDirectionIndicator(Vector3 direction)
+    {
+        if (directionIndicator != null)
+        {
+            float angle = Vector3.SignedAngle(Vector3.left, direction, Vector3.up);
+
+            // x축 회전 : 바닥에 눕히기 / z축 중심으로 -angle만큼 회전시키면 방향이 맞음(테스트 완료)
+            directionIndicator.transform.localRotation = Quaternion.Euler(90, 0, -90);
+        }
+    }
+
+    public void ShowDirectionIndicator(bool show)
+    {
+        if (directionIndicator != null)
+        {
+            directionIndicator.enabled = show;
+        }
+    }
+
 }
