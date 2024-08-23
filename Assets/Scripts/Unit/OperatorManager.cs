@@ -15,6 +15,7 @@ public class OperatorManager : MonoBehaviour
     // Operator 관련 변수
     public List<OperatorData> availableOperators = new List<OperatorData>();
     private Dictionary<OperatorData, BottomPanelOperatorBox> operatorUIBoxes = new Dictionary<OperatorData, BottomPanelOperatorBox>();
+    private Operator currentOperator;
     private GameObject currentOperatorPrefab; // 현재 배치 중인 오퍼레이터 프리팹
     private OperatorData currentOperatorData; // 현재 배치 중인 오퍼레이터 정보
     private List<OperatorData> deployedOperators = new List<OperatorData>(); // 배치돼서 화면에 표시되지 않을 오퍼레이터
@@ -34,7 +35,6 @@ public class OperatorManager : MonoBehaviour
 
     private List<Tile> highlightedTiles = new List<Tile>();
     private Tile currentHoverTile;
-    private GameObject previewOperator;
 
     private float minDirectionDistance = 85f; // 직접 테스트해서 얻은 값
     private const float INDICATOR_SIZE = 2.5f;
@@ -136,6 +136,16 @@ public class OperatorManager : MonoBehaviour
             currentOperatorData = operatorData;
             currentOperatorPrefab = operatorData.prefab;
             isOperatorSelecting = true;
+
+            if (currentOperator != null)
+            {
+                Destroy(currentOperator.gameObject);
+            }
+
+            currentOperator = Instantiate(currentOperatorPrefab, Vector3.zero, Quaternion.identity).GetComponent<Operator>();
+            currentOperator.IsPreviewMode = true;
+            currentOperator.gameObject.SetActive(false);
+
             HighlightAvailableTiles();
         }
     }
@@ -180,21 +190,27 @@ public class OperatorManager : MonoBehaviour
 
     private void CreatePreviewOperator()
     {
-        if (previewOperator == null)
+        if (currentOperator == null)
         {
-            previewOperator = Instantiate(currentOperatorPrefab, Vector3.zero, Quaternion.identity);
-            Operator previewOp = previewOperator.GetComponent<Operator>();
-            previewOp.IsPreviewMode = true;
+            currentOperator.IsPreviewMode = true;
             SetPreviewTransparency(0.5f);
+            //previewOperator = Instantiate(currentOperatorPrefab, Vector3.zero, Quaternion.identity);
+            //Operator previewOp = previewOperator.GetComponent<Operator>();
+            //previewOp.IsPreviewMode = true;
         }
     }
 
     private void StartDirectionSelection(Tile tile)
     {
         isSelectingDirection = true;
-
         ResetHighlights();
         currentHoverTile = tile;
+
+        if (currentOperator != null)
+        {
+            currentOperator.transform.position = tile.transform.position + Vector3.up * 0.5f;
+            currentOperator.ShowDirectionIndicator(true);
+        }
 
         ShowDeployingUI(tile.transform.position + Vector3.up * 0.5f);
         UpdatePreviewOperatorRotation();
@@ -315,25 +331,26 @@ public class OperatorManager : MonoBehaviour
             cursorWorldPosition = Camera.main.transform.position + Camera.main.transform.forward * 10f + Vector3.up * 0.5f;
         }
 
-        if (previewOperator == null)
-        {
-            previewOperator = Instantiate(currentOperatorPrefab, cursorWorldPosition, Quaternion.identity);
-            Operator previewOp = previewOperator.GetComponent<Operator>();
-            previewOp.IsPreviewMode = true;
-            SetPreviewTransparency(0.5f);
-        }
+        currentOperator.gameObject.SetActive(true);
+        //if (previewOperator == null)
+        //{
+        //    previewOperator = Instantiate(currentOperatorPrefab, cursorWorldPosition, Quaternion.identity);
+        //    Operator previewOp = previewOperator.GetComponent<Operator>();
+        //    previewOp.IsPreviewMode = true;
+        //    SetPreviewTransparency(0.5f);
+        //}
 
         Tile hoveredTile = GetHoveredTile();
 
         // 배치 가능한 타일 위라면 타일 위치로 스냅
         if (hoveredTile != null && highlightedTiles.Contains(hoveredTile))
         {
-            previewOperator.transform.position = hoveredTile.transform.position + Vector3.up * 0.5f;
+            currentOperator.transform.position = hoveredTile.transform.position + Vector3.up * 0.5f;
         }
         else
         {
             // 아니라면 커서 위치에만 표시
-            previewOperator.transform.position = cursorWorldPosition;
+            currentOperator.transform.position = cursorWorldPosition;
         }
     }
 
@@ -397,11 +414,13 @@ public class OperatorManager : MonoBehaviour
     {
         if (StageManager.Instance.TryUseDeploymentCost((int)currentOperatorData.deploymentCost))
         {
-            GameObject placedOperator = Instantiate(currentOperatorPrefab, tile.transform.position, Quaternion.LookRotation(placementDirection));
-            Operator op = placedOperator.GetComponent<Operator>();
-            op.Deploy(tile.transform.position + Vector3.up * 0.5f, placementDirection);
-            tile.SetOccupied(op);
-            currentOperatorPrefab = null;
+            if (currentOperator != null)
+            {
+                currentOperator.IsPreviewMode = false;
+                currentOperator.Deploy(tile.transform.position + Vector3.up * 0.5f, placementDirection);
+                tile.SetOccupied(currentOperator);
+                SetPreviewTransparency(1f);
+            }
 
             // 배치된 오퍼레이터 리스트에 추가
             deployedOperators.Add(currentOperatorData);
@@ -412,8 +431,8 @@ public class OperatorManager : MonoBehaviour
                 box.gameObject.SetActive(false);
             }
 
-            ResetPlacement();
-            RestoreNormalTime();
+            ResetPlacement(); // 변수 초기화
+            RestoreNormalTime(); // 시간 흐름 정상으로 되돌림
         }
     }
 
@@ -429,17 +448,21 @@ public class OperatorManager : MonoBehaviour
 
         currentOperatorData = null;
         currentOperatorPrefab = null;
+        if (currentOperator != null)
+        {
+            if (currentOperator.IsPreviewMode)
+            {
+                Destroy(currentOperator.gameObject);
+            }
+            currentOperator = null;
+        }
+
         operatorIndex = -1;
 
         RestoreNormalTime();
         ResetHighlights();
         HideAllUIs();
 
-        if (previewOperator != null)
-        {
-            Destroy(previewOperator);
-            previewOperator = null;
-        }
     }
 
     public void CancelPlacement()
@@ -458,7 +481,7 @@ public class OperatorManager : MonoBehaviour
 
     private void SetPreviewTransparency(float alpha)
     {
-        Renderer renderer = previewOperator.GetComponentInChildren<Renderer>();
+        Renderer renderer = currentOperator.GetComponentInChildren<Renderer>();
         Material mat = renderer.material;
         Color color = mat.color;
         color.a = alpha;
@@ -467,9 +490,9 @@ public class OperatorManager : MonoBehaviour
 
     private void UpdatePreviewOperatorRotation()
     {
-        if (previewOperator != null)
+        if (currentOperator != null)
         {
-            previewOperator.transform.rotation = Quaternion.LookRotation(placementDirection);
+            currentOperator.transform.rotation = Quaternion.LookRotation(placementDirection);
         }
     }
 
@@ -507,5 +530,13 @@ public class OperatorManager : MonoBehaviour
     private void RestoreNormalTime()
     {
         Time.timeScale = originalTimeScale;
+    }
+
+    public void UpdateOperatorDirection(Operator op, Vector3 direction)
+    {
+        if (op != null)
+        {
+            op.SetDirection(direction);
+        }
     }
 }

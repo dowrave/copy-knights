@@ -164,7 +164,6 @@ MonoBehaviour:
   data: {fileID: 11400000, guid: e2a4a030884958f4eb943253b76953e5, type: 2}
   facingDirection: {x: 0, y: 0, z: 0}
   operatorUIPrefab: {fileID: 8911005229607826622, guid: d39c58a7b8ae3eb43beb195d5f3164a8, type: 3}
-  actionUIPrefab: {fileID: 7437474572598913671, guid: d6d3aff9b4f3c4a4a81c032236bfe4dd, type: 3}
 --- !u!65 &5805119495687587785
 BoxCollider:
   m_ObjectHideFlags: 0
