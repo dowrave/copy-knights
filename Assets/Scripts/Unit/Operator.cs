@@ -422,6 +422,13 @@ public class Operator : Unit, IClickable
         if (isDeployed && !IsPreviewMode && StageManager.Instance.currentState == GameState.Battle)
         {
             OperatorManager.Instance.CancelPlacement(); // 오퍼레이터를 클릭했다면 현재 진행 중인 배치 로직이 취소되어야 함
+
+            // 미리보기 상태에선 동작하면 안됨
+            if (IsPreviewMode == false)
+            {
+                UIManager.Instance.ShowOperatorInfo(data, transform.position);
+            }
+
             ShowActionUI();
         }
     }

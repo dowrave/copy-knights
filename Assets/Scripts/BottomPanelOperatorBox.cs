@@ -3,7 +3,7 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
-public class BottomPanelOperatorBox : MonoBehaviour, IPointerClickHandler, IBeginDragHandler, IDragHandler, IEndDragHandler
+public class BottomPanelOperatorBox : MonoBehaviour, IPointerDownHandler, IBeginDragHandler, IDragHandler, IEndDragHandler
 {
     private Transform operatorIcon; // 오브젝트
     private Image operatorIconImage; // Image 컴포넌트
@@ -121,7 +121,7 @@ public class BottomPanelOperatorBox : MonoBehaviour, IPointerClickHandler, IBegi
 
     // 마우스 동작 관련 : 동작하지 않는다면 상속을 확인하라
     // 마우스 버튼을 눌렀다가 같은 위치에서 뗐을 때 발생
-    public void OnPointerClick(PointerEventData eventData) 
+    public void OnPointerDown(PointerEventData eventData) 
     {
         if (CanInteract())
         {
@@ -134,6 +134,7 @@ public class BottomPanelOperatorBox : MonoBehaviour, IPointerClickHandler, IBegi
     {
         if (CanInteract())
         {
+            isDragging = true; 
             OperatorManager.Instance.StartDragging(operatorData);
         }
     }
@@ -141,7 +142,7 @@ public class BottomPanelOperatorBox : MonoBehaviour, IPointerClickHandler, IBegi
     // 버튼을 누른 상태에서 이동할 때 프레임마다 발생
     public void OnDrag(PointerEventData eventData)
     {
-        if (CanInteract())
+        if (isDragging && CanInteract())
         {
             OperatorManager.Instance.HandleDragging(operatorData);
         }
@@ -150,7 +151,11 @@ public class BottomPanelOperatorBox : MonoBehaviour, IPointerClickHandler, IBegi
     // 드래그 중 마우스 버튼을 뗄 때 발생 
     public void OnEndDrag(PointerEventData eventData)
     {
-        OperatorManager.Instance.EndDragging(operatorData);
+        if (isDragging)
+        {
+            OperatorManager.Instance.EndDragging(operatorData);
+            isDragging = false; 
+        }
     }
 
     private bool CanInteract()

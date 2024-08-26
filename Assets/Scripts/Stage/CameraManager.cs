@@ -7,12 +7,16 @@ public class CameraManager : MonoBehaviour
 {
     public static CameraManager Instance { get; private set; }
 
-    [SerializeField] private float animationDuration = 0.5f;
+    private float animationDuration = 0.1f;
+    [SerializeField] private float cameraShiftAmount = -0.1f;
+    [SerializeField] private float cameraHeightAmount = 1f;
 
     private Camera mainCamera;
     private Vector3 originalPosition;
     private Quaternion originalRotation;
     private float originalSize;
+
+    private Vector3 operatorInfoRotation = new Vector3(0, -15, -15);
 
     private void Awake()
     {
@@ -29,6 +33,10 @@ public class CameraManager : MonoBehaviour
         {
             mainCamera = Camera.main;
         }
+
+
+
+        //SaveOriginalCameraSettings();
     }
 
     public void SetupForMap(Map map)
@@ -38,6 +46,7 @@ public class CameraManager : MonoBehaviour
         if (map != null)
         {
             SetCameraPosition(map.CameraPosition, map.CameraRotation);
+            SaveOriginalCameraSettings();
         }
     }
 
@@ -60,24 +69,57 @@ public class CameraManager : MonoBehaviour
         originalSize = mainCamera.orthographicSize;
     }
 
-    public void AdjustForOperatorInfo(bool show)
+    // UI를 클릭하거나 배치된 오퍼레이터 클릭 시 카메라 이동 / 회전 변경
+    public void AdjustForOperatorInfo(bool show, Vector3? operatorPosition = null)
     {
-        // 오퍼레이터 정보 필요한 경우) 카메라를 오른쪽으로 이동, 크기 3/4 으로 축소
+        
         if (show)
         {
-            // 카메라 오른쪽으로 이동
-            Vector3 newPosition = originalPosition + Vector3.right * (Screen.width / 8f);
+            Vector3 newPosition;
+            float mapWidth = MapManager.Instance.GetCurrentMapWidth();
+
+            // 오퍼레이터 위치 조정
+            // 오퍼레이터 클릭 시 오퍼레이터의 위치로 중심 이동
+            if (operatorPosition.HasValue)
+            {
+                //// 원래 화면의 오른쪽 3/4의 중간 지점
+                //float rightSideCenter = originalPosition.x + (mapWidth * 0.75f * 0.5f);
+
+                //newPosition = new Vector3(rightSideCenter + (operatorPosition.Value.x * 0.75f),
+                //       originalPosition.y + 0.5f,
+                //       originalPosition.z);
+
+                // 배치된 오퍼레이터를 클릭한 경우
+                float cameraOffset = mapWidth * (1 - 0.75f) * 0.5f;
+
+                newPosition = new Vector3(
+                    operatorPosition.Value.x - cameraOffset,
+                    originalPosition.y + cameraHeightAmount,
+                    originalPosition.z
+                );
+            }
+            else
+            { 
+                newPosition = (originalPosition + 
+                                Vector3.up * cameraHeightAmount + 
+                                (Vector3.right * mapWidth * cameraShiftAmount));
+
+            }
+
+            Debug.Log($"newPosition : {newPosition}");
+
             StartCoroutine(LerpPosition(mainCamera.transform, newPosition, animationDuration));
 
-            // 카메라 크기 조정 (3/4)
-            float newSize = originalSize * 0.75f;
-            StartCoroutine(LerpOrthoSize(mainCamera, newSize, animationDuration));
+            // 카메라 회전
+            Quaternion newRotation = Quaternion.Euler(originalRotation.eulerAngles + operatorInfoRotation);
+            StartCoroutine(LerpRotation(mainCamera.transform, newRotation, animationDuration));
         }
         else
         {
             // 원위치와 크기로 복귀
             StartCoroutine(LerpPosition(mainCamera.transform, originalPosition, animationDuration));
-            StartCoroutine(LerpOrthoSize(mainCamera, originalSize, animationDuration));
+            StartCoroutine(LerpRotation(mainCamera.transform, originalRotation, animationDuration));
+
         }
     }
 
@@ -95,26 +137,18 @@ public class CameraManager : MonoBehaviour
         transform.position = targetPosition;
     }
 
-    // orthographic 카메라의 크기를 부드럽게 변경
-    private IEnumerator LerpOrthoSize(Camera camera, float targetSize, float duration)
+    // 카메라의 회전을 부드럽게 변경
+    private IEnumerator LerpRotation(Transform transform, Quaternion targetRotation, float duration)
     {
-        float startSize = camera.orthographicSize;
+        Quaternion startRotation = transform.rotation;
         float time = 0;
         while (time < duration)
         {
-            camera.orthographicSize = Mathf.Lerp(startSize, targetSize, time / duration);
+            transform.rotation = Quaternion.Slerp(startRotation, targetRotation, time / duration);
             time += Time.deltaTime;
             yield return null;
         }
-        camera.orthographicSize = targetSize;
+        transform.rotation = targetRotation;
     }
-
-    //private void OnValidate()
-    //{
-    //    if (mainCamera != null)
-    //    {
-    //        ApplyCameraSettings();
-    //    }
-    //}
 
 }
