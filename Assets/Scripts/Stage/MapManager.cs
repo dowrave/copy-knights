@@ -134,4 +134,14 @@ public class MapManager : MonoBehaviour
         }
         return (Vector3.zero, Vector3.zero);
     }
+
+    public int GetCurrentMapWidth()
+    {
+        return currentMap != null ? currentMap.Width : 0;
+    }
+
+    public int GetCurrentMapHeight()
+    {
+        return currentMap != null ? currentMap.Height : 0;
+    }
 }

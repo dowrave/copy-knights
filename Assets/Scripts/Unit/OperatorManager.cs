@@ -7,6 +7,7 @@ using System.Runtime.CompilerServices;
 
 public class OperatorManager : MonoBehaviour
 {
+    
     public static OperatorManager Instance { get; private set; }
     // UI 관련 변수
     public GameObject bottomPanelOperatorBoxPrefab; // 개별 오퍼레이터 아이콘, 배치 코스트 등을 감쌀 오퍼레이터 프리팹
@@ -147,7 +148,9 @@ public class OperatorManager : MonoBehaviour
             currentOperator.gameObject.SetActive(false);
 
             HighlightAvailableTiles();
-            ShowOperatorInfoPanel(currentOperatorData);
+
+            Debug.Log($"OperatorData : {operatorData}");
+            ShowOperatorInfoPanel(operatorData);
         }
     }
 
@@ -275,6 +278,7 @@ public class OperatorManager : MonoBehaviour
                 {
                     DeployOperator(currentHoverTile);
                     EndDirectionSelection();
+                    HideOperatorInfoPanel();
                     isMousePressed = false;
                 }
                 // 바운더리 이내라면 다시 방향 설정(클릭 X) 상태
@@ -295,25 +299,25 @@ public class OperatorManager : MonoBehaviour
     }
 
     // 전체 배치 과정의 시작 : BottomPanelOperatorBox 클릭 시 호출됨 
-    public void StartOperatorPlacement(OperatorData operatorData)
-    {
-        // 전역 배치 코스트가 오퍼레이터의 배치 코스트보다 높을 때에만 배치 가능
-        if (StageManager.Instance.CurrentDeploymentCost >= operatorData.deploymentCost)
-        {
-            operatorIndex = availableOperators.IndexOf(operatorData);
-            if (operatorIndex != -1)
-            {
-                currentOperatorPrefab = operatorData.prefab;
-                currentOperatorData = availableOperators[operatorIndex];
-                isOperatorSelecting = true;
-            }
-            else
-            {
-                Debug.LogError("오퍼레이터 데이터가 availableOperators List에 없음");
-            }
+    //public void StartOperatorPlacement(OperatorData operatorData)
+    //{
+    //    // 전역 배치 코스트가 오퍼레이터의 배치 코스트보다 높을 때에만 배치 가능
+    //    if (StageManager.Instance.CurrentDeploymentCost >= operatorData.deploymentCost)
+    //    {
+    //        operatorIndex = availableOperators.IndexOf(operatorData);
+    //        if (operatorIndex != -1)
+    //        {
+    //            currentOperatorPrefab = operatorData.prefab;
+    //            currentOperatorData = availableOperators[operatorIndex];
+    //            isOperatorSelecting = true;
+    //        }
+    //        else
+    //        {
+    //            Debug.LogError("오퍼레이터 데이터가 availableOperators List에 없음");
+    //        }
 
-        }
-    }
+    //    }
+    //}
 
 
     // 배치 중일 때 오퍼레이터 미리 보기 표현
@@ -544,11 +548,12 @@ public class OperatorManager : MonoBehaviour
 
     public void ShowOperatorInfoPanel(OperatorData operatorData)
     {
-        OperatorInfoPanel.Instance.ShowOperatorInfo(operatorData);
+        Debug.Log($"UIManager : {UIManager.Instance}");
+        UIManager.Instance.ShowOperatorInfo(operatorData);
     }
 
     public void HideOperatorInfoPanel()
     {
-        OperatorInfoPanel.Instance.HideOperatorInfo();
+        UIManager.Instance.HideOperatorInfo();
     }
 }
