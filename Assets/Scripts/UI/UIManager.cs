@@ -12,8 +12,11 @@ public class UIManager : MonoBehaviour
     [SerializeField] private GameObject topCenterPanel; // 남은 적 수, 라이프 수
     [SerializeField] private GameObject bottomPanel;
     [SerializeField] private GameObject operatorInfoPanel;
+    //[SerializeField] private GameObject overlayPanel;
 
-    private OperatorInfoPanel operatorInfoPanelScript; 
+    private OperatorInfoPanel operatorInfoPanelScript;
+    //private OverlayPanel overlayPanelScript;
+
 
     // Awake는 모든 오브젝트의 초기화 전에 실행되어서 다른 스크립트가 참조할 수 있도록 한다. 특히 UI는 Awake를 쓸 것.
     void Awake()
@@ -41,14 +44,21 @@ public class UIManager : MonoBehaviour
         {
             operatorInfoPanel = transform.Find("OperatorInfoPanel").gameObject;
         }
+        //if (overlayPanel == null)
+        //{
+        //    overlayPanel = transform.Find("OverlayPanel").gameObject;
+        //}
 
         // 비활성화 전에 참조를 넣어두는 게 좋다
         operatorInfoPanelScript = operatorInfoPanel.GetComponent<OperatorInfoPanel>();
+        //overlayPanelScript = overlayPanel.GetComponent<OverlayPanel>();
+
 
         // 패널 비활성화
         gameOverPanel.SetActive(false);
         gameWinPanel.SetActive(false);
         operatorInfoPanel.SetActive(false);
+        //overlayPanel.SetActive(false);
 
     }
 
@@ -76,6 +86,8 @@ public class UIManager : MonoBehaviour
             {
                 CameraManager.Instance.AdjustForOperatorInfo(true);
             }
+
+            //ActivateOverlay(() => HideOperatorInfo());
         }
     }
 
@@ -85,7 +97,26 @@ public class UIManager : MonoBehaviour
         {
             operatorInfoPanel.SetActive(false);
             CameraManager.Instance.AdjustForOperatorInfo(false);
+            //DeactivateOverlay();
         }
     }
+
+    //public void ActivateOverlay(System.Action onCancelAction)
+    //{
+    //    overlayPanel.SetActive(true);
+    //    overlayPanelScript.Activate(onCancelAction);
+    //}
+
+    //public void DeactivateOverlay()
+    //{
+    //    overlayPanelScript.Deactivate();
+    //    overlayPanel.SetActive(false);
+    //}
+
+    //public void ShowOperatorActionUI()
+    //{
+    //    ActivateOverlay(() => OperatorManager.Instance.CancelCurrentAction());
+    //}
+
 
 }

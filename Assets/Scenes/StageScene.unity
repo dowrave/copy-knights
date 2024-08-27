@@ -5023,7 +5023,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   enemySpawnList:
-  - enemyData: {fileID: 11400000, guid: 673037e1dec1a8445b3797044c9c07e2, type: 2}
+  - enemyData: {fileID: 11400000, guid: 8efbbbeafe3d1144c854809c07f8ab88, type: 2}
     spawnTime: 0.5
 --- !u!1 &1206844153
 GameObject:

@@ -151,6 +151,9 @@ public class OperatorManager : MonoBehaviour
 
             Debug.Log($"OperatorData : {operatorData}");
             ShowOperatorInfoPanel(operatorData);
+
+            // OverlayPanel에 CancelOperatorSelection 이벤트 등록(빈 공간 클릭 시 배치 로직 취소됨)
+            //UIManager.Instance.ActivateOverlay(() => CancelOperatorSelection());
         }
     }
 
@@ -226,6 +229,7 @@ public class OperatorManager : MonoBehaviour
         HideAllUIs();
         currentActionUI = Instantiate(actionUIPrefab, op.transform.position, Quaternion.identity);
         currentActionUI.Initialize(op);
+        //UIManager.Instance.ShowOperatorActionUI();
     }
 
     public void ShowDeployingUI(Vector3 position)
@@ -268,7 +272,13 @@ public class OperatorManager : MonoBehaviour
             Vector3 newDirection = DetermineDirection(dragVector);
 
             placementDirection = newDirection;
-            HighlightAttackRange(currentHoverTile, placementDirection);
+            //HighlightAttackRange(currentHoverTile, placementDirection);
+            if (currentOperator != null)
+            {
+                currentOperator.SetDirection(placementDirection);
+                currentOperator.HighlightAttackRange();
+            }
+
             UpdatePreviewOperatorRotation();
 
             if (Input.GetMouseButtonUp(0))
@@ -370,35 +380,37 @@ public class OperatorManager : MonoBehaviour
             return hit.collider.GetComponentInParent<Tile>();
         }
 
-        //RaycastHit[] hits = Physics.RaycastAll(ray, Mathf.Infinity);
-        //Debug.Log("클릭한 지점의 레이어들 ---------------");
-        //foreach (RaycastHit hit in hits)
-        //{
-        //    Debug.Log($"오브젝트: {hit.collider.gameObject.name}, 레이어: {LayerMask.LayerToName(hit.collider.gameObject.layer)}");
-        //}
-        //Debug.Log("클릭한 지점의 레이어들 끝 ---------------");
-
         return null; 
     }
 
 
 
-    private void HighlightAttackRange(Tile tile, Vector3 direction)
-    {
-        Operator op = currentOperatorPrefab.GetComponent<Operator>();
-        Vector2Int[] attackRange = op.data.attackableTiles;
+    //private void HighlightAttackRange(Tile tile, Vector3 direction)
+    //{
+    //    Operator op = currentOperatorPrefab.GetComponent<Operator>();
+    //    Vector2Int[] attackRange = op.data.attackableTiles;
 
-        foreach (Vector2Int offset in attackRange)
+    //    foreach (Vector2Int offset in attackRange)
+    //    {
+    //        Vector2Int rotatedOffset = op.RotateOffset(offset, direction);
+    //        Vector2Int targetPos = new Vector2Int(tile.GridPosition.x + rotatedOffset.x,
+    //                                              tile.GridPosition.y + rotatedOffset.y);
+    //        Tile targetTile = MapManager.Instance.GetTile(targetPos.x, targetPos.y);
+    //        if (targetTile != null)
+    //        {
+    //            targetTile.Highlight(attackRangeTileColor);
+    //            highlightedTiles.Add(targetTile);
+    //        }
+    //    }
+    //}
+
+    public void HighlightTiles(List<Tile> tiles, Color color)
+    {
+        ResetHighlights();
+        foreach (Tile tile in tiles)
         {
-            Vector2Int rotatedOffset = op.RotateOffset(offset, direction);
-            Vector2Int targetPos = new Vector2Int(tile.GridPosition.x + rotatedOffset.x,
-                                                  tile.GridPosition.y + rotatedOffset.y);
-            Tile targetTile = MapManager.Instance.GetTile(targetPos.x, targetPos.y);
-            if (targetTile != null)
-            {
-                targetTile.Highlight(attackRangeTileColor);
-                highlightedTiles.Add(targetTile);
-            }
+            tile.Highlight(color);
+            highlightedTiles.Add(tile);
         }
     }
 
@@ -555,5 +567,12 @@ public class OperatorManager : MonoBehaviour
     public void HideOperatorInfoPanel()
     {
         UIManager.Instance.HideOperatorInfo();
+    }
+
+    public void CancelCurrentAction()
+    {
+        ResetPlacement();
+        HideAllUIs();
+        //UIManager.Instance.DeactivateOverlay();
     }
 }
