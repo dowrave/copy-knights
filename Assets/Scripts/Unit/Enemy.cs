@@ -33,6 +33,7 @@ public class Enemy : Unit
     public float DamageMultiplier { get; private set; }
     public float DefenseMultiplier { get; private set; }
 
+    private Tile currentTile;
 
 
     public void Initialize(EnemyData enemyData, Vector3 startPoint, Vector3 endPoint)
@@ -58,7 +59,7 @@ public class Enemy : Unit
             if (!blockingOperator)
             {
                 MoveAlongPath();
-                CheckAndAddOperator();
+                CheckAndAddBlockingOperator();
             }
             else
             {
@@ -110,30 +111,50 @@ public class Enemy : Unit
         }
     }
 
-
-
-    private void CheckAndAddOperator()
+    private void CheckAndAddBlockingOperator()
     {
-        // 현재 밟은 타일에 오퍼레이터가 있는지 검사
-        Vector2Int nowGridPosition = MapManager.Instance.GetGridPosition(transform.position);
-        Tile currentTile = MapManager.Instance.GetTile(nowGridPosition.x, nowGridPosition.y);
-        Operator tileOperator = currentTile?.OccupyingOperator;
+        Tile currentTile = FindCurrentTile();
 
-        // 자신을 저지하는 오퍼레이터가 없음 and 현재 타일에 오퍼레이터가 있음 and 그 오퍼레이터가 저지 가능한 상태
-        if (tileOperator != null && tileOperator.CanBlockEnemy() && blockingOperator == null)
+        if (currentTile != null)
         {
-            blockingOperator = currentTile.OccupyingOperator;
-            blockingOperator.TryBlockEnemy(this); // 오퍼레이터에서도 저지 중인 Enemy를 추가
-        }
+            Operator tileOperator = currentTile.OccupyingOperator;
 
+            // 자신을 저지하는 오퍼레이터가 없음 and 현재 타일에 오퍼레이터가 있음 and 그 오퍼레이터가 저지 가능한 상태
+            if (tileOperator != null && tileOperator.CanBlockEnemy() && blockingOperator == null)
+            {
+                blockingOperator = currentTile.OccupyingOperator;
+                blockingOperator.TryBlockEnemy(this); // 오퍼레이터에서도 저지 중인 Enemy를 추가
+            }
+
+        }
     }
 
+    private Tile FindCurrentTile()
+    {
+        foreach (Tile tile in MapManager.Instance.GetAllTiles())
+        {
+            if (tile.IsEnemyOnTile(this))
+            {
+                return tile;
+            }
+        }
+        return null; 
+    }
 
     private void MoveAlongPath()
     {
         // 이동하며 경로의 타일 인덱스를 갱신함
         Vector3 targetPosition = path[currentPathIndex];
         Vector3 newPosition = Vector3.MoveTowards(transform.position, targetPosition, MovementSpeed * Time.deltaTime);
+
+        // 타일 갱신
+        Tile newTile = MapManager.Instance.GetTileAtPosition(newPosition);
+        if (newTile != currentTile)
+        {
+            ExitCurrentTile();
+            EnterNewTile(newTile);
+        }
+
         transform.position = newPosition;
         if (Vector3.Distance(transform.position, targetPosition) < 0.1f)
         {
@@ -269,6 +290,7 @@ public class Enemy : Unit
     {
         if (!attackingOperators.Contains(op))
         {
+            Debug.Log($"Enemy를 공격하는 Operator 추가 : {op.name}");
             attackingOperators.Add(op);
         }
     }
@@ -278,6 +300,20 @@ public class Enemy : Unit
         attackingOperators.Remove(op);
     }
 
+    private void ExitCurrentTile()
+    {
+        if (currentTile != null)
+        {
+            currentTile.EnemyExited(this);
+            currentTile = null;
+        }
+    }
 
+    private void EnterNewTile(Tile newTile)
+    {
+        currentTile = newTile;
+        currentTile.EnemyEntered(this);
+        CheckAndAddBlockingOperator();
+    }
 
 }

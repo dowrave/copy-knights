@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UI;
 using static UnityEngine.EventSystems.EventTrigger;
@@ -16,7 +17,7 @@ public class Operator : Unit, IClickable
     public Vector3 facingDirection = Vector3.left;
 
     // 저지 관련
-    private List<Enemy> blockedEnemies;
+    private List<Enemy> blockedEnemies; // 내가 저지 중인 적들
     public IReadOnlyList<Enemy> BlockedEnemies => blockedEnemies.AsReadOnly();
 
     public int deploymentOrder { get; private set; } // 배치 순서
@@ -120,6 +121,8 @@ public class Operator : Unit, IClickable
         {
             attackCooldown -= Time.deltaTime;
 
+
+
             // 공격 대상
             if (currentTarget == null)
             {
@@ -155,30 +158,40 @@ public class Operator : Unit, IClickable
     // currentTarget 설정 로직
     private void FindTarget()
     {
+        Debug.LogWarning($"{name} : FindTarget 동작");
+
         // 1. 저지 중일 때에는 저지 중인 적 중에서 공격
         if (blockedEnemies.Count > 0)
         {
+            Debug.LogWarning($"{name} : 저지 중인 적 공격 대상으로 설정");
             currentTarget = blockedEnemies[0]; // 첫 번째 저지된 적을 타겟으로
             SetAndNotifyTarget(currentTarget);
+            return;
         }
 
+        GetEnemiesInAttackRange(); // 공격 범위 내의 적을 얻음
+
         // 2. 저지 중이 아닐 때에는 공격 범위 내의 적 중에서 공격함
-        GetEnemiesInAttackRange(); // enemiesInRange 업데이트
+        // enemiesInRange 업데이트
         if (enemiesInRange.Count > 0)
         {
+            Debug.LogWarning($"{name} : 공격 범위 내의 적 공격 대상으로 설정");
+
             string enemiesInfo = string.Join(", ", enemiesInRange.Select((enemy, index) =>
                 $"Enemy {index}: {enemy.name} (Health: {enemy.CurrentHealth}/{enemy.MaxHealth}, Position: {enemy.transform.position})"));
-            Debug.LogWarning($"공격 범위 내 적 정보:\n{enemiesInfo}");
-
 
             currentTarget = enemiesInRange[0];
             SetAndNotifyTarget(currentTarget);
+            return;
         }
+
+        Debug.LogWarning($"{name} : FindTarget - 아무것도 동작하지 않음");
 
     }
 
     public override void Attack(Unit target)
     {
+        Debug.Log($"{this.name} 오퍼레이터가 {target}을 공격함");
         if (!canAttack || !(target is Enemy enemy)) return;
 
         switch (attackRangeType)
@@ -221,7 +234,7 @@ public class Operator : Unit, IClickable
     // 공격 타일에 있는 적들을 반환함
     private void GetEnemiesInAttackRange()
     {
-        //enemiesInRange = new List<Enemy>();
+        enemiesInRange.Clear();
         Vector2Int operatorGridPos = currentMap.WorldToGridPosition(transform.position);
 
         foreach (Vector2Int offset in data.attackableTiles)
@@ -429,6 +442,7 @@ public class Operator : Unit, IClickable
                 UIManager.Instance.ShowOperatorInfo(data, transform.position);
             }
 
+            HighlightAttackRange();
             ShowActionUI();
         }
     }
@@ -479,4 +493,24 @@ public class Operator : Unit, IClickable
         }
     }
 
+    public void HighlightAttackRange()
+    {
+        if (currentMap == null) return;
+
+        Vector2Int operatorGridPos = currentMap.WorldToGridPosition(transform.position);
+        List<Tile> tilesToHighlight = new List<Tile>();
+
+        foreach (Vector2Int offset in data.attackableTiles)
+        {
+            Vector2Int rotatedIOffset = RotateOffset(offset, facingDirection);
+            Vector2Int targetGridPos = operatorGridPos + rotatedIOffset;
+            Tile targetTile = currentMap.GetTile(targetGridPos.x, targetGridPos.y);
+            if (targetTile != null)
+            {
+                tilesToHighlight.Add(targetTile);
+            }
+        }
+
+        OperatorManager.Instance.HighlightTiles(tilesToHighlight, OperatorManager.Instance.attackRangeTileColor);
+    }
 }

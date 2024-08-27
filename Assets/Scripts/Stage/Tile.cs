@@ -221,10 +221,11 @@ public class Tile : MonoBehaviour
         Vector2 tilePosition2D = new Vector2(tilePosition.x, tilePosition.z);
 
         // 타일 경계 계산
-        float minX = tilePosition2D.x - size2D.x / 2;
-        float maxX = tilePosition2D.x + size2D.x / 2;
-        float minY = tilePosition2D.y - size2D.y / 2;
-        float maxY = tilePosition2D.y + size2D.y / 2;
+        float tolerance = 0f; // 타일 간의 간격을 생각한 오차
+        float minX = tilePosition2D.x - size2D.x / 2 - tolerance;
+        float maxX = tilePosition2D.x + size2D.x / 2 + tolerance;
+        float minY = tilePosition2D.y - size2D.y / 2 - tolerance;
+        float maxY = tilePosition2D.y + size2D.y / 2 + tolerance;
 
         // 적의 x, z 좌표가 타일 경계 내에 있는지 확인
         return enemyPosition2D.x >= minX && enemyPosition2D.x <= maxX && enemyPosition2D.y >= minY && enemyPosition2D.y <= maxY;

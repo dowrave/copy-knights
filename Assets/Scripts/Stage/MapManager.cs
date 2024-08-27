@@ -90,10 +90,11 @@ public class MapManager : MonoBehaviour
         return tileData != null && tileData.isWalkable;
     }
 
-
-    public Vector3 GetTilePosition(int gridX, int gridY)
+    // 월드 좌표에 있는 타일을 반환
+    public Tile GetTileAtPosition(Vector3 worldPosition)
     {
-        return currentMap.GridToWorldPosition(new Vector2Int(gridX, gridY)) + Vector3.up * 0.5f;
+        Vector2Int gridPosition = currentMap.WorldToGridPosition(worldPosition);
+        return currentMap.GetTile(gridPosition.x, gridPosition.y);
     }
 
 
