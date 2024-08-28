@@ -158,12 +158,9 @@ public class Operator : Unit, IClickable
     // currentTarget 설정 로직
     private void FindTarget()
     {
-        Debug.LogWarning($"{name} : FindTarget 동작");
-
         // 1. 저지 중일 때에는 저지 중인 적 중에서 공격
         if (blockedEnemies.Count > 0)
         {
-            Debug.LogWarning($"{name} : 저지 중인 적 공격 대상으로 설정");
             currentTarget = blockedEnemies[0]; // 첫 번째 저지된 적을 타겟으로
             SetAndNotifyTarget(currentTarget);
             return;
@@ -175,8 +172,6 @@ public class Operator : Unit, IClickable
         // enemiesInRange 업데이트
         if (enemiesInRange.Count > 0)
         {
-            Debug.LogWarning($"{name} : 공격 범위 내의 적 공격 대상으로 설정");
-
             string enemiesInfo = string.Join(", ", enemiesInRange.Select((enemy, index) =>
                 $"Enemy {index}: {enemy.name} (Health: {enemy.CurrentHealth}/{enemy.MaxHealth}, Position: {enemy.transform.position})"));
 
@@ -184,14 +179,10 @@ public class Operator : Unit, IClickable
             SetAndNotifyTarget(currentTarget);
             return;
         }
-
-        Debug.LogWarning($"{name} : FindTarget - 아무것도 동작하지 않음");
-
     }
 
     public override void Attack(Unit target)
     {
-        Debug.Log($"{this.name} 오퍼레이터가 {target}을 공격함");
         if (!canAttack || !(target is Enemy enemy)) return;
 
         switch (attackRangeType)
