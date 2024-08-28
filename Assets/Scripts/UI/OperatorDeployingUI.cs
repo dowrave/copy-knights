@@ -5,9 +5,10 @@ using UnityEngine.UI;
 
 public class OperatorDeployingUI : MonoBehaviour
 {
-    [SerializeField] private DiamondImage diamondImage;
+    [SerializeField] private MaskedDiamondOverlay maskedOverlay;
     [SerializeField] private Button cancelButton;
-    [SerializeField] private float lineWidth = 0.1f;
+    
+    private float darkPanelAlpha = 0.3f;
 
     private RectTransform diamondRect;
     private RectTransform cancelButtonRect;
@@ -17,16 +18,16 @@ public class OperatorDeployingUI : MonoBehaviour
     private void Awake()
     {
         mainCamera = Camera.main;
-
-        diamondRect = diamondImage.GetComponent<RectTransform>();
         cancelButtonRect = cancelButton.GetComponent<RectTransform>();
 
     }
 
     public void Initialize(OperatorData operatorData)
     {
-        SetupDiamondIndicator();
+        SetupDiamondImage();
         SetupCancelButton();
+
+        maskedOverlay.Initialize(darkPanelAlpha); // 알파 조정
 
         if (mainCamera != null)
         {
@@ -34,21 +35,21 @@ public class OperatorDeployingUI : MonoBehaviour
         }
     }
 
-    private void SetupDiamondIndicator()
+    private void SetupDiamondImage()
     {
-        //diamondRect.sizeDelta = new Vector2(diamondSize, diamondSize);
-        diamondImage.LineWidth = lineWidth;
+        //diamondImage.LineWidth = lineWidth;
     }
 
     public void Show(Vector3 position)
     {
         transform.position = position;
-
+        maskedOverlay.Show();
         gameObject.SetActive(true);
     }
 
     public void Hide()
     {
+        maskedOverlay.Hide();
         gameObject.SetActive(false);
     }
 

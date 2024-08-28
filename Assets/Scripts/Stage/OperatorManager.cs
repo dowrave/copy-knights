@@ -520,6 +520,8 @@ public class OperatorManager : MonoBehaviour
     {
         deployedOperators.Remove(operatorData);
         HideOperatorInfoPanel();
+        ResetHighlights();
+
         if (operatorUIBoxes.TryGetValue(operatorData, out BottomPanelOperatorBox box))
         {
             box.StartCooldown(operatorData.reDeployTime);
@@ -539,6 +541,7 @@ public class OperatorManager : MonoBehaviour
 
     public void CancelOperatorSelection()
     {
+        CancelCurrentAction();
         ResetPlacement();
     }
 

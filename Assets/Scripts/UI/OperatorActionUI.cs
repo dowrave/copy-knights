@@ -4,11 +4,12 @@ using UnityEngine.UI;
 
 public class OperatorActionUI : MonoBehaviour
 {
-    [SerializeField] private DiamondImage diamondImage;
-    [SerializeField] private float lineWidth = 0.1f;
-
+    [SerializeField] private MaskedDiamondOverlay maskedOverlay;
     [SerializeField] private Button skillButton;
     [SerializeField] private Button retreatButton;
+
+    private float darkPanelAlpha = 0f;
+
     private Camera mainCamera;
     private Operator op;
 
@@ -17,7 +18,6 @@ public class OperatorActionUI : MonoBehaviour
         op = _operator;
         mainCamera = Camera.main;
 
-        SetupDiamondIndicator();
         SetUpButtons();
         UpdateSkillIcon();
 
@@ -27,15 +27,11 @@ public class OperatorActionUI : MonoBehaviour
             transform.LookAt(transform.position + mainCamera.transform.rotation * Vector3.forward, mainCamera.transform.rotation * Vector3.up);
         }
 
+        maskedOverlay.Initialize(darkPanelAlpha); // 알파 0으로 조정
+
         gameObject.SetActive(true);
     }
-
-    private void SetupDiamondIndicator()
-    {
-        //diamondRect.sizeDelta = new Vector2(diamondSize, diamondSize);
-        diamondImage.LineWidth = lineWidth;
-    }
-
+  
     private void SetUpButtons()
     {
         // 버튼 위치는 인스펙터에서 설정
@@ -65,11 +61,13 @@ public class OperatorActionUI : MonoBehaviour
 
     public void Show()
     {
+        maskedOverlay.Show();
         gameObject.SetActive(true);
     }
 
     public void Hide()
     {
+        maskedOverlay.Hide();
         gameObject.SetActive(false);
     }
 
