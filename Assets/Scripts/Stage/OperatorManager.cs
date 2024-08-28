@@ -479,6 +479,7 @@ public class OperatorManager : MonoBehaviour
 
         RestoreNormalTime();
         ResetHighlights();
+        CancelCurrentAction();
         HideAllUIs();
 
     }
@@ -518,6 +519,7 @@ public class OperatorManager : MonoBehaviour
     public void OnOperatorRemoved(OperatorData operatorData)
     {
         deployedOperators.Remove(operatorData);
+        HideOperatorInfoPanel();
         if (operatorUIBoxes.TryGetValue(operatorData, out BottomPanelOperatorBox box))
         {
             box.StartCooldown(operatorData.reDeployTime);
@@ -560,7 +562,6 @@ public class OperatorManager : MonoBehaviour
 
     public void ShowOperatorInfoPanel(OperatorData operatorData)
     {
-        Debug.Log($"UIManager : {UIManager.Instance}");
         UIManager.Instance.ShowOperatorInfo(operatorData);
     }
 
@@ -571,8 +572,15 @@ public class OperatorManager : MonoBehaviour
 
     public void CancelCurrentAction()
     {
-        ResetPlacement();
-        HideAllUIs();
-        //UIManager.Instance.DeactivateOverlay();
+        if (isOperatorSelecting || isDraggingOperator || isSelectingDirection)
+        {
+            ResetPlacement();
+            HideOperatorInfoPanel();
+        }
+        else if (currentActionUI != null) 
+        {
+            HideAllUIs();
+        }
+        ResetHighlights();
     }
 }

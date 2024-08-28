@@ -4,6 +4,9 @@ using UnityEngine.UI;
 
 public class OperatorActionUI : MonoBehaviour
 {
+    [SerializeField] private DiamondImage diamondImage;
+    [SerializeField] private float lineWidth = 0.1f;
+
     [SerializeField] private Button skillButton;
     [SerializeField] private Button retreatButton;
     private Camera mainCamera;
@@ -14,6 +17,7 @@ public class OperatorActionUI : MonoBehaviour
         op = _operator;
         mainCamera = Camera.main;
 
+        SetupDiamondIndicator();
         SetUpButtons();
         UpdateSkillIcon();
 
@@ -24,6 +28,12 @@ public class OperatorActionUI : MonoBehaviour
         }
 
         gameObject.SetActive(true);
+    }
+
+    private void SetupDiamondIndicator()
+    {
+        //diamondRect.sizeDelta = new Vector2(diamondSize, diamondSize);
+        diamondImage.LineWidth = lineWidth;
     }
 
     private void SetUpButtons()

@@ -5,30 +5,39 @@ using UnityEngine.UI;
 
 public class OperatorDeployingUI : MonoBehaviour
 {
-    // 자동으로 할당하지만 명시적으로 보여주는 게 좋다고 한다
-    [SerializeField] private GameObject dragIndicator;
-    [SerializeField] private GameObject cancelButton;
+    [SerializeField] private DiamondImage diamondImage;
+    [SerializeField] private Button cancelButton;
+    [SerializeField] private float lineWidth = 0.1f;
+
+    private RectTransform diamondRect;
+    private RectTransform cancelButtonRect;
+
     private Camera mainCamera;
-    private const float INDICATOR_SIZE = 2.5f; // ?
 
     private void Awake()
     {
         mainCamera = Camera.main;
 
-        // 시작 시 자식 오브젝트 참조 설정
-        if (dragIndicator == null)
-            dragIndicator = transform.Find("Drag Indicator").gameObject;
-        if (cancelButton == null)
-            cancelButton = transform.Find("Canvas/CancelButton").gameObject;
+        diamondRect = diamondImage.GetComponent<RectTransform>();
+        cancelButtonRect = cancelButton.GetComponent<RectTransform>();
+
     }
 
     public void Initialize(OperatorData operatorData)
     {
+        SetupDiamondIndicator();
         SetupCancelButton();
+
         if (mainCamera != null)
         {
             transform.LookAt(transform.position + mainCamera.transform.rotation * Vector3.forward, mainCamera.transform.rotation * Vector3.up);
         }
+    }
+
+    private void SetupDiamondIndicator()
+    {
+        //diamondRect.sizeDelta = new Vector2(diamondSize, diamondSize);
+        diamondImage.LineWidth = lineWidth;
     }
 
     public void Show(Vector3 position)
@@ -47,12 +56,14 @@ public class OperatorDeployingUI : MonoBehaviour
     {
         if (cancelButton != null)
         {
-            Button button = cancelButton.GetComponent<Button>();
-            if (button != null)
-            {
-                button.onClick.RemoveAllListeners();
-                button.onClick.AddListener(OnCancelButtonClicked);
-            }
+            // 마름모의 좌상단에 버튼 위치시키기
+            //float buttonOffset = diamondSize * buttonOffsetRate;
+            //cancelButtonRect.anchorMin = new Vector2(0, 1);
+            //cancelButtonRect.anchorMax = new Vector2(0, 1);
+            //cancelButtonRect.anchoredPosition = new Vector2(buttonOffset, -buttonOffset);
+
+            cancelButton.onClick.RemoveAllListeners();
+            cancelButton.onClick.AddListener(OnCancelButtonClicked);
         }
     }
 

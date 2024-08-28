@@ -106,8 +106,6 @@ public class CameraManager : MonoBehaviour
 
             }
 
-            Debug.Log($"newPosition : {newPosition}");
-
             StartCoroutine(LerpPosition(mainCamera.transform, newPosition, animationDuration));
 
             // 카메라 회전

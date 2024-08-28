@@ -1,10 +1,8 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.EventSystems;
-using static UnityEditor.Experimental.GraphView.GraphView;
 
 public class ClickDetectionSystem : MonoBehaviour
 {
@@ -58,14 +56,10 @@ public class ClickDetectionSystem : MonoBehaviour
 
         // 2. UI 요소가 클릭되었다면 해당 UI 요소 실행
         // 일단 버튼에 대해서만 구현
-        foreach (var result in uiResults)
-        {
-            Button button = result.gameObject.GetComponent<Button>();
-            if (button != null)
-            {
-                button.onClick.Invoke();
-                break;
-            }
+        if (uiResults.Count > 0)
+        {            
+            HandleUIClick(uiResults);
+            return;
         }
 
         // 3. UI 요소가 클릭되지 않은 상태에서 다른 Clickable 요소 처리
@@ -73,32 +67,57 @@ public class ClickDetectionSystem : MonoBehaviour
         RaycastHit clickableHit;
         if (Physics.Raycast(ray, out clickableHit, Mathf.Infinity, clickableLayerMask))
         {
-            IClickable clickable = clickableHit.collider.GetComponent<IClickable>();
-            if (clickable != null)
+            HandleObjectClick(clickableHit);
+        }
+        else
+        {
+            HandleEmptySpaceClick();
+        }
+    }
+
+    private void HandleUIClick(List<RaycastResult> uiResults)
+    {
+        Debug.LogWarning("HandleUIClick");
+        foreach (var result in uiResults)
+        {
+            Button button = result.gameObject.GetComponent<Button>();
+            if (button != null)
             {
-                clickable.OnClick();
+                button.onClick.Invoke();
+                return;
+            }
+        }
+
+        // 클릭될 요소가 없으면 현재 진행중인 동작을 멈추게 함
+        //OperatorManager.Instance.CancelCurrentAction();
+    }
+
+    private void HandleObjectClick(RaycastHit hit)
+    {
+        Debug.LogWarning("HandleObjectClick");
+        IClickable clickable = hit.collider.GetComponent<IClickable>();
+        if (clickable != null)
+        {
+            clickable.OnClick();
+        }
+        else
+        {
+            Tile clickedTile = hit.collider.GetComponent<Tile>();
+            if (clickedTile != null && clickedTile.OccupyingOperator != null)
+            {
+                clickedTile.OccupyingOperator.ShowActionUI();
             }
             else
             {
-                Tile clickedTile = clickableHit.collider.GetComponent<Tile>();
-                if (clickedTile != null && clickedTile.OccupyingOperator != null)
-                {
-                    clickedTile.OccupyingOperator.ShowActionUI();
-                }
+                OperatorManager.Instance.CancelCurrentAction();
             }
         }
-        
-
-         //디버깅을 위한 모든 레이어 출력
-        //RaycastHit[] hits = Physics.RaycastAll(ray, Mathf.Infinity);
-        //Debug.Log("클릭한 지점의 레이어들 ---------------");
-        //foreach (RaycastHit hit in hits)
-        //{
-        //    Debug.Log($"오브젝트: {hit.collider.gameObject.name}, 레이어: {LayerMask.LayerToName(hit.collider.gameObject.layer)}");
-        //}
-        //Debug.Log("클릭한 지점의 레이어들 끝 ---------------");
     }
-
+    
+    private void HandleEmptySpaceClick()
+    {
+        OperatorManager.Instance.CancelCurrentAction();
+    }
 
     /// <summary>
     /// 클릭 디버깅용 - 해결됨

@@ -372,6 +372,7 @@
 "Assets/Scripts/Stage/TileData.cs"
 "Assets/Scripts/UI/BottomPanelOperatorBox.cs"
 "Assets/Scripts/UI/DeploymentCostPanel.cs"
+"Assets/Scripts/UI/DiamondImage.cs"
 "Assets/Scripts/UI/EnemyUI.cs"
 "Assets/Scripts/UI/HealthBar.cs"
 "Assets/Scripts/UI/OperatorActionUI.cs"
