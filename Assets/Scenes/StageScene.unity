@@ -238,7 +238,7 @@ GameObject:
   - component: {fileID: 26495815}
   - component: {fileID: 26495817}
   - component: {fileID: 26495816}
-  m_Layer: 5
+  m_Layer: 8
   m_Name: LifePointText
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -527,7 +527,7 @@ GameObject:
   - component: {fileID: 96562992}
   - component: {fileID: 96562994}
   - component: {fileID: 96562993}
-  m_Layer: 5
+  m_Layer: 8
   m_Name: GameOver Text
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1126,7 +1126,7 @@ GameObject:
   - component: {fileID: 225030071}
   - component: {fileID: 225030073}
   - component: {fileID: 225030072}
-  m_Layer: 5
+  m_Layer: 8
   m_Name: GameOverPanel
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1201,7 +1201,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 240083869}
-  m_Layer: 5
+  m_Layer: 8
   m_Name: Fill Area
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1572,7 +1572,7 @@ GameObject:
   - component: {fileID: 277061843}
   - component: {fileID: 277061845}
   - component: {fileID: 277061844}
-  m_Layer: 5
+  m_Layer: 8
   m_Name: BackgroundImage
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1647,7 +1647,7 @@ GameObject:
   - component: {fileID: 278258619}
   - component: {fileID: 278258621}
   - component: {fileID: 278258620}
-  m_Layer: 5
+  m_Layer: 8
   m_Name: DeploymentCostText
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -2753,7 +2753,7 @@ GameObject:
   - component: {fileID: 428451469}
   - component: {fileID: 428451471}
   - component: {fileID: 428451470}
-  m_Layer: 5
+  m_Layer: 8
   m_Name: BackgroundImage
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -3341,7 +3341,7 @@ GameObject:
   m_Component:
   - component: {fileID: 648779838}
   - component: {fileID: 648779839}
-  m_Layer: 5
+  m_Layer: 8
   m_Name: DeploymentCostSlider
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -3875,7 +3875,7 @@ GameObject:
   - component: {fileID: 868051062}
   - component: {fileID: 868051064}
   - component: {fileID: 868051063}
-  m_Layer: 5
+  m_Layer: 8
   m_Name: Background
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -4260,7 +4260,7 @@ GameObject:
   - component: {fileID: 946982710}
   - component: {fileID: 946982712}
   - component: {fileID: 946982711}
-  m_Layer: 5
+  m_Layer: 8
   m_Name: Fill
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -4754,7 +4754,7 @@ GameObject:
   - component: {fileID: 1062361920}
   - component: {fileID: 1062361922}
   - component: {fileID: 1062361921}
-  m_Layer: 5
+  m_Layer: 8
   m_Name: EnemyCountText
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -6487,7 +6487,7 @@ GameObject:
   - component: {fileID: 1697550974}
   - component: {fileID: 1697550976}
   - component: {fileID: 1697550975}
-  m_Layer: 5
+  m_Layer: 8
   m_Name: TopCenterPanel
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -6670,7 +6670,7 @@ GameObject:
   - component: {fileID: 1706238394}
   - component: {fileID: 1706238393}
   - component: {fileID: 1706238395}
-  m_Layer: 5
+  m_Layer: 8
   m_Name: DeploymentCostPanel
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -7334,7 +7334,7 @@ GameObject:
   - component: {fileID: 1810984653}
   - component: {fileID: 1810984655}
   - component: {fileID: 1810984654}
-  m_Layer: 5
+  m_Layer: 8
   m_Name: GradientPanel
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -8144,12 +8144,16 @@ PrefabInstance:
       value: MainCanvas
       objectReference: {fileID: 0}
     - target: {fileID: 6010449667383688216, guid: 56874572f3796c141b4e7ddb24c4ca8b, type: 3}
+      propertyPath: m_Layer
+      value: 8
+      objectReference: {fileID: 0}
+    - target: {fileID: 6010449667383688216, guid: 56874572f3796c141b4e7ddb24c4ca8b, type: 3}
       propertyPath: m_IsActive
       value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 6119681074659959995, guid: 56874572f3796c141b4e7ddb24c4ca8b, type: 3}
       propertyPath: m_Layer
-      value: 5
+      value: 8
       objectReference: {fileID: 0}
     - target: {fileID: 7121891490839711885, guid: 56874572f3796c141b4e7ddb24c4ca8b, type: 3}
       propertyPath: m_Spacing
@@ -8252,7 +8256,7 @@ GameObject:
   - component: {fileID: 1959854564}
   - component: {fileID: 1959854566}
   - component: {fileID: 1959854565}
-  m_Layer: 5
+  m_Layer: 8
   m_Name: GameWinPanel
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -8349,7 +8353,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   clickableLayerMask:
     serializedVersion: 2
-    m_Bits: 224
+    m_Bits: 960
 --- !u!4 &1975916149
 Transform:
   m_ObjectHideFlags: 0
@@ -8359,7 +8363,7 @@ Transform:
   m_GameObject: {fileID: 1975916147}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 378.5, y: 209.5, z: 0}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -8526,7 +8530,7 @@ GameObject:
   - component: {fileID: 2010425368}
   - component: {fileID: 2010425370}
   - component: {fileID: 2010425369}
-  m_Layer: 5
+  m_Layer: 8
   m_Name: GameOver Text
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -8659,7 +8663,7 @@ GameObject:
   m_Component:
   - component: {fileID: 2031503781}
   - component: {fileID: 2031503782}
-  m_Layer: 5
+  m_Layer: 8
   m_Name: OperatorInfoPanel
   m_TagString: Untagged
   m_Icon: {fileID: 0}

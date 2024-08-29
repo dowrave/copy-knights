@@ -13,7 +13,7 @@ GameObject:
   - component: {fileID: 2645934172642921739}
   - component: {fileID: 7098454271830987021}
   - component: {fileID: 7778436824732863988}
-  m_Layer: 5
+  m_Layer: 9
   m_Name: EnemyUI
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -85,7 +85,7 @@ MonoBehaviour:
   m_FallbackScreenDPI: 96
   m_DefaultSpriteDPI: 96
   m_DynamicPixelsPerUnit: 1
-  m_PresetInfoIsWorld: 0
+  m_PresetInfoIsWorld: 1
 --- !u!114 &7098454271830987021
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -123,6 +123,14 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 1658330753262316403}
     m_Modifications:
+    - target: {fileID: 641245895733082627, guid: e2398dcf759e75743b0e55cc17de6acc, type: 3}
+      propertyPath: m_Layer
+      value: 9
+      objectReference: {fileID: 0}
+    - target: {fileID: 756135920970946284, guid: e2398dcf759e75743b0e55cc17de6acc, type: 3}
+      propertyPath: m_Layer
+      value: 9
+      objectReference: {fileID: 0}
     - target: {fileID: 2078242553357954668, guid: e2398dcf759e75743b0e55cc17de6acc, type: 3}
       propertyPath: m_AnchorMax.x
       value: 0
@@ -218,6 +226,14 @@ PrefabInstance:
     - target: {fileID: 6166015491020962495, guid: e2398dcf759e75743b0e55cc17de6acc, type: 3}
       propertyPath: m_Name
       value: HealthBar
+      objectReference: {fileID: 0}
+    - target: {fileID: 6166015491020962495, guid: e2398dcf759e75743b0e55cc17de6acc, type: 3}
+      propertyPath: m_Layer
+      value: 9
+      objectReference: {fileID: 0}
+    - target: {fileID: 6661104122013529985, guid: e2398dcf759e75743b0e55cc17de6acc, type: 3}
+      propertyPath: m_Layer
+      value: 9
       objectReference: {fileID: 0}
     - target: {fileID: 7687801562270615777, guid: e2398dcf759e75743b0e55cc17de6acc, type: 3}
       propertyPath: m_Value

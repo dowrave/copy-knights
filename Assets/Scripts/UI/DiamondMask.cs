@@ -1,7 +1,7 @@
 using UnityEngine;
 using UnityEngine.UI;
 
-public class DiamondImage : Image
+public class DiamondMask : Image
 {
     protected override void OnPopulateMesh(VertexHelper vh)
     {

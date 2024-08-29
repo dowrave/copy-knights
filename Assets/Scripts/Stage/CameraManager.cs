@@ -11,7 +11,7 @@ public class CameraManager : MonoBehaviour
     [SerializeField] private float cameraShiftAmount = -0.1f;
     [SerializeField] private float cameraHeightAmount = 1f;
 
-    private Camera mainCamera;
+    public Camera MainCamera { get; private set; }
     private Vector3 originalPosition;
     private Quaternion originalRotation;
     private float originalSize;
@@ -28,16 +28,14 @@ public class CameraManager : MonoBehaviour
         {
             Destroy(gameObject);
         }
-    
-        if (mainCamera == null)
-        {
-            mainCamera = Camera.main;
-        }
 
-
-
-        //SaveOriginalCameraSettings();
+        InitializeCameras();
     }
+    private void InitializeCameras()
+    {
+        MainCamera = GameObject.Find("Main Camera")?.GetComponent<Camera>();
+    }
+
 
     public void SetupForMap(Map map)
     {
@@ -52,21 +50,21 @@ public class CameraManager : MonoBehaviour
 
     private void SetCameraPosition(Vector3 position, Vector3 rotation)
     {
-        mainCamera.transform.position = position;
-        mainCamera.transform.rotation = Quaternion.Euler(rotation);
+        MainCamera.transform.position = position;
+        MainCamera.transform.rotation = Quaternion.Euler(rotation);
     }
 
     public void FocusOnPosition(Vector3 targetPosition)
     {
-        Vector3 offset = targetPosition - mainCamera.transform.position;
-        mainCamera.transform.position += new Vector3(offset.x, 0, offset.z);
+        Vector3 offset = targetPosition - MainCamera.transform.position;
+        MainCamera.transform.position += new Vector3(offset.x, 0, offset.z);
     }
 
     private void SaveOriginalCameraSettings()
     {
-        originalPosition = mainCamera.transform.position;
-        originalRotation = mainCamera.transform.rotation;
-        originalSize = mainCamera.orthographicSize;
+        originalPosition = MainCamera.transform.position;
+        originalRotation = MainCamera.transform.rotation;
+        originalSize = MainCamera.orthographicSize;
     }
 
     // UI를 클릭하거나 배치된 오퍼레이터 클릭 시 카메라 이동 / 회전 변경
@@ -106,17 +104,17 @@ public class CameraManager : MonoBehaviour
 
             }
 
-            StartCoroutine(LerpPosition(mainCamera.transform, newPosition, animationDuration));
+            StartCoroutine(LerpPosition(MainCamera.transform, newPosition, animationDuration));
 
             // 카메라 회전
             Quaternion newRotation = Quaternion.Euler(originalRotation.eulerAngles + operatorInfoRotation);
-            StartCoroutine(LerpRotation(mainCamera.transform, newRotation, animationDuration));
+            StartCoroutine(LerpRotation(MainCamera.transform, newRotation, animationDuration));
         }
         else
         {
             // 원위치와 크기로 복귀
-            StartCoroutine(LerpPosition(mainCamera.transform, originalPosition, animationDuration));
-            StartCoroutine(LerpRotation(mainCamera.transform, originalRotation, animationDuration));
+            StartCoroutine(LerpPosition(MainCamera.transform, originalPosition, animationDuration));
+            StartCoroutine(LerpRotation(MainCamera.transform, originalRotation, animationDuration));
 
         }
     }

@@ -67,9 +67,9 @@
     <Compile Include="Assets\Scripts\Stage\PathData.cs" />
     <Compile Include="Assets\Scripts\Unit\Enemy.cs" />
     <Compile Include="Assets\Scripts\UI\EnemyUI.cs" />
-    <Compile Include="Assets\Scripts\UI\DiamondImage.cs" />
     <Compile Include="Assets\Scripts\Stage\Tile.cs" />
     <Compile Include="Assets\Scripts\Stage\SpawnerManager.cs" />
+    <Compile Include="Assets\Scripts\UI\DiamondMask.cs" />
     <Compile Include="Assets\Scripts\Stage\StageData.cs" />
     <Compile Include="Assets\Scripts\Stage\StageManager.cs" />
     <Compile Include="Assets\Scripts\UI\BottomPanelOperatorBox.cs" />

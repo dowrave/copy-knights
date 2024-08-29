@@ -31,7 +31,7 @@ public class OperatorActionUI : MonoBehaviour
 
         gameObject.SetActive(true);
     }
-  
+
     private void SetUpButtons()
     {
         // 버튼 위치는 인스펙터에서 설정
@@ -39,12 +39,12 @@ public class OperatorActionUI : MonoBehaviour
         skillButton.onClick.AddListener(OnSkillButtonClicked);
         retreatButton.onClick.AddListener(OnRetreatButtonClicked);
     }
-    
+
     private void UpdateSkillIcon()
     {
         // 스킬 아이콘 업데이트 로직
     }
-    
+
 
     private void OnSkillButtonClicked()
     {

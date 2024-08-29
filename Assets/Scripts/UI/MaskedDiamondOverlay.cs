@@ -6,7 +6,7 @@ using UnityEngine.UI;
 public class MaskedDiamondOverlay : MonoBehaviour
 {
     [SerializeField] private Image darkPanel;
-    [SerializeField] private DiamondImage diamondMask;
+    [SerializeField] private DiamondMask diamondMask;
     private Canvas canvas;
 
     private void Awake()
@@ -25,7 +25,7 @@ public class MaskedDiamondOverlay : MonoBehaviour
         }
         if (diamondMask == null)
         {
-            diamondMask = transform.Find("DiamondMask").GetComponent<DiamondImage>();
+            diamondMask = transform.Find("DiamondMask").GetComponent<DiamondMask>();
         }
         
     }

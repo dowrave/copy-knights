@@ -9,20 +9,19 @@ public class OperatorUI : MonoBehaviour
     [SerializeField] private HealthBar spBar;
     private float backOffset = 0; // UI의 높이 오프셋
     private Camera mainCamera;
-    private Canvas canvas; 
+    private Canvas canvas;
     private Operator op;
 
     private void Awake()
     {
         canvas = GetComponent<Canvas>();
         canvas.renderMode = RenderMode.WorldSpace;
-        canvas.worldCamera = Camera.main;
+        mainCamera = Camera.main;
+        canvas.worldCamera = mainCamera;
 
         healthBar = transform.Find("HealthBar").GetComponent<HealthBar>();
         spBar = transform.Find("SPBar").GetComponent<HealthBar>();
-        mainCamera = Camera.main;
 
-        //gameObject.SetActive(false);
         if (mainCamera != null)
         {
             transform.LookAt(transform.position + mainCamera.transform.rotation * Vector3.forward, mainCamera.transform.rotation * Vector3.up);
