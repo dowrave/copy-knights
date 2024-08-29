@@ -77,9 +77,31 @@ public class ClickDetectionSystem : MonoBehaviour
 
     private void HandleUIClick(List<RaycastResult> uiResults)
     {
-        Debug.LogWarning("HandleUIClick");
         foreach (var result in uiResults)
         {
+            Debug.Log($"Raycast hit: {result.gameObject.name}");
+
+            DiamondMask diamondMask = result.gameObject.GetComponent<DiamondMask>();
+            if (diamondMask != null)
+            {
+                if (diamondMask.IsPointInsideDiamond(Input.mousePosition))
+                {
+                    Debug.LogWarning("HandleUIClick : 다이아몬드 내부 ");
+
+                    // 마름모 내부 클릭 처리
+                    HandleDiamondInteriorClick(result);
+                    return;
+                }
+                else
+                {
+                    Debug.LogWarning("HandleUIClick : 다이아몬드 외부");
+
+                    // 마름모 외부 클릭 처리
+                    OperatorManager.Instance.CancelCurrentAction();
+                    return;
+                }
+            }
+
             Button button = result.gameObject.GetComponent<Button>();
             if (button != null)
             {
@@ -90,6 +112,12 @@ public class ClickDetectionSystem : MonoBehaviour
 
         // 클릭될 요소가 없으면 현재 진행중인 동작을 멈추게 함
         //OperatorManager.Instance.CancelCurrentAction();
+    }
+
+    private void HandleDiamondInteriorClick(RaycastResult result)
+    {
+        // 마름모 내부 클릭 시 내부 동작 유지 - ActionUI나 DeployingUI 상태 유지
+
     }
 
     private void HandleObjectClick(RaycastHit hit)
