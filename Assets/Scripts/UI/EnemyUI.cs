@@ -15,11 +15,12 @@ public class EnemyUI : MonoBehaviour
     {
         canvas = GetComponent<Canvas>();
         canvas.renderMode = RenderMode.WorldSpace;
-        canvas.worldCamera = Camera.main;
+        mainCamera = Camera.main;
+        canvas.worldCamera = mainCamera;
 
         healthBar = GetComponentInChildren<HealthBar>();
 
-        mainCamera = Camera.main;
+        
         if (mainCamera != null)
         {
             transform.LookAt(transform.position + mainCamera.transform.rotation * Vector3.forward, mainCamera.transform.rotation * Vector3.up);

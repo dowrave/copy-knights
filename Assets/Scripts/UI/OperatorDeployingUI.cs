@@ -7,7 +7,7 @@ public class OperatorDeployingUI : MonoBehaviour
 {
     [SerializeField] private MaskedDiamondOverlay maskedOverlay;
     [SerializeField] private Button cancelButton;
-    
+
     private float darkPanelAlpha = 0.3f;
 
     private RectTransform diamondRect;
@@ -15,15 +15,11 @@ public class OperatorDeployingUI : MonoBehaviour
 
     private Camera mainCamera;
 
-    private void Awake()
+    public void Initialize(OperatorData operatorData)
     {
         mainCamera = Camera.main;
         cancelButtonRect = cancelButton.GetComponent<RectTransform>();
 
-    }
-
-    public void Initialize(OperatorData operatorData)
-    {
         SetupDiamondImage();
         SetupCancelButton();
 

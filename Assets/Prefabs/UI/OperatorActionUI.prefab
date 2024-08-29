@@ -13,7 +13,7 @@ GameObject:
   - component: {fileID: 2787194741148706124}
   - component: {fileID: 2089734412468545894}
   - component: {fileID: 4190076304525059564}
-  m_Layer: 5
+  m_Layer: 9
   m_Name: Text (TMP)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -211,7 +211,7 @@ GameObject:
   - component: {fileID: 1774006476014710970}
   - component: {fileID: 4783793182994173206}
   - component: {fileID: 825326290357393559}
-  m_Layer: 5
+  m_Layer: 9
   m_Name: Text (Legacy)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -291,7 +291,7 @@ GameObject:
   - component: {fileID: 6568605108388292818}
   - component: {fileID: 4698854846159398938}
   - component: {fileID: 6753696402529815045}
-  m_Layer: 5
+  m_Layer: 9
   m_Name: SkillButton
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -316,7 +316,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 0.7, y: -0.7}
+  m_AnchoredPosition: {x: 0.7000122, y: -0.69999695}
   m_SizeDelta: {x: 0.7, y: 0.7}
   m_Pivot: {x: 0, y: 1}
 --- !u!222 &6568605108388292818
@@ -413,7 +413,7 @@ GameObject:
   - component: {fileID: 7087851044889347901}
   - component: {fileID: 4724351741993993069}
   - component: {fileID: 7317380443761153565}
-  m_Layer: 5
+  m_Layer: 9
   m_Name: RetreatButton
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -437,7 +437,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 1, y: 0}
   m_AnchorMax: {x: 1, y: 0}
-  m_AnchoredPosition: {x: -0.7, y: 0.7}
+  m_AnchoredPosition: {x: -0.7000122, y: 0.69999695}
   m_SizeDelta: {x: 0.7, y: 0.7}
   m_Pivot: {x: 1, y: 0}
 --- !u!222 &7087851044889347901
@@ -533,7 +533,7 @@ GameObject:
   - component: {fileID: 6869217605480533517}
   - component: {fileID: 4273130595696103314}
   - component: {fileID: 9119805193497301496}
-  m_Layer: 5
+  m_Layer: 9
   m_Name: Text (TMP)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -668,7 +668,7 @@ GameObject:
   - component: {fileID: 2124327702954096624}
   - component: {fileID: 5904677274619804686}
   - component: {fileID: 4958454024229723616}
-  m_Layer: 5
+  m_Layer: 9
   m_Name: OperatorActionUI
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -684,7 +684,7 @@ RectTransform:
   m_GameObject: {fileID: 7437474572598913671}
   m_LocalRotation: {x: 0.5735764, y: 0, z: 0, w: 0.8191521}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalScale: {x: 0, y: 0, z: 0}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 6312847183324365665}
@@ -733,7 +733,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   maskedOverlay: {fileID: 5972467177310217079, guid: df4c36e2e7ab0864db2a14e0a62b1297, type: 3}
-  lineWidth: 0.02
   skillButton: {fileID: 6753696402529815045}
   retreatButton: {fileID: 7317380443761153565}
 --- !u!114 &4958454024229723616
@@ -761,9 +760,17 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 3513109163501632903}
     m_Modifications:
+    - target: {fileID: 918489712230484710, guid: df4c36e2e7ab0864db2a14e0a62b1297, type: 3}
+      propertyPath: m_Layer
+      value: 9
+      objectReference: {fileID: 0}
     - target: {fileID: 930639060121603927, guid: df4c36e2e7ab0864db2a14e0a62b1297, type: 3}
       propertyPath: m_Name
       value: MaskedDiamondOverlay
+      objectReference: {fileID: 0}
+    - target: {fileID: 930639060121603927, guid: df4c36e2e7ab0864db2a14e0a62b1297, type: 3}
+      propertyPath: m_Layer
+      value: 9
       objectReference: {fileID: 0}
     - target: {fileID: 1222033273095373022, guid: df4c36e2e7ab0864db2a14e0a62b1297, type: 3}
       propertyPath: m_Pivot.x
@@ -844,6 +851,26 @@ PrefabInstance:
     - target: {fileID: 1222033273095373022, guid: df4c36e2e7ab0864db2a14e0a62b1297, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2504126407262204999, guid: df4c36e2e7ab0864db2a14e0a62b1297, type: 3}
+      propertyPath: m_SizeDelta.x
+      value: 20
+      objectReference: {fileID: 0}
+    - target: {fileID: 2504126407262204999, guid: df4c36e2e7ab0864db2a14e0a62b1297, type: 3}
+      propertyPath: m_SizeDelta.y
+      value: 20
+      objectReference: {fileID: 0}
+    - target: {fileID: 2504126407262204999, guid: df4c36e2e7ab0864db2a14e0a62b1297, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: -3
+      objectReference: {fileID: 0}
+    - target: {fileID: 5035075636663946949, guid: df4c36e2e7ab0864db2a14e0a62b1297, type: 3}
+      propertyPath: m_Layer
+      value: 9
+      objectReference: {fileID: 0}
+    - target: {fileID: 5186649357531061133, guid: df4c36e2e7ab0864db2a14e0a62b1297, type: 3}
+      propertyPath: m_Layer
+      value: 9
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
