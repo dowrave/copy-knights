@@ -24,7 +24,8 @@ public class OperatorActionUI : MonoBehaviour
         // UI가 보는 방향 설정
         if (mainCamera != null)
         {
-            transform.LookAt(transform.position + mainCamera.transform.rotation * Vector3.forward, mainCamera.transform.rotation * Vector3.up);
+            //transform.LookAt(transform.position + mainCamera.transform.rotation * Vector3.forward, mainCamera.transform.rotation * Vector3.up);
+            transform.rotation = Quaternion.Euler(90, 0, 0);
         }
 
         maskedOverlay.Initialize(darkPanelAlpha); // 알파 0으로 조정

@@ -7,7 +7,15 @@ using System.Runtime.CompilerServices;
 
 public class OperatorManager : MonoBehaviour
 {
-    
+    private enum UIState
+    {
+        None,
+        OperatorAction,
+        OperatorDeploying
+    }
+
+    private UIState currentUIState = UIState.None;
+
     public static OperatorManager Instance { get; private set; }
     // UI 관련 변수
     public GameObject bottomPanelOperatorBoxPrefab; // 개별 오퍼레이터 아이콘, 배치 코스트 등을 감쌀 오퍼레이터 프리팹
@@ -37,7 +45,7 @@ public class OperatorManager : MonoBehaviour
     private List<Tile> highlightedTiles = new List<Tile>();
     private Tile currentHoverTile;
 
-    private float minDirectionDistance = 85f; // 직접 테스트해서 얻은 값
+    private float minDirectionDistance;
     private const float INDICATOR_SIZE = 2.5f;
 
     [SerializeField] private LayerMask tileLayerMask;
@@ -229,6 +237,8 @@ public class OperatorManager : MonoBehaviour
         HideAllUIs();
         currentActionUI = Instantiate(actionUIPrefab, op.transform.position, Quaternion.identity);
         currentActionUI.Initialize(op);
+        currentUIState = UIState.OperatorAction;
+
         //UIManager.Instance.ShowOperatorActionUI();
     }
 
@@ -237,8 +247,14 @@ public class OperatorManager : MonoBehaviour
         HideAllUIs();
         currentDeployingUI = Instantiate(deployingUIPrefab, position, Quaternion.identity);
         currentDeployingUI.Initialize(currentOperatorData);
+        currentUIState = UIState.OperatorDeploying;
+
     }
 
+    /// <summary>
+    /// 오퍼레이터 주위에 나타난 ActionUI, DeployingUI 제거
+    /// OperatorInfoPanel을 숨기는 건 별개의 메서드
+    /// </summary>
     private void HideAllUIs()
     {
         if (currentActionUI != null)
@@ -252,6 +268,8 @@ public class OperatorManager : MonoBehaviour
             Destroy(currentDeployingUI.gameObject);
             currentDeployingUI = null;
         }
+
+        currentUIState = UIState.None;
     }
 
     // 방향 설정
@@ -287,9 +305,10 @@ public class OperatorManager : MonoBehaviour
                 if (dragDistance > minDirectionDistance)
                 {
                     DeployOperator(currentHoverTile);
-                    EndDirectionSelection();
-                    HideOperatorInfoPanel();
+                    isSelectingDirection = false;
                     isMousePressed = false;
+                    ResetPlacement();
+                    
                 }
                 // 바운더리 이내라면 다시 방향 설정(클릭 X) 상태
                 else
@@ -303,32 +322,9 @@ public class OperatorManager : MonoBehaviour
 
     private void EndDirectionSelection()
     {
-        isSelectingDirection = false;
-        //Destroy(dragIndicator);
-        ResetPlacement();
+
+
     }
-
-    // 전체 배치 과정의 시작 : BottomPanelOperatorBox 클릭 시 호출됨 
-    //public void StartOperatorPlacement(OperatorData operatorData)
-    //{
-    //    // 전역 배치 코스트가 오퍼레이터의 배치 코스트보다 높을 때에만 배치 가능
-    //    if (StageManager.Instance.CurrentDeploymentCost >= operatorData.deploymentCost)
-    //    {
-    //        operatorIndex = availableOperators.IndexOf(operatorData);
-    //        if (operatorIndex != -1)
-    //        {
-    //            currentOperatorPrefab = operatorData.prefab;
-    //            currentOperatorData = availableOperators[operatorIndex];
-    //            isOperatorSelecting = true;
-    //        }
-    //        else
-    //        {
-    //            Debug.LogError("오퍼레이터 데이터가 availableOperators List에 없음");
-    //        }
-
-    //    }
-    //}
-
 
     // 배치 중일 때 오퍼레이터 미리 보기 표현
     private void UpdatePreviewOperator()
@@ -348,13 +344,6 @@ public class OperatorManager : MonoBehaviour
         }
 
         currentOperator.gameObject.SetActive(true);
-        //if (previewOperator == null)
-        //{
-        //    previewOperator = Instantiate(currentOperatorPrefab, cursorWorldPosition, Quaternion.identity);
-        //    Operator previewOp = previewOperator.GetComponent<Operator>();
-        //    previewOp.IsPreviewMode = true;
-        //    SetPreviewTransparency(0.5f);
-        //}
 
         Tile hoveredTile = GetHoveredTile();
 
@@ -382,27 +371,6 @@ public class OperatorManager : MonoBehaviour
 
         return null; 
     }
-
-
-
-    //private void HighlightAttackRange(Tile tile, Vector3 direction)
-    //{
-    //    Operator op = currentOperatorPrefab.GetComponent<Operator>();
-    //    Vector2Int[] attackRange = op.data.attackableTiles;
-
-    //    foreach (Vector2Int offset in attackRange)
-    //    {
-    //        Vector2Int rotatedOffset = op.RotateOffset(offset, direction);
-    //        Vector2Int targetPos = new Vector2Int(tile.GridPosition.x + rotatedOffset.x,
-    //                                              tile.GridPosition.y + rotatedOffset.y);
-    //        Tile targetTile = MapManager.Instance.GetTile(targetPos.x, targetPos.y);
-    //        if (targetTile != null)
-    //        {
-    //            targetTile.Highlight(attackRangeTileColor);
-    //            highlightedTiles.Add(targetTile);
-    //        }
-    //    }
-    //}
 
     public void HighlightTiles(List<Tile> tiles, Color color)
     {
@@ -474,12 +442,12 @@ public class OperatorManager : MonoBehaviour
             }
             currentOperator = null;
         }
-
         operatorIndex = -1;
 
+        HideOperatorInfoPanel();
         RestoreNormalTime();
         ResetHighlights();
-        CancelCurrentAction();
+
         HideAllUIs();
 
     }
@@ -573,17 +541,27 @@ public class OperatorManager : MonoBehaviour
         UIManager.Instance.HideOperatorInfo();
     }
 
+    /// <summary>
+    /// 배치 중이거나, 배치된 오퍼레이터를 클릭한 상태를 취소하는 동작
+    /// </summary>
     public void CancelCurrentAction()
     {
-        if (isOperatorSelecting || isDraggingOperator || isSelectingDirection)
-        {
-            ResetPlacement();
-            HideOperatorInfoPanel();
-        }
-        else if (currentActionUI != null) 
+        Debug.Log("CancelCurrentAction 동작");
+        if (currentUIState != UIState.None)
         {
             HideAllUIs();
+            ResetPlacement();
+            ResetHighlights();
         }
-        ResetHighlights();
+    }
+
+    /// <summary>
+    /// 오퍼레이터 위치 설정 후, 
+    /// 마우스 버튼다운한 다음 배치를 위한 최소 드래그 길이(마우스 버튼업을 했을 때 배치되기 위한 최소 거리) 설정
+    /// minDirectionDistance 값은 "스크린 상"에서의 길이가 된다.
+    /// </summary>
+    public void SetMinDirectionDistance(float screenDiamondRadius)
+    {
+        minDirectionDistance = screenDiamondRadius / 2; 
     }
 }
