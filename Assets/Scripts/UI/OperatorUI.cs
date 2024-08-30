@@ -7,6 +7,7 @@ public class OperatorUI : MonoBehaviour
 {
     [SerializeField] private HealthBar healthBar;
     [SerializeField] private HealthBar spBar;
+
     private float backOffset = 0; // UI의 높이 오프셋
     private Camera mainCamera;
     private Canvas canvas;
@@ -31,6 +32,8 @@ public class OperatorUI : MonoBehaviour
     public void Initialize(Operator op)
     {
         this.op = op;
+        op.OnHealthChanged += UpdateHealthBar;
+
         UpdateUI();
         UpdatePosition();
 
@@ -44,7 +47,7 @@ public class OperatorUI : MonoBehaviour
         if (op != null)
         {
             UpdatePosition();
-            UpdateUI();
+            //UpdateUI();
         }
         else
         {
