@@ -44,21 +44,14 @@ public class UIManager : MonoBehaviour
         {
             operatorInfoPanel = transform.Find("OperatorInfoPanel").gameObject;
         }
-        //if (overlayPanel == null)
-        //{
-        //    overlayPanel = transform.Find("OverlayPanel").gameObject;
-        //}
 
         // 비활성화 전에 참조를 넣어두는 게 좋다
         operatorInfoPanelScript = operatorInfoPanel.GetComponent<OperatorInfoPanel>();
-        //overlayPanelScript = overlayPanel.GetComponent<OverlayPanel>();
-
 
         // 패널 비활성화
         gameOverPanel.SetActive(false);
         gameWinPanel.SetActive(false);
         operatorInfoPanel.SetActive(false);
-        //overlayPanel.SetActive(false);
 
     }
 
@@ -71,23 +64,14 @@ public class UIManager : MonoBehaviour
         gameWinPanel.SetActive(true);
     }
 
-    public void ShowOperatorInfo(OperatorData operatorData, Vector3? operatorPosition = null)
+    public void ShowOperatorInfo(OperatorData operatorData, Operator op = null)
     {
-        Debug.LogWarning($"OperatorInfoPanel : {operatorInfoPanel} / OperatorInfoPanelScript : {operatorInfoPanelScript}");
         if (operatorInfoPanelScript != null)
         {
             operatorInfoPanel.SetActive(true);
-            operatorInfoPanelScript.UpdateInfo(operatorData);
-            if (operatorPosition != null)
-            {
-                CameraManager.Instance.AdjustForOperatorInfo(true, operatorPosition);
-            }
-            else
-            {
-                CameraManager.Instance.AdjustForOperatorInfo(true);
-            }
 
-            //ActivateOverlay(() => HideOperatorInfo());
+            operatorInfoPanelScript.UpdateInfo(operatorData, op);
+            CameraManager.Instance.AdjustForOperatorInfo(true, op);
         }
     }
 
@@ -97,26 +81,7 @@ public class UIManager : MonoBehaviour
         {
             operatorInfoPanel.SetActive(false);
             CameraManager.Instance.AdjustForOperatorInfo(false);
-            //DeactivateOverlay();
         }
     }
-
-    //public void ActivateOverlay(System.Action onCancelAction)
-    //{
-    //    overlayPanel.SetActive(true);
-    //    overlayPanelScript.Activate(onCancelAction);
-    //}
-
-    //public void DeactivateOverlay()
-    //{
-    //    overlayPanelScript.Deactivate();
-    //    overlayPanel.SetActive(false);
-    //}
-
-    //public void ShowOperatorActionUI()
-    //{
-    //    ActivateOverlay(() => OperatorManager.Instance.CancelCurrentAction());
-    //}
-
 
 }

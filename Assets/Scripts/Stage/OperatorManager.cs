@@ -488,6 +488,7 @@ public class OperatorManager : MonoBehaviour
     {
         deployedOperators.Remove(operatorData);
         HideOperatorInfoPanel();
+        HideAllUIs();
         ResetHighlights();
 
         if (operatorUIBoxes.TryGetValue(operatorData, out BottomPanelOperatorBox box))

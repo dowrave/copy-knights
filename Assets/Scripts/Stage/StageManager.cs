@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.UI;
 //using System.Collections.Generic; // IEnumerator<T> - 제네릭 버전
 using System.Collections; // IEnumerator - 코루틴에서 주로 사용하는 버전
 using TMPro;
@@ -36,6 +37,19 @@ public class StageManager : MonoBehaviour
     private int maxLifePoints = 3;
     private int currentLifePoints;
     private int passedEnemies;
+
+    // 게임 속도 변수
+    [SerializeField] private Button currentSpeedButton;
+    [SerializeField] private Button pauseButton;
+    [SerializeField] private Image pauseOverlay;
+    [SerializeField] private TextMeshProUGUI currentSpeedText;
+    [SerializeField] private TextMeshProUGUI currentSpeedIcon;
+    [SerializeField] private TextMeshProUGUI pauseButtonText;
+
+    private bool isSpeedUp = false;
+    private const float SPEED_UP_SCALE = 2f;
+    private float originalTimeScale = 1f;
+
 
     public int CurrentDeploymentCost
     {
@@ -75,6 +89,10 @@ public class StageManager : MonoBehaviour
 
         Debug.Log("스테이지 시작");
         StartBattle(); // 게임 시작
+
+        currentSpeedButton.onClick.AddListener(ToggleSpeedUp);
+        pauseButton.onClick.AddListener(TogglePause);
+
     }
 
     private void InitializeStage()
@@ -122,24 +140,31 @@ public class StageManager : MonoBehaviour
         SpawnerManager.Instance.StartSpawning();
     }
 
-    private void SetGameState(GameState gameState)
+    public void SetGameState(GameState gameState)
     {
-        currentState = gameState; 
+        currentState = gameState;
 
         switch (gameState)
         {
             case GameState.Battle:
-                Time.timeScale = 1f;
+                Time.timeScale = isSpeedUp ? SPEED_UP_SCALE : originalTimeScale;
+                pauseOverlay.gameObject.SetActive(false);
                 break;
-
-            // switch문 한꺼번에 처리하기
             case GameState.Paused:
+                Time.timeScale = 0f;
+                pauseOverlay.gameObject.SetActive(true);
+                break;
             case GameState.GameOver:
             case GameState.GameWin:
                 Time.timeScale = 0f;
+                pauseOverlay.gameObject.SetActive(false);
                 break;
         }
+
+        UpdatePauseButtonVisual();
+        // 다른 필요한 상태 관련 로직...
     }
+
 
     public static GameObject FindStageObject()
     {
@@ -242,6 +267,52 @@ public class StageManager : MonoBehaviour
     {
         Time.timeScale = 1; // 게임 속도 복구
         SceneManager.LoadScene("MainMenu");
+    }
+
+    public void ToggleSpeedUp()
+    {
+        if (currentState != GameState.Battle) return;
+
+        isSpeedUp = !isSpeedUp;
+        UpdateTimeScale();
+        UpdateSpeedUpButtonVisual();
+    }
+
+    private void UpdateTimeScale()
+    {
+        if (currentState != GameState.Paused)
+        {
+            Time.timeScale = isSpeedUp ? SPEED_UP_SCALE : originalTimeScale;
+        }
+    }
+
+    private void UpdateSpeedUpButtonVisual()
+    {
+        currentSpeedText.text = isSpeedUp ? "2X" : "1X";
+        currentSpeedIcon.text = isSpeedUp ? "▶▶" : "▶";
+    }
+
+    private void UpdatePauseButtonVisual()
+    {
+        pauseButtonText.text = (currentState == GameState.Paused) ? "▶" : "||";
+    }
+
+    public void TogglePause()
+    {
+        Debug.Log("TogglePause");
+
+        if (currentState == GameState.GameOver || currentState == GameState.GameWin) return;
+
+        if (currentState == GameState.Paused)
+        {
+            SetGameState(GameState.Battle);
+        }
+        else
+        {
+            SetGameState(GameState.Paused);
+        }
+
+        UpdatePauseButtonVisual();
     }
 }
 

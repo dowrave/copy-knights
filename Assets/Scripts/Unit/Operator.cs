@@ -58,6 +58,8 @@ public class Operator : Unit, IClickable
 
     private SpriteRenderer directionIndicator;
 
+    public event System.Action<float, float> OnHealthChanged; // 체력 변화 이벤트
+
     // 필드 끝 --------------------------------------------------------
 
     private void Awake()
@@ -349,8 +351,7 @@ public class Operator : Unit, IClickable
     public override void TakeDamage(float damage)
     {
         base.TakeDamage(damage);
-        //operatorUI.UpdateOperatorUI(this);
-        operatorUI.UpdateUI();
+        OnHealthChanged?.Invoke(currentHealth, MaxHealth);
     }
 
     protected override void Die()
@@ -430,7 +431,7 @@ public class Operator : Unit, IClickable
             // 미리보기 상태에선 동작하면 안됨
             if (IsPreviewMode == false)
             {
-                UIManager.Instance.ShowOperatorInfo(data, transform.position);
+                UIManager.Instance.ShowOperatorInfo(data, this);
             }
 
             HighlightAttackRange();
