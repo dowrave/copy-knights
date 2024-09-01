@@ -123,7 +123,7 @@ public class Operator : Unit, IClickable
         {
             attackCooldown -= Time.deltaTime;
 
-
+            ValidateCurrentTarget();
 
             // 공격 대상
             if (currentTarget == null)
@@ -138,8 +138,6 @@ public class Operator : Unit, IClickable
 
             RecoverSP();
         }
-
-
     }
 
     // 적에게 공격 중인 오퍼레이터를 알림
@@ -504,5 +502,39 @@ public class Operator : Unit, IClickable
         }
 
         OperatorManager.Instance.HighlightTiles(tilesToHighlight, OperatorManager.Instance.attackRangeTileColor);
+    }
+
+    /// <summary>
+    /// 현재 타겟의 유효성 검사
+    /// </summary>
+    private void ValidateCurrentTarget()
+    {
+        if(currentTarget != null)
+        {
+            if (!IsEnemyInRange(currentTarget))
+            {
+                currentTarget.RemoveAttackingOperator(this);
+                currentTarget = null;
+            }
+        }
+    }
+
+    private bool IsEnemyInRange(Enemy enemy)
+    {
+        Vector2Int enemyGridPos = currentMap.WorldToGridPosition(enemy.transform.position);
+        Vector2Int operatorGridPos = currentMap.WorldToGridPosition(transform.position); 
+
+        foreach (Vector2Int offset in data.attackableTiles)
+        {
+            Vector2Int rotatedOffset = RotateOffset(offset, facingDirection);
+            Vector2Int targetGridPos = operatorGridPos + rotatedOffset;
+
+            if (targetGridPos == enemyGridPos)
+            {
+                return true;
+            }
+        }
+
+        return false; 
     }
 }
