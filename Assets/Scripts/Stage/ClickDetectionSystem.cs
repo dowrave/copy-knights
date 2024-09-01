@@ -11,6 +11,9 @@ public class ClickDetectionSystem : MonoBehaviour
     private Camera mainCamera;
     [SerializeField] private LayerMask clickableLayerMask;  // Inspector에서 설정
 
+    private bool isDraggingDiamond = false;
+    private DiamondMask currentDiamondMask; 
+
     private void Awake()
 
     {
@@ -34,7 +37,42 @@ public class ClickDetectionSystem : MonoBehaviour
     {
         if (Input.GetMouseButtonDown(0))
         {
+            HandleMouseDown();
+        }
+        if (Input.GetMouseButtonUp(0))
+        {
             HandleClick();
+        }
+    }
+
+
+    private void HandleMouseDown()
+    {
+        PointerEventData pointerData = new PointerEventData(EventSystem.current);
+        List<RaycastResult> results = PerformScreenRaycast();
+        foreach (var result in results)
+        {
+            Debug.Log($"MouseButtonDown Raycast hit: {result.gameObject.name}");
+            DiamondMask diamondMask = result.gameObject.GetComponent<DiamondMask>();
+
+            // ButtonDown 동작 1. 다이아몬드 내부 클릭 시 방향 설정
+            if (diamondMask != null)
+            {
+                if (diamondMask.IsPointInsideDiamond(Input.mousePosition))
+                {
+                    Debug.LogWarning("HandleUIClick : 다이아몬드 내부 ");
+                    OperatorManager.Instance.IsMousePressed = true;
+                    return;
+                }
+            }
+
+            // ButtonDown 동작 2. 오퍼레이터 박스 드래그 동작 시작
+            BottomPanelOperatorBox operatorBox = result.gameObject.GetComponent<BottomPanelOperatorBox>();
+            if (operatorBox != null)
+            {
+                operatorBox.OnPointerDown(pointerData);
+                return;
+            }
         }
     }
 
@@ -45,24 +83,17 @@ public class ClickDetectionSystem : MonoBehaviour
     /// </summary>
     private void HandleClick()
     {
-        // 1. UI 요소를 클릭했는지 점검
-        PointerEventData pointerData = new PointerEventData(EventSystem.current);
-        pointerData.position = Input.mousePosition;
-        List<RaycastResult> allResults = new List<RaycastResult>();
-        EventSystem.current.RaycastAll(pointerData, allResults);
+        List<RaycastResult> results = PerformScreenRaycast();
+        List<RaycastResult> uiResults = results.Where(r => r.module is GraphicRaycaster).ToList();
 
-        // UI 요소만 필터링(GraphicRaycaster를 갖고 있는 것들만)
-        List<RaycastResult> uiResults = allResults.Where(r => r.module is GraphicRaycaster).ToList();
-
-        // 2. UI 요소가 클릭되었다면 해당 UI 요소 실행
-        // 일단 버튼에 대해서만 구현
+        // UI 요소가 클릭되었다면 해당 UI 요소 실행
         if (uiResults.Count > 0)
         {            
             HandleUIClick(uiResults);
             return;
         }
 
-        // 3. UI 요소가 클릭되지 않은 상태에서 다른 Clickable 요소 처리
+        // UI 요소가 클릭되지 않은 상태에서 다른 Clickable 요소 처리
         Ray ray = mainCamera.ScreenPointToRay(Input.mousePosition);
         RaycastHit clickableHit;
         if (Physics.Raycast(ray, out clickableHit, Mathf.Infinity, clickableLayerMask))
@@ -81,20 +112,13 @@ public class ClickDetectionSystem : MonoBehaviour
         {
             Debug.Log($"Raycast hit: {result.gameObject.name}");
 
+            // 1. 다이아몬드 외부 클릭 시 상태 해제
             DiamondMask diamondMask = result.gameObject.GetComponent<DiamondMask>();
             if (diamondMask != null)
             {
-                if (diamondMask.IsPointInsideDiamond(Input.mousePosition))
+                if (!diamondMask.IsPointInsideDiamond(Input.mousePosition))
                 {
-                    Debug.LogWarning("HandleUIClick : 다이아몬드 내부 ");
-
-                    // 마름모 내부 클릭 처리
-                    HandleDiamondInteriorClick(result);
-                    return;
-                }
-                else
-                {
-                    Debug.LogWarning("HandleUIClick : 다이아몬드 외부");
+                    Debug.LogWarning("HandleUIClick : 다이아몬드 외부 클릭");
 
                     // 마름모 외부 클릭 처리
                     OperatorManager.Instance.CancelCurrentAction();
@@ -102,16 +126,10 @@ public class ClickDetectionSystem : MonoBehaviour
                 }
             }
 
-            Button button = result.gameObject.GetComponent<Button>();
-            if (button != null)
-            {
-                button.onClick.Invoke();
-                return;
-            }
+            // Button 관련 로직은 굳이 구현 안해도 되는 듯 - 이거 있으면 중복실행됨
+            // 1. 유니티의 UI 시스템은 OnClick을 등록하지 않더라도 자동으로 실행시킨다고 함
+            // 2. 여기서 구현한 MouseButtonUp이 true가 돼서 HandleClick이 동작함
         }
-
-        // 클릭될 요소가 없으면 현재 진행중인 동작을 멈추게 함
-        //OperatorManager.Instance.CancelCurrentAction();
     }
 
     private void HandleDiamondInteriorClick(RaycastResult result)
@@ -173,6 +191,19 @@ public class ClickDetectionSystem : MonoBehaviour
         {
             Debug.Log("Hit 오브젝트는 IClickable 인터페이스를 구현하지 않았습니다.");
         }
+    }
+
+    /// <summary>
+    /// 마우스 포인터 클릭 시 닿는 모든 레이캐스트 대상을 반환함
+    /// </summary>
+    private List<RaycastResult> PerformScreenRaycast()
+    {
+        // UI 요소를 클릭했는지 점검
+        PointerEventData pointerData = new PointerEventData(EventSystem.current);
+        pointerData.position = Input.mousePosition;
+        List<RaycastResult> results = new List<RaycastResult>();
+        EventSystem.current.RaycastAll(pointerData, results);
+        return results;
     }
 
 }

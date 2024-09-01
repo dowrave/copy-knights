@@ -2857,14 +2857,6 @@ MonoBehaviour:
   costIncreaseInterval: 1
   maxDeploymentCost: 99
   currentDeploymentCost: 10
-  enemyCountText: {fileID: 1062361921}
-  lifePointsText: {fileID: 26495816}
-  currentSpeedButton: {fileID: 762596702}
-  pauseButton: {fileID: 240538800}
-  pauseOverlay: {fileID: 1337645933}
-  currentSpeedText: {fileID: 353660275}
-  currentSpeedIcon: {fileID: 919264585}
-  pauseButtonText: {fileID: 705681839}
 --- !u!4 &572659672
 Transform:
   m_ObjectHideFlags: 0
@@ -7118,6 +7110,18 @@ PrefabInstance:
       propertyPath: m_RaycastTarget
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 2521894360333623329, guid: 56874572f3796c141b4e7ddb24c4ca8b, type: 3}
+      propertyPath: m_fontSize
+      value: 12
+      objectReference: {fileID: 0}
+    - target: {fileID: 2521894360333623329, guid: 56874572f3796c141b4e7ddb24c4ca8b, type: 3}
+      propertyPath: m_fontSizeBase
+      value: 12
+      objectReference: {fileID: 0}
+    - target: {fileID: 2521894360333623329, guid: 56874572f3796c141b4e7ddb24c4ca8b, type: 3}
+      propertyPath: m_enableAutoSizing
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 3487045235757686192, guid: 56874572f3796c141b4e7ddb24c4ca8b, type: 3}
       propertyPath: m_Pivot.x
       value: 0
@@ -7196,6 +7200,50 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3487045235757686192, guid: 56874572f3796c141b4e7ddb24c4ca8b, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4241776652105541253, guid: 56874572f3796c141b4e7ddb24c4ca8b, type: 3}
+      propertyPath: pauseButton
+      value: 
+      objectReference: {fileID: 240538800}
+    - target: {fileID: 4241776652105541253, guid: 56874572f3796c141b4e7ddb24c4ca8b, type: 3}
+      propertyPath: pauseOverlay
+      value: 
+      objectReference: {fileID: 1337645933}
+    - target: {fileID: 4241776652105541253, guid: 56874572f3796c141b4e7ddb24c4ca8b, type: 3}
+      propertyPath: enemyCountText
+      value: 
+      objectReference: {fileID: 1062361921}
+    - target: {fileID: 4241776652105541253, guid: 56874572f3796c141b4e7ddb24c4ca8b, type: 3}
+      propertyPath: lifePointsText
+      value: 
+      objectReference: {fileID: 26495816}
+    - target: {fileID: 4241776652105541253, guid: 56874572f3796c141b4e7ddb24c4ca8b, type: 3}
+      propertyPath: pauseButtonText
+      value: 
+      objectReference: {fileID: 705681839}
+    - target: {fileID: 4241776652105541253, guid: 56874572f3796c141b4e7ddb24c4ca8b, type: 3}
+      propertyPath: currentSpeedIcon
+      value: 
+      objectReference: {fileID: 919264585}
+    - target: {fileID: 4241776652105541253, guid: 56874572f3796c141b4e7ddb24c4ca8b, type: 3}
+      propertyPath: currentSpeedText
+      value: 
+      objectReference: {fileID: 353660275}
+    - target: {fileID: 4241776652105541253, guid: 56874572f3796c141b4e7ddb24c4ca8b, type: 3}
+      propertyPath: currentSpeedButton
+      value: 
+      objectReference: {fileID: 762596702}
+    - target: {fileID: 4736187632350189025, guid: 56874572f3796c141b4e7ddb24c4ca8b, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.size
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4736187632350189025, guid: 56874572f3796c141b4e7ddb24c4ca8b, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Mode
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4736187632350189025, guid: 56874572f3796c141b4e7ddb24c4ca8b, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_CallState
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 5427034701326282013, guid: 56874572f3796c141b4e7ddb24c4ca8b, type: 3}

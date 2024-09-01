@@ -1,6 +1,6 @@
-using System.Collections;
-using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class UIManager : MonoBehaviour
 {
@@ -15,11 +15,22 @@ public class UIManager : MonoBehaviour
     //[SerializeField] private GameObject overlayPanel;
 
     private OperatorInfoPanel operatorInfoPanelScript;
-    //private OverlayPanel overlayPanelScript;
+
+    // 상단 UI 요소
+    [SerializeField] private TextMeshProUGUI enemyCountText;
+    [SerializeField] private TextMeshProUGUI lifePointsText;
+
+    // 우상단 UI 요소
+    [SerializeField] private Button currentSpeedButton;
+    [SerializeField] private Button pauseButton;
+    [SerializeField] private Image pauseOverlay;
+    [SerializeField] private TextMeshProUGUI currentSpeedText;
+    [SerializeField] private TextMeshProUGUI currentSpeedIcon;
+    [SerializeField] private TextMeshProUGUI pauseButtonText;
 
 
     // Awake는 모든 오브젝트의 초기화 전에 실행되어서 다른 스크립트가 참조할 수 있도록 한다. 특히 UI는 Awake를 쓸 것.
-    void Awake()
+    private void Awake()
     {
         if (Instance == null)
         {
@@ -53,6 +64,31 @@ public class UIManager : MonoBehaviour
         gameWinPanel.SetActive(false);
         operatorInfoPanel.SetActive(false);
 
+        //InitializeListeners();
+
+    }
+
+    private void Start()
+    {
+        InitializeListeners();
+    }
+
+    private void InitializeListeners()
+    {
+        currentSpeedButton.onClick.RemoveAllListeners(); // 기존 리스너 제거
+        pauseButton.onClick.RemoveAllListeners(); // 기존 리스너 제거
+
+        currentSpeedButton.onClick.AddListener(StageManager.Instance.ToggleSpeedUp);
+        pauseButton.onClick.AddListener(StageManager.Instance.TogglePause);
+
+        StageManager.Instance.OnLifePointsChanged += UpdateLifePointsText;
+        StageManager.Instance.OnEnemyKilled += UpdateEnemyKillCountText;
+    }
+
+    public void InitializeUI()
+    {
+        UpdateEnemyKillCountText();
+        UpdateLifePointsText(StageManager.Instance.CurrentLifePoints);
     }
 
     public void ShowGameOverUI()
@@ -84,4 +120,36 @@ public class UIManager : MonoBehaviour
         }
     }
 
+    public void UpdateEnemyKillCountText()
+    {
+        enemyCountText.text = $"{StageManager.Instance.KilledEnemyCount} / {StageManager.Instance.TotalEnemyCount}";
+    }
+
+    public void UpdateLifePointsText(int currentLifePoints)
+    {
+        lifePointsText.text = $"{currentLifePoints}";
+    }
+
+    public void UpdateSpeedUpButtonVisual()
+    {
+        currentSpeedText.text = StageManager.Instance.IsSpeedUp ? "2X" : "1X";
+        currentSpeedIcon.text = StageManager.Instance.IsSpeedUp ? "▶▶" : "▶";
+    }
+
+    public void UpdatePauseButtonVisual()
+    {
+        pauseButtonText.text = (StageManager.Instance.currentState == GameState.Paused) ? "▶" : "||";
+    }
+
+    public void ShowPauseOverlay()
+    {
+        pauseOverlay.gameObject.SetActive(true);
+    }
+
+    public void HidePauseOverlay()
+    {
+        pauseOverlay.gameObject.SetActive(false);
+    }
+
+    
 }

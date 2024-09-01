@@ -42,6 +42,12 @@ public class OperatorManager : MonoBehaviour
     private int operatorIndex = -1; 
     private Vector3 placementDirection = Vector3.left;
 
+    public bool IsMousePressed
+    {
+        get { return isMousePressed; }
+        set { isMousePressed = value; }
+    }
+
     private List<Tile> highlightedTiles = new List<Tile>();
     private Tile currentHoverTile;
 
@@ -274,14 +280,8 @@ public class OperatorManager : MonoBehaviour
 
     // 방향 설정
     public void HandleDirectionSelection()
-    { 
-        //if (!Input.GetMouseButton(0)) return;
-        if (Input.GetMouseButtonDown(0))
-        {
-            isMousePressed = true;
-        }
-
-        if (isMousePressed)
+    {
+        if (IsMousePressed)
         {
             ResetHighlights();
 
@@ -306,18 +306,19 @@ public class OperatorManager : MonoBehaviour
                 {
                     DeployOperator(currentHoverTile);
                     isSelectingDirection = false;
-                    isMousePressed = false;
+                    IsMousePressed = false;
                     ResetPlacement();
-                    
+
                 }
                 // 바운더리 이내라면 다시 방향 설정(클릭 X) 상태
                 else
                 {
-                    isMousePressed = false;
+                    IsMousePressed = false;
                     ResetHighlights();
                 }
             }
         }
+        //}
     }
 
     private void EndDirectionSelection()
@@ -547,9 +548,9 @@ public class OperatorManager : MonoBehaviour
     /// </summary>
     public void CancelCurrentAction()
     {
-        Debug.Log("CancelCurrentAction 동작");
-        if (currentUIState != UIState.None)
+        if (currentUIState != UIState.None) // Action이거나 Deploying일 때
         {
+            Debug.Log("CancelCurrentAction 동작");
             HideAllUIs();
             ResetPlacement();
             ResetHighlights();

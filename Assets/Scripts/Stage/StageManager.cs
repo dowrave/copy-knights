@@ -27,10 +27,6 @@ public class StageManager : MonoBehaviour
     [SerializeField] private int currentDeploymentCost = 10;
     private float currentCostGauge = 0f;
 
-    // 상단 UI 요소
-    [SerializeField] private TextMeshProUGUI enemyCountText;
-    [SerializeField] private TextMeshProUGUI lifePointsText;
-
     // 게임 상태 변수
     private int totalEnemyCount;
     private int killedEnemyCount;
@@ -38,17 +34,41 @@ public class StageManager : MonoBehaviour
     private int currentLifePoints;
     private int passedEnemies;
 
-    // 게임 속도 변수
-    [SerializeField] private Button currentSpeedButton;
-    [SerializeField] private Button pauseButton;
-    [SerializeField] private Image pauseOverlay;
-    [SerializeField] private TextMeshProUGUI currentSpeedText;
-    [SerializeField] private TextMeshProUGUI currentSpeedIcon;
-    [SerializeField] private TextMeshProUGUI pauseButtonText;
+    public int KilledEnemyCount
+    {
+        get => killedEnemyCount;
+        private set
+        {
+            if (killedEnemyCount != value)
+            {
+                killedEnemyCount = value;
+                OnLifePointsChanged?.Invoke(killedEnemyCount);
+            }
+        }
+    }
+
+    public int TotalEnemyCount => totalEnemyCount;
+
+    public int MaxLifePoints => maxLifePoints;
+    public int CurrentLifePoints
+    {
+        get => currentLifePoints;
+        private set
+        {
+            if (currentLifePoints != value)
+            {
+                currentLifePoints = value;
+                OnLifePointsChanged?.Invoke(currentLifePoints);
+            }
+        }
+    }
 
     private bool isSpeedUp = false;
     private const float SPEED_UP_SCALE = 2f;
     private float originalTimeScale = 1f;
+
+    public bool IsSpeedUp => isSpeedUp;
+
 
 
     public int CurrentDeploymentCost
@@ -68,6 +88,11 @@ public class StageManager : MonoBehaviour
 
     // 이벤트 : System.Action은 매개변수와 반환값이 없는 메서드를 나타내는 델리게이트 타입.
     public event System.Action OnDeploymentCostChanged; // 이벤트 발동 조건은 currentDeploymentCost 값이 변할 때, 여기 등록된 함수들이 동작한다.
+                                                        // 라이프 포인트 변경 시 발생 이벤트
+    public event System.Action<int> OnLifePointsChanged;
+
+    // 적을 잡을 때마다 발생 이벤트
+    public event System.Action OnEnemyKilled;
 
     private void Awake()
     {
@@ -80,18 +105,23 @@ public class StageManager : MonoBehaviour
         {
             Destroy(gameObject);
         }
+
+        UIManager.Instance.UpdateSpeedUpButtonVisual();
+        UIManager.Instance.UpdatePauseButtonVisual();
     }
 
     private void Start()
     {
+        CurrentLifePoints = maxLifePoints; 
+
         Debug.Log("스테이지 준비");
         InitializeStage(); // 스테이지 준비
 
         Debug.Log("스테이지 시작");
         StartBattle(); // 게임 시작
 
-        currentSpeedButton.onClick.AddListener(ToggleSpeedUp);
-        pauseButton.onClick.AddListener(TogglePause);
+        //currentSpeedButton.onClick.AddListener(ToggleSpeedUp);
+        //pauseButton.onClick.AddListener(TogglePause);
 
     }
 
@@ -106,7 +136,7 @@ public class StageManager : MonoBehaviour
         killedEnemyCount = 0;
         currentLifePoints = maxLifePoints;
 
-        UpdateUI();
+        UIManager.Instance.InitializeUI();
     }
 
     private int CalculateTotalEnemyCount()
@@ -119,20 +149,6 @@ public class StageManager : MonoBehaviour
         }
         return count;
     }
-
-    private void UpdateUI()
-    {
-        if (enemyCountText != null)
-        {
-            enemyCountText.text = $"{killedEnemyCount} / {totalEnemyCount}";
-
-        }
-
-        if (lifePointsText != null)
-        {
-            lifePointsText.text = $"{currentLifePoints}";
-        }
-    } 
 
     public void StartBattle()
     {
@@ -148,20 +164,20 @@ public class StageManager : MonoBehaviour
         {
             case GameState.Battle:
                 Time.timeScale = isSpeedUp ? SPEED_UP_SCALE : originalTimeScale;
-                pauseOverlay.gameObject.SetActive(false);
+                UIManager.Instance.HidePauseOverlay();
                 break;
             case GameState.Paused:
                 Time.timeScale = 0f;
-                pauseOverlay.gameObject.SetActive(true);
+                UIManager.Instance.ShowPauseOverlay();
                 break;
             case GameState.GameOver:
             case GameState.GameWin:
                 Time.timeScale = 0f;
-                pauseOverlay.gameObject.SetActive(false);
+                UIManager.Instance.HidePauseOverlay();
                 break;
         }
 
-        UpdatePauseButtonVisual();
+        UIManager.Instance.UpdatePauseButtonVisual();
         // 다른 필요한 상태 관련 로직...
     }
 
@@ -220,7 +236,7 @@ public class StageManager : MonoBehaviour
         if (currentState == GameState.GameOver) return;
 
         killedEnemyCount++;
-        UpdateUI();
+        UIManager.Instance.UpdateEnemyKillCountText();
 
         // 사실 "생성된" 적을 포함하면 조건을 조금 더 다르게 줘야 함
         if (killedEnemyCount + passedEnemies >= totalEnemyCount)
@@ -233,9 +249,10 @@ public class StageManager : MonoBehaviour
     {
         if (currentState == GameState.GameOver || currentState == GameState.GameWin) return; 
 
-        currentLifePoints--;
+        
+        currentLifePoints--; // OnLifePointsChanged : 생명력이 깎이면 자동으로 UI 업데이트 발생
         passedEnemies++;
-        UpdateUI();
+        //UpdateUI();
 
         if (currentLifePoints <= 0)
         {
@@ -269,14 +286,6 @@ public class StageManager : MonoBehaviour
         SceneManager.LoadScene("MainMenu");
     }
 
-    public void ToggleSpeedUp()
-    {
-        if (currentState != GameState.Battle) return;
-
-        isSpeedUp = !isSpeedUp;
-        UpdateTimeScale();
-        UpdateSpeedUpButtonVisual();
-    }
 
     private void UpdateTimeScale()
     {
@@ -286,20 +295,20 @@ public class StageManager : MonoBehaviour
         }
     }
 
-    private void UpdateSpeedUpButtonVisual()
+    public void ToggleSpeedUp()
     {
-        currentSpeedText.text = isSpeedUp ? "2X" : "1X";
-        currentSpeedIcon.text = isSpeedUp ? "▶▶" : "▶";
-    }
+        if (currentState != GameState.Battle) return;
 
-    private void UpdatePauseButtonVisual()
-    {
-        pauseButtonText.text = (currentState == GameState.Paused) ? "▶" : "||";
+        isSpeedUp = !isSpeedUp;
+        UpdateTimeScale();
+        UIManager.Instance.UpdateSpeedUpButtonVisual();
+
+        Debug.Log($"{Time.timeScale}");
     }
 
     public void TogglePause()
     {
-        Debug.Log("TogglePause");
+        Debug.Log("Pause 동작");
 
         if (currentState == GameState.GameOver || currentState == GameState.GameWin) return;
 
@@ -307,12 +316,11 @@ public class StageManager : MonoBehaviour
         {
             SetGameState(GameState.Battle);
         }
-        else
+        else if (currentState == GameState.Battle)
         {
             SetGameState(GameState.Paused);
         }
-
-        UpdatePauseButtonVisual();
+        UIManager.Instance.UpdatePauseButtonVisual();
     }
 }
 
