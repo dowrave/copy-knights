@@ -133,6 +133,7 @@ public class OperatorManager : MonoBehaviour
                     (tile.data.terrain == TileData.TerrainType.Hill && op.data.canDeployHill))
                 {
                     tile.Highlight(availableTileColor);
+                    Debug.Log($"{tile.name} 하이라이트됨");
                     highlightedTiles.Add(tile);
                 }
             }
@@ -179,7 +180,7 @@ public class OperatorManager : MonoBehaviour
             isOperatorSelecting = false; // 드래그로 상태 변경
             isDraggingOperator = true;
             CreatePreviewOperator();
-            SlowDownTime(); // 시간 느리게 만들기
+            StageManager.Instance.SlowDownTime(); // 시간 느리게 만들기
         }
     }
 
@@ -419,7 +420,7 @@ public class OperatorManager : MonoBehaviour
             }
 
             ResetPlacement(); // 변수 초기화
-            RestoreNormalTime(); // 시간 흐름 정상으로 되돌림
+            StageManager.Instance.UpdateTimeScale(); // 시간 흐름 정상으로 되돌림
         }
     }
 
@@ -446,7 +447,7 @@ public class OperatorManager : MonoBehaviour
         operatorIndex = -1;
 
         HideOperatorInfoPanel();
-        RestoreNormalTime();
+        StageManager.Instance.UpdateTimeScale(); // 시간 원상복구
         ResetHighlights();
 
         HideAllUIs();
@@ -513,16 +514,6 @@ public class OperatorManager : MonoBehaviour
     {
         CancelCurrentAction();
         ResetPlacement();
-    }
-
-    private void SlowDownTime()
-    {
-        Time.timeScale = PLACEMENT_TIME_SCALE;
-    }
-
-    private void RestoreNormalTime()
-    {
-        Time.timeScale = originalTimeScale;
     }
 
     public void UpdateOperatorDirection(Operator op, Vector3 direction)

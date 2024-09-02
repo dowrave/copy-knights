@@ -10,8 +10,9 @@ public class EnemySpawner : MonoBehaviour
     [System.Serializable]
     public class EnemySpawnInfo
     {
-        public EnemyData enemyData;
+        public GameObject enemyPrefab;
         public float spawnTime;
+        public PathData pathData;
     }
 
     public List<EnemySpawnInfo> enemySpawnList = new List<EnemySpawnInfo>(); // 생성되는 적, 시간이 적혀 있음
@@ -19,18 +20,28 @@ public class EnemySpawner : MonoBehaviour
     private bool isInitialized = false;
     private Vector3 startPoint;
     private Vector3 endPoint;
-    private PathFindingManager pathFindingManager;
     private Map currentMap;
+
+    private Dictionary<string, PathData> pathDataDict = new Dictionary<string, PathData>();
 
     public void Initialize(Map map)
     {
         currentMap = map;
-        pathFindingManager = PathFindingManager.Instance;
         startPoint = transform.position;
         endPoint = currentMap.FindEndPoint(); 
         isInitialized = true;
+
+        LoadAllPathData();
     }
 
+    private void LoadAllPathData()
+    {
+        PathData[] allPaths = Resources.LoadAll<PathData>("Paths"); // Resources/Paths 에 PathData 에셋들이 저장되어야 함
+        foreach (var path in allPaths)
+        {
+            pathDataDict[path.name] = path;
+        }
+    }
 
     public void StartSpawning()
     {
@@ -56,13 +67,15 @@ public class EnemySpawner : MonoBehaviour
     
     private void SpawnEnemy(EnemySpawnInfo spawnInfo)
     {
-        GameObject enemyObject = Instantiate(spawnInfo.enemyData.prefab, startPoint, Quaternion.identity);
+        if (spawnInfo.enemyPrefab == null) return;
+
+        GameObject enemyObject = Instantiate(spawnInfo.enemyPrefab, startPoint, Quaternion.identity);
         Enemy enemy = enemyObject.GetComponent<Enemy>();
         
         if (enemy != null)
         {
-            enemy.Initialize(spawnInfo.enemyData, startPoint, endPoint);
-            SetEnemyPathAuto(enemy); // PathFindingManager를 이용한 자동 길찾기 
+            EnemyData enemyData = enemy.data;
+            enemy.Initialize(enemyData, spawnInfo.pathData);
         }
         else
         {
@@ -70,29 +83,12 @@ public class EnemySpawner : MonoBehaviour
         }
     }
 
-    private void SetEnemyPathAuto(Enemy enemy)
+    private PathData GetPathData(string pathName)
     {
-        List<Vector3> path = pathFindingManager.FindPath(startPoint, endPoint); 
-
-        if (path != null && path.Count > 0)
+        if (pathDataDict.TryGetValue(pathName, out PathData pathData))
         {
-            enemy.SetPath(path, new List<float>(new float[path.Count]));
+            return pathData;
         }
-        else
-        {
-            Destroy(enemy.gameObject);
-        }
+        return null;
     }
-
-    //private void SetEnemyPath(Enemy enemy)
-    //{
-    //    List<Vector3> worldPath = new List<Vector3>();
-    //    foreach (var node in path)
-    //    {
-    //        Vector3 worldPos = mapManager.GetTilePosition(node.position.x, node.position.y);
-    //        worldPath.Add(worldPos);
-    //    }
-    //    enemy.SetPath(worldPath, path.Select(node => node.waitTime).ToList());
-    //}
-
 }

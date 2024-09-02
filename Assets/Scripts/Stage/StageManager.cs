@@ -64,11 +64,13 @@ public class StageManager : MonoBehaviour
     }
 
     private bool isSpeedUp = false;
-    private const float SPEED_UP_SCALE = 2f;
+    private const float speedUpScale = 2f;
     private float originalTimeScale = 1f;
-
+    private const float placementTimeScale = 0.2f;
     public bool IsSpeedUp => isSpeedUp;
-
+    public float SpeedUpScale => speedUpScale;
+    public float OriginalTimeScale => originalTimeScale;
+    public float PlacementTimeScale => placementTimeScale;
 
 
     public int CurrentDeploymentCost
@@ -163,7 +165,7 @@ public class StageManager : MonoBehaviour
         switch (gameState)
         {
             case GameState.Battle:
-                Time.timeScale = isSpeedUp ? SPEED_UP_SCALE : originalTimeScale;
+                Time.timeScale = isSpeedUp ? SpeedUpScale : OriginalTimeScale;
                 UIManager.Instance.HidePauseOverlay();
                 break;
             case GameState.Paused:
@@ -286,12 +288,16 @@ public class StageManager : MonoBehaviour
         SceneManager.LoadScene("MainMenu");
     }
 
+    public void SlowDownTime()
+    {
+        Time.timeScale = PlacementTimeScale;
+    }
 
-    private void UpdateTimeScale()
+    public void UpdateTimeScale()
     {
         if (currentState != GameState.Paused)
         {
-            Time.timeScale = isSpeedUp ? SPEED_UP_SCALE : originalTimeScale;
+            Time.timeScale = isSpeedUp ? SpeedUpScale : OriginalTimeScale;
         }
     }
 
@@ -302,8 +308,6 @@ public class StageManager : MonoBehaviour
         isSpeedUp = !isSpeedUp;
         UpdateTimeScale();
         UIManager.Instance.UpdateSpeedUpButtonVisual();
-
-        Debug.Log($"{Time.timeScale}");
     }
 
     public void TogglePause()

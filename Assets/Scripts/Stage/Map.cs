@@ -1,8 +1,7 @@
 using UnityEngine;
-using UnityEditor;
 using System.Collections.Generic;
 using System.Text;
-using UnityEngine.AI;
+
 
 public class Map : MonoBehaviour
 {
@@ -61,8 +60,7 @@ public class Map : MonoBehaviour
             for (int y = 0; y < height; y++)
             {
                 // 기본 타일 데이터로 초기화
-                SetTile(x, y, null);
-                //UpdateTileVisual(x, y);
+                UpdateTile(x, y, null);
             }
         }
 
@@ -90,9 +88,10 @@ public class Map : MonoBehaviour
     }
 
     /// <summary>
-    /// 타일 데이터 설정, 필요한 경우 타일을 생성하거나 제거함
+    /// 특정 위치의 타일 데이터 업데이트. 
+    /// null/empty라면 제거, 아니라면 데이터 업데이트
     /// </summary>
-    public void SetTile(int x, int y, TileData newTileData)
+    public void UpdateTile(int x, int y, TileData newTileData)
     {
         if (!IsValidGridPosition(x, y)) return;
 
@@ -103,7 +102,7 @@ public class Map : MonoBehaviour
         else
         {
             tileDataArray[x, y] = newTileData;
-            UpdateTileVisual(x, y);
+            CreateOrUpdateTileObject(x, y);
             if (newTileData.isStartPoint)
             {
                 CreateSpawner(x, y);
@@ -111,6 +110,58 @@ public class Map : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// 주어진 위치에 타일 오브젝트를 생성하거나 업데이트함.
+    /// </summary>
+    private void CreateOrUpdateTileObject(int x, int y)
+    {
+        Vector2Int gridPos = new Vector2Int(x, y);
+        TileData tileData = tileDataArray[x, y];
+
+        // 해당 위치에 타일이 있다면
+        if (tileObjects.TryGetValue(gridPos, out GameObject existingTileObj))
+        {
+            UpdateExistingTile(existingTileObj, tileData, gridPos);
+        }
+        // 없다면
+        else
+        {
+            CreateNewTile(x, y, tileData);
+        }
+    }
+
+    private void UpdateExistingTile(GameObject tileObj, TileData tileData, Vector2Int gridPos)
+    {
+        Tile tileComponent = tileObj.GetComponent<Tile>();
+        if (tileComponent != null)
+        {
+            tileComponent.SetTileData(tileData, gridPos);
+        }
+    }
+
+    private void CreateNewTile(int x, int y, TileData tileData)
+    {
+        if (tilePrefab == null) return;
+
+        Vector2Int gridPos = new Vector2Int(x, y);
+        Vector3 worldPos = GridToWorldPosition(gridPos);
+        GameObject tileObj = Instantiate(tilePrefab, transform);
+
+        tileObj.name = GenerateTileName(x, y, tileData);
+        tileObj.transform.localPosition = worldPos;
+        tileObj.layer = LayerMask.NameToLayer("Tile");
+
+        Tile tileComponent = tileObj.GetComponent<Tile>();
+        if (tileComponent != null)
+        {
+            tileComponent.SetTileData(tileData, gridPos);
+        }
+        else
+        {
+            Debug.LogError($"({x}, {y}) 그리드 포지션에 타일 컴포넌트가 없음");
+        }
+        tileObjects[gridPos] = tileObj; 
+    }
 
     /// </summary>
     /// Start 타일에는 EnemySpawner 자식 오브젝트를 배치한다.
@@ -135,61 +186,6 @@ public class Map : MonoBehaviour
         {
             Debug.LogError($"Tile not found at position ({x}, {y}) for spawner creation");
         }
-    }
-
-    /// <summary>
-    /// 맵의 각 타일에 대한 시각적 표현을 업데이트하거나 생성한다.
-    /// 1. 저장된 데이터 - 씬의 타일 오브젝트 동기화
-    /// 2. 누락된 타일 생성, 더 이상 필요없는 타일 제거
-    /// 3. 각 타일의 시각적 표현이 저장된 데이터와 일치하도록 보장
-    /// </summary>
-    private void UpdateTileVisual(int x, int y)
-    {
-        Vector2Int gridPos = new Vector2Int(x, y);
-        TileData tileData = tileDataArray[x, y];
-
-        if (tileObjects.TryGetValue(gridPos, out GameObject existingTileObj))
-        {
-            if (tileData == null || tileData.terrain == TileData.TerrainType.Empty)
-            {
-                RemoveTile(x, y);
-            }
-            else
-            {
-                Tile tileComponent = existingTileObj.GetComponent<Tile>();
-                tileComponent.SetTileData(tileData, gridPos);
-            }
-        }
-        else if (tileData != null && tileData.terrain != TileData.TerrainType.Empty)
-        {
-            CreateTile(x, y, tileData);
-        }
-    }
-
-    /// <summary>
-    /// 실제 타일 오브젝트를 생성하고 설정하는 역할을 수행한다.
-    /// </summary>
-    private void CreateTile(int x, int y, TileData data)
-    {
-        if (tilePrefab == null) return;
-
-        Vector2Int gridPos = new Vector2Int(x, y);
-        Vector3 worldPos = GridToWorldPosition(gridPos);
-        GameObject tileObj = Instantiate(tilePrefab, transform);
-        tileObj.name = GenerateTileName(x, y, data);
-        tileObj.transform.localPosition = worldPos;
-
-        Tile tileComponent = tileObj.GetComponent<Tile>();
-        if (tileComponent != null)
-        {
-            tileComponent.SetTileData(data, gridPos);
-        }
-        else
-        {
-            Debug.LogError($"Tile component not found on prefab for position ({x}, {y})");
-        }
-
-        tileObjects[gridPos] = tileObj;
     }
 
     private string GenerateTileName(int x, int y, TileData data)
@@ -268,6 +264,7 @@ public class Map : MonoBehaviour
         }
         return Vector3.zero;
     }
+
     //1
     public Vector3 GridToWorldPosition(Vector2Int gridPos)
     {

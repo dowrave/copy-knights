@@ -75,10 +75,10 @@ public class MapManager : MonoBehaviour
     {
         foreach (PathNode node in path.nodes)
         {
-            Vector2Int gridPos = currentMap.WorldToGridPosition(node.position);
+            Vector2Int gridPos = node.gridPosition;
             if (!currentMap.IsValidGridPosition(gridPos.x, gridPos.y))
             {
-                Debug.LogWarning($"Invalid path node position in path {path.name}: {node.position}");
+                Debug.LogWarning($"Invalid path node position in path {path.name}: {node.gridPosition}");
             }
         }
     }
@@ -114,6 +114,14 @@ public class MapManager : MonoBehaviour
     public Vector2Int GetGridPosition(Vector3 worldPosition)
     {
         return currentMap.WorldToGridPosition(worldPosition);
+    }
+
+    /// <summary>
+    /// 그리드 좌표 -> 월드 좌표 변환
+    /// </summary>
+    public Vector3 GetWorldPosition(Vector2Int gridPosition)
+    {
+        return currentMap.GridToWorldPosition(gridPosition);
     }
 
 

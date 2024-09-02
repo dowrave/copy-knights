@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 6356694292074683997}
   - component: {fileID: 7473265999809896432}
   - component: {fileID: 784136894713452782}
-  m_Layer: 3
+  m_Layer: 10
   m_Name: Cube
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -115,7 +115,7 @@ GameObject:
   m_Component:
   - component: {fileID: 7075178728041685039}
   - component: {fileID: 4698969421717138388}
-  m_Layer: 3
+  m_Layer: 10
   m_Name: DefaultTile
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -151,7 +151,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   data: {fileID: 0}
-  size2D: {x: 0, y: 0}
+  size2D: {x: 0.98, y: 0.98}
   enemiesOnTile: []
   gridPosition: {x: 0, y: 0}
   baseTileMaterial: {fileID: 2100000, guid: 91410d5c73b6f204fa66027f4a202cd3, type: 2}
