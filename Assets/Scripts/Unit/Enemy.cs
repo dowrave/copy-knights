@@ -7,9 +7,8 @@ using static UnityEngine.GraphicsBuffer;
 
 public class Enemy : Unit
 {
-    private int currentPathIndex = 0; // 경로 중 현재 인덱스
-    private List<Vector3> path;
-    private List<float> waitTimes; 
+    private PathData pathData;
+    private int currentNodeIndex = 0;
 
     public float attackRange; // 공격 범위
 
@@ -34,16 +33,28 @@ public class Enemy : Unit
     public float DefenseMultiplier { get; private set; }
 
     private Tile currentTile;
+    private PathNode targetNode;
+    private Vector3 targetPosition;
+    private bool isWaiting = false;
 
 
-    public void Initialize(EnemyData enemyData, Vector3 startPoint, Vector3 endPoint)
+    public void Initialize(EnemyData enemyData, PathData pathData)
     {
         InitializeStats(enemyData);
 
-        RequestPath(startPoint, endPoint);
-        transform.position = startPoint; // 시작 위치 설정
+        //RequestPath(startPoint, endPoint);
+        //transform.position = startPoint; // 시작 위치 설정
+        this.pathData = pathData;
+
+        // 이거는 수정해야할 수도 있음 - Spawner의 위치가 시작점임을 생각하면.
+        if (pathData.nodes.Count > 0)
+        {
+            transform.position = MapManager.Instance.GetWorldPosition(pathData.nodes[0].gridPosition); 
+        }
+
         CreateEnemyUI();
 
+        UpdateTargetNode();
         // stats을 사용하는 로직은 이후에 추가(?)
     }
     private void Update()
@@ -52,19 +63,21 @@ public class Enemy : Unit
         // 근거리 적은 저지를 당할 때에만 오퍼레이터를 공격하고, 원거리 적은 공격 범위 내에 있는 오퍼레이터를 공격하는 방식.
 
         // 진행할 경로가 있다
-        if (path != null && currentPathIndex < path.Count)
+        if (pathData != null && currentNodeIndex < pathData.nodes.Count)
         {
+            if (blockingOperator != null) // 저지 중인 오퍼레이터가 있다면
+            {
+                AttackBlockingOperator(); // 해당 오퍼레이터를 공격
+            }
+            else // 저지 중인 오퍼레이터가 없다면
+            {
+                CheckAndAddBlockingOperator(); // 오퍼레이터가 저지하는지 체크 
+                if (!isWaiting) // 대기 중이 아니라면
+                {
+                    MoveAlongPath(); // 이동
+                }
+            }
 
-            // 저지를 당하고 있지 않다면 이동한다
-            if (!blockingOperator)
-            {
-                MoveAlongPath();
-                CheckAndAddBlockingOperator();
-            }
-            else
-            {
-                AttackBlockingOperator();
-            }
         }
     }
 
@@ -89,26 +102,6 @@ public class Enemy : Unit
         DefenseMultiplier = data.defenseMultiplier;
 
         maxHealth = stats.Health; // 초기 체력 설정, 이후에 현재 체력과 비교해서 체력바 표시 여부 결정
-    }
-
-    public void SetPath(List<Vector3> newPath, List<float> newWaitTimes)
-    {
-        path = newPath;
-        waitTimes = newWaitTimes;
-        currentPathIndex = 0;
-    }
-    
-    private void RequestPath(Vector3 startPoint, Vector3 endPoint)
-    {
-        List<Vector3> pathList = PathFindingManager.Instance.FindPath(startPoint, endPoint);
-        if (pathList != null && pathList.Count > 0)
-        {
-            SetPath(pathList, new List<float>(new float[pathList.Count]));
-        }
-        else
-        {
-            Destroy(gameObject);
-        }
     }
 
     private void CheckAndAddBlockingOperator()
@@ -141,11 +134,23 @@ public class Enemy : Unit
         return null; 
     }
 
+    // PathData 사용 버전
     private void MoveAlongPath()
     {
-        // 이동하며 경로의 타일 인덱스를 갱신함
-        Vector3 targetPosition = path[currentPathIndex];
+        if (CheckIfReachedDestination())
+        {
+            ReachDestination();
+            return;
+        }
+
+        //PathNode targetNode = pathData.nodes[currentNodeIndex];
+        //Vector3 targetPosition = MapManager.Instance.GetWorldPosition(targetNode.gridPosition);
+
+        // 새 위치 계산(실제 이동 X)
         Vector3 newPosition = Vector3.MoveTowards(transform.position, targetPosition, MovementSpeed * Time.deltaTime);
+
+        // 실제 이동
+        transform.position = newPosition;
 
         // 타일 갱신
         Tile newTile = MapManager.Instance.GetTileAtPosition(newPosition);
@@ -155,33 +160,50 @@ public class Enemy : Unit
             EnterNewTile(newTile);
         }
 
-        transform.position = newPosition;
-        if (Vector3.Distance(transform.position, targetPosition) < 0.1f)
+        // 노드 도달 확인
+        if (Vector3.Distance(transform.position, targetPosition) < 0.05f)
         {
-            // 대기 중
-            if (currentPathIndex < waitTimes.Count && waitTimes[currentPathIndex] > 0)
+            if (targetNode.waitTime > 0)
             {
-                StartCoroutine(WaitAtNode(waitTimes[currentPathIndex]));
+                StartCoroutine(WaitAtNode(targetNode.waitTime));
             }
-            // 이동 중 *이거 불확실할 수도 있음
             else
             {
-                currentPathIndex++;
-            }
-
-            if (currentPathIndex >= path.Count) // 목적 지점 도착
-            {
-                ReachDestination();
+                MoveToNextNode();
             }
         }
-        
     }
 
     // 대기 중일 때 실행
     private IEnumerator WaitAtNode(float waitTime)
     {
+        isWaiting = true;
         yield return new WaitForSeconds(waitTime);
-        currentPathIndex++;
+        isWaiting = false;
+        MoveToNextNode();
+    }
+
+    private void MoveToNextNode()
+    {
+        //currentNodeIndex++;
+        UpdateTargetNode();
+
+        if (CheckIfReachedDestination())
+        {
+            ReachDestination();
+        }
+    }
+
+    private void UpdateTargetNode()
+    {
+
+        currentNodeIndex++;
+        if (currentNodeIndex < pathData.nodes.Count)
+        {
+            targetNode = pathData.nodes[currentNodeIndex];
+            targetPosition = MapManager.Instance.GetWorldPosition(targetNode.gridPosition);
+        }
+        Debug.Log($"{currentNodeIndex}");
     }
 
     private void AttackBlockingOperator()
@@ -316,4 +338,15 @@ public class Enemy : Unit
         CheckAndAddBlockingOperator();
     }
 
+    // 마지막 타일의 월드 좌표 기준 0.05 이내일 때
+    private bool CheckIfReachedDestination()
+    {
+        int lastNodeIndex = pathData.nodes.Count - 1;
+        Vector3 lastNodePosition = MapManager.Instance.GetWorldPosition(pathData.nodes[lastNodeIndex].gridPosition);
+        if (Vector3.Distance(transform.position, lastNodePosition) < 0.05f)
+        {
+            return true;
+        }
+        return false; 
+    }
 }

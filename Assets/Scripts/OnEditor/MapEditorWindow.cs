@@ -139,11 +139,14 @@ public class MapEditorWindow : EditorWindow
         }
     }
 
+    /// <summary>
+    /// 에디터 상에서 타일 배치
+    /// </summary>
     private void HandleTileClick(int x, int y)
     {
         if (selectedTileData != null)
         {
-            currentMap.SetTile(x, y, selectedTileData);
+            currentMap.UpdateTile(x, y, selectedTileData);
             SceneView.RepaintAll();
             Repaint();
         }
@@ -187,9 +190,9 @@ public class MapEditorWindow : EditorWindow
         RemoveExistingMaps();
 
         // Stage 오브젝트 아래에 Map 오브젝트 할당
-        GameObject stageObject = GetStageObject();
+        //GameObject stageObject = GetStageObject();
+        //mapObject.transform.SetParent(stageObject.transform);
         GameObject mapObject = new GameObject(MAP_OBJECT_NAME);
-        mapObject.transform.SetParent(stageObject.transform);
         currentMap = mapObject.AddComponent<Map>();
 
         // Map 오브젝트 초기화(load = false)
@@ -321,7 +324,7 @@ public class MapEditorWindow : EditorWindow
                 {
                     // 새 위치에 타일 데이터 설정
                     TileData newTileData = oldTileData[x, y];
-                    currentMap.SetTile(x, y, newTileData);
+                    currentMap.UpdateTile(x, y, newTileData);
                 }
             }
         }

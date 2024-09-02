@@ -81,7 +81,6 @@ public class Tile : MonoBehaviour
         GridPosition = gridPosition;
         AdjustCubeScale();
         UpdateVisuals();
-        //UpdateName();
     }
 
     public void AdjustCubeScale()
@@ -97,10 +96,6 @@ public class Tile : MonoBehaviour
             {
                 boxCollider.size = new Vector3(1f / tileScale, 1f / GetHeightScale(), 1f / tileScale); // 부모 오브젝트의 스케일 변경을 대비
             }
-            //if (data == null) return;
-            //float height = (data.terrain == TileData.TerrainType.Hill) ? 0.5f : 0.1f;
-            //transform.localScale = new Vector3(transform.localScale.x , height, transform.localScale.z);
-            //transform.localPosition = new Vector3(transform.localPosition.x, height / 2f, transform.localPosition.z);
 
         }
     }
@@ -270,14 +265,4 @@ public class Tile : MonoBehaviour
 
     // 타일에 올라간 적 관리하는 메서드들 끝 -------
 
-
-    // 클릭 부분은 오퍼레이터가 배치되면 타일만큼의 터치 가능한 공간을 갖기 때문에 타일에 구현할 필요는 없어 보임
-    //private void OnMouseDown()
-    //{
-    //    Debug.Log("마우스 버튼 클릭함");
-    //   if(OccupyingOperator != null)
-    //    {
-    //        OccupyingOperator.ShowActionUI();
-    //    }
-    //}
 }
