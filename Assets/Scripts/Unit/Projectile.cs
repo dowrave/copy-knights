@@ -7,10 +7,10 @@ public class Projectile : MonoBehaviour
 {
     public float speed = 10f;
     public float damage;
-    private Enemy target;
+    private Unit target;
     private Vector3 lastKnownPosition; // 마지막으로 알려진 적의 위치
 
-    public void Initialize(Enemy target, float damage)
+    public void Initialize(Unit target, float damage)
     {
         this.target = target;
         this.damage = damage;

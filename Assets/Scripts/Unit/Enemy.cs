@@ -9,21 +9,32 @@ public class Enemy : Unit
 {
     private PathData pathData;
     private int currentNodeIndex = 0;
+    private float attackCooldown = 0f;
 
-    public float attackRange; // 공격 범위
+    private float _attackRange; // 공격 범위
+    // 프로퍼티를 쓰면 근거리는 공격범위 0, 원거리는 넣은 값만큼 나옴
+    public float AttackRange
+    {
+        get
+        {
+            return data.attackRangeType == AttackRangeType.Melee ? 0f : _attackRange;
+        }
+        private set
+        {
+            _attackRange = value;
+        }
+    }
+    private List<Operator> operatorsInRange = new List<Operator>();
 
     private Operator blockingOperator; // 자신을 저지 중인 오퍼레이터
     private List<Operator> attackingOperators = new List<Operator>(); // 자신을 공격 중인 오퍼레이터
 
     // 현재 체력 접근자
     public float CurrentHealth => stats.Health;
-
     // 최대 체력 접근자
     private float maxHealth;
     public float MaxHealth => maxHealth;
-
     private EnemyUI enemyUI;
-
     public EnemyData data;
 
     public float MovementSpeed { get; private set; } // 이동 속도
@@ -41,15 +52,13 @@ public class Enemy : Unit
     public void Initialize(EnemyData enemyData, PathData pathData)
     {
         InitializeStats(enemyData);
-
-        //RequestPath(startPoint, endPoint);
-        //transform.position = startPoint; // 시작 위치 설정
         this.pathData = pathData;
+        AttackRange = data.attackRange;
 
-        // 이거는 수정해야할 수도 있음 - Spawner의 위치가 시작점임을 생각하면.
+        // 시작점 위치 설정(경로 설정 시 스포너의 위치와 동일하게 설정하면 좋다)
         if (pathData.nodes.Count > 0)
         {
-            transform.position = MapManager.Instance.GetWorldPosition(pathData.nodes[0].gridPosition); 
+            transform.position = MapManager.Instance.GetWorldPosition(pathData.nodes[0].gridPosition) + Vector3.up * 0.5f;
         }
 
         CreateEnemyUI();
@@ -59,26 +68,40 @@ public class Enemy : Unit
     }
     private void Update()
     {
-        // 사실 공격할 적이 있으면 공격하고, 그게 아니라면 이동하는 로직이 맞음
-        // 근거리 적은 저지를 당할 때에만 오퍼레이터를 공격하고, 원거리 적은 공격 범위 내에 있는 오퍼레이터를 공격하는 방식.
-
+        
         // 진행할 경로가 있다
         if (pathData != null && currentNodeIndex < pathData.nodes.Count)
         {
-            if (blockingOperator != null) // 저지 중인 오퍼레이터가 있다면
+            // 1. 저지 중인 오퍼레이터가 있을 때
+            if (blockingOperator != null) 
             {
-                AttackBlockingOperator(); // 해당 오퍼레이터를 공격
-            }
-            else // 저지 중인 오퍼레이터가 없다면
-            {
-                CheckAndAddBlockingOperator(); // 오퍼레이터가 저지하는지 체크 
-                if (!isWaiting) // 대기 중이 아니라면
+                // 공격 가능한 상태라면
+                if (attackCooldown <= 0)
                 {
-                    MoveAlongPath(); // 이동
+                    Attack(blockingOperator);
                 }
             }
 
+            // 2. 저지 중이 아니라면
+            else 
+            {
+                UpdateOperatorsInRange(); // 공격 범위 내에 있는 오퍼레이터 리스트를 관리
+
+                if (attackCooldown <= 0)
+                {
+                    AttackLastDeployedOperator(); // 가장 마지막에 배치된 오퍼레이터 공격
+                }
+
+                // 이동 관련 로직. 저지 중이 아닐 때에만 동작해야 한다. 
+                if (!isWaiting) // 경로 이동 중, 대기가 아니라면
+                {
+                    MoveAlongPath(); // 이동
+                    CheckAndAddBlockingOperator(); // 같은 타일에 있는 오퍼레이터의 저지 가능 여부 체크
+                }
+            }
         }
+
+        attackCooldown -= Time.deltaTime;
     }
 
     private void CreateEnemyUI()
@@ -201,17 +224,9 @@ public class Enemy : Unit
         if (currentNodeIndex < pathData.nodes.Count)
         {
             targetNode = pathData.nodes[currentNodeIndex];
-            targetPosition = MapManager.Instance.GetWorldPosition(targetNode.gridPosition);
+            targetPosition = MapManager.Instance.GetWorldPosition(targetNode.gridPosition) + Vector3.up * 0.5f;
         }
         Debug.Log($"{currentNodeIndex}");
-    }
-
-    private void AttackBlockingOperator()
-    {
-        if (blockingOperator != null)
-        {
-            Attack(blockingOperator);
-        }
     }
 
     private void ReachDestination()
@@ -221,51 +236,68 @@ public class Enemy : Unit
     }
 
 
-    // 오퍼레이터가 적의 공격 범위 내에 있는가?
-    public bool OperatorInEnemyAttackRange(Vector3 targetPosition)
+    /// <summary>
+    ///  공격 범위 내의 오퍼레이터 리스트를 업데이트한다
+    /// </summary>
+    public void UpdateOperatorsInRange()
     {
-        // 적의 경우 공격 범위 내에 있는지만 판별한다
-        return Vector3.Distance(transform.position, targetPosition) <= attackRange;
-    }
-
-    private void FindAndAttackTarget()
-    {
-        Unit target = null;
-
-        // 1. 자신을 저지 중인 상대를 먼저 공격한다
-        if (blockingOperator != null) 
+        operatorsInRange.Clear();
+        Collider[] colliders = Physics.OverlapSphere(transform.position, AttackRange);
+        foreach (var collider in colliders)
         {
-            target = blockingOperator;
-        }
-
-        // 2. 저지 중이 아닐 경우, 공격 범위 내의 가장 마지막에 배치된 대상을 공격한다
-        else
-        {
-            Collider[] colliders = Physics.OverlapSphere(transform.position, attackRange); // 가상의 구를 그려 범위 내에 있는 적들 판정
-            target = colliders
-                .Select(c => c.GetComponent<Operator>()) // 오퍼레이터들만 추려내서
-                .Where(o => o != null && CanAttack(o.transform.position)) // 공격 가능한
-                .OrderByDescending(o => o.deploymentOrder)
-                .FirstOrDefault();
-        }
-
-        if (target != null)
-        {
-            Attack(target);
+            Operator op = collider.GetComponent<Operator>();
+            if (op != null)
+            {
+                operatorsInRange.Add(op);
+            }
         }
     }
 
+    public void Attack(Operator target)
+    {
+        if (!canAttack || !(target is Operator op)) return;
 
-    public override void Attack(Unit target)
+        switch (attackRangeType)
+        {
+            case AttackRangeType.Melee:
+                PerformMeleeAttack(op);
+                break;
+            case AttackRangeType.Ranged:
+                PerformRangedAttack(op);
+                break;
+        }
+
+        // 공격 후 쿨다운 설정
+        attackCooldown = 1f / stats.AttackSpeed;
+    }
+
+    private void PerformMeleeAttack(Operator op)
     {
         float damage = Stats.AttackPower * DamageMultiplier;
-        base.Attack(target);
-        // 적 특유의 공격 효과를 구현할 수 있다
+        op.TakeDamage(damage);
+    }
+
+    private void PerformRangedAttack(Operator op)
+    {
+        if (data.projectilePrefab != null)
+        {
+            float damage = Stats.AttackPower * DamageMultiplier;
+
+            // 투사체 생성 위치
+            Vector3 spawnPosition = transform.position + Vector3.up * 0.5f;
+
+            GameObject projectileObj = Instantiate(data.projectilePrefab, spawnPosition, Quaternion.identity);
+            Projectile projectile = projectileObj.GetComponent<Projectile>();
+            if (projectile != null)
+            {
+                projectile.Initialize(op, damage);
+            }
+        }
     }
 
     public override bool CanAttack(Vector3 targetPosition)
     {
-        if (Vector3.Distance(transform.position, targetPosition) <= attackRange)
+        if (Vector3.Distance(transform.position, targetPosition) <= AttackRange)
         {
             return true;
         }
@@ -338,15 +370,33 @@ public class Enemy : Unit
         CheckAndAddBlockingOperator();
     }
 
-    // 마지막 타일의 월드 좌표 기준 0.05 이내일 때
+    // 마지막 타일의 월드 좌표 기준
     private bool CheckIfReachedDestination()
     {
         int lastNodeIndex = pathData.nodes.Count - 1;
-        Vector3 lastNodePosition = MapManager.Instance.GetWorldPosition(pathData.nodes[lastNodeIndex].gridPosition);
+        Vector3 lastNodePosition = MapManager.Instance.GetWorldPosition(pathData.nodes[lastNodeIndex].gridPosition) + Vector3.up * 0.5f;
         if (Vector3.Distance(transform.position, lastNodePosition) < 0.05f)
         {
             return true;
         }
         return false; 
+    }
+
+    // 그리드 -> 월드 좌표 변환 후, 월드 좌표의 y좌표를 0.5로 넣음
+    private Vector3 GetAdjustedTargetPosition()
+    {
+        Vector3 adjustedPosition = targetPosition;
+        adjustedPosition.y = 0.5f;
+        return adjustedPosition;
+    }
+
+    // 가장 마지막에 배치된 오퍼레이터를 공격함
+    private void AttackLastDeployedOperator()
+    {
+        if (operatorsInRange.Count > 0 && canAttack)
+        {
+            Operator target = operatorsInRange.OrderByDescending(o => o.deploymentOrder).First();
+            Attack(target);
+        }
     }
 }

@@ -67,7 +67,7 @@ public abstract class Unit : MonoBehaviour
     protected virtual IEnumerator AttackCooldown()
     {
         canAttack = false;
-        yield return new WaitForSeconds(1f / stats.AttackSpeed);
+        yield return new WaitForSeconds(1f / stats.AttackSpeed); // 코루틴은 백그라운드에서 실행, 공격 쿨타임 중 다른 행동(이동)을 방해하지 않는다.
         canAttack = true;
     }
 
