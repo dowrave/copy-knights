@@ -258,14 +258,18 @@ public class Map : MonoBehaviour
             {
                 if (tileDataArray[x, y]?.isEndPoint == true)
                 {
-                    return GridToWorldPosition(new Vector2Int(x, y)) + Vector3.up * 0.5f;
+                    return GridToWorldPosition(new Vector2Int(x, y));
                 }
             }
         }
         return Vector3.zero;
     }
 
-    //1
+
+    /// <summary>
+    /// 월드 y 좌표는 0으로 설정. 
+    /// 0.5로 설정하고 싶다면 Vector3.Up * 0.5f을 사용하자.
+    /// </summary>
     public Vector3 GridToWorldPosition(Vector2Int gridPos)
     {
         return new Vector3(gridPos.x, 0, height - 1 - gridPos.y);

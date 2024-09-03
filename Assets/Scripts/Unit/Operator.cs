@@ -208,7 +208,6 @@ public class Operator : Unit, IClickable
     {
         if (data.projectilePrefab != null)
         {
-
             // 투사체 생성 위치
             Vector3 spawnPosition = transform.position + Vector3.up * 0.5f;
             
