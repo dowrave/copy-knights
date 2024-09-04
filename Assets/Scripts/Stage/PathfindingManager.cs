@@ -22,6 +22,30 @@ public class PathFindingManager : MonoBehaviour
         }
     }
 
+    public PathData FindPath(Vector3 startPos, Vector3 endPos)
+    {
+        Vector2Int startGrid = MapManager.Instance.GetGridPosition(startPos);
+        Vector2Int endGrid = MapManager.Instance.GetGridPosition(endPos);
+
+        // 경로들은 gridPosition으로 관리, 실제 이동은 Enemy에서 WorldPosition을 계산해서 그 위치로 이동한다
+        List<Vector2Int> path = CalculatePath(startGrid, endGrid);
+        
+        PathData newPathData = ScriptableObject.CreateInstance<PathData>();
+        newPathData.nodes = new List<PathNode>();
+
+        foreach (Vector2Int gridPos in path)
+        {
+            PathNode node = new PathNode
+            {
+                gridPosition = gridPos,
+                waitTime = 0f
+            };
+
+            newPathData.nodes.Add(node);
+        }
+
+        return newPathData;
+    }
 
     /// <summary>
     /// A* 알고리즘을 구현.
@@ -29,12 +53,8 @@ public class PathFindingManager : MonoBehaviour
     /// 이웃 타일들을 평가하고, 더 나은 경로를 찾으면 업데이트한다. 목적지에 도달하면 RetracePath 메서드를 호출해 경로를 생성한다.
     /// 경로를 찾지 못하면 null을 반환한다.
     /// </summary>
-    public List<Vector3> FindPath(Vector3 startPos, Vector3 targetPos)
+    private List<Vector2Int> CalculatePath(Vector2Int start, Vector2Int end)
     {
-
-        Vector2Int start = currentMap.WorldToGridPosition(startPos);
-        Vector2Int end = currentMap.WorldToGridPosition(targetPos);
-
         Tile startTile = currentMap.GetTile(start.x, start.y);
         Tile endTile = currentMap.GetTile(end.x, end.y);
 
@@ -64,7 +84,7 @@ public class PathFindingManager : MonoBehaviour
 
             if (currentTile == endTile)
             {
-                return RetracePath(startTile, endTile); // 역순으로 경로를 다시 만듦
+                return RetracePath(startTile, endTile);
             }
 
             foreach (Tile neighbor in GetNeighbors(currentTile))
@@ -85,25 +105,23 @@ public class PathFindingManager : MonoBehaviour
                 }
             }
         }
+
         Debug.LogWarning("No path found!");
-        return null; // 경로가 없는 경우
+        return null;
     }
 
-    /// <summary>
-    /// 끝타일부터 시작 타일까지 Parent를 따라 역순으로 경로를 만듦
-    /// </summary>
-    private List<Vector3> RetracePath(Tile startTile, Tile endTile)
+    private List<Vector2Int> RetracePath(Tile startTile, Tile endTile)
     {
-        List<Vector3> path = new List<Vector3>();
+        List<Vector2Int> path = new List<Vector2Int>();
         Tile currentTile = endTile;
 
         while (currentTile != null && currentTile != startTile)
         {
-            path.Add(currentMap.GridToWorldPosition(currentTile.GridPosition) + Vector3.up * 0.5f);
+            path.Add(currentTile.GridPosition);
             currentTile = currentTile.Parent;
         }
 
-        path.Add(currentMap.GridToWorldPosition(startTile.GridPosition) + Vector3.up * 0.5f);
+        path.Add(startTile.GridPosition);
         path.Reverse();
         return path;
     }

@@ -18,7 +18,7 @@ MonoBehaviour:
     attackPower: 100
     attackSpeed: 2
     attackType: 0
-    attackRangeType: 0
+    attackRangeType: 1
     defense: 0
     magicResistance: 0
   movementSpeed: 1
