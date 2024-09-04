@@ -109,7 +109,7 @@ public class Tile : MonoBehaviour
         return transform.localScale.y;
     }
 
-    private void UpdateVisuals()
+    protected void UpdateVisuals()
     {
         if (tileRenderer == null || data == null) return;
 
@@ -129,6 +129,7 @@ public class Tile : MonoBehaviour
     {
         OccupyingOperator = op;
     }
+
 
     public void ClearOccupied()
     {
@@ -190,20 +191,6 @@ public class Tile : MonoBehaviour
         Debug.LogWarning($"타일 이름에서 그리드 좌표 추출 실패: {tileName}");
         return Vector2Int.zero;
     }
-
-    //private void UpdateName()
-    //{
-    //    string tileName = $"Tile_{GridPosition.x}_{GridPosition.y}";
-    //    if (data.isStartPoint)
-    //    {
-    //        tileName += "_Start";
-    //    }
-    //    else if (data.isEndPoint)
-    //    {
-    //        tileName += "_End";
-    //    }
-    //    gameObject.name = tileName;
-    //}
 
     // 타일에 올라간 적 관리하는 메서드들 -------
     public bool IsEnemyOnTile(Enemy enemy)

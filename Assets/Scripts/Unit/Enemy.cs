@@ -5,11 +5,11 @@ using UnityEngine;
 
 public class Enemy : Unit
 {
+    // 경로 관련
     private PathData pathData;
     private int currentNodeIndex = 0;
 
-
-    // 프로퍼티를 쓰면 근거리는 공격범위 0, 원거리는 넣은 값만큼 나옴
+    // 공격 범위 - 근거리는 0, 원거리는 Data에 넣은 값만큼
     public float AttackRange
     {
         get
@@ -84,6 +84,8 @@ public class Enemy : Unit
             // 2. 저지 중이 아니라면
             else 
             {
+                UpdateOperatorsInRange();
+
                 if (HasTargetInRange()) // 공격 범위 내에 적이 있다면
                 {
                     Debug.Log("공격 범위 내에 적이 있음");
@@ -92,13 +94,6 @@ public class Enemy : Unit
                         AttackLastDeployedOperator(); // 가장 마지막에 배치된 오퍼레이터 공격
                     }
                 }
-
-                else
-                {
-                    Debug.Log("공격 범위 내에 적이 없음");
-                    UpdateOperatorsInRange(); // 공격 범위 내에 있는 오퍼레이터 리스트를 관리
-                }
-
 
                 // 이동 관련 로직. 저지 중이 아닐 때에만 동작해야 한다. 
                 if (!isWaiting) // 경로 이동 중 기다리는 상황이 아니라면
@@ -238,7 +233,17 @@ public class Enemy : Unit
         StageManager.Instance.OnEnemyReachDestination();
         Destroy(gameObject);
     }
+    private void OnEnable()
+    {
+        Barricade.OnBarricadeDeployed += OnBarricadeStateChanged;
+        Barricade.OnBarricadeRetreated += OnBarricadeStateChanged; 
+    }
 
+    private void OnDisable()
+    {
+        Barricade.OnBarricadeDeployed -= OnBarricadeStateChanged;
+        Barricade.OnBarricadeRetreated -= OnBarricadeStateChanged;
+    }
 
     /// <summary>
     ///  공격 범위 내의 오퍼레이터 리스트를 업데이트한다
@@ -319,7 +324,6 @@ public class Enemy : Unit
 
     private bool HasTargetInRange()
     {
-        
         return operatorsInRange.Count > 0;
     }
 
@@ -417,5 +421,34 @@ public class Enemy : Unit
             Operator target = operatorsInRange.OrderByDescending(o => o.deploymentOrder).First();
             Attack(target);
         }
+    }
+
+    // 바리케이트가 배치되거나 사라질 때마다 호출, 경로를 수정해야 하는 경우 수정하거나 기존 경로 위에 있는 Barricade 파괴
+    private void OnBarricadeStateChanged(Barricade barricade)
+    {
+        // 현재 경로의 유효성 확인
+        if (!IsCurrentPathValid())
+        {
+            RecalculatePath();
+        }
+    }
+
+    private bool IsCurrentPathValid()
+    {
+        if (currentNodeIndex < pathData.nodes.Count)
+        {
+            Vector2Int nextGridPos = pathData.nodes[currentNodeIndex].gridPosition;
+            Tile nextTile = MapManager.Instance.GetTile(nextGridPos.x, nextGridPos.y);
+            return nextTile != null && nextTile.data.isWalkable;
+        }
+        return false;
+    }
+
+    private void RecalculatePath()
+    {
+        Vector3 currentPosition = transform.position;
+        Vector3 endPosition = MapManager.Instance.GetEndPoint();
+        pathData = PathFindingManager.Instance.FindPath(currentPosition, endPosition);
+        currentNodeIndex = 0;
     }
 }

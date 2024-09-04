@@ -119,7 +119,6 @@ public class OperatorManager : MonoBehaviour
         }
     }
 
-
     private void HighlightAvailableTiles()
     {
         ResetHighlights();
@@ -165,7 +164,6 @@ public class OperatorManager : MonoBehaviour
         }
     }
 
-    
     public void StartDragging(OperatorData operatorData)
     {
         if (currentOperatorData == operatorData)

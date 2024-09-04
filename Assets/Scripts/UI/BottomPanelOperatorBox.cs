@@ -5,7 +5,7 @@ using UnityEngine.UI;
 
 public class BottomPanelOperatorBox : MonoBehaviour, IPointerDownHandler, IBeginDragHandler, IDragHandler, IEndDragHandler
 {
-    private Transform operatorIcon; // 오브젝트
+    private GameObject operatorIcon; // 오브젝트
     private Image operatorIconImage; // Image 컴포넌트
     private Color originalIconColor;
     private TextMeshProUGUI costText;
@@ -22,7 +22,7 @@ public class BottomPanelOperatorBox : MonoBehaviour, IPointerDownHandler, IBegin
     public void Initialize(OperatorData data)
     {
         operatorData = data;
-        operatorIcon = transform.Find("OperatorIcon");
+        operatorIcon = transform.Find("OperatorIcon").gameObject;
         operatorIconImage = operatorIcon.GetComponentInChildren<Image>(); // OperatorIcon의 Image 컴포넌트에 접근
         costText = transform.Find("CostBackground/CostText").GetComponent<TextMeshProUGUI>(); // CostText의 TextMeshPro에 접근
 

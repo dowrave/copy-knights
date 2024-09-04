@@ -20,4 +20,6 @@ public class TileData : ScriptableObject
     public Color tileColor = Color.gray;
 
     public bool hasPit = false; 
+    public bool isDeployable = false;
+
 }
