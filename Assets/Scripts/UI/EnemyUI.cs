@@ -52,7 +52,7 @@ public class EnemyUI : MonoBehaviour
         if (enemy != null)
         {
             //Debug.Log($"EnemyUI : 업데이트 : {enemy.Stats.Health}, {enemy.MaxHealth}");
-            UpdateHealthBar(enemy.Stats.Health, enemy.MaxHealth);
+            UpdateHealthBar(enemy.Stats.health, enemy.MaxHealth);
         }
     }
 

@@ -4,7 +4,7 @@ using UnityEngine;
 public class OperatorData : ScriptableObject
 {
     public string operatorName;
-    public UnitStats baseStats;
+    public UnitData stats;
     public Vector2Int[] attackableTiles = { Vector2Int.zero };
     public bool canDeployGround;
     public bool canDeployHill;
@@ -13,7 +13,6 @@ public class OperatorData : ScriptableObject
     public float deploymentCost;
     public float reDeployTime = 70f;
 
-    public AttackRangeType attackRangeType;
     public GameObject prefab; // 오퍼레이터의 프리팹 정보
     public GameObject projectilePrefab; // 투사체 프리팹 정보. null이어도 무관.
 

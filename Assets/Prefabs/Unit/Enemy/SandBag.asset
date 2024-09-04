@@ -13,15 +13,18 @@ MonoBehaviour:
   m_Name: SandBag
   m_EditorClassIdentifier: 
   enemyName: Sand Bag
-  baseStats:
-    Health: 20000
-    AttackPower: 100
-    AttackSpeed: 1
-    AttackType: 0
-    Defense: 500
-    MagicResistance: 50
+  stats:
+    health: 2000
+    attackPower: 150
+    attackSpeed: 2
+    attackType: 0
+    attackRangeType: 0
+    defense: 300
+    magicResistance: 50
   movementSpeed: 0.7
   blockCount: 1
   prefab: {fileID: 6542749020257112806, guid: 8a7b9da512d05824b82a31893f14477c, type: 3}
+  projectilePrefab: {fileID: 0}
   damageMultiplier: 1
   defenseMultiplier: 1
+  attackRange: 0

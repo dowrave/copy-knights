@@ -13,13 +13,14 @@ MonoBehaviour:
   m_Name: Ranged(Base)
   m_EditorClassIdentifier: 
   operatorName: Base(Sniper)
-  baseStats:
-    Health: 600
-    AttackPower: 500
-    AttackSpeed: 1.5
-    AttackType: 0
-    Defense: 100
-    MagicResistance: 100
+  stats:
+    health: 2000
+    attackPower: 300
+    attackSpeed: 1.2
+    attackType: 0
+    attackRangeType: 1
+    defense: 300
+    magicResistance: 10
   attackableTiles:
   - {x: 0, y: 0}
   - {x: 0, y: -1}
@@ -38,7 +39,6 @@ MonoBehaviour:
   maxBlockableEnemies: 1
   deploymentCost: 5
   reDeployTime: 70
-  attackRangeType: 1
   prefab: {fileID: 4844663318455565301, guid: d3dcd961b53c71f45b440db97cb72987, type: 3}
   projectilePrefab: {fileID: 491002625568547402, guid: 768a4d8f960f50f43b581b2790a5639e, type: 3}
   maxSP: 30
