@@ -38,14 +38,14 @@ public class OperatorInfoPanel : MonoBehaviour
         {
             Debug.Log("배치되지 않은 오퍼레이터 체력 표시");
 
-            UpdateHealthText(operatorData.baseStats.Health, operatorData.baseStats.Health);
+            UpdateHealthText(operatorData.stats.health, operatorData.stats.health);
         }
 
         nameText.text = operatorData.operatorName;
 
-        attackText.text = $"공격력: {operatorData.baseStats.AttackPower}";
-        defenseText.text = $"방어력: {operatorData.baseStats.Defense}";
-        magicResistanceText.text = $"마법저항력: {operatorData.baseStats.MagicResistance}";
+        attackText.text = $"공격력: {operatorData.stats.attackPower}";
+        defenseText.text = $"방어력: {operatorData.stats.defense}";
+        magicResistanceText.text = $"마법저항력: {operatorData.stats.magicResistance}";
         blockCountText.text = $"저지수: {operatorData.maxBlockableEnemies}";
     }
 

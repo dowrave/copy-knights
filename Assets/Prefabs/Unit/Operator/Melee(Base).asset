@@ -13,13 +13,14 @@ MonoBehaviour:
   m_Name: Melee(Base)
   m_EditorClassIdentifier: 
   operatorName: Base(Melee)
-  baseStats:
-    Health: 600
-    AttackPower: 300
-    AttackSpeed: 1
-    AttackType: 0
-    Defense: 0
-    MagicResistance: 0
+  stats:
+    health: 500
+    attackPower: 100
+    attackSpeed: 1
+    attackType: 0
+    attackRangeType: 0
+    defense: 3
+    magicResistance: 3
   attackableTiles:
   - {x: 0, y: 0}
   - {x: -1, y: 0}
@@ -28,7 +29,6 @@ MonoBehaviour:
   maxBlockableEnemies: 1
   deploymentCost: 5
   reDeployTime: 70
-  attackRangeType: 0
   prefab: {fileID: 5185628148525671535, guid: 81719ee7b084ab740915d07222eb2ab8, type: 3}
   projectilePrefab: {fileID: 0}
   maxSP: 30

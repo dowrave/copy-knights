@@ -17,7 +17,7 @@ public class Operator : Unit, IClickable
     public Vector3 facingDirection = Vector3.left;
 
     // 저지 관련
-    private List<Enemy> blockedEnemies; // 내가 저지 중인 적들
+    private List<Enemy> blockedEnemies; // 저지 중인 적들
     public IReadOnlyList<Enemy> BlockedEnemies => blockedEnemies.AsReadOnly();
 
     public int deploymentOrder { get; private set; } // 배치 순서
@@ -27,8 +27,18 @@ public class Operator : Unit, IClickable
     private float attackCooldown = 0f; // data.baseStats에서 들어오는 AttackSpeed 값에 의해 결정됨
     //[HideInInspector] public bool isBlocking = false; // 저지 중인가
 
+    public bool IsDeployed
+    {
+        get { return isDeployed; }
+        private set
+        {
+            isDeployed = value;
+        }
+    }
+
+
     // SP 관련
-    public float currentHealth => stats.Health;
+    public float currentHealth => stats.health;
     // 최대 체력
     private float maxHealth;
     public float MaxHealth => maxHealth;
@@ -72,20 +82,20 @@ public class Operator : Unit, IClickable
     private void Start()
     {
         currentSP = data.initialSP; // SP 초기화
-        attackRangeType = data.attackRangeType;
+        attackRangeType = data.stats.attackRangeType;
         CreateDirectionIndicator();
         InitializeStats();
     }
 
     public void Deploy(Vector3 position, Vector3 direction)
     {
-        if (!isDeployed)
+        if (!IsDeployed)
         {
-            isDeployed = true;
+            IsDeployed = true;
             transform.position = position;
             SetDirection(direction);
 
-            maxHealth = data.baseStats.Health;
+            maxHealth = data.stats.health;
             //currentMap = FindObjectOfType<Map>();
 
             CreateOperatorUI();
@@ -111,21 +121,21 @@ public class Operator : Unit, IClickable
 
     public void InitializeStats()
     {
-        base.Initialize(data.baseStats);
-        attackRangeType = data.attackRangeType;
+        base.Initialize(data.stats);
+        attackRangeType = data.stats.attackRangeType;
         blockedEnemies = new List<Enemy>(data.maxBlockableEnemies);
     }
 
 
-    private void Update()
+    protected override void Update()
     {
-        if (isDeployed)
+        if (IsDeployed)
         {
-            attackCooldown -= Time.deltaTime;
+            base.Update();
 
             ValidateCurrentTarget();
 
-            // 공격 대상
+            // 공격 대상이 없다면
             if (currentTarget == null)
             {
                 FindTarget(); // currentTarget 업데이트 시도
@@ -183,28 +193,31 @@ public class Operator : Unit, IClickable
 
     public override void Attack(Unit target)
     {
-        if (!canAttack || !(target is Enemy enemy)) return;
+        if (!IsAttackCooldownComplete || !(target is Enemy enemy)) return;
 
+        base.Attack(target); // 공격 가능할 때, PerformAttack을 실행시키고 쿨다운도 시작됨
+
+    }
+
+    protected override void PerformAttack(Unit target)
+    {
         switch (attackRangeType)
         {
             case AttackRangeType.Melee:
-                PerformMeleeAttack(enemy);
+                PerformMeleeAttack(target);
                 break;
             case AttackRangeType.Ranged:
-                PerformRangedAttack(enemy);
+                PerformRangedAttack(target);
                 break;
         }
-
-        // 공격 후 쿨다운 설정
-        attackCooldown = 1f / stats.AttackSpeed;
     }
 
-    private void PerformMeleeAttack(Enemy enemy)
+    private void PerformMeleeAttack(Unit target)
     {
-        enemy.TakeDamage(stats.AttackPower);
+        target.TakeDamage(stats.attackPower);
     }
 
-    private void PerformRangedAttack(Enemy enemy)
+    private void PerformRangedAttack(Unit target)
     {
         if (data.projectilePrefab != null)
         {
@@ -215,7 +228,7 @@ public class Operator : Unit, IClickable
             Projectile projectile = projectileObj.GetComponent<Projectile>();
             if (projectile != null)
             {
-                projectile.Initialize(enemy, stats.AttackPower);
+                projectile.Initialize(target, stats.attackPower);
             }
         }
     }
@@ -259,7 +272,7 @@ public class Operator : Unit, IClickable
         return data.attackableTiles;
     }
 
-    public override bool CanAttack(Vector3 targetPosition)
+    public bool CanAttack(Vector3 targetPosition)
     {
         Vector2Int relativePosition = WorldToRelativeGridPosition(targetPosition);
         return System.Array.Exists(data.attackableTiles, tile => tile == relativePosition);
@@ -318,7 +331,7 @@ public class Operator : Unit, IClickable
     // SP 로직 추가
     private void RecoverSP()
     {
-        if (isDeployed == false) { return;  }
+        if (IsDeployed == false) { return;  }
 
         float oldSP = currentSP;
         if (data.autoRecoverSP)
@@ -421,7 +434,7 @@ public class Operator : Unit, IClickable
     /// </summary>
     public void OnClick()
     {
-        if (isDeployed && !IsPreviewMode && StageManager.Instance.currentState == GameState.Battle)
+        if (IsDeployed && !IsPreviewMode && StageManager.Instance.currentState == GameState.Battle)
         {
             OperatorManager.Instance.CancelPlacement(); // 오퍼레이터를 클릭했다면 현재 진행 중인 배치 로직이 취소되어야 함
 
@@ -504,13 +517,13 @@ public class Operator : Unit, IClickable
     }
 
     /// <summary>
-    /// 현재 타겟의 유효성 검사
+    /// 현재 타겟의 유효성 검사 : currentTarget이 공격 범위 내에 없다면 제거함
     /// </summary>
     private void ValidateCurrentTarget()
     {
         if(currentTarget != null)
         {
-            if (!IsEnemyInRange(currentTarget))
+            if (!IsTargetInRange(currentTarget))
             {
                 currentTarget.RemoveAttackingOperator(this);
                 currentTarget = null;
@@ -518,22 +531,30 @@ public class Operator : Unit, IClickable
         }
     }
 
-    private bool IsEnemyInRange(Enemy enemy)
+    protected override bool IsTargetInRange(Unit unit)
     {
-        Vector2Int enemyGridPos = currentMap.WorldToGridPosition(enemy.transform.position);
-        Vector2Int operatorGridPos = currentMap.WorldToGridPosition(transform.position); 
-
-        foreach (Vector2Int offset in data.attackableTiles)
+        if (unit is Enemy) // 타입 매칭은 `is`를 사용
         {
-            Vector2Int rotatedOffset = RotateOffset(offset, facingDirection);
-            Vector2Int targetGridPos = operatorGridPos + rotatedOffset;
+            Vector2Int enemyGridPos = currentMap.WorldToGridPosition(unit.transform.position);
+            Vector2Int operatorGridPos = currentMap.WorldToGridPosition(transform.position); 
 
-            if (targetGridPos == enemyGridPos)
+            foreach (Vector2Int offset in data.attackableTiles)
             {
-                return true;
+                Vector2Int rotatedOffset = RotateOffset(offset, facingDirection);
+                Vector2Int targetGridPos = operatorGridPos + rotatedOffset;
+
+                if (targetGridPos == enemyGridPos)
+                {
+                    return true;
+                }
             }
+
+            // 공격 범위에 없다
+            return false; 
+
         }
 
-        return false; 
+        // Enemy가 아니다
+        return false;
     }
 }

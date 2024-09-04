@@ -8,9 +8,7 @@ public class EnemyData : ScriptableObject
 {
 
     public string enemyName = "enemyDefault";
-    public UnitStats baseStats; // Unit 클래스의 baseStats와 동일한 구조
-    public AttackType attackType; // 물리, 마법, 트루
-    public AttackRangeType attackRangeType; // 근거리, 원거리
+    public UnitData stats; // Unit 클래스의 baseStats와 동일한 구조
     public float movementSpeed = 1f;
     public int blockCount = 1; // 차지하는 저지 수
     public GameObject prefab; // 적의 프리팹

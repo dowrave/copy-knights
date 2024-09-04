@@ -13,15 +13,18 @@ MonoBehaviour:
   m_Name: EnemyDefault
   m_EditorClassIdentifier: 
   enemyName: 
-  baseStats:
-    Health: 550
-    AttackPower: 150
-    AttackSpeed: 2
-    AttackType: 0
-    Defense: 100
-    MagicResistance: 0.1
+  stats:
+    health: 500
+    attackPower: 200
+    attackSpeed: 1
+    attackType: 0
+    attackRangeType: 0
+    defense: 50
+    magicResistance: 5
   movementSpeed: 1
   blockCount: 1
   prefab: {fileID: 6542749020257112806, guid: b64bfbf4c6a80384295e7286bbcc9d3e, type: 3}
+  projectilePrefab: {fileID: 0}
   damageMultiplier: 1
   defenseMultiplier: 1
+  attackRange: 0

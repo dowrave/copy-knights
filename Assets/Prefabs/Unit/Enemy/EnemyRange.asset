@@ -13,15 +13,14 @@ MonoBehaviour:
   m_Name: EnemyRange
   m_EditorClassIdentifier: 
   enemyName: enemyRange
-  baseStats:
-    Health: 600
-    AttackPower: 100
-    AttackSpeed: 1.2
-    AttackType: 0
-    Defense: 50
-    MagicResistance: 2
-  attackType: 0
-  attackRangeType: 1
+  stats:
+    health: 500
+    attackPower: 100
+    attackSpeed: 2
+    attackType: 0
+    attackRangeType: 0
+    defense: 0
+    magicResistance: 0
   movementSpeed: 1
   blockCount: 1
   prefab: {fileID: 6542749020257112806, guid: 53b71dc6cf9a3434190f6e26b2d4ead4, type: 3}

@@ -8,15 +8,19 @@ public class CameraManager : MonoBehaviour
     public static CameraManager Instance { get; private set; }
 
     private float animationDuration = 0.1f;
+
+    // OperatorInfo가 나타날 때 카메라의 위치 / 높이 변화
     [SerializeField] private float cameraShiftAmount = -0.1f;
     [SerializeField] private float cameraHeightAmount = 1f;
+    [SerializeField] private float clickedOperatorZShiftAmount = 2f;
+
+    [SerializeField] private Vector3 operatorInfoRotation = new Vector3(0, -15, -15);
 
     public Camera MainCamera { get; private set; }
     private Vector3 originalPosition;
     private Quaternion originalRotation;
     private float originalSize;
 
-    private Vector3 operatorInfoRotation = new Vector3(0, -15, -15);
 
     private void Awake()
     {
@@ -84,18 +88,21 @@ public class CameraManager : MonoBehaviour
                 float cameraOffset = mapWidth * (1 - 0.75f) * 0.5f;
 
                 newPosition = new Vector3(
-                    operatorPosition.x - cameraOffset,
-                    originalPosition.y + cameraHeightAmount,
-                    originalPosition.z
+                    operatorPosition.x,
+                    //originalPosition.y + cameraHeightAmount,
+                    originalPosition.y,
+                    operatorPosition.z - clickedOperatorZShiftAmount
                 );
             }
 
             // 하단 패널의 오퍼레이터를 클릭한 경우
             else
-            { 
-                newPosition = (originalPosition + 
-                                Vector3.up * cameraHeightAmount + 
+            {
+                newPosition = (originalPosition +
+                                Vector3.up * cameraHeightAmount +
+                                //Vector3.up +
                                 (Vector3.right * mapWidth * cameraShiftAmount));
+                                //Vector3.right * mapWidth);
 
             }
 

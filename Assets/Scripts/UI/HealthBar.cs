@@ -22,7 +22,6 @@ public class HealthBar : MonoBehaviour
     {
         slider.maxValue = maxHealth;
         slider.value = currentHealth;
-
     }
 
     public void SetVisible(bool isVisible)

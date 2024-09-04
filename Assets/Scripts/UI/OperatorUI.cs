@@ -59,7 +59,7 @@ public class OperatorUI : MonoBehaviour
     {
         if (op != null)
         {
-            UpdateHealthBar(op.Stats.Health, op.MaxHealth);
+            UpdateHealthBar(op.Stats.health, op.MaxHealth);
             UpdateSPBar(op.CurrentSP, op.data.maxSP);
         }
     }

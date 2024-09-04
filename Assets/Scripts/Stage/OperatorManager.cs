@@ -30,8 +30,7 @@ public class OperatorManager : MonoBehaviour
     private List<OperatorData> deployedOperators = new List<OperatorData>(); // 배치돼서 화면에 표시되지 않을 오퍼레이터
 
     // 하이라이트 관련 변수
-    public Color availableTileColor = Color.green;
-    public Color unavailableTileColor = Color.red;
+    public Color availableTileColor = new Color(0, 1, 0, 0.5f); 
     public Color attackRangeTileColor = new Color(255, 127, 0);
 
     // 배치 과정 중 어떤 상태인지에 대한 변수
@@ -133,7 +132,6 @@ public class OperatorManager : MonoBehaviour
                     (tile.data.terrain == TileData.TerrainType.Hill && op.data.canDeployHill))
                 {
                     tile.Highlight(availableTileColor);
-                    Debug.Log($"{tile.name} 하이라이트됨");
                     highlightedTiles.Add(tile);
                 }
             }
@@ -163,12 +161,7 @@ public class OperatorManager : MonoBehaviour
             currentOperator.gameObject.SetActive(false);
 
             HighlightAvailableTiles();
-
-            Debug.Log($"OperatorData : {operatorData}");
             ShowOperatorInfoPanel(operatorData);
-
-            // OverlayPanel에 CancelOperatorSelection 이벤트 등록(빈 공간 클릭 시 배치 로직 취소됨)
-            //UIManager.Instance.ActivateOverlay(() => CancelOperatorSelection());
         }
     }
 
