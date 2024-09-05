@@ -61,13 +61,13 @@ public class ClickDetectionSystem : MonoBehaviour
                 if (diamondMask.IsPointInsideDiamond(Input.mousePosition))
                 {
                     Debug.LogWarning("HandleUIClick : 다이아몬드 내부 ");
-                    OperatorManager.Instance.IsMousePressed = true;
+                    DeployableManager.Instance.IsMousePressed = true;
                     return;
                 }
             }
 
             // ButtonDown 동작 2. 오퍼레이터 박스 드래그 동작 시작
-            BottomPanelOperatorBox operatorBox = result.gameObject.GetComponent<BottomPanelOperatorBox>();
+            BottomPanelDeployableBox operatorBox = result.gameObject.GetComponent<BottomPanelDeployableBox>();
             if (operatorBox != null)
             {
                 operatorBox.OnPointerDown(pointerData);
@@ -121,7 +121,7 @@ public class ClickDetectionSystem : MonoBehaviour
                     Debug.LogWarning("HandleUIClick : 다이아몬드 외부 클릭");
 
                     // 마름모 외부 클릭 처리
-                    OperatorManager.Instance.CancelCurrentAction();
+                    DeployableManager.Instance.CancelCurrentAction();
                     return;
                 }
             }
@@ -149,20 +149,26 @@ public class ClickDetectionSystem : MonoBehaviour
         else
         {
             Tile clickedTile = hit.collider.GetComponent<Tile>();
-            if (clickedTile != null && clickedTile.OccupyingOperator != null)
+            IDeployable clickedDeployable = clickedTile.OccupyingDeployable;
+            if (clickedTile != null && clickedDeployable != null)
             {
-                clickedTile.OccupyingOperator.ShowActionUI();
+                if (clickedDeployable is Operator op)
+                {
+                    op.ShowActionUI();
+                }
+                // Operator가 아닐 때에도 퇴각 버튼은 나타나야 함 
+
             }
             else
             {
-                OperatorManager.Instance.CancelCurrentAction();
+                DeployableManager.Instance.CancelCurrentAction();
             }
         }
     }
     
     private void HandleEmptySpaceClick()
     {
-        OperatorManager.Instance.CancelCurrentAction();
+        DeployableManager.Instance.CancelCurrentAction();
     }
 
     /// <summary>

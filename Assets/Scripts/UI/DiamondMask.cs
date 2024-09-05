@@ -65,7 +65,7 @@ public class DiamondMask : Image
 
         // 스크린 상에서의 마름모 "반지름" 계산
         screenDiamondRadius = Vector2.Distance(screenCenter, screenRight);
-        OperatorManager.Instance.SetMinDirectionDistance(screenDiamondRadius);
+        DeployableManager.Instance.SetMinDirectionDistance(screenDiamondRadius);
 
         //Debug.Log($"Screen Center: {screenCenter}, Click Point: {screenPoint}");
         //Debug.Log($"Screen Top Right: {screenRight}, Screen Diamond Radius: {screenDiamondRadius}");

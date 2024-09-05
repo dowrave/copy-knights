@@ -7,7 +7,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using static UnityEngine.EventSystems.EventTrigger;
 
-public class Operator : Unit, IClickable
+public class Operator : Unit, IClickable, IDeployable
 {
 
     [SerializeField] // 필드 직렬화, Inspector에서 이 필드 숨기기
@@ -15,6 +15,17 @@ public class Operator : Unit, IClickable
 
     [SerializeField, HideInInspector]
     public Vector3 facingDirection = Vector3.left;
+    public Vector3 Direction
+    {
+        get => facingDirection;
+        private set
+        {
+            facingDirection = value.normalized;
+            transform.forward = facingDirection;
+            UpdateDirectionIndicator(facingDirection);
+        }
+    }
+
 
     // 저지 관련
     private List<Enemy> blockedEnemies; // 저지 중인 적들
@@ -27,12 +38,23 @@ public class Operator : Unit, IClickable
     private float attackCooldown = 0f; // data.baseStats에서 들어오는 AttackSpeed 값에 의해 결정됨
     //[HideInInspector] public bool isBlocking = false; // 저지 중인가
 
-    public bool IsDeployed
+    // IDeployable 인터페이스
+    public bool IsDeployed { get; private set; }
+    public int DeploymentCost => data.deploymentCost;
+    public Sprite Icon => data.icon;
+    public Transform Transform => transform;
+    public bool CanDeployGround => data.canDeployGround;
+    public bool CanDeployHill => data.canDeployHill;
+    private Renderer _renderer;
+    public Renderer Renderer
     {
-        get { return isDeployed; }
-        private set
+        get
         {
-            isDeployed = value;
+            if (_renderer == null)
+            {
+                _renderer = GetComponentInChildren<Renderer>();
+            }
+            return _renderer;
         }
     }
 
@@ -45,8 +67,8 @@ public class Operator : Unit, IClickable
     private float currentSP;
     public float CurrentSP => currentSP;
 
-    [SerializeField] private GameObject operatorUIPrefab;
-    private OperatorUI operatorUI;
+    [SerializeField] private GameObject deployableBarUIPrefab;
+    private DeployableBarUI deployableBarUI;
 
     // 공격 범위 내에 있는 적들 
     List<Enemy> enemiesInRange = new List<Enemy>();
@@ -98,24 +120,22 @@ public class Operator : Unit, IClickable
             maxHealth = data.stats.health;
             //currentMap = FindObjectOfType<Map>();
 
-            CreateOperatorUI();
+            CreateOperatorBarUI();
         }
     }
 
     public void SetDirection(Vector3 direction)
     {
-        facingDirection = direction.normalized;
-        transform.forward = facingDirection;
-        UpdateDirectionIndicator(facingDirection);
+        Direction = direction;
     }
 
-    private void CreateOperatorUI()
+    private void CreateOperatorBarUI()
     {
-        if (operatorUIPrefab != null)
+        if (deployableBarUIPrefab != null)
         {
-            GameObject uiObject = Instantiate(operatorUIPrefab, transform);
-            operatorUI = uiObject.GetComponentInChildren<OperatorUI>();
-            operatorUI.Initialize(this);
+            GameObject uiObject = Instantiate(deployableBarUIPrefab, transform);
+            deployableBarUI = uiObject.GetComponentInChildren<DeployableBarUI>();
+            deployableBarUI.Initialize(this);
         }
     }
 
@@ -342,7 +362,7 @@ public class Operator : Unit, IClickable
 
         if (currentSP != oldSP)
         {
-            operatorUI.UpdateSPBar(currentSP, data.maxSP);
+            deployableBarUI.UpdateSPBar(currentSP, data.maxSP);
             //operatorUI.UpdateOperatorUI(this);
         }
     }
@@ -370,12 +390,12 @@ public class Operator : Unit, IClickable
         UnblockAllEnemies();
 
         // 오브젝트 파괴
-        Destroy(operatorUI.gameObject); // 하단 체력/SP 바
+        Destroy(deployableBarUI.gameObject); // 하단 체력/SP 바
         Destroy(directionIndicator.gameObject); // 방향 표시기
         base.Die();
 
         // 하단 UI 활성화
-        OperatorManager.Instance.OnOperatorRemoved(data);
+        DeployableManager.Instance.OnDeployableRemoved(this);
     }
 
     private void PrepareTransparentMaterial()
@@ -409,7 +429,8 @@ public class Operator : Unit, IClickable
 
     public void ShowActionUI()
     {
-        OperatorManager.Instance.ShowActionUI(this);
+        DeployableManager.Instance.ShowActionUI(this);
+        UIManager.Instance.ShowDeployableInfo(this);
     }
 
     public void UseSkill()
@@ -418,16 +439,16 @@ public class Operator : Unit, IClickable
         Debug.Log("스킬 버튼 클릭됨");
     }
 
-    public void Retreat()
-    {
-        Debug.Log("퇴각 버튼 클릭됨");
+    //public void Retreat()
+    //{
+    //    Debug.Log("퇴각 버튼 클릭됨");
 
-        // 수정 필요) 사망 vs 퇴각의 차이가 필요 - 퇴각은 반환 배치 코스트가 있다
-        OperatorManager.Instance.OnOperatorRemoved(data);
+    //    // 수정 필요) 사망 vs 퇴각의 차이가 필요 - 퇴각은 반환 배치 코스트가 있다
+    //    DeployableManager.Instance.OnDeployableRemoved(this);
 
-        Destroy(gameObject);
+    //    Destroy(gameObject);
 
-    }
+    //}
 
     /// <summary>
     /// 오퍼레이터가 클릭되었을 때의 동작 
@@ -436,12 +457,12 @@ public class Operator : Unit, IClickable
     {
         if (IsDeployed && !IsPreviewMode && StageManager.Instance.currentState == GameState.Battle)
         {
-            OperatorManager.Instance.CancelPlacement(); // 오퍼레이터를 클릭했다면 현재 진행 중인 배치 로직이 취소되어야 함
+            DeployableManager.Instance.CancelPlacement(); // 오퍼레이터를 클릭했다면 현재 진행 중인 배치 로직이 취소되어야 함
 
             // 미리보기 상태에선 동작하면 안됨
             if (IsPreviewMode == false)
             {
-                UIManager.Instance.ShowOperatorInfo(data, this);
+                UIManager.Instance.ShowDeployableInfo(this);
             }
 
             HighlightAttackRange();
@@ -513,7 +534,7 @@ public class Operator : Unit, IClickable
             }
         }
 
-        OperatorManager.Instance.HighlightTiles(tilesToHighlight, OperatorManager.Instance.attackRangeTileColor);
+        DeployableManager.Instance.HighlightTiles(tilesToHighlight, DeployableManager.Instance.attackRangeTileColor);
     }
 
     /// <summary>
@@ -557,4 +578,66 @@ public class Operator : Unit, IClickable
         // Enemy가 아니다
         return false;
     }
+
+    // IDeployable의 메서드들 구현
+    public void EnablePreviewMode()
+    {
+        IsPreviewMode = true;
+    }
+
+    public void DisablePreviewMode()
+    {
+        IsPreviewMode = false;
+    }
+
+    public void UpdatePreviewPosition(Vector3 position)
+    {
+        if (IsPreviewMode)
+        {
+            transform.position = position;
+        }
+    }
+
+    public void Deploy(Vector3 position)
+    {
+        if (!IsDeployed)
+        {
+            IsDeployed = true;
+            transform.position = position;
+            SetDirection(facingDirection);
+
+            maxHealth = data.stats.health;
+            CreateOperatorBarUI();
+
+            // 미리보기 해제, 시각적 요소 업데이트
+            IsPreviewMode = false;
+            UpdateVisuals();
+
+            ShowDirectionIndicator(true);
+
+        }
+    }
+
+    public void Retreat()
+    {
+        if (IsDeployed)
+        {
+            Debug.Log("퇴각 버튼 클릭됨");
+            IsDeployed = false;
+            DeployableManager.Instance.OnDeployableRemoved(this);
+            Destroy(gameObject);
+        }
+    }
+
+    public void SetPreviewTransparency(float alpha)
+    {
+        if (Renderer != null)
+        {
+            Material mat = Renderer.material;
+            Color color = mat.color;
+            color.a = alpha;
+            mat.color = color;
+        }
+    }
+
 }

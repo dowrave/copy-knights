@@ -776,7 +776,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f4688fdb7df04437aeb418b961361dc5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
---- !u!1 &1896242248
+--- !u!1 &1578066840
 GameObject:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -784,47 +784,22 @@ GameObject:
   m_PrefabAsset: {fileID: 0}
   serializedVersion: 6
   m_Component:
-  - component: {fileID: 1896242250}
-  - component: {fileID: 1896242249}
+  - component: {fileID: 1578066841}
+  - component: {fileID: 1578066842}
   m_Layer: 0
-  m_Name: Operator Manager
+  m_Name: Deployable Manager
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &1896242249
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1896242248}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 2094b54e6ca94fe42a9b386f1a399f04, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  bottomPanelOperatorBoxPrefab: {fileID: 4361422347105965548, guid: c67fc5ee03072b4448b3d73d02882de5, type: 3}
-  bottomPanel: {fileID: 1940311227}
-  availableOperators:
-  - {fileID: 11400000, guid: 36d2493e462c8ee4aaef757657564e7a, type: 2}
-  - {fileID: 11400000, guid: 83744f49d25da9b45843b804cc14e510, type: 2}
-  - {fileID: 11400000, guid: e2a4a030884958f4eb943253b76953e5, type: 2}
-  availableTileColor: {r: 0, g: 1, b: 0, a: 0.69803923}
-  attackRangeTileColor: {r: 1, g: 0.8735534, b: 0, a: 0.9019608}
-  tileLayerMask:
-    serializedVersion: 2
-    m_Bits: 1024
-  deployingUIPrefab: {fileID: 7577664815400135732, guid: d0becf2961a2e0743897718fb9275cb5, type: 3}
-  actionUIPrefab: {fileID: 5904677274619804686, guid: d6d3aff9b4f3c4a4a81c032236bfe4dd, type: 3}
---- !u!4 &1896242250
+--- !u!4 &1578066841
 Transform:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1896242248}
+  m_GameObject: {fileID: 1578066840}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
@@ -833,6 +808,36 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1578066842
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1578066840}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f3b671cfd16413b48bb1f037b253790b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  bottomPanelDeployableBoxPrefab: {fileID: 4361422347105965548, guid: 32e0823a42592f84cb270798f13e6668, type: 3}
+  bottomPanel: {fileID: 1940311227}
+  availableDeployables:
+  - {fileID: 4915391220658201727, guid: 0ba2877dc8d09584e93ed290be1214e4, type: 3}
+  - {fileID: 5185628148525671535, guid: 81719ee7b084ab740915d07222eb2ab8, type: 3}
+  - {fileID: 4844663318455565301, guid: d3dcd961b53c71f45b440db97cb72987, type: 3}
+  availableTileColor: {r: 0, g: 1, b: 0, a: 0.5}
+  attackRangeTileColor: {r: 255, g: 127, b: 0, a: 1}
+  tileLayerMask:
+    serializedVersion: 2
+    m_Bits: 1024
+  deployingUIPrefab: {fileID: 7577664815400135732, guid: d0becf2961a2e0743897718fb9275cb5, type: 3}
+  actionUIPrefab: {fileID: 5904677274619804686, guid: d6d3aff9b4f3c4a4a81c032236bfe4dd, type: 3}
+--- !u!1 &1928528998 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 5475557845289307412, guid: 56874572f3796c141b4e7ddb24c4ca8b, type: 3}
+  m_PrefabInstance: {fileID: 1940311226}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1001 &1940311226
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -946,6 +951,10 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 4241776652105541253, guid: 56874572f3796c141b4e7ddb24c4ca8b, type: 3}
+      propertyPath: infoPanel
+      value: 
+      objectReference: {fileID: 1928528998}
+    - target: {fileID: 4241776652105541253, guid: 56874572f3796c141b4e7ddb24c4ca8b, type: 3}
       propertyPath: pauseButton
       value: 
       objectReference: {fileID: 240538800}
@@ -1013,6 +1022,10 @@ PrefabInstance:
       propertyPath: magicResistanceText
       value: 
       objectReference: {fileID: 1086806322}
+    - target: {fileID: 5475557845289307412, guid: 56874572f3796c141b4e7ddb24c4ca8b, type: 3}
+      propertyPath: m_Name
+      value: InfoPanel
+      objectReference: {fileID: 0}
     - target: {fileID: 5475557845289307412, guid: 56874572f3796c141b4e7ddb24c4ca8b, type: 3}
       propertyPath: m_IsActive
       value: 0
@@ -1145,7 +1158,7 @@ SceneRoots:
   - {fileID: 963194228}
   - {fileID: 424028184}
   - {fileID: 606471916}
-  - {fileID: 1896242250}
+  - {fileID: 1578066841}
   - {fileID: 572659672}
   - {fileID: 296066849}
   - {fileID: 2066798127}
