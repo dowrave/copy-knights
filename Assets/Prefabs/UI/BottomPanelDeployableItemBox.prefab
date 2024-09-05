@@ -280,7 +280,7 @@ GameObject:
   - component: {fileID: 2895844687629904351}
   - component: {fileID: 2668135105408265270}
   m_Layer: 5
-  m_Name: DeployableIcon
+  m_Name: OperatorIcon
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -355,9 +355,9 @@ GameObject:
   - component: {fileID: 2480546994850779405}
   - component: {fileID: 6488080678099393793}
   - component: {fileID: 2015920184108376305}
-  - component: {fileID: 3369836329132661105}
+  - component: {fileID: 5176054914934292984}
   m_Layer: 5
-  m_Name: BottomPanelDeployableBox
+  m_Name: BottomPanelDeployableItemBox
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -467,7 +467,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls: []
---- !u!114 &3369836329132661105
+--- !u!114 &5176054914934292984
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -476,10 +476,10 @@ MonoBehaviour:
   m_GameObject: {fileID: 4361422347105965548}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ce776f519ea688049969a93d1530ddd3, type: 3}
+  m_Script: {fileID: 11500000, guid: 5e005ac2a3c86a845a3c7f0b5e442587, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  deployablePrefab: {fileID: 0}
+  operatorData: {fileID: 0}
 --- !u!1 &5266507036077911420
 GameObject:
   m_ObjectHideFlags: 0

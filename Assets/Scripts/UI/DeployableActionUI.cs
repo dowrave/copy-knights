@@ -2,7 +2,7 @@ using UnityEngine;
 using UnityEngine.UI;
 
 
-public class OperatorActionUI : MonoBehaviour
+public class DeployableActionUI : MonoBehaviour
 {
     [SerializeField] private MaskedDiamondOverlay maskedOverlay;
     [SerializeField] private Button skillButton;
@@ -13,11 +13,20 @@ public class OperatorActionUI : MonoBehaviour
     private Camera mainCamera;
     private Operator op;
 
-    public void Initialize(Operator _operator)
+    public void Initialize(IDeployable deployable)
     {
-        op = _operator;
-        mainCamera = Camera.main;
+        if (deployable is Operator op)
+        {
+            this.op = op;
+        }
 
+        // 오퍼레이터가 아니라면 스킬 버튼은 비활성화
+        if (this.op == null)
+        {
+            skillButton.gameObject.SetActive(false);
+        }
+
+        mainCamera = Camera.main;
         SetUpButtons();
         UpdateSkillIcon();
 
@@ -37,8 +46,12 @@ public class OperatorActionUI : MonoBehaviour
     {
         // 버튼 위치는 인스펙터에서 설정
         // 버튼 이벤트 설정
-        skillButton.onClick.AddListener(OnSkillButtonClicked);
         retreatButton.onClick.AddListener(OnRetreatButtonClicked);
+
+        if (op != null) 
+        { 
+            skillButton.onClick.AddListener(OnSkillButtonClicked);
+        }
     }
 
     private void UpdateSkillIcon()
@@ -49,9 +62,12 @@ public class OperatorActionUI : MonoBehaviour
 
     private void OnSkillButtonClicked()
     {
-        Debug.Log("스킬 버튼 클릭됨");
-        op.UseSkill();
-        Hide();
+        if (op != null)
+        {
+            Debug.Log("스킬 버튼 클릭됨");
+            op.UseSkill();
+            Hide();
+        }
     }
     private void OnRetreatButtonClicked()
     {

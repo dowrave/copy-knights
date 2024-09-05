@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class OperatorDeployingUI : MonoBehaviour
+public class DeployableDeployingUI : MonoBehaviour
 {
     [SerializeField] private MaskedDiamondOverlay maskedOverlay;
     [SerializeField] private Button cancelButton;
@@ -15,7 +15,7 @@ public class OperatorDeployingUI : MonoBehaviour
 
     private Camera mainCamera;
 
-    public void Initialize(OperatorData operatorData)
+    public void Initialize(IDeployable deployable)
     {
         mainCamera = Camera.main;
         cancelButtonRect = cancelButton.GetComponent<RectTransform>();
@@ -67,7 +67,7 @@ public class OperatorDeployingUI : MonoBehaviour
 
     private void OnCancelButtonClicked()
     {
-        OperatorManager.Instance.CancelOperatorSelection();
+        DeployableManager.Instance.CancelDeployableSelection();
     }
 
 

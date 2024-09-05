@@ -11,10 +11,10 @@ public class UIManager : MonoBehaviour
     [SerializeField] private GameObject deploymentCostPanel;
     [SerializeField] private GameObject topCenterPanel; // 남은 적 수, 라이프 수
     [SerializeField] private GameObject bottomPanel;
-    [SerializeField] private GameObject operatorInfoPanel;
+    [SerializeField] private GameObject infoPanel;
     //[SerializeField] private GameObject overlayPanel;
 
-    private OperatorInfoPanel operatorInfoPanelScript;
+    private InfoPanel infoPanelScript;
 
     // 상단 UI 요소
     [SerializeField] private TextMeshProUGUI enemyCountText;
@@ -51,18 +51,18 @@ public class UIManager : MonoBehaviour
         {
             gameWinPanel = transform.Find("GameWinPanel").gameObject;
         }
-        if (operatorInfoPanel == null)
+        if (infoPanel == null)
         {
-            operatorInfoPanel = transform.Find("OperatorInfoPanel").gameObject;
+            infoPanel = transform.Find("InfoPanel").gameObject;
         }
 
         // 비활성화 전에 참조를 넣어두는 게 좋다
-        operatorInfoPanelScript = operatorInfoPanel.GetComponent<OperatorInfoPanel>();
+        infoPanelScript = infoPanel.GetComponent<InfoPanel>();
 
         // 패널 비활성화
         gameOverPanel.SetActive(false);
         gameWinPanel.SetActive(false);
-        operatorInfoPanel.SetActive(false);
+        infoPanel.SetActive(false);
 
         //InitializeListeners();
 
@@ -100,23 +100,23 @@ public class UIManager : MonoBehaviour
         gameWinPanel.SetActive(true);
     }
 
-    public void ShowOperatorInfo(OperatorData operatorData, Operator op = null)
+    public void ShowDeployableInfo(IDeployable deployable)
     {
-        if (operatorInfoPanelScript != null)
+        if (infoPanelScript != null)
         {
-            operatorInfoPanel.SetActive(true);
+            infoPanel.SetActive(true);
 
-            operatorInfoPanelScript.UpdateInfo(operatorData, op);
-            CameraManager.Instance.AdjustForOperatorInfo(true, op);
+            infoPanelScript.UpdateInfo(deployable);
+            CameraManager.Instance.AdjustForDeployableInfo(true, deployable);
         }
     }
 
-    public void HideOperatorInfo()
+    public void HideDeployableInfo()
     {
-        if (operatorInfoPanel != null)
+        if (infoPanel != null)
         {
-            operatorInfoPanel.SetActive(false);
-            CameraManager.Instance.AdjustForOperatorInfo(false);
+            infoPanel.SetActive(false);
+            CameraManager.Instance.AdjustForDeployableInfo(false);
         }
     }
 

@@ -10,7 +10,7 @@ public class OperatorData : ScriptableObject
     public bool canDeployHill;
     public int maxBlockableEnemies = 1;
 
-    public float deploymentCost;
+    public int deploymentCost;
     public float reDeployTime = 70f;
 
     public GameObject prefab; // 오퍼레이터의 프리팹 정보

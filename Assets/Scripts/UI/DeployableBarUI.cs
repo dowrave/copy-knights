@@ -3,7 +3,7 @@ using UnityEngine.Timeline;
 using UnityEngine.UI;
 
 
-public class OperatorUI : MonoBehaviour
+public class DeployableBarUI : MonoBehaviour
 {
     [SerializeField] private HealthBar healthBar;
     [SerializeField] private HealthBar spBar;
@@ -11,7 +11,9 @@ public class OperatorUI : MonoBehaviour
     private float backOffset = 0; // UI의 높이 오프셋
     private Camera mainCamera;
     private Canvas canvas;
+    private IDeployable deployable;
     private Operator op;
+
 
     private void Awake()
     {
@@ -29,17 +31,19 @@ public class OperatorUI : MonoBehaviour
         }
     }
 
-    public void Initialize(Operator op)
+    public void Initialize(IDeployable deployable)
     {
-        this.op = op;
-        op.OnHealthChanged += UpdateHealthBar;
+        // 오퍼레이터일 때만 활성화
+        if (deployable is Operator op)
+        {
+            this.op = op;
+            op.OnHealthChanged += UpdateHealthBar;
 
-        UpdateUI();
-        UpdatePosition();
+            UpdateUI();
+            UpdatePosition();
 
-        //gameObject.SetActive(true);
-
-        Debug.Log("Operator UI 초기화 완료");
+            Debug.Log("Bar UI 초기화 완료");
+        }
     }
 
     private void Update()
@@ -47,7 +51,6 @@ public class OperatorUI : MonoBehaviour
         if (op != null)
         {
             UpdatePosition();
-            //UpdateUI();
         }
         else
         {

@@ -3,13 +3,13 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
-public class BottomPanelOperatorBox : MonoBehaviour, IPointerDownHandler, IBeginDragHandler, IDragHandler, IEndDragHandler
+public class BottomPanelDeployableBox : MonoBehaviour, IPointerDownHandler, IBeginDragHandler, IDragHandler, IEndDragHandler
 {
-    private GameObject operatorIcon; // 오브젝트
-    private Image operatorIconImage; // Image 컴포넌트
-    private Color originalIconColor;
+    private GameObject deployableIcon;
+    private Image deployableIconImage;
     private TextMeshProUGUI costText;
-    [SerializeField] private OperatorData operatorData;
+    [SerializeField] private GameObject deployablePrefab;
+    private IDeployable deployableInstance;
 
     // 쿨다운 관련
     private Image cooldownImage;
@@ -19,19 +19,20 @@ public class BottomPanelOperatorBox : MonoBehaviour, IPointerDownHandler, IBegin
 
     private bool isDragging = false; 
 
-    public void Initialize(OperatorData data)
+    public void Initialize(GameObject prefab)
     {
-        operatorData = data;
-        operatorIcon = transform.Find("OperatorIcon").gameObject;
-        operatorIconImage = operatorIcon.GetComponentInChildren<Image>(); // OperatorIcon의 Image 컴포넌트에 접근
-        costText = transform.Find("CostBackground/CostText").GetComponent<TextMeshProUGUI>(); // CostText의 TextMeshPro에 접근
+        deployablePrefab = prefab;
+        deployableInstance = deployablePrefab.GetComponent<IDeployable>();
+
+        deployableIcon = transform.Find("DeployableIcon").gameObject;
+        deployableIconImage = deployableIcon.GetComponent<Image>();
+        costText = transform.Find("CostBackground/CostText").GetComponent<TextMeshProUGUI>();
 
         // 쿨다운 UI 컴포넌트 찾기 # transform은 자기 자신과 1단계 자식 오브젝트를 검색함
         cooldownImage = transform.Find("CooldownOverlay").GetComponent<Image>();
         cooldownText = transform.Find("CooldownOverlay/CooldownText").GetComponent<TextMeshProUGUI>(); // 더 깊은 자식 오브젝트 찾기
 
         InitializeVisuals();
-
 
         // 코스트 변할 때의 델리게이트에 이벤트 추가
         StageManager.Instance.OnDeploymentCostChanged += UpdateAvailability;
@@ -62,28 +63,25 @@ public class BottomPanelOperatorBox : MonoBehaviour, IPointerDownHandler, IBegin
     /// <summary>
     /// 일단은 초기화 때만 쓰고 있기는 하다
     /// </summary>
+    /// 
     private void InitializeVisuals()
     {
-        // operatorData에 해당하는 아이콘이 있다면 그걸 넣고 
-        if (operatorData.icon != null)
+        if (deployableInstance.Icon != null)
         {
-            operatorIconImage.sprite = operatorData.icon;
-            operatorIconImage.color = new Color(1f, 1f, 1f, 1f); // 일러스트에 변화를 주지 않고 그대로 넣음
+            deployableIconImage.sprite = deployableInstance.Icon;
+            deployableIconImage.color = Color.white;
         }
 
-        // 없다면 operatorData에 해당하는 색깔만 가져와서 할당한다.
-        else if (operatorData.prefab != null)
+        else if (deployablePrefab != null)
         {
-            Renderer modelRenderer = operatorData.prefab.GetComponentInChildren<Renderer>();
+            Renderer modelRenderer = deployablePrefab.GetComponentInChildren<Renderer>();
             if (modelRenderer != null && modelRenderer.sharedMaterial != null)
-            {   
-                originalIconColor = modelRenderer.sharedMaterial.color;
-                operatorIconImage.color = originalIconColor;
+            {
+                deployableIconImage.color = modelRenderer.sharedMaterial.color;
             }
         }
 
-        costText.text = operatorData.deploymentCost.ToString();
-        //UpdateAvailability();
+        costText.text = deployableInstance.DeploymentCost.ToString();
 
         cooldownImage.gameObject.SetActive(false);
         cooldownText.gameObject.SetActive(false);
@@ -100,7 +98,7 @@ public class BottomPanelOperatorBox : MonoBehaviour, IPointerDownHandler, IBegin
     {
         cooldownImage.gameObject.SetActive(true);
         cooldownText.gameObject.SetActive(true);
-        cooldownImage.fillAmount = cooldownTimer / operatorData.reDeployTime;
+        cooldownImage.fillAmount = cooldownTimer / 70f; // 재배치 시간 70으로 고정 (나중에 수정 필요)
         cooldownText.text = Mathf.Ceil(cooldownTimer).ToString();
     }
 
@@ -113,10 +111,8 @@ public class BottomPanelOperatorBox : MonoBehaviour, IPointerDownHandler, IBegin
 
     private void UpdateAvailability()
     {
-        bool isAvailable = StageManager.Instance.CurrentDeploymentCost >= operatorData.deploymentCost;
-        Color iconColor = isAvailable ? originalIconColor : new Color(originalIconColor.r, originalIconColor.g, originalIconColor.b, 0.3f);
-        operatorIconImage.color = iconColor;
-        //costText.color = isAvailable ? Color.white : Color.gray;
+        bool isAvailable = StageManager.Instance.CurrentDeploymentCost >= deployableInstance.DeploymentCost;
+        deployableIconImage.color = isAvailable ? Color.white : new Color(1, 1, 1, 0.3f);
     }
 
     // 마우스 동작 관련 : 동작하지 않는다면 상속을 확인하라
@@ -125,7 +121,7 @@ public class BottomPanelOperatorBox : MonoBehaviour, IPointerDownHandler, IBegin
     {
         if (CanInteract())
         {
-            OperatorManager.Instance.StartOperatorSelection(operatorData);
+            DeployableManager.Instance.StartDeployableSelection(deployablePrefab);
         }
     }
 
@@ -134,8 +130,8 @@ public class BottomPanelOperatorBox : MonoBehaviour, IPointerDownHandler, IBegin
     {
         if (CanInteract())
         {
-            isDragging = true; 
-            OperatorManager.Instance.StartDragging(operatorData);
+            isDragging = true;
+            DeployableManager.Instance.StartDragging(deployablePrefab);
         }
     }
 
@@ -144,7 +140,7 @@ public class BottomPanelOperatorBox : MonoBehaviour, IPointerDownHandler, IBegin
     {
         if (isDragging && CanInteract())
         {
-            OperatorManager.Instance.HandleDragging(operatorData);
+            DeployableManager.Instance.HandleDragging(deployablePrefab);
         }
     }
 
@@ -153,13 +149,13 @@ public class BottomPanelOperatorBox : MonoBehaviour, IPointerDownHandler, IBegin
     {
         if (isDragging)
         {
-            OperatorManager.Instance.EndDragging(operatorData);
+            DeployableManager.Instance.EndDragging(deployablePrefab);
             isDragging = false; 
         }
     }
 
     private bool CanInteract()
     {
-        return !isOnCooldown && StageManager.Instance.CurrentDeploymentCost >= operatorData.deploymentCost;
+        return !isOnCooldown && StageManager.Instance.CurrentDeploymentCost >= deployableInstance.DeploymentCost;
     }
 }

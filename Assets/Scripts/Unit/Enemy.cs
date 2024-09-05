@@ -136,14 +136,18 @@ public class Enemy : Unit
 
         if (currentTile != null)
         {
-            Operator tileOperator = currentTile.OccupyingOperator;
-
-            // 자신을 저지하는 오퍼레이터가 없음 and 현재 타일에 오퍼레이터가 있음 and 그 오퍼레이터가 저지 가능한 상태
-            if (tileOperator != null && tileOperator.CanBlockEnemy() && blockingOperator == null)
+            IDeployable tileDeployable = currentTile.OccupyingDeployable;
+            if (tileDeployable is Operator op)
             {
-                blockingOperator = currentTile.OccupyingOperator;
-                blockingOperator.TryBlockEnemy(this); // 오퍼레이터에서도 저지 중인 Enemy를 추가
+                // 자신을 저지하는 오퍼레이터가 없음 and 현재 타일에 오퍼레이터가 있음 and 그 오퍼레이터가 저지 가능한 상태
+                if (op != null && op.CanBlockEnemy() && blockingOperator == null)
+                {
+                    blockingOperator = op;
+                    blockingOperator.TryBlockEnemy(this); // 오퍼레이터에서도 저지 중인 Enemy를 추가
+                }
+
             }
+
 
         }
     }
