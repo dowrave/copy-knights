@@ -11,8 +11,9 @@ public interface IDeployable
     bool CanDeployGround { get; }
     bool CanDeployHill { get; }
     Renderer Renderer { get; }
+    GameObject OriginalPrefab { get; } // 원본 프리팹
 
-
+    void Initialize(GameObject prefab); // 프리팹 추가 땜에 넣음
     void Deploy(Vector3 position); //실제 배치 동작
     void Retreat(); // 퇴각 동작
     void EnablePreviewMode(); // 미리 보기 활성화
@@ -21,6 +22,7 @@ public interface IDeployable
     void SetDirection(Vector3 direction); // 방향 설정
     void HighlightAttackRange(); // 공격 범위 설정
     void SetPreviewTransparency(float alpha); // 미리 보기 투명도
+    void OnClick();
 
 
 

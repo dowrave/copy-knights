@@ -30,7 +30,6 @@ public class ClickDetectionSystem : MonoBehaviour
     private void Start()
     {
         mainCamera = Camera.main;
-        //LogCameraCullingMask();
     }
 
     private void Update()
@@ -53,9 +52,9 @@ public class ClickDetectionSystem : MonoBehaviour
         foreach (var result in results)
         {
             Debug.Log($"MouseButtonDown Raycast hit: {result.gameObject.name}");
-            DiamondMask diamondMask = result.gameObject.GetComponent<DiamondMask>();
 
             // ButtonDown 동작 1. 다이아몬드 내부 클릭 시 방향 설정
+            DiamondMask diamondMask = result.gameObject.GetComponent<DiamondMask>();
             if (diamondMask != null)
             {
                 if (diamondMask.IsPointInsideDiamond(Input.mousePosition))
@@ -67,10 +66,10 @@ public class ClickDetectionSystem : MonoBehaviour
             }
 
             // ButtonDown 동작 2. 오퍼레이터 박스 드래그 동작 시작
-            BottomPanelDeployableBox operatorBox = result.gameObject.GetComponent<BottomPanelDeployableBox>();
-            if (operatorBox != null)
+            BottomPanelDeployableBox deployableBox = result.gameObject.GetComponent<BottomPanelDeployableBox>();
+            if (deployableBox != null)
             {
-                operatorBox.OnPointerDown(pointerData);
+                deployableBox.OnPointerDown(pointerData);
                 return;
             }
         }
@@ -140,12 +139,12 @@ public class ClickDetectionSystem : MonoBehaviour
 
     private void HandleObjectClick(RaycastHit hit)
     {
-        Debug.LogWarning("HandleObjectClick");
-        IClickable clickable = hit.collider.GetComponent<IClickable>();
+        IDeployable clickable = hit.collider.GetComponent<IDeployable>();
         if (clickable != null)
         {
             clickable.OnClick();
         }
+
         else
         {
             Tile clickedTile = hit.collider.GetComponent<Tile>();
@@ -154,7 +153,12 @@ public class ClickDetectionSystem : MonoBehaviour
             {
                 if (clickedDeployable is Operator op)
                 {
-                    op.ShowActionUI();
+                    op.OnClick();
+                }
+
+                else
+                {
+                    clickedDeployable.OnClick();
                 }
                 // Operator가 아닐 때에도 퇴각 버튼은 나타나야 함 
 
@@ -188,14 +192,14 @@ public class ClickDetectionSystem : MonoBehaviour
             Debug.Log($"- {component.GetType().Name}");
         }
 
-        IClickable clickable = hit.collider.GetComponent<IClickable>();
-        if (clickable != null)
+        IDeployable deployable = hit.collider.GetComponent<IDeployable>();
+        if (deployable != null)
         {
-            Debug.Log("Hit 오브젝트는 IClickable 인터페이스를 구현했습니다.");
+            Debug.Log("Hit 오브젝트는 IDeployable 인터페이스를 구현했습니다.");
         }
         else
         {
-            Debug.Log("Hit 오브젝트는 IClickable 인터페이스를 구현하지 않았습니다.");
+            Debug.Log("Hit 오브젝트는 IDeployable 인터페이스를 구현하지 않았습니다.");
         }
     }
 
@@ -212,9 +216,4 @@ public class ClickDetectionSystem : MonoBehaviour
         return results;
     }
 
-}
-
-public interface IClickable
-{
-    void OnClick();
 }

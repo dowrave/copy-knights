@@ -619,7 +619,7 @@ GameObject:
   - component: {fileID: 8861834908333680128}
   - component: {fileID: 5942269116690765502}
   - component: {fileID: 5014289655642690059}
-  - component: {fileID: 4721312079916021882}
+  - component: {fileID: 2367504790208865396}
   m_Layer: 9
   m_Name: DeployableBarUI
   m_TagString: Untagged
@@ -693,7 +693,7 @@ MonoBehaviour:
   m_FallbackScreenDPI: 96
   m_DefaultSpriteDPI: 96
   m_DynamicPixelsPerUnit: 1
-  m_PresetInfoIsWorld: 1
+  m_PresetInfoIsWorld: 0
 --- !u!114 &5014289655642690059
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -711,7 +711,7 @@ MonoBehaviour:
   m_BlockingMask:
     serializedVersion: 2
     m_Bits: 4294967295
---- !u!114 &4721312079916021882
+--- !u!114 &2367504790208865396
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -720,8 +720,8 @@ MonoBehaviour:
   m_GameObject: {fileID: 8911005229607826622}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 7b1f00f446a025c4fb33f0f7a0559523, type: 3}
+  m_Script: {fileID: 11500000, guid: 798304ab1a96710469b7e38c662dd10f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  healthBar: {fileID: 7940435949015412083, guid: e2398dcf759e75743b0e55cc17de6acc, type: 3}
-  spBar: {fileID: 7940435949015412083, guid: e2398dcf759e75743b0e55cc17de6acc, type: 3}
+  healthBar: {fileID: 7003479243119132072}
+  spBar: {fileID: 2844616093520082045}

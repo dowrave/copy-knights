@@ -74,14 +74,14 @@ public class CameraManager : MonoBehaviour
     // UI를 클릭하거나 배치된 오퍼레이터 클릭 시 카메라 이동 / 회전 변경
     public void AdjustForDeployableInfo(bool show, IDeployable deployable = null)
     {
-        
+        // ShowDeployableInfo
         if (show)
         {
             Vector3 newPosition;
             float mapWidth = MapManager.Instance.GetCurrentMapWidth();
 
             // 배치된 Deployable 클릭
-            if (deployable != null)
+            if (deployable.IsDeployed)
             {
                 Vector3 operatorPosition = deployable.Transform.position;
 
@@ -112,6 +112,8 @@ public class CameraManager : MonoBehaviour
             Quaternion newRotation = Quaternion.Euler(originalRotation.eulerAngles + operatorInfoRotation);
             StartCoroutine(LerpRotation(MainCamera.transform, newRotation, animationDuration));
         }
+
+        // HideDeployableInfo
         else
         {
             // 원위치와 크기로 복귀

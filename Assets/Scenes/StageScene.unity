@@ -823,7 +823,7 @@ MonoBehaviour:
   bottomPanelDeployableBoxPrefab: {fileID: 4361422347105965548, guid: 32e0823a42592f84cb270798f13e6668, type: 3}
   bottomPanel: {fileID: 1940311227}
   availableDeployables:
-  - {fileID: 4915391220658201727, guid: 0ba2877dc8d09584e93ed290be1214e4, type: 3}
+  - {fileID: 8875430263191699086, guid: 445bdcb62b7e4c84b9ac1f5d640cb325, type: 3}
   - {fileID: 5185628148525671535, guid: 81719ee7b084ab740915d07222eb2ab8, type: 3}
   - {fileID: 4844663318455565301, guid: d3dcd961b53c71f45b440db97cb72987, type: 3}
   availableTileColor: {r: 0, g: 1, b: 0, a: 0.5}

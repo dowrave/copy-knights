@@ -1,3 +1,4 @@
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -11,20 +12,11 @@ public class DeployableActionUI : MonoBehaviour
     private float darkPanelAlpha = 0f;
 
     private Camera mainCamera;
-    private Operator op;
+    private IDeployable deployable;
 
     public void Initialize(IDeployable deployable)
     {
-        if (deployable is Operator op)
-        {
-            this.op = op;
-        }
-
-        // 오퍼레이터가 아니라면 스킬 버튼은 비활성화
-        if (this.op == null)
-        {
-            skillButton.gameObject.SetActive(false);
-        }
+        this.deployable = deployable;
 
         mainCamera = Camera.main;
         SetUpButtons();
@@ -40,6 +32,11 @@ public class DeployableActionUI : MonoBehaviour
         maskedOverlay.Initialize(darkPanelAlpha); // 알파 0으로 조정
 
         gameObject.SetActive(true);
+
+        if (IsOperator() == false)
+        {
+            skillButton.gameObject.SetActive(false);
+        }
     }
 
     private void SetUpButtons()
@@ -48,7 +45,7 @@ public class DeployableActionUI : MonoBehaviour
         // 버튼 이벤트 설정
         retreatButton.onClick.AddListener(OnRetreatButtonClicked);
 
-        if (op != null) 
+        if (IsOperator()) 
         { 
             skillButton.onClick.AddListener(OnSkillButtonClicked);
         }
@@ -62,7 +59,7 @@ public class DeployableActionUI : MonoBehaviour
 
     private void OnSkillButtonClicked()
     {
-        if (op != null)
+        if (deployable is Operator op)
         {
             Debug.Log("스킬 버튼 클릭됨");
             op.UseSkill();
@@ -72,7 +69,7 @@ public class DeployableActionUI : MonoBehaviour
     private void OnRetreatButtonClicked()
     {
         Debug.Log("퇴각 버튼 클릭됨");
-        op.Retreat();
+        deployable.Retreat();
         Hide();
     }
 
@@ -88,4 +85,8 @@ public class DeployableActionUI : MonoBehaviour
         gameObject.SetActive(false);
     }
 
+    private bool IsOperator()
+    {
+        return deployable is Operator ? true : false;
+    }
 }

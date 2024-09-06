@@ -17,6 +17,13 @@ public class InfoPanel : MonoBehaviour
 
     private IDeployable currentDeployable;
     private Operator currentOperator;
+    private GameObject statsContainer;
+
+    private void Awake() 
+    {
+        statsContainer = transform.Find("OperatorInfoContent/StatsContainer").gameObject;
+        statsContainer.SetActive(false);
+    }
 
     public void UpdateInfo(IDeployable deployable)
     {
@@ -26,12 +33,17 @@ public class InfoPanel : MonoBehaviour
         }
 
         // 기본 정보 업데이트
-        nameText.text = deployable.GetType().Name;
+        nameText.text = deployable.Transform.name;
 
         // Operator 특정 정보 업데이트
         if (deployable is Operator op)
         {
+            statsContainer.SetActive(true);
             UpdateOperatorInfo(op);
+        }
+        else
+        {
+            statsContainer.SetActive(false);
         }
 
     }
@@ -45,9 +57,19 @@ public class InfoPanel : MonoBehaviour
         }
 
         currentOperator = op;
-        currentOperator.OnHealthChanged += UpdateHealthText;
 
-        UpdateHealthText(currentOperator.currentHealth, currentOperator.MaxHealth);
+        // 오퍼레이터가 배치되었는지 확인
+        if (op.IsDeployed)
+        {
+            currentOperator.OnHealthChanged += UpdateHealthText;
+            UpdateHealthText(currentOperator.currentHealth, currentOperator.MaxHealth);
+        }
+        else
+        {
+            // 배치되지 않은 경우 OperatorData에서 직접 값을 가져옴
+            UpdateHealthText(op.data.stats.health, op.data.stats.health);
+        }
+
         attackText.text = $"공격력: {op.data.stats.attackPower}";
         defenseText.text = $"방어력: {op.data.stats.defense}";
         magicResistanceText.text = $"마법저항력: {op.data.stats.magicResistance}";
