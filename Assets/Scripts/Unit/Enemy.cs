@@ -223,7 +223,6 @@ public class Enemy : Unit
 
     private void UpdateTargetNode()
     {
-
         currentNodeIndex++;
         if (currentNodeIndex < pathData.nodes.Count)
         {
@@ -240,13 +239,13 @@ public class Enemy : Unit
     private void OnEnable()
     {
         Barricade.OnBarricadeDeployed += OnBarricadeStateChanged;
-        Barricade.OnBarricadeRetreated += OnBarricadeStateChanged; 
+        Barricade.OnBarricadeRemoved += OnBarricadeStateChanged; 
     }
 
     private void OnDisable()
     {
         Barricade.OnBarricadeDeployed -= OnBarricadeStateChanged;
-        Barricade.OnBarricadeRetreated -= OnBarricadeStateChanged;
+        Barricade.OnBarricadeRemoved -= OnBarricadeStateChanged;
     }
 
     /// <summary>

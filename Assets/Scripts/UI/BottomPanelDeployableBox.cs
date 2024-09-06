@@ -12,7 +12,7 @@ public class BottomPanelDeployableBox : MonoBehaviour, IPointerDownHandler, IBeg
     private IDeployable deployableInstance;
 
     // 쿨다운 관련
-    private Image cooldownImage;
+    private Image InActiveImage;
     private TextMeshProUGUI cooldownText;
     private float cooldownTimer = 0f;
     private bool isOnCooldown = false;
@@ -26,16 +26,16 @@ public class BottomPanelDeployableBox : MonoBehaviour, IPointerDownHandler, IBeg
 
         deployableIcon = transform.Find("DeployableIcon").gameObject;
         deployableIconImage = deployableIcon.GetComponent<Image>();
+
         costText = transform.Find("CostBackground/CostText").GetComponent<TextMeshProUGUI>();
 
-        // 쿨다운 UI 컴포넌트 찾기 # transform은 자기 자신과 1단계 자식 오브젝트를 검색함
-        cooldownImage = transform.Find("CooldownOverlay").GetComponent<Image>();
-        cooldownText = transform.Find("CooldownOverlay/CooldownText").GetComponent<TextMeshProUGUI>(); // 더 깊은 자식 오브젝트 찾기
-
-        InitializeVisuals();
+        InActiveImage = transform.Find("InActiveOverlay").GetComponent<Image>();
+        cooldownText = transform.Find("CooldownText").GetComponent<TextMeshProUGUI>(); // 더 깊은 자식 오브젝트 찾기
 
         // 코스트 변할 때의 델리게이트에 이벤트 추가
         StageManager.Instance.OnDeploymentCostChanged += UpdateAvailability;
+
+        InitializeVisuals();
     }
 
     private void OnDestroy()
@@ -66,10 +66,11 @@ public class BottomPanelDeployableBox : MonoBehaviour, IPointerDownHandler, IBeg
     /// 
     private void InitializeVisuals()
     {
+        // deployable 자체에 할당된 아이콘이 있다면 DeployableIcon 오브젝트에 할당
         if (deployableInstance.Icon != null)
         {
             deployableIconImage.sprite = deployableInstance.Icon;
-            deployableIconImage.color = Color.white;
+            deployableIconImage.color = Color.white; // 원래의 아이콘 그대로 나타내기 위함
         }
 
         else if (deployablePrefab != null)
@@ -83,9 +84,10 @@ public class BottomPanelDeployableBox : MonoBehaviour, IPointerDownHandler, IBeg
 
         costText.text = deployableInstance.DeploymentCost.ToString();
 
-        cooldownImage.gameObject.SetActive(false);
+        InActiveImage.gameObject.SetActive(false);
         cooldownText.gameObject.SetActive(false);
     }
+
     public void StartCooldown(float cooldownTime)
     {
         isOnCooldown = true;
@@ -96,24 +98,33 @@ public class BottomPanelDeployableBox : MonoBehaviour, IPointerDownHandler, IBeg
 
     private void UpdateCooldownVisuals()
     {
-        cooldownImage.gameObject.SetActive(true);
+        InActiveImage.gameObject.SetActive(true);
         cooldownText.gameObject.SetActive(true);
-        cooldownImage.fillAmount = cooldownTimer / 70f; // 재배치 시간 70으로 고정 (나중에 수정 필요)
+        //InActiveImage.fillAmount = cooldownTimer / 70f; // 재배치 시간 70으로 고정 (나중에 수정 필요)
         cooldownText.text = Mathf.Ceil(cooldownTimer).ToString();
     }
 
     private void EndCooldown()
     {
         isOnCooldown = false;
-        cooldownImage.gameObject.SetActive(false);
+        InActiveImage.gameObject.SetActive(false);
         cooldownText.gameObject.SetActive(false);
     }
 
     private void UpdateAvailability()
     {
-        bool isAvailable = StageManager.Instance.CurrentDeploymentCost >= deployableInstance.DeploymentCost;
-        deployableIconImage.color = isAvailable ? Color.white : new Color(1, 1, 1, 0.3f);
+        if (CanInteract())
+        {
+            InActiveImage.gameObject.SetActive(false); // 박스 흐릿하게
+        }
+        else
+        {
+            InActiveImage.gameObject.SetActive(true); // 흐릿한 박스 제거
+        }
     }
+
+    // 이 스크립트는 각 Box를 구현한 거임 
+    // 즉, 하단 패널 박스를 누르면 그 박스에 할당된 오퍼레이터 프리팹에 관한 로직들이 작동하기 시작함 
 
     // 마우스 동작 관련 : 동작하지 않는다면 상속을 확인하라
     // 마우스 버튼을 눌렀다가 같은 위치에서 뗐을 때 발생
@@ -158,4 +169,5 @@ public class BottomPanelDeployableBox : MonoBehaviour, IPointerDownHandler, IBeg
     {
         return !isOnCooldown && StageManager.Instance.CurrentDeploymentCost >= deployableInstance.DeploymentCost;
     }
+
 }

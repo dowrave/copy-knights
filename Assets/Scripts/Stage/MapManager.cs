@@ -12,6 +12,7 @@ public class MapManager : MonoBehaviour
 { 
     public static MapManager Instance { get; private set; }
     private Map currentMap;
+    public Map CurrentMap => currentMap;
     [SerializeField] private List<PathData> availablePaths;
 
     private void Awake()

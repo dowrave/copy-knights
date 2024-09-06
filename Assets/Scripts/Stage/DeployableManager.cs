@@ -135,12 +135,15 @@ public class DeployableManager : MonoBehaviour
     // BottomPanelOperatorBox 클릭 시 작동, 배치하려는 오퍼레이터의 정보를 변수에 넣는다.
     public void StartDeployableSelection(GameObject deployablePrefab)
     {
+
         if (currentDeployablePrefab != deployablePrefab)
         {
             ResetPlacement();
             currentDeployablePrefab = deployablePrefab;
             currentDeployable = currentDeployablePrefab.GetComponent<IDeployable>();
             isDeployableSelecting = true;
+
+            UIManager.Instance.ShowDeployableInfo(currentDeployable);
 
             // Highlight available tiles
             HighlightAvailableTiles();
@@ -180,14 +183,14 @@ public class DeployableManager : MonoBehaviour
             else
             {
                 CancelDeployableSelection();
-                HideDeployableInfoPanel();
+                UIManager.Instance.HideDeployableInfo();
             }
         }
     }
 
     private void CreatePreviewDeployable()
     {
-        if (currentDeployablePrefab != null && currentDeployable == null)
+        if (currentDeployablePrefab != null && currentDeployable != null)
         {
             GameObject deployableObject = Instantiate(currentDeployablePrefab);
             currentDeployable = deployableObject.GetComponent<IDeployable>();
@@ -206,16 +209,7 @@ public class DeployableManager : MonoBehaviour
         ResetHighlights();
         currentHoverTile = tile;
 
-        //if (currentOperator != null)
-        //{
-        //    currentOperator.transform.position = tile.transform.position + Vector3.up * 0.5f;
-        //    currentOperator.ShowDirectionIndicator(true);
-        //}
-        if (currentDeployable != null)
-        {
-            currentDeployable.Transform.position = tile.transform.position + Vector3.up * 0.5f;
-        }
-
+        SetAboveTilePosition(currentDeployable, tile);
 
         ShowDeployingUI(tile.transform.position + Vector3.up * 0.5f);
         UpdatePreviewDeployableRotation();
@@ -224,11 +218,11 @@ public class DeployableManager : MonoBehaviour
     public void ShowActionUI(IDeployable deployable)
     {
         HideAllUIs();
-        currentActionUI = Instantiate(actionUIPrefab, deployable.Transform.position, Quaternion.identity);
+        // 일관된 위치 구현하기
+        Vector3 ActionUIPosition = new Vector3(deployable.Transform.position.x, 1f, deployable.Transform.position.z);
+        currentActionUI = Instantiate(actionUIPrefab, ActionUIPosition, Quaternion.identity);
         currentActionUI.Initialize(deployable);
         currentUIState = UIState.OperatorAction;
-
-        //UIManager.Instance.ShowOperatorActionUI();
     }
 
     public void ShowDeployingUI(Vector3 position)
@@ -310,25 +304,6 @@ public class DeployableManager : MonoBehaviour
 
     }
 
-    // 배치 중일 때 미리 보기 표현
-    //private void UpdatePreviewDeployable()
-    //{
-    //    if (currentDeployable != null && currentDeployable.IsPreviewMode)
-    //    {
-    //        Tile hoveredTile = GetHoveredTile();
-    //        if (hoveredTile != null && CanPlaceOnTile(hoveredTile))
-    //        {
-    //            Vector3 previewPosition = hoveredTile.transform.position + Vector3.up * 0.5f;
-    //            currentDeployable.UpdatePreviewPosition(previewPosition);
-    //            (currentDeployable as MonoBehaviour).gameObject.SetActive(true);
-    //        }
-    //        else
-    //        {
-    //            (currentDeployable as MonoBehaviour).gameObject.SetActive(false);
-    //        }
-    //    }
-    //}
-
     private void UpdatePreviewDeployable()
     {
         // 항상 커서 위치에 대한 월드 좌표 계산
@@ -352,7 +327,7 @@ public class DeployableManager : MonoBehaviour
         // 배치 가능한 타일 위라면 타일 위치로 스냅
         if (hoveredTile != null && highlightedTiles.Contains(hoveredTile))
         {
-            currentDeployable.Transform.position = hoveredTile.transform.position + Vector3.up * 0.5f;
+            SetAboveTilePosition(currentDeployable, hoveredTile);
         }
         else
         {
@@ -394,36 +369,6 @@ public class DeployableManager : MonoBehaviour
         return Vector3.back;
     }
 
-
-    /// <summary>
-    /// 방향까지 결정된 뒤의 최종 배치 로직
-    /// </summary>
-    //private void DeployDeployable(Tile tile)
-    //{
-    //    if (StageManager.Instance.TryUseDeploymentCost((int)currentDeployable.DeploymentCost))
-    //    {
-    //        if (currentOperator != null)
-    //        {
-    //            currentOperator.IsPreviewMode = false;
-    //            currentOperator.Deploy(tile.transform.position + Vector3.up * 0.5f, placementDirection);
-    //            tile.SetOccupied(currentDeployable);
-    //            SetPreviewTransparency(1f);
-    //        }
-
-    //        // 배치된 오퍼레이터 리스트에 추가
-    //        deployedOperators.Add(currentOperatorData);
-
-    //        // 하단 패널 UI에서 해당 오퍼레이터 박스 제거
-    //        if (operatorUIBoxes.TryGetValue(currentOperatorData, out BottomPanelDeployableBox box))
-    //        {
-    //            box.gameObject.SetActive(false);
-    //        }
-
-    //        ResetPlacement(); // 변수 초기화
-    //        StageManager.Instance.UpdateTimeScale(); // 시간 흐름 정상으로 되돌림
-    //    }
-    //}
-
     /// <summary>
     /// 방향까지 결정된 뒤의 최종 배치 로직
     /// </summary>
@@ -431,7 +376,8 @@ public class DeployableManager : MonoBehaviour
     {
         if (StageManager.Instance.TryUseDeploymentCost(currentDeployable.DeploymentCost))
         {
-            currentDeployable.Deploy(tile.transform.position + Vector3.up * 0.5f);
+            currentDeployable.Initialize(currentDeployablePrefab); // 배치 시에 프리팹 참조 전달
+            currentDeployable.Deploy(tile.transform.position);
             currentDeployable.SetDirection(placementDirection);
             tile.SetOccupied(currentDeployable);
 
@@ -457,26 +403,17 @@ public class DeployableManager : MonoBehaviour
         isSelectingDirection = false;
         isMousePressed = false;
 
-        //currentOperatorData = null;
-        //currentOperatorPrefab = null;
-        //if (currentOperator != null)
-        //{
-        //    if (currentOperator.IsPreviewMode)
-        //    {
-        //        Destroy(currentOperator.gameObject);
-        //    }
-        //    currentOperator = null;
-        //}
-        //operatorIndex = -1;
         if (currentDeployable != null)
         {
-            Destroy(currentDeployable.Transform.gameObject);
+            if (currentDeployable.IsPreviewMode)
+            {
+                Destroy(currentDeployable.Transform.gameObject);
+            }
+            currentDeployable = null;
         }
         currentDeployablePrefab = null;
-        currentDeployable = null;
 
-
-        HideDeployableInfoPanel();
+        UIManager.Instance.HideDeployableInfo();
         StageManager.Instance.UpdateTimeScale(); // 시간 원상복구
         ResetHighlights();
 
@@ -514,32 +451,18 @@ public class DeployableManager : MonoBehaviour
         }
     }
 
-    // 퇴각 / 사망 시 호출
-    //public void OnDeployableRemoved(IDeployable deployable)
-    //{
-    //    if (deployable is Operator op)
-    //    {
-    //        deployedItems.Remove(deployable);
-    //        if (operatorUIBoxes.TryGetValue(op.data, out BottomPanelDeployableBox box))
-    //        {
-    //            box.StartCooldown(op.data.reDeployTime);
-    //        }
-    //    }
-
-    //    HideDeployableInfoPanel();
-    //    HideAllUIs();
-    //    ResetHighlights();
-    //}
-
     public void OnDeployableRemoved(IDeployable deployable)
     {
         deployedItems.Remove(deployable);
         UIManager.Instance.HideDeployableInfo();
+
         HideAllUIs();
         ResetHighlights();
 
-        if (deployableUIBoxes.TryGetValue(currentDeployablePrefab, out BottomPanelDeployableBox box))
+        GameObject prefab = deployable.OriginalPrefab;
+        if (prefab != null && deployableUIBoxes.TryGetValue(prefab, out BottomPanelDeployableBox box))
         {
+            box.gameObject.SetActive(true);
             box.StartCooldown(70f); // Assuming a fixed cooldown time
         }
     }
@@ -605,7 +528,21 @@ public class DeployableManager : MonoBehaviour
 
     private bool CanPlaceOnTile(Tile tile)
     {
-        // Implementation for checking if a deployable can be placed on the given tile
-        return tile.CanPlaceDeployable();
+        // 타일이 배치 가능한가? + 타일이 하이라이트되었는가?
+        return tile.CanPlaceDeployable() && highlightedTiles.Contains(tile);
+    }
+
+    // 타일 위에 배치되는 배치 가능한 요소의 위치 지정
+    // 바리케이드가 붕 뜨길래 만들었음
+    private void SetAboveTilePosition(IDeployable deployable, Tile tile)
+    {
+        if (currentDeployable is Barricade barricade)
+        {
+            barricade.Transform.position = tile.transform.position + Vector3.up * 0.1f;
+        }
+        else
+        {
+            currentDeployable.Transform.position = tile.transform.position + Vector3.up * 0.5f;
+        }
     }
 }

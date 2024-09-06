@@ -59,20 +59,35 @@ public class Barricade : MonoBehaviour, IDeployable
     public bool CanDeployHill => canDeployHill;
 
     public static event Action<Barricade> OnBarricadeDeployed;
-    public static event Action<Barricade> OnBarricadeRetreated;
+    public static event Action<Barricade> OnBarricadeRemoved;
+    public GameObject OriginalPrefab { get; private set; }
 
+    public void Initialize(GameObject prefab)
+    {
+        OriginalPrefab = prefab;
+        // 기존 초기화 코드가 있다면 여기에 추가...
+    }
+
+    private void Awake()
+    {
+        PreparePreviewMaterials();
+    }
 
     public void Deploy(Vector3 position)
     {
-        transform.position = position;
+        transform.position = new Vector3(position.x, 0.1f, position.z);
         isDeployed = true;
+        IsPreviewMode = false;
         gameObject.SetActive(true);
+        OnBarricadeDeployed?.Invoke(this);
     }
 
     public void Retreat()
     {
         isDeployed = false;
         gameObject.SetActive(false);
+        OnBarricadeRemoved?.Invoke(this);
+        DeployableManager.Instance.OnDeployableRemoved(this);
     }
 
     public void TakeDamage(int damage)
@@ -104,21 +119,23 @@ public class Barricade : MonoBehaviour, IDeployable
 
     private void PreparePreviewMaterials()
     {
-        Renderer renderer = GetComponent<Renderer>();
-        if (renderer != null)
+
+        if (Renderer != null)
         {
-            originalMaterial = renderer.material;
+            originalMaterial = Renderer.material;
             previewMaterial = new Material(originalMaterial);
-            previewMaterial.color = new Color(originalMaterial.color.r, originalMaterial.color.g, originalMaterial.color.b, 0.5f);
+            previewMaterial.SetFloat("_Mode", 3); // Transparent mode
+            Color previewColor = previewMaterial.color;
+            previewColor.a = 0.5f;
+            previewMaterial.color = previewColor;
         }
     }
 
     private void UpdateVisuals()
     {
-        Renderer renderer = GetComponent<Renderer>();
-        if (renderer != null)
+        if (Renderer != null)
         {
-            renderer.material = IsPreviewMode ? previewMaterial : originalMaterial;
+            Renderer.material = IsPreviewMode ? previewMaterial : originalMaterial;
         }
     }
 
@@ -141,5 +158,27 @@ public class Barricade : MonoBehaviour, IDeployable
             color.a = alpha;
             mat.color = color;
         }
+    }
+
+    public void OnClick()
+    {
+        if (IsDeployed && !IsPreviewMode && StageManager.Instance.currentState == GameState.Battle)
+        {
+            DeployableManager.Instance.CancelPlacement(); // 이미 진행 중인 배치 로직이 취소되어야 함
+
+            // 미리보기 상태에선 동작하면 안됨
+            if (IsPreviewMode == false)
+            {
+                UIManager.Instance.ShowDeployableInfo(this);
+            }
+
+            HighlightAttackRange();
+            ShowActionUI();
+        }
+    }
+    public void ShowActionUI()
+    {
+        DeployableManager.Instance.ShowActionUI(this);
+        UIManager.Instance.ShowDeployableInfo(this);
     }
 }

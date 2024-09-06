@@ -166,21 +166,16 @@ public class MapEditorWindow : EditorWindow
         return null;
     }
 
-    // 기존 맵이 있다면 로드하고, 없다면 새로운 맵을 초기화한다
+    // 현재 하이어라키에 있는 Map 컴포넌트를 찾음
     private void FindExistingMap()
     {
-        GameObject mapObject = GameObject.Find(MAP_OBJECT_NAME);
-        if (mapObject != null)
+        currentMap = FindObjectOfType<Map>(); // 큰 씬일수록 연산량이 많지만 에디터니까 ㄱㅊ
+        if (currentMap != null)
         {
-            currentMap = mapObject.GetComponent<Map>();
-            if (currentMap != null)
-            {
-                currentMapWidth = currentMap.Width;
-                currentMapHeight = currentMap.Height;
-
-                // 맵 다시 초기화 - 컴파일이 다시 된 다음에 MapEditorWindow에 참조를 유실하는 문제가 있음
-                currentMap.Initialize(currentMapWidth, currentMapHeight, true);
-            }
+            currentMapWidth = currentMap.Width;
+            currentMapHeight = currentMap.Height;
+            // 맵 다시 초기화 - 컴파일이 다시 된 다음에 MapEditorWindow에 참조를 유실하는 문제가 있음
+            currentMap.Initialize(currentMapWidth, currentMapHeight, true);
         }
     }
 

@@ -122,7 +122,7 @@ public class Tile : MonoBehaviour
 
     public bool CanPlaceDeployable()
     {
-        return (OccupyingDeployable == null) && (data.isDeployable);
+        return !data.isStartPoint && !data.isEndPoint && (OccupyingDeployable == null) && (data.isDeployable);
     }
 
     public void SetOccupied(IDeployable deployable)

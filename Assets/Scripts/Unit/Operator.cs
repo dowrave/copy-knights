@@ -7,7 +7,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using static UnityEngine.EventSystems.EventTrigger;
 
-public class Operator : Unit, IClickable, IDeployable
+public class Operator : Unit, IDeployable
 {
 
     [SerializeField] // 필드 직렬화, Inspector에서 이 필드 숨기기
@@ -26,6 +26,7 @@ public class Operator : Unit, IClickable, IDeployable
         }
     }
 
+    public GameObject OriginalPrefab { get; private set; }
 
     // 저지 관련
     private List<Enemy> blockedEnemies; // 저지 중인 적들
@@ -33,7 +34,6 @@ public class Operator : Unit, IClickable, IDeployable
 
     public int deploymentOrder { get; private set; } // 배치 순서
     private bool isDeployed = false; // 배치 완료 시 true
-    private Map currentMap;
     private Enemy currentTarget;
     private float attackCooldown = 0f; // data.baseStats에서 들어오는 AttackSpeed 값에 의해 결정됨
     //[HideInInspector] public bool isBlocking = false; // 저지 중인가
@@ -97,7 +97,6 @@ public class Operator : Unit, IClickable, IDeployable
     private void Awake()
     {
         PrepareTransparentMaterial();
-        currentMap = FindObjectOfType<Map>();
     }
 
     // 배치에 상관 없는 초기화 수행
@@ -105,24 +104,30 @@ public class Operator : Unit, IClickable, IDeployable
     {
         currentSP = data.initialSP; // SP 초기화
         attackRangeType = data.stats.attackRangeType;
+        
         CreateDirectionIndicator();
         InitializeStats();
     }
 
-    public void Deploy(Vector3 position, Vector3 direction)
+    public void Initialize(GameObject prefab)
     {
-        if (!IsDeployed)
-        {
-            IsDeployed = true;
-            transform.position = position;
-            SetDirection(direction);
-
-            maxHealth = data.stats.health;
-            //currentMap = FindObjectOfType<Map>();
-
-            CreateOperatorBarUI();
-        }
+        OriginalPrefab = prefab;
+        // 기존 초기화 코드...
     }
+
+    //public void Deploy(Vector3 position, Vector3 direction)
+    //{
+    //    if (!IsDeployed)
+    //    {
+    //        IsDeployed = true;
+    //        transform.position = position;
+    //        SetDirection(direction);
+
+    //        maxHealth = data.stats.health;
+
+    //        CreateOperatorBarUI();
+    //    }
+    //}
 
     public void SetDirection(Vector3 direction)
     {
@@ -258,14 +263,14 @@ public class Operator : Unit, IClickable, IDeployable
     private void GetEnemiesInAttackRange()
     {
         enemiesInRange.Clear();
-        Vector2Int operatorGridPos = currentMap.WorldToGridPosition(transform.position);
+        Vector2Int operatorGridPos = MapManager.Instance.CurrentMap.WorldToGridPosition(transform.position);
 
         foreach (Vector2Int offset in data.attackableTiles)
         {
             Vector2Int rotatedOffset = RotateOffset(offset, facingDirection);
             Vector2Int targetGridPos = operatorGridPos + rotatedOffset;
 
-            Tile targetTile = currentMap.GetTile(targetGridPos.x, targetGridPos.y);
+            Tile targetTile = MapManager.Instance.CurrentMap.GetTile(targetGridPos.x, targetGridPos.y);
             if (targetTile != null)
             {
                 // 타일 위의 적들을 보는 로직은 Tile.cs에 구현됨
@@ -300,10 +305,10 @@ public class Operator : Unit, IClickable, IDeployable
 
     private Vector2Int WorldToRelativeGridPosition(Vector3 worldPosition)
     {
-        if (currentMap != null)
+        if (MapManager.Instance.CurrentMap != null)
         {
-            Vector2Int absoluteGridPos = currentMap.WorldToGridPosition(worldPosition);
-            Vector2Int operatorGridPos = currentMap.WorldToGridPosition(transform.position);
+            Vector2Int absoluteGridPos = MapManager.Instance.CurrentMap.WorldToGridPosition(worldPosition);
+            Vector2Int operatorGridPos = MapManager.Instance.CurrentMap.WorldToGridPosition(transform.position);
             return absoluteGridPos - operatorGridPos;
         }
         return Vector2Int.zero;
@@ -419,6 +424,7 @@ public class Operator : Unit, IClickable, IDeployable
             // 프리뷰 모드일 때의 시각 설정
             meshRenderer.material = previewMaterial;
         }
+
         else
         {
             // 실제 배치 모드일 때의 시각 설정
@@ -518,16 +524,16 @@ public class Operator : Unit, IClickable, IDeployable
 
     public void HighlightAttackRange()
     {
-        if (currentMap == null) return;
+        if (MapManager.Instance.CurrentMap == null) return;
 
-        Vector2Int operatorGridPos = currentMap.WorldToGridPosition(transform.position);
+        Vector2Int operatorGridPos = MapManager.Instance.CurrentMap.WorldToGridPosition(transform.position);
         List<Tile> tilesToHighlight = new List<Tile>();
 
         foreach (Vector2Int offset in data.attackableTiles)
         {
             Vector2Int rotatedIOffset = RotateOffset(offset, facingDirection);
             Vector2Int targetGridPos = operatorGridPos + rotatedIOffset;
-            Tile targetTile = currentMap.GetTile(targetGridPos.x, targetGridPos.y);
+            Tile targetTile = MapManager.Instance.CurrentMap.GetTile(targetGridPos.x, targetGridPos.y);
             if (targetTile != null)
             {
                 tilesToHighlight.Add(targetTile);
@@ -556,8 +562,8 @@ public class Operator : Unit, IClickable, IDeployable
     {
         if (unit is Enemy) // 타입 매칭은 `is`를 사용
         {
-            Vector2Int enemyGridPos = currentMap.WorldToGridPosition(unit.transform.position);
-            Vector2Int operatorGridPos = currentMap.WorldToGridPosition(transform.position); 
+            Vector2Int enemyGridPos = MapManager.Instance.CurrentMap.WorldToGridPosition(unit.transform.position);
+            Vector2Int operatorGridPos = MapManager.Instance.CurrentMap.WorldToGridPosition(transform.position); 
 
             foreach (Vector2Int offset in data.attackableTiles)
             {
@@ -603,7 +609,7 @@ public class Operator : Unit, IClickable, IDeployable
         if (!IsDeployed)
         {
             IsDeployed = true;
-            transform.position = position;
+            transform.position = new Vector3(position.x, 0.5f, position.z);
             SetDirection(facingDirection);
 
             maxHealth = data.stats.health;
