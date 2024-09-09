@@ -21,7 +21,7 @@ public class DeployableManager : MonoBehaviour
     public List<GameObject> availableDeployables = new List<GameObject>();
     private Dictionary<GameObject, BottomPanelDeployableBox> deployableUIBoxes = new Dictionary<GameObject, BottomPanelDeployableBox>();
     private GameObject currentDeployablePrefab;
-    private IDeployable currentDeployable;
+    private DeployableUnitEntity currentDeployable;
 
     // 하이라이트 관련 변수
     public Color availableTileColor = new Color(0, 1, 0, 0.5f); 
@@ -57,7 +57,7 @@ public class DeployableManager : MonoBehaviour
     private const float PLACEMENT_TIME_SCALE = 0.2f;
     private float originalTimeScale = 1f;
 
-    private List<IDeployable> deployedItems = new List<IDeployable>();
+    private List<DeployableUnitEntity> deployedItems = new List<DeployableUnitEntity>();
     private void Awake()
     {
         if (Instance == null)
@@ -121,8 +121,8 @@ public class DeployableManager : MonoBehaviour
         {
             if (tile != null && tile.CanPlaceDeployable())
             {
-                if ((tile.data.terrain == TileData.TerrainType.Ground && currentDeployable.CanDeployGround) ||
-                    (tile.data.terrain == TileData.TerrainType.Hill && currentDeployable.CanDeployHill))
+                if ((tile.data.terrain == TileData.TerrainType.Ground && currentDeployable.data.CanDeployGround) ||
+                    (tile.data.terrain == TileData.TerrainType.Hill && currentDeployable.data.CanDeployHill))
                 {
                     tile.Highlight(availableTileColor);
                     highlightedTiles.Add(tile);
@@ -140,7 +140,7 @@ public class DeployableManager : MonoBehaviour
         {
             ResetPlacement();
             currentDeployablePrefab = deployablePrefab;
-            currentDeployable = currentDeployablePrefab.GetComponent<IDeployable>();
+            currentDeployable = currentDeployablePrefab.GetComponent<DeployableUnitEntity>();
             isDeployableSelecting = true;
 
             UIManager.Instance.ShowDeployableInfo(currentDeployable);
@@ -193,7 +193,7 @@ public class DeployableManager : MonoBehaviour
         if (currentDeployablePrefab != null && currentDeployable != null)
         {
             GameObject deployableObject = Instantiate(currentDeployablePrefab);
-            currentDeployable = deployableObject.GetComponent<IDeployable>();
+            currentDeployable = deployableObject.GetComponent<DeployableUnitEntity>();
             if (currentDeployable != null)
             {
                 currentDeployable.IsPreviewMode = true;
@@ -212,14 +212,14 @@ public class DeployableManager : MonoBehaviour
         SetAboveTilePosition(currentDeployable, tile);
 
         ShowDeployingUI(tile.transform.position + Vector3.up * 0.5f);
-        UpdatePreviewDeployableRotation();
+        UpdatePreviewRotation();
     }
 
-    public void ShowActionUI(IDeployable deployable)
+    public void ShowActionUI(DeployableUnitEntity deployable)
     {
         HideAllUIs();
         // 일관된 위치 구현하기
-        Vector3 ActionUIPosition = new Vector3(deployable.Transform.position.x, 1f, deployable.Transform.position.z);
+        Vector3 ActionUIPosition = new Vector3(deployable.transform.position.x, 1f, deployable.transform.position.z);
         currentActionUI = Instantiate(actionUIPrefab, ActionUIPosition, Quaternion.identity);
         currentActionUI.Initialize(deployable);
         currentUIState = UIState.OperatorAction;
@@ -267,14 +267,14 @@ public class DeployableManager : MonoBehaviour
             Vector3 newDirection = DetermineDirection(dragVector);
 
             placementDirection = newDirection;
-            //HighlightAttackRange(currentHoverTile, placementDirection);
-            if (currentDeployable != null)
+
+            if (currentDeployable != null && currentDeployable is Operator op)
             {
-                currentDeployable.SetDirection(placementDirection);
-                currentDeployable.HighlightAttackRange();
+                op.SetDirection(placementDirection);
+                op.HighlightAttackRange();
             }
 
-            UpdatePreviewDeployableRotation();
+            UpdatePreviewRotation();
 
             if (Input.GetMouseButtonUp(0))
             {
@@ -443,15 +443,15 @@ public class DeployableManager : MonoBehaviour
         }
     }
 
-    private void UpdatePreviewDeployableRotation()
+    private void UpdatePreviewRotation()
     {
         if (currentDeployable != null)
         {
-            currentDeployable.Transform.rotation = Quaternion.LookRotation(placementDirection);
+            currentDeployable.transform.rotation = Quaternion.LookRotation(placementDirection);
         }
     }
 
-    public void OnDeployableRemoved(IDeployable deployable)
+    public void OnDeployableRemoved(DeployableUnitEntity deployable)
     {
         deployedItems.Remove(deployable);
         UIManager.Instance.HideDeployableInfo();
@@ -492,7 +492,7 @@ public class DeployableManager : MonoBehaviour
         }
     }
 
-    public void ShowDeployableInfoPanel(IDeployable deployable)
+    public void ShowDeployableInfoPanel(DeployableUnitEntity deployable)
     {
         UIManager.Instance.ShowDeployableInfo(deployable);
     }
@@ -534,7 +534,7 @@ public class DeployableManager : MonoBehaviour
 
     // 타일 위에 배치되는 배치 가능한 요소의 위치 지정
     // 바리케이드가 붕 뜨길래 만들었음
-    private void SetAboveTilePosition(IDeployable deployable, Tile tile)
+    private void SetAboveTilePosition(DeployableUnitEntity deployable, Tile tile)
     {
         if (currentDeployable is Barricade barricade)
         {

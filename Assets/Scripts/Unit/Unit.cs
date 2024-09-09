@@ -2,19 +2,6 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public enum AttackType
-{
-    Physical,
-    Magical,
-    True
-}
-
-public enum AttackRangeType
-{
-    Melee,
-    Ranged
-}
-
 public abstract class Unit : MonoBehaviour
 {
     [SerializeField, HideInInspector]

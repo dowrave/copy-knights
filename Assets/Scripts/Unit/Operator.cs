@@ -1,18 +1,22 @@
-using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using Unity.VisualScripting;
 using UnityEngine;
-using UnityEngine.UI;
-using static UnityEngine.EventSystems.EventTrigger;
 
-public class Operator : Unit, IDeployable
+
+public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
 {
-
     [SerializeField] // 필드 직렬화, Inspector에서 이 필드 숨기기
     public OperatorData data;
 
+    // ICombatEntity 필드들
+    public AttackType AttackType => data.attackType;
+    public AttackRangeType AttackRangeType => data.attackRangeType;
+    public float AttackPower => data.attackPower;
+    public float AttackSpeed => data.attackSpeed; 
+    public float AttackCooldown { get; private set; }
+
+
+    // IRotatble
     [SerializeField, HideInInspector]
     public Vector3 facingDirection = Vector3.left;
     public Vector3 Direction
@@ -26,6 +30,8 @@ public class Operator : Unit, IDeployable
         }
     }
 
+
+
     public GameObject OriginalPrefab { get; private set; }
 
     // 저지 관련
@@ -36,31 +42,9 @@ public class Operator : Unit, IDeployable
     private bool isDeployed = false; // 배치 완료 시 true
     private Enemy currentTarget;
     private float attackCooldown = 0f; // data.baseStats에서 들어오는 AttackSpeed 값에 의해 결정됨
-    //[HideInInspector] public bool isBlocking = false; // 저지 중인가
-
-    // IDeployable 인터페이스
-    public bool IsDeployed { get; private set; }
-    public int DeploymentCost => data.deploymentCost;
-    public Sprite Icon => data.icon;
-    public Transform Transform => transform;
-    public bool CanDeployGround => data.canDeployGround;
-    public bool CanDeployHill => data.canDeployHill;
-    private Renderer _renderer;
-    public Renderer Renderer
-    {
-        get
-        {
-            if (_renderer == null)
-            {
-                _renderer = GetComponentInChildren<Renderer>();
-            }
-            return _renderer;
-        }
-    }
-
 
     // SP 관련
-    public float currentHealth => stats.health;
+    public float currentHealth => data.baseStats.health;
     // 최대 체력
     private float maxHealth;
     public float MaxHealth => maxHealth;
@@ -72,21 +56,6 @@ public class Operator : Unit, IDeployable
 
     // 공격 범위 내에 있는 적들 
     List<Enemy> enemiesInRange = new List<Enemy>();
-
-    // 미리보기 관련
-    private bool isPreviewMode = false;
-    public bool IsPreviewMode
-    {
-        get { return isPreviewMode; }
-        set
-        {
-            isPreviewMode = value;
-            UpdateVisuals();
-        }
-    }
-    private MeshRenderer meshRenderer;
-    private Material originalMaterial;
-    private Material previewMaterial;
 
     private SpriteRenderer directionIndicator;
 
@@ -103,30 +72,21 @@ public class Operator : Unit, IDeployable
     private void Start()
     {
         currentSP = data.initialSP; // SP 초기화
-        attackRangeType = data.stats.attackRangeType;
+        
         
         CreateDirectionIndicator();
         InitializeStats();
     }
 
-    public void Initialize(GameObject prefab)
+    public void Initialize(OperatorData operatorData)
     {
-        OriginalPrefab = prefab;
-        // 기존 초기화 코드...
+        data = operatorData;
     }
 
-    //public void Deploy(Vector3 position, Vector3 direction)
+    //public void Initialize(GameObject prefab)
     //{
-    //    if (!IsDeployed)
-    //    {
-    //        IsDeployed = true;
-    //        transform.position = position;
-    //        SetDirection(direction);
-
-    //        maxHealth = data.stats.health;
-
-    //        CreateOperatorBarUI();
-    //    }
+    //    OriginalPrefab = prefab;
+    //    // 기존 초기화 코드...
     //}
 
     public void SetDirection(Vector3 direction)
@@ -216,7 +176,7 @@ public class Operator : Unit, IDeployable
         }
     }
 
-    public override void Attack(Unit target)
+    public override void Attack(UnitEntity target)
     {
         if (!IsAttackCooldownComplete || !(target is Enemy enemy)) return;
 
@@ -224,7 +184,7 @@ public class Operator : Unit, IDeployable
 
     }
 
-    protected override void PerformAttack(Unit target)
+    protected override void PerformAttack(UnitEntity target)
     {
         switch (attackRangeType)
         {
@@ -383,9 +343,9 @@ public class Operator : Unit, IDeployable
         return false; 
     }
 
-    public override void TakeDamage(float damage)
+    public override void TakeDamage(AttackType attackType, float damage)
     {
-        base.TakeDamage(damage);
+        base.TakeDamage(attackType, damage);
         OnHealthChanged?.Invoke(currentHealth, MaxHealth);
     }
 
@@ -403,77 +363,17 @@ public class Operator : Unit, IDeployable
         DeployableManager.Instance.OnDeployableRemoved(this);
     }
 
-    private void PrepareTransparentMaterial()
-    {
-        meshRenderer = GetComponentInChildren<MeshRenderer>();
-        if (meshRenderer != null)
-        {
-            originalMaterial = meshRenderer.material;
-            previewMaterial = new Material(originalMaterial);
-            previewMaterial.SetFloat("_Mode", 3); // TransParent 모드로 설정
-            Color previewColor = previewMaterial.color;
-            previewColor.a = 0.5f;
-            previewMaterial.color = previewColor;
-        }
-    }
-
-    private void UpdateVisuals()
-    {
-        if (isPreviewMode)
-        {
-            // 프리뷰 모드일 때의 시각 설정
-            meshRenderer.material = previewMaterial;
-        }
-
-        else
-        {
-            // 실제 배치 모드일 때의 시각 설정
-            meshRenderer.material = originalMaterial;
-
-        }
-    }
-
-    public void ShowActionUI()
-    {
-        DeployableManager.Instance.ShowActionUI(this);
-        UIManager.Instance.ShowDeployableInfo(this);
-    }
-
     public void UseSkill()
     {
         // 스킬 사용 로직
         Debug.Log("스킬 버튼 클릭됨");
     }
 
-    //public void Retreat()
-    //{
-    //    Debug.Log("퇴각 버튼 클릭됨");
 
-    //    // 수정 필요) 사망 vs 퇴각의 차이가 필요 - 퇴각은 반환 배치 코스트가 있다
-    //    DeployableManager.Instance.OnDeployableRemoved(this);
-
-    //    Destroy(gameObject);
-
-    //}
-
-    /// <summary>
-    /// 오퍼레이터가 클릭되었을 때의 동작 
-    /// </summary>
-    public void OnClick()
+    public override void OnClick()
     {
-        if (IsDeployed && !IsPreviewMode && StageManager.Instance.currentState == GameState.Battle)
-        {
-            DeployableManager.Instance.CancelPlacement(); // 오퍼레이터를 클릭했다면 현재 진행 중인 배치 로직이 취소되어야 함
-
-            // 미리보기 상태에선 동작하면 안됨
-            if (IsPreviewMode == false)
-            {
-                UIManager.Instance.ShowDeployableInfo(this);
-            }
-
-            HighlightAttackRange();
-            ShowActionUI();
-        }
+        base.OnClick();
+        HighlightAttackRange();
     }
 
     // 공격 대상인 적이 죽었을 때 작동함. 저지 해제와 별개로 구현
@@ -585,65 +485,20 @@ public class Operator : Unit, IDeployable
         return false;
     }
 
-    // IDeployable의 메서드들 구현
-    public void EnablePreviewMode()
+
+    public override void Deploy(Vector3 position)
     {
-        IsPreviewMode = true;
+        base.Deploy(position);
+
+        maxHealth = data.stats.health;
+        SetDirection(facingDirection);
+        CreateOperatorBarUI();
+
+        ShowDirectionIndicator(true);
     }
 
-    public void DisablePreviewMode()
+    public override void Retreat()
     {
-        IsPreviewMode = false;
+        base.Retreat();
     }
-
-    public void UpdatePreviewPosition(Vector3 position)
-    {
-        if (IsPreviewMode)
-        {
-            transform.position = position;
-        }
-    }
-
-    public void Deploy(Vector3 position)
-    {
-        if (!IsDeployed)
-        {
-            IsDeployed = true;
-            transform.position = new Vector3(position.x, 0.5f, position.z);
-            SetDirection(facingDirection);
-
-            maxHealth = data.stats.health;
-            CreateOperatorBarUI();
-
-            // 미리보기 해제, 시각적 요소 업데이트
-            IsPreviewMode = false;
-            UpdateVisuals();
-
-            ShowDirectionIndicator(true);
-
-        }
-    }
-
-    public void Retreat()
-    {
-        if (IsDeployed)
-        {
-            Debug.Log("퇴각 버튼 클릭됨");
-            IsDeployed = false;
-            DeployableManager.Instance.OnDeployableRemoved(this);
-            Destroy(gameObject);
-        }
-    }
-
-    public void SetPreviewTransparency(float alpha)
-    {
-        if (Renderer != null)
-        {
-            Material mat = Renderer.material;
-            Color color = mat.color;
-            color.a = alpha;
-            mat.color = color;
-        }
-    }
-
 }
