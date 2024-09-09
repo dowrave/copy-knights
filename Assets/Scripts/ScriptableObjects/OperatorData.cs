@@ -1,19 +1,18 @@
 using UnityEngine;
 
 [CreateAssetMenu(fileName = "New Operator Data", menuName = "Game/Operator Data")]
-public class OperatorData : ScriptableObject
+public class OperatorData : DeployableUnitData
 {
-    public string operatorName;
-    public UnitData stats;
+    //ICombatEntity 관련
+    public AttackType attackType;
+    public AttackRangeType attackRangeType;
+    public float attackPower;
+    public float attackSpeed;
+    public float attackRange; // 원거리 공격 용
+
+    // Operator 속성
     public Vector2Int[] attackableTiles = { Vector2Int.zero };
-    public bool canDeployGround;
-    public bool canDeployHill;
     public int maxBlockableEnemies = 1;
-
-    public int deploymentCost;
-    public float reDeployTime = 70f;
-
-    public GameObject prefab; // 오퍼레이터의 프리팹 정보
     public GameObject projectilePrefab; // 투사체 프리팹 정보. null이어도 무관.
 
     // SP
@@ -21,7 +20,4 @@ public class OperatorData : ScriptableObject
     public float initialSP = 0f; // 초기 SP
     public bool autoRecoverSP = true; // SP 자동 회복 여부. 적을 공격할 때만 회복되게 할 수도 있다.
     public float SpRecoveryRate = 1f; // 오퍼레이터마다 다름
-
-    public Sprite icon;
-
 }

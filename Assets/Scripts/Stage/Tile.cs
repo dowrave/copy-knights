@@ -6,6 +6,12 @@ public class Tile : MonoBehaviour
 {
     public TileData data;
     public IDeployable OccupyingDeployable { get; private set; }
+    private bool isOccupied;
+    public bool IsOccupied
+    {
+        get { return OccupyingDeployable != null; }
+        set { isOccupied = value; }
+    }
 
     private Transform cubeTransform;
     float tileScale = 0.98f;

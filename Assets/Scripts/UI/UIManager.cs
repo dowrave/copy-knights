@@ -100,7 +100,7 @@ public class UIManager : MonoBehaviour
         gameWinPanel.SetActive(true);
     }
 
-    public void ShowDeployableInfo(IDeployable deployable)
+    public void ShowDeployableInfo(DeployableUnitEntity deployable)
     {
         if (infoPanelScript != null)
         {
