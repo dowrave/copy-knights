@@ -71,6 +71,7 @@
     <Compile Include="Assets\Scripts\Unit\Enemy.cs" />
     <Compile Include="Assets\Scripts\UI\EnemyUI.cs" />
     <Compile Include="Assets\Scripts\Stage\Tile.cs" />
+    <Compile Include="Assets\Scripts\Core\Data\OperatorStats.cs" />
     <Compile Include="Assets\Scripts\Core\Data\UnitStats.cs" />
     <Compile Include="Assets\Scripts\Stage\SpawnerManager.cs" />
     <Compile Include="Assets\Scripts\UI\DiamondMask.cs" />
@@ -80,6 +81,7 @@
     <Compile Include="Assets\Scripts\OnEditor\PathDataEditor.cs" />
     <Compile Include="Assets\Scripts\ScriptableObjects\OperatorData.cs" />
     <Compile Include="Assets\Scripts\Stage\StageManager.cs" />
+    <Compile Include="Assets\Scripts\Core\Data\DeployableUnitStats.cs" />
     <Compile Include="Assets\Scripts\UI\HealthBar.cs" />
     <Compile Include="Assets\Scripts\Core\Interfaces\ICombatEntity.cs" />
     <Compile Include="Assets\Scripts\UI\DeploymentCostPanel.cs" />

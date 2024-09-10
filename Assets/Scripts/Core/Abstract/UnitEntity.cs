@@ -7,28 +7,46 @@ using UnityEngine;
 /// </summary>
 public abstract class UnitEntity : MonoBehaviour
 {
-    public UnitData data;
-    protected UnitStats currentStats;
+    private UnitData data;
+    private UnitStats currentStats;
     protected Tile CurrentTile { get; private set; }
 
+    private float currentHealth;
+    public float CurrentHealth
+    {
+        get => currentHealth;
+        protected set
+        {
+            currentHealth = Mathf.Clamp(value, 0, MaxHealth); // 0 ~ 최대 체력 사이로 값 유지
+            OnHealthChanged?.Invoke(currentHealth, MaxHealth);
+        }
+    }
+    public float MaxHealth { get; private set; } // 최대 체력도 변할 수 있음
 
-    public virtual void Initialize(UnitData unitData)
+    public event System.Action<float, float> OnHealthChanged;
+
+
+    public void Initialize(UnitData unitData)
     {
         data = unitData;
-        InitializeStats();
+        currentStats = data.stats;
+        InitializeMaxHealth();
         UpdateCurrentTile();
     }
 
-    protected void InitializeStats()
+    /// <summary>
+    /// 최대체력 초기화
+    /// </summary>
+    protected virtual void InitializeMaxHealth()
     {
-        currentStats = data.baseStats;
+        MaxHealth = currentStats.health;
     }
     
     public virtual void TakeDamage(AttackType attacktype, float damage)
     {
         float actualDamage = CalculateActualDamage(attacktype, damage);
-        currentStats.health = Mathf.Max(0, currentStats.health - actualDamage);
-        if (currentStats.health <= 0)
+        CurrentHealth = Mathf.Max(0, CurrentHealth - actualDamage);
+        if (CurrentHealth <= 0)
         {
             Die();
         }
@@ -42,7 +60,7 @@ public abstract class UnitEntity : MonoBehaviour
     /// <returns>대미지 계산 결과</returns>
     protected virtual float CalculateActualDamage(AttackType attacktype, float incomingDamage)
     {
-        float actualDamage = 0;
+        float actualDamage = 0; // 할당해야 return문에서 오류가 안남
 
         switch (attacktype)
         {

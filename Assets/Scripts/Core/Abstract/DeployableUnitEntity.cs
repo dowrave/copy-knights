@@ -1,15 +1,16 @@
-
-using Unity.VisualScripting;
 using UnityEngine;
 
 public class DeployableUnitEntity : UnitEntity, IDeployable
 {
-    // IDeployable 인터페이스 관련
-    public new DeployableUnitData data;
-    public bool IsDeployed { get; protected set; }
-    public int DeploymentCost => data.deploymentCost;
-    public Sprite Icon => data.icon;
+    private DeployableUnitData data;
+    private DeployableUnitStats currentStats;
 
+    // IDeployable 인터페이스 관련
+    public bool IsDeployed { get; protected set; }
+    public int DeploymentCost => currentStats.deploymentCost;
+
+    public Sprite Icon => data.icon;
+    public GameObject OriginalPrefab { get; private set; }
 
     // 미리보기 관련
     private bool isPreviewMode = false;
@@ -22,37 +23,36 @@ public class DeployableUnitEntity : UnitEntity, IDeployable
             UpdateVisuals();
         }
     }
-    private MeshRenderer meshRenderer;
-    private Material originalMaterial;
-    private Material previewMaterial;
-    private Renderer _renderer;
-    public Renderer Renderer
-    {
-        get
-        {
-            if (_renderer == null)
-            {
-                _renderer = GetComponentInChildren<Renderer>();
-            }
-            return _renderer;
-        }
-    }
+    protected GameObject modelObject;
+    protected Renderer modelRenderer;
+    protected Material originalMaterial;
+    protected Material previewMaterial;
 
-    public virtual void Initialize(DeployableUnitData deployableUnitData)
+    private void Initialize(DeployableUnitData deployableData)
     {
-        data = deployableUnitData;
-        base.Initialize(deployableUnitData); // UnitData의 초기화는 여기서 처리됨
-        
-        meshRenderer = GetComponentInChildren<MeshRenderer>();
-        
-        IsDeployed = false;
-        IsPreviewMode = true;
+        data = deployableData;
+        currentStats = data.stats;
         InitializeDeployableProperties();
-        
     }
 
+    /// <summary>
+    /// DeployableUnitEntity 관련 초기화
+    /// </summary>
     protected virtual void InitializeDeployableProperties()
     {
+        IsDeployed = false;
+        IsPreviewMode = true;
+
+        OriginalPrefab = data.prefab; // 프리팹 설정
+
+        SetupPreviewMaterial(); // 미리보기 머티리얼 준비
+        InitializeMaxHealth(); // 최대 체력 설정
+
+        if (!ValidateModelStructure()) // 자식 오브젝트에 Model 오브젝트가 있는지 체크
+        {
+            Debug.LogError($"DeployableData가 아님, 초기화 중단");
+            return;
+        }
 
     }
 
@@ -112,18 +112,32 @@ public class DeployableUnitEntity : UnitEntity, IDeployable
         }
     }
 
-    protected void PrepareTransparentMaterial()
+    /// <summary>
+    /// 자식 오브젝트인 Model이 있는지 여부를 체크
+    /// </summary>
+    private bool ValidateModelStructure()
     {
-        
-        if (meshRenderer != null)
+        modelObject = transform.Find("Model")?.gameObject;
+        if (modelObject == null)
         {
-            originalMaterial = meshRenderer.material;
-            previewMaterial = new Material(originalMaterial);
-            previewMaterial.SetFloat("_Mode", 3); // TransParent 모드로 설정
-            Color previewColor = previewMaterial.color;
-            previewColor.a = 0.5f;
-            previewMaterial.color = previewColor;
+            return false;
         }
+
+        modelRenderer = modelObject.GetComponent<Renderer>();
+        return true;
+    }
+
+    /// <summary>
+    /// 반투명화한 미리보기 머티리얼을 준비
+    /// </summary>
+    protected void SetupPreviewMaterial()
+    {
+        originalMaterial = modelRenderer.material;
+        previewMaterial = new Material(originalMaterial);
+        previewMaterial.SetFloat("_Mode", 3); // TransParent 모드로 설정
+        Color previewColor = previewMaterial.color;
+        previewColor.a = 0.5f;
+        previewMaterial.color = previewColor;
     }
 
     protected virtual void ShowDeploymentUI()
@@ -167,24 +181,23 @@ public class DeployableUnitEntity : UnitEntity, IDeployable
         if (IsDeployed && !IsPreviewMode && StageManager.Instance.currentState == GameState.Battle)
         {
             // 프리뷰 모드일 때의 시각 설정
-            meshRenderer.material = previewMaterial;
+            modelRenderer.material = previewMaterial;
         }
 
         else
         {
             // 실제 배치 모드일 때의 시각 설정
-            meshRenderer.material = originalMaterial;
+            modelRenderer.material = originalMaterial;
         }
     }
 
     public void SetPreviewTransparency(float alpha)
     {
-        if (Renderer != null)
-        {
-            Material mat = Renderer.material;
-            Color color = mat.color;
+        if (previewMaterial != null)
+        { 
+            Color color = previewMaterial.color;
             color.a = alpha;
-            mat.color = color;
+            previewMaterial.color = color;
         }
     }
 }

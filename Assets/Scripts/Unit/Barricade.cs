@@ -1,19 +1,14 @@
 using System;
 using UnityEngine;
 
-public class Barricade : DeployableUnitEntity, ISkill
+public class Barricade : DeployableUnitEntity
 {
     public int health = 1;
     public int deploymentCost = 5;
     public Sprite icon;
 
-    private bool isDeployed = false;
-    private bool isPreviewMode = false;
-    private Material originalMaterial;
-    private Material previewMaterial;
-
     public Transform Transform => transform;
-    public Sprite Icon => icon;
+
 
     private bool canDeployGround = true;
     private bool canDeployHill = false;
@@ -23,18 +18,13 @@ public class Barricade : DeployableUnitEntity, ISkill
 
     public static event Action<Barricade> OnBarricadeDeployed;
     public static event Action<Barricade> OnBarricadeRemoved;
-    public GameObject OriginalPrefab { get; private set; }
 
-    public void Initialize(GameObject prefab)
+    public void Initialize()
     {
-        OriginalPrefab = prefab;
+        InitializeDeployableProperties(); 
         // 기존 초기화 코드가 있다면 여기에 추가...
     }
 
-    private void Awake()
-    {
-        PreparePreviewMaterials();
-    }
 
     public override void Deploy(Vector3 position)
     {
