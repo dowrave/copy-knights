@@ -358,6 +358,8 @@
 -analyzer:"C:/Program Files/Unity/Hub/Editor/2022.3.34f1/Editor/Data/Tools/Unity.SourceGenerators/Unity.SourceGenerators.dll"
 "Assets/Scripts/Core/Abstract/DeployableUnitEntity.cs"
 "Assets/Scripts/Core/Abstract/UnitEntity.cs"
+"Assets/Scripts/Core/Data/DeployableUnitStats.cs"
+"Assets/Scripts/Core/Data/OperatorStats.cs"
 "Assets/Scripts/Core/Data/UnitStats.cs"
 "Assets/Scripts/Core/Interfaces/ICombatEntity.cs"
 "Assets/Scripts/Core/Interfaces/IDeployable.cs"

@@ -6,5 +6,5 @@ using UnityEngine;
 public class UnitData : ScriptableObject
 {
     public string entityName;
-    public UnitStats baseStats;
+    public UnitStats stats;
 }
