@@ -44,8 +44,8 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
 
     public float CurrentSP 
     {
-        get {return currentStats.currentSP}; 
-        set {}
+        get { return currentStats.currentSP; }
+        //set {}
     }
 
     [SerializeField] private GameObject deployableBarUIPrefab;
@@ -59,17 +59,28 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
 
     // 필드 끝 --------------------------------------------------------
 
-    public void Initialize(OperatorData operatorData)
+    public override void Initialize(UnitData unitData)
     {
-        data = operatorData;
-        currentStats = data.stats;
+        base.Initialize(unitData); // OperatorData로 초기화됨
         InitializeOperatorProperties();
+    }
+
+    protected override void InitializeData(UnitData unitData)
+    {
+        if (unitData is OperatorData operatorData)
+        {
+            data = operatorData;
+            currentStats = data.stats;
+        }
+        else
+        {
+            Debug.LogError("들어온 데이터가 deployableUnitData가 아님!");
+        }
     }
 
     private void InitializeOperatorProperties()
     {
-        InitializeDeployableProperties(); // 상속
-        CreateDirectionIndicator();
+        CreateDirectionIndicator(); 
     }
 
     public void SetDirection(Vector3 direction)
@@ -368,6 +379,9 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
         enemiesInRange.Remove(enemy); // 안하면 리스트에 파괴된 오브젝트가 남아서 0번 인덱스를 캐치하지 못함
     }
 
+    /// <summary>
+    /// 방향 표시 UI 생성
+    /// </summary>
     private void CreateDirectionIndicator()
     {
         GameObject indicator = new GameObject("DirectionIndicator");

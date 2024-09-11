@@ -1,5 +1,3 @@
-using System.Collections;
-using Unity.VisualScripting;
 using UnityEngine;
 
 /// <summary>
@@ -26,12 +24,17 @@ public abstract class UnitEntity : MonoBehaviour
     public event System.Action<float, float> OnHealthChanged;
 
 
-    public void Initialize(UnitData unitData)
+    public virtual void Initialize(UnitData unitData)
+    {
+        InitializeData(unitData); 
+        InitializeMaxHealth();
+        UpdateCurrentTile();
+    }
+
+    protected virtual void InitializeData(UnitData unitData)
     {
         data = unitData;
         currentStats = data.stats;
-        InitializeMaxHealth();
-        UpdateCurrentTile();
     }
 
     /// <summary>
@@ -40,6 +43,7 @@ public abstract class UnitEntity : MonoBehaviour
     protected virtual void InitializeMaxHealth()
     {
         MaxHealth = currentStats.health;
+        CurrentHealth = MaxHealth;
     }
     
     public virtual void TakeDamage(AttackType attacktype, float damage)

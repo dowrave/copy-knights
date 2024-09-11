@@ -28,12 +28,25 @@ public class DeployableUnitEntity : UnitEntity, IDeployable
     protected Material originalMaterial;
     protected Material previewMaterial;
 
-    private void Initialize(DeployableUnitData deployableData)
+    public override void Initialize(UnitData unitData)
     {
-        data = deployableData;
-        currentStats = data.stats;
+        base.Initialize(unitData); // 이 클래스의 InitializeData가 호출됨
         InitializeDeployableProperties();
     }
+
+    protected override void InitializeData(UnitData unitData)
+    {
+        if (unitData is DeployableUnitData deployableUnitData)
+        {
+            data = deployableUnitData;
+            currentStats = data.stats;
+        }
+        else
+        {
+            Debug.LogError("들어온 데이터가 deployableUnitData가 아님!");
+        }
+    }
+
 
     /// <summary>
     /// DeployableUnitEntity 관련 초기화
