@@ -81,6 +81,7 @@
     <Compile Include="Assets\Scripts\OnEditor\PathDataEditor.cs" />
     <Compile Include="Assets\Scripts\ScriptableObjects\OperatorData.cs" />
     <Compile Include="Assets\Scripts\Stage\StageManager.cs" />
+    <Compile Include="Assets\Scripts\Core\Data\EnemyStats.cs" />
     <Compile Include="Assets\Scripts\Core\Data\DeployableUnitStats.cs" />
     <Compile Include="Assets\Scripts\UI\HealthBar.cs" />
     <Compile Include="Assets\Scripts\Core\Interfaces\ICombatEntity.cs" />
@@ -105,6 +106,7 @@
     <Compile Include="Assets\Scripts\Unit\Barricade.cs" />
     <Compile Include="Assets\Scripts\OnEditor\MapEditorWindow.cs" />
     <Compile Include="Assets\Scripts\UI\MaskedDiamondOverlay.cs" />
+    <Compile Include="Assets\Scripts\Core\Interfaces\ITargettable.cs" />
     <Compile Include="Assets\Scripts\Unit\EnemyData.cs" />
   </ItemGroup>
   <ItemGroup>

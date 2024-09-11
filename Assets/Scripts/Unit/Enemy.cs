@@ -3,8 +3,23 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
-public class Enemy : Unit
+public class Enemy : UnitEntity, IMovable, ICombatEntity
 {
+
+    [SerializeField] // 필드 직렬화, Inspector에서 이 필드 숨기기
+    private EnemyData data;
+    private EnemyStats currentStats;
+
+    // ICombatEntity 필드
+    public AttackType AttackType => data.attackType;
+    public AttackRangeType AttackRangeType => data.attackRangeType;
+    public float AttackPower { get => currentStats.attackPower; private set => currentStats.attackPower = value; }
+    public float AttackSpeed { get => currentStats.attackSpeed; private set => currentStats.attackSpeed = value; }
+    public float MovementSpeed { get => currentStats.movementSpeed; private set => currentStats.movementSpeed = value; } 
+    public int BlockCount { get => data.blockCount; private set => data.blockCount = value; }
+
+    public float AttackCooldown { get; private set; }
+
     // 경로 관련
     private PathData pathData;
     private int currentNodeIndex = 0;
@@ -14,11 +29,11 @@ public class Enemy : Unit
     {
         get
         {
-            return data.stats.attackRangeType == AttackRangeType.Melee ? 0f : data.attackRange;
+            return data.attackRangeType == AttackRangeType.Melee ? 0f : currentStats.attackRange;
         }
         private set
         {
-            data.attackRange = value;
+            currentStats.attackRange = value;
         }
     }
     private List<Operator> operatorsInRange = new List<Operator>();
@@ -26,16 +41,10 @@ public class Enemy : Unit
     private Operator blockingOperator; // 자신을 저지 중인 오퍼레이터
     private List<Operator> attackingOperators = new List<Operator>(); // 자신을 공격 중인 오퍼레이터
 
-    // 현재 체력 접근자
-    public float CurrentHealth => stats.health;
-    // 최대 체력 접근자
-    private float maxHealth;
-    public float MaxHealth => maxHealth;
     private EnemyUI enemyUI;
-    public EnemyData data;
 
-    public float MovementSpeed { get; private set; } // 이동 속도
-    public int BlockCount { get; private set; }
+
+
 
     public float DamageMultiplier { get; private set; }
     public float DefenseMultiplier { get; private set; }
@@ -45,27 +54,56 @@ public class Enemy : Unit
     private Vector3 targetPosition;
     private bool isWaiting = false;
 
-
-    public void Initialize(EnemyData enemyData, PathData pathData)
+    public override void Initialize(UnitData unitData)
     {
-        InitializeStats(enemyData);
+        Initialize(unitData, null);
+    }
+
+    public void Initialize(UnitData unitData, PathData pathData)
+    {
+        base.Initialize(unitData); // EnemyData로 초기화됨
         this.pathData = pathData;
-        AttackRange = data.attackRange;
 
-        // 시작점 위치 설정(경로 설정 시 스포너의 위치와 동일하게 설정하면 좋다)
-        if (pathData.nodes.Count > 0)
-        {
-            transform.position = MapManager.Instance.GetWorldPosition(pathData.nodes[0].gridPosition) + Vector3.up * 0.5f;
-        }
-
+        InitializeEnemyProperties();
+        SetupInitialPosition();
         CreateEnemyUI();
-
         UpdateTargetNode();
         // stats을 사용하는 로직은 이후에 추가(?)
     }
-    protected override void Update()
+
+    protected override void InitializeData(UnitData unitData)
     {
-        base.Update(); // 공격 쿨다운 관리
+        if (unitData is EnemyData enemyData)
+        {
+            data = enemyData;
+            currentStats = data.stats;
+        }
+        else
+        {
+            Debug.LogError("들어온 데이터가 EnemyData가 아님!");
+        }
+    }
+
+    private void InitializeEnemyProperties()
+    {
+        
+    }
+
+    private void SetupInitialPosition()
+    {
+        if (pathData != null && pathData.nodes.Count > 0)
+        {
+            transform.position = MapManager.Instance.GetWorldPosition(pathData.nodes[0].gridPosition) + Vector3.up * 0.5f;
+        }
+        else
+        {
+            Debug.LogWarning("PathData is not set or empty. Initial position not set.");
+        }
+    }
+
+    private void Update()
+    {
+        UpdateAttackCooldown();
 
         // 진행할 경로가 있다
         if (pathData != null && currentNodeIndex < pathData.nodes.Count)
@@ -74,10 +112,10 @@ public class Enemy : Unit
             if (blockingOperator != null) 
             {
                 // 공격 가능한 상태라면
-                if (IsAttackCooldownComplete)
+                if (AttackCooldown <= 0)
                 {
                     PerformMeleeAttack(blockingOperator); // 저지를 당하는 상태라면, 적의 공격 범위에 관계 없이 근거리 공격을 함
-                    StartAttackCooldown();
+                    
                 }
             }
 
@@ -89,7 +127,7 @@ public class Enemy : Unit
                 if (HasTargetInRange()) // 공격 범위 내에 적이 있다면
                 {
                     Debug.Log("공격 범위 내에 적이 있음");
-                    if (IsAttackCooldownComplete) // 공격 쿨타임이 아니라면
+                    if (AttackCooldown <= 0) // 공격 쿨타임이 아니라면
                     {
                         AttackLastDeployedOperator(); // 가장 마지막에 배치된 오퍼레이터 공격
                     }
@@ -103,8 +141,6 @@ public class Enemy : Unit
                 }
             }
         }
-
-        attackCooldownTimer -= Time.deltaTime;
     }
 
     private void CreateEnemyUI()
@@ -114,20 +150,6 @@ public class Enemy : Unit
         {
             enemyUI.Initialize(this);
         }
-    }
-
-    private void InitializeStats(EnemyData enemyData)
-    {
-        data = enemyData;
-
-        base.Initialize(data.stats);
-    
-        MovementSpeed = data.movementSpeed;
-        BlockCount = data.blockCount;
-        DamageMultiplier = data.damageMultiplier;
-        DefenseMultiplier = data.defenseMultiplier;
-
-        maxHealth = stats.health; // 초기 체력 설정, 이후에 현재 체력과 비교해서 체력바 표시 여부 결정
     }
 
     private void CheckAndAddBlockingOperator()
@@ -275,16 +297,16 @@ public class Enemy : Unit
         }
     }
 
-    public override void Attack(Unit target)
+    public override void Attack(UnitEntity target)
     {
         if (target is not Operator op) return;
 
         base.Attack(target); // 공격 가능할 때, PerformAttack을 실행시키고 쿨다운을 돌림
     }
 
-    protected override void PerformAttack(Unit target)
+    private void PerformAttack(UnitEntity target)
     {
-        switch (attackRangeType)
+        switch (AttackRangeType)
         {
             case AttackRangeType.Melee:
                 PerformMeleeAttack(target);
@@ -295,17 +317,17 @@ public class Enemy : Unit
         }
     }
 
-    private void PerformMeleeAttack(Unit target)
+    private void PerformMeleeAttack(UnitEntity target)
     {
-        float damage = Stats.attackPower * DamageMultiplier;
-        target.TakeDamage(damage);
+        float damage = AttackPower; 
+        target.TakeDamage(AttackType, damage);
     }
 
-    private void PerformRangedAttack(Unit target)
+    private void PerformRangedAttack(UnitEntity target)
     {
         if (data.projectilePrefab != null)
         {
-            float damage = Stats.attackPower * DamageMultiplier;
+            float damage = currentStats.attackPower * DamageMultiplier;
 
             // 투사체 생성 위치
             Vector3 spawnPosition = transform.position + Vector3.up * 0.5f;
@@ -314,13 +336,13 @@ public class Enemy : Unit
             Projectile projectile = projectileObj.GetComponent<Projectile>();
             if (projectile != null)
             {
-                projectile.Initialize(target, damage);
+                projectile.Initialize(target, AttackType, damage);
             }
         }
     }
 
 
-    protected override bool IsTargetInRange(Unit target)
+    protected override bool IsTargetInRange(UnitEntity target)
     {
         return Vector3.Distance(target.transform.position, transform.position) <= AttackRange;
     }
@@ -453,5 +475,13 @@ public class Enemy : Unit
         Vector3 endPosition = MapManager.Instance.GetEndPoint();
         pathData = PathFindingManager.Instance.FindPath(currentPosition, endPosition);
         currentNodeIndex = 0;
+    }
+
+    public void UpdateAttackCooldown()
+    {
+        if (AttackCooldown > 0f)
+        {
+            AttackCooldown -= Time.deltaTime;
+        }
     }
 }

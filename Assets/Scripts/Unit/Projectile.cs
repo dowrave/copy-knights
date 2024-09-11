@@ -7,12 +7,14 @@ public class Projectile : MonoBehaviour
 {
     public float speed = 10f;
     public float damage;
-    private Unit target;
+    public AttackType attackType;
+    private UnitEntity target;
     private Vector3 lastKnownPosition; // 마지막으로 알려진 적의 위치
 
-    public void Initialize(Unit target, float damage)
+    public void Initialize(UnitEntity target, AttackType attackType, float damage)
     {
         this.target = target;
+        this.attackType = attackType;
         this.damage = damage;
         lastKnownPosition = target.transform.position;
     }
@@ -35,7 +37,7 @@ public class Projectile : MonoBehaviour
             if (target != null)
             {
                 // 타겟이 살아 있다면 대미지를 입힘
-                target.TakeDamage(damage);
+                target.TakeDamage(attackType, damage);
             }
             Destroy(gameObject);
         }
