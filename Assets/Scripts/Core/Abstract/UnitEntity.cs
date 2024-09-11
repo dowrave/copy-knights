@@ -1,14 +1,17 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 /// <summary>
 /// Operator, Enemy, Barricade 등의 타일 위의 유닛들과 관련된 엔티티
 /// </summary>
-public abstract class UnitEntity : MonoBehaviour
+public abstract class UnitEntity : MonoBehaviour, ITargettable
 {
     private UnitData data;
     private UnitStats currentStats;
     protected Tile CurrentTile { get; private set; }
+    public GameObject Prefab { get; private set; }
 
+    // 스탯 관련
     private float currentHealth;
     public float CurrentHealth
     {
@@ -20,21 +23,35 @@ public abstract class UnitEntity : MonoBehaviour
         }
     }
     public float MaxHealth { get; private set; } // 최대 체력도 변할 수 있음
+    public float Defense { get => currentStats.defense; private set => currentStats.defense = value; }
+    public float MagicResistance { get => currentStats.magicResistance; private set => currentStats.magicResistance = value; }
 
+    // ITargettable
+    private List<ICombatEntity> attackingEntities = new List<ICombatEntity>();
+    public IReadOnlyList<ICombatEntity> AttackingEntities => attackingEntities.AsReadOnly();
+
+    // 이벤트
     public event System.Action<float, float> OnHealthChanged;
-
 
     public virtual void Initialize(UnitData unitData)
     {
-        InitializeData(unitData); 
-        InitializeMaxHealth();
-        UpdateCurrentTile();
+        InitializeData(unitData); // 자식 클래스들에서 재정의하면 자식 클래스의 메서드를 사용함
+        InitializeUnitProperties();
     }
 
     protected virtual void InitializeData(UnitData unitData)
     {
         data = unitData;
         currentStats = data.stats;
+    }
+
+    protected void InitializeUnitProperties()
+    {
+        InitializeMaxHealth();
+        UpdateCurrentTile();
+
+        Prefab = data.prefab; // 프리팹 설정
+
     }
 
     /// <summary>
@@ -50,6 +67,8 @@ public abstract class UnitEntity : MonoBehaviour
     {
         float actualDamage = CalculateActualDamage(attacktype, damage);
         CurrentHealth = Mathf.Max(0, CurrentHealth - actualDamage);
+        OnHealthChanged.Invoke(currentHealth, MaxHealth);
+
         if (CurrentHealth <= 0)
         {
             Die();
@@ -69,10 +88,10 @@ public abstract class UnitEntity : MonoBehaviour
         switch (attacktype)
         {
             case AttackType.Physical:
-                actualDamage = incomingDamage - currentStats.defense;
+                actualDamage = incomingDamage - Defense;
                 break;
             case AttackType.Magical: 
-                actualDamage = incomingDamage * (1 - currentStats.magicResistance / 100);
+                actualDamage = incomingDamage * (1 - MagicResistance / 100);
                 break;
             case AttackType.True:
                 actualDamage = incomingDamage;
@@ -95,6 +114,19 @@ public abstract class UnitEntity : MonoBehaviour
             CurrentTile = newTile;
         }
     }
+    public virtual void AddAttackingEntity(ICombatEntity attacker)
+    {
+        if (!attackingEntities.Contains(attacker))
+        {
+            attackingEntities.Add(attacker);
+        }
+    }
+
+    public virtual void RemoveAttackingEntity(ICombatEntity attacker)
+    {
+        attackingEntities.Remove(attacker);
+    }
+
 
     protected virtual void Die()
     {

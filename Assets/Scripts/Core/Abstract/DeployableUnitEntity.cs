@@ -7,10 +7,11 @@ public class DeployableUnitEntity : UnitEntity, IDeployable
 
     // IDeployable 인터페이스 관련
     public bool IsDeployed { get; protected set; }
-    public int DeploymentCost => currentStats.deploymentCost;
+    public int DeploymentCost { get => currentStats.deploymentCost; set => currentStats.deploymentCost = value; }
+    public float RedeployTime { get => currentStats.redeployTime; set => currentStats.redeployTime = value; }
+    public int InitialDeploymentCost { get; protected set; } // 최초 배치 코스트 - DeploymentCost는 게임 중 증가할 수 있음
 
     public Sprite Icon => data.icon;
-    public GameObject OriginalPrefab { get; private set; }
 
     // 미리보기 관련
     private bool isPreviewMode = false;
@@ -55,8 +56,8 @@ public class DeployableUnitEntity : UnitEntity, IDeployable
     {
         IsDeployed = false;
         IsPreviewMode = true;
+        InitialDeploymentCost = DeploymentCost;
 
-        OriginalPrefab = data.prefab; // 프리팹 설정
 
         SetupPreviewMaterial(); // 미리보기 머티리얼 준비
         InitializeMaxHealth(); // 최대 체력 설정

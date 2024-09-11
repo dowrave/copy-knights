@@ -7,4 +7,5 @@ public class UnitData : ScriptableObject
 {
     public string entityName;
     public UnitStats stats;
+    public GameObject prefab;
 }

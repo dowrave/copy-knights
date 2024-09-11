@@ -5,5 +5,4 @@ public interface IRotatable
 {
     Vector3 FacingDirection { get; }
     void SetDirection(Vector3 direction);
-    Vector3 GetDirection();
 }

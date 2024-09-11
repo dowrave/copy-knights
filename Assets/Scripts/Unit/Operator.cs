@@ -13,14 +13,15 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
     // ICombatEntity 필드
     public AttackType AttackType => data.attackType;
     public AttackRangeType AttackRangeType => data.attackRangeType;
-    public float AttackPower => currentStats.attackPower;
-    public float AttackSpeed => currentStats.attackSpeed; 
+
+    public float AttackPower { get => currentStats.attackPower; private set => currentStats.attackPower = value; }
+    public float AttackSpeed { get => currentStats.attackSpeed; private set => currentStats.attackSpeed = value; }
+
     public float AttackCooldown { get; private set; }
 
 
     // IRotatble 필드
-    [SerializeField, HideInInspector]
-    public Vector3 facingDirection = Vector3.left;
+    private Vector3 facingDirection = Vector3.left;
     public Vector3 FacingDirection
     {
         get => facingDirection;
@@ -45,7 +46,11 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
     public float CurrentSP 
     {
         get { return currentStats.currentSP; }
-        //set {}
+        set
+        {
+            currentStats.currentSP = Mathf.Clamp(value, 0f, data.maxSP);
+            OnSPChanged?.Invoke(CurrentSP, data.maxSP);
+        }
     }
 
     [SerializeField] private GameObject deployableBarUIPrefab;
@@ -55,6 +60,9 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
     List<Enemy> enemiesInRange = new List<Enemy>();
 
     private SpriteRenderer directionIndicator;
+
+    // SP 변경 이벤트
+    public event System.Action<float, float> OnSPChanged;
 
 
     // 필드 끝 --------------------------------------------------------
@@ -118,7 +126,7 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
 
             if (CanAttack())
             {
-                Attack(currentTarget);
+                Attack(currentTarget, AttackType, AttackPower);
             }
 
         }
@@ -129,13 +137,13 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
     {
         if (currentTarget != null)
         {
-            newTarget.RemoveAttackingOperator(this);
+            newTarget.RemoveAttackingEntity(this);
         }
 
         if (currentTarget != null)
         {
             currentTarget = newTarget;
-            newTarget.AddAttackingOperator(this);
+            newTarget.AddAttackingEntity(this);
         }
     }
 
@@ -165,33 +173,31 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
         }
     }
 
-    public void Attack(UnitEntity target)
+    public void Attack(UnitEntity target, AttackType attackType, float attackPower)
     {
-        if (!IsAttackCooldownComplete || !(target is Enemy enemy)) return;
-
-        base.Attack(target); // 공격 가능할 때, PerformAttack을 실행시키고 쿨다운도 시작됨
-
+        if (AttackCooldown > 0 || !(target is Enemy enemy)) return;
+        PerformAttack(target, attackType, attackPower);
     }
 
-    protected override void PerformAttack(UnitEntity target)
+    private void PerformAttack(UnitEntity target, AttackType attackType, float attackPower)
     {
         switch (data.attackRangeType)
         {
             case AttackRangeType.Melee:
-                PerformMeleeAttack(target);
+                PerformMeleeAttack(target, attackType, attackPower);
                 break;
             case AttackRangeType.Ranged:
-                PerformRangedAttack(target);
+                PerformRangedAttack(target, attackType, attackPower);
                 break;
         }
     }
 
-    private void PerformMeleeAttack(Unit target)
+    private void PerformMeleeAttack(UnitEntity target, AttackType attackType, float attackPower)
     {
-        target.TakeDamage(currentStats.attackPower);
+        target.TakeDamage(attackType, attackPower);
     }
 
-    private void PerformRangedAttack(Unit target)
+    private void PerformRangedAttack(UnitEntity target, AttackType attackType, float attackPower)
     {
         if (data.projectilePrefab != null)
         {
@@ -202,7 +208,7 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
             Projectile projectile = projectileObj.GetComponent<Projectile>();
             if (projectile != null)
             {
-                projectile.Initialize(target, currentStats.attackPower);
+                projectile.Initialize(target, attackType, attackPower);
             }
         }
     }
@@ -307,25 +313,25 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
     {
         if (IsDeployed == false) { return;  }
 
-        float oldSP = currentSP;
+        float oldSP = CurrentSP;
         if (data.autoRecoverSP)
         {
-            currentSP = Mathf.Min(currentSP + data.SpRecoveryRate * Time.deltaTime, data.maxSP);    
+            CurrentSP = Mathf.Min(CurrentSP + currentStats.spRecoveryRate * Time.deltaTime, data.maxSP);    
 
         }
 
-        if (currentSP != oldSP)
+        if (CurrentSP != oldSP)
         {
-            deployableBarUI.UpdateSPBar(currentSP, data.maxSP);
+            deployableBarUI.UpdateSPBar(CurrentSP, data.maxSP);
             //operatorUI.UpdateOperatorUI(this);
         }
     }
 
     public bool TryUseSkill(float spCost)
     {
-        if (currentSP >= spCost)
+        if (CurrentSP >= spCost)
         {
-            currentSP -= spCost;
+            CurrentSP -= spCost;
 
             return true;
         }
@@ -335,7 +341,6 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
     public override void TakeDamage(AttackType attackType, float damage)
     {
         base.TakeDamage(attackType, damage);
-        OnHealthChanged?.Invoke(CurrentHealth, MaxHealth);
     }
 
     protected override void Die()
@@ -444,13 +449,13 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
         {
             if (!IsTargetInRange(currentTarget))
             {
-                currentTarget.RemoveAttackingOperator(this);
+                currentTarget.RemoveAttackingEntity(this);
                 currentTarget = null;
             }
         }
     }
 
-    protected override bool IsTargetInRange(Unit unit)
+    protected bool IsTargetInRange(UnitEntity unit)
     {
         if (unit is Enemy) // 타입 매칭은 `is`를 사용
         {
@@ -482,7 +487,7 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
     {
         base.Deploy(position);
 
-        maxHealth = data.currentStats.health;
+        //maxHealth = data.currentStats.health;
         SetDirection(facingDirection);
         CreateOperatorBarUI();
 
@@ -512,4 +517,11 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
             AttackCooldown -= Time.deltaTime;
         }
     }
+
+    // ISkill 메서드
+    public bool CanUseSkill()
+    {
+        return CurrentSP == data.maxSP;
+    }
+
 }
