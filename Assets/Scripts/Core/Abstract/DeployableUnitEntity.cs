@@ -3,6 +3,7 @@ using UnityEngine;
 public class DeployableUnitEntity : UnitEntity, IDeployable
 {
     private DeployableUnitData data;
+    public new DeployableUnitData Data => data;
     private DeployableUnitStats currentStats;
 
     // IDeployable 인터페이스 관련
@@ -32,7 +33,7 @@ public class DeployableUnitEntity : UnitEntity, IDeployable
     public override void Initialize(UnitData unitData)
     {
         base.Initialize(unitData); // 이 클래스의 InitializeData가 호출됨
-        InitializeDeployableProperties();
+        InitializeDeployableProperties(); 
     }
 
     protected override void InitializeData(UnitData unitData)

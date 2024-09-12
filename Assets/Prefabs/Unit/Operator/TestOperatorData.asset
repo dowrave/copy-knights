@@ -10,31 +10,31 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: fd69fe121c428fa40b981892f9a7fe11, type: 3}
-  m_Name: Melee(Base)
+  m_Name: TestOperatorData
   m_EditorClassIdentifier: 
-  entityName: Melee(Base)
+  entityName: 
   stats:
-    health: 500
-    defense: 3
-    magicResistance: 3
-  prefab: {fileID: 5185628148525671535, guid: 81719ee7b084ab740915d07222eb2ab8, type: 3}
+    health: 0
+    defense: 0
+    magicResistance: 0
+  prefab: {fileID: 0}
   stats:
-    health: 500
-    defense: 3
-    magicResistance: 3
+    health: 0
+    defense: 0
+    magicResistance: 0
     deploymentCost: 0
     redeployTime: 0
   canDeployOnGround: 0
   canDeployOnHill: 0
   icon: {fileID: 0}
   stats:
-    health: 500
-    defense: 3
-    magicResistance: 3
+    health: 0
+    defense: 0
+    magicResistance: 0
     deploymentCost: 0
     redeployTime: 0
-    attackPower: 100
-    attackSpeed: 1
+    attackPower: 0
+    attackSpeed: 0
     maxBlockableEnemies: 0
     currentSP: 0
     spRecoveryRate: 0
@@ -42,8 +42,7 @@ MonoBehaviour:
   attackRangeType: 0
   attackableTiles:
   - {x: 0, y: 0}
-  - {x: -1, y: 0}
   projectilePrefab: {fileID: 0}
   maxSP: 30
   initialSP: 0
-  autoRecoverSP: 0
+  autoRecoverSP: 1

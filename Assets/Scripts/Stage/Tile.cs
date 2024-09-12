@@ -5,7 +5,7 @@ using UnityEngine;
 public class Tile : MonoBehaviour
 {
     public TileData data;
-    public IDeployable OccupyingDeployable { get; private set; }
+    public DeployableUnitEntity OccupyingDeployable { get; private set; }
     private bool isOccupied;
     public bool IsOccupied
     {
@@ -131,7 +131,7 @@ public class Tile : MonoBehaviour
         return !data.isStartPoint && !data.isEndPoint && (OccupyingDeployable == null) && (data.isDeployable);
     }
 
-    public void SetOccupied(IDeployable deployable)
+    public void SetOccupied(DeployableUnitEntity deployable)
     {
         OccupyingDeployable = deployable;
     }

@@ -9,7 +9,7 @@ public class BottomPanelDeployableBox : MonoBehaviour, IPointerDownHandler, IBeg
     private Image deployableIconImage;
     private TextMeshProUGUI costText;
     [SerializeField] private GameObject deployablePrefab;
-    private IDeployable deployableInstance;
+    private DeployableUnitEntity deployableInstance;
 
     // Äð´Ù¿î °ü·Ã
     private Image InActiveImage;
@@ -22,7 +22,7 @@ public class BottomPanelDeployableBox : MonoBehaviour, IPointerDownHandler, IBeg
     public void Initialize(GameObject prefab)
     {
         deployablePrefab = prefab;
-        deployableInstance = deployablePrefab.GetComponent<IDeployable>();
+        deployableInstance = deployablePrefab.GetComponent<DeployableUnitEntity>();
 
         deployableIcon = transform.Find("DeployableIcon").gameObject;
         deployableIconImage = deployableIcon.GetComponent<Image>();

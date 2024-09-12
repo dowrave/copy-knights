@@ -1,19 +1,30 @@
 using UnityEngine;
 
 [System.Serializable]
-public class EnemyStats : UnitStats
+public struct EnemyStats
 {
-    public float movementSpeed = 1f;
-    public float attackPower = 100f;
-    public float attackSpeed = 1f;
-    public float attackRange = 0f; // 원거리만 값 설정
+    public UnitStats baseStats;
+    public float movementSpeed;
+    public float attackPower;
+    public float attackSpeed;
+    public float attackRange;
 
-    public EnemyStats(float health, float defense, float magicResistance, float movementSpeed, float attackSpeed, float attackPower, float attackRange)
-        :base(health, defense, magicResistance)
+    // UnitStats의 프로퍼티들
+    public float Health
     {
-        this.movementSpeed = movementSpeed;
-        this.attackRange = attackRange;
-        this.attackSpeed = attackSpeed;
-        this.attackPower = attackPower;
+        get => baseStats.health;
+        set => baseStats.health = value;
+    }
+
+    public float Defense
+    {
+        get => baseStats.defense;
+        set => baseStats.defense = value;
+    }
+
+    public float MagicResistance
+    {
+        get => baseStats.magicResistance;
+        set => baseStats.magicResistance = value;
     }
 }

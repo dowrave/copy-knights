@@ -1,12 +1,26 @@
 [System.Serializable]
-public class DeployableUnitStats: UnitStats
+public struct DeployableUnitStats
 {
+    public UnitStats baseStats;
     public int deploymentCost;
-    public float redeployTime; 
+    public float redeployTime;
 
-    public DeployableUnitStats(float health, float defense, float magicResistance, int deploymentCost, float redeployTime): base(health, defense, magicResistance)
+    // UnitStats의 프로퍼티들
+    public float Health
     {
-        this.deploymentCost = deploymentCost;
-        this.redeployTime = redeployTime;
+        get => baseStats.health;
+        set => baseStats.health = value;
+    }
+
+    public float Defense
+    {
+        get => baseStats.defense;
+        set => baseStats.defense = value;
+    }
+
+    public float MagicResistance
+    {
+        get => baseStats.magicResistance;
+        set => baseStats.magicResistance = value;
     }
 }

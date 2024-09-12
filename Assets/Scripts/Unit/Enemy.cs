@@ -8,23 +8,19 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity
 
     [SerializeField] // 필드 직렬화, Inspector에서 이 필드 숨기기
     private EnemyData data;
+    public new EnemyData Data => data;
     private EnemyStats currentStats;
 
-    // ICombatEntity 필드
+
     public AttackType AttackType => data.attackType;
     public AttackRangeType AttackRangeType => data.attackRangeType;
     public float AttackPower { get => currentStats.attackPower; private set => currentStats.attackPower = value; }
     public float AttackSpeed { get => currentStats.attackSpeed; private set => currentStats.attackSpeed = value; }
     public float MovementSpeed { get => currentStats.movementSpeed; private set => currentStats.movementSpeed = value; } 
-    public int BlockCount { get => data.blockCount; private set => data.blockCount = value; }
+    public int BlockCount { get => data.blockCount; private set => data.blockCount = value; } // Enemy가 차지하는 저지 수
 
     public float AttackCooldown { get; private set; }
 
-    // 경로 관련
-    private PathData pathData;
-    private int currentNodeIndex = 0;
-
-    // 공격 범위 - 근거리는 0, 원거리는 Data에 넣은 값만큼
     public float AttackRange
     {
         get
@@ -36,20 +32,17 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity
             currentStats.attackRange = value;
         }
     }
+
+    // 경로 관련
+    private PathData pathData;
+    private int currentNodeIndex = 0;
     private List<Operator> operatorsInRange = new List<Operator>();
 
     private Operator blockingOperator; // 자신을 저지 중인 오퍼레이터
-    private List<Operator> attackingOperators = new List<Operator>(); // 자신을 공격 중인 오퍼레이터
+    private UnitEntity currentTarget;
 
     private EnemyUI enemyUI;
 
-
-
-
-    public float DamageMultiplier { get; private set; }
-    public float DefenseMultiplier { get; private set; }
-
-    private Tile currentTile;
     private PathNode targetNode;
     private Vector3 targetPosition;
     private bool isWaiting = false;
@@ -169,8 +162,6 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity
                 }
 
             }
-
-
         }
     }
 
@@ -186,7 +177,7 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity
         return null; 
     }
 
-    // PathData 사용 버전
+    // 
     private void MoveAlongPath()
     {
         if (CheckIfReachedDestination())
@@ -195,15 +186,11 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity
             return;
         }
 
-        // 새 위치 계산(실제 이동 X)
-        Vector3 newPosition = Vector3.MoveTowards(transform.position, targetPosition, MovementSpeed * Time.deltaTime);
-
-        // 실제 이동
-        transform.position = newPosition;
+        Move(targetPosition);
 
         // 타일 갱신
-        Tile newTile = MapManager.Instance.GetTileAtPosition(newPosition);
-        if (newTile != currentTile)
+        Tile newTile = MapManager.Instance.GetTileAtPosition(transform.position);
+        if (newTile != CurrentTile)
         {
             ExitCurrentTile();
             EnterNewTile(newTile);
@@ -221,6 +208,11 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity
                 MoveToNextNode();
             }
         }
+    }
+
+    public void Move(Vector3 destination)
+    {
+        transform.position = Vector3.MoveTowards(transform.position, destination, MovementSpeed * Time.deltaTime);
     }
 
     // 대기 중일 때 실행
@@ -297,11 +289,9 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity
         }
     }
 
-    public override void Attack(UnitEntity target)
+    public void Attack(UnitEntity target, AttackType attackType, float damage)
     {
-        if (target is not Operator op) return;
-
-        base.Attack(target); // 공격 가능할 때, PerformAttack을 실행시키고 쿨다운을 돌림
+        PerformAttack(target);    
     }
 
     private void PerformAttack(UnitEntity target)
@@ -327,7 +317,7 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity
     {
         if (data.projectilePrefab != null)
         {
-            float damage = currentStats.attackPower * DamageMultiplier;
+            float damage = currentStats.attackPower;
 
             // 투사체 생성 위치
             Vector3 spawnPosition = transform.position + Vector3.up * 0.5f;
@@ -341,8 +331,7 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity
         }
     }
 
-
-    protected override bool IsTargetInRange(UnitEntity target)
+    protected bool IsTargetInRange(UnitEntity target)
     {
         return Vector3.Distance(target.transform.position, transform.position) <= AttackRange;
     }
@@ -362,13 +351,15 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity
             blockingOperator.UnblockEnemy(this);
         }
 
-        foreach (Operator op in attackingOperators.ToList())
+        // 공격 중인 개체의 현재 타겟 제거
+        foreach (Operator op in attackingEntities.ToList())
         {
             op.OnTargetLost(this);
         }
 
         StageManager.Instance.OnEnemyDefeated(); // 사망한 적 수 +1
 
+        // UI 제거
         if (enemyUI != null)
         {
             Destroy(enemyUI.gameObject);
@@ -377,44 +368,48 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity
         base.Die();
     }
 
-    public override void TakeDamage(float damage)
+    public override void TakeDamage(AttackType attackType, float damage)
     {
-        //float actualDamage = damage / (Stats.Defense * DefenseMultiplier);
-        base.TakeDamage(damage);
+        base.TakeDamage(attackType, damage);
 
+        // UI 업데이트
         if (enemyUI != null)
         {
             enemyUI.UpdateUI();
         }
     }
 
-    public void AddAttackingOperator(Operator op)
+    /// <summary>
+    /// 이 개체를 공격하는 적 추가
+    /// </summary>
+    public override void AddAttackingEntity(ICombatEntity combatEntity)
     {
-        if (!attackingOperators.Contains(op))
+        if (combatEntity is UnitEntity unitEntity)
         {
-            Debug.Log($"Enemy를 공격하는 Operator 추가 : {op.name}");
-            attackingOperators.Add(op);
+            Debug.Log($"Enemy를 공격하는 Operator 추가 : {unitEntity.Name}");
         }
+
+        base.AddAttackingEntity(combatEntity);
     }
 
-    public void RemoveAttackingOperator(Operator op)
+    public override void RemoveAttackingEntity(ICombatEntity combatEntity)
     {
-        attackingOperators.Remove(op);
+        base.RemoveAttackingEntity(combatEntity);
     }
 
     private void ExitCurrentTile()
     {
-        if (currentTile != null)
+        if (CurrentTile != null)
         {
-            currentTile.EnemyExited(this);
-            currentTile = null;
+            CurrentTile.EnemyExited(this);
+            CurrentTile = null;
         }
     }
 
     private void EnterNewTile(Tile newTile)
     {
-        currentTile = newTile;
-        currentTile.EnemyEntered(this);
+        CurrentTile = newTile;
+        CurrentTile.EnemyEntered(this);
         CheckAndAddBlockingOperator();
     }
 
@@ -441,10 +436,10 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity
     // 가장 마지막에 배치된 오퍼레이터를 공격함
     private void AttackLastDeployedOperator()
     {
-        if (operatorsInRange.Count > 0 && IsAttackCooldownComplete)
+        if (operatorsInRange.Count > 0 && AttackCooldown <= 0)
         {
             Operator target = operatorsInRange.OrderByDescending(o => o.deploymentOrder).First();
-            Attack(target);
+            Attack(target, AttackType, AttackPower);
         }
     }
 
@@ -483,5 +478,16 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity
         {
             AttackCooldown -= Time.deltaTime;
         }
+    }
+
+    // ICombatEntity 메서드 - 인터페이스 멤버는 모두 public으로 구현해야 함
+    public bool CanAttack()
+    {
+        return currentTarget != null && AttackCooldown <= 0;
+    }
+
+    public void SetAttackCooldown()
+    {
+        AttackCooldown = 1 / AttackSpeed;
     }
 }

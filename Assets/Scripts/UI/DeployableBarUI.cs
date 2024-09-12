@@ -62,8 +62,8 @@ public class DeployableBarUI : MonoBehaviour
     {
         if (op != null)
         {
-            UpdateHealthBar(op.Stats.health, op.MaxHealth);
-            UpdateSPBar(op.CurrentSP, op.data.maxSP);
+            UpdateHealthBar(op.CurrentHealth, op.MaxHealth);
+            UpdateSPBar(op.CurrentSP, op.Data.maxSP);
         }
     }
     public void UpdateHealthBar(float currentHealth, float maxHealth)
