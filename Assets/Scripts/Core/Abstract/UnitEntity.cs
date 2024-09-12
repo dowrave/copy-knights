@@ -7,12 +7,14 @@ using UnityEngine;
 public abstract class UnitEntity : MonoBehaviour, ITargettable
 {
     private UnitData data;
+    public UnitData Data => data;
     private UnitStats currentStats;
-    protected Tile CurrentTile { get; private set; }
-    public GameObject Prefab { get; private set; }
+    public Tile CurrentTile { get; protected set; }
+    public GameObject Prefab { get; protected set; }
 
+    public string Name => data.entityName;
     // 스탯 관련
-    private float currentHealth;
+    protected float currentHealth;
     public float CurrentHealth
     {
         get => currentHealth;
@@ -22,13 +24,12 @@ public abstract class UnitEntity : MonoBehaviour, ITargettable
             OnHealthChanged?.Invoke(currentHealth, MaxHealth);
         }
     }
-    public float MaxHealth { get; private set; } // 최대 체력도 변할 수 있음
-    public float Defense { get => currentStats.defense; private set => currentStats.defense = value; }
-    public float MagicResistance { get => currentStats.magicResistance; private set => currentStats.magicResistance = value; }
+    public float MaxHealth { get; protected set; } // 최대 체력도 변할 수 있음
+    public float Defense { get => currentStats.defense; protected set => currentStats.defense = value; }
+    public float MagicResistance { get => currentStats.magicResistance; protected set => currentStats.magicResistance = value; }
 
-    // ITargettable
-    private List<ICombatEntity> attackingEntities = new List<ICombatEntity>();
-    public IReadOnlyList<ICombatEntity> AttackingEntities => attackingEntities.AsReadOnly();
+    // 이 개체를 공격하는 엔티티 목록
+    protected List<ICombatEntity> attackingEntities = new List<ICombatEntity>();
 
     // 이벤트
     public event System.Action<float, float> OnHealthChanged;
@@ -63,6 +64,9 @@ public abstract class UnitEntity : MonoBehaviour, ITargettable
         CurrentHealth = MaxHealth;
     }
     
+    /// <summary>
+    /// 피격 대미지 계산, 체력 갱신
+    /// </summary>
     public virtual void TakeDamage(AttackType attacktype, float damage)
     {
         float actualDamage = CalculateActualDamage(attacktype, damage);

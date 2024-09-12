@@ -8,6 +8,7 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
 {
     [SerializeField] // 필드 직렬화, Inspector에서 이 필드 숨기기
     private OperatorData data;
+    public new OperatorData Data => data;
     private OperatorStats currentStats;
 
     // ICombatEntity 필드
@@ -36,11 +37,11 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
     // 저지 관련
     private List<Enemy> blockedEnemies; // 저지 중인 적들
     public IReadOnlyList<Enemy> BlockedEnemies => blockedEnemies.AsReadOnly();
+    public int MaxBlockableEnemies { get => currentStats.maxBlockableEnemies; private set => currentStats.maxBlockableEnemies = value; }
 
     public int deploymentOrder { get; private set; } // 배치 순서
     private bool isDeployed = false; // 배치 완료 시 true
     private UnitEntity currentTarget;
-    //private float attackCooldown = 0f; // data.baseStats에서 들어오는 AttackSpeed 값에 의해 결정됨
 
 
     public float CurrentSP 
@@ -373,7 +374,6 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
     // 공격 대상인 적이 죽었을 때 작동함. 저지 해제와 별개로 구현
     public void OnTargetLost(Enemy enemy)
     {
-
         // 공격 대상에서 제거
         if (currentTarget == enemy)
         {
@@ -507,7 +507,7 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
 
     public void SetAttackCooldown()
     {
-        AttackCooldown = 1 / currentStats.attackSpeed;
+        AttackCooldown = 1 / AttackCooldown;
     }
 
     public void UpdateAttackCooldown()

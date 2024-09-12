@@ -72,7 +72,7 @@ public class CameraManager : MonoBehaviour
     }
 
     // UI를 클릭하거나 배치된 오퍼레이터 클릭 시 카메라 이동 / 회전 변경
-    public void AdjustForDeployableInfo(bool show, IDeployable deployable = null)
+    public void AdjustForDeployableInfo(bool show, DeployableUnitEntity deployable = null)
     {
         // ShowDeployableInfo
         if (show)
@@ -83,7 +83,7 @@ public class CameraManager : MonoBehaviour
             // 배치된 Deployable 클릭
             if (deployable.IsDeployed)
             {
-                Vector3 operatorPosition = deployable.Transform.position;
+                Vector3 operatorPosition = deployable.transform.position;
 
                 float cameraOffset = mapWidth * (1 - 0.75f) * 0.5f;
 

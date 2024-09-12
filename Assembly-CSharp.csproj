@@ -93,7 +93,6 @@
     <Compile Include="Assets\Scripts\Unit\Operator.cs" />
     <Compile Include="Assets\Scripts\Core\Abstract\UnitEntity.cs" />
     <Compile Include="Assets\Scripts\Stage\EnemySpawner.cs" />
-    <Compile Include="Assets\Scripts\Unit\Unit.cs" />
     <Compile Include="Assets\Scripts\Stage\CameraManager.cs" />
     <Compile Include="Assets\Scripts\UI\UIManager.cs" />
     <Compile Include="Assets\Scripts\Stage\DeployableManager.cs" />

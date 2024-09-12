@@ -139,7 +139,7 @@ public class ClickDetectionSystem : MonoBehaviour
 
     private void HandleObjectClick(RaycastHit hit)
     {
-        IDeployable clickable = hit.collider.GetComponent<IDeployable>();
+        DeployableUnitEntity clickable = hit.collider.GetComponent<DeployableUnitEntity>();
         if (clickable != null)
         {
             clickable.OnClick();
@@ -148,7 +148,7 @@ public class ClickDetectionSystem : MonoBehaviour
         else
         {
             Tile clickedTile = hit.collider.GetComponent<Tile>();
-            IDeployable clickedDeployable = clickedTile.OccupyingDeployable;
+            DeployableUnitEntity clickedDeployable = clickedTile.OccupyingDeployable;
             if (clickedTile != null && clickedDeployable != null)
             {
                 if (clickedDeployable is Operator op)

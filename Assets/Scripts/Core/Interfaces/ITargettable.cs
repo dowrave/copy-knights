@@ -5,7 +5,7 @@ using System.Collections.Generic;
 /// </summary>
 public interface ITargettable { 
 
-    IReadOnlyList<ICombatEntity> AttackingEntities { get; } // 나를 공격하는 적들
+    //IReadOnlyList<ICombatEntity> AttackingEntities { get; } // 나를 공격하는 적들
 
     void AddAttackingEntity(ICombatEntity attacker); // 나를 공격하는 적 추가
     void RemoveAttackingEntity(ICombatEntity attacker); // 나를 공격하는 적 제거

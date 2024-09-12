@@ -1,8 +1,6 @@
 
 using TMPro;
 using UnityEngine;
-using UnityEngine.UI;
-using static UnityEditor.Timeline.TimelinePlaybackControls;
 
 
 public class InfoPanel : MonoBehaviour
@@ -15,7 +13,7 @@ public class InfoPanel : MonoBehaviour
     [SerializeField] private TextMeshProUGUI magicResistanceText;
     [SerializeField] private TextMeshProUGUI blockCountText;
 
-    private IDeployable currentDeployable;
+    private DeployableUnitEntity currentDeployable;
     private Operator currentOperator;
     private GameObject statsContainer;
 
@@ -25,7 +23,7 @@ public class InfoPanel : MonoBehaviour
         statsContainer.SetActive(false);
     }
 
-    public void UpdateInfo(IDeployable deployable)
+    public void UpdateInfo(DeployableUnitEntity deployable)
     {
         if (currentOperator != null)
         {
@@ -33,7 +31,7 @@ public class InfoPanel : MonoBehaviour
         }
 
         // 기본 정보 업데이트
-        nameText.text = deployable.Transform.name;
+        nameText.text = deployable.Name;
 
         // Operator 특정 정보 업데이트
         if (deployable is Operator op)
@@ -62,18 +60,19 @@ public class InfoPanel : MonoBehaviour
         if (op.IsDeployed)
         {
             currentOperator.OnHealthChanged += UpdateHealthText;
-            UpdateHealthText(currentOperator.currentHealth, currentOperator.MaxHealth);
+            UpdateHealthText(currentOperator.CurrentHealth, currentOperator.MaxHealth);
         }
         else
         {
             // 배치되지 않은 경우 OperatorData에서 직접 값을 가져옴
-            UpdateHealthText(op.data.stats.health, op.data.stats.health);
+            float initialHealth = op.Data.stats.health; 
+            UpdateHealthText(initialHealth, initialHealth);
         }
 
-        attackText.text = $"공격력: {op.data.stats.attackPower}";
-        defenseText.text = $"방어력: {op.data.stats.defense}";
-        magicResistanceText.text = $"마법저항력: {op.data.stats.magicResistance}";
-        blockCountText.text = $"저지수: {op.data.maxBlockableEnemies}";
+        attackText.text = $"공격력: {op.AttackPower}";
+        defenseText.text = $"방어력: {op.Defense}";
+        magicResistanceText.text = $"마법저항력: {op.MagicResistance}";
+        blockCountText.text = $"저지수: {op.MaxBlockableEnemies}";
     }
 
     private void UpdateHealthText(float currentHealth, float maxHealth)

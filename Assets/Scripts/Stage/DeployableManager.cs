@@ -81,6 +81,7 @@ public class DeployableManager : MonoBehaviour
         {
             GameObject boxObject = Instantiate(bottomPanelDeployableBoxPrefab, bottomPanel);
             BottomPanelDeployableBox box = boxObject.GetComponent<BottomPanelDeployableBox>();
+
             if (box != null)
             {
                 box.Initialize(deployablePrefab);
@@ -121,8 +122,8 @@ public class DeployableManager : MonoBehaviour
         {
             if (tile != null && tile.CanPlaceDeployable())
             {
-                if ((tile.data.terrain == TileData.TerrainType.Ground && currentDeployable.data.CanDeployGround) ||
-                    (tile.data.terrain == TileData.TerrainType.Hill && currentDeployable.data.CanDeployHill))
+                if ((tile.data.terrain == TileData.TerrainType.Ground && currentDeployable.Data.canDeployOnGround) ||
+                    (tile.data.terrain == TileData.TerrainType.Hill && currentDeployable.Data.canDeployOnHill))
                 {
                     tile.Highlight(availableTileColor);
                     highlightedTiles.Add(tile);
@@ -332,7 +333,7 @@ public class DeployableManager : MonoBehaviour
         else
         {
             // 아니라면 커서 위치에만 표시
-            currentDeployable.Transform.position = cursorWorldPosition;
+            currentDeployable.transform.position = cursorWorldPosition;
         }
     }
 
@@ -376,9 +377,14 @@ public class DeployableManager : MonoBehaviour
     {
         if (StageManager.Instance.TryUseDeploymentCost(currentDeployable.DeploymentCost))
         {
-            currentDeployable.Initialize(currentDeployablePrefab); // 배치 시에 프리팹 참조 전달
+            currentDeployable.Initialize(currentDeployable.Data); // 배치 시에 프리팹 참조 전달
             currentDeployable.Deploy(tile.transform.position);
-            currentDeployable.SetDirection(placementDirection);
+
+            if (currentDeployable is Operator op)
+            {
+                op.SetDirection(placementDirection);
+            }
+
             tile.SetOccupied(currentDeployable);
 
             deployedItems.Add(currentDeployable);
@@ -407,7 +413,7 @@ public class DeployableManager : MonoBehaviour
         {
             if (currentDeployable.IsPreviewMode)
             {
-                Destroy(currentDeployable.Transform.gameObject);
+                Destroy(currentDeployable.transform.gameObject);
             }
             currentDeployable = null;
         }
@@ -459,7 +465,7 @@ public class DeployableManager : MonoBehaviour
         HideAllUIs();
         ResetHighlights();
 
-        GameObject prefab = deployable.OriginalPrefab;
+        GameObject prefab = deployable.Prefab;
         if (prefab != null && deployableUIBoxes.TryGetValue(prefab, out BottomPanelDeployableBox box))
         {
             box.gameObject.SetActive(true);
@@ -542,7 +548,7 @@ public class DeployableManager : MonoBehaviour
         }
         else
         {
-            currentDeployable.Transform.position = tile.transform.position + Vector3.up * 0.5f;
+            currentDeployable.transform.position = tile.transform.position + Vector3.up * 0.5f;
         }
     }
 }
