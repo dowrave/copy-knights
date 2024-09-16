@@ -358,21 +358,17 @@
 -analyzer:"C:/Program Files/Unity/Hub/Editor/2022.3.34f1/Editor/Data/Tools/Unity.SourceGenerators/Unity.SourceGenerators.dll"
 "Assets/Scripts/Core/Abstract/DeployableUnitEntity.cs"
 "Assets/Scripts/Core/Abstract/UnitEntity.cs"
-"Assets/Scripts/Core/Data/DeployableUnitStats.cs"
-"Assets/Scripts/Core/Data/EnemyStats.cs"
-"Assets/Scripts/Core/Data/OperatorStats.cs"
-"Assets/Scripts/Core/Data/UnitStats.cs"
+"Assets/Scripts/Core/Data/DeployableUnitData.cs"
+"Assets/Scripts/Core/Data/EnemyData.cs"
+"Assets/Scripts/Core/Data/OperatorData.cs"
+"Assets/Scripts/Core/Data/UnitData.cs"
+"Assets/Scripts/Core/Interfaces/IBoxDeployableData.cs"
 "Assets/Scripts/Core/Interfaces/ICombatEntity.cs"
 "Assets/Scripts/Core/Interfaces/IDeployable.cs"
 "Assets/Scripts/Core/Interfaces/IMovable.cs"
 "Assets/Scripts/Core/Interfaces/IRotatable.cs"
 "Assets/Scripts/Core/Interfaces/ISkill.cs"
 "Assets/Scripts/Core/Interfaces/ITargettable.cs"
-"Assets/Scripts/OnEditor/MapEditorWindow.cs"
-"Assets/Scripts/OnEditor/PathDataEditor.cs"
-"Assets/Scripts/ScriptableObjects/DeployableUnitData.cs"
-"Assets/Scripts/ScriptableObjects/OperatorData.cs"
-"Assets/Scripts/ScriptableObjects/UnitData.cs"
 "Assets/Scripts/Stage/CameraManager.cs"
 "Assets/Scripts/Stage/ClickDetectionSystem.cs"
 "Assets/Scripts/Stage/DeployableManager.cs"
@@ -400,7 +396,6 @@
 "Assets/Scripts/UI/UIManager.cs"
 "Assets/Scripts/Unit/Barricade.cs"
 "Assets/Scripts/Unit/Enemy.cs"
-"Assets/Scripts/Unit/EnemyData.cs"
 "Assets/Scripts/Unit/Operator.cs"
 "Assets/Scripts/Unit/Projectile.cs"
 -langversion:9.0
@@ -409,6 +404,7 @@
 /debug:portable
 /nologo
 /RuntimeMetadataVersion:v4.0.30319
+-nullable:enable
 /nowarn:0169
 /nowarn:0649
 /nowarn:0282

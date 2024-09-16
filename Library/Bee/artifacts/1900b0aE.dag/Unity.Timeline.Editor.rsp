@@ -630,6 +630,7 @@
 /debug:portable
 /nologo
 /RuntimeMetadataVersion:v4.0.30319
+-nullable:enable
 /nowarn:0169
 /nowarn:0649
 /nowarn:0282

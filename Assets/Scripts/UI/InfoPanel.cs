@@ -1,4 +1,3 @@
-
 using TMPro;
 using UnityEngine;
 
@@ -30,17 +29,17 @@ public class InfoPanel : MonoBehaviour
             currentOperator.OnHealthChanged -= UpdateHealthText;
         }
 
-        // 기본 정보 업데이트
-        nameText.text = deployable.Name;
 
         // Operator 특정 정보 업데이트
         if (deployable is Operator op)
         {
+            nameText.text = op.Data.entityName;
             statsContainer.SetActive(true);
             UpdateOperatorInfo(op);
         }
         else
         {
+            nameText.text = deployable.Data.entityName;
             statsContainer.SetActive(false);
         }
 
@@ -64,15 +63,15 @@ public class InfoPanel : MonoBehaviour
         }
         else
         {
-            // 배치되지 않은 경우 OperatorData에서 직접 값을 가져옴
-            float initialHealth = op.Data.stats.health; 
+            // 배치되지 않은 경우 초기 체력값을 가져옴
+            float initialHealth = op.Data.stats.Health; 
             UpdateHealthText(initialHealth, initialHealth);
         }
 
-        attackText.text = $"공격력: {op.AttackPower}";
-        defenseText.text = $"방어력: {op.Defense}";
-        magicResistanceText.text = $"마법저항력: {op.MagicResistance}";
-        blockCountText.text = $"저지수: {op.MaxBlockableEnemies}";
+        attackText.text = $"공격력: {op.currentStats.AttackPower}";
+        defenseText.text = $"방어력: {op.currentStats.Defense}";
+        magicResistanceText.text = $"마법저항력: {op.currentStats.MagicResistance}";
+        blockCountText.text = $"저지수: {op.currentStats.MaxBlockableEnemies}";
     }
 
     private void UpdateHealthText(float currentHealth, float maxHealth)

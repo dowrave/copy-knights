@@ -5,19 +5,18 @@ using UnityEngine;
 
 public class Enemy : UnitEntity, IMovable, ICombatEntity
 {
+    [SerializeField]
+    private EnemyData enemyData;
+    public new EnemyData Data => enemyData;
 
-    [SerializeField] // 필드 직렬화, Inspector에서 이 필드 숨기기
-    private EnemyData data;
-    public new EnemyData Data => data;
     private EnemyStats currentStats;
 
-
-    public AttackType AttackType => data.attackType;
-    public AttackRangeType AttackRangeType => data.attackRangeType;
-    public float AttackPower { get => currentStats.attackPower; private set => currentStats.attackPower = value; }
-    public float AttackSpeed { get => currentStats.attackSpeed; private set => currentStats.attackSpeed = value; }
-    public float MovementSpeed { get => currentStats.movementSpeed; private set => currentStats.movementSpeed = value; } 
-    public int BlockCount { get => data.blockCount; private set => data.blockCount = value; } // Enemy가 차지하는 저지 수
+    public AttackType AttackType => enemyData.attackType;
+    public AttackRangeType AttackRangeType => enemyData.attackRangeType;
+    public float AttackPower { get => currentStats.AttackPower; private set => currentStats.AttackPower = value; }
+    public float AttackSpeed { get => currentStats.AttackSpeed; private set => currentStats.AttackSpeed = value; }
+    public float MovementSpeed { get => currentStats.MovementSpeed; private set => currentStats.MovementSpeed = value; } 
+    public int BlockCount { get => enemyData.blockCount; private set => enemyData.blockCount = value; } // Enemy가 차지하는 저지 수
 
     public float AttackCooldown { get; private set; }
 
@@ -25,11 +24,11 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity
     {
         get
         {
-            return data.attackRangeType == AttackRangeType.Melee ? 0f : currentStats.attackRange;
+            return enemyData.attackRangeType == AttackRangeType.Melee ? 0f : currentStats.AttackRange;
         }
         private set
         {
-            currentStats.attackRange = value;
+            currentStats.AttackRange = value;
         }
     }
 
@@ -47,39 +46,22 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity
     private Vector3 targetPosition;
     private bool isWaiting = false;
 
-    public override void Initialize(UnitData unitData)
+    public void Initialize(EnemyData enemyData, PathData pathData)
     {
-        Initialize(unitData, null);
-    }
+        this.enemyData = enemyData;
+        currentStats = enemyData.stats;
 
-    public void Initialize(UnitData unitData, PathData pathData)
-    {
-        base.Initialize(unitData); // EnemyData로 초기화됨
         this.pathData = pathData;
 
+        base.InitializeUnitProperties();
         InitializeEnemyProperties();
-        SetupInitialPosition();
-        CreateEnemyUI();
-        UpdateTargetNode();
-        // stats을 사용하는 로직은 이후에 추가(?)
-    }
-
-    protected override void InitializeData(UnitData unitData)
-    {
-        if (unitData is EnemyData enemyData)
-        {
-            data = enemyData;
-            currentStats = data.stats;
-        }
-        else
-        {
-            Debug.LogError("들어온 데이터가 EnemyData가 아님!");
-        }
     }
 
     private void InitializeEnemyProperties()
     {
-        
+        SetupInitialPosition();
+        CreateEnemyUI();
+        UpdateTargetNode();
     }
 
     private void SetupInitialPosition()
@@ -315,14 +297,14 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity
 
     private void PerformRangedAttack(UnitEntity target)
     {
-        if (data.projectilePrefab != null)
+        if (enemyData.projectilePrefab != null)
         {
-            float damage = currentStats.attackPower;
+            float damage = currentStats.AttackPower;
 
             // 투사체 생성 위치
             Vector3 spawnPosition = transform.position + Vector3.up * 0.5f;
 
-            GameObject projectileObj = Instantiate(data.projectilePrefab, spawnPosition, Quaternion.identity);
+            GameObject projectileObj = Instantiate(enemyData.projectilePrefab, spawnPosition, Quaternion.identity);
             Projectile projectile = projectileObj.GetComponent<Projectile>();
             if (projectile != null)
             {
@@ -386,7 +368,7 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity
     {
         if (combatEntity is UnitEntity unitEntity)
         {
-            Debug.Log($"Enemy를 공격하는 Operator 추가 : {unitEntity.Name}");
+            Debug.Log($"Enemy를 공격하는 Operator 추가 : {unitEntity.Data.entityName}");
         }
 
         base.AddAttackingEntity(combatEntity);

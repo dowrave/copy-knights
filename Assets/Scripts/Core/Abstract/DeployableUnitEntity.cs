@@ -1,18 +1,19 @@
+#nullable enable
 using UnityEngine;
 
-public class DeployableUnitEntity : UnitEntity, IDeployable
+public class DeployableUnitEntity: UnitEntity, IDeployable
 {
-    private DeployableUnitData data;
-    public new DeployableUnitData Data => data;
-    private DeployableUnitStats currentStats;
+    [SerializeField]
+    private DeployableUnitData deployableUnitData;
+    public new DeployableUnitData Data { get => deployableUnitData; private set => deployableUnitData = value; }
+
+    public DeployableUnitStats currentStats;
 
     // IDeployable 인터페이스 관련
     public bool IsDeployed { get; protected set; }
-    public int DeploymentCost { get => currentStats.deploymentCost; set => currentStats.deploymentCost = value; }
-    public float RedeployTime { get => currentStats.redeployTime; set => currentStats.redeployTime = value; }
     public int InitialDeploymentCost { get; protected set; } // 최초 배치 코스트 - DeploymentCost는 게임 중 증가할 수 있음
 
-    public Sprite Icon => data.icon;
+    public Sprite? Icon => Data.Icon;
 
     // 미리보기 관련
     private bool isPreviewMode = false;
@@ -30,45 +31,56 @@ public class DeployableUnitEntity : UnitEntity, IDeployable
     protected Material originalMaterial;
     protected Material previewMaterial;
 
-    public override void Initialize(UnitData unitData)
+
+    public void Initialize(DeployableUnitData deployableUnitData)
     {
-        base.Initialize(unitData); // 이 클래스의 InitializeData가 호출됨
+        //InitializeDeployableData(deployableUnitData);
+        base.InitializeUnitProperties(); 
         InitializeDeployableProperties(); 
+        
     }
 
-    protected override void InitializeData(UnitData unitData)
+    private void InitializeDeployableData(DeployableUnitData deployableData)
     {
-        if (unitData is DeployableUnitData deployableUnitData)
-        {
-            data = deployableUnitData;
-            currentStats = data.stats;
-        }
-        else
-        {
-            Debug.LogError("들어온 데이터가 deployableUnitData가 아님!");
-        }
+        this.deployableUnitData = deployableData;
+        currentStats = deployableUnitData.stats;
     }
 
-
-    /// <summary>
-    /// DeployableUnitEntity 관련 초기화
-    /// </summary>
-    protected virtual void InitializeDeployableProperties()
+    protected void InitializeDeployableProperties()
     {
-        IsDeployed = false;
-        IsPreviewMode = true;
-        InitialDeploymentCost = DeploymentCost;
+        modelObject = transform.Find("Model").gameObject;
+        modelRenderer = modelObject.GetComponent<Renderer>();
 
-
-        SetupPreviewMaterial(); // 미리보기 머티리얼 준비
-        InitializeMaxHealth(); // 최대 체력 설정
-
-        if (!ValidateModelStructure()) // 자식 오브젝트에 Model 오브젝트가 있는지 체크
+        if (ValidateModelStructure() == false)
         {
-            Debug.LogError($"DeployableData가 아님, 초기화 중단");
+            Debug.LogError("DeployableUnitEntity의 머티리얼 설정이 이상해요");
             return;
         }
+        
+        IsDeployed = false; // 배치 비활성화
+        IsPreviewMode = true; // 미리보기 활성화
+        InitialDeploymentCost = currentStats.DeploymentCost; // 초기 배치 코스트 설정
+        SetupPreviewMaterial(); // 미리보기 머티리얼 준비
+    }
 
+    /// <summary>
+    /// 프리팹에서 필드들의 정보를 초기화. 실제 초기화는 Initialize에서 별도로 이뤄진다.
+    /// </summary>
+    public virtual void InitializeFromPrefab()
+    {
+        if (modelObject == null)
+        {
+            modelObject = transform.Find("Model").gameObject;
+        }
+        if (modelObject != null)
+        {
+            modelRenderer = modelObject.GetComponent<Renderer>();
+        }
+        // DeployableUnitData 초기화 (만약 SerializeField로 설정되어 있다면 이미 할당되어 있음)
+        if (deployableUnitData != null)
+        {
+            currentStats = deployableUnitData.stats;
+        }
     }
 
     public virtual void Deploy(Vector3 position)
@@ -98,8 +110,8 @@ public class DeployableUnitEntity : UnitEntity, IDeployable
     {
         if (IsInvalidTile(tile)) return false;
 
-        if (tile.data.terrain == TileData.TerrainType.Ground && data.canDeployOnGround) return true;
-        if (tile.data.terrain == TileData.TerrainType.Hill && data.canDeployOnHill) return true;
+        if (tile.data.terrain == TileData.TerrainType.Ground && Data.canDeployOnGround) return true;
+        if (tile.data.terrain == TileData.TerrainType.Hill && Data.canDeployOnHill) return true;
 
         return false;
     }
@@ -132,13 +144,10 @@ public class DeployableUnitEntity : UnitEntity, IDeployable
     /// </summary>
     private bool ValidateModelStructure()
     {
-        modelObject = transform.Find("Model")?.gameObject;
-        if (modelObject == null)
+        if (modelObject == null || modelRenderer == null)
         {
             return false;
         }
-
-        modelRenderer = modelObject.GetComponent<Renderer>();
         return true;
     }
 
@@ -147,7 +156,9 @@ public class DeployableUnitEntity : UnitEntity, IDeployable
     /// </summary>
     protected void SetupPreviewMaterial()
     {
-        originalMaterial = modelRenderer.material;
+        originalMaterial = modelRenderer.sharedMaterial; // 프리팹, 에셋에 직접 접근할 때는 sharedMaterial을 사용
+
+        // 이건 또 왜 null임 ㅅㅂ
         previewMaterial = new Material(originalMaterial);
         previewMaterial.SetFloat("_Mode", 3); // TransParent 모드로 설정
         Color previewColor = previewMaterial.color;
@@ -199,7 +210,7 @@ public class DeployableUnitEntity : UnitEntity, IDeployable
             modelRenderer.material = previewMaterial;
         }
 
-        else
+        else 
         {
             // 실제 배치 모드일 때의 시각 설정
             modelRenderer.material = originalMaterial;
@@ -215,4 +226,13 @@ public class DeployableUnitEntity : UnitEntity, IDeployable
             previewMaterial.color = color;
         }
     }
+
+    protected override void InitializeUnitProperties()
+    {
+        MaxHealth = currentStats.Health;
+        CurrentHealth = MaxHealth;
+        UpdateCurrentTile();
+        Prefab = Data.prefab; // 이거 타입 때문에 오버라이드함
+    }
 }
+#nullable restore
