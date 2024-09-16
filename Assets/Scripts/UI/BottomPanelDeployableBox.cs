@@ -5,11 +5,13 @@ using UnityEngine.UI;
 
 public class BottomPanelDeployableBox : MonoBehaviour, IPointerDownHandler, IBeginDragHandler, IDragHandler, IEndDragHandler
 {
-    private GameObject deployableIcon;
-    private Image deployableIconImage;
+    private GameObject boxIcon; // 자식 오브젝트 BoxIcon
+    private Image boxIconImage;
     private TextMeshProUGUI costText;
     [SerializeField] private GameObject deployablePrefab;
-    private DeployableUnitEntity deployableInstance;
+    private DeployableUnitEntity deployableComponent;
+
+    private Sprite icon;
 
     // 쿨다운 관련
     private Image InActiveImage;
@@ -17,26 +19,39 @@ public class BottomPanelDeployableBox : MonoBehaviour, IPointerDownHandler, IBeg
     private float cooldownTimer = 0f;
     private bool isOnCooldown = false;
 
-    private bool isDragging = false; 
+    private bool isDragging = false;
 
+    /// <summary>
+    /// 인스펙터에서 설정한 필드는 Awake 메서드 이전에 할당되어 있음!!!!!
+    /// </summary>
     public void Initialize(GameObject prefab)
     {
         deployablePrefab = prefab;
-        deployableInstance = deployablePrefab.GetComponent<DeployableUnitEntity>();
+        deployableComponent = deployablePrefab.GetComponent<DeployableUnitEntity>(); // 자식 클래스 Operator도 DeployableUnitEntity 형태로 저장
+        deployableComponent.InitializeFromPrefab();
 
-        deployableIcon = transform.Find("DeployableIcon").gameObject;
-        deployableIconImage = deployableIcon.GetComponent<Image>();
+        if (deployableComponent is Operator opComponent)
+        {
+            icon = opComponent.Data.Icon;
+        }
+        else if (deployableComponent is DeployableUnitEntity)
+        {
+            icon = deployableComponent.Data.Icon;
+        }
 
+        // Operator로 초기화했더라도 deployableComponent 변수 이름으로 DeployableComponent의 모든 기능 사용 가능
+        boxIcon = transform.Find("BoxIcon").gameObject;
+        boxIconImage = boxIcon.GetComponent<Image>();
         costText = transform.Find("CostBackground/CostText").GetComponent<TextMeshProUGUI>();
-
         InActiveImage = transform.Find("InActiveOverlay").GetComponent<Image>();
-        cooldownText = transform.Find("CooldownText").GetComponent<TextMeshProUGUI>(); // 더 깊은 자식 오브젝트 찾기
+        cooldownText = transform.Find("CooldownText").GetComponent<TextMeshProUGUI>();
 
-        // 코스트 변할 때의 델리게이트에 이벤트 추가
         StageManager.Instance.OnDeploymentCostChanged += UpdateAvailability;
-
         InitializeVisuals();
+
     }
+
+
 
     private void OnDestroy()
     {
@@ -63,29 +78,39 @@ public class BottomPanelDeployableBox : MonoBehaviour, IPointerDownHandler, IBeg
     /// <summary>
     /// 일단은 초기화 때만 쓰고 있기는 하다
     /// </summary>
-    /// 
     private void InitializeVisuals()
     {
-        // deployable 자체에 할당된 아이콘이 있다면 DeployableIcon 오브젝트에 할당
-        if (deployableInstance.Icon != null)
+        // 아이콘이 있다면 사용
+        if (icon != null)
         {
-            deployableIconImage.sprite = deployableInstance.Icon;
-            deployableIconImage.color = Color.white; // 원래의 아이콘 그대로 나타내기 위함
+            boxIconImage.sprite = icon;
+            boxIconImage.color = Color.white; // 원래의 아이콘 그대로 나타내기 위함
         }
-
+        // 아니라면 deployable 모델의 설정을 가져옴
         else if (deployablePrefab != null)
         {
             Renderer modelRenderer = deployablePrefab.GetComponentInChildren<Renderer>();
             if (modelRenderer != null && modelRenderer.sharedMaterial != null)
             {
-                deployableIconImage.color = modelRenderer.sharedMaterial.color;
+                boxIconImage.color = modelRenderer.sharedMaterial.color;
             }
         }
+        
 
-        costText.text = deployableInstance.DeploymentCost.ToString();
+        if (deployableComponent is Operator opComponent)
+        {
+            costText.text = opComponent.currentStats.DeploymentCost.ToString();
+        }
+        else
+        {
+            costText.text = deployableComponent.currentStats.DeploymentCost.ToString();
+        }
 
-        InActiveImage.gameObject.SetActive(false);
-        cooldownText.gameObject.SetActive(false);
+        if (CanInteract())
+        {
+            InActiveImage.gameObject.SetActive(false);
+            cooldownText.gameObject.SetActive(false);
+        }
     }
 
     public void StartCooldown(float cooldownTime)
@@ -167,7 +192,7 @@ public class BottomPanelDeployableBox : MonoBehaviour, IPointerDownHandler, IBeg
 
     private bool CanInteract()
     {
-        return !isOnCooldown && StageManager.Instance.CurrentDeploymentCost >= deployableInstance.DeploymentCost;
+        return !isOnCooldown && StageManager.Instance.CurrentDeploymentCost >= deployableComponent.currentStats.DeploymentCost;
     }
 
 }

@@ -117,18 +117,35 @@ public class DeployableManager : MonoBehaviour
     private void HighlightAvailableTiles()
     {
         ResetHighlights();
-        
+       
+
         foreach (Tile tile in MapManager.Instance.GetAllTiles())
         {
             if (tile != null && tile.CanPlaceDeployable())
             {
-                if ((tile.data.terrain == TileData.TerrainType.Ground && currentDeployable.Data.canDeployOnGround) ||
-                    (tile.data.terrain == TileData.TerrainType.Hill && currentDeployable.Data.canDeployOnHill))
+                if (CheckTileCondition(tile))
                 {
                     tile.Highlight(availableTileColor);
                     highlightedTiles.Add(tile);
                 }
             }
+        }
+    }
+
+    /// <summary>
+    /// 타일 조건 체크
+    /// </summary>
+    private bool CheckTileCondition(Tile tile)
+    {
+        if (currentDeployable is Operator op)
+        {
+            return (tile.data.terrain == TileData.TerrainType.Ground && op.Data.canDeployOnGround) ||
+                    (tile.data.terrain == TileData.TerrainType.Hill && op.Data.canDeployOnHill);
+        }
+        else
+        {
+            return (tile.data.terrain == TileData.TerrainType.Ground && currentDeployable.Data.canDeployOnGround) ||
+                    (tile.data.terrain == TileData.TerrainType.Hill && currentDeployable.Data.canDeployOnHill);
         }
     }
 
@@ -375,9 +392,14 @@ public class DeployableManager : MonoBehaviour
     /// </summary>
     private void DeployDeployable(Tile tile)
     {
-        if (StageManager.Instance.TryUseDeploymentCost(currentDeployable.DeploymentCost))
+        int nowDeploymentCost = currentDeployable.currentStats.DeploymentCost;
+        if (StageManager.Instance.TryUseDeploymentCost(nowDeploymentCost))
         {
-            currentDeployable.Initialize(currentDeployable.Data); // 배치 시에 프리팹 참조 전달
+            if (currentDeployable.Data is DeployableUnitData deployableUnitData)
+            {
+                currentDeployable.Initialize(deployableUnitData); // 배치 시에 프리팹 참조 전달
+            }
+
             currentDeployable.Deploy(tile.transform.position);
 
             if (currentDeployable is Operator op)

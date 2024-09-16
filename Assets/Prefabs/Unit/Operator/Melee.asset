@@ -1,0 +1,41 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3e9e80fd5f700b74fac5a82924257d05, type: 3}
+  m_Name: Melee
+  m_EditorClassIdentifier: 
+  entityName: Melee
+  stats:
+    _deployableUnitStats:
+      _baseStats:
+        _health: 1500
+        _defense: 300
+        _magicResistance: 20
+      _deploymentCost: 10
+      _redeployTime: 70
+    _attackPower: 300
+    _attackSpeed: 1.4
+    _maxBlockableEnemies: 1
+    _currentSP: 0
+    _spRecoveryRate: 0
+  prefab: {fileID: 5185628148525671535, guid: 81719ee7b084ab740915d07222eb2ab8, type: 3}
+  icon: {fileID: 0}
+  canDeployOnGround: 1
+  canDeployOnHill: 0
+  attackType: 0
+  attackRangeType: 0
+  attackableTiles:
+  - {x: -1, y: 0}
+  - {x: 0, y: 0}
+  projectilePrefab: {fileID: 0}
+  maxSP: 30
+  initialSP: 0
+  autoRecoverSP: 1

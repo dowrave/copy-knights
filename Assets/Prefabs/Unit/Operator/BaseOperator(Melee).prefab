@@ -153,17 +153,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6d95cb21862f15047b25fc339c35a4ec, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  stats:
-    health: -162300
-    attackPower: 0
-    attackSpeed: 0
-    attackType: 0
-    attackRangeType: 0
-    defense: 0
-    magicResistance: 0
-  attackRangeType: 0
-  data: {fileID: 11400000, guid: 36d2493e462c8ee4aaef757657564e7a, type: 2}
-  facingDirection: {x: 0, y: 0, z: -1}
+  unitData: {fileID: 0}
+  deployableUnitData: {fileID: 0}
+  operatorData: {fileID: 11400000, guid: 276225db76094cf44a6a3bfc55db40e2, type: 2}
   deployableBarUIPrefab: {fileID: 8911005229607826622, guid: d39c58a7b8ae3eb43beb195d5f3164a8, type: 3}
 --- !u!65 &4163448615492591506
 BoxCollider:

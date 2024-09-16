@@ -6,27 +6,26 @@ using UnityEngine;
 /// </summary>
 public abstract class UnitEntity : MonoBehaviour, ITargettable
 {
-    private UnitData data;
-    public UnitData Data => data;
-    private UnitStats currentStats;
+    [SerializeField]
+    private UnitData unitData;
+    public UnitData Data => unitData;
+
+    private UnitStats currentStats; // 프로퍼티로 구현하지 않음. 
+
     public Tile CurrentTile { get; protected set; }
     public GameObject Prefab { get; protected set; }
 
-    public string Name => data.entityName;
     // 스탯 관련
-    protected float currentHealth;
     public float CurrentHealth
     {
-        get => currentHealth;
+        get => currentStats.Health;
         protected set
         {
-            currentHealth = Mathf.Clamp(value, 0, MaxHealth); // 0 ~ 최대 체력 사이로 값 유지
-            OnHealthChanged?.Invoke(currentHealth, MaxHealth);
+            currentStats.Health = Mathf.Clamp(value, 0, MaxHealth); // 0 ~ 최대 체력 사이로 값 유지
+            OnHealthChanged?.Invoke(currentStats.Health, MaxHealth);
         }
     }
     public float MaxHealth { get; protected set; } // 최대 체력도 변할 수 있음
-    public float Defense { get => currentStats.defense; protected set => currentStats.defense = value; }
-    public float MagicResistance { get => currentStats.magicResistance; protected set => currentStats.magicResistance = value; }
 
     // 이 개체를 공격하는 엔티티 목록
     protected List<ICombatEntity> attackingEntities = new List<ICombatEntity>();
@@ -34,34 +33,25 @@ public abstract class UnitEntity : MonoBehaviour, ITargettable
     // 이벤트
     public event System.Action<float, float> OnHealthChanged;
 
-    public virtual void Initialize(UnitData unitData)
+    public void Initialize(UnitData unitData)
     {
-        InitializeData(unitData); // 자식 클래스들에서 재정의하면 자식 클래스의 메서드를 사용함
+        this.unitData = unitData;
+        currentStats = unitData.stats;
+
         InitializeUnitProperties();
     }
 
-    protected virtual void InitializeData(UnitData unitData)
+    protected virtual void InitializeUnitProperties()
     {
-        data = unitData;
-        currentStats = data.stats;
-    }
+        // 현재 체력, 최대 체력 설정
+        MaxHealth = currentStats.Health;
+        CurrentHealth = MaxHealth;
 
-    protected void InitializeUnitProperties()
-    {
-        InitializeMaxHealth();
+        // 현재 위치를 기반으로 한 타일 설정
         UpdateCurrentTile();
 
-        Prefab = data.prefab; // 프리팹 설정
+        Prefab = Data.prefab; // 프리팹 설정
 
-    }
-
-    /// <summary>
-    /// 최대체력 초기화
-    /// </summary>
-    protected virtual void InitializeMaxHealth()
-    {
-        MaxHealth = currentStats.health;
-        CurrentHealth = MaxHealth;
     }
     
     /// <summary>
@@ -71,7 +61,7 @@ public abstract class UnitEntity : MonoBehaviour, ITargettable
     {
         float actualDamage = CalculateActualDamage(attacktype, damage);
         CurrentHealth = Mathf.Max(0, CurrentHealth - actualDamage);
-        OnHealthChanged.Invoke(currentHealth, MaxHealth);
+        OnHealthChanged.Invoke(CurrentHealth, MaxHealth);
 
         if (CurrentHealth <= 0)
         {
@@ -92,10 +82,10 @@ public abstract class UnitEntity : MonoBehaviour, ITargettable
         switch (attacktype)
         {
             case AttackType.Physical:
-                actualDamage = incomingDamage - Defense;
+                actualDamage = incomingDamage - currentStats.Defense;
                 break;
             case AttackType.Magical: 
-                actualDamage = incomingDamage * (1 - MagicResistance / 100);
+                actualDamage = incomingDamage * (1 - currentStats.MagicResistance / 100);
                 break;
             case AttackType.True:
                 actualDamage = incomingDamage;

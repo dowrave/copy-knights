@@ -280,7 +280,7 @@ GameObject:
   - component: {fileID: 2895844687629904351}
   - component: {fileID: 2668135105408265270}
   m_Layer: 5
-  m_Name: DeployableIcon
+  m_Name: BoxIcon
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

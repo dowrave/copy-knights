@@ -62,27 +62,22 @@
   <ItemGroup>
     <Compile Include="Assets\Scripts\Stage\ClickDetectionSystem.cs" />
     <Compile Include="Assets\Scripts\Stage\MapManager.cs" />
-    <Compile Include="Assets\Scripts\ScriptableObjects\DeployableUnitData.cs" />
     <Compile Include="Assets\Scripts\Stage\PathData.cs" />
     <Compile Include="Assets\Scripts\UI\BottomPanelDeployableBox.cs" />
     <Compile Include="Assets\Scripts\Core\Interfaces\IDeployable.cs" />
-    <Compile Include="Assets\Scripts\ScriptableObjects\UnitData.cs" />
+    <Compile Include="Assets\Scripts\Core\Interfaces\IBoxDeployableData.cs" />
     <Compile Include="Assets\Scripts\Core\Abstract\DeployableUnitEntity.cs" />
     <Compile Include="Assets\Scripts\Unit\Enemy.cs" />
     <Compile Include="Assets\Scripts\UI\EnemyUI.cs" />
     <Compile Include="Assets\Scripts\Stage\Tile.cs" />
-    <Compile Include="Assets\Scripts\Core\Data\OperatorStats.cs" />
-    <Compile Include="Assets\Scripts\Core\Data\UnitStats.cs" />
+    <Compile Include="Assets\Scripts\Core\Data\EnemyData.cs" />
     <Compile Include="Assets\Scripts\Stage\SpawnerManager.cs" />
     <Compile Include="Assets\Scripts\UI\DiamondMask.cs" />
     <Compile Include="Assets\Scripts\Stage\StageData.cs" />
     <Compile Include="Assets\Scripts\UI\InfoPanel.cs" />
+    <Compile Include="Assets\Scripts\Core\Data\DeployableUnitData.cs" />
     <Compile Include="Assets\Scripts\UI\DeployableDeployingUI.cs" />
-    <Compile Include="Assets\Scripts\OnEditor\PathDataEditor.cs" />
-    <Compile Include="Assets\Scripts\ScriptableObjects\OperatorData.cs" />
     <Compile Include="Assets\Scripts\Stage\StageManager.cs" />
-    <Compile Include="Assets\Scripts\Core\Data\EnemyStats.cs" />
-    <Compile Include="Assets\Scripts\Core\Data\DeployableUnitStats.cs" />
     <Compile Include="Assets\Scripts\UI\HealthBar.cs" />
     <Compile Include="Assets\Scripts\Core\Interfaces\ICombatEntity.cs" />
     <Compile Include="Assets\Scripts\UI\DeploymentCostPanel.cs" />
@@ -91,6 +86,7 @@
     <Compile Include="Assets\Scripts\Unit\Projectile.cs" />
     <Compile Include="Assets\Scripts\Core\Interfaces\ISkill.cs" />
     <Compile Include="Assets\Scripts\Unit\Operator.cs" />
+    <Compile Include="Assets\Scripts\Core\Data\OperatorData.cs" />
     <Compile Include="Assets\Scripts\Core\Abstract\UnitEntity.cs" />
     <Compile Include="Assets\Scripts\Stage\EnemySpawner.cs" />
     <Compile Include="Assets\Scripts\Stage\CameraManager.cs" />
@@ -98,15 +94,14 @@
     <Compile Include="Assets\Scripts\Stage\DeployableManager.cs" />
     <Compile Include="Assets\Scripts\UI\DeployableActionUI.cs" />
     <Compile Include="Assets\Scripts\Stage\TileData.cs" />
+    <Compile Include="Assets\Scripts\Core\Data\UnitData.cs" />
     <Compile Include="Assets\Scripts\UI\DeployableBarUI.cs" />
     <Compile Include="Assets\Scripts\Stage\PathfindingManager.cs" />
     <Compile Include="Assets\Scripts\Stage\Map.cs" />
     <Compile Include="Assets\Scripts\Core\Interfaces\IRotatable.cs" />
     <Compile Include="Assets\Scripts\Unit\Barricade.cs" />
-    <Compile Include="Assets\Scripts\OnEditor\MapEditorWindow.cs" />
     <Compile Include="Assets\Scripts\UI\MaskedDiamondOverlay.cs" />
     <Compile Include="Assets\Scripts\Core\Interfaces\ITargettable.cs" />
-    <Compile Include="Assets\Scripts\Unit\EnemyData.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Assets\TextMesh Pro\Shaders\TMPro.cginc" />

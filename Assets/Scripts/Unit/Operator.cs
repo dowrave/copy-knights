@@ -6,18 +6,18 @@ using UnityEngine;
 
 public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
 {
-    [SerializeField] // 필드 직렬화, Inspector에서 이 필드 숨기기
-    private OperatorData data;
-    public new OperatorData Data => data;
-    private OperatorStats currentStats;
+    [SerializeField]
+    private OperatorData operatorData;
+    public new OperatorData Data { get => operatorData; private set => operatorData = value; }
+
+    public new OperatorStats currentStats;
 
     // ICombatEntity 필드
-    public AttackType AttackType => data.attackType;
-    public AttackRangeType AttackRangeType => data.attackRangeType;
+    public AttackType AttackType => operatorData.attackType;
+    public AttackRangeType AttackRangeType => operatorData.attackRangeType;
 
-    public float AttackPower { get => currentStats.attackPower; private set => currentStats.attackPower = value; }
-    public float AttackSpeed { get => currentStats.attackSpeed; private set => currentStats.attackSpeed = value; }
-
+    public float AttackPower { get => currentStats.AttackPower; private set => currentStats.AttackPower = value; }
+    public float AttackSpeed { get => currentStats.AttackSpeed; private set => currentStats.AttackSpeed = value; }
     public float AttackCooldown { get; private set; }
 
 
@@ -37,7 +37,7 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
     // 저지 관련
     private List<Enemy> blockedEnemies; // 저지 중인 적들
     public IReadOnlyList<Enemy> BlockedEnemies => blockedEnemies.AsReadOnly();
-    public int MaxBlockableEnemies { get => currentStats.maxBlockableEnemies; private set => currentStats.maxBlockableEnemies = value; }
+    public int MaxBlockableEnemies { get => currentStats.MaxBlockableEnemies; private set => currentStats.MaxBlockableEnemies = value; }
 
     public int deploymentOrder { get; private set; } // 배치 순서
     private bool isDeployed = false; // 배치 완료 시 true
@@ -46,11 +46,11 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
 
     public float CurrentSP 
     {
-        get { return currentStats.currentSP; }
+        get { return currentStats.CurrentSP; }
         set
         {
-            currentStats.currentSP = Mathf.Clamp(value, 0f, data.maxSP);
-            OnSPChanged?.Invoke(CurrentSP, data.maxSP);
+            currentStats.CurrentSP = Mathf.Clamp(value, 0f, operatorData.maxSP);
+            OnSPChanged?.Invoke(CurrentSP, operatorData.maxSP);
         }
     }
 
@@ -68,28 +68,46 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
 
     // 필드 끝 --------------------------------------------------------
 
-    public override void Initialize(UnitData unitData)
+    public void Initialize(OperatorData operatorData)
     {
-        base.Initialize(unitData); // OperatorData로 초기화됨
+        InitializeOperatorData(operatorData);
+        InitializeUnitProperties();
+        InitializeDeployableProperties();
         InitializeOperatorProperties();
     }
 
-    protected override void InitializeData(UnitData unitData)
+    private void InitializeOperatorData(OperatorData operatorData)
     {
-        if (unitData is OperatorData operatorData)
+        
+        currentStats = operatorData.stats;
+        if (Data == null)
         {
-            data = operatorData;
-            currentStats = data.stats;
-        }
-        else
-        {
-            Debug.LogError("들어온 데이터가 deployableUnitData가 아님!");
+            Debug.LogError("Data가 null임!!!");
         }
     }
 
+
+    // 오퍼레이터 관련 설정들 초기화
     private void InitializeOperatorProperties()
     {
         CreateDirectionIndicator(); 
+    }
+
+    public override void InitializeFromPrefab()
+    {
+        if (modelObject == null)
+        {
+            modelObject = transform.Find("Model").gameObject;
+        }
+        if (modelObject != null)
+        {
+            modelRenderer = modelObject.GetComponent<Renderer>();
+        }
+        // DeployableUnitData 초기화 (만약 SerializeField로 설정되어 있다면 이미 할당되어 있음)
+        if (operatorData != null)
+        {
+            currentStats = operatorData.stats;
+        }
     }
 
     public void SetDirection(Vector3 direction)
@@ -182,7 +200,7 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
 
     private void PerformAttack(UnitEntity target, AttackType attackType, float attackPower)
     {
-        switch (data.attackRangeType)
+        switch (operatorData.attackRangeType)
         {
             case AttackRangeType.Melee:
                 PerformMeleeAttack(target, attackType, attackPower);
@@ -200,12 +218,12 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
 
     private void PerformRangedAttack(UnitEntity target, AttackType attackType, float attackPower)
     {
-        if (data.projectilePrefab != null)
+        if (operatorData.projectilePrefab != null)
         {
             // 투사체 생성 위치
             Vector3 spawnPosition = transform.position + Vector3.up * 0.5f;
             
-            GameObject projectileObj = Instantiate(data.projectilePrefab, spawnPosition, Quaternion.identity);
+            GameObject projectileObj = Instantiate(operatorData.projectilePrefab, spawnPosition, Quaternion.identity);
             Projectile projectile = projectileObj.GetComponent<Projectile>();
             if (projectile != null)
             {
@@ -221,7 +239,7 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
         enemiesInRange.Clear();
         Vector2Int operatorGridPos = MapManager.Instance.CurrentMap.WorldToGridPosition(transform.position);
 
-        foreach (Vector2Int offset in data.attackableTiles)
+        foreach (Vector2Int offset in operatorData.attackableTiles)
         {
             Vector2Int rotatedOffset = RotateOffset(offset, facingDirection);
             Vector2Int targetGridPos = operatorGridPos + rotatedOffset;
@@ -250,13 +268,13 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
     }
     public Vector2Int[] GetAttackableTiles()
     {
-        return data.attackableTiles;
+        return operatorData.attackableTiles;
     }
 
     public bool CanAttack(Vector3 targetPosition)
     {
         Vector2Int relativePosition = WorldToRelativeGridPosition(targetPosition);
-        return System.Array.Exists(data.attackableTiles, tile => tile == relativePosition);
+        return System.Array.Exists(operatorData.attackableTiles, tile => tile == relativePosition);
     }
 
     private Vector2Int WorldToRelativeGridPosition(Vector3 worldPosition)
@@ -283,7 +301,7 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
     // 이 오퍼레이터가 적을 저지할 수 있는 상태인가?
     public bool CanBlockEnemy()
     {
-        return blockedEnemies.Count < currentStats.maxBlockableEnemies;
+        return blockedEnemies.Count < currentStats.MaxBlockableEnemies;
     }
 
     // 저지 가능하다면 현 저지수 + 1
@@ -315,15 +333,15 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
         if (IsDeployed == false) { return;  }
 
         float oldSP = CurrentSP;
-        if (data.autoRecoverSP)
+        if (operatorData.autoRecoverSP)
         {
-            CurrentSP = Mathf.Min(CurrentSP + currentStats.spRecoveryRate * Time.deltaTime, data.maxSP);    
+            CurrentSP = Mathf.Min(CurrentSP + currentStats.SPRecoveryRate * Time.deltaTime, operatorData.maxSP);    
 
         }
 
         if (CurrentSP != oldSP)
         {
-            deployableBarUI.UpdateSPBar(CurrentSP, data.maxSP);
+            deployableBarUI.UpdateSPBar(CurrentSP, operatorData.maxSP);
             //operatorUI.UpdateOperatorUI(this);
         }
     }
@@ -426,7 +444,7 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
         Vector2Int operatorGridPos = MapManager.Instance.CurrentMap.WorldToGridPosition(transform.position);
         List<Tile> tilesToHighlight = new List<Tile>();
 
-        foreach (Vector2Int offset in data.attackableTiles)
+        foreach (Vector2Int offset in operatorData.attackableTiles)
         {
             Vector2Int rotatedIOffset = RotateOffset(offset, facingDirection);
             Vector2Int targetGridPos = operatorGridPos + rotatedIOffset;
@@ -462,7 +480,7 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
             Vector2Int enemyGridPos = MapManager.Instance.CurrentMap.WorldToGridPosition(unit.transform.position);
             Vector2Int operatorGridPos = MapManager.Instance.CurrentMap.WorldToGridPosition(transform.position); 
 
-            foreach (Vector2Int offset in data.attackableTiles)
+            foreach (Vector2Int offset in operatorData.attackableTiles)
             {
                 Vector2Int rotatedOffset = RotateOffset(offset, facingDirection);
                 Vector2Int targetGridPos = operatorGridPos + rotatedOffset;
@@ -487,7 +505,7 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
     {
         base.Deploy(position);
 
-        //maxHealth = data.currentStats.health;
+        //maxHealth = operatorData.currentStats.health;
         SetDirection(facingDirection);
         CreateOperatorBarUI();
 
@@ -521,7 +539,14 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
     // ISkill 메서드
     public bool CanUseSkill()
     {
-        return CurrentSP == data.maxSP;
+        return CurrentSP == operatorData.maxSP;
     }
 
+    protected override void InitializeUnitProperties()
+    {
+        MaxHealth = currentStats.Health;
+        CurrentHealth = MaxHealth;
+        UpdateCurrentTile();
+        Prefab = Data.prefab; // 이거 타입 때문에 오버라이드함
+    }
 }
