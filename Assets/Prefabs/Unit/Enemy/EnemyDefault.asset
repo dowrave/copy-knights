@@ -9,22 +9,21 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 670510aa228b0a340b7104675a8de3df, type: 3}
+  m_Script: {fileID: 11500000, guid: 277825dab463fe8469435119db921473, type: 3}
   m_Name: EnemyDefault
   m_EditorClassIdentifier: 
-  enemyName: 
+  entityName: EnemyDefault
   stats:
-    health: 500
-    attackPower: 200
-    attackSpeed: 1
-    attackType: 0
-    attackRangeType: 0
-    defense: 50
-    magicResistance: 5
-  movementSpeed: 1
-  blockCount: 1
+    _baseStats:
+      _health: 2000
+      _defense: 150
+      _magicResistance: 10
+    _movementSpeed: 0.9
+    _attackPower: 400
+    _attackSpeed: 1
+    _attackRange: 0
   prefab: {fileID: 6542749020257112806, guid: b64bfbf4c6a80384295e7286bbcc9d3e, type: 3}
+  attackType: 0
+  attackRangeType: 0
+  blockCount: 1
   projectilePrefab: {fileID: 0}
-  damageMultiplier: 1
-  defenseMultiplier: 1
-  attackRange: 0

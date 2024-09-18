@@ -153,16 +153,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 31653864dac50a04d9beb172b8ac5b21, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  stats:
-    Health: 0
-    AttackPower: 0
-    AttackSpeed: 0
-    AttackType: 0
-    Defense: 0
-    MagicResistance: 0
-  attackRangeType: 0
-  attackRange: 0
-  data: {fileID: 11400000, guid: 673037e1dec1a8445b3797044c9c07e2, type: 2}
+  unitData: {fileID: 0}
+  enemyData: {fileID: 11400000, guid: 673037e1dec1a8445b3797044c9c07e2, type: 2}
 --- !u!1001 &6320839675252173669
 PrefabInstance:
   m_ObjectHideFlags: 0

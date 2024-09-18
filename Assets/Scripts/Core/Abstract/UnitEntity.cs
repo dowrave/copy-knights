@@ -41,17 +41,15 @@ public abstract class UnitEntity : MonoBehaviour, ITargettable
         InitializeUnitProperties();
     }
 
+    // Data, Stat이 엔티티마다 다르기 때문에 자식 메서드에서 재정의가 항상 필요
     protected virtual void InitializeUnitProperties()
     {
-        // 현재 체력, 최대 체력 설정
-        MaxHealth = currentStats.Health;
-        CurrentHealth = MaxHealth;
+        InitializeHP();
 
         // 현재 위치를 기반으로 한 타일 설정
         UpdateCurrentTile();
 
-        Prefab = Data.prefab; // 프리팹 설정
-
+        Prefab = Data.prefab;
     }
     
     /// <summary>
@@ -125,5 +123,11 @@ public abstract class UnitEntity : MonoBehaviour, ITargettable
     protected virtual void Die()
     {
         Destroy(gameObject);
+    }
+
+    protected virtual void InitializeHP()
+    {
+        MaxHealth = currentStats.Health;
+        CurrentHealth = MaxHealth;
     }
 }

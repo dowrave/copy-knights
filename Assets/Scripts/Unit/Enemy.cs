@@ -53,7 +53,7 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity
 
         this.pathData = pathData;
 
-        base.InitializeUnitProperties();
+        InitializeUnitProperties();
         InitializeEnemyProperties();
     }
 
@@ -101,7 +101,6 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity
 
                 if (HasTargetInRange()) // 공격 범위 내에 적이 있다면
                 {
-                    Debug.Log("공격 범위 내에 적이 있음");
                     if (AttackCooldown <= 0) // 공격 쿨타임이 아니라면
                     {
                         AttackLastDeployedOperator(); // 가장 마지막에 배치된 오퍼레이터 공격
@@ -287,6 +286,7 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity
                 PerformRangedAttack(target);
                 break;
         }
+        SetAttackCooldown();
     }
 
     private void PerformMeleeAttack(UnitEntity target)
@@ -471,5 +471,20 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity
     public void SetAttackCooldown()
     {
         AttackCooldown = 1 / AttackSpeed;
+    }
+
+    /// <summary>
+    /// Data, Stat이 엔티티마다 다르기 때문에 자식 메서드에서 재정의가 항상 필요
+    /// </summary>
+    protected override void InitializeUnitProperties()
+    {
+        // 현재 체력, 최대 체력 설정
+        MaxHealth = currentStats.Health;
+        CurrentHealth = MaxHealth;
+
+        // 현재 위치를 기반으로 한 타일 설정
+        UpdateCurrentTile();
+
+        Prefab = Data.prefab;
     }
 }
