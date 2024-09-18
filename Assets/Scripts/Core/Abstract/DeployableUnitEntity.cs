@@ -1,5 +1,6 @@
 #nullable enable
 using UnityEngine;
+using UnityEngine.UIElements;
 
 public class DeployableUnitEntity: UnitEntity, IDeployable
 {
@@ -31,13 +32,16 @@ public class DeployableUnitEntity: UnitEntity, IDeployable
     protected Material originalMaterial;
     protected Material previewMaterial;
 
+    protected virtual void Awake()
+    {
+        InitializeVisual();
+    }
 
     public void Initialize(DeployableUnitData deployableUnitData)
     {
-        //InitializeDeployableData(deployableUnitData);
-        base.InitializeUnitProperties(); 
+        InitializeDeployableData(deployableUnitData);
+        InitializeUnitProperties();
         InitializeDeployableProperties(); 
-        
     }
 
     private void InitializeDeployableData(DeployableUnitData deployableData)
@@ -46,17 +50,11 @@ public class DeployableUnitEntity: UnitEntity, IDeployable
         currentStats = deployableUnitData.stats;
     }
 
-    protected void InitializeDeployableProperties()
+    /// <summary>
+    /// 자식 오브젝트에 시각화를 담당하는 Model이 있다는 전제
+    /// </summary>
+    protected virtual void InitializeDeployableProperties()
     {
-        modelObject = transform.Find("Model").gameObject;
-        modelRenderer = modelObject.GetComponent<Renderer>();
-
-        if (ValidateModelStructure() == false)
-        {
-            Debug.LogError("DeployableUnitEntity의 머티리얼 설정이 이상해요");
-            return;
-        }
-        
         IsDeployed = false; // 배치 비활성화
         IsPreviewMode = true; // 미리보기 활성화
         InitialDeploymentCost = currentStats.DeploymentCost; // 초기 배치 코스트 설정
@@ -72,6 +70,7 @@ public class DeployableUnitEntity: UnitEntity, IDeployable
         {
             modelObject = transform.Find("Model").gameObject;
         }
+
         if (modelObject != null)
         {
             modelRenderer = modelObject.GetComponent<Renderer>();
@@ -89,11 +88,21 @@ public class DeployableUnitEntity: UnitEntity, IDeployable
         {
             IsDeployed = true;
             IsPreviewMode = false;
-
-            transform.position = position;
             UpdateCurrentTile();
+
+            transform.position = SetPosition(position);
+
+            InitializeHP();
             UpdateVisuals();
         }
+    }
+
+    /// <summary>
+    /// 타일 위에서의 실제 배치 위치 조정
+    /// </summary>
+    protected Vector3 SetPosition(Vector3 worldPosition)
+    {
+        return new Vector3(worldPosition.x, CurrentTile.GetHeight() / 2f, worldPosition.z);
     }
 
     public virtual void Retreat()
@@ -204,13 +213,14 @@ public class DeployableUnitEntity: UnitEntity, IDeployable
 
     private void UpdateVisuals()
     {
+        
         if (IsDeployed && !IsPreviewMode && StageManager.Instance.currentState == GameState.Battle)
         {
             // 프리뷰 모드일 때의 시각 설정
             modelRenderer.material = previewMaterial;
         }
 
-        else 
+        else
         {
             // 실제 배치 모드일 때의 시각 설정
             modelRenderer.material = originalMaterial;
@@ -227,12 +237,40 @@ public class DeployableUnitEntity: UnitEntity, IDeployable
         }
     }
 
+    /// <summary>
+    /// Data, Stat이 엔티티마다 다르기 때문에 자식 메서드에서 재정의가 항상 필요
+    /// </summary>
     protected override void InitializeUnitProperties()
+    {
+        // 현재 체력, 최대 체력 설정 - Deploy 이후로 빠짐
+
+        // 현재 위치를 기반으로 한 타일 설정
+        UpdateCurrentTile();
+
+        Prefab = Data.prefab;
+    }
+
+    /// <summary>
+    /// 시각화 요소들을 초기화
+    /// </summary>
+    protected virtual void InitializeVisual()
+    {
+        modelObject = transform.Find("Model").gameObject;
+        modelRenderer = modelObject.GetComponent<Renderer>();
+
+        if (ValidateModelStructure() == false)
+        {
+            Debug.LogError("DeployableUnitEntity의 머티리얼 설정이 이상해요");
+            return;
+        }
+
+        SetupPreviewMaterial();
+    }
+
+    protected override void InitializeHP()
     {
         MaxHealth = currentStats.Health;
         CurrentHealth = MaxHealth;
-        UpdateCurrentTile();
-        Prefab = Data.prefab; // 이거 타입 때문에 오버라이드함
     }
 }
 #nullable restore

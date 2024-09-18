@@ -35,7 +35,7 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
     }
 
     // 저지 관련
-    private List<Enemy> blockedEnemies; // 저지 중인 적들
+    private List<Enemy> blockedEnemies = new List<Enemy>(); // 저지 중인 적들. Awake 이전에 초기화됨.
     public IReadOnlyList<Enemy> BlockedEnemies => blockedEnemies.AsReadOnly();
     public int MaxBlockableEnemies { get => currentStats.MaxBlockableEnemies; private set => currentStats.MaxBlockableEnemies = value; }
 
@@ -67,6 +67,11 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
 
 
     // 필드 끝 --------------------------------------------------------
+
+    protected override void Awake()
+    {
+        base.Awake();
+    }
 
     public void Initialize(OperatorData operatorData)
     {
@@ -196,6 +201,7 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
     {
         if (AttackCooldown > 0 || !(target is Enemy enemy)) return;
         PerformAttack(target, attackType, attackPower);
+        SetAttackCooldown();
     }
 
     private void PerformAttack(UnitEntity target, AttackType attackType, float attackPower)
@@ -209,6 +215,8 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
                 PerformRangedAttack(target, attackType, attackPower);
                 break;
         }
+
+        
     }
 
     private void PerformMeleeAttack(UnitEntity target, AttackType attackType, float attackPower)
@@ -505,7 +513,6 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
     {
         base.Deploy(position);
 
-        //maxHealth = operatorData.currentStats.health;
         SetDirection(facingDirection);
         CreateOperatorBarUI();
 
@@ -525,7 +532,8 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
 
     public void SetAttackCooldown()
     {
-        AttackCooldown = 1 / AttackCooldown;
+        AttackCooldown = 1 / currentStats.AttackSpeed;
+        Debug.Log($"Operator : {AttackCooldown} 설정 완료");
     }
 
     public void UpdateAttackCooldown()
@@ -542,11 +550,21 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
         return CurrentSP == operatorData.maxSP;
     }
 
+    /// <summary>
+    /// Data, Stat이 엔티티마다 다르기 때문에 자식 메서드에서 재정의가 항상 필요
+    /// </summary>
     protected override void InitializeUnitProperties()
+    {
+        // 현재 위치를 기반으로 한 타일 설정
+        UpdateCurrentTile();
+
+        Prefab = Data.prefab;
+    }
+
+    protected override void InitializeHP()
     {
         MaxHealth = currentStats.Health;
         CurrentHealth = MaxHealth;
-        UpdateCurrentTile();
-        Prefab = Data.prefab; // 이거 타입 때문에 오버라이드함
     }
+
 }

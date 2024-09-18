@@ -149,6 +149,7 @@ public class ClickDetectionSystem : MonoBehaviour
         {
             Tile clickedTile = hit.collider.GetComponent<Tile>();
             DeployableUnitEntity clickedDeployable = clickedTile.OccupyingDeployable;
+
             if (clickedTile != null && clickedDeployable != null)
             {
                 if (clickedDeployable is Operator op)

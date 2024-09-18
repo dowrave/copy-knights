@@ -9,22 +9,21 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 670510aa228b0a340b7104675a8de3df, type: 3}
-  m_Name: EnemyRange
+  m_Script: {fileID: 11500000, guid: 277825dab463fe8469435119db921473, type: 3}
+  m_Name: EnemyRanged
   m_EditorClassIdentifier: 
-  enemyName: enemyRange
+  entityName: EnemyRanged
   stats:
-    health: 500
-    attackPower: 100
-    attackSpeed: 2
-    attackType: 0
-    attackRangeType: 1
-    defense: 0
-    magicResistance: 0
-  movementSpeed: 1
-  blockCount: 1
+    _baseStats:
+      _health: 1500
+      _defense: 100
+      _magicResistance: 5
+    _movementSpeed: 1
+    _attackPower: 400
+    _attackSpeed: 1.2
+    _attackRange: 3
   prefab: {fileID: 6542749020257112806, guid: 53b71dc6cf9a3434190f6e26b2d4ead4, type: 3}
+  attackType: 0
+  attackRangeType: 1
+  blockCount: 1
   projectilePrefab: {fileID: 491002625568547402, guid: e7c2acc0df0cde443ac8d98089384ca3, type: 3}
-  damageMultiplier: 1
-  defenseMultiplier: 1
-  attackRange: 3
