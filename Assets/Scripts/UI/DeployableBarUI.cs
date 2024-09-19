@@ -1,6 +1,4 @@
 using UnityEngine;
-using UnityEngine.Timeline;
-using UnityEngine.UI;
 
 
 public class DeployableBarUI : MonoBehaviour

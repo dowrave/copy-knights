@@ -17,11 +17,11 @@ public class DeployableUnitEntity: UnitEntity, IDeployable
     public Sprite? Icon => Data.Icon;
 
     // 미리보기 관련
-    private bool isPreviewMode = false;
+    protected bool isPreviewMode = false;
     public bool IsPreviewMode
     {
         get { return isPreviewMode; }
-        set
+        protected set
         {
             isPreviewMode = value;
             UpdateVisuals();
@@ -58,7 +58,6 @@ public class DeployableUnitEntity: UnitEntity, IDeployable
         IsDeployed = false; // 배치 비활성화
         IsPreviewMode = true; // 미리보기 활성화
         InitialDeploymentCost = currentStats.DeploymentCost; // 초기 배치 코스트 설정
-        SetupPreviewMaterial(); // 미리보기 머티리얼 준비
     }
 
     /// <summary>
@@ -93,7 +92,6 @@ public class DeployableUnitEntity: UnitEntity, IDeployable
             transform.position = SetPosition(position);
 
             InitializeHP();
-            UpdateVisuals();
         }
     }
 
@@ -165,13 +163,22 @@ public class DeployableUnitEntity: UnitEntity, IDeployable
     /// </summary>
     protected void SetupPreviewMaterial()
     {
-        originalMaterial = modelRenderer.sharedMaterial; // 프리팹, 에셋에 직접 접근할 때는 sharedMaterial을 사용
+        originalMaterial = new Material(modelRenderer.sharedMaterial); // 복사해서 저장 (참조에 의한 변형 가능성 때문에)
+        modelRenderer.material = originalMaterial;
 
-        // 이건 또 왜 null임 ㅅㅂ
+        // 프리뷰 머티리얼 설정
         previewMaterial = new Material(originalMaterial);
         previewMaterial.SetFloat("_Mode", 3); // TransParent 모드로 설정
+        previewMaterial.SetInt("_SrcBlend", (int)UnityEngine.Rendering.BlendMode.SrcAlpha); // 소스 블렌딩 모드 설정. 알파값을 사용해 블렌딩
+        previewMaterial.SetInt("_DstBlend", (int)UnityEngine.Rendering.BlendMode.OneMinusSrcAlpha); // 대상 블렌딩 모드 설정. (1 - 소스 알파값)으로 블렌딩
+        previewMaterial.SetInt("_ZWrite", 0); // Z버퍼 비활성화. 투명 객체는 사용하지 않는다고 함
+        previewMaterial.DisableKeyword("_ALPHATEST_ON"); // 알파 테스트 모드 비활성화
+        previewMaterial.EnableKeyword("_ALPHABLEND_ON"); // 알파 블렌딩 모드 활성화
+        previewMaterial.DisableKeyword("_ALPHAPREMULTIPLY_ON"); //알파 프리멀티플라이 모드 비활성화
+        previewMaterial.renderQueue = 3000; // 렌더 큐 설정. 불투명 객체들 뒤에 그려지게 함
+
         Color previewColor = previewMaterial.color;
-        previewColor.a = 0.5f;
+        previewColor.a = 0.8f;
         previewMaterial.color = previewColor;
     }
 
@@ -213,27 +220,15 @@ public class DeployableUnitEntity: UnitEntity, IDeployable
 
     private void UpdateVisuals()
     {
-        
-        if (IsDeployed && !IsPreviewMode && StageManager.Instance.currentState == GameState.Battle)
+        if (IsPreviewMode)
         {
             // 프리뷰 모드일 때의 시각 설정
             modelRenderer.material = previewMaterial;
         }
-
         else
         {
             // 실제 배치 모드일 때의 시각 설정
             modelRenderer.material = originalMaterial;
-        }
-    }
-
-    public void SetPreviewTransparency(float alpha)
-    {
-        if (previewMaterial != null)
-        { 
-            Color color = previewMaterial.color;
-            color.a = alpha;
-            previewMaterial.color = color;
         }
     }
 
@@ -242,11 +237,10 @@ public class DeployableUnitEntity: UnitEntity, IDeployable
     /// </summary>
     protected override void InitializeUnitProperties()
     {
-        // 현재 체력, 최대 체력 설정 - Deploy 이후로 빠짐
+        // 현재 체력, 최대 체력 설정 - Deploy 메서드 참조
 
         // 현재 위치를 기반으로 한 타일 설정
         UpdateCurrentTile();
-
         Prefab = Data.prefab;
     }
 
@@ -257,13 +251,6 @@ public class DeployableUnitEntity: UnitEntity, IDeployable
     {
         modelObject = transform.Find("Model").gameObject;
         modelRenderer = modelObject.GetComponent<Renderer>();
-
-        if (ValidateModelStructure() == false)
-        {
-            Debug.LogError("DeployableUnitEntity의 머티리얼 설정이 이상해요");
-            return;
-        }
-
         SetupPreviewMaterial();
     }
 
@@ -272,5 +259,6 @@ public class DeployableUnitEntity: UnitEntity, IDeployable
         MaxHealth = currentStats.Health;
         CurrentHealth = MaxHealth;
     }
+
 }
 #nullable restore

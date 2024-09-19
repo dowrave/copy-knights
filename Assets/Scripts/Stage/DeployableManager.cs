@@ -23,9 +23,9 @@ public class DeployableManager : MonoBehaviour
     private GameObject currentDeployablePrefab;
     private DeployableUnitEntity currentDeployable;
 
-    // 하이라이트 관련 변수
-    public Color availableTileColor = new Color(0, 1, 0, 0.5f); 
-    public Color attackRangeTileColor = new Color(255, 127, 0);
+    // 하이라이트 관련 변수 - 인스펙터에서 설정
+    public Color availableTileColor;
+    public Color attackRangeTileColor;
 
     // 배치 과정 중 어떤 상태인지에 대한 변수
     private bool isDeployableSelecting = false; // 하단 UI에서 오퍼레이터를 클릭한 상태
@@ -150,7 +150,7 @@ public class DeployableManager : MonoBehaviour
     }
 
 
-    // BottomPanelOperatorBox 클릭 시 작동, 배치하려는 오퍼레이터의 정보를 변수에 넣는다.
+    // BottomPanelOperatorBox 마우스버튼 다운 시 작동, 배치하려는 오퍼레이터의 정보를 변수에 넣는다.
     public void StartDeployableSelection(GameObject deployablePrefab)
     {
 
@@ -168,6 +168,9 @@ public class DeployableManager : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// BottomPanelDeployableBox 마우스버튼 다운 시 동작
+    /// </summary>
     public void StartDragging(GameObject deployablePrefab)
     {
         if (currentDeployablePrefab == deployablePrefab)
@@ -179,6 +182,9 @@ public class DeployableManager : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// BottomPanelDeployableBox 마우스버튼 다운 후 드래그 시 동작
+    /// </summary>
     public void HandleDragging(GameObject deployablePrefab)
     {
         if (isDraggingDeployable && currentDeployablePrefab == deployablePrefab)
@@ -187,6 +193,9 @@ public class DeployableManager : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// 배치되는 타일이 정해졌을 때 동작
+    /// </summary>
     public void EndDragging(GameObject deployablePrefab)
     {
         if (isDraggingDeployable && currentDeployablePrefab == deployablePrefab)
@@ -212,12 +221,20 @@ public class DeployableManager : MonoBehaviour
         {
             GameObject deployableObject = Instantiate(currentDeployablePrefab);
             currentDeployable = deployableObject.GetComponent<DeployableUnitEntity>();
-            if (currentDeployable != null)
+
+            if (currentDeployable is Operator op)
             {
-                currentDeployable.IsPreviewMode = true;
-                currentDeployable.SetPreviewTransparency(0.5f);
-                (currentDeployable as MonoBehaviour).gameObject.SetActive(true);
+                op.Initialize(op.Data);
             }
+            else
+            {
+                currentDeployable.Initialize(currentDeployable.Data);
+            }
+
+            //if (currentDeployable != null)
+            //{
+            //    currentDeployable.gameObject.SetActive(true);
+            //}
         }
     }
 
@@ -273,7 +290,9 @@ public class DeployableManager : MonoBehaviour
         currentUIState = UIState.None;
     }
 
-    // 방향 설정
+    /// <summary>
+    /// 방향 설정 관련 로직
+    /// </summary>
     public void HandleDirectionSelection()
     {
         if (IsMousePressed)
@@ -338,10 +357,7 @@ public class DeployableManager : MonoBehaviour
             cursorWorldPosition = Camera.main.transform.position + Camera.main.transform.forward * 10f + Vector3.up * 0.5f;
         }
 
-        (currentDeployable as MonoBehaviour).gameObject.SetActive(true);
-
         Tile hoveredTile = GetHoveredTile();
-
         // 배치 가능한 타일 위라면 타일 위치로 스냅
         if (hoveredTile != null && highlightedTiles.Contains(hoveredTile))
         {
@@ -395,20 +411,17 @@ public class DeployableManager : MonoBehaviour
         int nowDeploymentCost = currentDeployable.currentStats.DeploymentCost;
         if (StageManager.Instance.TryUseDeploymentCost(nowDeploymentCost))
         {
-            if (currentDeployable.Data is DeployableUnitData deployableUnitData)
-            {
-                currentDeployable.Initialize(deployableUnitData); // 배치 시에 프리팹 참조 전달
-            }
-
-            currentDeployable.Deploy(tile.transform.position);
-
             if (currentDeployable is Operator op)
             {
+                op.Deploy(tile.transform.position);
                 op.SetDirection(placementDirection);
+            }
+            else
+            {
+                currentDeployable.Deploy(tile.transform.position);
             }
 
             tile.SetOccupied(currentDeployable);
-
             deployedItems.Add(currentDeployable);
 
             if (deployableUIBoxes.TryGetValue(currentDeployablePrefab, out BottomPanelDeployableBox box))
@@ -461,14 +474,6 @@ public class DeployableManager : MonoBehaviour
             tile.ResetHighlight();
         }
         highlightedTiles.Clear();
-    }
-
-    private void SetPreviewTransparency(float alpha)
-    {
-        if (currentDeployable != null)
-        {
-            currentDeployable.SetPreviewTransparency(alpha);
-        }
     }
 
     private void UpdatePreviewRotation()
@@ -537,7 +542,6 @@ public class DeployableManager : MonoBehaviour
     {
         if (currentUIState != UIState.None) // Action이거나 Deploying일 때
         {
-            Debug.Log("CancelCurrentAction 동작");
             HideAllUIs();
             ResetPlacement();
             ResetHighlights();

@@ -39,6 +39,7 @@ public class Projectile : MonoBehaviour
                 // 타겟이 살아 있다면 대미지를 입힘
                 target.TakeDamage(attackType, damage);
             }
+
             Destroy(gameObject);
         }
     }

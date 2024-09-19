@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
+using Unity.VisualScripting;
 using Unity.VisualScripting.Antlr3.Runtime.Misc;
 using UnityEngine;
 
@@ -20,6 +21,8 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
     public float AttackSpeed { get => currentStats.AttackSpeed; private set => currentStats.AttackSpeed = value; }
     public float AttackCooldown { get; private set; }
 
+    // 공격 범위 내에 있는 적들 
+    List<Enemy> enemiesInRange = new List<Enemy>();
 
     // IRotatble 필드
     private Vector3 facingDirection = Vector3.left;
@@ -41,7 +44,7 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
 
     public int deploymentOrder { get; private set; } // 배치 순서
     private bool isDeployed = false; // 배치 완료 시 true
-    private UnitEntity currentTarget;
+    public UnitEntity CurrentTarget { get; private set; }
 
 
     public float CurrentSP 
@@ -55,12 +58,8 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
     }
 
     [SerializeField] private GameObject deployableBarUIPrefab;
-    private DeployableBarUI deployableBarUI;
-
-    // 공격 범위 내에 있는 적들 
-    List<Enemy> enemiesInRange = new List<Enemy>();
-
-    private SpriteRenderer directionIndicator;
+    private DeployableBarUI deployableBarUI; // 체력, SP
+    private SpriteRenderer directionIndicator; // 방향 표시 UI
 
     // SP 변경 이벤트
     public event System.Action<float, float> OnSPChanged;
@@ -83,7 +82,6 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
 
     private void InitializeOperatorData(OperatorData operatorData)
     {
-        
         currentStats = operatorData.stats;
         if (Data == null)
         {
@@ -134,66 +132,39 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
     {
         if (IsDeployed)
         {
-            if (AttackCooldown > 0)
+            if (AttackCooldown > 0f)
             {
                 UpdateAttackCooldown();
             }
-            RecoverSP();
 
-            ValidateCurrentTarget();
+            ValidateCurrentTarget(); // 현재 타겟이 공격 대상이 될 수 있는가를 판단
 
-            // 공격 대상이 없다면
-            if (currentTarget == null)
+            if (CurrentTarget == null)
             {
-                FindTarget(); // currentTarget 업데이트 시도
+                SetCurrentTarget();
             }
 
             if (CanAttack())
             {
-                Attack(currentTarget, AttackType, AttackPower);
+                Attack(CurrentTarget, AttackType, AttackPower);
             }
 
+            RecoverSP();
         }
     }
 
     // 적에게 공격 중인 오퍼레이터를 알림
     private void SetAndNotifyTarget(UnitEntity newTarget)
     {
-        if (currentTarget != null)
+        if (CurrentTarget != null)
         {
             newTarget.RemoveAttackingEntity(this);
         }
 
-        if (currentTarget != null)
+        if (CurrentTarget != null)
         {
-            currentTarget = newTarget;
+            CurrentTarget = newTarget;
             newTarget.AddAttackingEntity(this);
-        }
-    }
-
-    // currentTarget 설정 로직
-    private void FindTarget()
-    {
-        // 1. 저지 중일 때에는 저지 중인 적 중에서 공격
-        if (blockedEnemies.Count > 0)
-        {
-            currentTarget = blockedEnemies[0]; // 첫 번째 저지된 적을 타겟으로
-            SetAndNotifyTarget(currentTarget);
-            return;
-        }
-
-        GetEnemiesInAttackRange(); // 공격 범위 내의 적을 얻음
-
-        // 2. 저지 중이 아닐 때에는 공격 범위 내의 적 중에서 공격함
-        // enemiesInRange 업데이트
-        if (enemiesInRange.Count > 0)
-        {
-            string enemiesInfo = string.Join(", ", enemiesInRange.Select((enemy, index) =>
-                $"Enemy {index}: {enemy.name} (Health: {enemy.CurrentHealth}/{enemy.MaxHealth}, Position: {enemy.transform.position})"));
-
-            currentTarget = enemiesInRange[0];
-            SetAndNotifyTarget(currentTarget);
-            return;
         }
     }
 
@@ -201,7 +172,7 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
     {
         if (AttackCooldown > 0 || !(target is Enemy enemy)) return;
         PerformAttack(target, attackType, attackPower);
-        SetAttackCooldown();
+        
     }
 
     private void PerformAttack(UnitEntity target, AttackType attackType, float attackPower)
@@ -215,13 +186,12 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
                 PerformRangedAttack(target, attackType, attackPower);
                 break;
         }
-
-        
     }
 
     private void PerformMeleeAttack(UnitEntity target, AttackType attackType, float attackPower)
     {
         target.TakeDamage(attackType, attackPower);
+        SetAttackCooldown();
     }
 
     private void PerformRangedAttack(UnitEntity target, AttackType attackType, float attackPower)
@@ -237,6 +207,8 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
             {
                 projectile.Initialize(target, attackType, attackPower);
             }
+
+            SetAttackCooldown();
         }
     }
 
@@ -318,7 +290,6 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
         if (CanBlockEnemy())
         {
             blockedEnemies.Add(enemy);
-            Debug.Log($"저지 시작: {enemy}");
             return true;
         }
         return false;
@@ -350,7 +321,6 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
         if (CurrentSP != oldSP)
         {
             deployableBarUI.UpdateSPBar(CurrentSP, operatorData.maxSP);
-            //operatorUI.UpdateOperatorUI(this);
         }
     }
 
@@ -378,6 +348,7 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
         // 오브젝트 파괴
         Destroy(deployableBarUI.gameObject); // 하단 체력/SP 바
         Destroy(directionIndicator.gameObject); // 방향 표시기
+
         base.Die();
 
         // 하단 UI 활성화
@@ -401,9 +372,9 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
     public void OnTargetLost(Enemy enemy)
     {
         // 공격 대상에서 제거
-        if (currentTarget == enemy)
+        if (CurrentTarget == enemy)
         {
-            currentTarget = null;
+            CurrentTarget = null;
         }
 
         // 범위 내 적 리스트에서 제거
@@ -467,25 +438,29 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
     }
 
     /// <summary>
-    /// 현재 타겟의 유효성 검사 : currentTarget이 공격 범위 내에 없다면 제거함
+    /// 현재 타겟의 유효성 검사 : CurrentTarget이 공격 범위 내에 없다면 제거함
     /// </summary>
     private void ValidateCurrentTarget()
     {
-        if(currentTarget != null)
+        if (CurrentTarget != null)
         {
-            if (!IsTargetInRange(currentTarget))
+            // 범위에서 벗어났거나, 현재 체력이 0보다 적어지는 경우
+            if (!IsTargetInRange() || CurrentTarget.CurrentHealth <= 0)
             {
-                currentTarget.RemoveAttackingEntity(this);
-                currentTarget = null;
+                CurrentTarget.RemoveAttackingEntity(this);
+                CurrentTarget = null;
             }
         }
     }
 
-    protected bool IsTargetInRange(UnitEntity unit)
+    /// <summary>
+    /// 공격 범위 내에 Enemy타입인 CurrentTarget이 있는가
+    /// </summary>
+    protected bool IsTargetInRange()
     {
-        if (unit is Enemy) // 타입 매칭은 `is`를 사용
+        if (CurrentTarget is Enemy) // 타입 매칭은 `is`를 사용
         {
-            Vector2Int enemyGridPos = MapManager.Instance.CurrentMap.WorldToGridPosition(unit.transform.position);
+            Vector2Int enemyGridPos = MapManager.Instance.CurrentMap.WorldToGridPosition(CurrentTarget.transform.position);
             Vector2Int operatorGridPos = MapManager.Instance.CurrentMap.WorldToGridPosition(transform.position); 
 
             foreach (Vector2Int offset in operatorData.attackableTiles)
@@ -501,7 +476,6 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
 
             // 공격 범위에 없다
             return false; 
-
         }
 
         // Enemy가 아니다
@@ -512,10 +486,8 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
     public override void Deploy(Vector3 position)
     {
         base.Deploy(position);
-
         SetDirection(facingDirection);
         CreateOperatorBarUI();
-
         ShowDirectionIndicator(true);
     }
 
@@ -527,11 +499,12 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
     // ICombatEntity 메서드 - 인터페이스 멤버는 모두 public으로 구현해야 함
     public bool CanAttack()
     {
-        return currentTarget != null && AttackCooldown <= 0;
+        return CurrentTarget != null && AttackCooldown <= 0;
     }
 
     public void SetAttackCooldown()
     {
+        Debug.LogWarning($"Operator : {currentStats.AttackSpeed}");
         AttackCooldown = 1 / currentStats.AttackSpeed;
         Debug.Log($"Operator : {AttackCooldown} 설정 완료");
     }
@@ -567,4 +540,28 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
         CurrentHealth = MaxHealth;
     }
 
+    /// <summary>
+    /// 공격 대상 설정 로직
+    /// </summary>
+    public void SetCurrentTarget()
+    {
+        // 1. 저지 중일 때 -> 저지 중인 적
+        if (blockedEnemies.Count > 0)
+        {
+            SetAndNotifyTarget(blockedEnemies[0]); // 첫 번째 저지된 적을 타겟으로
+            return;
+        }
+
+        GetEnemiesInAttackRange(); // 공격 범위 내의 적을 얻음
+
+        // 2. 저지 중이 아닐 때에는 공격 범위 내의 적 중에서 공격함
+        if (enemiesInRange.Count > 0)
+        {
+            SetAndNotifyTarget(enemiesInRange[0]);
+            return;
+        }
+
+        // 저지 중인 적도 없고, 공격 범위 내의 적도 없다면 현재 타겟은 없음
+        CurrentTarget = null;
+    }
 }
