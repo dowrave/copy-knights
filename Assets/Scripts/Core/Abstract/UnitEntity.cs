@@ -116,6 +116,7 @@ public abstract class UnitEntity : MonoBehaviour, ITargettable
 
     public virtual void RemoveAttackingEntity(ICombatEntity attacker)
     {
+        Debug.Log("RemoveAttackingEntity µø¿€");
         attackingEntities.Remove(attacker);
     }
 

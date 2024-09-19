@@ -6,12 +6,15 @@ public interface ICombatEntity
     float AttackPower { get; }
     float AttackSpeed { get; }
     float AttackCooldown { get; }
+    UnitEntity CurrentTarget { get; }
     
 
     void Attack(UnitEntity target, AttackType attackType, float damage);
     bool CanAttack(); // 공격 가능 여부 : 공격 범위 내에 적이 있는가 + 공격 쿨타임인가 로 결정
     void SetAttackCooldown();
     void UpdateAttackCooldown();
+    void SetCurrentTarget();
+
 }
 
 public enum AttackType

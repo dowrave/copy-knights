@@ -128,7 +128,11 @@ public class Tile : MonoBehaviour
 
     public bool CanPlaceDeployable()
     {
-        return !data.isStartPoint && !data.isEndPoint && (OccupyingDeployable == null) && (data.isDeployable);
+        return 
+            !data.isStartPoint && // 시작점 아님
+            !data.isEndPoint && // 끝점 아님
+            (OccupyingDeployable == null) &&  // 차지하고 있는 객체 없음
+            (data.isDeployable); // 이 타일이 배치 가능한지
     }
 
     public void SetOccupied(DeployableUnitEntity deployable)

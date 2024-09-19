@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using static UnityEngine.GraphicsBuffer;
 
 public class Enemy : UnitEntity, IMovable, ICombatEntity
 {
@@ -38,7 +39,7 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity
     private List<Operator> operatorsInRange = new List<Operator>();
 
     private Operator blockingOperator; // 자신을 저지 중인 오퍼레이터
-    private UnitEntity currentTarget;
+    public UnitEntity CurrentTarget { get; private set; }
 
     private EnemyUI enemyUI;
 
@@ -83,32 +84,29 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity
         // 진행할 경로가 있다
         if (pathData != null && currentNodeIndex < pathData.nodes.Count)
         {
+            // 공격 범위 내의 적 리스트 & 현재 공격 대상 갱신
+            SetCurrentTarget(); 
+
             // 1. 저지 중인 오퍼레이터가 있을 때
             if (blockingOperator != null) 
             {
                 // 공격 가능한 상태라면
-                if (AttackCooldown <= 0)
+                if (CurrentTarget != null && AttackCooldown <= 0)
                 {
-                    PerformMeleeAttack(blockingOperator); // 저지를 당하는 상태라면, 적의 공격 범위에 관계 없이 근거리 공격을 함
-                    
+                    PerformMeleeAttack(CurrentTarget); // 저지를 당하는 상태라면, 적의 공격 범위에 관계 없이 근거리 공격을 함
                 }
             }
 
             // 2. 저지 중이 아니라면
             else 
             {
-                UpdateOperatorsInRange();
-
-                if (HasTargetInRange()) // 공격 범위 내에 적이 있다면
+                if (CanAttack()) // 타겟이 있고, 공격이 가능한 상태
                 {
-                    if (AttackCooldown <= 0) // 공격 쿨타임이 아니라면
-                    {
-                        AttackLastDeployedOperator(); // 가장 마지막에 배치된 오퍼레이터 공격
-                    }
+                    Attack(CurrentTarget, AttackType, AttackPower);
                 }
 
                 // 이동 관련 로직. 저지 중이 아닐 때에만 동작해야 한다. 
-                if (!isWaiting) // 경로 이동 중 기다리는 상황이 아니라면
+                else if (!isWaiting) // 경로 이동 중 기다리는 상황이 아니라면
                 {
                     MoveAlongPath(); // 이동
                     CheckAndAddBlockingOperator(); // 같은 타일에 있는 오퍼레이터의 저지 가능 여부 체크
@@ -286,13 +284,14 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity
                 PerformRangedAttack(target);
                 break;
         }
-        SetAttackCooldown();
+        
     }
 
     private void PerformMeleeAttack(UnitEntity target)
     {
         float damage = AttackPower; 
         target.TakeDamage(AttackType, damage);
+        SetAttackCooldown();
     }
 
     private void PerformRangedAttack(UnitEntity target)
@@ -310,7 +309,10 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity
             {
                 projectile.Initialize(target, AttackType, damage);
             }
+
+            SetAttackCooldown();
         }
+
     }
 
     protected bool IsTargetInRange(UnitEntity target)
@@ -366,9 +368,9 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity
     /// </summary>
     public override void AddAttackingEntity(ICombatEntity combatEntity)
     {
-        if (combatEntity is UnitEntity unitEntity)
+        if (combatEntity is Operator op)
         {
-            Debug.Log($"Enemy를 공격하는 Operator 추가 : {unitEntity.Data.entityName}");
+            Debug.Log($"Enemy를 공격하는 Operator 추가 : {op.Data.entityName}");
         }
 
         base.AddAttackingEntity(combatEntity);
@@ -415,16 +417,6 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity
         return adjustedPosition;
     }
 
-    // 가장 마지막에 배치된 오퍼레이터를 공격함
-    private void AttackLastDeployedOperator()
-    {
-        if (operatorsInRange.Count > 0 && AttackCooldown <= 0)
-        {
-            Operator target = operatorsInRange.OrderByDescending(o => o.deploymentOrder).First();
-            Attack(target, AttackType, AttackPower);
-        }
-    }
-
     // 바리케이트가 배치되거나 사라질 때마다 호출, 경로를 수정해야 하는 경우 수정하거나 기존 경로 위에 있는 Barricade 파괴
     private void OnBarricadeStateChanged(Barricade barricade)
     {
@@ -462,10 +454,12 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity
         }
     }
 
-    // ICombatEntity 메서드 - 인터페이스 멤버는 모두 public으로 구현해야 함
+    /// <summary>
+    /// 현재 공격 대상이 있고, 공격 쿨다운이 0이 아닐 때
+    /// </summary>
     public bool CanAttack()
     {
-        return currentTarget != null && AttackCooldown <= 0;
+        return CurrentTarget != null && AttackCooldown <= 0;
     }
 
     public void SetAttackCooldown()
@@ -486,5 +480,25 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity
         UpdateCurrentTile();
 
         Prefab = Data.prefab;
+    }
+
+    /// <summary>
+    /// Enemy가 공격할 대상 지정
+    /// </summary>
+    public void SetCurrentTarget()
+    {
+        // 저지를 당할 때는 자신을 저지하는 객체를 타겟으로 지정
+        if (blockingOperator != null)
+        {
+            CurrentTarget = blockingOperator;
+        }
+
+        // 저지가 아니라면 공격 범위 내의 가장 마지막에 배치된 적 공격 
+        UpdateOperatorsInRange(); // 공격 범위 내의 Operator 리스트 갱신
+
+        if (operatorsInRange.Count > 0)
+        {
+            CurrentTarget = operatorsInRange.OrderByDescending(o => o.deploymentOrder).First(); // 공격 범위 내의 가장 마지막에 배치된 적 지정
+        }
     }
 }

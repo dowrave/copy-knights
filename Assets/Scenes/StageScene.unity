@@ -836,7 +836,7 @@ MonoBehaviour:
   availableDeployables:
   - {fileID: 5185628148525671535, guid: 81719ee7b084ab740915d07222eb2ab8, type: 3}
   availableTileColor: {r: 0, g: 1, b: 0, a: 0.5}
-  attackRangeTileColor: {r: 255, g: 127, b: 0, a: 1}
+  attackRangeTileColor: {r: 1, g: 0.9790576, b: 0, a: 0.5019608}
   tileLayerMask:
     serializedVersion: 2
     m_Bits: 1024
