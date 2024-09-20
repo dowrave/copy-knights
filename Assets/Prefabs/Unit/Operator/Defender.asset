@@ -10,30 +10,29 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 3e9e80fd5f700b74fac5a82924257d05, type: 3}
-  m_Name: Melee
+  m_Name: Defender
   m_EditorClassIdentifier: 
-  entityName: Melee
+  entityName: Defender
   stats:
     _deployableUnitStats:
       _baseStats:
-        _health: 1500
-        _defense: 300
+        _health: 3000
+        _defense: 700
         _magicResistance: 20
       _deploymentCost: 10
       _redeployTime: 70
-    _attackPower: 1000
-    _attackSpeed: 1.2
-    _maxBlockableEnemies: 1
+    _attackPower: 300
+    _attackSpeed: 1.4
+    _maxBlockableEnemies: 3
     _currentSP: 0
     _spRecoveryRate: 1
-  prefab: {fileID: 5185628148525671535, guid: 81719ee7b084ab740915d07222eb2ab8, type: 3}
+  prefab: {fileID: 5185628148525671535, guid: 893fa93acddf71e49b2aa2d5eb52e121, type: 3}
   icon: {fileID: 0}
   canDeployOnGround: 1
   canDeployOnHill: 0
   attackType: 0
   attackRangeType: 0
   attackableTiles:
-  - {x: -1, y: 0}
   - {x: 0, y: 0}
   projectilePrefab: {fileID: 0}
   maxSP: 30

@@ -42,7 +42,7 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
     public IReadOnlyList<Enemy> BlockedEnemies => blockedEnemies.AsReadOnly();
     public int MaxBlockableEnemies { get => currentStats.MaxBlockableEnemies; private set => currentStats.MaxBlockableEnemies = value; }
 
-    public int deploymentOrder { get; private set; } // 배치 순서
+    public int DeploymentOrder { get; private set; } // 배치 순서
     private bool isDeployed = false; // 배치 완료 시 true
     public UnitEntity CurrentTarget { get; private set; }
 
@@ -61,6 +61,10 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
     private DeployableBarUI deployableBarUI; // 체력, SP
     private SpriteRenderer directionIndicator; // 방향 표시 UI
 
+    // 원거리 공격 오브젝트 풀 옵션
+    [SerializeField] protected int initialPoolSize = 5;
+    protected string projectileTag; 
+
     // SP 변경 이벤트
     public event System.Action<float, float> OnSPChanged;
 
@@ -78,6 +82,7 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
         InitializeUnitProperties();
         InitializeDeployableProperties();
         InitializeOperatorProperties();
+
     }
 
     private void InitializeOperatorData(OperatorData operatorData)
@@ -93,7 +98,12 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
     // 오퍼레이터 관련 설정들 초기화
     private void InitializeOperatorProperties()
     {
-        CreateDirectionIndicator(); 
+        CreateDirectionIndicator();
+
+        if (AttackRangeType == AttackRangeType.Ranged)
+        {
+            InitializeProjectilePool();
+        }
     }
 
     public override void InitializeFromPrefab()
@@ -132,17 +142,10 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
     {
         if (IsDeployed)
         {
-            if (AttackCooldown > 0f)
-            {
-                UpdateAttackCooldown();
-            }
+            UpdateAttackCooldown();
 
-            ValidateCurrentTarget(); // 현재 타겟이 공격 대상이 될 수 있는가를 판단
-
-            if (CurrentTarget == null)
-            {
-                SetCurrentTarget();
-            }
+            SetCurrentTarget(); // CurrentTarget 설정
+            ValidateCurrentTarget(); 
 
             if (CanAttack())
             {
@@ -153,62 +156,55 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
         }
     }
 
-    // 적에게 공격 중인 오퍼레이터를 알림
-    private void SetAndNotifyTarget(UnitEntity newTarget)
+    protected void OnDestroy()
     {
-        if (CurrentTarget != null)
+        if (AttackRangeType == AttackRangeType.Ranged)
         {
-            newTarget.RemoveAttackingEntity(this);
-        }
-
-        if (CurrentTarget != null)
-        {
-            CurrentTarget = newTarget;
-            newTarget.AddAttackingEntity(this);
+            CleanupProjectilePool();
         }
     }
 
-    public void Attack(UnitEntity target, AttackType attackType, float attackPower)
+    public void Attack(UnitEntity target, AttackType attackType, float damage)
     {
-        if (AttackCooldown > 0 || !(target is Enemy enemy)) return;
-        PerformAttack(target, attackType, attackPower);
-        
+        PerformAttack(target, attackType, damage);
     }
 
-    private void PerformAttack(UnitEntity target, AttackType attackType, float attackPower)
+    private void PerformAttack(UnitEntity target, AttackType attackType, float damage)
     {
         switch (operatorData.attackRangeType)
         {
             case AttackRangeType.Melee:
-                PerformMeleeAttack(target, attackType, attackPower);
+                PerformMeleeAttack(target, attackType, damage);
                 break;
             case AttackRangeType.Ranged:
-                PerformRangedAttack(target, attackType, attackPower);
+                PerformRangedAttack(target, attackType, damage);
                 break;
         }
     }
 
-    private void PerformMeleeAttack(UnitEntity target, AttackType attackType, float attackPower)
+    private void PerformMeleeAttack(UnitEntity target, AttackType attackType, float damage)
     {
-        target.TakeDamage(attackType, attackPower);
+        target.TakeDamage(attackType, damage);
         SetAttackCooldown();
     }
 
-    private void PerformRangedAttack(UnitEntity target, AttackType attackType, float attackPower)
+    private void PerformRangedAttack(UnitEntity target, AttackType attackType, float damage)
     {
-        if (operatorData.projectilePrefab != null)
+        if (Data.projectilePrefab != null)
         {
             // 투사체 생성 위치
             Vector3 spawnPosition = transform.position + Vector3.up * 0.5f;
-            
-            GameObject projectileObj = Instantiate(operatorData.projectilePrefab, spawnPosition, Quaternion.identity);
-            Projectile projectile = projectileObj.GetComponent<Projectile>();
-            if (projectile != null)
-            {
-                projectile.Initialize(target, attackType, attackPower);
-            }
 
-            SetAttackCooldown();
+            GameObject projectileObj = ObjectPoolManager.Instance.SpawnFromPool(projectileTag, spawnPosition, Quaternion.identity);
+            if (projectileObj != null)
+            {
+                Projectile projectile = projectileObj.GetComponent<Projectile>();
+                if (projectile != null)
+                {
+                    projectile.Initialize(target, attackType, damage, projectileTag);
+                }
+                SetAttackCooldown();
+            }
         }
     }
 
@@ -234,6 +230,10 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
         }
 
         enemiesInRange = enemiesInRange.Distinct().ToList(); // 중복 제거해서 반환
+        if (enemiesInRange.Count == 0 )
+        {
+            Debug.Log("범위 내에 적 없음");
+        }
     }
 
 
@@ -251,12 +251,6 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
         return operatorData.attackableTiles;
     }
 
-    public bool CanAttack(Vector3 targetPosition)
-    {
-        Vector2Int relativePosition = WorldToRelativeGridPosition(targetPosition);
-        return System.Array.Exists(operatorData.attackableTiles, tile => tile == relativePosition);
-    }
-
     private Vector2Int WorldToRelativeGridPosition(Vector3 worldPosition)
     {
         if (MapManager.Instance.CurrentMap != null)
@@ -269,11 +263,10 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
     }
     
 
-    public void SetDeploymentOrder(int order)
+    public void SetDeploymentOrder()
     {
-        // 이 order라는 값을 관리할 오브젝트가 또 따로 필요함
-        // 나중에 StageManager를 구현하든지 해서 거기다가 때려넣자
-        deploymentOrder = order;
+        DeploymentOrder = DeployableManager.Instance.CurrentDeploymentOrder;
+        DeployableManager.Instance.UpdateDeploymentOrder();
     }
 
     // --- 저지 관련 메서드들
@@ -365,7 +358,10 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
     public override void OnClick()
     {
         base.OnClick();
-        HighlightAttackRange();
+        if (IsDeployed)
+        {
+            HighlightAttackRange();
+        }
     }
 
     // 공격 대상인 적이 죽었을 때 작동함. 저지 해제와 별개로 구현
@@ -418,8 +414,6 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
 
     public void HighlightAttackRange()
     {
-        if (MapManager.Instance.CurrentMap == null) return;
-
         Vector2Int operatorGridPos = MapManager.Instance.CurrentMap.WorldToGridPosition(transform.position);
         List<Tile> tilesToHighlight = new List<Tile>();
 
@@ -442,50 +436,46 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
     /// </summary>
     private void ValidateCurrentTarget()
     {
-        if (CurrentTarget != null)
+        if (CurrentTarget == null) return;
+
+        // 범위에서 벗어난 경우
+        if (!IsCurrentTargetInRange())
         {
-            // 범위에서 벗어났거나, 현재 체력이 0보다 적어지는 경우
-            if (!IsTargetInRange() || CurrentTarget.CurrentHealth <= 0)
-            {
-                CurrentTarget.RemoveAttackingEntity(this);
-                CurrentTarget = null;
-            }
+            CurrentTarget.RemoveAttackingEntity(this);
+            CurrentTarget = null;
         }
+        
     }
 
     /// <summary>
-    /// 공격 범위 내에 Enemy타입인 CurrentTarget이 있는가
+    /// CurrentTarget이 공격범위 내에 있는지 체크
     /// </summary>
-    protected bool IsTargetInRange()
+    protected bool IsCurrentTargetInRange()
     {
-        if (CurrentTarget is Enemy) // 타입 매칭은 `is`를 사용
+        if (CurrentTarget == null) return false;
+
+        Vector2Int enemyGridPos = MapManager.Instance.CurrentMap.WorldToGridPosition(CurrentTarget.transform.position);
+        Vector2Int operatorGridPos = MapManager.Instance.CurrentMap.WorldToGridPosition(transform.position);
+
+        foreach (Vector2Int offset in operatorData.attackableTiles)
         {
-            Vector2Int enemyGridPos = MapManager.Instance.CurrentMap.WorldToGridPosition(CurrentTarget.transform.position);
-            Vector2Int operatorGridPos = MapManager.Instance.CurrentMap.WorldToGridPosition(transform.position); 
+            Vector2Int rotatedOffset = RotateOffset(offset, facingDirection);
+            Vector2Int targetGridPos = operatorGridPos + rotatedOffset;
 
-            foreach (Vector2Int offset in operatorData.attackableTiles)
+            if (targetGridPos == enemyGridPos)
             {
-                Vector2Int rotatedOffset = RotateOffset(offset, facingDirection);
-                Vector2Int targetGridPos = operatorGridPos + rotatedOffset;
-
-                if (targetGridPos == enemyGridPos)
-                {
-                    return true;
-                }
+                return true;
             }
-
-            // 공격 범위에 없다
-            return false; 
         }
 
-        // Enemy가 아니다
-        return false;
+        return false; 
     }
 
 
     public override void Deploy(Vector3 position)
     {
         base.Deploy(position);
+        SetDeploymentOrder();
         SetDirection(facingDirection);
         CreateOperatorBarUI();
         ShowDirectionIndicator(true);
@@ -497,16 +487,21 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
     }
 
     // ICombatEntity 메서드 - 인터페이스 멤버는 모두 public으로 구현해야 함
+    /// <summary>
+    /// CurrentTarget을 공격할 수 있는 상태인지 체크
+    /// </summary>
     public bool CanAttack()
     {
-        return CurrentTarget != null && AttackCooldown <= 0;
+        return
+            IsDeployed && 
+            CurrentTarget != null && 
+            AttackCooldown <= 0 &&
+            IsCurrentTargetInRange(); // 공격 범위 내에 있음
     }
 
     public void SetAttackCooldown()
     {
-        Debug.LogWarning($"Operator : {currentStats.AttackSpeed}");
         AttackCooldown = 1 / currentStats.AttackSpeed;
-        Debug.Log($"Operator : {AttackCooldown} 설정 완료");
     }
 
     public void UpdateAttackCooldown()
@@ -548,7 +543,8 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
         // 1. 저지 중일 때 -> 저지 중인 적
         if (blockedEnemies.Count > 0)
         {
-            SetAndNotifyTarget(blockedEnemies[0]); // 첫 번째 저지된 적을 타겟으로
+            CurrentTarget = blockedEnemies[0];
+            NotifyTarget();
             return;
         }
 
@@ -557,11 +553,45 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
         // 2. 저지 중이 아닐 때에는 공격 범위 내의 적 중에서 공격함
         if (enemiesInRange.Count > 0)
         {
-            SetAndNotifyTarget(enemiesInRange[0]);
+            CurrentTarget = enemiesInRange[0]; // 수정 필요) 공격 대상이 되는 적은 범위 내의 적 중, 목적 지점까지 경로가 가장 짧은 적임
+            NotifyTarget();
             return;
         }
 
         // 저지 중인 적도 없고, 공격 범위 내의 적도 없다면 현재 타겟은 없음
         CurrentTarget = null;
+    }
+
+    /// <summary>
+    /// 공격 대상 제거 로직
+    /// </summary>
+    public void DeleteCurrentTarget()
+    {
+        if (CurrentTarget == null) return;
+
+        CurrentTarget.RemoveAttackingEntity(this);
+        CurrentTarget = null;
+    }
+
+    /// <summary>
+    /// CurrentTarget에게 자신이 공격하고 있음을 알림
+    /// </summary>
+    public void NotifyTarget()
+    {
+        CurrentTarget.AddAttackingEntity(this);
+    }
+
+    public void InitializeProjectilePool()
+    {
+        projectileTag = $"{Data.entityName}_Projectile";
+        ObjectPoolManager.Instance.CreatePool(projectileTag, Data.projectilePrefab, initialPoolSize);
+    }
+
+    private void CleanupProjectilePool()
+    {
+        if (!string.IsNullOrEmpty(projectileTag))
+        {
+            ObjectPoolManager.Instance.RemovePool(projectileTag);
+        }
     }
 }

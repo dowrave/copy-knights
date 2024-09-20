@@ -10,32 +10,42 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 3e9e80fd5f700b74fac5a82924257d05, type: 3}
-  m_Name: Melee
+  m_Name: Ranged
   m_EditorClassIdentifier: 
-  entityName: Melee
+  entityName: Ranged
   stats:
     _deployableUnitStats:
       _baseStats:
-        _health: 1500
+        _health: 2000
         _defense: 300
-        _magicResistance: 20
-      _deploymentCost: 10
+        _magicResistance: 5
+      _deploymentCost: 7
       _redeployTime: 70
-    _attackPower: 1000
-    _attackSpeed: 1.2
+    _attackPower: 400
+    _attackSpeed: 0.7
     _maxBlockableEnemies: 1
     _currentSP: 0
     _spRecoveryRate: 1
-  prefab: {fileID: 5185628148525671535, guid: 81719ee7b084ab740915d07222eb2ab8, type: 3}
+  prefab: {fileID: 4844663318455565301, guid: d3dcd961b53c71f45b440db97cb72987, type: 3}
   icon: {fileID: 0}
-  canDeployOnGround: 1
-  canDeployOnHill: 0
+  canDeployOnGround: 0
+  canDeployOnHill: 1
   attackType: 0
-  attackRangeType: 0
+  attackRangeType: 1
   attackableTiles:
-  - {x: -1, y: 0}
   - {x: 0, y: 0}
-  projectilePrefab: {fileID: 0}
+  - {x: -1, y: 0}
+  - {x: -1, y: -1}
+  - {x: -1, y: 1}
+  - {x: -2, y: 0}
+  - {x: -2, y: -1}
+  - {x: -2, y: 1}
+  - {x: -3, y: 0}
+  - {x: -3, y: -1}
+  - {x: -3, y: 1}
+  - {x: 0, y: -1}
+  - {x: 0, y: 1}
+  projectilePrefab: {fileID: 491002625568547402, guid: 768a4d8f960f50f43b581b2790a5639e, type: 3}
   maxSP: 30
   initialSP: 0
   autoRecoverSP: 1

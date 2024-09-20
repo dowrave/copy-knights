@@ -2,7 +2,6 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
-using static UnityEngine.GraphicsBuffer;
 
 public class Enemy : UnitEntity, IMovable, ICombatEntity
 {
@@ -36,7 +35,7 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity
     // 경로 관련
     private PathData pathData;
     private int currentNodeIndex = 0;
-    private List<Operator> operatorsInRange = new List<Operator>();
+    private List<UnitEntity> targetsInRange = new List<UnitEntity>();
 
     private Operator blockingOperator; // 자신을 저지 중인 오퍼레이터
     public UnitEntity CurrentTarget { get; private set; }
@@ -47,6 +46,14 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity
     private Vector3 targetPosition;
     private bool isWaiting = false;
 
+    [SerializeField] protected int initialPoolSize = 5;
+    protected string projectileTag;
+
+    private void Awake()
+    {
+        Faction = Faction.Enemy;
+    }
+
     public void Initialize(EnemyData enemyData, PathData pathData)
     {
         this.enemyData = enemyData;
@@ -56,6 +63,20 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity
 
         InitializeUnitProperties();
         InitializeEnemyProperties();
+        
+
+    }
+
+    private void OnEnable()
+    {
+        Barricade.OnBarricadeDeployed += OnBarricadeStateChanged;
+        Barricade.OnBarricadeRemoved += OnBarricadeStateChanged;
+    }
+
+    private void OnDisable()
+    {
+        Barricade.OnBarricadeDeployed -= OnBarricadeStateChanged;
+        Barricade.OnBarricadeRemoved -= OnBarricadeStateChanged;
     }
 
     private void InitializeEnemyProperties()
@@ -63,6 +84,11 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity
         SetupInitialPosition();
         CreateEnemyUI();
         UpdateTargetNode();
+
+        if (AttackRangeType == AttackRangeType.Ranged)
+        {
+            InitializeProjectilePool();
+        }
     }
 
     private void SetupInitialPosition()
@@ -93,7 +119,7 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity
                 // 공격 가능한 상태라면
                 if (CurrentTarget != null && AttackCooldown <= 0)
                 {
-                    PerformMeleeAttack(CurrentTarget); // 저지를 당하는 상태라면, 적의 공격 범위에 관계 없이 근거리 공격을 함
+                    PerformMeleeAttack(CurrentTarget, AttackType, AttackPower); // 저지를 당하는 상태라면, 적의 공격 범위에 관계 없이 근거리 공격을 함
                 }
             }
 
@@ -112,6 +138,14 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity
                     CheckAndAddBlockingOperator(); // 같은 타일에 있는 오퍼레이터의 저지 가능 여부 체크
                 }
             }
+        }
+    }
+
+    protected void OnDestroy()
+    {
+        if (AttackRangeType == AttackRangeType.Ranged)
+        {
+            CleanupProjectilePool();
         }
     }
 
@@ -229,40 +263,26 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity
         StageManager.Instance.OnEnemyReachDestination();
         Destroy(gameObject);
     }
-    private void OnEnable()
-    {
-        Barricade.OnBarricadeDeployed += OnBarricadeStateChanged;
-        Barricade.OnBarricadeRemoved += OnBarricadeStateChanged; 
-    }
 
-    private void OnDisable()
-    {
-        Barricade.OnBarricadeDeployed -= OnBarricadeStateChanged;
-        Barricade.OnBarricadeRemoved -= OnBarricadeStateChanged;
-    }
 
     /// <summary>
     ///  공격 범위 내의 오퍼레이터 리스트를 업데이트한다
     /// </summary>
-    public void UpdateOperatorsInRange()
+    public void UpdateTargetsInRange()
     {
-        operatorsInRange.Clear();
-        Collider[] colliders = Physics.OverlapSphere(transform.position, AttackRange);
+        targetsInRange.Clear();
+        Collider[] colliders = Physics.OverlapSphere(transform.position, AttackRange); // 콜라이더는 후보군을 추리는 역할을 하고, 실제 거리 계산은 따로 수행한다.(콜라이더가 거리값보다 더 크기 때문에)
 
         foreach (var collider in colliders)
         {
-            Operator op = collider.transform.parent?.GetComponent<Operator>(); // GetComponent : 해당 오브젝트부터 시작, 부모 오브젝트로 올라가며 컴포넌트를 찾는다.
-
-            if (op != null && op.IsDeployed)
-            {
-                // 콜라이더는 구에 '닿기만 하면' 판정이 되므로, 실제 AttackRange보다 공격 범위가 더 클 수 있음
-                // 그래서 콜라이더는 후보군을 추리는 역할을 하고, 실제 거리 계산은 따로 수행한다.
-
+            DeployableUnitEntity target = collider.transform.parent?.GetComponent<DeployableUnitEntity>(); // GetComponent : 해당 오브젝트부터 시작, 부모 오브젝트로 올라가며 컴포넌트를 찾는다.
+            if (target != null && target.IsDeployed && Faction.Ally == target.Faction)
+            { 
                 // 실제 거리 계산
-                float actualDistance = Vector3.Distance(transform.position, op.transform.position);
+                float actualDistance = Vector3.Distance(transform.position, target.transform.position);
                 if (actualDistance <= AttackRange)
                 {
-                    operatorsInRange.Add(op);
+                    targetsInRange.Add(target);
                 }
             }
         }
@@ -270,49 +290,47 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity
 
     public void Attack(UnitEntity target, AttackType attackType, float damage)
     {
-        PerformAttack(target);    
+        PerformAttack(target, attackType, damage);    
     }
 
-    private void PerformAttack(UnitEntity target)
+    private void PerformAttack(UnitEntity target, AttackType attackType, float damage)
     {
         switch (AttackRangeType)
         {
             case AttackRangeType.Melee:
-                PerformMeleeAttack(target);
+                PerformMeleeAttack(target, attackType, damage);
                 break;
             case AttackRangeType.Ranged:
-                PerformRangedAttack(target);
+                PerformRangedAttack(target, attackType, damage);
                 break;
         }
         
     }
 
-    private void PerformMeleeAttack(UnitEntity target)
+    private void PerformMeleeAttack(UnitEntity target, AttackType attackType, float damage)
     {
-        float damage = AttackPower; 
         target.TakeDamage(AttackType, damage);
         SetAttackCooldown();
     }
 
-    private void PerformRangedAttack(UnitEntity target)
+    private void PerformRangedAttack(UnitEntity target, AttackType attackType, float damage)
     {
-        if (enemyData.projectilePrefab != null)
+        if (Data.projectilePrefab != null)
         {
-            float damage = currentStats.AttackPower;
-
             // 투사체 생성 위치
             Vector3 spawnPosition = transform.position + Vector3.up * 0.5f;
+            GameObject projectileObj = ObjectPoolManager.Instance.SpawnFromPool(projectileTag, spawnPosition, Quaternion.identity);
 
-            GameObject projectileObj = Instantiate(enemyData.projectilePrefab, spawnPosition, Quaternion.identity);
-            Projectile projectile = projectileObj.GetComponent<Projectile>();
-            if (projectile != null)
+            if (projectileObj != null)
             {
-                projectile.Initialize(target, AttackType, damage);
+                Projectile projectile = projectileObj.GetComponent<Projectile>();
+                if (projectile != null)
+                {
+                    projectile.Initialize(target, attackType, damage, projectileTag);
+                }
+                SetAttackCooldown();
             }
-
-            SetAttackCooldown();
         }
-
     }
 
     protected bool IsTargetInRange(UnitEntity target)
@@ -322,13 +340,11 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity
 
     private bool HasTargetInRange()
     {
-        return operatorsInRange.Count > 0;
+        return targetsInRange.Count > 0;
     }
 
     protected override void Die()
     {
-        Debug.LogWarning("적 사망");
-
         // 저지 중인 오퍼레이터에게 저지를 해제시킴
         if (blockingOperator != null)
         {
@@ -368,11 +384,6 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity
     /// </summary>
     public override void AddAttackingEntity(ICombatEntity combatEntity)
     {
-        if (combatEntity is Operator op)
-        {
-            Debug.Log($"Enemy를 공격하는 Operator 추가 : {op.Data.entityName}");
-        }
-
         base.AddAttackingEntity(combatEntity);
     }
 
@@ -487,18 +498,61 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity
     /// </summary>
     public void SetCurrentTarget()
     {
+        
         // 저지를 당할 때는 자신을 저지하는 객체를 타겟으로 지정
         if (blockingOperator != null)
         {
             CurrentTarget = blockingOperator;
+            NotifyTarget();
+            return; 
         }
 
         // 저지가 아니라면 공격 범위 내의 가장 마지막에 배치된 적 공격 
-        UpdateOperatorsInRange(); // 공격 범위 내의 Operator 리스트 갱신
+        UpdateTargetsInRange(); // 공격 범위 내의 Operator 리스트 갱신
 
-        if (operatorsInRange.Count > 0)
+        if (targetsInRange.Count > 0)
         {
-            CurrentTarget = operatorsInRange.OrderByDescending(o => o.deploymentOrder).First(); // 공격 범위 내의 가장 마지막에 배치된 적 지정
+            // 다른 오브젝트를 공격해야 할 수도 있는데 지금은 일단 오퍼레이터에 한정해서 구현함
+            // Linq
+            CurrentTarget = targetsInRange
+                .OfType<Operator>()
+                .OrderByDescending(o => o.DeploymentOrder)
+                .FirstOrDefault();
+
+            NotifyTarget();
+            return; 
+        }
+
+        // 저지당하고 있지 않고, 공격 범위 내에도 타겟이 없다면 
+        CurrentTarget = null; 
+    }
+
+    public void DeleteCurrentTarget()
+    {
+        if (CurrentTarget == null) return;
+        CurrentTarget.RemoveAttackingEntity(this);
+        CurrentTarget = null;
+    }
+
+    /// <summary>
+    /// CurrentTarget에게 자신이 공격하고 있음을 알림
+    /// </summary>
+    public void NotifyTarget()
+    {
+        CurrentTarget.AddAttackingEntity(this);
+    }
+
+    public void InitializeProjectilePool()
+    {
+        projectileTag = $"{Data.entityName}_Projectile";
+        ObjectPoolManager.Instance.CreatePool(projectileTag, Data.projectilePrefab, initialPoolSize);
+    }
+
+    private void CleanupProjectilePool()
+    {
+        if (!string.IsNullOrEmpty(projectileTag))
+        {
+            ObjectPoolManager.Instance.RemovePool(projectileTag);
         }
     }
 }

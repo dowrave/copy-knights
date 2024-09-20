@@ -153,17 +153,29 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6d95cb21862f15047b25fc339c35a4ec, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  stats:
-    health: 0
-    attackPower: 0
-    attackSpeed: 0
-    attackType: 0
-    attackRangeType: 0
-    defense: 0
-    magicResistance: 0
-  attackRangeType: 0
-  data: {fileID: 11400000, guid: e2a4a030884958f4eb943253b76953e5, type: 2}
-  facingDirection: {x: 0, y: 0, z: 0}
+  unitData: {fileID: 0}
+  deployableUnitData: {fileID: 0}
+  currentStats:
+    _baseStats:
+      _health: 0
+      _defense: 0
+      _magicResistance: 0
+    _deploymentCost: 0
+    _redeployTime: 0
+  operatorData: {fileID: 11400000, guid: fd7c511acd39574469c82a9d2c50281e, type: 2}
+  currentStats:
+    _deployableUnitStats:
+      _baseStats:
+        _health: 0
+        _defense: 0
+        _magicResistance: 0
+      _deploymentCost: 0
+      _redeployTime: 0
+    _attackPower: 0
+    _attackSpeed: 0
+    _maxBlockableEnemies: 0
+    _currentSP: 0
+    _spRecoveryRate: 0
   deployableBarUIPrefab: {fileID: 8911005229607826622, guid: d39c58a7b8ae3eb43beb195d5f3164a8, type: 3}
 --- !u!65 &5805119495687587785
 BoxCollider:
