@@ -61,23 +61,27 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Assets\Scripts\Stage\ClickDetectionSystem.cs" />
+    <Compile Include="Assets\Scripts\Core\Interfaces\IFactionMember.cs" />
     <Compile Include="Assets\Scripts\Stage\MapManager.cs" />
     <Compile Include="Assets\Scripts\Stage\PathData.cs" />
     <Compile Include="Assets\Scripts\UI\BottomPanelDeployableBox.cs" />
+    <Compile Include="Assets\Scripts\Stage\ObjectPoolManager.cs" />
     <Compile Include="Assets\Scripts\Core\Interfaces\IDeployable.cs" />
     <Compile Include="Assets\Scripts\Core\Interfaces\IBoxDeployableData.cs" />
     <Compile Include="Assets\Scripts\Core\Abstract\DeployableUnitEntity.cs" />
-    <Compile Include="Assets\Scripts\Unit\Enemy.cs" />
+    <Compile Include="Assets\Scripts\Entities\Operator.cs" />
     <Compile Include="Assets\Scripts\UI\EnemyUI.cs" />
     <Compile Include="Assets\Scripts\Stage\Tile.cs" />
     <Compile Include="Assets\Scripts\Core\Data\EnemyData.cs" />
     <Compile Include="Assets\Scripts\Stage\SpawnerManager.cs" />
+    <Compile Include="Assets\Scripts\Entities\Barricade.cs" />
     <Compile Include="Assets\Scripts\UI\DiamondMask.cs" />
     <Compile Include="Assets\Scripts\Stage\StageData.cs" />
     <Compile Include="Assets\Scripts\UI\InfoPanel.cs" />
     <Compile Include="Assets\Scripts\Core\Data\DeployableUnitData.cs" />
     <Compile Include="Assets\Scripts\UI\DeployableDeployingUI.cs" />
     <Compile Include="Assets\Scripts\Stage\StageManager.cs" />
+    <Compile Include="Assets\Scripts\Entities\Enemy.cs" />
     <Compile Include="Assets\Scripts\UI\HealthBar.cs" />
     <Compile Include="Assets\Scripts\Core\Interfaces\ICombatEntity.cs" />
     <Compile Include="Assets\Scripts\UI\DeploymentCostPanel.cs" />
@@ -85,7 +89,6 @@
     <Compile Include="Assets\Scripts\UI\DiamondOutline.cs" />
     <Compile Include="Assets\Scripts\Unit\Projectile.cs" />
     <Compile Include="Assets\Scripts\Core\Interfaces\ISkill.cs" />
-    <Compile Include="Assets\Scripts\Unit\Operator.cs" />
     <Compile Include="Assets\Scripts\Core\Data\OperatorData.cs" />
     <Compile Include="Assets\Scripts\Core\Abstract\UnitEntity.cs" />
     <Compile Include="Assets\Scripts\Stage\EnemySpawner.cs" />
@@ -99,7 +102,6 @@
     <Compile Include="Assets\Scripts\Stage\PathfindingManager.cs" />
     <Compile Include="Assets\Scripts\Stage\Map.cs" />
     <Compile Include="Assets\Scripts\Core\Interfaces\IRotatable.cs" />
-    <Compile Include="Assets\Scripts\Unit\Barricade.cs" />
     <Compile Include="Assets\Scripts\UI\MaskedDiamondOverlay.cs" />
     <Compile Include="Assets\Scripts\Core\Interfaces\ITargettable.cs" />
   </ItemGroup>

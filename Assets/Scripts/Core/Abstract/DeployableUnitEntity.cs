@@ -35,6 +35,7 @@ public class DeployableUnitEntity: UnitEntity, IDeployable
     protected virtual void Awake()
     {
         InitializeVisual();
+        Faction = Faction.Ally; // 배치 가능한 요소는 모두 아군으로 간주
     }
 
     public void Initialize(DeployableUnitData deployableUnitData)

@@ -4,13 +4,14 @@ using UnityEngine;
 /// <summary>
 /// Operator, Enemy, Barricade 등의 타일 위의 유닛들과 관련된 엔티티
 /// </summary>
-public abstract class UnitEntity : MonoBehaviour, ITargettable
+public abstract class UnitEntity : MonoBehaviour, ITargettable, IFactionMember
 {
     [SerializeField]
     private UnitData unitData;
     public UnitData Data => unitData;
 
     private UnitStats currentStats; // 프로퍼티로 구현하지 않음. 
+    public Faction Faction { get; protected set; }
 
     public Tile CurrentTile { get; protected set; }
     public GameObject Prefab { get; protected set; }
@@ -59,11 +60,11 @@ public abstract class UnitEntity : MonoBehaviour, ITargettable
     {
         float actualDamage = CalculateActualDamage(attacktype, damage);
         CurrentHealth = Mathf.Max(0, CurrentHealth - actualDamage);
-        OnHealthChanged.Invoke(CurrentHealth, MaxHealth);
+        OnHealthChanged?.Invoke(CurrentHealth, MaxHealth);
 
         if (CurrentHealth <= 0)
         {
-            Die();
+            Die(); // 자식 메서드에서 오버라이드했다면 오버라이드한 메서드가 호출
         }
     }
 

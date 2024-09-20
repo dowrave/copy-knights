@@ -35,6 +35,8 @@ public class DeployableManager : MonoBehaviour
     private int DeployableIndex = -1; 
     private Vector3 placementDirection = Vector3.left;
 
+    public int CurrentDeploymentOrder { get; private set; } = 0;
+
     public bool IsMousePressed
     {
         get { return isMousePressed; }
@@ -205,6 +207,7 @@ public class DeployableManager : MonoBehaviour
 
             if (hoveredTile && CanPlaceOnTile(hoveredTile))
             {
+                Debug.Log("startDirectionSelection 동작");
                 StartDirectionSelection(hoveredTile);
             }
             else
@@ -289,7 +292,7 @@ public class DeployableManager : MonoBehaviour
 
         currentUIState = UIState.None;
     }
-
+    
     /// <summary>
     /// 방향 설정 관련 로직
     /// </summary>
@@ -322,7 +325,6 @@ public class DeployableManager : MonoBehaviour
                     isSelectingDirection = false;
                     IsMousePressed = false;
                     ResetPlacement();
-
                 }
                 // 바운더리 이내라면 다시 방향 설정(클릭 X) 상태
                 else
@@ -560,8 +562,9 @@ public class DeployableManager : MonoBehaviour
 
     private bool CanPlaceOnTile(Tile tile)
     {
-        // 타일이 배치 가능한가? + 타일이 하이라이트되었는가?
-        return tile.CanPlaceDeployable() && highlightedTiles.Contains(tile);
+        // 타일이 배치 가능한가? + 타일이 하이라이트되었는가? + 현재 선택한 객체를 그 타일에 배치할 수 잇는가?
+        return tile.CanPlaceDeployable() &&
+            highlightedTiles.Contains(tile);
     }
 
     // 타일 위에 배치되는 배치 가능한 요소의 위치 지정
@@ -576,5 +579,10 @@ public class DeployableManager : MonoBehaviour
         {
             currentDeployable.transform.position = tile.transform.position + Vector3.up * 0.5f;
         }
+    }
+
+    public void UpdateDeploymentOrder()
+    {
+        CurrentDeploymentOrder += 1;
     }
 }
