@@ -1,0 +1,111 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 32caf8c2ad64314458d7c044db6f0c72, type: 3}
+  m_Name: PathData
+  m_EditorClassIdentifier: 
+  nodes:
+  - tileName: Tile_0_1_start
+    gridPosition: {x: 0, y: 1}
+    waitTime: 0
+  - tileName: Tile_1_1
+    gridPosition: {x: 1, y: 1}
+    waitTime: 0
+  - tileName: Tile_2_1
+    gridPosition: {x: 2, y: 1}
+    waitTime: 0
+  - tileName: Tile_3_1
+    gridPosition: {x: 3, y: 1}
+    waitTime: 0
+  - tileName: Tile_4_1
+    gridPosition: {x: 4, y: 1}
+    waitTime: 0
+  - tileName: Tile_5_1
+    gridPosition: {x: 5, y: 1}
+    waitTime: 0
+  - tileName: Tile_6_1
+    gridPosition: {x: 6, y: 1}
+    waitTime: 0
+  - tileName: Tile_7_1
+    gridPosition: {x: 7, y: 1}
+    waitTime: 0
+  - tileName: Tile_8_1
+    gridPosition: {x: 8, y: 1}
+    waitTime: 0
+  - tileName: Tile_8_2
+    gridPosition: {x: 8, y: 2}
+    waitTime: 0
+  - tileName: Tile_8_3
+    gridPosition: {x: 8, y: 3}
+    waitTime: 0
+  - tileName: Tile_8_4
+    gridPosition: {x: 8, y: 4}
+    waitTime: 0
+  - tileName: Tile_8_5
+    gridPosition: {x: 8, y: 5}
+    waitTime: 0
+  - tileName: Tile_7_5
+    gridPosition: {x: 7, y: 5}
+    waitTime: 0
+  - tileName: Tile_6_5
+    gridPosition: {x: 6, y: 5}
+    waitTime: 0
+  - tileName: Tile_5_5
+    gridPosition: {x: 5, y: 5}
+    waitTime: 0
+  - tileName: Tile_4_5
+    gridPosition: {x: 4, y: 5}
+    waitTime: 0
+  - tileName: Tile_3_5
+    gridPosition: {x: 3, y: 5}
+    waitTime: 0
+  - tileName: Tile_2_5
+    gridPosition: {x: 2, y: 5}
+    waitTime: 0
+  - tileName: Tile_1_5
+    gridPosition: {x: 1, y: 5}
+    waitTime: 0
+  - tileName: Tile_1_4
+    gridPosition: {x: 1, y: 4}
+    waitTime: 0
+  - tileName: Tile_1_3
+    gridPosition: {x: 1, y: 3}
+    waitTime: 0
+  - tileName: Tile_1_2
+    gridPosition: {x: 1, y: 2}
+    waitTime: 0
+  - tileName: Tile_1_1
+    gridPosition: {x: 1, y: 1}
+    waitTime: 0
+  - tileName: Tile_2_1
+    gridPosition: {x: 2, y: 1}
+    waitTime: 0
+  - tileName: Tile_3_1
+    gridPosition: {x: 3, y: 1}
+    waitTime: 0
+  - tileName: Tile_4_1
+    gridPosition: {x: 4, y: 1}
+    waitTime: 0
+  - tileName: Tile_5_1
+    gridPosition: {x: 5, y: 1}
+    waitTime: 0
+  - tileName: Tile_6_1
+    gridPosition: {x: 6, y: 1}
+    waitTime: 0
+  - tileName: Tile_7_1
+    gridPosition: {x: 7, y: 1}
+    waitTime: 0
+  - tileName: Tile_8_1
+    gridPosition: {x: 8, y: 1}
+    waitTime: 0
+  - tileName: Tile_9_1_end
+    gridPosition: {x: 9, y: 1}
+    waitTime: 0

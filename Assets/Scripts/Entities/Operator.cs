@@ -230,10 +230,6 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
         }
 
         enemiesInRange = enemiesInRange.Distinct().ToList(); // 중복 제거해서 반환
-        if (enemiesInRange.Count == 0 )
-        {
-            Debug.Log("범위 내에 적 없음");
-        }
     }
 
 
@@ -553,8 +549,11 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
         // 2. 저지 중이 아닐 때에는 공격 범위 내의 적 중에서 공격함
         if (enemiesInRange.Count > 0)
         {
-            CurrentTarget = enemiesInRange[0]; // 수정 필요) 공격 대상이 되는 적은 범위 내의 적 중, 목적 지점까지 경로가 가장 짧은 적임
-            NotifyTarget();
+            CurrentTarget = enemiesInRange.OrderBy(E => E.GetRemainingPathDistance()).FirstOrDefault();
+            if (CurrentTarget != null)
+            {
+                NotifyTarget();
+            }
             return;
         }
 

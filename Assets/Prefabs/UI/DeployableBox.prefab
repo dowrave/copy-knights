@@ -357,7 +357,7 @@ GameObject:
   - component: {fileID: 2015920184108376305}
   - component: {fileID: 3369836329132661105}
   m_Layer: 5
-  m_Name: BottomPanelDeployableBox
+  m_Name: DeployableBox
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

@@ -14,12 +14,12 @@ public class DeployableManager : MonoBehaviour
 
     public static DeployableManager Instance { get; private set; }
     // UI 관련 변수
-    public GameObject bottomPanelDeployableBoxPrefab;
+    public GameObject DeployableBoxPrefab;
     public RectTransform bottomPanel;
 
     // Deployable 관련 변수
     public List<GameObject> availableDeployables = new List<GameObject>();
-    private Dictionary<GameObject, BottomPanelDeployableBox> deployableUIBoxes = new Dictionary<GameObject, BottomPanelDeployableBox>();
+    private Dictionary<GameObject, DeployableBox> deployableUIBoxes = new Dictionary<GameObject, DeployableBox>();
     private GameObject currentDeployablePrefab;
     private DeployableUnitEntity currentDeployable;
 
@@ -81,8 +81,8 @@ public class DeployableManager : MonoBehaviour
     {
         foreach (GameObject deployablePrefab in availableDeployables)
         {
-            GameObject boxObject = Instantiate(bottomPanelDeployableBoxPrefab, bottomPanel);
-            BottomPanelDeployableBox box = boxObject.GetComponent<BottomPanelDeployableBox>();
+            GameObject boxObject = Instantiate(DeployableBoxPrefab, bottomPanel);
+            DeployableBox box = boxObject.GetComponent<DeployableBox>();
 
             if (box != null)
             {
@@ -426,7 +426,7 @@ public class DeployableManager : MonoBehaviour
             tile.SetOccupied(currentDeployable);
             deployedItems.Add(currentDeployable);
 
-            if (deployableUIBoxes.TryGetValue(currentDeployablePrefab, out BottomPanelDeployableBox box))
+            if (deployableUIBoxes.TryGetValue(currentDeployablePrefab, out DeployableBox box))
             {
                 box.gameObject.SetActive(false);
             }
@@ -495,7 +495,7 @@ public class DeployableManager : MonoBehaviour
         ResetHighlights();
 
         GameObject prefab = deployable.Prefab;
-        if (prefab != null && deployableUIBoxes.TryGetValue(prefab, out BottomPanelDeployableBox box))
+        if (prefab != null && deployableUIBoxes.TryGetValue(prefab, out DeployableBox box))
         {
             box.gameObject.SetActive(true);
             box.StartCooldown(70f); // Assuming a fixed cooldown time

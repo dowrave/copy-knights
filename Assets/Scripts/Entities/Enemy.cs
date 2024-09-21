@@ -35,6 +35,7 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity
     // 경로 관련
     private PathData pathData;
     private int currentNodeIndex = 0;
+    private List<Vector3> currentPath;
     private List<UnitEntity> targetsInRange = new List<UnitEntity>();
 
     private Operator blockingOperator; // 자신을 저지 중인 오퍼레이터
@@ -449,14 +450,6 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity
         return false;
     }
 
-    private void RecalculatePath()
-    {
-        Vector3 currentPosition = transform.position;
-        Vector3 endPosition = MapManager.Instance.GetEndPoint();
-        pathData = PathFindingManager.Instance.FindPath(currentPosition, endPosition);
-        currentNodeIndex = 0;
-    }
-
     public void UpdateAttackCooldown()
     {
         if (AttackCooldown > 0f)
@@ -554,5 +547,198 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity
         {
             ObjectPoolManager.Instance.RemovePool(projectileTag);
         }
+    }
+
+    // 경로와 남은 거리 관련
+    /// <summary>
+    /// 현재 경로상에서 목적지까지 남은 거리 계산
+    /// </summary>
+
+    public float GetRemainingPathDistance()
+    {
+        if (currentPath == null || currentNodeIndex >+ currentPath.Count)
+        {
+            return float.MaxValue;
+        }
+
+        float distance = 0f; 
+        for (int i = currentNodeIndex; i < currentPath.Count - 1; i++) 
+        {
+            distance += Vector3.Distance(currentPath[i], currentPath[i + 1]);
+        }
+
+        return distance; 
+    }
+
+    public void UpdatePath(List<Vector3> newPath)
+    {
+        currentPath = newPath;
+        currentNodeIndex = 0;
+    }
+
+    /// <summary>
+    /// Barricade 설치 시 현재 경로가 막혔다면 재계산
+    /// </summary>
+
+    public void OnBarricadePlaced(Vector3 barricadePosition)
+    {
+        if (IsPathBlocked())
+        {
+            RecalculatePath();
+        }
+    }
+
+    private bool IsPathBlocked()
+    {
+        for (int i= currentNodeIndex; i < currentPath.Count - 1; i++)
+        {
+            if (!IsPathSegmentValid(currentPath[i], currentPath[i+1]))
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /// <summary>
+    /// 경로에 있는 노드(타일) 검사 및 노드 사이를 검사
+    /// </summary>
+    private bool IsPathSegmentValid(Vector3 start, Vector3 end)
+    {
+        Vector3 direction = end - start;
+        float distance = direction.magnitude;
+        RaycastHit hit;
+
+        if (Physics.Raycast(start, direction.normalized, out hit, distance, LayerMask.GetMask("Barricade", "Obstacle")))
+        {
+            return false;
+        }
+
+        // 타일 기반 검사 추가
+        List<Vector2Int> tilesOnPath = GetTilesOnPath(start, end);
+        foreach (Vector2Int tilePos in tilesOnPath)
+        {
+            if (!IsTileWalkable(tilePos))
+            {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    private bool IsTileWalkable(Vector2Int tilePos)
+    {
+        return MapManager.Instance.GetTile(tilePos.x, tilePos.y).IsWalkable;
+    }
+
+    private void RecalculatePath()
+    {
+        Vector3 currentPosition = transform.position;
+        Vector3 targetPosition = currentPath[currentPath.Count - 1]; // 완전 목적지
+
+        List<Vector3> newPath = PathFindingManager.Instance.FindPath(currentPosition, targetPosition);
+
+        if (newPath != null && newPath.Count > 0)
+        {
+            currentPath = newPath;
+            currentNodeIndex = 0;
+        }
+        else
+        {
+            AttackNearestBarricade();
+        }
+    }
+
+    private void AttackNearestBarricade()
+    {
+        Barricade nearestBarricade = FindNearestBarricade();
+        if (nearestBarricade != null)
+        {
+            CurrentTarget = nearestBarricade;
+            StartCoroutine(MoveToBarricade(nearestBarricade));
+        }
+    }
+
+    private Barricade FindNearestBarricade()
+    {
+        Barricade[] allBarricades = FindObjectsOfType<Barricade>();
+        return allBarricades.OrderBy(b => Vector3.Distance(transform.position, b.transform.position)).FirstOrDefault();
+    }
+
+    private IEnumerator MoveToBarricade(Barricade barricade)
+    {
+        while (barricade != null && barricade.gameObject.activeInHierarchy)
+        {
+            // 바리케이드로 이동
+            Vector3 direction = (barricade.transform.position - transform.position).normalized;
+            transform.position += direction * MovementSpeed * Time.deltaTime; 
+
+            // 도달 확인
+            if (Vector3.Distance(transform.position, barricade.transform.position) <= 0.1f)
+            {
+                // 공격 범위 내에 있다면 공격 시작
+                while (barricade != null && barricade.gameObject.activeInHierarchy)
+                {
+                    PerformMeleeAttack(barricade, AttackType, AttackPower);
+                    yield return new WaitForSeconds(1f / AttackSpeed);
+                }
+                // 파괴된다면 경로 재계산
+                RecalculatePath();
+                yield break;
+            }
+
+            yield return null;
+        }
+
+        // 바리케이드가 중간에 파괴된 경우 경로 재계산
+        RecalculatePath();
+    }
+
+    /// <summary>
+    /// Bresenham's Line Algorithm을 이용, 경로 상의 모든 타일 좌표를 반환한다.
+    /// </summary>
+    private List<Vector2Int> GetTilesOnPath(Vector3 start, Vector3 end)
+    {
+        List<Vector2Int> tiles = new List<Vector2Int>();
+
+        // 3D => 2D 그리드 좌표 변환
+        Vector2Int startTile = MapManager.Instance.GetGridPosition(start);
+        Vector2Int endTile = MapManager.Instance.GetGridPosition(end);
+
+        int x0 = startTile.x;
+        int y0 = startTile.y;
+        int x1 = endTile.x;
+        int y1 = endTile.y;
+
+        int dx = Mathf.Abs(x1 - x0);
+        int dy = Mathf.Abs(y1 - y0);
+        int sx = x0 < x1 ? 1 : -1;
+        int sy = y0 < y1 ? 1 : -1;
+        int err = dx - dy;
+
+        while (true)
+        {
+            tiles.Add(new Vector2Int(x0, y0));
+
+            if (x0 == x1 && y0 == y1) break;
+
+            int e2 = 2 * err;
+            if (e2 > -dy)
+            {
+                err -= dy;
+                x0 += sx;
+            }
+
+            if (e2 < dx)
+            {
+                err += dx;
+                y0 += sy;
+            }
+        }
+
+        return tiles;
+
     }
 }
