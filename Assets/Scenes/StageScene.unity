@@ -876,7 +876,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f3b671cfd16413b48bb1f037b253790b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  bottomPanelDeployableBoxPrefab: {fileID: 4361422347105965548, guid: 32e0823a42592f84cb270798f13e6668, type: 3}
+  DeployableBoxPrefab: {fileID: 4361422347105965548, guid: 32e0823a42592f84cb270798f13e6668, type: 3}
   bottomPanel: {fileID: 1940311227}
   availableDeployables:
   - {fileID: 5185628148525671535, guid: 81719ee7b084ab740915d07222eb2ab8, type: 3}

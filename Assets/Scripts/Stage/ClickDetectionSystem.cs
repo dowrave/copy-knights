@@ -66,7 +66,7 @@ public class ClickDetectionSystem : MonoBehaviour
             }
 
             // ButtonDown 동작 2. 오퍼레이터 박스 드래그 동작 시작
-            BottomPanelDeployableBox deployableBox = result.gameObject.GetComponent<BottomPanelDeployableBox>();
+            DeployableBox deployableBox = result.gameObject.GetComponent<DeployableBox>();
             if (deployableBox != null)
             {
                 deployableBox.OnPointerDown(pointerData);

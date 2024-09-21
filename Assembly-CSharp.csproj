@@ -64,7 +64,6 @@
     <Compile Include="Assets\Scripts\Core\Interfaces\IFactionMember.cs" />
     <Compile Include="Assets\Scripts\Stage\MapManager.cs" />
     <Compile Include="Assets\Scripts\Stage\PathData.cs" />
-    <Compile Include="Assets\Scripts\UI\BottomPanelDeployableBox.cs" />
     <Compile Include="Assets\Scripts\Stage\ObjectPoolManager.cs" />
     <Compile Include="Assets\Scripts\Core\Interfaces\IDeployable.cs" />
     <Compile Include="Assets\Scripts\Core\Interfaces\IBoxDeployableData.cs" />
@@ -82,6 +81,7 @@
     <Compile Include="Assets\Scripts\UI\DeployableDeployingUI.cs" />
     <Compile Include="Assets\Scripts\Stage\StageManager.cs" />
     <Compile Include="Assets\Scripts\Entities\Enemy.cs" />
+    <Compile Include="Assets\Scripts\UI\DeployableBox.cs" />
     <Compile Include="Assets\Scripts\UI\HealthBar.cs" />
     <Compile Include="Assets\Scripts\Core\Interfaces\ICombatEntity.cs" />
     <Compile Include="Assets\Scripts\UI\DeploymentCostPanel.cs" />

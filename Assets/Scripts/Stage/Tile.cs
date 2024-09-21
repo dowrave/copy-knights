@@ -13,6 +13,8 @@ public class Tile : MonoBehaviour
         set { isOccupied = value; }
     }
 
+    public bool IsWalkable { get; private set; }
+
     private Transform cubeTransform;
     float tileScale = 0.98f;
     public Vector2 size2D;
@@ -85,6 +87,8 @@ public class Tile : MonoBehaviour
     {
         data = tileData;
         GridPosition = gridPosition;
+        IsWalkable = data.isWalkable;
+
         AdjustCubeScale();
         UpdateVisuals();
     }

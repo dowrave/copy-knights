@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 public class PathFindingManager : MonoBehaviour
@@ -22,29 +23,20 @@ public class PathFindingManager : MonoBehaviour
         }
     }
 
-    public PathData FindPath(Vector3 startPos, Vector3 endPos)
+    public List<Vector3> FindPath(Vector3 startPos, Vector3 endPos)
     {
         Vector2Int startGrid = MapManager.Instance.GetGridPosition(startPos);
         Vector2Int endGrid = MapManager.Instance.GetGridPosition(endPos);
 
         // 경로들은 gridPosition으로 관리, 실제 이동은 Enemy에서 WorldPosition을 계산해서 그 위치로 이동한다
         List<Vector2Int> path = CalculatePath(startGrid, endGrid);
-        
-        PathData newPathData = ScriptableObject.CreateInstance<PathData>();
-        newPathData.nodes = new List<PathNode>();
 
-        foreach (Vector2Int gridPos in path)
+        if (path != null)
         {
-            PathNode node = new PathNode
-            {
-                gridPosition = gridPos,
-                waitTime = 0f
-            };
-
-            newPathData.nodes.Add(node);
+            return ConvertToWorldPositions(path);
         }
 
-        return newPathData;
+        return null;
     }
 
     /// <summary>
@@ -184,5 +176,13 @@ public class PathFindingManager : MonoBehaviour
         if (dstX > dstY)
             return 15 * dstY + 10 * (dstX - dstY);
         return 15 * dstX + 10 * (dstY - dstX);
+    }
+
+    /// <summary>
+    /// 그리드 포지션인 경로 리스트를 월드 포지션으로 바꿈
+    /// </summary>
+    private List<Vector3> ConvertToWorldPositions(List<Vector2Int> gridPath)
+    {
+        return gridPath.Select(gridPos => MapManager.Instance.GetWorldPosition(gridPos)).ToList();
     }
 }
