@@ -882,6 +882,7 @@ MonoBehaviour:
   - {fileID: 5185628148525671535, guid: 81719ee7b084ab740915d07222eb2ab8, type: 3}
   - {fileID: 5185628148525671535, guid: 893fa93acddf71e49b2aa2d5eb52e121, type: 3}
   - {fileID: 4844663318455565301, guid: d3dcd961b53c71f45b440db97cb72987, type: 3}
+  - {fileID: 8875430263191699086, guid: 445bdcb62b7e4c84b9ac1f5d640cb325, type: 3}
   availableTileColor: {r: 0, g: 1, b: 0, a: 0.5}
   attackRangeTileColor: {r: 1, g: 0.9790576, b: 0, a: 0.5019608}
   tileLayerMask:

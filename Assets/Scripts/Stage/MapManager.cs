@@ -112,7 +112,7 @@ public class MapManager : MonoBehaviour
     /// <summary>
     /// 해당 오브젝트의 월드 좌표를 인풋으로 받아 그리드 좌표를 반환함
     /// </summary>
-    public Vector2Int GetGridPosition(Vector3 worldPosition)
+    public Vector2Int ConvertToGridPosition(Vector3 worldPosition)
     {
         return currentMap.WorldToGridPosition(worldPosition);
     }
@@ -120,7 +120,7 @@ public class MapManager : MonoBehaviour
     /// <summary>
     /// 그리드 좌표 -> 월드 좌표 변환
     /// </summary>
-    public Vector3 GetWorldPosition(Vector2Int gridPosition)
+    public Vector3 ConvertToWorldPosition(Vector2Int gridPosition)
     {
         return currentMap.GridToWorldPosition(gridPosition);
     }
@@ -153,5 +153,10 @@ public class MapManager : MonoBehaviour
     public int GetCurrentMapHeight()
     {
         return currentMap != null ? currentMap.Height : 0;
+    }
+
+    public bool IsTileWalkable(Vector2Int tileGridPosition)
+    {
+        return GetTile(tileGridPosition.x, tileGridPosition.y).IsWalkable;
     }
 }

@@ -134,13 +134,13 @@ public class PathDataEditor : Editor
         for (int i = 0; i < pathData.nodes.Count; i++)
         {
             PathNode node = pathData.nodes[i];
-            Vector3 nodePosition = MapManager.Instance.GetWorldPosition(node.gridPosition);
+            Vector3 nodePosition = MapManager.Instance.ConvertToWorldPosition(node.gridPosition);
             Handles.color = Color.yellow;
             Handles.SphereHandleCap(0, nodePosition, Quaternion.identity, 0.2f, EventType.Repaint);
         
             if (i < pathData.nodes.Count - 1)
             {
-                Vector3 nextPosition = MapManager.Instance.GetWorldPosition(pathData.nodes[i + 1].gridPosition);
+                Vector3 nextPosition = MapManager.Instance.ConvertToWorldPosition(pathData.nodes[i + 1].gridPosition);
                 Handles.DrawLine(nodePosition, nextPosition);
             }
 

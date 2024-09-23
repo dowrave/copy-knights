@@ -120,7 +120,6 @@ public class DeployableManager : MonoBehaviour
     {
         ResetHighlights();
        
-
         foreach (Tile tile in MapManager.Instance.GetAllTiles())
         {
             if (tile != null && tile.CanPlaceDeployable())
@@ -207,8 +206,17 @@ public class DeployableManager : MonoBehaviour
 
             if (hoveredTile && CanPlaceOnTile(hoveredTile))
             {
-                Debug.Log("startDirectionSelection 동작");
-                StartDirectionSelection(hoveredTile);
+                // 방향 설정이 필요한 경우 방향 설정 단계로 진입
+                if (currentDeployable is Operator)
+                {
+                    StartDirectionSelection(hoveredTile);
+                }
+                // 방향 설정이 필요 없다면 바로 배치
+                else
+                {
+                    currentDeployable.Initialize(currentDeployable.Data);
+                    currentDeployable.Deploy(hoveredTile.transform.position);
+                }
             }
             else
             {
@@ -233,11 +241,6 @@ public class DeployableManager : MonoBehaviour
             {
                 currentDeployable.Initialize(currentDeployable.Data);
             }
-
-            //if (currentDeployable != null)
-            //{
-            //    currentDeployable.gameObject.SetActive(true);
-            //}
         }
     }
 
@@ -335,12 +338,6 @@ public class DeployableManager : MonoBehaviour
             }
         }
         //}
-    }
-
-    private void EndDirectionSelection()
-    {
-
-
     }
 
     private void UpdatePreviewDeployable()

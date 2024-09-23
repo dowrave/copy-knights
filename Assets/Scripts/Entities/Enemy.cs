@@ -1,7 +1,9 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using UnityEditor.Experimental.GraphView;
 using UnityEngine;
+using UnityEngine.UIElements;
 
 public class Enemy : UnitEntity, IMovable, ICombatEntity
 {
@@ -43,8 +45,8 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity
 
     private EnemyUI enemyUI;
 
-    private PathNode targetNode;
-    private Vector3 targetPosition;
+    private PathNode nextNode;
+    private Vector3 nextPosition; // 다음 노드의 좌표
     private bool isWaiting = false;
 
     [SerializeField] protected int initialPoolSize = 5;
@@ -64,20 +66,18 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity
 
         InitializeUnitProperties();
         InitializeEnemyProperties();
-        
-
     }
 
     private void OnEnable()
     {
-        Barricade.OnBarricadeDeployed += OnBarricadeStateChanged;
-        Barricade.OnBarricadeRemoved += OnBarricadeStateChanged;
+        Barricade.OnBarricadeDeployed += OnBarricadePlaced;
+        Barricade.OnBarricadeRemoved += OnBarricadePlaced;
     }
 
     private void OnDisable()
     {
-        Barricade.OnBarricadeDeployed -= OnBarricadeStateChanged;
-        Barricade.OnBarricadeRemoved -= OnBarricadeStateChanged;
+        Barricade.OnBarricadeDeployed -= OnBarricadePlaced;
+        Barricade.OnBarricadeRemoved -= OnBarricadePlaced;
     }
 
     private void InitializeEnemyProperties()
@@ -85,7 +85,8 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity
         SetupInitialPosition();
         CreateEnemyUI();
         UpdateTargetNode();
-
+        InitializeCurrentPath();
+        
         if (AttackRangeType == AttackRangeType.Ranged)
         {
             InitializeProjectilePool();
@@ -96,7 +97,7 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity
     {
         if (pathData != null && pathData.nodes.Count > 0)
         {
-            transform.position = MapManager.Instance.GetWorldPosition(pathData.nodes[0].gridPosition) + Vector3.up * 0.5f;
+            transform.position = MapManager.Instance.ConvertToWorldPosition(pathData.nodes[0].gridPosition) + Vector3.up * 0.5f;
         }
         else
         {
@@ -150,6 +151,18 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity
         }
     }
 
+    /// <summary>
+    /// pathData.nodes를 이용해 currentPath 초기화
+    /// </summary>
+    private void InitializeCurrentPath()
+    {
+        currentPath = new List<Vector3>();
+        foreach (var node in pathData.nodes)
+        {
+            currentPath.Add(MapManager.Instance.ConvertToWorldPosition(node.gridPosition) + Vector3.up * 0.5f);
+        }
+    }
+
     private void CreateEnemyUI()
     {
         enemyUI = GetComponentInChildren<EnemyUI>();
@@ -174,7 +187,6 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity
                     blockingOperator = op;
                     blockingOperator.TryBlockEnemy(this); // 오퍼레이터에서도 저지 중인 Enemy를 추가
                 }
-
             }
         }
     }
@@ -191,7 +203,7 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity
         return null; 
     }
 
-    // 
+  
     private void MoveAlongPath()
     {
         if (CheckIfReachedDestination())
@@ -200,7 +212,7 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity
             return;
         }
 
-        Move(targetPosition);
+        Move(nextPosition);
 
         // 타일 갱신
         Tile newTile = MapManager.Instance.GetTileAtPosition(transform.position);
@@ -211,11 +223,11 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity
         }
 
         // 노드 도달 확인
-        if (Vector3.Distance(transform.position, targetPosition) < 0.05f)
+        if (Vector3.Distance(transform.position, nextPosition) < 0.05f)
         {
-            if (targetNode.waitTime > 0)
+            if (nextNode.waitTime > 0)
             {
-                StartCoroutine(WaitAtNode(targetNode.waitTime));
+                StartCoroutine(WaitAtNode(nextNode.waitTime));
             }
             else
             {
@@ -240,7 +252,6 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity
 
     private void MoveToNextNode()
     {
-        //currentNodeIndex++;
         UpdateTargetNode();
 
         if (CheckIfReachedDestination())
@@ -249,13 +260,16 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity
         }
     }
 
+    /// <summary>
+    /// 다음 노드 인덱스를 설정하고 현재 목적지로 지정함
+    /// </summary>
     private void UpdateTargetNode()
     {
         currentNodeIndex++;
         if (currentNodeIndex < pathData.nodes.Count)
         {
-            targetNode = pathData.nodes[currentNodeIndex];
-            targetPosition = MapManager.Instance.GetWorldPosition(targetNode.gridPosition) + Vector3.up * 0.5f;
+            nextNode = pathData.nodes[currentNodeIndex];
+            nextPosition = MapManager.Instance.ConvertToWorldPosition(nextNode.gridPosition) + Vector3.up * 0.5f;
         }
     }
 
@@ -412,44 +426,23 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity
     // 마지막 타일의 월드 좌표 기준
     private bool CheckIfReachedDestination()
     {
-        int lastNodeIndex = pathData.nodes.Count - 1;
-        Vector3 lastNodePosition = MapManager.Instance.GetWorldPosition(pathData.nodes[lastNodeIndex].gridPosition) + Vector3.up * 0.5f;
-        if (Vector3.Distance(transform.position, lastNodePosition) < 0.05f)
-        {
-            return true;
-        }
-        return false; 
+        if (pathData.nodes.Count == 0) return false;
+
+        Vector2Int lastNodeGridPos = pathData.nodes[pathData.nodes.Count - 1].gridPosition;
+        Vector3 lastNodePosition = MapManager.Instance.ConvertToWorldPosition(lastNodeGridPos) + Vector3.up * 0.5f;
+
+        return Vector3.Distance(transform.position, lastNodePosition) < 0.05f;
     }
 
     // 그리드 -> 월드 좌표 변환 후, 월드 좌표의 y좌표를 0.5로 넣음
-    private Vector3 GetAdjustedTargetPosition()
+    private Vector3 GetAdjustedNextPosition()
     {
-        Vector3 adjustedPosition = targetPosition;
+        Vector3 adjustedPosition = nextPosition;
         adjustedPosition.y = 0.5f;
         return adjustedPosition;
     }
 
-    // 바리케이트가 배치되거나 사라질 때마다 호출, 경로를 수정해야 하는 경우 수정하거나 기존 경로 위에 있는 Barricade 파괴
-    private void OnBarricadeStateChanged(Barricade barricade)
-    {
-        // 현재 경로의 유효성 확인
-        if (!IsCurrentPathValid())
-        {
-            RecalculatePath();
-        }
-    }
-
-    private bool IsCurrentPathValid()
-    {
-        if (currentNodeIndex < pathData.nodes.Count)
-        {
-            Vector2Int nextGridPos = pathData.nodes[currentNodeIndex].gridPosition;
-            Tile nextTile = MapManager.Instance.GetTile(nextGridPos.x, nextGridPos.y);
-            return nextTile != null && nextTile.data.isWalkable;
-        }
-        return false;
-    }
-
+    // 인터페이스 때문에 구현
     public void UpdateAttackCooldown()
     {
         if (AttackCooldown > 0f)
@@ -532,7 +525,7 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity
     /// </summary>
     public void NotifyTarget()
     {
-        CurrentTarget.AddAttackingEntity(this);
+        CurrentTarget?.AddAttackingEntity(this);
     }
 
     public void InitializeProjectilePool()
@@ -570,17 +563,11 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity
         return distance; 
     }
 
-    public void UpdatePath(List<Vector3> newPath)
-    {
-        currentPath = newPath;
-        currentNodeIndex = 0;
-    }
 
     /// <summary>
     /// Barricade 설치 시 현재 경로가 막혔다면 재계산
     /// </summary>
-
-    public void OnBarricadePlaced(Vector3 barricadePosition)
+    public void OnBarricadePlaced(Barricade barricade)
     {
         if (IsPathBlocked())
         {
@@ -592,8 +579,9 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity
     {
         for (int i= currentNodeIndex; i < currentPath.Count - 1; i++)
         {
-            if (!IsPathSegmentValid(currentPath[i], currentPath[i+1]))
+            if (IsPathSegmentValid(currentPath[i], currentPath[i+1]) == false)
             {
+                Debug.Log($"경로의 일부가 막혀 있다");
                 return true;
             }
         }
@@ -602,7 +590,7 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity
     }
 
     /// <summary>
-    /// 경로에 있는 노드(타일) 검사 및 노드 사이를 검사
+    /// 경로의 노드 사이가 막혔는지를 검사
     /// </summary>
     private bool IsPathSegmentValid(Vector3 start, Vector3 end)
     {
@@ -610,16 +598,23 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity
         float distance = direction.magnitude;
         RaycastHit hit;
 
-        if (Physics.Raycast(start, direction.normalized, out hit, distance, LayerMask.GetMask("Barricade", "Obstacle")))
+        if (Physics.Raycast(start, direction.normalized, out hit, distance, LayerMask.GetMask("Deployable")))
         {
-            return false;
+            // 레이캐스트 위치의 타일 확인
+            Vector2Int tilePos = MapManager.Instance.ConvertToGridPosition(hit.point);
+            Tile tile = MapManager.Instance.GetTile(tilePos.x, tilePos.y);
+
+            if (tile != null && tile.IsWalkable == false)
+            {
+                return false;
+            }
         }
 
         // 타일 기반 검사 추가
         List<Vector2Int> tilesOnPath = GetTilesOnPath(start, end);
         foreach (Vector2Int tilePos in tilesOnPath)
         {
-            if (!IsTileWalkable(tilePos))
+            if (IsTileWalkable(tilePos) == false)
             {
                 return false;
             }
@@ -636,15 +631,23 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity
     private void RecalculatePath()
     {
         Vector3 currentPosition = transform.position;
-        Vector3 targetPosition = currentPath[currentPath.Count - 1]; // 완전 목적지
+        Vector3 lastPosition = currentPath[currentPath.Count - 1]; // 완전 목적지
 
-        List<Vector3> newPath = PathFindingManager.Instance.FindPath(currentPosition, targetPosition);
+        List<PathNode> newPathNodes = PathFindingManager.Instance.FindPathAsNodes(currentPosition, lastPosition);
 
-        if (newPath != null && newPath.Count > 0)
+        // 경로가 있다면 해당 경로를 새로운 경로로 지정
+        if (newPathNodes != null && newPathNodes.Count > 0)
         {
-            currentPath = newPath;
+            pathData = new PathData { nodes = newPathNodes };
+
+            currentPath = newPathNodes.Select(node => MapManager.Instance.ConvertToWorldPosition(node.gridPosition) + Vector3.up * 0.5f).ToList();
             currentNodeIndex = 0;
+            UpdateTargetNode();
+
+            Debug.Log($"다음 노드 위치 : {nextPosition}");
         }
+
+        // 경로가 없다면 가장 가까운 바리케이드를 공격
         else
         {
             AttackNearestBarricade();
@@ -704,26 +707,36 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity
         List<Vector2Int> tiles = new List<Vector2Int>();
 
         // 3D => 2D 그리드 좌표 변환
-        Vector2Int startTile = MapManager.Instance.GetGridPosition(start);
-        Vector2Int endTile = MapManager.Instance.GetGridPosition(end);
+        Vector2Int startTile = MapManager.Instance.ConvertToGridPosition(start);
+        Vector2Int endTile = MapManager.Instance.ConvertToGridPosition(end);
 
         int x0 = startTile.x;
         int y0 = startTile.y;
         int x1 = endTile.x;
         int y1 = endTile.y;
 
+        // 방향으로의 거리
         int dx = Mathf.Abs(x1 - x0);
         int dy = Mathf.Abs(y1 - y0);
+
+        // 이동 방향
         int sx = x0 < x1 ? 1 : -1;
         int sy = y0 < y1 ? 1 : -1;
+
+        // 오차 누적 변수
         int err = dx - dy;
 
+        // 시작점 ~ 끝점까지 이동 
         while (true)
         {
-            tiles.Add(new Vector2Int(x0, y0));
 
+            // 각 단계에서 현위치를 tiles 리스트에 추가
+            tiles.Add(new Vector2Int(x0, y0)); 
+
+            // 현재 위치 = 끝점이면 종료
             if (x0 == x1 && y0 == y1) break;
 
+            // 오차를 사용해 방향 결정
             int e2 = 2 * err;
             if (e2 > -dy)
             {
@@ -738,7 +751,15 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity
             }
         }
 
+        
         return tiles;
+    }
+
+    /// <summary>
+    /// Enemy가 생성되기 전 Barricade가 Deploy된 적이 있는지를 감지함
+    /// </summary>
+    private void CheckIfBarricadeDeployed()
+    {
 
     }
 }

@@ -1,6 +1,6 @@
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using UnityEditor.Experimental.GraphView;
 using UnityEngine;
 
 public class PathFindingManager : MonoBehaviour
@@ -23,10 +23,10 @@ public class PathFindingManager : MonoBehaviour
         }
     }
 
-    public List<Vector3> FindPath(Vector3 startPos, Vector3 endPos)
+    private List<Vector3> FindPath(Vector3 startPos, Vector3 endPos)
     {
-        Vector2Int startGrid = MapManager.Instance.GetGridPosition(startPos);
-        Vector2Int endGrid = MapManager.Instance.GetGridPosition(endPos);
+        Vector2Int startGrid = MapManager.Instance.ConvertToGridPosition(startPos);
+        Vector2Int endGrid = MapManager.Instance.ConvertToGridPosition(endPos);
 
         // 경로들은 gridPosition으로 관리, 실제 이동은 Enemy에서 WorldPosition을 계산해서 그 위치로 이동한다
         List<Vector2Int> path = CalculatePath(startGrid, endGrid);
@@ -37,6 +37,28 @@ public class PathFindingManager : MonoBehaviour
         }
 
         return null;
+    }
+
+    public List<PathNode> FindPathAsNodes(Vector3 startPos, Vector3 endPos)
+    {
+        List<Vector3> worldPath = FindPath(startPos, endPos);
+        if (worldPath == null) return null;
+
+        List<PathNode> pathNodes = new List<PathNode>();
+        foreach (Vector3 worldPos in worldPath)
+        {
+            Vector2Int gridPos = MapManager.Instance.ConvertToGridPosition(worldPos);
+            Tile tile = currentMap.GetTile(gridPos.x, gridPos.y);
+
+            PathNode node = new PathNode
+            {
+                tileName = tile.name,
+                gridPosition = gridPos,
+                waitTime = 0f
+            };
+            pathNodes.Add(node);
+        }
+        return pathNodes;
     }
 
     /// <summary>
@@ -81,7 +103,7 @@ public class PathFindingManager : MonoBehaviour
 
             foreach (Tile neighbor in GetNeighbors(currentTile))
             {
-                if (!neighbor.data.isWalkable || closedSet.Contains(neighbor)) continue;
+                if (neighbor.IsWalkable == false || closedSet.Contains(neighbor)) continue;
 
                 int newMovementCostToNeighbor = currentTile.GCost + GetDistance(currentTile, neighbor);
                 if (newMovementCostToNeighbor < neighbor.GCost || !openSet.Contains(neighbor))
@@ -150,7 +172,6 @@ public class PathFindingManager : MonoBehaviour
                             {
                                 neighbors.Add(neighbor);
                             }
-
                         }
                         // 직선 이동
                         else
@@ -183,6 +204,6 @@ public class PathFindingManager : MonoBehaviour
     /// </summary>
     private List<Vector3> ConvertToWorldPositions(List<Vector2Int> gridPath)
     {
-        return gridPath.Select(gridPos => MapManager.Instance.GetWorldPosition(gridPos)).ToList();
+        return gridPath.Select(gridPos => MapManager.Instance.ConvertToWorldPosition(gridPos)).ToList();
     }
 }

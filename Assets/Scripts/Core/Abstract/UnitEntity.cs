@@ -42,7 +42,7 @@ public abstract class UnitEntity : MonoBehaviour, ITargettable, IFactionMember
         InitializeUnitProperties();
     }
 
-    // Data, Stat이 엔티티마다 다르기 때문에 자식 메서드에서 재정의가 항상 필요
+    // Data, Stat이 엔티티마다 다르기 때문에 자식 메서드에서 재정의 고려
     protected virtual void InitializeUnitProperties()
     {
         InitializeHP();
