@@ -11,6 +11,7 @@ public class TileData : ScriptableObject
         Hill,
         Empty
     }
+
     public string TileName;
     public TerrainType terrain;
     public bool isWalkable = true; // 적이 지나갈 수 있는가?

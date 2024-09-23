@@ -50,6 +50,7 @@ public class Tile : MonoBehaviour
         cubeTransform = transform.Find("Cube");
         InitializeGridPosition();
         size2D = new Vector2(tileScale, tileScale);
+        IsWalkable = data.isWalkable;
     }
     private void OnValidate()
     {
@@ -88,6 +89,7 @@ public class Tile : MonoBehaviour
         data = tileData;
         GridPosition = gridPosition;
         IsWalkable = data.isWalkable;
+        Debug.LogWarning($"{gameObject.name} 초기화, IsWalkable : {IsWalkable}");
 
         AdjustCubeScale();
         UpdateVisuals();
@@ -265,5 +267,10 @@ public class Tile : MonoBehaviour
 
 
     // 타일에 올라간 적 관리하는 메서드들 끝 -------
+
+    public void ToggleWalkable(bool isWalkable)
+    {
+        IsWalkable = isWalkable;
+    }
 
 }

@@ -8,6 +8,7 @@ public class DeployableUnitEntity: UnitEntity, IDeployable
     private DeployableUnitData deployableUnitData;
     public new DeployableUnitData Data { get => deployableUnitData; private set => deployableUnitData = value; }
 
+    [HideInInspector]
     public DeployableUnitStats currentStats;
 
     // IDeployable 인터페이스 관련
@@ -31,6 +32,11 @@ public class DeployableUnitEntity: UnitEntity, IDeployable
     protected Renderer modelRenderer;
     protected Material originalMaterial;
     protected Material previewMaterial;
+
+    public virtual bool CanDeployGround { get; set; }
+    public virtual bool CanDeployHill { get; set; }
+
+
 
     protected virtual void Awake()
     {
@@ -58,6 +64,11 @@ public class DeployableUnitEntity: UnitEntity, IDeployable
     {
         IsDeployed = false; // 배치 비활성화
         IsPreviewMode = true; // 미리보기 활성화
+
+        // A ?? B : A가 null일 경우 B를 사용
+        CanDeployGround = Data?.canDeployOnGround ?? false; 
+        CanDeployHill = Data?.canDeployOnHill ?? false;
+
         InitialDeploymentCost = currentStats.DeploymentCost; // 초기 배치 코스트 설정
     }
 

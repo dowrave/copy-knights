@@ -40,7 +40,7 @@ public class InfoPanel : MonoBehaviour
         else
         {
             nameText.text = deployable.Data.entityName;
-            statsContainer.SetActive(false);
+            //statsContainer.SetActive(false);
         }
 
     }

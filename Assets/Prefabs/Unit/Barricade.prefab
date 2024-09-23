@@ -151,6 +151,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e4ddd3916cba42244946c91dc817c193, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  unitData: {fileID: 0}
+  deployableUnitData: {fileID: 11400000, guid: 137922d0524493444ba9997d212523d8, type: 2}
+  currentStats:
+    _baseStats:
+      _health: 0
+      _defense: 0
+      _magicResistance: 0
+    _deploymentCost: 0
+    _redeployTime: 0
   health: 1
   deploymentCost: 5
   icon: {fileID: 0}
