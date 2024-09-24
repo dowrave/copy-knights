@@ -112,7 +112,14 @@ public class DeployableUnitEntity: UnitEntity, IDeployable
     /// </summary>
     protected Vector3 SetPosition(Vector3 worldPosition)
     {
-        return new Vector3(worldPosition.x, CurrentTile.GetHeight() / 2f, worldPosition.z);
+        if (this is Barricade)
+        {
+            return worldPosition + Vector3.up * 0.1f;
+        }
+        else
+        {
+            return worldPosition + Vector3.up * 0.5f;
+        }
     }
 
     public virtual void Retreat()
@@ -121,7 +128,7 @@ public class DeployableUnitEntity: UnitEntity, IDeployable
         {
             IsDeployed = false;
             DeployableManager.Instance.OnDeployableRemoved(this);
-            Destroy(gameObject);
+            base.Die();
         }
     }
 

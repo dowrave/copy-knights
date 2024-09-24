@@ -1,15 +1,24 @@
 using System.Collections.Generic;
 using System.Linq;
-using UnityEditor.Experimental.GraphView;
 using UnityEngine;
 
-public class PathFindingManager : MonoBehaviour
+/// <summary>
+/// 1. 길찾기 알고리즘
+/// 2. 바리케이드들의 정보 저장
+/// </summary>
+public class PathfindingManager : MonoBehaviour
 {
+    private List<Barricade> barricades = new List<Barricade>();
+    public IReadOnlyList<Barricade> Barricades => barricades.AsReadOnly();
+    public bool IsBarricadeDeployed => barricades.Count > 0;
 
-    private static PathFindingManager instance; // 필드
-    public static PathFindingManager Instance => instance;
+
+    private static PathfindingManager instance; // 필드
+    public static PathfindingManager Instance => instance;
 
     private Map currentMap;
+
+
 
     private void Awake()
     {
@@ -23,7 +32,10 @@ public class PathFindingManager : MonoBehaviour
         }
     }
 
-    private List<Vector3> FindPath(Vector3 startPos, Vector3 endPos)
+    /// <summary>
+    /// WorldPosition의 형태로 경로 반환
+    /// </summary>
+    public List<Vector3> FindPath(Vector3 startPos, Vector3 endPos)
     {
         Vector2Int startGrid = MapManager.Instance.ConvertToGridPosition(startPos);
         Vector2Int endGrid = MapManager.Instance.ConvertToGridPosition(endPos);
@@ -39,6 +51,9 @@ public class PathFindingManager : MonoBehaviour
         return null;
     }
 
+    /// <summary>
+    /// 노드의 형태로 경로 반환. 노드의 위치 정보는 gridPos임에 유의!
+    /// </summary>
     public List<PathNode> FindPathAsNodes(Vector3 startPos, Vector3 endPos)
     {
         List<Vector3> worldPath = FindPath(startPos, endPos);
@@ -119,8 +134,6 @@ public class PathFindingManager : MonoBehaviour
                 }
             }
         }
-
-        Debug.LogWarning("No path found!");
         return null;
     }
 
@@ -175,7 +188,7 @@ public class PathFindingManager : MonoBehaviour
                         }
                         // 직선 이동
                         else
-                        { 
+                        {
                             neighbors.Add(neighbor);
                         }
 
@@ -205,5 +218,31 @@ public class PathFindingManager : MonoBehaviour
     private List<Vector3> ConvertToWorldPositions(List<Vector2Int> gridPath)
     {
         return gridPath.Select(gridPos => MapManager.Instance.ConvertToWorldPosition(gridPos)).ToList();
+    }
+
+    public void AddBarricade(Barricade barricade)
+    {
+        if (!barricades.Contains(barricade))
+        {
+            barricades.Add(barricade);
+        }
+    }
+
+    public void RemoveBarricade(Barricade barricade)
+    {
+        barricades.Remove(barricade);
+    }
+
+    private int GetPathLength(Vector3 start, Vector3 end)
+    {
+        List<PathNode> path = FindPathAsNodes(start, end);
+        return path?.Count ?? int.MaxValue; // 경로가 있으면 경로 길이, null이면 int 최댓값
+    }
+
+    public Barricade GetNearestBarricade(Vector3 position)
+    {
+        return Barricades
+                .OrderBy(b => GetPathLength(position, b.transform.position))
+                .FirstOrDefault();
     }
 }

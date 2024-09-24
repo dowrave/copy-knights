@@ -16,6 +16,7 @@ public class Barricade : DeployableUnitEntity
         base.Deploy(position);
         CurrentTile.ToggleWalkable(false); // 배치 시 현재 타일 이동 불가
         OnBarricadeDeployed?.Invoke(this);
+        PathfindingManager.Instance.AddBarricade(this);
     }
 
     public override void Retreat()
@@ -23,6 +24,7 @@ public class Barricade : DeployableUnitEntity
         base.Retreat();
         CurrentTile.ToggleWalkable(true); // 퇴각 시 현재 타일 이동 가능
         OnBarricadeRemoved?.Invoke(this);
+        PathfindingManager.Instance.RemoveBarricade(this);
     }
 
 }
