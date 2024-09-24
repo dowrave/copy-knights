@@ -566,7 +566,7 @@ public class DeployableManager : MonoBehaviour
 
     // 타일 위에 배치되는 배치 가능한 요소의 위치 지정
     // 바리케이드가 붕 뜨길래 만들었음
-    private void SetAboveTilePosition(DeployableUnitEntity deployable, Tile tile)
+    public void SetAboveTilePosition(DeployableUnitEntity deployable, Tile tile)
     {
         if (currentDeployable is Barricade barricade)
         {
