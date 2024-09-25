@@ -115,15 +115,22 @@ public abstract class UnitEntity : MonoBehaviour, ITargettable, IFactionMember
         }
     }
 
+    /// <summary>
+    /// 이 개체를 공격하는 개체 리스트 attackingEntites에서 개체 제거
+    /// </summary>
     public virtual void RemoveAttackingEntity(ICombatEntity attacker)
     {
-        Debug.Log("RemoveAttackingEntity 동작");
         attackingEntities.Remove(attacker);
     }
 
 
     protected virtual void Die()
     {
+        // 공격중인 적들의 타겟 제거
+        foreach (ICombatEntity entity in attackingEntities)
+        {
+            entity.RemoveCurrentTarget();
+        }
         Destroy(gameObject);
     }
 

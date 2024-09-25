@@ -14,7 +14,7 @@ public class Barricade : DeployableUnitEntity
     public override void Deploy(Vector3 position)
     {
         base.Deploy(position);
-        CurrentTile.ToggleWalkable(false); // 배치 시 현재 타일 이동 불가
+        CurrentTile.ToggleWalkable(false); // 배치된 타일은 이동 불가능
         OnBarricadeDeployed?.Invoke(this);
         PathfindingManager.Instance.AddBarricade(this);
     }

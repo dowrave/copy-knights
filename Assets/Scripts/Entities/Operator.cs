@@ -519,10 +519,8 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
     /// </summary>
     protected override void InitializeUnitProperties()
     {
-        // 현재 위치를 기반으로 한 타일 설정
         UpdateCurrentTile();
-
-        Prefab = Data.prefab;
+        Prefab = Data.prefab; 
     }
 
     protected override void InitializeHP()
@@ -564,7 +562,7 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
     /// <summary>
     /// 공격 대상 제거 로직
     /// </summary>
-    public void DeleteCurrentTarget()
+    public void RemoveCurrentTarget()
     {
         if (CurrentTarget == null) return;
 

@@ -77,7 +77,8 @@ public class UnitEntityEditor : Editor
             // 리플렉션을 사용해 private 필드 검색
             var dataField = type.GetField("unitData", BindingFlags.Instance | BindingFlags.NonPublic) ??
                             type.GetField("deployableUnitData", BindingFlags.Instance | BindingFlags.NonPublic) ??
-                            type.GetField("opertaorData", BindingFlags.Instance | BindingFlags.NonPublic);
+                            type.GetField("opertaorData", BindingFlags.Instance | BindingFlags.NonPublic) ?? 
+                            type.GetField("enemyData", BindingFlags.Instance | BindingFlags.NonPublic);
 
             if (dataField != null)
             {
