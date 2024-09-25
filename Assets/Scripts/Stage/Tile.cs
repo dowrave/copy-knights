@@ -19,8 +19,8 @@ public class Tile : MonoBehaviour
     float tileScale = 0.98f;
     public Vector2 size2D;
 
-    // 타일 위에 있는 적들을 저장하는 리스트
-    public List<Enemy> enemiesOnTile = new List<Enemy>();
+    // 타일 위에 있는 적들을 저장하는 리스트, 오퍼레이터의 공격 범위가 타일이므로 유지함
+    public List<Enemy> enemiesOnTile = new List<Enemy>(); 
 
     /* 
      * 중요! 프로퍼티만 설정하면 변수 저장은 불가능하다
@@ -130,7 +130,6 @@ public class Tile : MonoBehaviour
         tileRenderer.SetPropertyBlock(propBlock);
         
     }
-
 
     public bool CanPlaceDeployable()
     {
@@ -267,10 +266,15 @@ public class Tile : MonoBehaviour
 
 
     // 타일에 올라간 적 관리하는 메서드들 끝 -------
-
     public void ToggleWalkable(bool isWalkable)
     {
         IsWalkable = isWalkable;
+    }
+
+    public bool HasBarricade()
+    {
+        if (OccupyingDeployable is Barricade) return true;
+        return false;
     }
 
 }

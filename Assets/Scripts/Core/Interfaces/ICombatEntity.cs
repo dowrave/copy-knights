@@ -14,7 +14,7 @@ public interface ICombatEntity
     void SetAttackCooldown();
     void UpdateAttackCooldown();
     void SetCurrentTarget(); // 현재 공격 대상 설정
-    void DeleteCurrentTarget(); // 현재 공격 대상 제거
+    void RemoveCurrentTarget(); // 현재 공격 대상 제거
     void NotifyTarget(); // 공격 대상에게 자신이 공격하고 있음을 알림
 
     void InitializeProjectilePool();

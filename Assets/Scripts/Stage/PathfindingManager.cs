@@ -57,7 +57,11 @@ public class PathfindingManager : MonoBehaviour
     public List<PathNode> FindPathAsNodes(Vector3 startPos, Vector3 endPos)
     {
         List<Vector3> worldPath = FindPath(startPos, endPos);
-        if (worldPath == null) return null;
+        if (worldPath == null)
+        {
+            Debug.LogError("목적지로 향하는 경로가 없음!");
+            return null;
+        }
 
         List<PathNode> pathNodes = new List<PathNode>();
         foreach (Vector3 worldPos in worldPath)
@@ -118,7 +122,17 @@ public class PathfindingManager : MonoBehaviour
 
             foreach (Tile neighbor in GetNeighbors(currentTile))
             {
-                if (neighbor.IsWalkable == false || closedSet.Contains(neighbor)) continue;
+                if (closedSet.Contains(neighbor)) continue; // 이미 포함된 타일
+                if (!neighbor.IsWalkable) continue;
+                if (neighbor.HasBarricade())
+                {
+                    Debug.Log($"바리케이드가 있는 타일 : {neighbor}");
+                    if (neighbor == endTile)
+                    {
+                        Debug.LogWarning($"바리케이드가 있으면서 마지막인 타일 : {neighbor}");
+                    }
+                    else continue; 
+                }
 
                 int newMovementCostToNeighbor = currentTile.GCost + GetDistance(currentTile, neighbor);
                 if (newMovementCostToNeighbor < neighbor.GCost || !openSet.Contains(neighbor))
@@ -172,6 +186,8 @@ public class PathfindingManager : MonoBehaviour
                 if (currentMap.IsValidGridPosition(checkX, checkY))
                 {
                     Tile neighbor = currentMap.GetTile(checkX, checkY);
+
+                    // 걸을 수 있는 타일 조건 (바리케이드와 관련된 조건은 밖에서 체크)
                     if (neighbor != null && neighbor.data.isWalkable)
                     {
                         // 대각선 이동
@@ -239,10 +255,102 @@ public class PathfindingManager : MonoBehaviour
         return path?.Count ?? int.MaxValue; // 경로가 있으면 경로 길이, null이면 int 최댓값
     }
 
+    /// <summary>
+    /// 모든 바리케이드를 검색, 가장 가까운 바리케이드를 반환함
+    /// </summary>
     public Barricade GetNearestBarricade(Vector3 position)
     {
         return Barricades
                 .OrderBy(b => GetPathLength(position, b.transform.position))
                 .FirstOrDefault();
+    }
+
+    /// <summary>
+    /// 경로의 노드 사이가 막혔는지를 검사
+    /// </summary>
+    public bool IsPathSegmentValid(Vector3 start, Vector3 end)
+    {
+        Vector3 direction = end - start;
+        float distance = direction.magnitude;
+        RaycastHit hit;
+
+        if (Physics.Raycast(start, direction.normalized, out hit, distance, LayerMask.GetMask("Deployable")))
+        {
+            // 레이캐스트 위치의 타일 확인
+            Vector2Int tilePos = MapManager.Instance.ConvertToGridPosition(hit.point);
+            Tile tile = MapManager.Instance.GetTile(tilePos.x, tilePos.y);
+
+            if (tile != null && tile.IsWalkable == false)
+            {
+                return false;
+            }
+        }
+
+        // 타일 기반 검사 추가
+        List<Vector2Int> tilesOnPath = GetTilesOnPath(start, end);
+        foreach (Vector2Int tilePos in tilesOnPath)
+        {
+            if (MapManager.Instance.GetTile(tilePos.x, tilePos.y).IsWalkable == false)
+            {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    /// <summary>
+    /// Bresenham's Line Algorithm을 이용, 경로 상의 모든 타일 좌표를 반환한다.
+    /// </summary>
+    public List<Vector2Int> GetTilesOnPath(Vector3 start, Vector3 end)
+    {
+        List<Vector2Int> tiles = new List<Vector2Int>();
+
+        // 3D => 2D 그리드 좌표 변환
+        Vector2Int startTile = MapManager.Instance.ConvertToGridPosition(start);
+        Vector2Int endTile = MapManager.Instance.ConvertToGridPosition(end);
+
+        int x0 = startTile.x;
+        int y0 = startTile.y;
+        int x1 = endTile.x;
+        int y1 = endTile.y;
+
+        // 방향으로의 거리
+        int dx = Mathf.Abs(x1 - x0);
+        int dy = Mathf.Abs(y1 - y0);
+
+        // 이동 방향
+        int sx = x0 < x1 ? 1 : -1;
+        int sy = y0 < y1 ? 1 : -1;
+
+        // 오차 누적 변수
+        int err = dx - dy;
+
+        // 시작점 ~ 끝점까지 이동 
+        while (true)
+        {
+
+            // 각 단계에서 현위치를 tiles 리스트에 추가
+            tiles.Add(new Vector2Int(x0, y0));
+
+            // 현재 위치 = 끝점이면 종료
+            if (x0 == x1 && y0 == y1) break;
+
+            // 오차를 사용해 방향 결정
+            int e2 = 2 * err;
+            if (e2 > -dy)
+            {
+                err -= dy;
+                x0 += sx;
+            }
+
+            if (e2 < dx)
+            {
+                err += dx;
+                y0 += sy;
+            }
+        }
+
+        return tiles;
     }
 }
