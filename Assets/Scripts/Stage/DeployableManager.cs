@@ -420,7 +420,6 @@ public class DeployableManager : MonoBehaviour
                 currentDeployable.Deploy(tile.transform.position);
             }
 
-            tile.SetOccupied(currentDeployable);
             deployedItems.Add(currentDeployable);
 
             if (deployableUIBoxes.TryGetValue(currentDeployablePrefab, out DeployableBox box))

@@ -1,4 +1,5 @@
 #nullable enable
+using JetBrains.Annotations;
 using UnityEngine;
 using UnityEngine.UIElements;
 
@@ -99,10 +100,9 @@ public class DeployableUnitEntity: UnitEntity, IDeployable
         {
             IsDeployed = true;
             IsPreviewMode = false;
-            UpdateCurrentTile();
-
+            base.UpdateCurrentTile();
+            CurrentTile.SetOccupied(this);
             transform.position = SetPosition(position);
-
             InitializeHP();
         }
     }
@@ -124,10 +124,20 @@ public class DeployableUnitEntity: UnitEntity, IDeployable
 
     public virtual void Retreat()
     {
+        Die();
+    }
+
+    protected override void Die()
+    {
         if (IsDeployed)
         {
             IsDeployed = false;
             DeployableManager.Instance.OnDeployableRemoved(this);
+            if (CurrentTile != null)
+            {
+                CurrentTile.ClearOccupied(); // 타일에 배치된 요소 제거
+            }
+
             base.Die();
         }
     }
@@ -259,7 +269,7 @@ public class DeployableUnitEntity: UnitEntity, IDeployable
         // 현재 체력, 최대 체력 설정 - Deploy 메서드 참조
 
         // 현재 위치를 기반으로 한 타일 설정
-        UpdateCurrentTile();
+        base.UpdateCurrentTile();
         Prefab = Data.prefab;
     }
 

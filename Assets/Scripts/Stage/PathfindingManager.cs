@@ -59,7 +59,6 @@ public class PathfindingManager : MonoBehaviour
         List<Vector3> worldPath = FindPath(startPos, endPos);
         if (worldPath == null)
         {
-            Debug.LogError("목적지로 향하는 경로가 없음!");
             return null;
         }
 
@@ -123,16 +122,7 @@ public class PathfindingManager : MonoBehaviour
             foreach (Tile neighbor in GetNeighbors(currentTile))
             {
                 if (closedSet.Contains(neighbor)) continue; // 이미 포함된 타일
-                if (!neighbor.IsWalkable) continue;
-                if (neighbor.HasBarricade())
-                {
-                    Debug.Log($"바리케이드가 있는 타일 : {neighbor}");
-                    if (neighbor == endTile)
-                    {
-                        Debug.LogWarning($"바리케이드가 있으면서 마지막인 타일 : {neighbor}");
-                    }
-                    else continue; 
-                }
+                if (neighbor.HasBarricade() && neighbor != endTile) continue; // 마지막 타일이 아니면서 바리케이드가 있는 타일
 
                 int newMovementCostToNeighbor = currentTile.GCost + GetDistance(currentTile, neighbor);
                 if (newMovementCostToNeighbor < neighbor.GCost || !openSet.Contains(neighbor))
@@ -260,9 +250,25 @@ public class PathfindingManager : MonoBehaviour
     /// </summary>
     public Barricade GetNearestBarricade(Vector3 position)
     {
-        return Barricades
-                .OrderBy(b => GetPathLength(position, b.transform.position))
-                .FirstOrDefault();
+        var barricadesWithDistances = barricades
+            .Select(b => new
+            {
+                Barricade = b,
+                Distance = GetPathLength(position, b.transform.position),
+                BarricadePosition = b.transform.position
+            })
+            .ToList(); // 즉시 평가 때문에
+
+        foreach (var item in barricadesWithDistances)
+        {
+            Debug.Log($"Barricade Position : {item.BarricadePosition}, Distance : {item.Distance}");
+        }
+
+        // 가장 가까운 바리케이드 반환
+        return barricadesWithDistances
+            .OrderBy(item => item.Distance)
+            .Select(item => item.Barricade)
+            .FirstOrDefault();
     }
 
     /// <summary>

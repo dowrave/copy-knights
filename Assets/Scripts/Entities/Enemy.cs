@@ -18,7 +18,7 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity
     public AttackRangeType AttackRangeType => enemyData.attackRangeType;
     public float AttackPower { get => currentStats.AttackPower; private set => currentStats.AttackPower = value; }
     public float AttackSpeed { get => currentStats.AttackSpeed; private set => currentStats.AttackSpeed = value; }
-    public float MovementSpeed { get => currentStats.MovementSpeed; private set => currentStats.MovementSpeed = value; } 
+    public float MovementSpeed { get => currentStats.MovementSpeed; private set => currentStats.MovementSpeed = value; }
     public int BlockCount { get => enemyData.blockCount; private set => enemyData.blockCount = value; } // Enemy가 차지하는 저지 수
 
     public float AttackCooldown { get; private set; }
@@ -72,13 +72,13 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity
     private void OnEnable()
     {
         Barricade.OnBarricadeDeployed += OnBarricadePlaced;
-        Barricade.OnBarricadeRemoved += OnBarricadeRemoved;
+        Barricade.OnBarricadeRemoved += OnBarricadeRemovedWithDelay;
     }
 
     private void OnDisable()
     {
         Barricade.OnBarricadeDeployed -= OnBarricadePlaced;
-        Barricade.OnBarricadeRemoved -= OnBarricadeRemoved;
+        Barricade.OnBarricadeRemoved -= OnBarricadeRemovedWithDelay;
     }
 
     private void InitializeEnemyProperties()
@@ -91,13 +91,9 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity
         // 최초에 설정한 경로가 막힌 상황일 때 동작
         if (PathfindingManager.Instance.IsBarricadeDeployed && IsPathBlocked())
         {
-            List<PathNode> tempPathNodes =  CalculatePath(transform.position, destinationPosition); // 목적지로 향하는 다른 길을 찾음
-            if (tempPathNodes != null)
-            {
-                SetNewPathData(tempPathNodes);
-            }
+            FindPathToDestinationOrBarricade();
         }
-        
+
         if (AttackRangeType == AttackRangeType.Ranged)
         {
             InitializeProjectilePool();
@@ -125,10 +121,10 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity
         if (pathData != null && currentNodeIndex < pathData.nodes.Count)
         {
             // 공격 범위 내의 적 리스트 & 현재 공격 대상 갱신
-            SetCurrentTarget(); 
+            SetCurrentTarget();
 
             // 1. 저지 중인 오퍼레이터가 있을 때
-            if (blockingOperator != null) 
+            if (blockingOperator != null)
             {
                 // 공격 가능한 상태라면
                 if (CurrentTarget != null && AttackCooldown <= 0)
@@ -138,17 +134,15 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity
             }
 
             // 2. 저지 중이 아닐 때
-            else 
+            else
             {
-                // 길이 막힌 상태 & targetBarricade에 근접했을 때
-                if (targetBarricade != null && Vector3.Distance(transform.position, targetBarricade.transform.position) < 0.1f)
+                if (targetBarricade != null && Vector3.Distance(transform.position, targetBarricade.transform.position) < 0.5f)
                 {
                     PerformMeleeAttack(targetBarricade, AttackType, AttackPower); // 무조건 근거리 공격
-                    targetBarricade = null; // 공격 대상 바리케이드 해제
                 }
 
                 // 타겟이 있고, 공격이 가능한 상태
-                if (CanAttack()) 
+                if (CanAttack())
                 {
                     Attack(CurrentTarget, AttackType, AttackPower);
                 }
@@ -209,7 +203,7 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity
             }
         }
     }
-  
+
     /// <summary>
     /// 경로를 따라 이동.
     /// </summary>
@@ -306,7 +300,7 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity
         {
             DeployableUnitEntity target = collider.transform.parent?.GetComponent<DeployableUnitEntity>(); // GetComponent : 해당 오브젝트부터 시작, 부모 오브젝트로 올라가며 컴포넌트를 찾는다.
             if (target != null && target.IsDeployed && Faction.Ally == target.Faction)
-            { 
+            {
                 // 실제 거리 계산
                 float actualDistance = Vector3.Distance(transform.position, target.transform.position);
                 if (actualDistance <= AttackRange)
@@ -319,7 +313,7 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity
 
     public void Attack(UnitEntity target, AttackType attackType, float damage)
     {
-        PerformAttack(target, attackType, damage);    
+        PerformAttack(target, attackType, damage);
     }
 
     private void PerformAttack(UnitEntity target, AttackType attackType, float damage)
@@ -332,7 +326,7 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity
             case AttackRangeType.Ranged:
                 PerformRangedAttack(target, attackType, damage);
                 break;
-        }    
+        }
     }
 
     private void PerformMeleeAttack(UnitEntity target, AttackType attackType, float damage)
@@ -489,7 +483,7 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity
         {
             CurrentTarget = blockingOperator;
             NotifyTarget();
-            return; 
+            return;
         }
 
         // 저지가 아니라면 공격 범위 내의 가장 마지막에 배치된 적 공격
@@ -504,7 +498,7 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity
                 .FirstOrDefault();
 
             NotifyTarget();
-            return; 
+            return;
         }
 
         // 저지당하고 있지 않고, 공격 범위 내에도 타겟이 없다면 
@@ -547,18 +541,18 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity
     /// </summary>
     public float GetRemainingPathDistance()
     {
-        if (currentPath == null || currentNodeIndex >+ currentPath.Count)
+        if (currentPath == null || currentNodeIndex > +currentPath.Count)
         {
             return float.MaxValue;
         }
 
-        float distance = 0f; 
-        for (int i = currentNodeIndex; i < currentPath.Count - 1; i++) 
+        float distance = 0f;
+        for (int i = currentNodeIndex; i < currentPath.Count - 1; i++)
         {
             distance += Vector3.Distance(currentPath[i], currentPath[i + 1]);
         }
 
-        return distance; 
+        return distance;
     }
 
 
@@ -570,32 +564,39 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity
         // 현재 사용 중인 경로가 막힌 경우
         if (IsPathBlocked())
         {
-            CalculateAndSetPathData(transform.position, destinationPosition); // 목적지로 향하는 경로를 계산
-
-            if (pathData == null) // 대체 경로가 없다면 가장 가까운 바리케이드로 향하는 경로를 설정한다
-            {
-                SetTargetBarricade();
-                if (targetBarricade != null)
-                {
-                    CalculateAndSetPathData(transform.position, targetBarricade.transform.position);
-                }
-            }
+            FindPathToDestinationOrBarricade();
         }
+    }
+
+    private void OnBarricadeRemovedWithDelay(Barricade barricade)
+    {
+        StartCoroutine(OnBarricadeRemoved(barricade));
     }
 
     /// <summary>
     /// 경로가 다시 열렸더라도 targetBarricade를 제거하는 건 불가능하게 설정
     /// </summary>
-    private void OnBarricadeRemoved(Barricade barricade)
+    private IEnumerator OnBarricadeRemoved(Barricade barricade)
     {
-        // 바리케이드가 타겟이 아닌 Enemy만 경로를 다시 탐색
+        // 바리케이드가 파괴될 시간 확보
+        yield return new WaitForSeconds(0.1f); 
+        
+        // 바리케이드와 관계 없던 Enemy는 경로를 다시 탐색
         if (targetBarricade == null)  
         {
-            CalculatePath(transform.position, destinationPosition);
-
+            FindPathToDestinationOrBarricade();
         }
 
-        // 바리케이드를 공격하기로 설정했다면, 해당 엔티티는 기존에 설정된 바리케이드로 향함 - 별도 구현 필요 X
+        // 해당 바리케이드가 목표였던 Enemy들의 targetBarricade 해제
+        else if (targetBarricade == barricade)
+        {
+            Debug.Log($"{gameObject.name} : TargetBarricade = barricade 조건문을 탔음");
+            targetBarricade = null;
+            FindPathToDestinationOrBarricade();
+            Debug.Log($"{gameObject.name} : {targetBarricade}");
+        }
+
+        // 다른 바리케이드가 targetBarricade로 설정되어 있는 Enemy들은 그걸 파괴하러 이동하므로 별 동작 X
     }
 
     /// <summary>
@@ -636,7 +637,7 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity
     /// CalculatePath로 탐색된 경로를 받아옴
     /// pathData, currentPath, currentNodeIndex 초기화
     /// </summary>
-    private void SetNewPathData(List<PathNode> newPathNodes)
+    private void SetNewPath(List<PathNode> newPathNodes)
     {
         if (newPathNodes != null && newPathNodes.Count > 0)
         {
@@ -644,10 +645,7 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity
             newPathData.nodes = newPathNodes;
             pathData = newPathData;
             currentPath = newPathNodes.Select(node => MapManager.Instance.ConvertToWorldPosition(node.gridPosition) + Vector3.up * 0.5f).ToList();
-            if (targetBarricade != null)
-            {
-                Debug.Log($"targetBarricade 설정된 상태 : {currentPath.Count}");
-            }
+
             currentNodeIndex = 0;
 
             UpdateNextNode();
@@ -657,13 +655,37 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity
     /// <summary>
     /// targetPosition으로 향하는 경로를 계산하고, 경로가 있다면 새로운 pathData와 currentPath로 설정함
     /// </summary>
-    private void CalculateAndSetPathData(Vector3 currentPosition, Vector3 targetPosition)
+    private bool CalculateAndSetPath(Vector3 currentPosition, Vector3 targetPosition)
     {
         List<PathNode> tempPathNodes = CalculatePath(currentPosition, targetPosition);
 
-        if (tempPathNodes == null) return; // 목적지로 향하는 경로가 없음
+        if (tempPathNodes == null || tempPathNodes.Count == 0) return false; // 목적지로 향하는 경로가 없음
 
-        Debug.Log($"새로운 경로 데이터 설정 : {targetPosition}");
-        SetNewPathData(tempPathNodes);
+        SetNewPath(tempPathNodes);
+        return true;
+    }
+
+    /// <summary>
+    /// 현재 위치에서 가장 가까운 바리케이드를 설정하고, 바리케이드로 향하는 경로를 설정함
+    /// </summary>
+
+    private void SetBarricadePath()
+    {
+        SetTargetBarricade();
+        if (targetBarricade != null)
+        {
+            CalculateAndSetPath(transform.position, targetBarricade.transform.position);
+        }
+    }
+
+    /// <summary>
+    /// 목적지로 향하는 경로를 찾고, 없다면 가장 가까운 바리케이드로 향하는 경로를 설정함
+    /// </summary>
+    private void FindPathToDestinationOrBarricade()
+    {
+        if (!CalculateAndSetPath(transform.position, destinationPosition))
+        {
+            SetBarricadePath();
+        }
     }
 }
