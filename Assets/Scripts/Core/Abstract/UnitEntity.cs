@@ -107,6 +107,7 @@ public abstract class UnitEntity : MonoBehaviour, ITargettable, IFactionMember
             CurrentTile = newTile;
         }
     }
+
     public virtual void AddAttackingEntity(ICombatEntity attacker)
     {
         if (!attackingEntities.Contains(attacker))

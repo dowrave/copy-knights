@@ -15,16 +15,20 @@ public class Barricade : DeployableUnitEntity
     {
         base.Deploy(position);
         CurrentTile.ToggleWalkable(false); // 배치된 타일은 이동 불가능
-        OnBarricadeDeployed?.Invoke(this);
         PathfindingManager.Instance.AddBarricade(this);
+        OnBarricadeDeployed?.Invoke(this);
     }
 
     public override void Retreat()
     {
-        base.Retreat();
-        CurrentTile.ToggleWalkable(true); // 퇴각 시 현재 타일 이동 가능
-        OnBarricadeRemoved?.Invoke(this);
-        PathfindingManager.Instance.RemoveBarricade(this);
+        Die();
     }
 
+    protected override void Die()
+    {
+        CurrentTile.ToggleWalkable(true); // 현재 타일 이동 가능으로 변경
+        PathfindingManager.Instance.RemoveBarricade(this); // 바리케이드 리스트에서 제거
+        OnBarricadeRemoved?.Invoke(this); // 제거 이벤트 발생
+        base.Die();
+    }
 }

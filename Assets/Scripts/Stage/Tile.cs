@@ -271,9 +271,15 @@ public class Tile : MonoBehaviour
         IsWalkable = isWalkable;
     }
 
+    /// <summary>
+    /// 바리케이드가 있는지 여부 판정
+    /// </summary>
     public bool HasBarricade()
     {
-        if (OccupyingDeployable is Barricade) return true;
+        if (OccupyingDeployable is Barricade)
+        {
+            return true;
+        }
         return false;
     }
 
