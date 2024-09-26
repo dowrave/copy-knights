@@ -37,6 +37,8 @@ public class DeployableUnitEntity: UnitEntity, IDeployable
     public virtual bool CanDeployGround { get; set; }
     public virtual bool CanDeployHill { get; set; }
 
+    private float preventInteractingTime = 0.1f; // 마우스 클릭을 방지하는 시간
+    private float lastDeployTime;
 
 
     protected virtual void Awake()
@@ -104,6 +106,7 @@ public class DeployableUnitEntity: UnitEntity, IDeployable
             CurrentTile.SetOccupied(this);
             transform.position = SetPosition(position);
             InitializeHP();
+            lastDeployTime = Time.time;
         }
     }
 
@@ -223,9 +226,17 @@ public class DeployableUnitEntity: UnitEntity, IDeployable
 
     /// <summary>
     /// 배치된 유닛 클릭 시의 동작
+    /// 배치 완료 시에 커서가 배치 가능한 유닛 위에 있는 상황이라면 동작할 수 있음
     /// </summary>
     public virtual void OnClick()
     {
+        // 커서가 배치 가능한 유닛 위에 배치 직후에 있는 상황
+        if (Time.time - lastDeployTime < preventInteractingTime)
+        {
+            DeployableManager.Instance.CancelPlacement();
+            return;
+        }
+
         // 배치된 오퍼레이터 & 미리보기 오퍼레이터를 클릭한 게 아닐 때
         if (IsDeployed && !IsPreviewMode && StageManager.Instance.currentState == GameState.Battle)
         {
