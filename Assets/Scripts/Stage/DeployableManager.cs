@@ -30,7 +30,10 @@ public class DeployableManager : MonoBehaviour
     // 배치 과정 중 어떤 상태인지에 대한 변수
     private bool isDeployableSelecting = false; // 하단 UI에서 오퍼레이터를 클릭한 상태
     private bool isDraggingDeployable = false; // 타일 선택 상태 : 하단 UI에서 오퍼레이터를 MouseButtonDown한 상태로 드래그하고 있는 상태. 
+    public bool IsDraggingDeployable => isDraggingDeployable;
     private bool isSelectingDirection = false; // 방향 선택 상태 : 타일은 정해졌고 오퍼레이터의 방향을 설정함
+    public bool IsSelectingDirection => isSelectingDirection;
+
     private bool isMousePressed = false; // HandleDirectionSelection에서만 사용. 마우스가 클릭 중인지를 추적한다. 
     private int DeployableIndex = -1; 
     private Vector3 placementDirection = Vector3.left;
@@ -47,6 +50,7 @@ public class DeployableManager : MonoBehaviour
     private Tile currentHoverTile;
 
     private float minDirectionDistance;
+    public float MinDirectionDistance => MinDirectionDistance;
     private const float INDICATOR_SIZE = 2.5f;
 
     [SerializeField] private LayerMask tileLayerMask;

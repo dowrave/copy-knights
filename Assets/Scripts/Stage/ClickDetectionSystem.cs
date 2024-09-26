@@ -11,6 +11,7 @@ public class ClickDetectionSystem : MonoBehaviour
     private Camera mainCamera;
     [SerializeField] private LayerMask clickableLayerMask;  // Inspector에서 설정
 
+    private bool isMouseDown = false;
     private bool isDraggingDiamond = false;
     private DiamondMask currentDiamondMask; 
 
@@ -47,6 +48,7 @@ public class ClickDetectionSystem : MonoBehaviour
 
     private void HandleMouseDown()
     {
+        isMouseDown = true;
         PointerEventData pointerData = new PointerEventData(EventSystem.current);
         List<RaycastResult> results = PerformScreenRaycast();
         foreach (var result in results)
@@ -75,6 +77,7 @@ public class ClickDetectionSystem : MonoBehaviour
         }
     }
 
+
     /// <summary>
     /// 전체적인 클릭 동작을 담당함
     /// 1. 클릭한 지점에 UI 요소(GrpahicRayCaster가 있는 Canvas)가 있다면 먼저 반응
@@ -95,7 +98,10 @@ public class ClickDetectionSystem : MonoBehaviour
         // UI 요소가 클릭되지 않은 상태에서 다른 Clickable 요소 처리
         Ray ray = mainCamera.ScreenPointToRay(Input.mousePosition);
         RaycastHit clickableHit;
-        if (Physics.Raycast(ray, out clickableHit, Mathf.Infinity, clickableLayerMask))
+
+        // 배치 중인 상황이 아닐 때
+        if ((!DeployableManager.Instance.IsDraggingDeployable && !DeployableManager.Instance.IsSelectingDirection) && 
+            Physics.Raycast(ray, out clickableHit, Mathf.Infinity, clickableLayerMask))
         {
             HandleObjectClick(clickableHit);
         }
