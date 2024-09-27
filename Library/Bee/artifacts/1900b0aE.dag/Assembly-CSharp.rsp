@@ -387,6 +387,7 @@
 "Assets/Scripts/Stage/StageManager.cs"
 "Assets/Scripts/Stage/Tile.cs"
 "Assets/Scripts/Stage/TileData.cs"
+"Assets/Scripts/Stage/UserSquadManager.cs"
 "Assets/Scripts/UI/DeployableActionUI.cs"
 "Assets/Scripts/UI/DeployableBarUI.cs"
 "Assets/Scripts/UI/DeployableBox.cs"

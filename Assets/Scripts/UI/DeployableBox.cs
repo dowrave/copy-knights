@@ -21,9 +21,9 @@ public class DeployableBox : MonoBehaviour, IPointerDownHandler, IBeginDragHandl
 
     private bool isDragging = false;
 
-    /// <summary>
-    /// 인스펙터에서 설정한 필드는 Awake 메서드 이전에 할당되어 있음!!!!!
-    /// </summary>
+    [SerializeField] private TextMeshProUGUI remainingCountText;
+
+
     public void Initialize(GameObject prefab)
     {
         deployablePrefab = prefab;
@@ -50,8 +50,6 @@ public class DeployableBox : MonoBehaviour, IPointerDownHandler, IBeginDragHandl
         InitializeVisuals();
 
     }
-
-
 
     private void OnDestroy()
     {
@@ -193,6 +191,15 @@ public class DeployableBox : MonoBehaviour, IPointerDownHandler, IBeginDragHandl
     private bool CanInteract()
     {
         return !isOnCooldown && StageManager.Instance.CurrentDeploymentCost >= deployableComponent.currentStats.DeploymentCost;
+    }
+
+    public void UpdateRemainingCount(int count)
+    {
+        if (remainingCountText != null) 
+        {
+            remainingCountText.text = count.ToString();
+            remainingCountText.gameObject.SetActive(count > 0);
+        }
     }
 
 }
