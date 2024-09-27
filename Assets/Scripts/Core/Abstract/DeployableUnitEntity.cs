@@ -40,7 +40,6 @@ public class DeployableUnitEntity: UnitEntity, IDeployable
     private float preventInteractingTime = 0.1f; // 마우스 클릭을 방지하는 시간
     private float lastDeployTime;
 
-
     protected virtual void Awake()
     {
         InitializeVisual();
@@ -214,16 +213,6 @@ public class DeployableUnitEntity: UnitEntity, IDeployable
         previewMaterial.color = previewColor;
     }
 
-    protected virtual void ShowDeploymentUI()
-    {
-
-    }
-
-    protected virtual void HideDeploymentUI()
-    {
-
-    }
-
     /// <summary>
     /// 배치된 유닛 클릭 시의 동작
     /// 배치 완료 시에 커서가 배치 가능한 유닛 위에 있는 상황이라면 동작할 수 있음
@@ -299,6 +288,5 @@ public class DeployableUnitEntity: UnitEntity, IDeployable
         MaxHealth = currentStats.Health;
         CurrentHealth = MaxHealth;
     }
-
 }
 #nullable restore

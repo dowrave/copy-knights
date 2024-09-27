@@ -4,6 +4,7 @@ using UnityEngine.UI;
 using System.Collections; // IEnumerator - 코루틴에서 주로 사용하는 버전
 using TMPro;
 using UnityEngine.SceneManagement;
+using System.Collections.Generic;
 
 /*
  StageManager의 역할
@@ -33,7 +34,6 @@ public class StageManager : MonoBehaviour
     private int maxLifePoints = 3;
     private int currentLifePoints;
     private int passedEnemies;
-
     public int KilledEnemyCount
     {
         get => killedEnemyCount;
@@ -46,9 +46,7 @@ public class StageManager : MonoBehaviour
             }
         }
     }
-
     public int TotalEnemyCount => totalEnemyCount;
-
     public int MaxLifePoints => maxLifePoints;
     public int CurrentLifePoints
     {
@@ -62,7 +60,6 @@ public class StageManager : MonoBehaviour
             }
         }
     }
-
     private bool isSpeedUp = false;
     private const float speedUpScale = 2f;
     private float originalTimeScale = 1f;
@@ -71,8 +68,6 @@ public class StageManager : MonoBehaviour
     public float SpeedUpScale => speedUpScale;
     public float OriginalTimeScale => originalTimeScale;
     public float PlacementTimeScale => placementTimeScale;
-
-
     public int CurrentDeploymentCost
     {
         get => currentDeploymentCost;
@@ -88,13 +83,19 @@ public class StageManager : MonoBehaviour
     }
     public float CurrentCostGauge => currentCostGauge;
 
-    // 이벤트 : System.Action은 매개변수와 반환값이 없는 메서드를 나타내는 델리게이트 타입.
-    public event System.Action OnDeploymentCostChanged; // 이벤트 발동 조건은 currentDeploymentCost 값이 변할 때, 여기 등록된 함수들이 동작한다.
-                                                        // 라이프 포인트 변경 시 발생 이벤트
-    public event System.Action<int> OnLifePointsChanged;
+    // 스테이지마다 제공되는 deployable 요소들
+    [System.Serializable]
+    public class StageDeployable
+    {
+        public GameObject deployablePrefab;
+        public int maxDeployCount;
+    }
+    [SerializeField] private List<StageDeployable> stageDeployables = new List<StageDeployable>();
 
-    // 적을 잡을 때마다 발생 이벤트
-    public event System.Action OnEnemyKilled;
+    // 이벤트
+    public event System.Action OnDeploymentCostChanged; // 이벤트 발동 조건은 currentDeploymentCost 값이 변할 때, 여기 등록된 함수들이 동작
+    public event System.Action<int> OnLifePointsChanged; // 라이프 포인트 변경 시 발생 이벤트
+    public event System.Action OnEnemyKilled; // 적을 잡을 때마다 발생 이벤트
 
     private void Awake()
     {
@@ -121,10 +122,6 @@ public class StageManager : MonoBehaviour
 
         Debug.Log("스테이지 시작");
         StartBattle(); // 게임 시작
-
-        //currentSpeedButton.onClick.AddListener(ToggleSpeedUp);
-        //pauseButton.onClick.AddListener(TogglePause);
-
     }
 
     private void InitializeStage()
@@ -150,6 +147,11 @@ public class StageManager : MonoBehaviour
             count += spawner.enemySpawnList.Count;
         }
         return count;
+    }
+
+    public List<StageDeployable> GetStageDeployables()
+    {
+        return stageDeployables;
     }
 
     public void StartBattle()

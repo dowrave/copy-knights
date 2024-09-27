@@ -1,8 +1,21 @@
 using UnityEngine;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 
 public class DeployableManager : MonoBehaviour
 {
+    public static DeployableManager Instance { get; private set; }
+
+    [System.Serializable] 
+    public class DeployableInfo
+    {
+        public GameObject prefab;
+        public int maxDeployCount;
+        public int remainingDeployCount;
+        public bool isUserOperator;
+        public float redeployTime;
+    }
+
     private enum UIState
     {
         None,
@@ -10,15 +23,18 @@ public class DeployableManager : MonoBehaviour
         OperatorDeploying
     }
 
+
+    // 초기화 관련 정보들
+
+
     private UIState currentUIState = UIState.None;
 
-    public static DeployableManager Instance { get; private set; }
     // UI 관련 변수
     public GameObject DeployableBoxPrefab;
     public RectTransform bottomPanel;
 
     // Deployable 관련 변수
-    public List<GameObject> availableDeployables = new List<GameObject>();
+    private List<DeployableInfo> allDeployables = new List<DeployableInfo>(); // 합친 거
     private Dictionary<GameObject, DeployableBox> deployableUIBoxes = new Dictionary<GameObject, DeployableBox>();
     private GameObject currentDeployablePrefab;
     private DeployableUnitEntity currentDeployable;
@@ -64,6 +80,7 @@ public class DeployableManager : MonoBehaviour
     private float originalTimeScale = 1f;
 
     private List<DeployableUnitEntity> deployedItems = new List<DeployableUnitEntity>();
+
     private void Awake()
     {
         if (Instance == null)
@@ -78,20 +95,63 @@ public class DeployableManager : MonoBehaviour
 
     private void Start()
     {
+        InitializeAllDeployables();
         InitializeDeployableUI();
     }
 
+    private void InitializeAllDeployables()
+    {
+        allDeployables.Clear();
+
+        foreach (var operatorPrefab in UserSquadManager.Instance.GetUserSquad())
+        {
+            AddDeployableInfo(operatorPrefab, 1, true);
+            Debug.Log($"{operatorPrefab} 추가됨");
+        }
+
+        foreach (var stageDeployable in StageManager.Instance.GetStageDeployables())
+        {
+            AddDeployableInfo(stageDeployable.deployablePrefab, stageDeployable.maxDeployCount, false);
+            Debug.Log($"{stageDeployable} 추가됨");
+        }
+    }
+
+    private void AddDeployableInfo(GameObject prefab, int maxCount, bool isUserOperator)
+    {
+        DeployableUnitEntity deployable = prefab.GetComponent<DeployableUnitEntity>();
+        if (deployable != null)
+        {
+            allDeployables.Add(new DeployableInfo
+            {
+                prefab = prefab,
+                maxDeployCount = maxCount,
+                remainingDeployCount = maxCount,
+                isUserOperator = isUserOperator,
+                redeployTime = deployable.currentStats.RedeployTime
+            });
+        }
+        else
+        {
+            Debug.LogWarning($"유효하지 않은 deployable Prefab : {prefab.name}");
+        }
+    }
+
+    /// <summary>
+    /// DeployableBox에 Deployable 요소 프리팹들을 할당하는 과정
+    /// </summary>
     private void InitializeDeployableUI()
     {
-        foreach (GameObject deployablePrefab in availableDeployables)
+        Debug.Log(allDeployables.Count);
+        foreach (var deployableInfo in allDeployables)
         {
             GameObject boxObject = Instantiate(DeployableBoxPrefab, bottomPanel);
             DeployableBox box = boxObject.GetComponent<DeployableBox>();
 
             if (box != null)
             {
-                box.Initialize(deployablePrefab);
-                deployableUIBoxes[deployablePrefab] = box;
+                box.Initialize(deployableInfo.prefab);
+                deployableUIBoxes[deployableInfo.prefab] = box;
+                box.UpdateRemainingCount(deployableInfo.remainingDeployCount);
             }
         }
     }
@@ -411,6 +471,13 @@ public class DeployableManager : MonoBehaviour
     /// </summary>
     private void DeployDeployable(Tile tile)
     {
+        DeployableInfo deployableInfo = allDeployables.Find(d => d.prefab == currentDeployablePrefab);
+        if (deployableInfo == null)
+        {
+            Debug.LogError($"{deployableInfo}를 찾을 수 없음");
+            return;
+        }
+
         int nowDeploymentCost = currentDeployable.currentStats.DeploymentCost;
         if (StageManager.Instance.TryUseDeploymentCost(nowDeploymentCost))
         {
@@ -426,9 +493,16 @@ public class DeployableManager : MonoBehaviour
 
             deployedItems.Add(currentDeployable);
 
+            // 배치 후 박스의 처리
             if (deployableUIBoxes.TryGetValue(currentDeployablePrefab, out DeployableBox box))
             {
-                box.gameObject.SetActive(false);
+                box.UpdateRemainingCount(deployableInfo.remainingDeployCount);
+                box.StartCooldown(deployableInfo.redeployTime);
+
+                if (deployableInfo.remainingDeployCount <= 0)
+                {
+                    box.gameObject.SetActive(false);
+                }
             }
 
             ResetPlacement();
