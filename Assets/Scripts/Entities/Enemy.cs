@@ -52,7 +52,7 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity
     private EnemyUI enemyUI;
 
     [SerializeField] protected int initialPoolSize = 5;
-    protected string projectileTag;
+    protected string? projectileTag;
 
     private void Awake()
     {

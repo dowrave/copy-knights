@@ -106,13 +106,11 @@ public class DeployableManager : MonoBehaviour
         foreach (var operatorPrefab in UserSquadManager.Instance.GetUserSquad())
         {
             AddDeployableInfo(operatorPrefab, 1, true);
-            Debug.Log($"{operatorPrefab} 추가됨");
         }
 
         foreach (var stageDeployable in StageManager.Instance.GetStageDeployables())
         {
             AddDeployableInfo(stageDeployable.deployablePrefab, stageDeployable.maxDeployCount, false);
-            Debug.Log($"{stageDeployable} 추가됨");
         }
     }
 
@@ -141,7 +139,6 @@ public class DeployableManager : MonoBehaviour
     /// </summary>
     private void InitializeDeployableUI()
     {
-        Debug.Log(allDeployables.Count);
         foreach (var deployableInfo in allDeployables)
         {
             GameObject boxObject = Instantiate(DeployableBoxPrefab, bottomPanel);
@@ -263,6 +260,7 @@ public class DeployableManager : MonoBehaviour
     /// </summary>
     public void EndDragging(GameObject deployablePrefab)
     {
+
         if (isDraggingDeployable && currentDeployablePrefab == deployablePrefab)
         {
             isDraggingDeployable = false;
@@ -313,9 +311,7 @@ public class DeployableManager : MonoBehaviour
         isSelectingDirection = true;
         ResetHighlights();
         currentHoverTile = tile;
-
         SetAboveTilePosition(currentDeployable, tile);
-
         ShowDeployingUI(tile.transform.position + Vector3.up * 0.5f);
         UpdatePreviewRotation();
     }
@@ -496,6 +492,7 @@ public class DeployableManager : MonoBehaviour
             // 배치 후 박스의 처리
             if (deployableUIBoxes.TryGetValue(currentDeployablePrefab, out DeployableBox box))
             {
+                deployableInfo.remainingDeployCount--;
                 box.UpdateRemainingCount(deployableInfo.remainingDeployCount);
                 box.StartCooldown(deployableInfo.redeployTime);
 
