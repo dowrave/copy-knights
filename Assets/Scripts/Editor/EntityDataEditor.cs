@@ -16,7 +16,7 @@ public class UnitEntityEditor : Editor
     {
         serializedObject.Update(); // 직렬화 객체 업데이트
         var unitEntity = target as UnitEntity;
-        var currentType = unitEntity.GetType();
+        var currentType = unitEntity?.GetType();
 
         // Operator 클래스인 경우 특별 처리
         if (currentType == typeof(Operator))
