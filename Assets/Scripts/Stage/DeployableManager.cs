@@ -23,10 +23,7 @@ public class DeployableManager : MonoBehaviour
         OperatorDeploying
     }
 
-
     // 초기화 관련 정보들
-
-
     private UIState currentUIState = UIState.None;
 
     // UI 관련 변수
@@ -66,7 +63,7 @@ public class DeployableManager : MonoBehaviour
     private Tile currentHoverTile;
 
     private float minDirectionDistance;
-    public float MinDirectionDistance => MinDirectionDistance;
+    public float MinDirectionDistance => minDirectionDistance;
     private const float INDICATOR_SIZE = 2.5f;
 
     [SerializeField] private LayerMask tileLayerMask;
@@ -277,7 +274,7 @@ public class DeployableManager : MonoBehaviour
                 else
                 {
                     currentDeployable.Initialize(currentDeployable.Data);
-                    currentDeployable.Deploy(hoveredTile.transform.position);
+                    DeployDeployable(hoveredTile);
                 }
             }
             else
@@ -463,7 +460,7 @@ public class DeployableManager : MonoBehaviour
     }
 
     /// <summary>
-    /// 방향까지 결정된 뒤의 최종 배치 로직
+    /// Deploy를 쓸 경우 그것 이외의 처리도 함께 겸하는 이 메서드를 사용한다
     /// </summary>
     private void DeployDeployable(Tile tile)
     {
@@ -487,12 +484,14 @@ public class DeployableManager : MonoBehaviour
                 currentDeployable.Deploy(tile.transform.position);
             }
 
-            deployedItems.Add(currentDeployable);
+            // 배치 리스트에 아이템 추가
+            deployedItems.Add(currentDeployable); 
 
             // 배치 후 박스의 처리
             if (deployableUIBoxes.TryGetValue(currentDeployablePrefab, out DeployableBox box))
             {
                 deployableInfo.remainingDeployCount--;
+                
                 box.UpdateRemainingCount(deployableInfo.remainingDeployCount);
                 box.StartCooldown(deployableInfo.redeployTime);
 
@@ -557,6 +556,9 @@ public class DeployableManager : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// 배치된 요소가 제거되었을 때 동작함
+    /// </summary>
     public void OnDeployableRemoved(DeployableUnitEntity deployable)
     {
         deployedItems.Remove(deployable);
@@ -569,7 +571,12 @@ public class DeployableManager : MonoBehaviour
         if (prefab != null && deployableUIBoxes.TryGetValue(prefab, out DeployableBox box))
         {
             box.gameObject.SetActive(true);
-            box.StartCooldown(70f); // Assuming a fixed cooldown time
+            
+            // 일단 Operator는 제거됐을 때 재배치 쿨타임이 동작해야 함
+            if (deployable is Operator op)
+            {
+                box.StartCooldown(op.currentStats.RedeployTime);
+            }
         }
     }
 
@@ -655,5 +662,11 @@ public class DeployableManager : MonoBehaviour
     public void UpdateDeploymentOrder()
     {
         CurrentDeploymentOrder += 1;
+    }
+
+    // deployableInfo 접근 메서드
+    public DeployableInfo GetDeployableInfo(GameObject prefab)
+    {
+        return allDeployables.Find(d => d.prefab == prefab);
     }
 }

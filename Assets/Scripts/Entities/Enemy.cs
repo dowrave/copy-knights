@@ -19,9 +19,12 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity
     public float AttackPower { get => currentStats.AttackPower; private set => currentStats.AttackPower = value; }
     public float AttackSpeed { get => currentStats.AttackSpeed; private set => currentStats.AttackSpeed = value; }
     public float MovementSpeed { get => currentStats.MovementSpeed; private set => currentStats.MovementSpeed = value; }
+
+
     public int BlockCount { get => enemyData.blockCount; private set => enemyData.blockCount = value; } // Enemy가 차지하는 저지 수
 
-    public float AttackCooldown { get; private set; }
+    public float AttackCooldown { get; private set; } // 다음 공격까지의 대기 시간
+    public float AttackDuration { get; private set; } // 공격 모션 시간. Animator가 추가될 때 수정 필요할 듯. 항상 Cooldown보다 짧아야 함.
 
     public float AttackRange
     {
@@ -115,11 +118,13 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity
 
     private void Update()
     {
-        UpdateAttackCooldown();
+        UpdateAttackTimings();
 
         // 진행할 경로가 있다
         if (pathData != null && currentNodeIndex < pathData.nodes.Count)
         {
+            if (AttackDuration > 0) { return; } // 공격 모션 중일 때는 이동도 막음
+
             // 공격 범위 내의 적 리스트 & 현재 공격 대상 갱신
             SetCurrentTarget();
 
@@ -331,12 +336,13 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity
 
     private void PerformMeleeAttack(UnitEntity target, AttackType attackType, float damage)
     {
+        SetAttackTimings(); // 이걸 따로 호출하는 경우가 있어서 여기서 다시 설정
         target.TakeDamage(AttackType, damage);
-        SetAttackCooldown();
     }
 
     private void PerformRangedAttack(UnitEntity target, AttackType attackType, float damage)
     {
+        SetAttackTimings();
         if (Data.projectilePrefab != null)
         {
             // 투사체 생성 위치
@@ -350,7 +356,6 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity
                 {
                     projectile.Initialize(target, attackType, damage, projectileTag);
                 }
-                SetAttackCooldown();
             }
         }
     }
@@ -434,28 +439,6 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity
         Vector3 adjustedPosition = nextPosition;
         adjustedPosition.y = 0.5f;
         return adjustedPosition;
-    }
-
-    // 인터페이스 때문에 구현
-    public void UpdateAttackCooldown()
-    {
-        if (AttackCooldown > 0f)
-        {
-            AttackCooldown -= Time.deltaTime;
-        }
-    }
-
-    /// <summary>
-    /// 현재 공격 대상이 있고, 공격 쿨다운이 0이 아닐 때
-    /// </summary>
-    public bool CanAttack()
-    {
-        return CurrentTarget != null && AttackCooldown <= 0;
-    }
-
-    public void SetAttackCooldown()
-    {
-        AttackCooldown = 1 / AttackSpeed;
     }
 
     /// <summary>
@@ -561,8 +544,14 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity
     /// </summary>
     private void OnBarricadePlaced(Barricade barricade)
     {
+        // 내 타일과 같은 타일에 바리케이드가 배치된 경우
+        if (barricade.CurrentTile.enemiesOnTile.Contains(this))
+        {
+            targetBarricade = barricade;
+        }
+
         // 현재 사용 중인 경로가 막힌 경우
-        if (IsPathBlocked())
+        else if (IsPathBlocked())
         {
             FindPathToDestinationOrBarricade();
         }
@@ -687,5 +676,60 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity
         {
             SetBarricadePath();
         }
+    }
+
+
+    public void UpdateAttackTimings()
+    {
+        UpdateAttackDuration();
+        UpdateAttackCooldown();
+    }
+
+    // 인터페이스 때문에 구현
+    public void UpdateAttackDuration()
+    {
+        if (AttackDuration > 0f)
+        {
+            AttackDuration -= Time.deltaTime;
+        }
+    }
+
+    public void UpdateAttackCooldown()
+    {
+        if (AttackCooldown > 0f)
+        {
+            AttackCooldown -= Time.deltaTime;
+        }
+    }
+
+
+    // 공격 모션 시간, 공격 쿨타임 시간 설정
+    public void SetAttackTimings()
+    {
+        if (AttackDuration <= 0f)
+        {
+            SetAttackDuration();
+        }
+        if (AttackCooldown <= 0f)
+        {
+            SetAttackCooldown();
+        }
+    }
+
+    public void SetAttackDuration()
+    {
+        AttackDuration = 0.3f / AttackSpeed;
+    }
+
+    public void SetAttackCooldown()
+    {
+        AttackCooldown = 1 / AttackSpeed;
+    }
+
+    public bool CanAttack()
+    {
+        return CurrentTarget != null &&
+            AttackCooldown <= 0 &&
+            AttackDuration <= 0;
     }
 }

@@ -119,13 +119,18 @@ public class ObjectPoolManager : MonoBehaviour
     {
         if (poolsMarkedForRemoval.Contains(tag))
         {
+            Debug.Log("풀 제거 예정이라 오브젝트 파괴");
             Destroy(obj);
             CheckAndRemovePool(tag);
         }
         else if (poolDictionary.TryGetValue(tag, out Queue<GameObject> objectPool))
         {
+            Debug.Log("오브젝트 풀로 반환");
             obj.SetActive(false);
+            Debug.Log("오브젝트 비활성화됨");
             poolDictionary[tag].Enqueue(obj);
+            Debug.Log("풀 딕셔너리에 푸시됨");
+
         }
     }
 

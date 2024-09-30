@@ -2,6 +2,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
+using static DeployableManager;
 
 public class DeployableBox : MonoBehaviour, IPointerDownHandler, IBeginDragHandler, IDragHandler, IEndDragHandler
 {
@@ -10,6 +11,7 @@ public class DeployableBox : MonoBehaviour, IPointerDownHandler, IBeginDragHandl
     private TextMeshProUGUI costText;
     [SerializeField] private GameObject deployablePrefab;
     private DeployableUnitEntity deployableComponent;
+    private DeployableInfo deployableInfo; 
 
     private Sprite icon;
 
@@ -19,15 +21,17 @@ public class DeployableBox : MonoBehaviour, IPointerDownHandler, IBeginDragHandl
     private float cooldownTimer = 0f;
     private bool isOnCooldown = false;
 
+    // 남은 갯수
+    private TextMeshProUGUI remainingCountText;
+
     private bool isDragging = false;
-
-    [SerializeField] private TextMeshProUGUI remainingCountText;
-
 
     public void Initialize(GameObject prefab)
     {
         deployablePrefab = prefab;
         deployableComponent = deployablePrefab.GetComponent<DeployableUnitEntity>(); // 자식 클래스 Operator도 DeployableUnitEntity 형태로 저장
+        deployableInfo = DeployableManager.Instance.GetDeployableInfo(prefab);
+
         deployableComponent.InitializeFromPrefab();
 
         if (deployableComponent is Operator opComponent)
@@ -45,10 +49,10 @@ public class DeployableBox : MonoBehaviour, IPointerDownHandler, IBeginDragHandl
         costText = transform.Find("CostBackground/CostText").GetComponent<TextMeshProUGUI>();
         InActiveImage = transform.Find("InActiveOverlay").GetComponent<Image>();
         cooldownText = transform.Find("CooldownText").GetComponent<TextMeshProUGUI>();
+        remainingCountText = transform.Find("RemainingCountText").GetComponent<TextMeshProUGUI>();
 
         StageManager.Instance.OnDeploymentCostChanged += UpdateAvailability;
         InitializeVisuals();
-
     }
 
     private void OnDestroy()
@@ -93,8 +97,8 @@ public class DeployableBox : MonoBehaviour, IPointerDownHandler, IBeginDragHandl
                 boxIconImage.color = modelRenderer.sharedMaterial.color;
             }
         }
-        
 
+        // 코스트 정보 가져오는 위치가 달라서 작성
         if (deployableComponent is Operator opComponent)
         {
             costText.text = opComponent.currentStats.DeploymentCost.ToString();
@@ -103,6 +107,13 @@ public class DeployableBox : MonoBehaviour, IPointerDownHandler, IBeginDragHandl
         {
             costText.text = deployableComponent.currentStats.DeploymentCost.ToString();
         }
+
+        // 1번만 배치 가능한 요소는 우측 하단의 갯수 표시를 비활성화함
+        if (deployableInfo.maxDeployCount <= 1)
+        {
+            remainingCountText.gameObject.SetActive(false);
+        }
+
 
         if (CanInteract())
         {
@@ -151,7 +162,7 @@ public class DeployableBox : MonoBehaviour, IPointerDownHandler, IBeginDragHandl
 
     // 마우스 동작 관련 : 동작하지 않는다면 상속을 확인하라
     // 마우스 버튼을 눌렀다가 같은 위치에서 뗐을 때 발생
-    public void OnPointerDown(PointerEventData eventData) 
+    public void OnPointerDown(PointerEventData eventData)
     {
         if (CanInteract())
         {
@@ -184,7 +195,7 @@ public class DeployableBox : MonoBehaviour, IPointerDownHandler, IBeginDragHandl
         if (isDragging)
         {
             DeployableManager.Instance.EndDragging(deployablePrefab);
-            isDragging = false; 
+            isDragging = false;
         }
     }
 
@@ -195,10 +206,16 @@ public class DeployableBox : MonoBehaviour, IPointerDownHandler, IBeginDragHandl
 
     public void UpdateRemainingCount(int count)
     {
-        if (remainingCountText != null) 
+        if (remainingCountText != null)
         {
-            remainingCountText.text = count.ToString();
-            remainingCountText.gameObject.SetActive(count > 0);
+            if (count > 0)
+            {
+                remainingCountText.text = $"X{count}";
+            }
+            else
+            {
+                gameObject.SetActive(false);
+            }
         }
     }
 
