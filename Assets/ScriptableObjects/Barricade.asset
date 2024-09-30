@@ -19,8 +19,9 @@ MonoBehaviour:
       _defense: 0
       _magicResistance: 0
     _deploymentCost: 5
-    _redeployTime: 10
+    _redeployTime: 3
   prefab: {fileID: 8875430263191699086, guid: 445bdcb62b7e4c84b9ac1f5d640cb325, type: 3}
   icon: {fileID: 0}
   canDeployOnGround: 1
   canDeployOnHill: 0
+  cooldownTime: 0

@@ -21,7 +21,7 @@ public class OperatorData : ScriptableObject, IBoxDeployableData
     public float maxSP = 30f;
     public float initialSP = 0f;
     public bool autoRecoverSP = true;
-
+   
     public Sprite? Icon => icon;
 
 }

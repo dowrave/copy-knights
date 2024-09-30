@@ -259,11 +259,6 @@ public class PathfindingManager : MonoBehaviour
             })
             .ToList(); // 즉시 평가 때문에
 
-        foreach (var item in barricadesWithDistances)
-        {
-            Debug.Log($"Barricade Position : {item.BarricadePosition}, Distance : {item.Distance}");
-        }
-
         // 가장 가까운 바리케이드 반환
         return barricadesWithDistances
             .OrderBy(item => item.Distance)

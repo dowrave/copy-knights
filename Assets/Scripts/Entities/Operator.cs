@@ -20,6 +20,7 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
     public float AttackPower { get => currentStats.AttackPower; private set => currentStats.AttackPower = value; }
     public float AttackSpeed { get => currentStats.AttackSpeed; private set => currentStats.AttackSpeed = value; }
     public float AttackCooldown { get; private set; }
+    public float AttackDuration { get; private set; }
 
     // 공격 범위 내에 있는 적들 
     List<Enemy> enemiesInRange = new List<Enemy>();
@@ -142,7 +143,9 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
     {
         if (IsDeployed)
         {
-            UpdateAttackCooldown();
+            UpdateAttackTimings();
+
+            if (AttackDuration > 0) return;
 
             SetCurrentTarget(); // CurrentTarget 설정
             ValidateCurrentTarget(); 
@@ -184,12 +187,13 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
 
     private void PerformMeleeAttack(UnitEntity target, AttackType attackType, float damage)
     {
+        SetAttackTimings();
         target.TakeDamage(attackType, damage);
-        SetAttackCooldown();
     }
 
     private void PerformRangedAttack(UnitEntity target, AttackType attackType, float damage)
     {
+        SetAttackTimings();
         if (Data.projectilePrefab != null)
         {
             // 투사체 생성 위치
@@ -203,7 +207,6 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
                 {
                     projectile.Initialize(target, attackType, damage, projectileTag);
                 }
-                SetAttackCooldown();
             }
         }
     }
@@ -257,7 +260,6 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
         }
         return Vector2Int.zero;
     }
-    
 
     public void SetDeploymentOrder()
     {
@@ -482,32 +484,6 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
         base.Retreat();
     }
 
-    // ICombatEntity 메서드 - 인터페이스 멤버는 모두 public으로 구현해야 함
-    /// <summary>
-    /// CurrentTarget을 공격할 수 있는 상태인지 체크
-    /// </summary>
-    public bool CanAttack()
-    {
-        return
-            IsDeployed && 
-            CurrentTarget != null && 
-            AttackCooldown <= 0 &&
-            IsCurrentTargetInRange(); // 공격 범위 내에 있음
-    }
-
-    public void SetAttackCooldown()
-    {
-        AttackCooldown = 1 / currentStats.AttackSpeed;
-    }
-
-    public void UpdateAttackCooldown()
-    {
-        if (AttackCooldown > 0f)
-        {
-            AttackCooldown -= Time.deltaTime;
-        }
-    }
-
     // ISkill 메서드
     public bool CanUseSkill()
     {
@@ -590,5 +566,66 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
         {
             ObjectPoolManager.Instance.RemovePool(projectileTag);
         }
+    }
+
+    // ICombatEntity 메서드들
+
+    /// <summary>
+    /// Update에 구현, 
+    /// 두 값 모두 있을 때에만 작동한다.
+    /// </summary>
+    public void UpdateAttackTimings()
+    {
+        UpdateAttackDuration();
+        UpdateAttackCooldown();
+    }
+
+    public void UpdateAttackDuration()
+    {
+        if (AttackDuration > 0f)
+        {
+            AttackDuration -= Time.deltaTime;
+        }
+    }
+
+    public void UpdateAttackCooldown()
+    {
+        if (AttackCooldown > 0f)
+        {
+            AttackCooldown -= Time.deltaTime;
+        }
+    }
+
+
+    // 공격 모션 시간, 공격 쿨타임 시간 설정
+    public void SetAttackTimings()
+    {
+        if (AttackDuration <= 0f)
+        {
+            SetAttackDuration();
+        }
+        if (AttackCooldown <= 0f)
+        {
+            SetAttackCooldown();
+        }
+    }
+
+    public void SetAttackDuration()
+    {
+        AttackDuration = 0.3f / AttackSpeed;
+    }
+
+    public void SetAttackCooldown()
+    {
+        AttackCooldown = 1 / AttackSpeed;
+    }
+
+    public bool CanAttack()
+    {
+        return IsDeployed &&
+            CurrentTarget != null &&
+            AttackCooldown <= 0 &&
+            AttackDuration <= 0 && 
+            IsCurrentTargetInRange(); // 공격 범위 내에 있음
     }
 }

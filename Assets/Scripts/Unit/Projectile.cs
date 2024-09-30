@@ -26,11 +26,14 @@ public class Projectile : MonoBehaviour
 
     private void Update()
     {
-        if (target != null)
+        if (target == null)
         {
-            // 타겟이 살아 있다면 위치 갱신
-            lastKnownPosition = target.transform.position;
+            ReturnToPool();
+            return;
         }
+
+        // 타겟이 살아 있다면 위치 갱신
+        lastKnownPosition = target.transform.position;
 
         // 마지막으로 알려진 위치로 이동
         Vector3 direction = (lastKnownPosition - transform.position).normalized;
@@ -49,6 +52,7 @@ public class Projectile : MonoBehaviour
         {
             target.TakeDamage(attackType, damage);
         }
+
         ReturnToPool();
     }
 
