@@ -373,6 +373,8 @@
 "Assets/Scripts/Entities/Barricade.cs"
 "Assets/Scripts/Entities/Enemy.cs"
 "Assets/Scripts/Entities/Operator.cs"
+"Assets/Scripts/Skills/Base/Skill.cs"
+"Assets/Scripts/Skills/OperatorSkills/BuffSkill.cs"
 "Assets/Scripts/Stage/CameraManager.cs"
 "Assets/Scripts/Stage/ClickDetectionSystem.cs"
 "Assets/Scripts/Stage/DeployableManager.cs"

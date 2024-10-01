@@ -20,13 +20,13 @@ public abstract class UnitEntity : MonoBehaviour, ITargettable, IFactionMember
     public float CurrentHealth
     {
         get => currentStats.Health;
-        protected set
+        set
         {
             currentStats.Health = Mathf.Clamp(value, 0, MaxHealth); // 0 ~ 최대 체력 사이로 값 유지
             OnHealthChanged?.Invoke(currentStats.Health, MaxHealth);
         }
     }
-    public float MaxHealth { get; protected set; } // 최대 체력도 변할 수 있음
+    public float MaxHealth { get; set; } // 최대 체력도 변할 수 있음
 
     // 이 개체를 공격하는 엔티티 목록
     protected List<ICombatEntity> attackingEntities = new List<ICombatEntity>();

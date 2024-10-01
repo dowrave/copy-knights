@@ -3,7 +3,7 @@ using System.Linq;
 using Unity.VisualScripting;
 using Unity.VisualScripting.Antlr3.Runtime.Misc;
 using UnityEngine;
-
+using Skills.Base;
 
 public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
 {
@@ -17,10 +17,12 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
     public AttackType AttackType => operatorData.attackType;
     public AttackRangeType AttackRangeType => operatorData.attackRangeType;
 
-    public float AttackPower { get => currentStats.AttackPower; private set => currentStats.AttackPower = value; }
-    public float AttackSpeed { get => currentStats.AttackSpeed; private set => currentStats.AttackSpeed = value; }
+    public float AttackPower { get => currentStats.AttackPower; set => currentStats.AttackPower = value; }
+    public float AttackSpeed { get => currentStats.AttackSpeed; set => currentStats.AttackSpeed = value; }
     public float AttackCooldown { get; private set; }
     public float AttackDuration { get; private set; }
+   
+    public Vector2Int[] CurrentAttackbleTiles { get; set; }
 
     // 공격 범위 내에 있는 적들 
     List<Enemy> enemiesInRange = new List<Enemy>();
@@ -69,6 +71,10 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
     // SP 변경 이벤트
     public event System.Action<float, float> OnSPChanged;
 
+    // 스킬 관련
+    private List<Skill> skills;
+    private Skill activeSkill;
+
 
     // 필드 끝 --------------------------------------------------------
 
@@ -99,8 +105,14 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
     // 오퍼레이터 관련 설정들 초기화
     private void InitializeOperatorProperties()
     {
-        CreateDirectionIndicator();
 
+        CreateDirectionIndicator(); // 방향 표시기
+
+        // 스킬 관련
+        skills = Data.skills;
+        SetActiveSkill(operatorData.defaultSkillIndex);
+
+        // 원거리 투사체
         if (AttackRangeType == AttackRangeType.Ranged)
         {
             InitializeProjectilePool();
@@ -245,10 +257,7 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
         if (direction == Vector3.back) return new Vector2Int(offset.y, -offset.x); // 2차원 기준 아래쪽
         return offset;
     }
-    public Vector2Int[] GetAttackableTiles()
-    {
-        return operatorData.attackableTiles;
-    }
+
 
     private Vector2Int WorldToRelativeGridPosition(Vector3 worldPosition)
     {
@@ -345,13 +354,6 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
         // 하단 UI 활성화
         DeployableManager.Instance.OnDeployableRemoved(this);
     }
-
-    public void UseSkill()
-    {
-        // 스킬 사용 로직
-        Debug.Log("스킬 버튼 클릭됨");
-    }
-
 
     public override void OnClick()
     {
@@ -475,6 +477,7 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
         base.Deploy(position);
         SetDeploymentOrder();
         SetDirection(facingDirection);
+        UpdateAttackbleTiles();
         CreateOperatorBarUI();
         ShowDirectionIndicator(true);
     }
@@ -627,5 +630,30 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
             AttackCooldown <= 0 &&
             AttackDuration <= 0 && 
             IsCurrentTargetInRange(); // 공격 범위 내에 있음
+    }
+
+    // 스킬 관련
+    public void SetActiveSkill(int index)
+    {
+        if (index >= 0 && index < skills.Count)
+        {
+            activeSkill = skills[index];
+        }
+    }
+
+    public void UseSkill()
+    {
+        if (CanUseSkill() && activeSkill != null)
+        {
+            activeSkill.Activate(this);
+            // SP 소모 및 쿨다운 로직 추가
+        }
+    }
+
+    private void UpdateAttackbleTiles()
+    {
+        CurrentAttackbleTiles = Data.attackableTiles
+            .Select(tile => RotateOffset(tile, FacingDirection))
+            .ToArray();
     }
 }
