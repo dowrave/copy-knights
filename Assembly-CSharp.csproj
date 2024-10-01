@@ -79,6 +79,7 @@
     <Compile Include="Assets\Scripts\UI\InfoPanel.cs" />
     <Compile Include="Assets\Scripts\Core\Data\DeployableUnitData.cs" />
     <Compile Include="Assets\Scripts\UI\DeployableDeployingUI.cs" />
+    <Compile Include="Assets\Scripts\Skills\Base\Skill.cs" />
     <Compile Include="Assets\Scripts\Stage\StageManager.cs" />
     <Compile Include="Assets\Scripts\Stage\UserSquadManager.cs" />
     <Compile Include="Assets\Scripts\Entities\Enemy.cs" />
@@ -88,6 +89,7 @@
     <Compile Include="Assets\Scripts\UI\DeploymentCostPanel.cs" />
     <Compile Include="Assets\Scripts\Core\Interfaces\IMovable.cs" />
     <Compile Include="Assets\Scripts\UI\DiamondOutline.cs" />
+    <Compile Include="Assets\Scripts\Skills\OperatorSkills\BuffSkill.cs" />
     <Compile Include="Assets\Scripts\Unit\Projectile.cs" />
     <Compile Include="Assets\Scripts\Core\Interfaces\ISkill.cs" />
     <Compile Include="Assets\Scripts\Core\Data\OperatorData.cs" />

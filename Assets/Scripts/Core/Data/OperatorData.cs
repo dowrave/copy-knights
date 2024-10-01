@@ -1,4 +1,6 @@
+using System.Collections.Generic;
 using UnityEngine;
+using Skills.Base;
 
 [CreateAssetMenu(fileName = "New Operator Data", menuName = "Game/Operator Data")]
 public class OperatorData : ScriptableObject, IBoxDeployableData
@@ -21,6 +23,9 @@ public class OperatorData : ScriptableObject, IBoxDeployableData
     public float maxSP = 30f;
     public float initialSP = 0f;
     public bool autoRecoverSP = true;
+    public List<Skill> skills;
+    public int defaultSkillIndex;
+
    
     public Sprite? Icon => icon;
 
