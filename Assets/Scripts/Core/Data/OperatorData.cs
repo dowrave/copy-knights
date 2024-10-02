@@ -20,7 +20,6 @@ public class OperatorData : ScriptableObject, IBoxDeployableData
     public AttackRangeType attackRangeType;
     public Vector2Int[] attackableTiles = { Vector2Int.zero };
     public GameObject projectilePrefab;
-    public float maxSP = 30f;
     public float initialSP = 0f;
     public bool autoRecoverSP = true;
     public List<Skill> skills;

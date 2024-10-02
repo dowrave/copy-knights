@@ -8,11 +8,14 @@ public class DeployableActionUI : MonoBehaviour
     [SerializeField] private MaskedDiamondOverlay maskedOverlay;
     [SerializeField] private Button skillButton;
     [SerializeField] private Button retreatButton;
+    [SerializeField] private GameObject skillButtonInactivePanel;
+    private Image skillIconImage; // 스킬 아이콘을 표시하는 이미지 컴포넌트
 
     private float darkPanelAlpha = 0f;
 
     private Camera mainCamera;
     private IDeployable deployable;
+    private Operator currentOperator;
 
     public void Initialize(IDeployable deployable)
     {
@@ -33,7 +36,14 @@ public class DeployableActionUI : MonoBehaviour
 
         gameObject.SetActive(true);
 
-        if (IsOperator() == false)
+        if (IsOperator())
+        {
+            currentOperator = deployable as Operator;
+            UpdateSkillButton();
+            currentOperator.OnSPChanged += UpdateSkillButtonState;
+            Debug.Log("SP 변화 이벤트 UI에 등록 완료");
+        }
+        else
         {
             skillButton.gameObject.SetActive(false);
         }
@@ -63,6 +73,7 @@ public class DeployableActionUI : MonoBehaviour
         {
             Debug.Log("스킬 버튼 클릭됨");
             op.UseSkill();
+            UpdateSkillButton();
             Hide();
         }
     }
@@ -77,6 +88,10 @@ public class DeployableActionUI : MonoBehaviour
     {
         maskedOverlay.Show();
         gameObject.SetActive(true);
+        if (currentOperator != null)
+        {
+            UpdateSkillButton();
+        }
     }
 
     public void Hide()
@@ -87,6 +102,44 @@ public class DeployableActionUI : MonoBehaviour
 
     private bool IsOperator()
     {
-        return deployable is Operator ? true : false;
+        return deployable is Operator;
+    }
+
+    private void UpdateSkillButton()
+    {
+        if (!currentOperator || !currentOperator.ActiveSkill) return;
+        
+        // 스킬 아이콘이 있다면 아이콘을 버튼 이미지로 설정
+        if (currentOperator.ActiveSkill.SkillIcon != null)
+        {
+            skillIconImage.sprite = currentOperator.ActiveSkill.SkillIcon;
+            skillIconImage.gameObject.SetActive(true);
+            skillButton.GetComponentInChildren<Text>().gameObject.SetActive(false);
+        }
+
+        UpdateSkillButtonState(currentOperator.CurrentSP, currentOperator.MaxSP);
+    }
+
+    private void UpdateSkillButtonState(float currentSP, float maxSP)
+    {
+        bool canUseSkill = currentSP >= maxSP;
+
+        skillButton.interactable = canUseSkill;
+        if (skillButtonInactivePanel != null)
+        {
+            skillButtonInactivePanel.SetActive(!canUseSkill);
+        }
+        else
+        {
+            Debug.LogWarning("skillButtonInactivePanel is null");
+        }
+    }
+
+    private void OnDestroy()
+    {
+        if (currentOperator != null)
+        {
+            currentOperator.OnSPChanged -= UpdateSkillButtonState;
+        }
     }
 }

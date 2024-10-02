@@ -17,6 +17,7 @@ namespace Skills.OperatorSkills
             public float AttackSpeedModifier = 1f;
             public float DefenseModifier = 1f;
             public float MagicResistanceModifier = 1f;
+            public int? ChangedBlockableEnemies = null;
             public Vector2Int[] ChangedAttackableTiles; // 설정되지 않으면 원본 공격 범위를 그대로 이용함
         }
 
@@ -25,59 +26,67 @@ namespace Skills.OperatorSkills
         public GameObject BuffVisualEffectPrefab;
         //public Color SPBarColor = Color.yellow;
 
-        public override void Activate(Operator @operator)
+        public override void Activate(Operator op)
         {
-            @operator.StartCoroutine(ApplyBuff(@operator));
+            op.StartCoroutine(ApplyBuff(op));
         }
 
 
-        private IEnumerator ApplyBuff(Operator @operator)
+        private IEnumerator ApplyBuff(Operator op)
         {
             Debug.Log($"{Name} 스킬이 발동됨");
 
             // 원래 스탯 저장
-            float originalCurrentHealth = @operator.CurrentHealth;
-            float originalMaxHealth = @operator.MaxHealth;
-            float originalAttackPower = @operator.AttackPower;
-            float origianlAttackSpeed = @operator.AttackSpeed; 
-            float originalDefense = @operator.currentStats.Defense;
-            float originalMagicResistance = @operator.currentStats.MagicResistance;
-            Vector2Int[] originalAttackableTiles = @operator.CurrentAttackbleTiles.Clone() as Vector2Int[];
+            float originalCurrentHealth = op.CurrentHealth;
+            float originalMaxHealth = op.MaxHealth;
+            float originalAttackPower = op.AttackPower;
+            float origianlAttackSpeed = op.AttackSpeed; 
+            float originalDefense = op.currentStats.Defense;
+            float originalMagicResistance = op.currentStats.MagicResistance;
+            int originalBlockableEnemies = op.currentStats.MaxBlockableEnemies;
+            Vector2Int[] originalAttackableTiles = op.CurrentAttackbleTiles.Clone() as Vector2Int[];
 
             // 버프 적용
-            @operator.CurrentHealth *= BuffEffects.HealthModifier;
-            @operator.MaxHealth *= BuffEffects.HealthModifier;
-            @operator.AttackPower *= BuffEffects.AttackPowerModifier;
-            @operator.currentStats.Defense *= BuffEffects.DefenseModifier;
-            @operator.currentStats.MagicResistance *= BuffEffects.MagicResistanceModifier;
+            op.CurrentHealth *= BuffEffects.HealthModifier;
+            op.MaxHealth *= BuffEffects.HealthModifier;
+            op.AttackPower *= BuffEffects.AttackPowerModifier;
+            op.currentStats.Defense *= BuffEffects.DefenseModifier;
+            op.currentStats.MagicResistance *= BuffEffects.MagicResistanceModifier;
 
             // 공격 범위 변화
             if (BuffEffects.ChangedAttackableTiles != null && BuffEffects.ChangedAttackableTiles.Length > 0)
             {
-                ChangeAttackRange(@operator);
+                ChangeAttackRange(op);
+            }
+
+           // 저지 수 변화
+           if (BuffEffects.ChangedBlockableEnemies.HasValue) // HasValue : nullable 타입이 값을 갖고 있는지 확인
+            {
+                op.MaxBlockableEnemies = BuffEffects.ChangedBlockableEnemies.Value; // nullable 타입이 가진 실제 값을 반환. 반드시 HasValue 체크가 선행되어야 함
             }
 
             // 버프 이펙트 생성
             GameObject buffEffect = null;
             if (BuffVisualEffectPrefab != null)
             {
-                buffEffect = Instantiate(BuffVisualEffectPrefab, @operator.transform.position, Quaternion.identity);
-                buffEffect.transform.SetParent(@operator.transform);
+                buffEffect = Instantiate(BuffVisualEffectPrefab, op.transform.position, Quaternion.identity);
+                buffEffect.transform.SetParent(op.transform);
             }
 
             // SP Bar 색 변경 - 이 부분은 BarUI에 구현하겠음
-            //DeployableBarUI barUI = @operator.GetComponentInChildren<DeployableBarUI>();
+            //DeployableBarUI barUI = op.GetComponentInChildren<DeployableBarUI>();
 
             // 버프 지속 시간
             yield return new WaitForSeconds(duration);
 
             // 버프 해제
-            @operator.CurrentHealth = originalCurrentHealth;
-            @operator.MaxHealth = originalMaxHealth;
-            @operator.AttackPower = originalCurrentHealth;
-            @operator.currentStats.Defense = originalDefense;
-            @operator.currentStats.MagicResistance = originalMagicResistance;
-            @operator.CurrentAttackbleTiles = originalAttackableTiles; 
+            op.CurrentHealth = originalCurrentHealth;
+            op.MaxHealth = originalMaxHealth;
+            op.AttackPower = originalCurrentHealth;
+            op.currentStats.Defense = originalDefense;
+            op.currentStats.MagicResistance = originalMagicResistance;
+            op.CurrentAttackbleTiles = originalAttackableTiles;
+            op.MaxBlockableEnemies = originalBlockableEnemies;
             
 
             // 버프 이펙트 제거
@@ -90,20 +99,20 @@ namespace Skills.OperatorSkills
         /// <summary>
         /// Operator의 방향전환을 고려해서 공격 범위 설정
         /// </summary>
-        private void ChangeAttackRange(Operator @operator)
+        private void ChangeAttackRange(Operator op)
         {
-            List<Vector2Int> newAttackbleTiles = new List<Vector2Int>(@operator.CurrentAttackbleTiles);
+            List<Vector2Int> newAttackbleTiles = new List<Vector2Int>(op.CurrentAttackbleTiles);
 
             foreach (Vector2Int additionalTile in BuffEffects.ChangedAttackableTiles)
             {
-                Vector2Int rotatedTile = @operator.RotateOffset(additionalTile, @operator.FacingDirection);
+                Vector2Int rotatedTile = op.RotateOffset(additionalTile, op.FacingDirection);
                 if (!newAttackbleTiles.Contains(rotatedTile))
                 {
                     newAttackbleTiles.Add(rotatedTile);
                 }
             }
 
-            @operator.CurrentAttackbleTiles = newAttackbleTiles.ToArray();
+            op.CurrentAttackbleTiles = newAttackbleTiles.ToArray();
         }
     }
 }

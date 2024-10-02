@@ -27,15 +27,17 @@ public class InfoPanel : MonoBehaviour
         if (currentOperator != null)
         {
             currentOperator.OnHealthChanged -= UpdateHealthText;
+            currentOperator.OnStatsChanged -= UpdateOperatorInfo;
         }
 
 
         // Operator 특정 정보 업데이트
         if (deployable is Operator op)
         {
+            currentOperator = op;
             nameText.text = op.Data.entityName;
             statsContainer.SetActive(true);
-            UpdateOperatorInfo(op);
+            UpdateOperatorInfo();
         }
         else
         {
@@ -45,33 +47,33 @@ public class InfoPanel : MonoBehaviour
 
     }
 
-    private void UpdateOperatorInfo(Operator op)
+    private void UpdateOperatorInfo()
     {
-        // 이전 오퍼레이터의 구독 해제
-        if (currentOperator != null)
-        {
-            currentOperator.OnHealthChanged -= UpdateHealthText;
-        }
-
-        currentOperator = op;
-
         // 오퍼레이터가 배치되었는지 확인
-        if (op.IsDeployed)
+        if (currentOperator.IsDeployed)
         {
             currentOperator.OnHealthChanged += UpdateHealthText;
+            currentOperator.OnStatsChanged += UpdateOperatorInfo; 
+
+            // 배치된 경우 현재의 값을 사용
             UpdateHealthText(currentOperator.CurrentHealth, currentOperator.MaxHealth);
-        }
-        else
-        {
-            // 배치되지 않은 경우 초기 체력값을 가져옴
-            float initialHealth = op.Data.stats.Health; 
-            UpdateHealthText(initialHealth, initialHealth);
+            attackText.text = $"공격력: {currentOperator.currentStats.AttackPower}";
+            defenseText.text = $"방어력: {currentOperator.currentStats.Defense}";
+            magicResistanceText.text = $"마법저항력: {currentOperator.currentStats.MagicResistance}";
+            blockCountText.text = $"저지수: {currentOperator.currentStats.MaxBlockableEnemies}";
         }
 
-        attackText.text = $"공격력: {op.currentStats.AttackPower}";
-        defenseText.text = $"방어력: {op.currentStats.Defense}";
-        magicResistanceText.text = $"마법저항력: {op.currentStats.MagicResistance}";
-        blockCountText.text = $"저지수: {op.currentStats.MaxBlockableEnemies}";
+
+        else
+        {
+            // 배치되지 않은 경우 Data의 값을 가져옴
+            float initialHealth = currentOperator.Data.stats.Health; 
+            UpdateHealthText(initialHealth, initialHealth);
+            attackText.text = $"공격력: {currentOperator.Data.stats.AttackPower}";
+            defenseText.text = $"방어력: {currentOperator.Data.stats.Defense}";
+            magicResistanceText.text = $"마법저항력: {currentOperator.Data.stats.MagicResistance}";
+            blockCountText.text = $"저지수: {currentOperator.Data.stats.MaxBlockableEnemies}";
+        }
     }
 
     private void UpdateHealthText(float currentHealth, float maxHealth)
@@ -84,6 +86,7 @@ public class InfoPanel : MonoBehaviour
         if (currentOperator != null)
         {
             currentOperator.OnHealthChanged -= UpdateHealthText;
+            currentOperator.OnStatsChanged -= UpdateOperatorInfo;
             currentOperator = null;
         }
     }

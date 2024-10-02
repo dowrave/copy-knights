@@ -17,8 +17,71 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
     public AttackType AttackType => operatorData.attackType;
     public AttackRangeType AttackRangeType => operatorData.attackRangeType;
 
-    public float AttackPower { get => currentStats.AttackPower; set => currentStats.AttackPower = value; }
-    public float AttackSpeed { get => currentStats.AttackSpeed; set => currentStats.AttackSpeed = value; }
+    public float AttackPower
+    {
+        get => currentStats.AttackPower;
+        set
+        {
+            if (currentStats.AttackPower != value)
+            {
+                currentStats.AttackPower = value;
+                OnStatsChanged?.Invoke();
+            }
+        }
+    }
+
+    public float AttackSpeed
+    {
+        get => currentStats.AttackSpeed;
+        set
+        {
+            if (currentStats.AttackSpeed != value)
+            {
+                currentStats.AttackSpeed = value;
+                OnStatsChanged?.Invoke();
+            }
+        }
+    }
+
+    public float Defense
+    {
+        get => currentStats.Defense;
+        set
+        {
+            if (currentStats.Defense != value)
+            {
+                currentStats.Defense = value;
+                OnStatsChanged?.Invoke();
+            }
+        }
+    }
+
+    public float MagicResistance
+    {
+        get => currentStats.MagicResistance;
+        set
+        {
+            if (currentStats.MagicResistance != value)
+            {
+                currentStats.MagicResistance = value;
+                OnStatsChanged?.Invoke();
+            }
+        }
+    }
+
+    public int MaxBlockableEnemies
+    {
+        get => currentStats.MaxBlockableEnemies;
+        set
+        {
+            if (currentStats.MaxBlockableEnemies != value)
+            {
+                currentStats.MaxBlockableEnemies = value;
+                OnStatsChanged?.Invoke();
+            }
+        }
+    }
+
     public float AttackCooldown { get; private set; }
     public float AttackDuration { get; private set; }
    
@@ -43,7 +106,6 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
     // 저지 관련
     private List<Enemy> blockedEnemies = new List<Enemy>(); // 저지 중인 적들. Awake 이전에 초기화됨.
     public IReadOnlyList<Enemy> BlockedEnemies => blockedEnemies.AsReadOnly();
-    public int MaxBlockableEnemies { get => currentStats.MaxBlockableEnemies; private set => currentStats.MaxBlockableEnemies = value; }
 
     public int DeploymentOrder { get; private set; } // 배치 순서
     private bool isDeployed = false; // 배치 완료 시 true
@@ -53,12 +115,10 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
     public float CurrentSP 
     {
         get { return currentStats.CurrentSP; }
-        set
-        {
-            currentStats.CurrentSP = Mathf.Clamp(value, 0f, operatorData.maxSP);
-            OnSPChanged?.Invoke(CurrentSP, operatorData.maxSP);
-        }
+        private set { currentStats.CurrentSP = Mathf.Clamp(value, 0f, MaxSP); }
     }
+
+    public float MaxSP { get; private set; }
 
     [SerializeField] private GameObject deployableBarUIPrefab;
     private DeployableBarUI deployableBarUI; // 체력, SP
@@ -68,13 +128,15 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
     [SerializeField] protected int initialPoolSize = 5;
     protected string projectileTag; 
 
-    // SP 변경 이벤트
-    public event System.Action<float, float> OnSPChanged;
 
     // 스킬 관련
     private List<Skill> skills;
     private Skill activeSkill;
+    public Skill ActiveSkill => activeSkill;
 
+    // 이벤트들
+    public event System.Action<float, float> OnSPChanged;
+    public event System.Action OnStatsChanged; 
 
     // 필드 끝 --------------------------------------------------------
 
@@ -89,7 +151,6 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
         InitializeUnitProperties();
         InitializeDeployableProperties();
         InitializeOperatorProperties();
-
     }
 
     private void InitializeOperatorData(OperatorData operatorData)
@@ -106,13 +167,19 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
     private void InitializeOperatorProperties()
     {
 
-        CreateDirectionIndicator(); // 방향 표시기
+        CreateDirectionIndicator(); // 방향 표시기 생성
 
-        // 스킬 관련
+        // 사용하는 스킬 설정
         skills = Data.skills;
         SetActiveSkill(operatorData.defaultSkillIndex);
 
-        // 원거리 투사체
+        // MaxSP값 설정
+        if (activeSkill != null)
+        {
+            MaxSP = activeSkill.SPCost;
+        }
+
+        // 원거리 투사체 오브젝트 풀 초기화
         if (AttackRangeType == AttackRangeType.Ranged)
         {
             InitializeProjectilePool();
@@ -312,15 +379,17 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
         if (IsDeployed == false) { return;  }
 
         float oldSP = CurrentSP;
-        if (operatorData.autoRecoverSP)
+        if (Data.autoRecoverSP)
         {
-            CurrentSP = Mathf.Min(CurrentSP + currentStats.SPRecoveryRate * Time.deltaTime, operatorData.maxSP);    
+            CurrentSP = Mathf.Min(CurrentSP + currentStats.SPRecoveryRate * Time.deltaTime, MaxSP);    
 
         }
 
         if (CurrentSP != oldSP)
         {
-            deployableBarUI.UpdateSPBar(CurrentSP, operatorData.maxSP);
+            deployableBarUI.UpdateSPBar(CurrentSP, MaxSP);
+            OnSPChanged?.Invoke(CurrentSP, MaxSP);
+
         }
     }
 
@@ -490,7 +559,7 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
     // ISkill 메서드
     public bool CanUseSkill()
     {
-        return CurrentSP == operatorData.maxSP;
+        return IsDeployed && CurrentSP >= MaxSP;
     }
 
     /// <summary>
@@ -645,7 +714,9 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
     {
         if (CanUseSkill() && activeSkill != null)
         {
+            Debug.Log("스킬 활성화");
             activeSkill.Activate(this);
+            CurrentSP -= activeSkill.SPCost;
             // SP 소모 및 쿨다운 로직 추가
         }
     }
