@@ -2,6 +2,9 @@ using UnityEngine;
 using System.Collections.Generic;
 using Unity.VisualScripting;
 
+/// <summary>
+/// 배치 가능한 요소들의 배치 로직을 담당함
+/// </summary>
 public class DeployableManager : MonoBehaviour
 {
     public static DeployableManager Instance { get; private set; }

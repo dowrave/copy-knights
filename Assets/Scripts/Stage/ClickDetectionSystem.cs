@@ -52,7 +52,7 @@ public class ClickDetectionSystem : MonoBehaviour
         List<RaycastResult> results = PerformScreenRaycast();
         foreach (var result in results)
         {
-            Debug.Log($"MouseButtonDown Raycast hit: {result.gameObject.name}");
+            //Debug.Log($"MouseButtonDown Raycast hit: {result.gameObject.name}");
 
             // ButtonDown 동작 1. 다이아몬드 내부 클릭 시 방향 설정
             DiamondMask diamondMask = result.gameObject.GetComponent<DiamondMask>();
@@ -60,7 +60,7 @@ public class ClickDetectionSystem : MonoBehaviour
             {
                 if (diamondMask.IsPointInsideDiamond(Input.mousePosition))
                 {
-                    Debug.LogWarning("HandleUIClick : 다이아몬드 내부 ");
+                    //Debug.LogWarning("HandleUIClick : 다이아몬드 내부 ");
                     DeployableManager.Instance.IsMousePressed = true;
                     return;
                 }

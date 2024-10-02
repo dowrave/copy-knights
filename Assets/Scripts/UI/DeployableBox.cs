@@ -2,7 +2,6 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
-using static DeployableManager;
 
 public class DeployableBox : MonoBehaviour, IPointerDownHandler, IBeginDragHandler, IDragHandler, IEndDragHandler
 {
@@ -11,7 +10,7 @@ public class DeployableBox : MonoBehaviour, IPointerDownHandler, IBeginDragHandl
     private TextMeshProUGUI costText;
     [SerializeField] private GameObject deployablePrefab;
     private DeployableUnitEntity deployableComponent;
-    private DeployableInfo deployableInfo; 
+    private DeployableManager.DeployableInfo deployableInfo; 
 
     private Sprite icon;
 
