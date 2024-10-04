@@ -12,9 +12,9 @@ GameObject:
   - component: {fileID: 1711865959442575922}
   - component: {fileID: 2645934172642921739}
   - component: {fileID: 7098454271830987021}
-  - component: {fileID: 7778436824732863988}
+  - component: {fileID: 5993496874452969842}
   m_Layer: 9
-  m_Name: EnemyUI
+  m_Name: EnemyBarUI
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -85,7 +85,7 @@ MonoBehaviour:
   m_FallbackScreenDPI: 96
   m_DefaultSpriteDPI: 96
   m_DynamicPixelsPerUnit: 1
-  m_PresetInfoIsWorld: 1
+  m_PresetInfoIsWorld: 0
 --- !u!114 &7098454271830987021
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -103,7 +103,7 @@ MonoBehaviour:
   m_BlockingMask:
     serializedVersion: 2
     m_Bits: 4294967295
---- !u!114 &7778436824732863988
+--- !u!114 &5993496874452969842
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -177,7 +177,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5834165964443546629, guid: e2398dcf759e75743b0e55cc17de6acc, type: 3}
       propertyPath: m_LocalScale.y
-      value: 0.1
+      value: 0.05
       objectReference: {fileID: 0}
     - target: {fileID: 5834165964443546629, guid: e2398dcf759e75743b0e55cc17de6acc, type: 3}
       propertyPath: m_LocalPosition.x
@@ -213,7 +213,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5834165964443546629, guid: e2398dcf759e75743b0e55cc17de6acc, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: 0.30000305
+      value: -0.4
       objectReference: {fileID: 0}
     - target: {fileID: 5834165964443546629, guid: e2398dcf759e75743b0e55cc17de6acc, type: 3}
       propertyPath: m_LocalEulerAnglesHint.x
@@ -234,6 +234,34 @@ PrefabInstance:
     - target: {fileID: 6166015491020962495, guid: e2398dcf759e75743b0e55cc17de6acc, type: 3}
       propertyPath: m_Layer
       value: 9
+      objectReference: {fileID: 0}
+    - target: {fileID: 6509785638678916096, guid: e2398dcf759e75743b0e55cc17de6acc, type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 6509785638678916096, guid: e2398dcf759e75743b0e55cc17de6acc, type: 3}
+      propertyPath: m_AnchorMin.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6509785638678916096, guid: e2398dcf759e75743b0e55cc17de6acc, type: 3}
+      propertyPath: m_SizeDelta.x
+      value: 10
+      objectReference: {fileID: 0}
+    - target: {fileID: 6509785638678916096, guid: e2398dcf759e75743b0e55cc17de6acc, type: 3}
+      propertyPath: m_SizeDelta.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6509785638678916096, guid: e2398dcf759e75743b0e55cc17de6acc, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6509785638678916096, guid: e2398dcf759e75743b0e55cc17de6acc, type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6509785638678916096, guid: e2398dcf759e75743b0e55cc17de6acc, type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 6661104122013529985, guid: e2398dcf759e75743b0e55cc17de6acc, type: 3}
       propertyPath: m_Layer

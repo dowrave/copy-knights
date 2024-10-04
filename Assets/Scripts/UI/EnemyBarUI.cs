@@ -2,7 +2,7 @@ using UnityEngine;
 using UnityEngine.UI;
 
 // Enemy 오브젝트의 UI를 관리하는 클래스
-public class EnemyUI : MonoBehaviour
+public class EnemyBarUI : MonoBehaviour
 {
     private float backOffset = 0; // UI의 높이 오프셋
     private HealthBar healthBar;
@@ -51,8 +51,6 @@ public class EnemyUI : MonoBehaviour
     {
         if (enemy != null)
         {
-            //Debug.Log(enemy.CurrentHealth);
-            //Debug.Log(enemy.MaxHealth);
 
             UpdateHealthBar(enemy.CurrentHealth, enemy.MaxHealth);
         }
