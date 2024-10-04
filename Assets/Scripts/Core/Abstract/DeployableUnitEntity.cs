@@ -289,4 +289,5 @@ public class DeployableUnitEntity: UnitEntity, IDeployable
         CurrentHealth = MaxHealth;
     }
 }
+
 #nullable restore

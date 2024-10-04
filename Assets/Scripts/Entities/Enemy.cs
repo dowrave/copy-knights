@@ -52,10 +52,11 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity
     private Operator blockingOperator; // 자신을 저지 중인 오퍼레이터
     public UnitEntity CurrentTarget { get; private set; } // 공격 대상임!!
 
-    private EnemyUI enemyUI;
-
-    [SerializeField] protected int initialPoolSize = 5;
+    protected int initialPoolSize = 5;
     protected string? projectileTag;
+
+    [SerializeField] private GameObject enemyBarUIPrefab;
+    private EnemyBarUI enemyBarUI;
 
     private void Awake()
     {
@@ -87,7 +88,7 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity
     private void InitializeEnemyProperties()
     {
         SetupInitialPosition();
-        CreateEnemyUI();
+        CreateEnemyBarUI();
         UpdateNextNode();
         InitializeCurrentPath();
 
@@ -181,16 +182,6 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity
         }
         destinationPosition = currentPath[currentPath.Count - 1]; // 목적지 설정
     }
-
-    private void CreateEnemyUI()
-    {
-        enemyUI = GetComponentInChildren<EnemyUI>();
-        if (enemyUI != null)
-        {
-            enemyUI.Initialize(this);
-        }
-    }
-
     private void CheckAndAddBlockingOperator()
     {
         if (CurrentTile != null)
@@ -387,9 +378,9 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity
         StageManager.Instance.OnEnemyDefeated(); // 사망한 적 수 +1
 
         // UI 제거
-        if (enemyUI != null)
+        if (enemyBarUI != null)
         {
-            Destroy(enemyUI.gameObject);
+            Destroy(enemyBarUI.gameObject);
         }
 
         base.Die();
@@ -400,9 +391,9 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity
         base.TakeDamage(attackType, damage);
 
         // UI 업데이트
-        if (enemyUI != null)
+        if (enemyBarUI != null)
         {
-            enemyUI.UpdateUI();
+            enemyBarUI.UpdateUI();
         }
     }
 
@@ -731,5 +722,15 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity
         return CurrentTarget != null &&
             AttackCooldown <= 0 &&
             AttackDuration <= 0;
+    }
+
+    private void CreateEnemyBarUI()
+    {
+        if (enemyBarUIPrefab != null)
+        {
+            GameObject uiObject = Instantiate(enemyBarUIPrefab, transform);
+            enemyBarUI = uiObject.GetComponentInChildren<EnemyBarUI>();
+            enemyBarUI.Initialize(this);
+        }
     }
 }

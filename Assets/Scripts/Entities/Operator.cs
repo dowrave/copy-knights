@@ -125,7 +125,7 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
     private SpriteRenderer directionIndicator; // 방향 표시 UI
 
     // 원거리 공격 오브젝트 풀 옵션
-    [SerializeField] protected int initialPoolSize = 5;
+    protected int initialPoolSize = 5;
     protected string projectileTag; 
 
 

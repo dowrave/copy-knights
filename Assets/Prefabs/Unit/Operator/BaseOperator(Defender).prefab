@@ -177,6 +177,7 @@ MonoBehaviour:
     _currentSP: 0
     _spRecoveryRate: 0
   deployableBarUIPrefab: {fileID: 8911005229607826622, guid: d39c58a7b8ae3eb43beb195d5f3164a8, type: 3}
+  initialPoolSize: 5
 --- !u!65 &5805119495687587785
 BoxCollider:
   m_ObjectHideFlags: 0
