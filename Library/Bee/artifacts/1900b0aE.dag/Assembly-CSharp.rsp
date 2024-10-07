@@ -417,6 +417,7 @@
 "Assets/Scripts/UI/HealthBar.cs"
 "Assets/Scripts/UI/InfoPanel.cs"
 "Assets/Scripts/UI/MaskedDiamondOverlay.cs"
+"Assets/Scripts/UI/OperatorUI.cs"
 "Assets/Scripts/UI/UIManager.cs"
 "Assets/Scripts/Unit/Projectile.cs"
 -langversion:9.0

@@ -155,8 +155,28 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   unitData: {fileID: 0}
   deployableUnitData: {fileID: 0}
+  currentStats:
+    _baseStats:
+      _health: 0
+      _defense: 0
+      _magicResistance: 0
+    _deploymentCost: 0
+    _redeployTime: 0
   operatorData: {fileID: 11400000, guid: 276225db76094cf44a6a3bfc55db40e2, type: 2}
-  deployableBarUIPrefab: {fileID: 8911005229607826622, guid: d39c58a7b8ae3eb43beb195d5f3164a8, type: 3}
+  currentStats:
+    _deployableUnitStats:
+      _baseStats:
+        _health: 0
+        _defense: 0
+        _magicResistance: 0
+      _deploymentCost: 0
+      _redeployTime: 0
+    _attackPower: 0
+    _attackSpeed: 0
+    _maxBlockableEnemies: 0
+    _currentSP: 0
+    _spRecoveryRate: 0
+  operatorUIPrefab: {fileID: 6495183925303149127, guid: c20d98f4d39f9d645a85f029e0911050, type: 3}
 --- !u!65 &4163448615492591506
 BoxCollider:
   m_ObjectHideFlags: 0

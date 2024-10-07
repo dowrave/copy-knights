@@ -120,8 +120,12 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
 
     public float MaxSP { get; private set; }
 
-    [SerializeField] private GameObject deployableBarUIPrefab;
-    private DeployableBarUI deployableBarUI; // 체력, SP
+    [SerializeField] private GameObject operatorUIPrefab;
+    private GameObject operatorUIInstance;
+    private OperatorUI operatorUIScript;
+
+    //[SerializeField] private GameObject deployableBarUIPrefab;
+    //private DeployableBarUI deployableBarUI; // 체력, SP
     private SpriteRenderer directionIndicator; // 방향 표시 UI
 
     // 원거리 공격 오브젝트 풀 옵션
@@ -208,13 +212,13 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
         FacingDirection = direction;
     }
 
-    private void CreateOperatorBarUI()
+    private void CreateOperatorUI()
     {
-        if (deployableBarUIPrefab != null)
+        if (operatorUIPrefab != null)
         {
-            GameObject uiObject = Instantiate(deployableBarUIPrefab, transform);
-            deployableBarUI = uiObject.GetComponentInChildren<DeployableBarUI>();
-            deployableBarUI.Initialize(this);
+            operatorUIInstance = Instantiate(operatorUIPrefab, transform);
+            operatorUIScript = operatorUIInstance.GetComponent<OperatorUI>();
+            operatorUIScript.Initialize(this);
         }
     }
 
@@ -387,9 +391,11 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
 
         if (CurrentSP != oldSP)
         {
-            deployableBarUI.UpdateSPBar(CurrentSP, MaxSP);
+            operatorUIScript.UpdateSPBar(CurrentSP, MaxSP);
             OnSPChanged?.Invoke(CurrentSP, MaxSP);
 
+            bool isSkillReady = CurrentSP >= MaxSP;
+            operatorUIScript.SetSkillIconVisibility(isSkillReady);
         }
     }
 
@@ -415,7 +421,8 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
         UnblockAllEnemies();
 
         // 오브젝트 파괴
-        Destroy(deployableBarUI.gameObject); // 하단 체력/SP 바
+        //Destroy(deployableBarUI.gameObject); // 하단 체력/SP 바
+        Destroy(operatorUIInstance.gameObject);
         Destroy(directionIndicator.gameObject); // 방향 표시기
 
         base.Die();
@@ -547,7 +554,8 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
         SetDeploymentOrder();
         SetDirection(facingDirection);
         UpdateAttackbleTiles();
-        CreateOperatorBarUI();
+        //CreateOperatorBarUI();
+        CreateOperatorUI();
         ShowDirectionIndicator(true);
     }
 
@@ -714,7 +722,6 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
     {
         if (CanUseSkill() && activeSkill != null)
         {
-            Debug.Log("스킬 활성화");
             activeSkill.Activate(this);
             CurrentSP -= activeSkill.SPCost;
             // SP 소모 및 쿨다운 로직 추가

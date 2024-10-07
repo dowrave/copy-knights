@@ -88,6 +88,7 @@
     <Compile Include="Assets\Scripts\Core\Interfaces\ICombatEntity.cs" />
     <Compile Include="Assets\Scripts\UI\DeploymentCostPanel.cs" />
     <Compile Include="Assets\Scripts\Core\Interfaces\IMovable.cs" />
+    <Compile Include="Assets\Scripts\UI\OperatorUI.cs" />
     <Compile Include="Assets\Scripts\UI\DiamondOutline.cs" />
     <Compile Include="Assets\Scripts\Skills\OperatorSkills\BuffSkill.cs" />
     <Compile Include="Assets\Scripts\Unit\Projectile.cs" />

@@ -50,13 +50,12 @@ public class Tile : MonoBehaviour
         cubeTransform = transform.Find("Cube");
         InitializeGridPosition();
         size2D = new Vector2(tileScale, tileScale);
-        IsWalkable = data.isWalkable;
+        
     }
     private void OnValidate()
     {
         Initialize();
         InitializeGridPosition();
-
     }
 
     // 오브젝트 활성화마다 호출
@@ -89,7 +88,7 @@ public class Tile : MonoBehaviour
         data = tileData;
         GridPosition = gridPosition;
         IsWalkable = data.isWalkable;
-        Debug.LogWarning($"{gameObject.name} 초기화, IsWalkable : {IsWalkable}");
+        Debug.Log($"{tileData.name} 배치, 색깔 : {tileData.tileColor}");
 
         AdjustCubeScale();
         UpdateVisuals();
@@ -126,9 +125,8 @@ public class Tile : MonoBehaviour
         if (tileRenderer == null || data == null) return;
 
         tileRenderer.GetPropertyBlock(propBlock);
-        propBlock.SetColor("_Color", data.tileColor);
+        propBlock.SetColor("_BaseColor", data.tileColor);
         tileRenderer.SetPropertyBlock(propBlock);
-        
     }
 
     public bool CanPlaceDeployable()
@@ -156,7 +154,7 @@ public class Tile : MonoBehaviour
         if (tileRenderer != null)
         {
             tileRenderer.GetPropertyBlock(propBlock);
-            propBlock.SetColor("_Color", color);
+            propBlock.SetColor("_BaseColor", color);
             tileRenderer.SetPropertyBlock(propBlock);
         } 
     }
