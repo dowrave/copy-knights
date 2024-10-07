@@ -176,8 +176,7 @@ MonoBehaviour:
     _maxBlockableEnemies: 0
     _currentSP: 0
     _spRecoveryRate: 0
-  deployableBarUIPrefab: {fileID: 8911005229607826622, guid: d39c58a7b8ae3eb43beb195d5f3164a8, type: 3}
-  initialPoolSize: 5
+  operatorUIPrefab: {fileID: 6495183925303149127, guid: c20d98f4d39f9d645a85f029e0911050, type: 3}
 --- !u!65 &-1203292292963304122
 BoxCollider:
   m_ObjectHideFlags: 0
