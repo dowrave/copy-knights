@@ -4,14 +4,15 @@ using UnityEngine.UI;
 public class HealthBar : MonoBehaviour
 {
     // 체력바 UI 관리
-    //[SerializeField] private Image fillImage;
     private Slider slider;
+    private Image fillImage;
 
     private void Awake()
     {
         if (slider == null)
         {
             slider = GetComponent<Slider>();
+            fillImage = GetComponent<Image>();
         }
     }
 
@@ -29,8 +30,19 @@ public class HealthBar : MonoBehaviour
         gameObject.SetActive(isVisible);
     }
 
+    public Color GetColor()
+    {
+        if (fillImage != null)
+        {
+            return fillImage.color;
+        }
+    }
+
     public void SetColor(Color color)
     {
-        
+        if (fillImage != null)
+        {
+            fillImage.color = color;
+        }
     }
 }

@@ -138,6 +138,10 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
     private Skill activeSkill;
     public Skill ActiveSkill => activeSkill;
 
+    public bool IsSkillActive { get; private set; } = false;
+    public float SkillDuration { get; private set; } = 0f;
+    public float RemainingSkillDuration { get; private set; } = 0f;
+
     // 이벤트들
     public event System.Action<float, float> OnSPChanged;
     public event System.Action OnStatsChanged; 
@@ -391,7 +395,7 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
 
         if (CurrentSP != oldSP)
         {
-            operatorUIScript.UpdateSPBar(CurrentSP, MaxSP);
+            operatorUIScript.UpdateUI();
             OnSPChanged?.Invoke(CurrentSP, MaxSP);
 
             bool isSkillReady = CurrentSP >= MaxSP;
@@ -723,8 +727,8 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
         if (CanUseSkill() && activeSkill != null)
         {
             activeSkill.Activate(this);
-            CurrentSP -= activeSkill.SPCost;
-            // SP 소모 및 쿨다운 로직 추가
+            CurrentSP = 0f;
+            UpdateOperatorUI();
         }
     }
 
@@ -733,5 +737,37 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
         CurrentAttackbleTiles = Data.attackableTiles
             .Select(tile => RotateOffset(tile, FacingDirection))
             .ToArray();
+    }
+
+    // 스킬 사용 시 SP Bar 관련 설정
+    public void StartSkillDurationDisplay(float duration)
+    {
+        IsSkillActive = true;
+        SkillDuration = duration;
+        RemainingSkillDuration = duration;
+        CurrentSP = 0f;
+        UpdateOperatorUI();
+    }
+
+    public void UpdateSkillDurationDisplay(float remainingPercentage)
+    {
+        RemainingSkillDuration = SkillDuration * remainingPercentage;
+        UpdateOperatorUI();
+    }
+
+    public void EndSkillDurationDisplay()
+    {
+        IsSkillActive = false;
+        SkillDuration = 0f;
+        RemainingSkillDuration = 0f;
+        UpdateOperatorUI();
+    }
+
+    private void UpdateOperatorUI()
+    {
+        if (operatorUIScript != null)
+        {
+            operatorUIScript.UpdateUI();
+        }
     }
 }
