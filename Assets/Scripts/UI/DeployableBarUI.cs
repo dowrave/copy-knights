@@ -59,14 +59,26 @@ public class DeployableBarUI : MonoBehaviour
         spBar.UpdateHealthBar(currentSP, maxSP);
     }
 
+    public Color GetHealthBarColor()
+    {
+        return healthBar.GetColor();
+    }
     public void SetHealthBarColor(Color color)
     {
         healthBar.SetColor(color);
     }
 
+    public Color GetSPBarColor()
+    {
+        return spBar.GetColor();
+    }
+
     public void SetSPBarColor(Color color)
     {
-        spBar.SetColor(color);
+        if (color != spBar.GetColor())
+        {
+            spBar.SetColor(color);
+        }
     }
 
     private void UpdatePosition()

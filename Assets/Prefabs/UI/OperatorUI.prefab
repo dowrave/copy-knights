@@ -810,6 +810,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   deployableBarUI: {fileID: 4048160059059319231}
   skillIconUI: {fileID: 4680552250585978025}
+  op: {fileID: 0}
+  originalSPBarColor: {r: 0.061135292, g: 1, b: 0, a: 1}
+  onSkillSPBarColor: {r: 1, g: 0.52494174, b: 0, a: 1}
 --- !u!223 &6578767485840493022
 Canvas:
   m_ObjectHideFlags: 0
@@ -855,7 +858,7 @@ MonoBehaviour:
   m_FallbackScreenDPI: 96
   m_DefaultSpriteDPI: 96
   m_DynamicPixelsPerUnit: 1
-  m_PresetInfoIsWorld: 0
+  m_PresetInfoIsWorld: 1
 --- !u!114 &-4599507656022332454
 MonoBehaviour:
   m_ObjectHideFlags: 0

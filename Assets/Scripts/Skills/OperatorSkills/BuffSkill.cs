@@ -10,7 +10,7 @@ namespace Skills.OperatorSkills
     public class BuffSkill: Skill
     {
         [System.Serializable] 
-        public class BuffEffect
+        public class BuffModifiers
         {
             public float HealthModifier = 1f;
             public float AttackPowerModifier = 1f;
@@ -22,8 +22,8 @@ namespace Skills.OperatorSkills
         }
 
         public float duration = 10f;
-        public BuffEffect BuffEffects;
-        public GameObject BuffVisualEffectPrefab;
+        public BuffModifiers Modifiers;
+        public GameObject BuffEffectPrefab;
         //public Color SPBarColor = Color.yellow;
 
         public override void Activate(Operator op)
@@ -47,37 +47,44 @@ namespace Skills.OperatorSkills
             Vector2Int[] originalAttackableTiles = op.CurrentAttackbleTiles.Clone() as Vector2Int[];
 
             // 버프 적용
-            op.CurrentHealth *= BuffEffects.HealthModifier;
-            op.MaxHealth *= BuffEffects.HealthModifier;
-            op.AttackPower *= BuffEffects.AttackPowerModifier;
-            op.currentStats.Defense *= BuffEffects.DefenseModifier;
-            op.currentStats.MagicResistance *= BuffEffects.MagicResistanceModifier;
+            op.CurrentHealth *= Modifiers.HealthModifier;
+            op.MaxHealth *= Modifiers.HealthModifier;
+            op.AttackPower *= Modifiers.AttackPowerModifier;
+            op.currentStats.Defense *= Modifiers.DefenseModifier;
+            op.currentStats.MagicResistance *= Modifiers.MagicResistanceModifier;
 
             // 공격 범위 변화
-            if (BuffEffects.ChangedAttackableTiles != null && BuffEffects.ChangedAttackableTiles.Length > 0)
+            if (Modifiers.ChangedAttackableTiles != null && Modifiers.ChangedAttackableTiles.Length > 0)
             {
                 ChangeAttackRange(op);
             }
 
            // 저지 수 변화
-           if (BuffEffects.ChangedBlockableEnemies.HasValue) // HasValue : nullable 타입이 값을 갖고 있는지 확인
+           if (Modifiers.ChangedBlockableEnemies.HasValue) // HasValue : nullable 타입이 값을 갖고 있는지 확인
             {
-                op.MaxBlockableEnemies = BuffEffects.ChangedBlockableEnemies.Value; // nullable 타입이 가진 실제 값을 반환. 반드시 HasValue 체크가 선행되어야 함
+                op.MaxBlockableEnemies = Modifiers.ChangedBlockableEnemies.Value; // nullable 타입이 가진 실제 값을 반환. 반드시 HasValue 체크가 선행되어야 함
             }
 
             // 버프 이펙트 생성
             GameObject buffEffect = null;
-            if (BuffVisualEffectPrefab != null)
+            if (BuffEffectPrefab != null)
             {
-                buffEffect = Instantiate(BuffVisualEffectPrefab, op.transform.position, Quaternion.identity);
+                buffEffect = Instantiate(BuffEffectPrefab, op.transform.position, Quaternion.identity);
                 buffEffect.transform.SetParent(op.transform);
             }
 
-            // SP Bar 색 변경 - 이 부분은 BarUI에 구현하겠음
-            //DeployableBarUI barUI = op.GetComponentInChildren<DeployableBarUI>();
+            // SP Bar 색 변경
+            op.StartSkillDurationDisplay(duration);
 
             // 버프 지속 시간
-            yield return new WaitForSeconds(duration);
+            float elapsedTime = 0f;
+            while (elapsedTime < duration)
+            {
+                yield return null;
+                elapsedTime += Time.deltaTime;
+                op.UpdateSkillDurationDisplay(1 - (elapsedTime / duration));
+            }
+
 
             // 버프 해제
             op.CurrentHealth = originalCurrentHealth;
@@ -92,8 +99,12 @@ namespace Skills.OperatorSkills
             // 버프 이펙트 제거
             if (buffEffect != null)
             {
+                Debug.Log($"buffEffect 제거");
                 Destroy(buffEffect);
             }
+
+            // SP Bar 복구
+            op.EndSkillDurationDisplay();
         }
 
         /// <summary>
@@ -103,7 +114,7 @@ namespace Skills.OperatorSkills
         {
             List<Vector2Int> newAttackbleTiles = new List<Vector2Int>(op.CurrentAttackbleTiles);
 
-            foreach (Vector2Int additionalTile in BuffEffects.ChangedAttackableTiles)
+            foreach (Vector2Int additionalTile in Modifiers.ChangedAttackableTiles)
             {
                 Vector2Int rotatedTile = op.RotateOffset(additionalTile, op.FacingDirection);
                 if (!newAttackbleTiles.Contains(rotatedTile))
@@ -113,6 +124,21 @@ namespace Skills.OperatorSkills
             }
 
             op.CurrentAttackbleTiles = newAttackbleTiles.ToArray();
+        }
+
+        private GameObject CreateBuffVisualEffect(Operator op)
+        {
+            // 오퍼레이터 위치에서 살짝 뒤로 오프셋
+            Vector3 effectPosition = op.transform.position - op.transform.forward * 0.5f + Vector3.up * 0.5f;
+
+            GameObject buffEffect = Instantiate(BuffEffectPrefab, effectPosition, Quaternion.identity);
+            buffEffect.transform.SetParent(op.transform);
+
+            // 카메라를 향해 회전
+            buffEffect.transform.LookAt(buffEffect.transform.position + Camera.main.transform.rotation * Vector3.forward,
+                Camera.main.transform.rotation * Vector3.up);
+
+            return buffEffect;
         }
     }
 }
