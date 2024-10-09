@@ -7,10 +7,8 @@ public class OperatorUI : MonoBehaviour
     public GameObject skillIconUI;      // 스킬 아이콘 UI
 
     public Operator op;
-    [SerializeField] private Color originalSPBarColor;
+    private Color originalSPBarColor;
     [SerializeField] private Color onSkillSPBarColor;
-
-
 
     private Canvas canvas;
     private Camera mainCamera;
@@ -23,7 +21,6 @@ public class OperatorUI : MonoBehaviour
         mainCamera = Camera.main;
         canvas.worldCamera = mainCamera;
 
-
         // UI를 카메라 방향으로 회전
         if (mainCamera != null)
         {
@@ -35,8 +32,9 @@ public class OperatorUI : MonoBehaviour
     {
         deployableBarUIScript = deployableBarUI.GetComponent<DeployableBarUI>();
         deployableBarUIScript.Initialize(op);
-
+     
         this.op = op;
+        originalSPBarColor = deployableBarUIScript.GetSPBarColor();
 
         SetSkillIconVisibility(op.CurrentSP >= op.MaxSP);
     }
@@ -52,19 +50,16 @@ public class OperatorUI : MonoBehaviour
 
     public void UpdateUI()
     {
-        // 스킬 사용 중일 때의 UI
         if (op.IsSkillActive)
         {
-            deployableBarUIScript.UpdateSPBar(op.RemainingSkillDuration, op.SkillDuration);
             deployableBarUIScript.SetSPBarColor(onSkillSPBarColor);
         }
-        // 스킬 사용 중이 아닐 때의 UI
         else
         {
-            deployableBarUIScript.UpdateSPBar(op.CurrentSP, op.MaxSP);
-            deployableBarUIScript.SetSPBarColor(originalSPBarColor); 
+            deployableBarUIScript.SetSPBarColor(originalSPBarColor);
         }
 
+        deployableBarUIScript.UpdateSPBar(op.CurrentSP, op.MaxSP);
         SetSkillIconVisibility(op.CurrentSP >= op.MaxSP && !op.IsSkillActive);
     }
 }

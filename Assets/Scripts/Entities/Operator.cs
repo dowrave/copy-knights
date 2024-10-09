@@ -727,7 +727,6 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
         if (CanUseSkill() && activeSkill != null)
         {
             activeSkill.Activate(this);
-            CurrentSP = 0f;
             UpdateOperatorUI();
         }
     }
@@ -745,13 +744,12 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
         IsSkillActive = true;
         SkillDuration = duration;
         RemainingSkillDuration = duration;
-        CurrentSP = 0f;
         UpdateOperatorUI();
     }
 
     public void UpdateSkillDurationDisplay(float remainingPercentage)
     {
-        RemainingSkillDuration = SkillDuration * remainingPercentage;
+        CurrentSP = MaxSP * remainingPercentage;
         UpdateOperatorUI();
     }
 
@@ -760,6 +758,7 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
         IsSkillActive = false;
         SkillDuration = 0f;
         RemainingSkillDuration = 0f;
+        CurrentSP = 0;
         UpdateOperatorUI();
     }
 

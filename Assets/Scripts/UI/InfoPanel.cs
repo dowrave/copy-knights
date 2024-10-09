@@ -30,7 +30,6 @@ public class InfoPanel : MonoBehaviour
             currentOperator.OnStatsChanged -= UpdateOperatorInfo;
         }
 
-
         // Operator 특정 정보 업데이트
         if (deployable is Operator op)
         {
@@ -49,6 +48,8 @@ public class InfoPanel : MonoBehaviour
 
     private void UpdateOperatorInfo()
     {
+        if (currentOperator == null) return;
+
         // 오퍼레이터가 배치되었는지 확인
         if (currentOperator.IsDeployed)
         {
