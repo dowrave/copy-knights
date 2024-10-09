@@ -34,8 +34,6 @@ namespace Skills.OperatorSkills
 
         private IEnumerator ApplyBuff(Operator op)
         {
-            Debug.Log($"{Name} 스킬이 발동됨");
-
             // 원래 스탯 저장
             float originalCurrentHealth = op.CurrentHealth;
             float originalMaxHealth = op.MaxHealth;
@@ -85,7 +83,6 @@ namespace Skills.OperatorSkills
                 op.UpdateSkillDurationDisplay(1 - (elapsedTime / duration));
             }
 
-
             // 버프 해제
             op.CurrentHealth = originalCurrentHealth;
             op.MaxHealth = originalMaxHealth;
@@ -94,12 +91,10 @@ namespace Skills.OperatorSkills
             op.currentStats.MagicResistance = originalMagicResistance;
             op.CurrentAttackbleTiles = originalAttackableTiles;
             op.MaxBlockableEnemies = originalBlockableEnemies;
-            
 
             // 버프 이펙트 제거
             if (buffEffect != null)
             {
-                Debug.Log($"buffEffect 제거");
                 Destroy(buffEffect);
             }
 

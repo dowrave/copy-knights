@@ -5,14 +5,19 @@ public class HealthBar : MonoBehaviour
 {
     // 체력바 UI 관리
     private Slider slider;
-    private Image fillImage;
+    [SerializeField] private Image fillImage; // HealthBar의 색깔로 접근하기 위한 컴포넌트를 설정
 
     private void Awake()
     {
         if (slider == null)
         {
             slider = GetComponent<Slider>();
-            fillImage = GetComponent<Image>();
+        }
+
+        if (fillImage == null)
+        {
+            fillImage = transform.Find("Fill Area/Fill").GetComponent<Image>();
+
         }
     }
 
@@ -32,10 +37,7 @@ public class HealthBar : MonoBehaviour
 
     public Color GetColor()
     {
-        if (fillImage != null)
-        {
-            return fillImage.color;
-        }
+        return fillImage != null ? fillImage.color : Color.white;
     }
 
     public void SetColor(Color color)
