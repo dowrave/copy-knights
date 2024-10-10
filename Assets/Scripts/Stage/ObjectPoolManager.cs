@@ -3,7 +3,8 @@ using System.Linq;
 using UnityEngine;
 
 /// <summary>
-/// 오브젝트 풀링(=탄알집)을 구현하는 매니저
+/// 오브젝트 풀링(=탄알집)을 이용하는 것들을 구현해줍니다
+/// 투사체, 대미지 팝업 등등 여기에 포함됩니다
 /// </summary>
 public class ObjectPoolManager : MonoBehaviour
 {
@@ -33,14 +34,18 @@ public class ObjectPoolManager : MonoBehaviour
     public Dictionary<string, Queue<GameObject>> poolDictionary;
     private HashSet<string> poolsMarkedForRemoval = new HashSet<string>();
 
+    // 대미지 팝업 관련
+    [SerializeField] private GameObject damagePopupPrefab;
+    private const string DAMAGE_POPUP_TAG = "DamagePopup";
+    private int damagePopupPoolSize = 10;
+
     private void Start()
     {
         poolDictionary = new Dictionary<string, Queue<GameObject>>();
 
-        foreach (Pool pool in pools)
-        {
-            CreatePool(pool.tag, pool.prefab, pool.size);
-        }
+        // 대미지 팝업 풀 생성
+        CreatePool(DAMAGE_POPUP_TAG, damagePopupPrefab, damagePopupPoolSize);
+
     }
 
     /// <summary>
@@ -188,6 +193,20 @@ public class ObjectPoolManager : MonoBehaviour
             poolDictionary.Remove(tag);
             pools.RemoveAll(p => p.tag == tag);
             poolsMarkedForRemoval.Remove(tag);
+        }
+    }
+
+    // 대미지 팝업 관련 구현
+    public void ShowDamagePopup(Vector3 position, float damage)
+    {
+        GameObject popupObj = SpawnFromPool(DAMAGE_POPUP_TAG, position, Quaternion.identity);
+        if (popupObj != null)
+        {
+            DamagePopup popup = popupObj.GetComponent<DamagePopup>();
+            if (popup != null)
+            {
+                popup.SetDamage(damage);
+            }
         }
     }
 }

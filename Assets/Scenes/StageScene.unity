@@ -253,7 +253,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   spawners:
-  - {fileID: 0}
+  - {fileID: 1315135635}
 --- !u!4 &296066849
 Transform:
   m_ObjectHideFlags: 0
@@ -377,6 +377,22 @@ PrefabInstance:
       propertyPath: m_Name
       value: Map
       objectReference: {fileID: 0}
+    - target: {fileID: 4910819149420646752, guid: af07c1ae273854d4eb483dc9748948f9, type: 3}
+      propertyPath: enemySpawnList.Array.size
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 4910819149420646752, guid: af07c1ae273854d4eb483dc9748948f9, type: 3}
+      propertyPath: enemySpawnList.Array.data[1].pathData
+      value: 
+      objectReference: {fileID: 11400000, guid: f0b73ae117d5e5d448e6d7d421646a1b, type: 2}
+    - target: {fileID: 4910819149420646752, guid: af07c1ae273854d4eb483dc9748948f9, type: 3}
+      propertyPath: enemySpawnList.Array.data[1].spawnTime
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 4910819149420646752, guid: af07c1ae273854d4eb483dc9748948f9, type: 3}
+      propertyPath: enemySpawnList.Array.data[1].enemyPrefab
+      value: 
+      objectReference: {fileID: 6542749020257112806, guid: b64bfbf4c6a80384295e7286bbcc9d3e, type: 3}
     - target: {fileID: 6830030447418783581, guid: af07c1ae273854d4eb483dc9748948f9, type: 3}
       propertyPath: serializedTileData.Array.data[22]
       value: 
@@ -484,6 +500,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   pools: []
+  damagePopupPrefab: {fileID: 8444373851247964013, guid: 6f3037bccc0f59f42b3573dce42ac869, type: 3}
 --- !u!4 &534909885
 Transform:
   m_ObjectHideFlags: 0
@@ -828,6 +845,7 @@ GameObject:
   - component: {fileID: 963194227}
   - component: {fileID: 963194226}
   - component: {fileID: 963194229}
+  - component: {fileID: 963194230}
   m_Layer: 0
   m_Name: Main Camera
   m_TagString: MainCamera
@@ -925,6 +943,50 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 4294967295
   m_MaxRayIntersections: 0
+--- !u!114 &963194230
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 963194225}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a79441f348de89743a2939f4d699eac1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_RenderShadows: 1
+  m_RequiresDepthTextureOption: 2
+  m_RequiresOpaqueTextureOption: 2
+  m_CameraType: 0
+  m_Cameras: []
+  m_RendererIndex: -1
+  m_VolumeLayerMask:
+    serializedVersion: 2
+    m_Bits: 1
+  m_VolumeTrigger: {fileID: 0}
+  m_VolumeFrameworkUpdateModeOption: 2
+  m_RenderPostProcessing: 0
+  m_Antialiasing: 0
+  m_AntialiasingQuality: 2
+  m_StopNaN: 0
+  m_Dithering: 0
+  m_ClearDepth: 1
+  m_AllowXRRendering: 1
+  m_AllowHDROutput: 1
+  m_UseScreenCoordOverride: 0
+  m_ScreenSizeOverride: {x: 0, y: 0, z: 0, w: 0}
+  m_ScreenCoordScaleBias: {x: 0, y: 0, z: 0, w: 0}
+  m_RequiresDepthTexture: 0
+  m_RequiresColorTexture: 0
+  m_Version: 2
+  m_TaaSettings:
+    m_Quality: 3
+    m_FrameInfluence: 0.1
+    m_JitterScale: 1
+    m_MipBias: 0
+    m_VarianceClampScale: 0.9
+    m_ContrastAdaptiveSharpening: 0
 --- !u!114 &1062361921 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 5354671961769785893, guid: 56874572f3796c141b4e7ddb24c4ca8b, type: 3}
@@ -945,6 +1007,17 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: f4688fdb7df04437aeb418b961361dc5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &1315135635 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 4910819149420646752, guid: af07c1ae273854d4eb483dc9748948f9, type: 3}
+  m_PrefabInstance: {fileID: 486796194}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c034ddc81e3f5b34fa37814b1d51156f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
 --- !u!114 &1337645933 stripped

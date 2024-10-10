@@ -21,6 +21,7 @@ public class DeployableBarUI : MonoBehaviour
         {
             this.op = op;
             op.OnHealthChanged += UpdateHealthBar;
+            op.OnSPChanged += UpdateSPBar;
 
             UpdateUI();
             UpdatePosition();
