@@ -134,6 +134,15 @@ public class ClickDetectionSystem : MonoBehaviour
                 }
             }
 
+            // 2. OperatorUI 관련 요소 클릭 처리 - Deployable.OnClick이 동작하도록 수정
+            DeployableUnitEntity associatedDeployable = GetAssociatedDeployableUnitEntity(result.gameObject);
+            if (associatedDeployable != null)
+            {
+                associatedDeployable.OnClick();
+                return;
+            }
+
+
             // Button 관련 로직은 굳이 구현 안해도 되는 듯 - 이거 있으면 중복실행됨
             // 1. 유니티의 UI 시스템은 OnClick을 등록하지 않더라도 자동으로 실행시킨다고 함
             // 2. 여기서 구현한 MouseButtonUp이 true가 돼서 HandleClick이 동작함
@@ -224,6 +233,25 @@ public class ClickDetectionSystem : MonoBehaviour
         List<RaycastResult> results = new List<RaycastResult>();
         EventSystem.current.RaycastAll(pointerData, results);
         return results;
+    }
+
+    /// <summary>
+    /// 클릭된 오브젝트로부터 상위 오브젝트에 DeployableUnitEntity가 있는지 검사함
+    /// </summary>
+    private DeployableUnitEntity GetAssociatedDeployableUnitEntity(GameObject clickedObject)
+    {
+        Transform current = clickedObject.transform;
+        while (current != null)
+        {
+            DeployableUnitEntity deployable = current.GetComponent<DeployableUnitEntity>();
+            if (deployable != null)
+            {
+                return deployable;
+            }
+            current = current.parent;
+        }
+
+        return null;
     }
 
 }

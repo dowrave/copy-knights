@@ -67,7 +67,8 @@ namespace Skills.OperatorSkills
             GameObject buffEffect = null;
             if (BuffEffectPrefab != null)
             {
-                buffEffect = Instantiate(BuffEffectPrefab, op.transform.position, Quaternion.identity);
+                Vector3 buffEffectPosition = new Vector3(op.transform.position.x, 0, op.transform.position.z);
+                buffEffect = Instantiate(BuffEffectPrefab, buffEffectPosition, Quaternion.identity);
                 buffEffect.transform.SetParent(op.transform);
             }
 
@@ -86,7 +87,7 @@ namespace Skills.OperatorSkills
             // 버프 해제
             op.CurrentHealth = originalCurrentHealth;
             op.MaxHealth = originalMaxHealth;
-            op.AttackPower = originalCurrentHealth;
+            op.AttackPower = originalAttackPower;
             op.currentStats.Defense = originalDefense;
             op.currentStats.MagicResistance = originalMagicResistance;
             op.CurrentAttackbleTiles = originalAttackableTiles;

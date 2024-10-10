@@ -345,7 +345,7 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity
                 Projectile projectile = projectileObj.GetComponent<Projectile>();
                 if (projectile != null)
                 {
-                    projectile.Initialize(target, attackType, damage, projectileTag);
+                    projectile.Initialize(target, attackType, damage, false, projectileTag);
                 }
             }
         }

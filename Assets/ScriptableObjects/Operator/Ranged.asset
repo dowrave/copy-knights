@@ -21,8 +21,8 @@ MonoBehaviour:
         _magicResistance: 5
       _deploymentCost: 7
       _redeployTime: 70
-    _attackPower: 400
-    _attackSpeed: 0.7
+    _attackPower: 200
+    _attackSpeed: 2
     _maxBlockableEnemies: 1
     _currentSP: 0
     _spRecoveryRate: 1
@@ -46,6 +46,7 @@ MonoBehaviour:
   - {x: 0, y: -1}
   - {x: 0, y: 1}
   projectilePrefab: {fileID: 491002625568547402, guid: 768a4d8f960f50f43b581b2790a5639e, type: 3}
-  maxSP: 30
   initialSP: 0
-  autoRecoverSP: 1
+  skills:
+  - {fileID: 11400000, guid: a282fb770a3e6a74b91bb698f9ff496e, type: 2}
+  defaultSkillIndex: 0

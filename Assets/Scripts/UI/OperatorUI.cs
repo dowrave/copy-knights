@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.EventSystems;
 
 public class OperatorUI : MonoBehaviour
 {
@@ -59,7 +60,7 @@ public class OperatorUI : MonoBehaviour
             deployableBarUIScript.SetSPBarColor(originalSPBarColor);
         }
 
-        deployableBarUIScript.UpdateSPBar(op.CurrentSP, op.MaxSP);
+        //deployableBarUIScript.UpdateSPBar(op.CurrentSP, op.MaxSP);
         SetSkillIconVisibility(op.CurrentSP >= op.MaxSP && !op.IsSkillActive);
     }
 }

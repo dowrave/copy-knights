@@ -12,6 +12,7 @@ public class OperatorData : ScriptableObject, IBoxDeployableData
 
     // DeployableUnitData
     public Sprite? icon;
+    public Sprite? Icon => icon;
     public bool canDeployOnGround = false;
     public bool canDeployOnHill = false;
 
@@ -20,13 +21,11 @@ public class OperatorData : ScriptableObject, IBoxDeployableData
     public AttackRangeType attackRangeType;
     public Vector2Int[] attackableTiles = { Vector2Int.zero };
     public GameObject projectilePrefab;
-    public float initialSP = 0f;
-    public bool autoRecoverSP = true;
+
     public List<Skill> skills;
     public int defaultSkillIndex;
+    public float initialSP = 0f;
 
-   
-    public Sprite? Icon => icon;
 
 }
 

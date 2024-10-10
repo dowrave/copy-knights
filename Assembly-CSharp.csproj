@@ -78,6 +78,7 @@
     <Compile Include="Assets\Scripts\UI\InfoPanel.cs" />
     <Compile Include="Assets\Scripts\UI\EnemyBarUI.cs" />
     <Compile Include="Assets\Scripts\Core\Data\DeployableUnitData.cs" />
+    <Compile Include="Assets\Scripts\UI\DamagePopup.cs" />
     <Compile Include="Assets\Scripts\UI\DeployableDeployingUI.cs" />
     <Compile Include="Assets\Scripts\Skills\Base\Skill.cs" />
     <Compile Include="Assets\Scripts\Stage\StageManager.cs" />
@@ -100,6 +101,7 @@
     <Compile Include="Assets\Scripts\UI\UIManager.cs" />
     <Compile Include="Assets\Scripts\Stage\DeployableManager.cs" />
     <Compile Include="Assets\Scripts\UI\DeployableActionUI.cs" />
+    <Compile Include="Assets\Scripts\Skills\OperatorSkills\SmashSkill.cs" />
     <Compile Include="Assets\Scripts\Stage\TileData.cs" />
     <Compile Include="Assets\Scripts\Core\Data\UnitData.cs" />
     <Compile Include="Assets\Scripts\UI\DeployableBarUI.cs" />

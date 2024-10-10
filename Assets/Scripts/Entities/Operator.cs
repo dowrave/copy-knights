@@ -4,6 +4,7 @@ using Unity.VisualScripting;
 using Unity.VisualScripting.Antlr3.Runtime.Misc;
 using UnityEngine;
 using Skills.Base;
+using Skills.OperatorSkills;
 
 public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
 {
@@ -115,7 +116,11 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
     public float CurrentSP 
     {
         get { return currentStats.CurrentSP; }
-        private set { currentStats.CurrentSP = Mathf.Clamp(value, 0f, MaxSP); }
+        set 
+        { 
+            currentStats.CurrentSP = Mathf.Clamp(value, 0f, MaxSP);
+            OnSPChanged?.Invoke(CurrentSP, MaxSP);
+        }
     }
 
     public float MaxSP { get; private set; }
@@ -254,31 +259,41 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
         }
     }
 
+    // 인터페이스만 계승, 이 안에서는 대미지 팝업 요소만 추가해서 PerformAttack으로 전달
     public void Attack(UnitEntity target, AttackType attackType, float damage)
     {
-        PerformAttack(target, attackType, damage);
+        bool showDamagePopup = false;
+        PerformAttack(target, attackType, damage, showDamagePopup);
     }
 
-    private void PerformAttack(UnitEntity target, AttackType attackType, float damage)
+    private void PerformAttack(UnitEntity target, AttackType attackType, float damage, bool showDamagePopup)
     {
+        
+        ActiveSkill.OnAttack(this, ref damage, ref showDamagePopup);
+
         switch (operatorData.attackRangeType)
         {
             case AttackRangeType.Melee:
-                PerformMeleeAttack(target, attackType, damage);
+                PerformMeleeAttack(target, attackType, damage, showDamagePopup);
                 break;
             case AttackRangeType.Ranged:
-                PerformRangedAttack(target, attackType, damage);
+                PerformRangedAttack(target, attackType, damage, showDamagePopup);
                 break;
         }
     }
 
-    private void PerformMeleeAttack(UnitEntity target, AttackType attackType, float damage)
+    private void PerformMeleeAttack(UnitEntity target, AttackType attackType, float damage, bool showDamagePopup)
     {
         SetAttackTimings();
         target.TakeDamage(attackType, damage);
+
+        if (showDamagePopup)
+        {
+            ObjectPoolManager.Instance.ShowDamagePopup(target.transform.position, damage);
+        }
     }
 
-    private void PerformRangedAttack(UnitEntity target, AttackType attackType, float damage)
+    private void PerformRangedAttack(UnitEntity target, AttackType attackType, float damage, bool showDamagePopup)
     {
         SetAttackTimings();
         if (Data.projectilePrefab != null)
@@ -292,7 +307,7 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
                 Projectile projectile = projectileObj.GetComponent<Projectile>();
                 if (projectile != null)
                 {
-                    projectile.Initialize(target, attackType, damage, projectileTag);
+                    projectile.Initialize(target, attackType, damage, showDamagePopup, projectileTag);
                 }
             }
         }
@@ -381,13 +396,13 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
         blockedEnemies.Clear();
     }
 
-    // SP 로직 추가
+    // SP 자동회복 로직 추가
     private void RecoverSP()
     {
         if (IsDeployed == false) { return;  }
 
         float oldSP = CurrentSP;
-        if (Data.autoRecoverSP)
+        if (ActiveSkill.AutoRecover)
         {
             CurrentSP = Mathf.Min(CurrentSP + currentStats.SPRecoveryRate * Time.deltaTime, MaxSP);    
 

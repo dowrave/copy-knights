@@ -693,7 +693,7 @@ GameObject:
   - component: {fileID: 6497255027840837303}
   - component: {fileID: 8703271277650512113}
   - component: {fileID: 8468990664433598842}
-  m_Layer: 0
+  m_Layer: 9
   m_Name: SkillIConUI
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -717,7 +717,7 @@ RectTransform:
   m_AnchorMin: {x: 0.5, y: 1}
   m_AnchorMax: {x: 0.5, y: 1}
   m_AnchoredPosition: {x: 0, y: 0.2}
-  m_SizeDelta: {x: 0.4, y: 0.4}
+  m_SizeDelta: {x: 0.5, y: 0.5}
   m_Pivot: {x: 0.5, y: 1}
 --- !u!222 &8703271277650512113
 CanvasRenderer:
@@ -770,7 +770,7 @@ GameObject:
   - component: {fileID: 6578767485840493022}
   - component: {fileID: 1664625941257757301}
   - component: {fileID: -4599507656022332454}
-  m_Layer: 0
+  m_Layer: 9
   m_Name: OperatorUI
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -813,7 +813,6 @@ MonoBehaviour:
   deployableBarUI: {fileID: 4048160059059319231}
   skillIconUI: {fileID: 4680552250585978025}
   op: {fileID: 0}
-  originalSPBarColor: {r: 0.061135292, g: 1, b: 0, a: 1}
   onSkillSPBarColor: {r: 1, g: 0.52494174, b: 0, a: 1}
 --- !u!223 &6578767485840493022
 Canvas:
@@ -860,7 +859,7 @@ MonoBehaviour:
   m_FallbackScreenDPI: 96
   m_DefaultSpriteDPI: 96
   m_DynamicPixelsPerUnit: 1
-  m_PresetInfoIsWorld: 0
+  m_PresetInfoIsWorld: 1
 --- !u!114 &-4599507656022332454
 MonoBehaviour:
   m_ObjectHideFlags: 0
