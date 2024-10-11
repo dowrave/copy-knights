@@ -1,10 +1,8 @@
 using System.Collections.Generic;
 using System.Linq;
-using Unity.VisualScripting;
-using Unity.VisualScripting.Antlr3.Runtime.Misc;
 using UnityEngine;
 using Skills.Base;
-using Skills.OperatorSkills;
+using System;
 
 public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
 {
@@ -106,7 +104,6 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
 
     // 저지 관련
     private List<Enemy> blockedEnemies = new List<Enemy>(); // 저지 중인 적들. Awake 이전에 초기화됨.
-    public IReadOnlyList<Enemy> BlockedEnemies => blockedEnemies.AsReadOnly();
 
     public int DeploymentOrder { get; private set; } // 배치 순서
     private bool isDeployed = false; // 배치 완료 시 true
@@ -128,15 +125,11 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
     [SerializeField] private GameObject operatorUIPrefab;
     private GameObject operatorUIInstance;
     private OperatorUI operatorUIScript;
-
-    //[SerializeField] private GameObject deployableBarUIPrefab;
-    //private DeployableBarUI deployableBarUI; // 체력, SP
     private SpriteRenderer directionIndicator; // 방향 표시 UI
 
     // 원거리 공격 오브젝트 풀 옵션
     protected int initialPoolSize = 5;
     protected string projectileTag; 
-
 
     // 스킬 관련
     private List<Skill> skills;

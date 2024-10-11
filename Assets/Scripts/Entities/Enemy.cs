@@ -1,8 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using TMPro;
-using UnityEditor.Experimental.GraphView;
 using UnityEngine;
 using UnityEngine.UIElements;
 
@@ -249,9 +247,18 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity
 
         if (newTile != CurrentTile)
         {
-            CurrentTile = newTile;
             ExitTile();
             EnterNewTile(newTile);
+        }
+    }
+
+    private IEnumerator RemoveFromPreviousTileDelay(Tile previousTile)
+    {
+        yield return new WaitForSeconds(0f);
+
+        if (previousTile != null && previousTile != CurrentTile)
+        {
+            previousTile.EnemyExited(this);
         }
     }
 
@@ -523,6 +530,13 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity
         float distance = 0f;
         for (int i = currentNodeIndex; i < currentPath.Count - 1; i++)
         {
+            // 첫 타일에 한해서만 현재 위치를 기반으로 계산(여러 Enemy가 같은 타일에 있을 수 있기 때문)
+            if (i == currentNodeIndex)
+            {
+                Vector3 nowPosition = new Vector3(transform.position.x, 0f, transform.position.z);
+                distance += Vector3.Distance(nowPosition, currentPath[i + 1]);
+            }
+
             distance += Vector3.Distance(currentPath[i], currentPath[i + 1]);
         }
 

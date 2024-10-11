@@ -30,7 +30,6 @@ namespace Skills.OperatorSkills
             else
             {
                 op.CurrentSP += 1;
-                Debug.Log($"op.CurrentSP : {op.CurrentSP}");
             }
         }
     }
