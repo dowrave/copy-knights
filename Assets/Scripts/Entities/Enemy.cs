@@ -352,7 +352,7 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity
                 Projectile projectile = projectileObj.GetComponent<Projectile>();
                 if (projectile != null)
                 {
-                    projectile.Initialize(target, attackType, damage, false, projectileTag);
+                    projectile.Initialize(this, target, attackType, damage, false, projectileTag);
                 }
             }
         }
@@ -393,9 +393,22 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity
         base.Die();
     }
 
-    public override void TakeDamage(AttackType attackType, float damage)
+    public override void TakeDamage(AttackType attackType, float damage, UnitEntity attacker = null)
     {
-        base.TakeDamage(attackType, damage);
+        float actualDamage = CalculateActualDamage(attackType, damage);
+        CurrentHealth = Mathf.Max(0, CurrentHealth - actualDamage);
+
+        // attacker가 null일 때에도 잘 동작합니다
+        if (attacker is Operator op)
+        {
+            Debug.Log($"{this} enemy 인스턴스가 공격 받음, 스탯 매니저 업데이트 시작");
+            StatisticsManager.Instance.UpdateDamageDealt(op, actualDamage);
+        }
+
+        if (CurrentHealth <= 0)
+        {
+            Die();
+        }
 
         // UI 업데이트
         if (enemyBarUI != null)

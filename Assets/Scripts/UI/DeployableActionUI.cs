@@ -28,8 +28,7 @@ public class DeployableActionUI : MonoBehaviour
         // UI가 보는 방향 설정
         if (mainCamera != null)
         {
-            //transform.LookAt(transform.position + mainCamera.transform.rotation * Vector3.forward, mainCamera.transform.rotation * Vector3.up);
-            transform.rotation = Quaternion.Euler(90, 0, 0);
+            transform.rotation = Quaternion.Euler(90, 0, 0); // 카메라가 70도, 의도적으로 맵과 평행하게 구현
         }
 
         maskedOverlay.Initialize(darkPanelAlpha); // 알파 0으로 조정
@@ -71,15 +70,16 @@ public class DeployableActionUI : MonoBehaviour
     {
         if (deployable is Operator op)
         {
-            Debug.Log("스킬 버튼 클릭됨");
-            op.UseSkill();
-            UpdateSkillButton();
+            if (op.ActiveSkill.AutoActivate == false)
+            {
+                op.UseSkill();
+                UpdateSkillButton();
+            }
             Hide();
         }
     }
     private void OnRetreatButtonClicked()
     {
-        Debug.Log("퇴각 버튼 클릭됨");
         deployable.Retreat();
         Hide();
     }
@@ -122,6 +122,13 @@ public class DeployableActionUI : MonoBehaviour
 
     private void UpdateSkillButtonState(float currentSP, float maxSP)
     {
+        // 오퍼레이터의 스킬이 자동 발동이라면 활성화될 필요 없음
+        if (deployable is Operator op && op.ActiveSkill.AutoActivate)
+        {
+            skillButtonInactivePanel.SetActive(true);
+            return;
+        }
+
         bool canUseSkill = currentSP >= maxSP;
 
         skillButton.interactable = canUseSkill;
