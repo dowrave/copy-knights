@@ -36,6 +36,7 @@ MonoBehaviour:
   - {x: -1, y: 0}
   - {x: 0, y: 0}
   projectilePrefab: {fileID: 0}
-  maxSP: 30
+  skills:
+  - {fileID: 11400000, guid: a282fb770a3e6a74b91bb698f9ff496e, type: 2}
+  defaultSkillIndex: 0
   initialSP: 0
-  autoRecoverSP: 1

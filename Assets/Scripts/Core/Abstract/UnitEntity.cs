@@ -52,11 +52,16 @@ public abstract class UnitEntity : MonoBehaviour, ITargettable, IFactionMember
 
         Prefab = Data.prefab;
     }
+
+    public virtual void TakeDamage(AttackType attackType, float damage)
+    {
+        TakeDamage(attackType, damage, null);
+    }
     
     /// <summary>
     /// 피격 대미지 계산, 체력 갱신
     /// </summary>
-    public virtual void TakeDamage(AttackType attacktype, float damage)
+    public virtual void TakeDamage(AttackType attacktype, float damage, UnitEntity attacker = null)
     {
         float actualDamage = CalculateActualDamage(attacktype, damage);
         CurrentHealth = Mathf.Max(0, CurrentHealth - actualDamage);

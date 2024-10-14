@@ -9,14 +9,16 @@ public class Projectile : MonoBehaviour
     public float damage;
     public bool showDamage;
     public AttackType attackType;
+    private UnitEntity attacker;
     private UnitEntity target;
     private Vector3 lastKnownPosition; // 마지막으로 알려진 적의 위치
     private string poolTag;
     public string PoolTag { get; private set; }
     private bool isMarkedForRemoval;
 
-    public void Initialize(UnitEntity target, AttackType attackType, float damage, bool showDamage, string poolTag)
+    public void Initialize(UnitEntity attacker, UnitEntity target, AttackType attackType, float damage, bool showDamage, string poolTag)
     {
+        this.attacker = attacker;
         this.target = target;
         this.attackType = attackType;
         this.damage = damage;
@@ -57,7 +59,7 @@ public class Projectile : MonoBehaviour
                 ObjectPoolManager.Instance.ShowDamagePopup(target.transform.position, damage);
             }
 
-            target.TakeDamage(attackType, damage);
+            target.TakeDamage(attackType, damage, attacker);
         }
 
         ReturnToPool();

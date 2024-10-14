@@ -2,7 +2,6 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using Skills.Base;
-using System;
 
 public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
 {
@@ -278,7 +277,7 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
     private void PerformMeleeAttack(UnitEntity target, AttackType attackType, float damage, bool showDamagePopup)
     {
         SetAttackTimings();
-        target.TakeDamage(attackType, damage);
+        target.TakeDamage(attackType, damage, this);
 
         if (showDamagePopup)
         {
@@ -300,7 +299,7 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
                 Projectile projectile = projectileObj.GetComponent<Projectile>();
                 if (projectile != null)
                 {
-                    projectile.Initialize(target, attackType, damage, showDamagePopup, projectileTag);
+                    projectile.Initialize(this, target, attackType, damage, showDamagePopup, projectileTag);
                 }
             }
         }
@@ -392,9 +391,10 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
     // SP 자동회복 로직 추가
     private void RecoverSP()
     {
-        if (IsDeployed == false) { return;  }
+        if (IsDeployed == false || ActiveSkill == null) { return;  }
 
         float oldSP = CurrentSP;
+
         if (ActiveSkill.AutoRecover)
         {
             CurrentSP = Mathf.Min(CurrentSP + currentStats.SPRecoveryRate * Time.deltaTime, MaxSP);    
@@ -425,6 +425,7 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
     public override void TakeDamage(AttackType attackType, float damage)
     {
         base.TakeDamage(attackType, damage);
+        StatisticsManager.Instance.UpdateDamageTaken(this, damage);
     }
 
     protected override void Die()

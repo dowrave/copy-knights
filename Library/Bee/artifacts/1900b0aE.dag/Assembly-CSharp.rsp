@@ -404,6 +404,7 @@
 "Assets/Scripts/Stage/SpawnerManager.cs"
 "Assets/Scripts/Stage/StageData.cs"
 "Assets/Scripts/Stage/StageManager.cs"
+"Assets/Scripts/Stage/StatisticsManager.cs"
 "Assets/Scripts/Stage/Tile.cs"
 "Assets/Scripts/Stage/TileData.cs"
 "Assets/Scripts/Stage/UserSquadManager.cs"
@@ -420,6 +421,7 @@
 "Assets/Scripts/UI/InfoPanel.cs"
 "Assets/Scripts/UI/MaskedDiamondOverlay.cs"
 "Assets/Scripts/UI/OperatorUI.cs"
+"Assets/Scripts/UI/StatisticItem.cs"
 "Assets/Scripts/UI/UIManager.cs"
 "Assets/Scripts/Unit/Projectile.cs"
 -langversion:9.0

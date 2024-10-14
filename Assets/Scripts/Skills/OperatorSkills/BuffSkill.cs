@@ -35,7 +35,7 @@ namespace Skills.OperatorSkills
         private IEnumerator ApplyBuff(Operator op)
         {
             // 원래 스탯 저장
-            float originalCurrentHealth = op.CurrentHealth;
+            //float originalCurrentHealth = op.CurrentHealth; 
             float originalMaxHealth = op.MaxHealth;
             float originalAttackPower = op.AttackPower;
             float origianlAttackSpeed = op.AttackSpeed; 
@@ -67,7 +67,8 @@ namespace Skills.OperatorSkills
             GameObject buffEffect = null;
             if (BuffEffectPrefab != null)
             {
-                Vector3 buffEffectPosition = new Vector3(op.transform.position.x, 0, op.transform.position.z);
+                // 
+                Vector3 buffEffectPosition = new Vector3(op.transform.position.x, 0.05f, op.transform.position.z);
                 buffEffect = Instantiate(BuffEffectPrefab, buffEffectPosition, Quaternion.identity);
                 buffEffect.transform.SetParent(op.transform);
             }
@@ -85,7 +86,14 @@ namespace Skills.OperatorSkills
             }
 
             // 버프 해제
-            op.CurrentHealth = originalCurrentHealth;
+
+            // 1. 해제 직전의 현재 체력 > 최대 체력이라면 현재 체력은 원래의 최대 체력값이 됨
+            if (op.CurrentHealth > originalMaxHealth) 
+            {
+                op.CurrentHealth = originalMaxHealth; 
+            }
+            // 2. 해제 직전의 현재 체력 <= 최대 체력이면 그대로 유지
+
             op.MaxHealth = originalMaxHealth;
             op.AttackPower = originalAttackPower;
             op.currentStats.Defense = originalDefense;
