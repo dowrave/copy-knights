@@ -401,7 +401,6 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity
         // attacker가 null일 때에도 잘 동작합니다
         if (attacker is Operator op)
         {
-            Debug.Log($"{this} enemy 인스턴스가 공격 받음, 스탯 매니저 업데이트 시작");
             StatisticsManager.Instance.UpdateDamageDealt(op, actualDamage);
         }
 

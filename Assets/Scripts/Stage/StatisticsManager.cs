@@ -1,38 +1,36 @@
-
-
 using System.Collections.Generic;
-using System.Data;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.UI;
 
-
-public class StatisticsManager: MonoBehaviour
+public class StatisticsManager : MonoBehaviour
 {
-    // 싱글턴
     public static StatisticsManager Instance { get; private set; }
 
-    // 통계 데이터 구조체
     [System.Serializable]
     public struct OperatorStats
     {
-        public Operator opName; 
-        public float damageDealt; // 입힌 대미지
-        public float damageTaken; // 받은 대미지
-        public float healingDone; // 회복한 양
+        public Operator op;
+        public float damageDealt;
+        public float damageTaken;
+        public float healingDone;
     }
 
     private List<OperatorStats> allOperatorStats = new List<OperatorStats>();
 
     [SerializeField] private GameObject statisticsPanel;
     [SerializeField] private Button toggleButton;
-    [SerializeField] private Transform statsContent;
-    [SerializeField] private GameObject statItemPrefab; // 개별 오퍼레이터 및 기여도 표시
+    [SerializeField] private Transform statsContainer;
+    [SerializeField] private GameObject statItemPrefab;
 
-    // 탭 버튼들
     [SerializeField] private Button damageDealtTab;
     [SerializeField] private Button damageTakenTab;
     [SerializeField] private Button healingDoneTab;
+
+    public static event System.Action<Operator, StatType> OnStatUpdated;
+
+    private List<StatisticItem> activeStatItems = new List<StatisticItem>();
+    private StatType currentDisplayedStatType;
 
     private void Awake()
     {
@@ -45,36 +43,38 @@ public class StatisticsManager: MonoBehaviour
             Destroy(gameObject);
         }
 
-        // 토글 버튼 이벤트 리스너
         toggleButton.onClick.AddListener(ToggleStatisticsPanel);
         damageDealtTab.onClick.AddListener(() => ShowStats(StatType.DamageDealt));
         damageTakenTab.onClick.AddListener(() => ShowStats(StatType.DamageTaken));
         healingDoneTab.onClick.AddListener(() => ShowStats(StatType.HealingDone));
-
     }
 
     private void Start()
     {
-        statisticsPanel.SetActive(false); // 토글 버튼 눌러야만 활성화
+        statisticsPanel.SetActive(false);
     }
 
-    // 통계 업데이트 메서드
     public void UpdateDamageDealt(Operator op, float damage)
     {
         UpdateStat(op, damage, StatType.DamageDealt);
     }
+
     public void UpdateDamageTaken(Operator op, float damage)
     {
         UpdateStat(op, damage, StatType.DamageTaken);
     }
-    public void UpdateHealingDone(Operator op, float damage)
+
+    public void UpdateHealingDone(Operator op, float healing)
     {
-        UpdateStat(op, damage, StatType.HealingDone);
+        UpdateStat(op, healing, StatType.HealingDone);
     }
 
+    /// <summary>
+    /// 특정 통계 유형에 대한 오퍼레이터의 값을 업데이트합니다.
+    /// </summary>
     private void UpdateStat(Operator op, float value, StatType statType)
     {
-        var stat = allOperatorStats.Find(s => s.opName == op);
+        var stat = allOperatorStats.Find(s => s.op == op);
         int index = allOperatorStats.IndexOf(stat);
 
         if (index != -1)
@@ -95,7 +95,7 @@ public class StatisticsManager: MonoBehaviour
         }
         else
         {
-            stat = new OperatorStats { opName = op };
+            stat = new OperatorStats { op = op };
             switch (statType)
             {
                 case StatType.DamageDealt:
@@ -110,77 +110,126 @@ public class StatisticsManager: MonoBehaviour
             }
             allOperatorStats.Add(stat);
         }
+
+        OnStatUpdated?.Invoke(op, statType);
+        UpdateStatItems(statType);
     }
 
+    /// <summary>
+    /// 통계 패널의 표시 여부를 전환합니다.
+    /// </summary>
     private void ToggleStatisticsPanel()
     {
         statisticsPanel.SetActive(!statisticsPanel.activeSelf);
+
         if (statisticsPanel.activeSelf)
         {
-            ShowStats(StatType.DamageDealt); // 기본 표시
+            ShowStats(StatType.DamageDealt);
         }
     }
 
+    /// <summary>
+    /// 특정 통계 유형에 대한 정보를 표시합니다.
+    /// </summary>
     private void ShowStats(StatType statType)
     {
-        // 기존 통계 항목 제거
-        foreach (Transform child in statsContent)
+        currentDisplayedStatType = statType;
+        UpdateStatItems(statType);
+    }
+
+    /// <summary>
+    /// 현재 표시 중인 통계 유형에 대한 StatItem들을 업데이트합니다.
+    /// </summary>
+    private void UpdateStatItems(StatType statType)
+    {
+        if (statType != currentDisplayedStatType) return;
+
+        var topOperators = GetTopOperators(statType, 3);
+
+        // 기존 StatItem 업데이트 또는 제거
+        for (int i = activeStatItems.Count - 1; i >= 0; i--)
         {
-            Destroy(child.gameObject);
+            if (i < topOperators.Count && topOperators[i].op == activeStatItems[i].op)
+            {
+                activeStatItems[i].UpdateDisplay();
+            }
+            else
+            {
+                Destroy(activeStatItems[i].gameObject);
+                activeStatItems.RemoveAt(i);
+            }
         }
 
-        var sortedStats = SortAndFilterStats(statType);
-        Debug.Log($"스탯 정렬");
-        // 상위 3개 항목 표시
-        for (int i = 0; i < Mathf.Min(3, sortedStats.Count); i++)
+        // 새로운 StatItem 추가
+        for (int i = activeStatItems.Count; i < topOperators.Count; i++)
         {
-            CreateStatItem(sortedStats[i], statType, GetTotalValueForStatType(statType));
+            CreateStatItem(topOperators[i].op, statType);
+        }
+
+        ReorganizeStatItems();
+    }
+
+    /// <summary>
+    /// 새로운 StatItem을 생성합니다.
+    /// </summary>
+    private void CreateStatItem(Operator op, StatType statType)
+    {
+        GameObject item = Instantiate(statItemPrefab, statsContainer);
+        StatisticItem statItem = item.GetComponent<StatisticItem>();
+        if (statItem != null)
+        {
+            statItem.Initialize(op, statType);
+            activeStatItems.Add(statItem);
         }
     }
 
-    private List<OperatorStats> SortAndFilterStats(StatType statType)
+    /// <summary>
+    /// StatItem들의 순서를 재정렬합니다.
+    /// </summary>
+    private void ReorganizeStatItems()
+    {
+        for (int i = 0; i < activeStatItems.Count; i++)
+        {
+            activeStatItems[i].transform.SetSiblingIndex(i);
+        }
+    }
+
+    /// <summary>
+    /// 특정 통계 유형에 대해 상위 오퍼레이터들을 반환합니다.
+    /// </summary>
+    public List<OperatorStats> GetTopOperators(StatType statType, int count)
     {
         return allOperatorStats
-            .Where(s => GetValueForStatType(s, statType) > 0)
-            .OrderByDescending(s => GetValueForStatType(s, statType))
+            .OrderByDescending(s => GetOperatorValueForStatType(s.op, statType))
+            .Take(count)
             .ToList();
     }
 
-    private float GetValueForStatType(OperatorStats stats, StatType statType)
+    /// <summary>
+    /// 특정 오퍼레이터의 특정 통계 유형에 대한 값을 반환합니다.
+    /// </summary>
+    public float GetOperatorValueForStatType(Operator op, StatType statType)
     {
+        var stat = allOperatorStats.Find(s => s.op == op);
         switch (statType)
         {
             case StatType.DamageDealt:
-                return stats.damageDealt;
+                return stat.damageDealt;
             case StatType.DamageTaken:
-                return stats.damageTaken;
+                return stat.damageTaken;
             case StatType.HealingDone:
-                return stats.healingDone;
+                return stat.healingDone;
             default:
                 return 0;
         }
     }
-    
-    private float GetTotalValueForStatType(StatType statType)
+
+    /// <summary>
+    /// 특정 통계 유형에 대한 모든 오퍼레이터의 총 값을 반환합니다.
+    /// </summary>
+    public float GetTotalValueForStatType(StatType statType)
     {
-        return allOperatorStats.Sum(s => GetValueForStatType(s, statType));
-    }
-
-    private void CreateStatItem(OperatorStats stat, StatType statType, float totalValue)
-    {
-        GameObject item = Instantiate(statItemPrefab, statsContent);
-        StatisticItem statItem = item.GetComponent<StatisticItem>();
-        Debug.Log("statItem 초기화");
-
-        if (statItem != null)
-        {
-            float value = GetValueForStatType(stat, statType);
-            float percentage = (totalValue > 0) ? (value / totalValue) * 100 : 0;
-
-            Debug.Log("statItem 초기화 작동");
-
-            statItem.Initialize(stat.opName, value, percentage, statType);
-        }
+        return allOperatorStats.Sum(s => GetOperatorValueForStatType(s.op, statType));
     }
 
     public enum StatType
