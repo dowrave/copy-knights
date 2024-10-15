@@ -83,9 +83,9 @@
     <Compile Include="Assets\Scripts\Skills\Base\Skill.cs" />
     <Compile Include="Assets\Scripts\Stage\StageManager.cs" />
     <Compile Include="Assets\Scripts\Stage\UserSquadManager.cs" />
+    <Compile Include="Assets\Scripts\UI\StatisticItem.cs" />
     <Compile Include="Assets\Scripts\Entities\Enemy.cs" />
     <Compile Include="Assets\Scripts\UI\DeployableBox.cs" />
-    <Compile Include="Assets\Scripts\UI\StatisticItem.cs" />
     <Compile Include="Assets\Scripts\UI\HealthBar.cs" />
     <Compile Include="Assets\Scripts\Core\Interfaces\ICombatEntity.cs" />
     <Compile Include="Assets\Scripts\UI\DeploymentCostPanel.cs" />
