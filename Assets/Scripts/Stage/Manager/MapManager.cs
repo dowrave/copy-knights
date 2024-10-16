@@ -5,8 +5,7 @@ using System.Collections.Generic;
  MapManager의 역할
 1. 맵 데이터 로드 및 관리
 2. 타일 정보 제공
-3. 경로 찾기 기능 제공
-4. 맵 관련 유틸리티 함수 제공(월드 <-> 그리드 좌표)
+3. 맵 관련 유틸리티 함수 제공(월드 <-> 그리드 좌표)
  */
 public class MapManager : MonoBehaviour
 { 

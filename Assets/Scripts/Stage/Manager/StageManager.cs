@@ -1,10 +1,9 @@
 using UnityEngine;
-using UnityEngine.UI;
-//using System.Collections.Generic; // IEnumerator<T> - 제네릭 버전
 using System.Collections; // IEnumerator - 코루틴에서 주로 사용하는 버전
-using TMPro;
 using UnityEngine.SceneManagement;
 using System.Collections.Generic;
+using DG.Tweening;
+
 
 /*
  StageManager의 역할
@@ -108,6 +107,8 @@ public class StageManager : MonoBehaviour
         {
             Destroy(gameObject);
         }
+
+        DOTween.SetTweensCapacity(500, 50); // 동시에 실행될 애니메이션의 수 / 여러 애니메이션이 순차적으로 실행되는 수
 
         UIManager.Instance.UpdateSpeedUpButtonVisual();
         UIManager.Instance.UpdatePauseButtonVisual();

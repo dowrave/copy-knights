@@ -118,8 +118,10 @@
 -define:ENABLE_TIMELINE
 -define:ENABLE_LEGACY_INPUT_MANAGER
 -define:TEXTCORE_FONT_ENGINE_1_5_OR_NEWER
+-define:DOTWEEN
 -define:CSHARP_7_OR_LATER
 -define:CSHARP_7_3_OR_NEWER
+-r:"Assets/Plugins/Demigiant/DOTween/DOTween.dll"
 -r:"C:/Program Files/Unity/Hub/Editor/2022.3.34f1/Editor/Data/Managed/UnityEngine/UnityEditor.CoreModule.dll"
 -r:"C:/Program Files/Unity/Hub/Editor/2022.3.34f1/Editor/Data/Managed/UnityEngine/UnityEditor.DeviceSimulatorModule.dll"
 -r:"C:/Program Files/Unity/Hub/Editor/2022.3.34f1/Editor/Data/Managed/UnityEngine/UnityEditor.DiagnosticsModule.dll"
@@ -331,7 +333,9 @@
 -r:"Library/PackageCache/com.unity.testtools.codecoverage@1.2.5/lib/ReportGenerator/ReportGeneratorMerged.dll"
 -r:"Library/PackageCache/com.unity.visualscripting@1.9.4/Runtime/VisualScripting.Flow/Dependencies/NCalc/Unity.VisualScripting.Antlr3.Runtime.dll"
 -r:"Library/PackageCache/jillejr.newtonsoft.json-for-unity@f2c6cb0981/Plugins/Newtonsoft.Json Editor/Newtonsoft.Json.dll"
+-r:"Library/Bee/artifacts/1900b0aE.dag/Assembly-CSharp-firstpass.ref.dll"
 -r:"Library/Bee/artifacts/1900b0aE.dag/PPv2URPConverters.ref.dll"
+-r:"Library/Bee/artifacts/1900b0aE.dag/Unity.2D.Sprite.Editor.ref.dll"
 -r:"Library/Bee/artifacts/1900b0aE.dag/Unity.Burst.Editor.ref.dll"
 -r:"Library/Bee/artifacts/1900b0aE.dag/Unity.Burst.ref.dll"
 -r:"Library/Bee/artifacts/1900b0aE.dag/Unity.EditorCoroutines.Editor.ref.dll"
@@ -395,6 +399,7 @@
 "Assets/Scripts/Stage/Manager/CameraManager.cs"
 "Assets/Scripts/Stage/Manager/ClickDetectionSystem.cs"
 "Assets/Scripts/Stage/Manager/DeployableManager.cs"
+"Assets/Scripts/Stage/Manager/MapManager.cs"
 "Assets/Scripts/Stage/Manager/ObjectPoolManager.cs"
 "Assets/Scripts/Stage/Manager/PathfindingManager.cs"
 "Assets/Scripts/Stage/Manager/SpawnerManager.cs"
@@ -403,7 +408,6 @@
 "Assets/Scripts/Stage/Manager/UserSquadManager.cs"
 "Assets/Scripts/Stage/Map/EnemySpawner.cs"
 "Assets/Scripts/Stage/Map/Map.cs"
-"Assets/Scripts/Stage/Map/MapManager.cs"
 "Assets/Scripts/Stage/PathData.cs"
 "Assets/Scripts/Stage/StageData.cs"
 "Assets/Scripts/Stage/Tile.cs"
@@ -422,6 +426,7 @@
 "Assets/Scripts/UI/MaskedDiamondOverlay.cs"
 "Assets/Scripts/UI/OperatorUI.cs"
 "Assets/Scripts/UI/StatisticItem.cs"
+"Assets/Scripts/UI/StatsContainer.cs"
 "Assets/Scripts/UI/UIManager.cs"
 "Assets/Scripts/Unit/Projectile.cs"
 -langversion:9.0
