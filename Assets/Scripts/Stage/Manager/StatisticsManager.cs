@@ -1,7 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
-using UnityEngine.UI;
 
 public class StatisticsManager : MonoBehaviour
 {
@@ -18,19 +17,9 @@ public class StatisticsManager : MonoBehaviour
 
     private List<OperatorStats> allOperatorStats = new List<OperatorStats>();
 
-    [SerializeField] private GameObject statisticsPanel;
-    [SerializeField] private Button toggleButton;
-    [SerializeField] private Transform statsContainer;
-    [SerializeField] private GameObject statItemPrefab;
-
-    [SerializeField] private Button damageDealtTab;
-    [SerializeField] private Button damageTakenTab;
-    [SerializeField] private Button healingDoneTab;
+    [SerializeField] private StatsContainer statsContainer;
 
     public static event System.Action<Operator, StatType> OnStatUpdated;
-
-    private List<StatisticItem> activeStatItems = new List<StatisticItem>();
-    private StatType currentDisplayedStatType;
 
     private void Awake()
     {
@@ -43,16 +32,13 @@ public class StatisticsManager : MonoBehaviour
             Destroy(gameObject);
         }
 
-        toggleButton.onClick.AddListener(ToggleStatisticsPanel);
-        damageDealtTab.onClick.AddListener(() => ShowStats(StatType.DamageDealt));
-        damageTakenTab.onClick.AddListener(() => ShowStats(StatType.DamageTaken));
-        healingDoneTab.onClick.AddListener(() => ShowStats(StatType.HealingDone));
+        if (statsContainer == null)
+        {
+            Debug.LogError("StatsContainer가 할당되어 있지 않음!");
+        }
+
     }
 
-    private void Start()
-    {
-        statisticsPanel.SetActive(false);
-    }
 
     public void UpdateDamageDealt(Operator op, float damage)
     {
@@ -112,86 +98,7 @@ public class StatisticsManager : MonoBehaviour
         }
 
         OnStatUpdated?.Invoke(op, statType);
-        UpdateStatItems(statType);
-    }
-
-    /// <summary>
-    /// 통계 패널의 표시 여부를 전환합니다.
-    /// </summary>
-    private void ToggleStatisticsPanel()
-    {
-        statisticsPanel.SetActive(!statisticsPanel.activeSelf);
-
-        if (statisticsPanel.activeSelf)
-        {
-            ShowStats(StatType.DamageDealt);
-        }
-    }
-
-    /// <summary>
-    /// 특정 통계 유형에 대한 정보를 표시합니다.
-    /// </summary>
-    private void ShowStats(StatType statType)
-    {
-        currentDisplayedStatType = statType;
-        UpdateStatItems(statType);
-    }
-
-    /// <summary>
-    /// 현재 표시 중인 통계 유형에 대한 StatItem들을 업데이트합니다.
-    /// </summary>
-    private void UpdateStatItems(StatType statType)
-    {
-        if (statType != currentDisplayedStatType) return;
-
-        var topOperators = GetTopOperators(statType, 3);
-
-        // 기존 StatItem 업데이트 또는 제거
-        for (int i = activeStatItems.Count - 1; i >= 0; i--)
-        {
-            if (i < topOperators.Count && topOperators[i].op == activeStatItems[i].op)
-            {
-                activeStatItems[i].UpdateDisplay();
-            }
-            else
-            {
-                Destroy(activeStatItems[i].gameObject);
-                activeStatItems.RemoveAt(i);
-            }
-        }
-
-        // 새로운 StatItem 추가
-        for (int i = activeStatItems.Count; i < topOperators.Count; i++)
-        {
-            CreateStatItem(topOperators[i].op, statType);
-        }
-
-        ReorganizeStatItems();
-    }
-
-    /// <summary>
-    /// 새로운 StatItem을 생성합니다.
-    /// </summary>
-    private void CreateStatItem(Operator op, StatType statType)
-    {
-        GameObject item = Instantiate(statItemPrefab, statsContainer);
-        StatisticItem statItem = item.GetComponent<StatisticItem>();
-        if (statItem != null)
-        {
-            statItem.Initialize(op, statType);
-            activeStatItems.Add(statItem);
-        }
-    }
-
-    /// <summary>
-    /// StatItem들의 순서를 재정렬합니다.
-    /// </summary>
-    private void ReorganizeStatItems()
-    {
-        for (int i = 0; i < activeStatItems.Count; i++)
-        {
-            activeStatItems[i].transform.SetSiblingIndex(i);
-        }
+        statsContainer.UpdateStatItems(statType);
     }
 
     /// <summary>

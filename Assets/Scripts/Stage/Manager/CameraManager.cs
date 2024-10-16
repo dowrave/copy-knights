@@ -10,11 +10,10 @@ public class CameraManager : MonoBehaviour
     private float animationDuration = 0.1f;
 
     // OperatorInfo가 나타날 때 카메라의 위치 / 높이 변화
-    [SerializeField] private float cameraShiftAmount = -0.1f;
-    [SerializeField] private float cameraHeightAmount = 1f;
-    [SerializeField] private float clickedOperatorZShiftAmount = 2f;
-
-    [SerializeField] private Vector3 operatorInfoRotation = new Vector3(0, -15, -15);
+    private float cameraShiftAmount = -0.1f;
+    private float cameraHeightAmount = 1f;
+    private float clickedOperatorZShiftAmount = 2f;
+    private Vector3 operatorInfoRotation = new Vector3(0, -15, -15);
 
     public Camera MainCamera { get; private set; }
     private Vector3 originalPosition;
