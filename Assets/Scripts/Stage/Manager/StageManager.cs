@@ -109,14 +109,15 @@ public class StageManager : MonoBehaviour
         }
 
         DOTween.SetTweensCapacity(500, 50); // 동시에 실행될 애니메이션의 수 / 여러 애니메이션이 순차적으로 실행되는 수
-
-        UIManager.Instance.UpdateSpeedUpButtonVisual();
-        UIManager.Instance.UpdatePauseButtonVisual();
     }
 
     private void Start()
     {
-        CurrentLifePoints = maxLifePoints; 
+        // Awake에서 UIManager null 에러가 갑자기 떠서 Start로 옮겨놨음
+        UIManager.Instance.UpdateSpeedUpButtonVisual();
+        UIManager.Instance.UpdatePauseButtonVisual();
+
+        CurrentLifePoints = maxLifePoints;
 
         Debug.Log("스테이지 준비");
         InitializeStage(); // 스테이지 준비

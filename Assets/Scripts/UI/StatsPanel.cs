@@ -5,13 +5,17 @@ using UnityEngine;
 using UnityEngine.UI;
 
 
-public class StatsContainer : MonoBehaviour
+public class StatsPanel : MonoBehaviour
 {
-    [SerializeField] private GameObject statisticsPanel;
+    [SerializeField] private GameObject statisticsContainer;
     [SerializeField] private Button statisticsToggleButton;
     TextMeshProUGUI toggleButtonText;
     [SerializeField] private Transform statsItemContainer;
     [SerializeField] private GameObject statItemPrefab;
+
+    [SerializeField] private StatisticItem firstStatItem;
+    [SerializeField] private StatisticItem secondStatItem;
+    [SerializeField] private StatisticItem thirdStatItem;
 
     [SerializeField] private Button damageDealtTab;
     [SerializeField] private Button damageTakenTab;
@@ -25,11 +29,14 @@ public class StatsContainer : MonoBehaviour
     private List<StatisticItem> activeStatItems = new List<StatisticItem>();
     private StatisticsManager.StatType currentDisplayedStatType;
 
+    private Color defaultTabColor;
+    [SerializeField] private Color selectedTabColor = new Color(100, 100, 100);
+
     private void Awake()
     {
         // 활성화 여부에 따른 컨테이너의 위치 설정
         containerRect = GetComponent<RectTransform>();
-        float panelWidth = statisticsPanel.GetComponent<RectTransform>().rect.width; 
+        float panelWidth = statisticsContainer.GetComponent<RectTransform>().rect.width; 
         inactivePosition = containerRect.anchoredPosition;
         activePosition = new Vector2(inactivePosition.x + panelWidth, inactivePosition.y);
 
@@ -41,10 +48,21 @@ public class StatsContainer : MonoBehaviour
         damageDealtTab.onClick.AddListener(() => ShowStats(StatisticsManager.StatType.DamageDealt));
         damageTakenTab.onClick.AddListener(() => ShowStats(StatisticsManager.StatType.DamageTaken));
         healingDoneTab.onClick.AddListener(() => ShowStats(StatisticsManager.StatType.HealingDone));
+
+        // 버튼 초기 색상 설정 : 이미 있는 걸 가져옴
+        defaultTabColor = damageDealtTab.colors.normalColor;
     }
     private void Start()
-    { 
-        statisticsPanel.SetActive(false);
+    {
+        StatisticsManager.Instance.OnStatUpdated += ShowStatsByEvent;
+
+        // 최초에는 모두 비활성화
+        firstStatItem.gameObject.SetActive(false);
+        secondStatItem.gameObject.SetActive(false);
+        thirdStatItem.gameObject.SetActive(false);
+
+        statisticsContainer.SetActive(false);
+
     }
 
 
@@ -54,12 +72,12 @@ public class StatsContainer : MonoBehaviour
     private void ToggleStats()
     {
         // 바뀔 상태
-        bool willBeActive = !statisticsPanel.activeSelf;
+        bool willBeActive = !statisticsContainer.activeSelf;
 
         // 바뀔 상태가 활성인 경우
         if (willBeActive)
         {
-            statisticsPanel.SetActive(true);
+            statisticsContainer.SetActive(true);
 
             // 활성 위치로 애니메이션
             containerRect.DOAnchorPos(activePosition, 0.3f)
@@ -78,7 +96,7 @@ public class StatsContainer : MonoBehaviour
                 .SetEase(Ease.InQuad)
                 .OnComplete(() =>
                 {
-                    statisticsPanel.SetActive(false);
+                    statisticsContainer.SetActive(false);
                     toggleButtonText.text = ">";
                 });
         }
@@ -91,6 +109,34 @@ public class StatsContainer : MonoBehaviour
     {
         currentDisplayedStatType = statType;
         UpdateStatItems(statType);
+        SetTabColors(statType);
+    }
+
+    private void ShowStatsByEvent(StatisticsManager.StatType statType)
+    {
+        if (currentDisplayedStatType != statType) return;
+        ShowStats(statType);
+    }
+
+
+    /// <summary>
+    /// 선택된 탭의 색상을 변경합니다.
+    /// </summary>
+    private void SetTabColors(StatisticsManager.StatType selectedType)
+    {
+        SetTabColor(damageDealtTab, selectedType == StatisticsManager.StatType.DamageDealt);
+        SetTabColor(damageTakenTab, selectedType == StatisticsManager.StatType.DamageTaken);
+        SetTabColor(healingDoneTab, selectedType == StatisticsManager.StatType.HealingDone);
+    }
+
+    /// <summary>
+    /// 개별 탭 버튼의 색상을 설정합니다.
+    /// </summary>
+    private void SetTabColor(Button tab, bool isSelected)
+    {
+        var colors = tab.colors;
+        colors.normalColor = isSelected ? selectedTabColor : defaultTabColor;
+        tab.colors = colors;
     }
 
     /// <summary>
@@ -98,31 +144,38 @@ public class StatsContainer : MonoBehaviour
     /// </summary>
     public void UpdateStatItems(StatisticsManager.StatType statType)
     {
-        if (statType != currentDisplayedStatType) return;
-
         var topOperators = StatisticsManager.Instance.GetTopOperators(statType, 3);
 
-        // 기존 StatItem 업데이트 또는 제거
-        for (int i = activeStatItems.Count - 1; i >= 0; i--)
+        // 상위 3개의 statItem 반영 (topOperator 갯수에 따른 작동 여부는 메서드 내에 있음)
+        UpdateStatItem(firstStatItem, topOperators, 0, statType);
+        UpdateStatItem(secondStatItem, topOperators, 1, statType);
+        UpdateStatItem(thirdStatItem, topOperators, 2, statType);
+
+    }
+
+    private void UpdateStatItem(StatisticItem item, List<StatisticsManager.OperatorStats> stats, int index, StatisticsManager.StatType statType)
+    {
+
+        if (index < stats.Count)
         {
-            if (i < topOperators.Count && topOperators[i].op == activeStatItems[i].op)
+            Operator op = stats[index].op;
+            float value = StatisticsManager.Instance.GetOperatorValueForStatType(op, statType);
+
+            if (value > 0) // 기여한 값이 0이라면 나타나지 않게 함
             {
-                activeStatItems[i].UpdateDisplay();
+                item.gameObject.SetActive(true);
+                item.Initialize(stats[index].op, statType);
+                item.UpdateDisplay();
             }
             else
             {
-                Destroy(activeStatItems[i].gameObject);
-                activeStatItems.RemoveAt(i);
+                item.gameObject.SetActive(false);
             }
         }
-
-        // 새로운 StatItem 추가
-        for (int i = activeStatItems.Count; i < topOperators.Count; i++)
+        else
         {
-            CreateStatItem(topOperators[i].op, statType);
+            item.gameObject.SetActive(false);
         }
-
-        ReorganizeStatItems();
     }
 
     /// <summary>

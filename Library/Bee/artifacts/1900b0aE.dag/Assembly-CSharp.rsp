@@ -426,7 +426,7 @@
 "Assets/Scripts/UI/MaskedDiamondOverlay.cs"
 "Assets/Scripts/UI/OperatorUI.cs"
 "Assets/Scripts/UI/StatisticItem.cs"
-"Assets/Scripts/UI/StatsContainer.cs"
+"Assets/Scripts/UI/StatsPanel.cs"
 "Assets/Scripts/UI/UIManager.cs"
 "Assets/Scripts/Unit/Projectile.cs"
 -langversion:9.0

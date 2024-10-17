@@ -17,9 +17,9 @@ public class StatisticsManager : MonoBehaviour
 
     private List<OperatorStats> allOperatorStats = new List<OperatorStats>();
 
-    [SerializeField] private StatsContainer statsContainer;
+    [SerializeField] private StatsPanel statsPanel;
 
-    public static event System.Action<Operator, StatType> OnStatUpdated;
+    public event System.Action<StatType> OnStatUpdated; // 일단 시각화할지 여부만 결정할 것이므로 StatType만 넣음
 
     private void Awake()
     {
@@ -32,9 +32,9 @@ public class StatisticsManager : MonoBehaviour
             Destroy(gameObject);
         }
 
-        if (statsContainer == null)
+        if (statsPanel == null)
         {
-            Debug.LogError("StatsContainer가 할당되어 있지 않음!");
+            Debug.LogError("statsPanel이 할당되어 있지 않음!");
         }
 
     }
@@ -97,8 +97,8 @@ public class StatisticsManager : MonoBehaviour
             allOperatorStats.Add(stat);
         }
 
-        OnStatUpdated?.Invoke(op, statType);
-        statsContainer.UpdateStatItems(statType);
+        OnStatUpdated?.Invoke(statType);
+        //statsPanel.UpdateStatItems(statType);
     }
 
     /// <summary>
