@@ -25,7 +25,6 @@ public class StatisticItem : MonoBehaviour
         SetOperatorIcon(op);
         SetBarColor(statType);
         UpdateDisplay();
-        StatisticsManager.OnStatUpdated += OnStatUpdated;
     }
 
     private void SetOperatorIcon(Operator op)
@@ -97,10 +96,5 @@ public class StatisticItem : MonoBehaviour
     {
         percentageBar.value = percentage;
         percentageText.text = percentage.ToString("F1") + "%";
-    }
-
-    private void OnDestroy()
-    {
-        StatisticsManager.OnStatUpdated -= OnStatUpdated;
     }
 }
