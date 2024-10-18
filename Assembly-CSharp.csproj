@@ -61,6 +61,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Assets\Scripts\Core\Interfaces\IFactionMember.cs" />
+    <Compile Include="Assets\Scripts\Entities\MedicOperator.cs" />
     <Compile Include="Assets\Scripts\Stage\PathData.cs" />
     <Compile Include="Assets\Scripts\Core\Interfaces\IDeployable.cs" />
     <Compile Include="Assets\Scripts\Core\Interfaces\IBoxDeployableData.cs" />
@@ -71,6 +72,7 @@
     <Compile Include="Assets\Scripts\Stage\Tile.cs" />
     <Compile Include="Assets\Scripts\Core\Data\EnemyData.cs" />
     <Compile Include="Assets\Scripts\Stage\Manager\PathfindingManager.cs" />
+    <Compile Include="Assets\Scripts\UI\FloatingText.cs" />
     <Compile Include="Assets\Scripts\Entities\Barricade.cs" />
     <Compile Include="Assets\Scripts\Stage\Manager\StatisticsManager.cs" />
     <Compile Include="Assets\Scripts\UI\DiamondMask.cs" />
@@ -81,7 +83,6 @@
     <Compile Include="Assets\Scripts\Stage\Manager\ObjectPoolManager.cs" />
     <Compile Include="Assets\Scripts\UI\StatsPanel.cs" />
     <Compile Include="Assets\Scripts\Core\Data\DeployableUnitData.cs" />
-    <Compile Include="Assets\Scripts\UI\DamagePopup.cs" />
     <Compile Include="Assets\Scripts\UI\DeployableDeployingUI.cs" />
     <Compile Include="Assets\Scripts\Stage\Map\Map.cs" />
     <Compile Include="Assets\Scripts\Skills\Base\Skill.cs" />

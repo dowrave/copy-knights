@@ -7,6 +7,7 @@ public class OperatorData : ScriptableObject, IBoxDeployableData
 {
     // UnitData
     public string entityName;
+    public OperatorClass operatorClass;
     public OperatorStats stats;
     public GameObject prefab;
 
@@ -27,6 +28,15 @@ public class OperatorData : ScriptableObject, IBoxDeployableData
     public float initialSP = 0f;
 
 
+    public enum OperatorClass
+    {
+        Vanguard,
+        Guard,
+        Defender,
+        Caster,
+        Sniper,
+        Medic
+    }
 }
 
 
@@ -37,7 +47,7 @@ public struct OperatorStats
     [SerializeField] private float _attackPower;
     [SerializeField] private float _attackSpeed;
     [SerializeField] private int _maxBlockableEnemies;
-    [SerializeField] private float _currentSP;
+    [SerializeField] private float _startSP;
     [SerializeField] private float _spRecoveryRate;
 
     public float AttackPower
@@ -58,10 +68,10 @@ public struct OperatorStats
         set => _maxBlockableEnemies = value;
     }
 
-    public float CurrentSP
+    public float StartSP
     {
-        get => _currentSP;
-        set => _currentSP = value;
+        get => _startSP;
+        set => _startSP = value;
     }
 
     public float SPRecoveryRate

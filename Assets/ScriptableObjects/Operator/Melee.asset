@@ -13,6 +13,7 @@ MonoBehaviour:
   m_Name: Melee
   m_EditorClassIdentifier: 
   entityName: Melee
+  operatorClass: 1
   stats:
     _deployableUnitStats:
       _baseStats:
@@ -24,7 +25,7 @@ MonoBehaviour:
     _attackPower: 1000
     _attackSpeed: 1.2
     _maxBlockableEnemies: 1
-    _currentSP: 0
+    _startSP: 0
     _spRecoveryRate: 1
   prefab: {fileID: 5185628148525671535, guid: 81719ee7b084ab740915d07222eb2ab8, type: 3}
   icon: {fileID: 0}

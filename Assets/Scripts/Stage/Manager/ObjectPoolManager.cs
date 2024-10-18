@@ -34,17 +34,17 @@ public class ObjectPoolManager : MonoBehaviour
     public Dictionary<string, Queue<GameObject>> poolDictionary;
     private HashSet<string> poolsMarkedForRemoval = new HashSet<string>();
 
-    // 대미지 팝업 관련
-    [SerializeField] private GameObject damagePopupPrefab;
-    private const string DAMAGE_POPUP_TAG = "DamagePopup";
-    private int damagePopupPoolSize = 10;
+    // 텍스트 관련
+    [SerializeField] private GameObject floatingTextPrefab;
+    public string FLOATING_TEXT_TAG = "FloatingText";
+    [SerializeField] private int floatingTextCounts = 2;
 
     private void Start()
     {
         poolDictionary = new Dictionary<string, Queue<GameObject>>();
 
-        // 대미지 팝업 풀 생성
-        CreatePool(DAMAGE_POPUP_TAG, damagePopupPrefab, damagePopupPoolSize);
+        // 팝업 텍스트 풀 생성
+        CreatePool(FLOATING_TEXT_TAG, floatingTextPrefab, floatingTextCounts);
 
     }
 
@@ -81,6 +81,7 @@ public class ObjectPoolManager : MonoBehaviour
 
         Queue<GameObject> objectPool = poolDictionary[tag];
 
+        // 모든 생성된 객체가 나갔다면 새로운 인스턴스를 만듦
         if (objectPool.Count == 0)
         {
             Pool poolInfo = pools.Find(p => p.tag == tag);
@@ -88,6 +89,7 @@ public class ObjectPoolManager : MonoBehaviour
             return SetupPooledObject(newObj, tag, position, rotation);
         }
 
+        // 이미 생성된 객체가 있다면, 그냥 큐에서 빼냄
         GameObject objectToSpawn = objectPool.Dequeue();
         return SetupPooledObject(objectToSpawn, tag, position, rotation);
     }
@@ -125,12 +127,14 @@ public class ObjectPoolManager : MonoBehaviour
         if (poolsMarkedForRemoval.Contains(tag))
         {
             Destroy(obj);
+
             CheckAndRemovePool(tag);
         }
         else if (poolDictionary.TryGetValue(tag, out Queue<GameObject> objectPool))
         {
-            obj.SetActive(false);
+            // 뺄 때, 큐에서 뺀 다음 활성화했음 -> 넣을 때도 큐에 넣은 다음 비활성화? 비활성화한 다음 큐에 넣음? 
             poolDictionary[tag].Enqueue(obj);
+            obj.SetActive(false);
         }
     }
 
@@ -197,15 +201,15 @@ public class ObjectPoolManager : MonoBehaviour
     }
 
     // 대미지 팝업 관련 구현
-    public void ShowDamagePopup(Vector3 position, float damage)
+    public void ShowFloatingText(Vector3 position, float value, bool isHealing)
     {
-        GameObject popupObj = SpawnFromPool(DAMAGE_POPUP_TAG, position, Quaternion.identity);
+        GameObject popupObj = SpawnFromPool(FLOATING_TEXT_TAG, position, Quaternion.identity);
         if (popupObj != null)
         {
-            DamagePopup popup = popupObj.GetComponent<DamagePopup>();
+            FloatingText popup = popupObj.GetComponent<FloatingText>();
             if (popup != null)
             {
-                popup.SetDamage(damage);
+                popup.SetValue(value, isHealing);
             }
         }
     }

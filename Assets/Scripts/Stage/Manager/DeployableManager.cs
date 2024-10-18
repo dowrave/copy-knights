@@ -295,7 +295,13 @@ public class DeployableManager : MonoBehaviour
             GameObject deployableObject = Instantiate(currentDeployablePrefab);
             currentDeployable = deployableObject.GetComponent<DeployableUnitEntity>();
 
-            if (currentDeployable is Operator op)
+            // 메딕으로서의 초기화
+            if (currentDeployable is MedicOperator medic)
+            {
+                medic.Initialize(medic.Data);
+            }
+            // 공격가능한 오퍼레이터로서의 초기화
+            else if (currentDeployable is Operator op)
             {
                 op.Initialize(op.Data);
             }

@@ -145,4 +145,10 @@ public abstract class UnitEntity : MonoBehaviour, ITargettable, IFactionMember
         MaxHealth = currentStats.Health;
         CurrentHealth = MaxHealth;
     }
+
+    public virtual void TakeHeal(float healQuantity)
+    {
+        CurrentHealth += healQuantity; // CurrentHealth의 세터에 최댓값이 넘으면 보정하는 함수 들어가 있음
+        ObjectPoolManager.Instance.ShowFloatingText(transform.position, healQuantity, true);
+    }
 }

@@ -18,8 +18,8 @@ public class UnitEntityEditor : Editor
         var unitEntity = target as UnitEntity;
         var currentType = unitEntity?.GetType();
 
-        // Operator 클래스인 경우 특별 처리
-        if (currentType == typeof(Operator))
+        // Operator 및 자식 클래스라면 OperatorData를 띄우도록 함
+        if (typeof(Operator).IsAssignableFrom(currentType))
         {
             DrawOperatorInspector();
         }

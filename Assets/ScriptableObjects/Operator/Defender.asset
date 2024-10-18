@@ -13,6 +13,7 @@ MonoBehaviour:
   m_Name: Defender
   m_EditorClassIdentifier: 
   entityName: Defender
+  operatorClass: 2
   stats:
     _deployableUnitStats:
       _baseStats:
@@ -24,7 +25,7 @@ MonoBehaviour:
     _attackPower: 300
     _attackSpeed: 1.4
     _maxBlockableEnemies: 3
-    _currentSP: 0
+    _startSP: 0
     _spRecoveryRate: 1
   prefab: {fileID: 5185628148525671535, guid: 893fa93acddf71e49b2aa2d5eb52e121, type: 3}
   icon: {fileID: 0}
@@ -35,9 +36,7 @@ MonoBehaviour:
   attackableTiles:
   - {x: 0, y: 0}
   projectilePrefab: {fileID: 0}
-  maxSP: 30
-  initialSP: 0
-  autoRecoverSP: 1
   skills:
   - {fileID: 11400000, guid: 56285db420c7a9249a3a7967d3550fd4, type: 2}
   defaultSkillIndex: 0
+  initialSP: 0
