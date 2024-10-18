@@ -6,10 +6,10 @@ using Skills.Base;
 public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
 {
     [SerializeField]
-    private OperatorData operatorData;
-    public new OperatorData Data { get => operatorData; private set => operatorData = value; }
-
-    public new OperatorStats currentStats;
+    protected OperatorData operatorData;
+    public new OperatorData Data { get => operatorData; protected set => operatorData = value; }
+    
+    [HideInInspector] public new OperatorStats currentStats;
 
     // ICombatEntity 필드
     public AttackType AttackType => operatorData.attackType;
@@ -80,20 +80,20 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
         }
     }
 
-    public float AttackCooldown { get; private set; }
-    public float AttackDuration { get; private set; }
+    public float AttackCooldown { get; protected set; }
+    public float AttackDuration { get; protected set; }
    
     public Vector2Int[] CurrentAttackbleTiles { get; set; }
 
     // 공격 범위 내에 있는 적들 
-    List<Enemy> enemiesInRange = new List<Enemy>();
+    protected List<Enemy> enemiesInRange = new List<Enemy>();
 
     // IRotatble 필드
-    private Vector3 facingDirection = Vector3.left;
+    protected Vector3 facingDirection = Vector3.left;
     public Vector3 FacingDirection
     {
         get => facingDirection;
-        private set
+        protected set
         {
             facingDirection = value.normalized;
             transform.forward = facingDirection;
@@ -102,42 +102,42 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
     }
 
     // 저지 관련
-    private List<Enemy> blockedEnemies = new List<Enemy>(); // 저지 중인 적들. Awake 이전에 초기화됨.
+    protected List<Enemy> blockedEnemies = new List<Enemy>(); // 저지 중인 적들. Awake 이전에 초기화됨.
 
-    public int DeploymentOrder { get; private set; } // 배치 순서
-    private bool isDeployed = false; // 배치 완료 시 true
-    public UnitEntity CurrentTarget { get; private set; }
+    public int DeploymentOrder { get; protected set; } // 배치 순서
+    protected bool isDeployed = false; // 배치 완료 시 true
+    public UnitEntity CurrentTarget { get; protected set; }
 
-
+    protected float currentSP;
     public float CurrentSP 
     {
-        get { return currentStats.CurrentSP; }
+        get { return currentSP; }
         set 
         { 
-            currentStats.CurrentSP = Mathf.Clamp(value, 0f, MaxSP);
+            currentSP = Mathf.Clamp(value, 0f, MaxSP);
             OnSPChanged?.Invoke(CurrentSP, MaxSP);
         }
     }
 
-    public float MaxSP { get; private set; }
+    public float MaxSP { get; protected set; }
 
-    [SerializeField] private GameObject operatorUIPrefab;
-    private GameObject operatorUIInstance;
-    private OperatorUI operatorUIScript;
-    private SpriteRenderer directionIndicator; // 방향 표시 UI
+    [SerializeField] protected GameObject operatorUIPrefab;
+    protected GameObject operatorUIInstance;
+    protected OperatorUI operatorUIScript;
+    protected SpriteRenderer directionIndicator; // 방향 표시 UI
 
     // 원거리 공격 오브젝트 풀 옵션
     protected int initialPoolSize = 5;
     protected string projectileTag; 
 
     // 스킬 관련
-    private List<Skill> skills;
-    private Skill activeSkill;
+    protected List<Skill> skills;
+    protected Skill activeSkill;
     public Skill ActiveSkill => activeSkill;
 
-    public bool IsSkillActive { get; private set; } = false;
-    public float SkillDuration { get; private set; } = 0f;
-    public float RemainingSkillDuration { get; private set; } = 0f;
+    public bool IsSkillActive { get; protected set; } = false;
+    public float SkillDuration { get; protected set; } = 0f;
+    public float RemainingSkillDuration { get; protected set; } = 0f;
 
     // 이벤트들
     public event System.Action<float, float> OnSPChanged;
@@ -150,7 +150,7 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
         base.Awake();
     }
 
-    public void Initialize(OperatorData operatorData)
+    public virtual void Initialize(OperatorData operatorData)
     {
         InitializeOperatorData(operatorData);
         InitializeUnitProperties();
@@ -158,7 +158,7 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
         InitializeOperatorProperties();
     }
 
-    private void InitializeOperatorData(OperatorData operatorData)
+    protected void InitializeOperatorData(OperatorData operatorData)
     {
         currentStats = operatorData.stats;
         if (Data == null)
@@ -169,7 +169,7 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
 
 
     // 오퍼레이터 관련 설정들 초기화
-    private void InitializeOperatorProperties()
+    protected void InitializeOperatorProperties()
     {
 
         CreateDirectionIndicator(); // 방향 표시기 생성
@@ -213,7 +213,7 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
         FacingDirection = direction;
     }
 
-    private void CreateOperatorUI()
+    protected void CreateOperatorUI()
     {
         if (operatorUIPrefab != null)
         {
@@ -223,7 +223,7 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
         }
     }
 
-    public void Update()
+    protected virtual void Update()
     {
         if (IsDeployed)
         {
@@ -252,16 +252,18 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
     }
 
     // 인터페이스만 계승, 이 안에서는 대미지 팝업 요소만 추가해서 PerformAttack으로 전달
-    public void Attack(UnitEntity target, AttackType attackType, float damage)
+    public virtual void Attack(UnitEntity target, AttackType attackType, float damage)
     {
         bool showDamagePopup = false;
         PerformAttack(target, attackType, damage, showDamagePopup);
     }
 
-    private void PerformAttack(UnitEntity target, AttackType attackType, float damage, bool showDamagePopup)
+    protected void PerformAttack(UnitEntity target, AttackType attackType, float damage, bool showDamagePopup)
     {
-        
-        ActiveSkill.OnAttack(this, ref damage, ref showDamagePopup);
+        if (ActiveSkill != null)
+        {
+            ActiveSkill.OnAttack(this, ref damage, ref showDamagePopup);    
+        }
 
         switch (operatorData.attackRangeType)
         {
@@ -274,18 +276,18 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
         }
     }
 
-    private void PerformMeleeAttack(UnitEntity target, AttackType attackType, float damage, bool showDamagePopup)
+    protected virtual void PerformMeleeAttack(UnitEntity target, AttackType attackType, float damage, bool showDamagePopup)
     {
         SetAttackTimings();
         target.TakeDamage(attackType, damage, this);
 
         if (showDamagePopup)
         {
-            ObjectPoolManager.Instance.ShowDamagePopup(target.transform.position, damage);
+            ObjectPoolManager.Instance.ShowFloatingText(target.transform.position, damage, false);
         }
     }
 
-    private void PerformRangedAttack(UnitEntity target, AttackType attackType, float damage, bool showDamagePopup)
+    protected virtual void PerformRangedAttack(UnitEntity target, AttackType attackType, float damage, bool showDamagePopup)
     {
         SetAttackTimings();
         if (Data.projectilePrefab != null)
@@ -307,7 +309,7 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
 
 
     // 공격 타일에 있는 적들을 반환함
-    private void GetEnemiesInAttackRange()
+    protected void GetEnemiesInAttackRange()
     {
         enemiesInRange.Clear();
         Vector2Int operatorGridPos = MapManager.Instance.CurrentMap.WorldToGridPosition(transform.position);
@@ -341,7 +343,7 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
     }
 
 
-    private Vector2Int WorldToRelativeGridPosition(Vector3 worldPosition)
+    protected Vector2Int WorldToRelativeGridPosition(Vector3 worldPosition)
     {
         if (MapManager.Instance.CurrentMap != null)
         {
@@ -389,7 +391,7 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
     }
 
     // SP 자동회복 로직 추가
-    private void RecoverSP()
+    protected void RecoverSP()
     {
         if (IsDeployed == false || ActiveSkill == null) { return;  }
 
@@ -469,7 +471,7 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
     /// <summary>
     /// 방향 표시 UI 생성
     /// </summary>
-    private void CreateDirectionIndicator()
+    protected void CreateDirectionIndicator()
     {
         GameObject indicator = new GameObject("DirectionIndicator");
         indicator.transform.SetParent(transform);
@@ -523,7 +525,7 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
     /// <summary>
     /// 현재 타겟의 유효성 검사 : CurrentTarget이 공격 범위 내에 없다면 제거함
     /// </summary>
-    private void ValidateCurrentTarget()
+    protected virtual void ValidateCurrentTarget()
     {
         if (CurrentTarget == null) return;
 
@@ -537,13 +539,13 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
     }
 
     /// <summary>
-    /// CurrentTarget이 공격범위 내에 있는지 체크
+    /// CurrentTarget이 이동했을 때, 공격범위 내에 있는지 체크
     /// </summary>
     protected bool IsCurrentTargetInRange()
     {
         if (CurrentTarget == null) return false;
 
-        Vector2Int enemyGridPos = MapManager.Instance.CurrentMap.WorldToGridPosition(CurrentTarget.transform.position);
+        Vector2Int previousTargetGridPos = MapManager.Instance.CurrentMap.WorldToGridPosition(CurrentTarget.transform.position);
         Vector2Int operatorGridPos = MapManager.Instance.CurrentMap.WorldToGridPosition(transform.position);
 
         foreach (Vector2Int offset in operatorData.attackableTiles)
@@ -551,7 +553,7 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
             Vector2Int rotatedOffset = RotateOffset(offset, facingDirection);
             Vector2Int targetGridPos = operatorGridPos + rotatedOffset;
 
-            if (targetGridPos == enemyGridPos)
+            if (targetGridPos == previousTargetGridPos)
             {
                 return true;
             }
@@ -567,9 +569,9 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
         SetDeploymentOrder();
         SetDirection(facingDirection);
         UpdateAttackbleTiles();
-        //CreateOperatorBarUI();
         CreateOperatorUI();
         ShowDirectionIndicator(true);
+        CurrentSP = currentStats.StartSP;
     }
 
     public override void Retreat()
@@ -601,7 +603,7 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
     /// <summary>
     /// 공격 대상 설정 로직
     /// </summary>
-    public void SetCurrentTarget()
+    public virtual void SetCurrentTarget()
     {
         // 1. 저지 중일 때 -> 저지 중인 적
         if (blockedEnemies.Count > 0)
@@ -653,7 +655,7 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
         ObjectPoolManager.Instance.CreatePool(projectileTag, Data.projectilePrefab, initialPoolSize);
     }
 
-    private void CleanupProjectilePool()
+    protected void CleanupProjectilePool()
     {
         if (!string.IsNullOrEmpty(projectileTag))
         {
@@ -740,7 +742,7 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
         }
     }
 
-    private void UpdateAttackbleTiles()
+    protected void UpdateAttackbleTiles()
     {
         CurrentAttackbleTiles = Data.attackableTiles
             .Select(tile => RotateOffset(tile, FacingDirection))
@@ -771,7 +773,7 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
         UpdateOperatorUI();
     }
 
-    private void UpdateOperatorUI()
+    protected void UpdateOperatorUI()
     {
         if (operatorUIScript != null)
         {

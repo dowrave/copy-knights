@@ -6,9 +6,10 @@ using UnityEngine;
 public class Projectile : MonoBehaviour
 {
     public float speed = 10f;
-    public float damage;
-    public bool showDamage;
+    public float value;
+    public bool showValue;
     public AttackType attackType;
+    private bool isHealing = false;
     private UnitEntity attacker;
     private UnitEntity target;
     private Vector3 lastKnownPosition; // 마지막으로 알려진 적의 위치
@@ -16,16 +17,23 @@ public class Projectile : MonoBehaviour
     public string PoolTag { get; private set; }
     private bool isMarkedForRemoval;
 
-    public void Initialize(UnitEntity attacker, UnitEntity target, AttackType attackType, float damage, bool showDamage, string poolTag)
+    public void Initialize(UnitEntity attacker, UnitEntity target, AttackType attackType, float value, bool showValue, string poolTag)
     {
         this.attacker = attacker;
         this.target = target;
         this.attackType = attackType;
-        this.damage = damage;
-        this.showDamage = showDamage;
+        this.value = value;
+        this.showValue = showValue;
         this.poolTag = poolTag;
         lastKnownPosition = target.transform.position;
-        isMarkedForRemoval = false; 
+        isMarkedForRemoval = false;
+
+        // 공격자와 대상이 같다면 힐로 간주
+        if (attacker.Faction == target.Faction)
+        {
+            isHealing = true;
+            this.showValue = true;
+        }
     }
 
     private void Update()
@@ -54,12 +62,21 @@ public class Projectile : MonoBehaviour
     {
         if (target != null)
         {
-            if (showDamage == true)
-            {
-                ObjectPoolManager.Instance.ShowDamagePopup(target.transform.position, damage);
-            }
 
-            target.TakeDamage(attackType, damage, attacker);
+            if (isHealing)
+            {
+                target.TakeHeal(value);
+            }
+            else
+            {
+                target.TakeDamage(attackType, value, attacker);
+
+                // 대미지는 보여야 하는 경우에만 보여줌
+                if (showValue == true)
+                {
+                    ObjectPoolManager.Instance.ShowFloatingText(target.transform.position, value, false);
+                }
+            }
         }
 
         ReturnToPool();

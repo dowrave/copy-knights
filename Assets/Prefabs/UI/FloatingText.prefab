@@ -13,7 +13,7 @@ GameObject:
   - component: {fileID: 2471861215602643798}
   - component: {fileID: 3707864531745398806}
   m_Layer: 0
-  m_Name: DamagePopup
+  m_Name: FloatingText
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -185,10 +185,12 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   lifetime: 1
-  moveSpeed: 1
+  moveSpeed: 0.7
   alphaCurve:
     serializedVersion: 2
     m_Curve: []
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
+  attackColor: {r: 0.9056604, g: 0.10679956, b: 0.10679956, a: 1}
+  healColor: {r: 0.095584325, g: 0.8018868, b: 0, a: 1}

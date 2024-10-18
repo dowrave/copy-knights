@@ -14,7 +14,7 @@ GameObject:
   - component: {fileID: 8393974214786875474}
   - component: {fileID: 1556286544314883617}
   m_Layer: 0
-  m_Name: Enemy(Ranged)Projectile
+  m_Name: MedicProjectile
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

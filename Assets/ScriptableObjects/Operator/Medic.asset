@@ -10,33 +10,43 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 3e9e80fd5f700b74fac5a82924257d05, type: 3}
-  m_Name: Melee
+  m_Name: Medic
   m_EditorClassIdentifier: 
-  entityName: Melee
-  operatorClass: 1
+  entityName: baseMedic
+  operatorClass: 5
   stats:
     _deployableUnitStats:
       _baseStats:
-        _health: 1500
-        _defense: 300
-        _magicResistance: 20
-      _deploymentCost: 10
+        _health: 1300
+        _defense: 250
+        _magicResistance: 5
+      _deploymentCost: 13
       _redeployTime: 70
-    _attackPower: 1000
-    _attackSpeed: 1.2
+    _attackPower: 350
+    _attackSpeed: 1.3
     _maxBlockableEnemies: 1
     _startSP: 0
     _spRecoveryRate: 1
-  prefab: {fileID: 5185628148525671535, guid: 81719ee7b084ab740915d07222eb2ab8, type: 3}
+  prefab: {fileID: 4844663318455565301, guid: 37fe04f2eb5dcdc438f2eec05316e07c, type: 3}
   icon: {fileID: 0}
-  canDeployOnGround: 1
-  canDeployOnHill: 0
+  canDeployOnGround: 0
+  canDeployOnHill: 1
   attackType: 0
-  attackRangeType: 0
+  attackRangeType: 1
   attackableTiles:
-  - {x: -1, y: 0}
   - {x: 0, y: 0}
-  projectilePrefab: {fileID: 0}
+  - {x: 0, y: -1}
+  - {x: 0, y: 1}
+  - {x: -1, y: 0}
+  - {x: -1, y: -1}
+  - {x: -1, y: 1}
+  - {x: -2, y: 0}
+  - {x: -2, y: -1}
+  - {x: -2, y: 1}
+  - {x: -3, y: 0}
+  - {x: -3, y: 1}
+  - {x: -3, y: -1}
+  projectilePrefab: {fileID: 491002625568547402, guid: 8fe22b47230e68d40a20fc592504b1c5, type: 3}
   skills:
   - {fileID: 11400000, guid: a282fb770a3e6a74b91bb698f9ff496e, type: 2}
   defaultSkillIndex: 0
