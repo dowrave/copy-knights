@@ -11,6 +11,7 @@ public class StatisticItem : MonoBehaviour
     [SerializeField] private Color damageDealtColor;
     [SerializeField] private Color damageTakenColor;
     [SerializeField] private Color healingDoneColor;
+    private bool showPercentage;
 
     public Operator op { get; private set; }
     private StatisticsManager.StatType currentStatType;
@@ -18,12 +19,13 @@ public class StatisticItem : MonoBehaviour
     /// <summary>
     /// StatItem을 초기화하고 필요한 이벤트를 구독합니다.
     /// </summary>
-    public void Initialize(Operator op, StatisticsManager.StatType statType)
+    public void Initialize(Operator op, StatisticsManager.StatType statType, bool showPercentage)
     {
         this.op = op;
         currentStatType = statType;
         SetOperatorIcon(op);
         SetBarColor(statType);
+        SetDisplayMode(showPercentage); // 절대 수치 / 백분율 
         UpdateDisplay();
     }
 
@@ -39,6 +41,12 @@ public class StatisticItem : MonoBehaviour
         {
             operatorIcon.color = op.Data.prefab.GetComponentInChildren<Renderer>().sharedMaterial.color;
         }
+    }
+
+    private void SetDisplayMode(bool showPercentage)
+    {
+        valueText.gameObject.SetActive(!showPercentage);
+        percentageText.gameObject.SetActive(showPercentage);
     }
 
     private void SetBarColor(StatisticsManager.StatType statType)
@@ -83,18 +91,17 @@ public class StatisticItem : MonoBehaviour
         float percentage = (totalValue > 0) ? (value / totalValue) : 0; // 전체 값 중 해당 오퍼레이터가 기여한 값
 
         SetValue(value);
-
         SetPercentage(percentage);
     }
 
     private void SetValue(float value)
     {
-        valueText.text = value.ToString("F0");
+        valueText.text = value.ToString("N0"); // 숫자 포맷팅
     }
 
     private void SetPercentage(float percentage)
     {
         percentageBar.value = percentage;
-        percentageText.text = percentage.ToString("F1") + "%";
+        percentageText.text = (percentage * 100).ToString("F1") + "%";
     }
 }

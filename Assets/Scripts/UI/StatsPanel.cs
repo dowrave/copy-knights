@@ -12,6 +12,8 @@ public class StatsPanel : MonoBehaviour
     TextMeshProUGUI toggleButtonText;
     [SerializeField] private Transform statsItemContainer;
     [SerializeField] private GameObject statItemPrefab;
+    [SerializeField] private Button statsItemContainerButton; // 절대 수치 <-> 퍼센티지 변환 버튼, StatsItemContainer 그 자체
+    private bool showPercentage = false;
 
     [SerializeField] private StatisticItem firstStatItem;
     [SerializeField] private StatisticItem secondStatItem;
@@ -29,8 +31,8 @@ public class StatsPanel : MonoBehaviour
     private List<StatisticItem> activeStatItems = new List<StatisticItem>();
     private StatisticsManager.StatType currentDisplayedStatType;
 
-    private Color defaultTabColor;
-    [SerializeField] private Color selectedTabColor = new Color(100, 100, 100);
+    [SerializeField] private Color defaultTabColor;
+    [SerializeField] private Color selectedTabColor;
 
     private void Awake()
     {
@@ -44,7 +46,8 @@ public class StatsPanel : MonoBehaviour
         toggleButtonText = statisticsToggleButton.GetComponentInChildren<TextMeshProUGUI>();
 
         // 이벤트 리스너
-        statisticsToggleButton.onClick.AddListener(ToggleStats);
+        statisticsToggleButton.onClick.AddListener(ToggleStats); // 패널 띄우는 온오프 버튼
+        statsItemContainerButton.onClick.AddListener(ToggleDisplayMode); // 수치 변환 버튼
         damageDealtTab.onClick.AddListener(() => ShowStats(StatisticsManager.StatType.DamageDealt));
         damageTakenTab.onClick.AddListener(() => ShowStats(StatisticsManager.StatType.DamageTaken));
         healingDoneTab.onClick.AddListener(() => ShowStats(StatisticsManager.StatType.HealingDone));
@@ -62,7 +65,6 @@ public class StatsPanel : MonoBehaviour
         thirdStatItem.gameObject.SetActive(false);
 
         statisticsContainer.SetActive(false);
-
     }
 
 
@@ -135,7 +137,14 @@ public class StatsPanel : MonoBehaviour
     private void SetTabColor(Button tab, bool isSelected)
     {
         var colors = tab.colors;
-        colors.normalColor = isSelected ? selectedTabColor : defaultTabColor;
+        Color targetColor = isSelected ? selectedTabColor : defaultTabColor;
+
+        colors.normalColor = targetColor;
+        colors.highlightedColor = targetColor * 1.1f;
+        colors.pressedColor = targetColor * 0.9f;
+        colors.selectedColor = targetColor;
+        colors.disabledColor = targetColor * 0.5f;
+
         tab.colors = colors;
     }
 
@@ -153,6 +162,9 @@ public class StatsPanel : MonoBehaviour
 
     }
 
+    /// <summary>
+    /// 각 StatItem 들을 업데이트하는 로직
+    /// </summary>
     private void UpdateStatItem(StatisticItem item, List<StatisticsManager.OperatorStats> stats, int index, StatisticsManager.StatType statType)
     {
 
@@ -164,7 +176,7 @@ public class StatsPanel : MonoBehaviour
             if (value > 0) // 기여한 값이 0이라면 나타나지 않게 함
             {
                 item.gameObject.SetActive(true);
-                item.Initialize(stats[index].op, statType);
+                item.Initialize(stats[index].op, statType, showPercentage);
                 item.UpdateDisplay();
             }
             else
@@ -187,7 +199,7 @@ public class StatsPanel : MonoBehaviour
         StatisticItem statItem = item.GetComponent<StatisticItem>();
         if (statItem != null)
         {
-            statItem.Initialize(op, statType);
+            statItem.Initialize(op, statType, showPercentage);
             activeStatItems.Add(statItem);
         }
     }
@@ -202,4 +214,11 @@ public class StatsPanel : MonoBehaviour
             activeStatItems[i].transform.SetSiblingIndex(i);
         }
     }
+
+    private void ToggleDisplayMode()
+    {
+        showPercentage = !showPercentage;
+        UpdateStatItems(currentDisplayedStatType);
+    }
+
 }

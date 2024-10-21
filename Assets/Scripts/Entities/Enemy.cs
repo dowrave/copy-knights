@@ -48,6 +48,7 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity
     private Barricade targetBarricade;
 
     private Operator blockingOperator; // 자신을 저지 중인 오퍼레이터
+    public bool IsBlocked { get { return blockingOperator != null; } }
     public UnitEntity CurrentTarget { get; private set; } // 공격 대상임!!
 
     protected int initialPoolSize = 5;
