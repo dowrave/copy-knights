@@ -146,9 +146,17 @@ public abstract class UnitEntity : MonoBehaviour, ITargettable, IFactionMember
         CurrentHealth = MaxHealth;
     }
 
-    public virtual void TakeHeal(float healQuantity)
+    public virtual void TakeHeal(float healAmount, UnitEntity healer = null)
     {
-        CurrentHealth += healQuantity; // CurrentHealth의 세터에 최댓값이 넘으면 보정하는 함수 들어가 있음
-        ObjectPoolManager.Instance.ShowFloatingText(transform.position, healQuantity, true);
+        float oldHealth = CurrentHealth;
+        CurrentHealth += healAmount; 
+        float actualHealAmount = CurrentHealth -= oldHealth; // 실제 힐량
+
+        ObjectPoolManager.Instance.ShowFloatingText(transform.position, actualHealAmount, true);
+
+        if (healer is Operator healerOperator)
+        {
+            StatisticsManager.Instance.UpdateHealingDone(healerOperator, actualHealAmount);
+        }
     }
 }

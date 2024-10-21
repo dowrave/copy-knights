@@ -65,7 +65,7 @@ public class Projectile : MonoBehaviour
 
             if (isHealing)
             {
-                target.TakeHeal(value);
+                target.TakeHeal(value, attacker);
             }
             else
             {

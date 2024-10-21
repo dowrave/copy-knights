@@ -240,7 +240,7 @@ public class Tile : MonoBehaviour
         Enemy[] allEnemies = FindObjectsOfType<Enemy>();
         foreach (Enemy enemy in allEnemies)
         {
-            if (IsEnemyOnTile(enemy))
+            if (!IsEnemyOnTile(enemy))
             {
                 enemiesOnTile.Add(enemy);
             }

@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using Skills.Base;
+using System.Text;
 
 public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
 {
@@ -143,7 +144,7 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
     public event System.Action<float, float> OnSPChanged;
     public event System.Action OnStatsChanged; 
 
-    // 필드 끝 --------------------------------------------------------
+    // 필드 끝 --------------------------------------------------------------------------------------------
 
     protected override void Awake()
     {
@@ -308,7 +309,6 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
     }
 
 
-    // 공격 타일에 있는 적들을 반환함
     protected void GetEnemiesInAttackRange()
     {
         enemiesInRange.Clear();
@@ -318,17 +318,14 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
         {
             Vector2Int rotatedOffset = RotateOffset(offset, facingDirection);
             Vector2Int targetGridPos = operatorGridPos + rotatedOffset;
-
             Tile targetTile = MapManager.Instance.CurrentMap.GetTile(targetGridPos.x, targetGridPos.y);
             if (targetTile != null)
             {
-                // 타일 위의 적들을 보는 로직은 Tile.cs에 구현됨
                 List<Enemy> enemiesOnTile = targetTile.GetEnemiesOnTile();
                 enemiesInRange.AddRange(enemiesOnTile);
             }
         }
-
-        enemiesInRange = enemiesInRange.Distinct().ToList(); // 중복 제거해서 반환
+        enemiesInRange = enemiesInRange.Distinct().ToList();
     }
 
 

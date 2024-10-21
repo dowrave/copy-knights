@@ -88,7 +88,7 @@ public class MedicOperator : Operator
         }
         else
         {
-            target.TakeHeal(healValue);
+            target.TakeHeal(healValue, this);
         }
     }
 }
