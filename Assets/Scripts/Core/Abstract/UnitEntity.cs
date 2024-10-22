@@ -150,7 +150,7 @@ public abstract class UnitEntity : MonoBehaviour, ITargettable, IFactionMember
     {
         float oldHealth = CurrentHealth;
         CurrentHealth += healAmount; 
-        float actualHealAmount = CurrentHealth -= oldHealth; // ½ÇÁ¦ Èú·®
+        float actualHealAmount = CurrentHealth - oldHealth; // ½ÇÁ¦ Èú·®
 
         ObjectPoolManager.Instance.ShowFloatingText(transform.position, actualHealAmount, true);
 

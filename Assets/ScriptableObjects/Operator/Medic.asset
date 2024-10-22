@@ -46,7 +46,7 @@ MonoBehaviour:
   - {x: -3, y: 0}
   - {x: -3, y: 1}
   - {x: -3, y: -1}
-  projectilePrefab: {fileID: 491002625568547402, guid: 8fe22b47230e68d40a20fc592504b1c5, type: 3}
+  projectilePrefab: {fileID: 491002625568547402, guid: aafc574985029a948b9552d341db4180, type: 3}
   skills:
   - {fileID: 11400000, guid: a282fb770a3e6a74b91bb698f9ff496e, type: 2}
   defaultSkillIndex: 0

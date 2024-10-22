@@ -81,6 +81,11 @@ public class DeployableManager : MonoBehaviour
 
     private List<DeployableUnitEntity> deployedItems = new List<DeployableUnitEntity>();
 
+    // 임시 클릭 방지 시간
+    private float preventClickingTime = 0.1f;
+    private float lastPlacementTime;
+    public bool IsClickingPrevented => Time.time - lastPlacementTime < preventClickingTime;
+
     private void Awake()
     {
         if (Instance == null)
@@ -393,6 +398,7 @@ public class DeployableManager : MonoBehaviour
                     DeployDeployable(currentHoverTile);
                     isSelectingDirection = false;
                     IsMousePressed = false;
+                    lastPlacementTime = Time.time; // 배치 시간 기록
                     ResetPlacement();
                 }
                 // 바운더리 이내라면 다시 방향 설정(클릭 X) 상태

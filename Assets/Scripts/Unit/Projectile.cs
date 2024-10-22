@@ -6,9 +6,9 @@ using UnityEngine;
 public class Projectile : MonoBehaviour
 {
     public float speed = 10f;
-    public float value;
-    public bool showValue;
-    public AttackType attackType;
+    private float value;
+    private bool showValue;
+    private AttackType attackType;
     private bool isHealing = false;
     private UnitEntity attacker;
     private UnitEntity target;
