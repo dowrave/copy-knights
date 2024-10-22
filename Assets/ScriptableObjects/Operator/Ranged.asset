@@ -13,6 +13,7 @@ MonoBehaviour:
   m_Name: Ranged
   m_EditorClassIdentifier: 
   entityName: Ranged
+  operatorClass: 0
   stats:
     _deployableUnitStats:
       _baseStats:
@@ -24,7 +25,7 @@ MonoBehaviour:
     _attackPower: 200
     _attackSpeed: 2
     _maxBlockableEnemies: 1
-    _currentSP: 0
+    _startSP: 0
     _spRecoveryRate: 1
   prefab: {fileID: 4844663318455565301, guid: d3dcd961b53c71f45b440db97cb72987, type: 3}
   icon: {fileID: 0}
@@ -45,8 +46,8 @@ MonoBehaviour:
   - {x: -3, y: 1}
   - {x: 0, y: -1}
   - {x: 0, y: 1}
-  projectilePrefab: {fileID: 491002625568547402, guid: 768a4d8f960f50f43b581b2790a5639e, type: 3}
-  initialSP: 0
+  projectilePrefab: {fileID: 491002625568547402, guid: 4d6c27687fdc48845835de1eac0d716c, type: 3}
   skills:
   - {fileID: 11400000, guid: a282fb770a3e6a74b91bb698f9ff496e, type: 2}
   defaultSkillIndex: 0
+  initialSP: 0

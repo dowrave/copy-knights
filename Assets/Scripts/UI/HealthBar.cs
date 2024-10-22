@@ -57,10 +57,26 @@ public class HealthBar : MonoBehaviour
         float previousAmount = currentAmount;
         currentAmount = newAmount;
 
+        // Fill Area/Fill 부분의 값만 변경됨
         slider.maxValue = maxAmount;
         slider.value = currentAmount;
 
-        if (showDamageEffect && previousAmount > currentAmount)
+        // 이펙트 보여주기 : damageOverlayImage 관련
+        // 상황) 체력 회복
+        if (previousAmount < currentAmount)
+        {
+            // 체력 닳는 이펙트를 보여주고 있는 상황이라면 이를 멈춤
+            if (damageCoroutine != null)
+            {
+                StopCoroutine(damageCoroutine);
+                damageCoroutine = null;
+            }
+
+            damageOverlayImage.fillAmount = currentAmount / maxAmount; 
+        }
+
+        // 상황) 체력 손실 시 서서히 닳는 효과 구현
+        else if (showDamageEffect && previousAmount > currentAmount)
         {
             ShowDamageEffect(previousAmount);
         }
@@ -73,7 +89,7 @@ public class HealthBar : MonoBehaviour
             StopCoroutine(damageCoroutine);
         }
 
-        damageOverlayImage.fillAmount = previousAmount / maxAmount;
+        //damageOverlayImage.fillAmount = previousAmount / maxAmount;
         damageCoroutine = StartCoroutine(FadeDamageOverlay());
     }
 

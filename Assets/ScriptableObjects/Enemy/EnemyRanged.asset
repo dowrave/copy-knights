@@ -26,4 +26,4 @@ MonoBehaviour:
   attackType: 0
   attackRangeType: 1
   blockCount: 1
-  projectilePrefab: {fileID: 491002625568547402, guid: e7c2acc0df0cde443ac8d98089384ca3, type: 3}
+  projectilePrefab: {fileID: 491002625568547402, guid: ca63716cfcab00b4b8eb2823b76b4cfa, type: 3}

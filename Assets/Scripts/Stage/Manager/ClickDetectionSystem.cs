@@ -84,6 +84,7 @@ public class ClickDetectionSystem : MonoBehaviour
     /// </summary>
     private void HandleClick()
     {
+        
         List<RaycastResult> results = PerformScreenRaycast();
         List<RaycastResult> uiResults = results.Where(r => r.module is GraphicRaycaster).ToList();
 
@@ -97,6 +98,8 @@ public class ClickDetectionSystem : MonoBehaviour
         // 방향 선택 중이거나 드래깅 중일 때는 DeployableManager에서 처리함
         if (DeployableManager.Instance.IsSelectingDirection || DeployableManager.Instance.IsDraggingDeployable) return;
 
+
+
         // UI 요소가 클릭되지 않은 상태에서 다른 Clickable 요소 처리
         Ray ray = mainCamera.ScreenPointToRay(Input.mousePosition);
         RaycastHit clickableHit;
@@ -104,12 +107,12 @@ public class ClickDetectionSystem : MonoBehaviour
         // 배치 중인 상황이 아닐 때
         if (Physics.Raycast(ray, out clickableHit, Mathf.Infinity, clickableLayerMask))
         {
-            Debug.Log("HandleObjectClick");
+            //Debug.Log("HandleObjectClick");
             HandleObjectClick(clickableHit);
         }
         else
         {
-            Debug.Log("HandleEmptySpaceClick");
+            //Debug.Log("HandleEmptySpaceClick");
             HandleEmptySpaceClick();
         }
     }
@@ -126,7 +129,7 @@ public class ClickDetectionSystem : MonoBehaviour
             {
                 if (!diamondMask.IsPointInsideDiamond(Input.mousePosition))
                 {
-                    Debug.LogWarning("HandleUIClick : 다이아몬드 외부 클릭");
+                    //Debug.LogWarning("HandleUIClick : 다이아몬드 외부 클릭");
 
                     // 마름모 외부 클릭 처리
                     DeployableManager.Instance.CancelCurrentAction();
@@ -136,16 +139,11 @@ public class ClickDetectionSystem : MonoBehaviour
 
             // 2. OperatorUI 관련 요소 클릭 처리 - Deployable.OnClick이 동작하도록 수정
             DeployableUnitEntity associatedDeployable = GetAssociatedDeployableUnitEntity(result.gameObject);
-            if (associatedDeployable != null)
+            if (associatedDeployable != null )
             {
                 associatedDeployable.OnClick();
                 return;
             }
-
-
-            // Button 관련 로직은 굳이 구현 안해도 되는 듯 - 이거 있으면 중복실행됨
-            // 1. 유니티의 UI 시스템은 OnClick을 등록하지 않더라도 자동으로 실행시킨다고 함
-            // 2. 여기서 구현한 MouseButtonUp이 true가 돼서 HandleClick이 동작함
         }
     }
 
@@ -158,7 +156,7 @@ public class ClickDetectionSystem : MonoBehaviour
     private void HandleObjectClick(RaycastHit hit)
     {
         DeployableUnitEntity clickable = hit.collider.GetComponent<DeployableUnitEntity>();
-        if (clickable != null)
+        if (clickable != null && !DeployableManager.Instance.IsClickingPrevented)
         {
             clickable.OnClick();
         }
@@ -166,25 +164,27 @@ public class ClickDetectionSystem : MonoBehaviour
         else
         {
             Tile clickedTile = hit.collider.GetComponent<Tile>();
-            DeployableUnitEntity clickedDeployable = clickedTile.OccupyingDeployable;
-
-            if (clickedTile != null && clickedDeployable != null)
+            if (clickedTile != null)
             {
-                if (clickedDeployable is Operator op)
+                DeployableUnitEntity clickedDeployable = clickedTile.OccupyingDeployable;
+                if (clickedDeployable != null)
                 {
-                    op.OnClick();
-                }
+                    if (clickedDeployable is Operator op)
+                    {
+                        op.OnClick();
+                    }
 
+                    else
+                    {
+                        clickedDeployable.OnClick();
+                    }
+                    // Operator가 아닐 때에도 퇴각 버튼은 나타나야 함 
+                }
                 else
                 {
-                    clickedDeployable.OnClick();
+                    // clickedTile이 null일 때도 현재 액션 취소
+                    DeployableManager.Instance.CancelCurrentAction();
                 }
-                // Operator가 아닐 때에도 퇴각 버튼은 나타나야 함 
-
-            }
-            else
-            {
-                DeployableManager.Instance.CancelCurrentAction();
             }
         }
     }
