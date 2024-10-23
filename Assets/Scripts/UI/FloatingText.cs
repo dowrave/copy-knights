@@ -38,14 +38,17 @@ public class FloatingText : MonoBehaviour
     {
         if (valueText != null)
         {
-            valueText.text = Mathf.Round(damage).ToString("F0");
+            
+
             // »ö ¼³Á¤
             if (isHealing)
             {
+                valueText.text = '+' + Mathf.Round(damage).ToString("F0");
                 valueText.color = healColor;
             }
             else
             {
+                valueText.text = Mathf.Round(damage).ToString("F0");
                 valueText.color = attackColor;
             }
         }

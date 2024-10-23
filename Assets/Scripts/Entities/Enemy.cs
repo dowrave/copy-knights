@@ -190,7 +190,7 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity
             if (tileDeployable is Operator op)
             {
                 // 자신을 저지하는 오퍼레이터가 없음 and 현재 타일에 오퍼레이터가 있음 and 그 오퍼레이터가 저지 가능한 상태
-                if (op != null && op.CanBlockEnemy() && blockingOperator == null)
+                if (op != null && blockingOperator == null)
                 {
                     blockingOperator = op;
                     blockingOperator.TryBlockEnemy(this); // 오퍼레이터에서도 저지 중인 Enemy를 추가
@@ -423,6 +423,14 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity
         {
             CurrentTile.EnemyExited(this);
             CurrentTile = null;
+        }
+    }
+
+    public void UnblockFrom(Operator op)
+    {
+        if (blockingOperator == op)
+        {
+            blockingOperator = null;
         }
     }
 

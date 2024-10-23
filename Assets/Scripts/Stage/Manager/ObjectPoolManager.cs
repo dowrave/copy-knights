@@ -32,7 +32,6 @@ public class ObjectPoolManager : MonoBehaviour
 
     public List<Pool> pools;
     public Dictionary<string, Queue<GameObject>> poolDictionary;
-    private HashSet<string> poolsMarkedForRemoval = new HashSet<string>();
 
     // 텍스트 관련
     [SerializeField] private GameObject floatingTextPrefab;
@@ -45,7 +44,6 @@ public class ObjectPoolManager : MonoBehaviour
 
         // 팝업 텍스트 풀 생성
         CreatePool(FLOATING_TEXT_TAG, floatingTextPrefab, floatingTextCounts);
-
     }
 
     /// <summary>
@@ -124,13 +122,7 @@ public class ObjectPoolManager : MonoBehaviour
     /// <param name="obj">반환할 게임 오브젝트</param>
     public void ReturnToPool(string tag, GameObject obj)
     {
-        if (poolsMarkedForRemoval.Contains(tag))
-        {
-            Destroy(obj);
-
-            CheckAndRemovePool(tag);
-        }
-        else if (poolDictionary.TryGetValue(tag, out Queue<GameObject> objectPool))
+        if (poolDictionary.TryGetValue(tag, out Queue<GameObject> objectPool))
         {
             // 뺄 때, 큐에서 뺀 다음 활성화했음 -> 넣을 때도 큐에 넣은 다음 비활성화? 비활성화한 다음 큐에 넣음? 
             poolDictionary[tag].Enqueue(obj);
@@ -157,59 +149,16 @@ public class ObjectPoolManager : MonoBehaviour
         }
     }
 
-    /// <summary>
-    /// 지정된 태그의 풀을 제거 예정으로 표시합니다. 활성 상태의 프로젝타일도 제거 예정으로 표시합니다.
-    /// </summary>
-    /// <param name="tag">제거 예정으로 표시할 풀의 태그</param>
-    public void MarkPoolForRemoval(string tag)
-    {
-       if (poolDictionary.ContainsKey(tag))
-        {
-            poolsMarkedForRemoval.Add(tag);
-            MarkActiveProjectilesForRemoval(tag);
-        }
-    }
-
-    /// <summary>
-    /// 지정된 태그의 활성 상태 프로젝타일을 제거 예정으로 표시합니다.
-    /// </summary>
-    /// <param name="tag">대상 풀의 태그</param>
-    private void MarkActiveProjectilesForRemoval(string tag)
-    {
-        Projectile[] activeProjectiles = FindObjectsOfType<Projectile>()
-            .Where(p => p.gameObject.activeInHierarchy && p.PoolTag == tag)
-            .ToArray();
-
-        foreach (var projectile in activeProjectiles)
-        {
-            projectile.MarkPoolForRemoval();
-        }
-    }
-
-    /// <summary>
-    /// 제거 예정으로 표시된 풀을 검사하고, 모든 오브젝트가 반환된 경우 풀을 완전히 제거합니다.
-    /// </summary>
-    /// <param name="tag">검사할 풀의 태그</param>
-    private void CheckAndRemovePool(string tag)
-    {
-        if (poolDictionary.TryGetValue(tag, out Queue<GameObject> objectPool) && objectPool.Count == 0)
-        {
-            poolDictionary.Remove(tag);
-            pools.RemoveAll(p => p.tag == tag);
-            poolsMarkedForRemoval.Remove(tag);
-        }
-    }
-
     // 대미지 팝업 관련 구현
     public void ShowFloatingText(Vector3 position, float value, bool isHealing)
     {
-        GameObject popupObj = SpawnFromPool(FLOATING_TEXT_TAG, position, Quaternion.identity);
-        if (popupObj != null)
+        GameObject floatingTextObj = SpawnFromPool(FLOATING_TEXT_TAG, position, Quaternion.identity);
+        if (floatingTextObj != null)
         {
-            FloatingText popup = popupObj.GetComponent<FloatingText>();
-            if (popup != null)
+            FloatingText floatingText = floatingTextObj.GetComponent<FloatingText>();
+            if (floatingText != null)
             {
-                popup.SetValue(value, isHealing);
+                floatingText.SetValue(value, isHealing);
             }
         }
     }

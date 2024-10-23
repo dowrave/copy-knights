@@ -103,7 +103,8 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
     }
 
     // 저지 관련
-    protected List<Enemy> blockedEnemies = new List<Enemy>(); // 저지 중인 적들. Awake 이전에 초기화됨.
+    protected List<Enemy> blockedEnemies = new List<Enemy>(); // 저지 중인 적들. 공격 대상 선정 때문에 남겨둔다.
+    protected int nowBlockingCount = 0;
 
     public int DeploymentOrder { get; protected set; } // 배치 순서
     protected bool isDeployed = false; // 배치 완료 시 true
@@ -202,6 +203,7 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
         {
             modelRenderer = modelObject.GetComponent<Renderer>();
         }
+
         // DeployableUnitData 초기화 (만약 SerializeField로 설정되어 있다면 이미 할당되어 있음)
         if (operatorData != null)
         {
@@ -359,32 +361,41 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
 
     // --- 저지 관련 메서드들
 
-    // 이 오퍼레이터가 적을 저지할 수 있는 상태인가?
-    public bool CanBlockEnemy()
+   
+    public bool CanBlockEnemy(int enemyBlockCount)
     {
-        return blockedEnemies.Count < currentStats.MaxBlockableEnemies;
+        // 현재 저지 중인 적 + 지금 저지하려는 적이 차지하는 저지 수가 최대 저지수 이하
+        // currentStats을 쓴 이유는 저지수가 올라가는 스킬 등도 있을 수 있기 때문에
+        return nowBlockingCount + enemyBlockCount <= currentStats.MaxBlockableEnemies;
     }
 
     // 저지 가능하다면 현 저지수 + 1
-    public bool TryBlockEnemy(Enemy enemy)
+    public void TryBlockEnemy(Enemy enemy)
     {
-        if (CanBlockEnemy())
+        int enemyBlockCount = enemy.Data.blockCount;
+        if (CanBlockEnemy(enemyBlockCount))
         {
             blockedEnemies.Add(enemy);
-            return true;
+            nowBlockingCount += enemyBlockCount;
         }
-        return false;
     }
 
     public void UnblockEnemy(Enemy enemy)
     {
         Debug.LogWarning("적 저지 해제");
         blockedEnemies.Remove(enemy);
+        nowBlockingCount -= enemy.Data.blockCount;
     }
 
     public void UnblockAllEnemies()
     {
+        foreach (Enemy enemy in blockedEnemies)
+        {
+            enemy.UnblockFrom(this);
+        }
         blockedEnemies.Clear();
+        nowBlockingCount = Data.stats.MaxBlockableEnemies;
+
     }
 
     // SP 자동회복 로직 추가
@@ -646,6 +657,9 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
         CurrentTarget.AddAttackingEntity(this);
     }
 
+    /// <summary>
+    /// 투사체 풀을 만듦. 오퍼레이터마다의 고유한 이름이 모두 다르므로 풀의 태그 이름도 모두 다름
+    /// </summary>
     public void InitializeProjectilePool()
     {
         projectileTag = $"{Data.entityName}_Projectile";
