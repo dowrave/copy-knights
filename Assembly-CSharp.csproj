@@ -62,6 +62,7 @@
   <ItemGroup>
     <Compile Include="Assets\Scripts\Core\Interfaces\IFactionMember.cs" />
     <Compile Include="Assets\Scripts\Entities\MedicOperator.cs" />
+    <Compile Include="Assets\Scripts\Visual\Effects\ProjectileEffect.cs" />
     <Compile Include="Assets\Scripts\Stage\PathData.cs" />
     <Compile Include="Assets\Scripts\Core\Interfaces\IDeployable.cs" />
     <Compile Include="Assets\Scripts\Core\Interfaces\IBoxDeployableData.cs" />

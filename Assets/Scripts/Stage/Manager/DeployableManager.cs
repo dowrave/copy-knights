@@ -9,7 +9,7 @@ public class DeployableManager : MonoBehaviour
 {
     public static DeployableManager Instance { get; private set; }
 
-    [System.Serializable] 
+    [System.Serializable]
     public class DeployableInfo
     {
         public GameObject prefab;
@@ -51,7 +51,7 @@ public class DeployableManager : MonoBehaviour
     public bool IsSelectingDirection => isSelectingDirection;
 
     private bool isMousePressed = false; // HandleDirectionSelection에서만 사용. 마우스가 클릭 중인지를 추적한다. 
-    private int DeployableIndex = -1; 
+    private int DeployableIndex = -1;
     private Vector3 placementDirection = Vector3.left;
 
     public int CurrentDeploymentOrder { get; private set; } = 0;
@@ -91,7 +91,7 @@ public class DeployableManager : MonoBehaviour
         if (Instance == null)
         {
             Instance = this;
-        } 
+        }
         else
         {
             Destroy(gameObject);
@@ -185,7 +185,7 @@ public class DeployableManager : MonoBehaviour
     private void HighlightAvailableTiles()
     {
         ResetHighlights();
-       
+
         foreach (Tile tile in MapManager.Instance.GetAllTiles())
         {
             if (tile != null && tile.CanPlaceDeployable())
@@ -366,7 +366,7 @@ public class DeployableManager : MonoBehaviour
 
         currentUIState = UIState.None;
     }
-    
+
     /// <summary>
     /// 방향 설정 관련 로직
     /// </summary>
@@ -451,7 +451,7 @@ public class DeployableManager : MonoBehaviour
             return hit.collider.GetComponentInParent<Tile>();
         }
 
-        return null; 
+        return null;
     }
 
     public void HighlightTiles(List<Tile> tiles, Color color)
@@ -486,39 +486,55 @@ public class DeployableManager : MonoBehaviour
             return;
         }
 
-        int nowDeploymentCost = currentDeployable.currentStats.DeploymentCost;
-        if (StageManager.Instance.TryUseDeploymentCost(nowDeploymentCost))
+        // DeployableBox에서 현재 적용되어야 할 코스트를 가져옴
+        DeployableBox box_ = deployableUIBoxes[currentDeployablePrefab];
+        int deploymentCost = box_.GetCurrentDeploymentCost();
+
+        if (currentDeployable is Operator op)
         {
-            if (currentDeployable is Operator op)
+            if (StageManager.Instance.TryUseDeploymentCost(deploymentCost))
             {
                 op.Deploy(tile.transform.position);
                 op.SetDirection(placementDirection);
             }
             else
             {
+                Debug.LogError($"배치 실패: 필요 코스트({deploymentCost}) > 현재 코스트({StageManager.Instance.CurrentDeploymentCost})");
+                return;
+            }
+        }
+        else
+        {
+            if (StageManager.Instance.TryUseDeploymentCost(deploymentCost))
+            {
                 currentDeployable.Deploy(tile.transform.position);
             }
-
-            // 배치 리스트에 아이템 추가
-            deployedItems.Add(currentDeployable); 
-
-            // 배치 후 박스의 처리
-            if (deployableUIBoxes.TryGetValue(currentDeployablePrefab, out DeployableBox box))
+            else
             {
-                deployableInfo.remainingDeployCount--;
-                
-                box.UpdateRemainingCount(deployableInfo.remainingDeployCount);
-                box.StartCooldown(deployableInfo.redeployTime);
-
-                if (deployableInfo.remainingDeployCount <= 0)
-                {
-                    box.gameObject.SetActive(false);
-                }
+                Debug.LogError($"배치 실패: 필요 코스트({deploymentCost}) > 현재 코스트({StageManager.Instance.CurrentDeploymentCost})");
+                return;
             }
-
-            ResetPlacement();
-            StageManager.Instance.UpdateTimeScale();
         }
+
+        // 배치 리스트에 아이템 추가
+        deployedItems.Add(currentDeployable);
+
+        // 배치 후 박스의 처리
+        if (deployableUIBoxes.TryGetValue(currentDeployablePrefab, out DeployableBox box))
+        {
+            deployableInfo.remainingDeployCount--;
+
+            box.UpdateRemainingCount(deployableInfo.remainingDeployCount);
+            box.StartCooldown(deployableInfo.redeployTime);
+
+            if (deployableInfo.remainingDeployCount <= 0)
+            {
+                box.gameObject.SetActive(false);
+            }
+        }
+
+        ResetPlacement();
+        StageManager.Instance.UpdateTimeScale();
     }
 
     /// <summary>
@@ -586,10 +602,11 @@ public class DeployableManager : MonoBehaviour
         if (prefab != null && deployableUIBoxes.TryGetValue(prefab, out DeployableBox box))
         {
             box.gameObject.SetActive(true);
-            
+
             // 일단 Operator는 제거됐을 때 재배치 쿨타임이 동작해야 함
             if (deployable is Operator op)
             {
+                box.OnOperatorReturn(); // 코스트 증가
                 box.StartCooldown(op.currentStats.RedeployTime);
             }
         }
@@ -650,7 +667,7 @@ public class DeployableManager : MonoBehaviour
     /// </summary>
     public void SetMinDirectionDistance(float screenDiamondRadius)
     {
-        minDirectionDistance = screenDiamondRadius / 2; 
+        minDirectionDistance = screenDiamondRadius / 2;
     }
 
     private bool CanPlaceOnTile(Tile tile)

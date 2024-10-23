@@ -430,6 +430,7 @@
 "Assets/Scripts/UI/StatsPanel.cs"
 "Assets/Scripts/UI/UIManager.cs"
 "Assets/Scripts/Unit/Projectile.cs"
+"Assets/Scripts/Visual/Effects/ProjectileEffect.cs"
 -langversion:9.0
 /deterministic
 /optimize+

@@ -37,7 +37,8 @@ public class DeployableUnitEntity: UnitEntity, IDeployable
     public virtual bool CanDeployGround { get; set; }
     public virtual bool CanDeployHill { get; set; }
 
-    private float preventInteractingTime = 0.1f; // 마우스 클릭을 방지하는 시간
+    // 배치 완료 후 커서를 뗀 위치가 오퍼레이터 위치일 때 ActionUI가 나타남을 방지하기 위한 변수들
+    private float preventInteractingTime = 0.1f; 
     private float lastDeployTime;
 
     protected virtual void Awake()

@@ -193,4 +193,4 @@ MonoBehaviour:
     m_PostInfinity: 2
     m_RotationOrder: 4
   attackColor: {r: 0.9056604, g: 0.10679956, b: 0.10679956, a: 1}
-  healColor: {r: 0.095584325, g: 0.8018868, b: 0, a: 1}
+  healColor: {r: 0.1, g: 0.9, b: 0.1, a: 1}

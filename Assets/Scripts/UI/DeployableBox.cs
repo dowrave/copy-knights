@@ -15,7 +15,7 @@ public class DeployableBox : MonoBehaviour, IPointerDownHandler, IBeginDragHandl
     private Sprite icon;
 
     // 쿨다운 관련
-    private Image InActiveImage;
+    private Image inActiveImage;
     private TextMeshProUGUI cooldownText;
     private float cooldownTimer = 0f;
     private bool isOnCooldown = false;
@@ -24,6 +24,13 @@ public class DeployableBox : MonoBehaviour, IPointerDownHandler, IBeginDragHandl
     private TextMeshProUGUI remainingCountText;
 
     private bool isDragging = false;
+
+    // 배치 코스트 관련
+    private int baseDeploymentCost;
+    private int currentDeploymentCost;
+    private int deployCount = 0;
+    private const int MAX_COST_INCREASE = 2; // 최대 코스트 증가 횟수
+    private const float COST_INCREASE_RATE = 0.5f; // 코스트 증가율
 
     public void Initialize(GameObject prefab)
     {
@@ -42,11 +49,23 @@ public class DeployableBox : MonoBehaviour, IPointerDownHandler, IBeginDragHandl
             icon = deployableComponent.Data.Icon;
         }
 
+        // 초기 코스트 설정
+        if (deployableComponent is Operator op)
+        {
+            baseDeploymentCost = op.Data.stats.DeploymentCost;
+        }
+        else
+        {
+            baseDeploymentCost = deployableComponent.Data.stats.DeploymentCost; 
+        }
+        currentDeploymentCost = baseDeploymentCost;
+        deployCount = 0;
+
         // Operator로 초기화했더라도 deployableComponent 변수 이름으로 DeployableComponent의 모든 기능 사용 가능
         boxIcon = transform.Find("BoxIcon").gameObject;
         boxIconImage = boxIcon.GetComponent<Image>();
         costText = transform.Find("CostBackground/CostText").GetComponent<TextMeshProUGUI>();
-        InActiveImage = transform.Find("InActiveOverlay").GetComponent<Image>();
+        inActiveImage = transform.Find("InActiveOverlay").GetComponent<Image>();
         cooldownText = transform.Find("CooldownText").GetComponent<TextMeshProUGUI>();
         remainingCountText = transform.Find("RemainingCountText").GetComponent<TextMeshProUGUI>();
 
@@ -113,11 +132,14 @@ public class DeployableBox : MonoBehaviour, IPointerDownHandler, IBeginDragHandl
             remainingCountText.gameObject.SetActive(false);
         }
 
-
-        if (CanInteract())
+        if (!isOnCooldown)
         {
-            InActiveImage.gameObject.SetActive(false);
             cooldownText.gameObject.SetActive(false);
+        }
+
+        if (StageManager.Instance.CurrentDeploymentCost >= currentDeploymentCost)
+        {
+            inActiveImage.gameObject.SetActive(false);
         }
     }
 
@@ -131,7 +153,7 @@ public class DeployableBox : MonoBehaviour, IPointerDownHandler, IBeginDragHandl
 
     private void UpdateCooldownVisuals()
     {
-        InActiveImage.gameObject.SetActive(true);
+        inActiveImage.gameObject.SetActive(true);
         cooldownText.gameObject.SetActive(true);
         //InActiveImage.fillAmount = cooldownTimer / 70f; // 재배치 시간 70으로 고정 (나중에 수정 필요)
         cooldownText.text = Mathf.Ceil(cooldownTimer).ToString();
@@ -140,7 +162,7 @@ public class DeployableBox : MonoBehaviour, IPointerDownHandler, IBeginDragHandl
     private void EndCooldown()
     {
         isOnCooldown = false;
-        InActiveImage.gameObject.SetActive(false);
+        inActiveImage.gameObject.SetActive(false);
         cooldownText.gameObject.SetActive(false);
     }
 
@@ -148,11 +170,11 @@ public class DeployableBox : MonoBehaviour, IPointerDownHandler, IBeginDragHandl
     {
         if (CanInteract())
         {
-            InActiveImage.gameObject.SetActive(false); // 박스 흐릿하게
+            inActiveImage.gameObject.SetActive(false); // 박스 흐릿하게
         }
         else
         {
-            InActiveImage.gameObject.SetActive(true); // 흐릿한 박스 제거
+            inActiveImage.gameObject.SetActive(true); // 흐릿한 박스 제거
         }
     }
 
@@ -200,7 +222,7 @@ public class DeployableBox : MonoBehaviour, IPointerDownHandler, IBeginDragHandl
 
     private bool CanInteract()
     {
-        return !isOnCooldown && StageManager.Instance.CurrentDeploymentCost >= deployableComponent.currentStats.DeploymentCost;
+        return !isOnCooldown && StageManager.Instance.CurrentDeploymentCost >= currentDeploymentCost;
     }
 
     public void UpdateRemainingCount(int count)
@@ -218,4 +240,26 @@ public class DeployableBox : MonoBehaviour, IPointerDownHandler, IBeginDragHandl
         }
     }
 
+    /// <summary>
+    /// 2회까지 배치 코스트를 업데이트함
+    /// </summary>
+    private void UpdateDeploymentCost()
+    {
+        float multiplier = 1f + (Mathf.Min(deployCount, MAX_COST_INCREASE - 1) * COST_INCREASE_RATE);
+        currentDeploymentCost = Mathf.RoundToInt(baseDeploymentCost * multiplier);
+    }
+
+    public void OnOperatorReturn()
+    {
+        deployCount++;
+        UpdateDeploymentCost();
+
+        // 코스트 UI 업데이트
+        costText.text = currentDeploymentCost.ToString("F0");
+    }
+
+    public int GetCurrentDeploymentCost()
+    {
+        return currentDeploymentCost;
+    }
 }

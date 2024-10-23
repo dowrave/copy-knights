@@ -166,16 +166,16 @@ MonoBehaviour:
   currentStats:
     _deployableUnitStats:
       _baseStats:
-        _health: 0
-        _defense: 0
-        _magicResistance: 0
-      _deploymentCost: 0
-      _redeployTime: 0
-    _attackPower: 0
-    _attackSpeed: 0
-    _maxBlockableEnemies: 0
-    _currentSP: 0
-    _spRecoveryRate: 0
+        _health: 2000
+        _defense: 300
+        _magicResistance: 5
+      _deploymentCost: 7
+      _redeployTime: 70
+    _attackPower: 200
+    _attackSpeed: 2
+    _maxBlockableEnemies: 1
+    _startSP: 0
+    _spRecoveryRate: 1
   operatorUIPrefab: {fileID: 6495183925303149127, guid: c20d98f4d39f9d645a85f029e0911050, type: 3}
 --- !u!65 &-1203292292963304122
 BoxCollider:

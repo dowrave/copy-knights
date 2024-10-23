@@ -33,6 +33,7 @@ public abstract class UnitEntity : MonoBehaviour, ITargettable, IFactionMember
 
     // ¿Ã∫•∆Æ
     public event System.Action<float, float> OnHealthChanged;
+    public event System.Action OnDestroyed;
 
     public void Initialize(UnitData unitData)
     {
@@ -137,6 +138,7 @@ public abstract class UnitEntity : MonoBehaviour, ITargettable, IFactionMember
         {
             entity.RemoveCurrentTarget();
         }
+        OnDestroyed?.Invoke();
         Destroy(gameObject);
     }
 
