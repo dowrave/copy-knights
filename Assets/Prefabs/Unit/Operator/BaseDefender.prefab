@@ -119,7 +119,7 @@ GameObject:
   - component: {fileID: 8846747372839674758}
   - component: {fileID: 5805119495687587785}
   m_Layer: 6
-  m_Name: BaseOperator(Defender)
+  m_Name: BaseDefender
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

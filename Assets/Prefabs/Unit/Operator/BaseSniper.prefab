@@ -117,9 +117,9 @@ GameObject:
   m_Component:
   - component: {fileID: 2886673081674858546}
   - component: {fileID: 517033730910062632}
-  - component: {fileID: 1948338424727183985}
+  - component: {fileID: -1203292292963304122}
   m_Layer: 6
-  m_Name: BaseOperator(Caster)
+  m_Name: BaseSniper
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -134,7 +134,7 @@ Transform:
   m_GameObject: {fileID: 4844663318455565301}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: 6, y: 0.5, z: 2}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -162,22 +162,22 @@ MonoBehaviour:
       _magicResistance: 0
     _deploymentCost: 0
     _redeployTime: 0
-  operatorData: {fileID: 0}
+  operatorData: {fileID: 11400000, guid: 5741ce8ccb3daaf4b9f24148fa1675c3, type: 2}
   currentStats:
     _deployableUnitStats:
       _baseStats:
-        _health: 0
-        _defense: 0
-        _magicResistance: 0
-      _deploymentCost: 0
-      _redeployTime: 0
-    _attackPower: 0
-    _attackSpeed: 0
-    _maxBlockableEnemies: 0
-    _currentSP: 0
-    _spRecoveryRate: 0
+        _health: 2000
+        _defense: 300
+        _magicResistance: 5
+      _deploymentCost: 7
+      _redeployTime: 70
+    _attackPower: 200
+    _attackSpeed: 2
+    _maxBlockableEnemies: 1
+    _startSP: 0
+    _spRecoveryRate: 1
   operatorUIPrefab: {fileID: 6495183925303149127, guid: c20d98f4d39f9d645a85f029e0911050, type: 3}
---- !u!65 &1948338424727183985
+--- !u!65 &-1203292292963304122
 BoxCollider:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
