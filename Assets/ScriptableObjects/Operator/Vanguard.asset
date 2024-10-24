@@ -37,6 +37,7 @@ MonoBehaviour:
   - {x: 0, y: 0}
   - {x: -1, y: 0}
   projectilePrefab: {fileID: 0}
-  skills: []
+  skills:
+  - {fileID: 11400000, guid: 94f9ca36096d5e846b99fae318271cb3, type: 2}
   defaultSkillIndex: 0
-  initialSP: 0
+  initialSP: 5
