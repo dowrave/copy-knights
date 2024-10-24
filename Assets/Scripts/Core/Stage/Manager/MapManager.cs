@@ -10,9 +10,8 @@ using System.Collections.Generic;
 public class MapManager : MonoBehaviour
 { 
     public static MapManager Instance { get; private set; }
-    private Map currentMap;
+    [SerializeField] private Map currentMap;
     public Map CurrentMap => currentMap;
-    [SerializeField] private List<PathData> availablePaths;
 
     private void Awake()
     {
@@ -36,14 +35,13 @@ public class MapManager : MonoBehaviour
     // currentMap 자체는 StageManager에서 관리, MapManager에서는 이를 받는 구조를 취한다.
     public void InitializeMap()
     {
-        currentMap = FindObjectOfType<Map>();
         if (currentMap != null)
         {
+            currentMap = GetComponentInChildren<Map>();
             currentMap.Initialize(currentMap.Width, currentMap.Height, true);
             SpawnerManager.Instance.Initialize(currentMap);
             //CameraManager.Instance.AdjustCameraToMap(currentMap.Width, currentMap.Height);
             InitializeCameraManager();
-            InitializePaths(); 
         }
         else
         {
@@ -60,26 +58,6 @@ public class MapManager : MonoBehaviour
         else
         {
             Debug.LogError("카메라 매니저 인스턴스를 찾을 수 없었음");
-        }
-    }
-
-    private void InitializePaths()
-    {
-        foreach (PathData path in availablePaths)
-        {
-            ValidatePath(path);
-        }
-    }
-
-    private void ValidatePath(PathData path)
-    {
-        foreach (PathNode node in path.nodes)
-        {
-            Vector2Int gridPos = node.gridPosition;
-            if (!currentMap.IsValidGridPosition(gridPos.x, gridPos.y))
-            {
-                Debug.LogWarning($"Invalid path node position in path {path.name}: {node.gridPosition}");
-            }
         }
     }
 

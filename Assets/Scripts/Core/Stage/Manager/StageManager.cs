@@ -120,7 +120,11 @@ public class StageManager : MonoBehaviour
         CurrentLifePoints = maxLifePoints;
 
         Debug.Log("스테이지 준비");
-        InitializeStage(); // 스테이지 준비
+        if (MapManager.Instance != null)
+        {
+            InitializeStage(); // 스테이지 준비
+
+        }
 
         Debug.Log("스테이지 시작");
         StartBattle(); // 게임 시작
@@ -329,6 +333,11 @@ public class StageManager : MonoBehaviour
             SetGameState(GameState.Paused);
         }
         UIManager.Instance.UpdatePauseButtonVisual();
+    }
+
+    public void RecoverDeploymentCost(int amount)
+    {
+        CurrentDeploymentCost = Mathf.Min(CurrentDeploymentCost + amount, maxDeploymentCost);
     }
 }
 

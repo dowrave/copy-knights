@@ -164,6 +164,9 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity
 
     protected void OnDestroy()
     {
+        // 타일에서 제거
+        CurrentTile.EnemyExited(this);
+
         if (AttackRangeType == AttackRangeType.Ranged)
         {
             CleanupProjectilePool();

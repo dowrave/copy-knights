@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UIElements;
 
 [ExecuteAlways] // 에디터, 런타임 모두에서 스크립트 실행
 public class Tile : MonoBehaviour
@@ -229,22 +230,7 @@ public class Tile : MonoBehaviour
     // 타일 위의 모든 적 반환
     public List<Enemy> GetEnemiesOnTile()
     {
-        UpdateEnemiesOnTile();
-        return new List<Enemy>(enemiesOnTile);
-    }
-
-    // 타일 위의 적 목록 업데이트
-    private void UpdateEnemiesOnTile()
-    {
-        enemiesOnTile.Clear();
-        Enemy[] allEnemies = FindObjectsOfType<Enemy>();
-        foreach (Enemy enemy in allEnemies)
-        {
-            if (!IsEnemyOnTile(enemy))
-            {
-                enemiesOnTile.Add(enemy);
-            }
-        }
+        return enemiesOnTile;
     }
 
     // 적이 타일에 진입

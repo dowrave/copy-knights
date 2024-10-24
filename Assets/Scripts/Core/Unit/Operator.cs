@@ -163,6 +163,8 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
     protected void InitializeOperatorData(OperatorData operatorData)
     {
         currentStats = operatorData.stats;
+        CurrentSP = operatorData.initialSP;
+
         if (Data == null)
         {
             Debug.LogError("Data가 null임!!!");
@@ -243,6 +245,10 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
             }
 
             RecoverSP();
+            if (ActiveSkill.AutoActivate && CurrentSP == MaxSP)
+            {
+                UseSkill();
+            }
         }
     }
 
@@ -316,6 +322,7 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
         enemiesInRange.Clear();
         Vector2Int operatorGridPos = MapManager.Instance.CurrentMap.WorldToGridPosition(transform.position);
 
+        // 공격 범위(타일들)에 있는 적들을 수집합니다
         foreach (Vector2Int offset in operatorData.attackableTiles)
         {
             Vector2Int rotatedOffset = RotateOffset(offset, facingDirection);
@@ -327,6 +334,7 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
                 enemiesInRange.AddRange(enemiesOnTile);
             }
         }
+
         enemiesInRange = enemiesInRange.Distinct().ToList();
     }
 
@@ -535,13 +543,17 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
     /// </summary>
     protected virtual void ValidateCurrentTarget()
     {
-        if (CurrentTarget == null) return;
-
+        if (CurrentTarget == null)
+        {
+            return;
+        }
+           
         // 범위에서 벗어난 경우
         if (!IsCurrentTargetInRange())
         {
             CurrentTarget.RemoveAttackingEntity(this);
             CurrentTarget = null;
+            Debug.Log($"현재 타겟 해제 동작 후: {CurrentTarget}");
         }
         
     }
@@ -551,22 +563,19 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
     /// </summary>
     protected bool IsCurrentTargetInRange()
     {
-        if (CurrentTarget == null) return false;
-
-        Vector2Int previousTargetGridPos = MapManager.Instance.CurrentMap.WorldToGridPosition(CurrentTarget.transform.position);
+        Vector2Int targetGridPos = MapManager.Instance.CurrentMap.WorldToGridPosition(CurrentTarget.transform.position);
         Vector2Int operatorGridPos = MapManager.Instance.CurrentMap.WorldToGridPosition(transform.position);
 
         foreach (Vector2Int offset in operatorData.attackableTiles)
         {
             Vector2Int rotatedOffset = RotateOffset(offset, facingDirection);
-            Vector2Int targetGridPos = operatorGridPos + rotatedOffset;
+            Vector2Int inRangeGridPos = operatorGridPos + rotatedOffset;
 
-            if (targetGridPos == previousTargetGridPos)
+            if (inRangeGridPos == targetGridPos)
             {
                 return true;
             }
         }
-
         return false; 
     }
 
@@ -616,7 +625,15 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
         // 1. 저지 중일 때 -> 저지 중인 적
         if (blockedEnemies.Count > 0)
         {
-            CurrentTarget = blockedEnemies[0];
+            for (int i = 0; i < blockedEnemies.Count; i++)
+            {
+                if (blockedEnemies[i])
+                {
+                    CurrentTarget = blockedEnemies[i];
+                    break;
+                }
+            }
+
             NotifyTarget();
             return;
         }
@@ -633,7 +650,6 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
             }
             return;
         }
-
         // 저지 중인 적도 없고, 공격 범위 내의 적도 없다면 현재 타겟은 없음
         CurrentTarget = null;
     }

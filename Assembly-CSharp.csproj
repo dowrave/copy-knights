@@ -80,6 +80,7 @@
     <Compile Include="Assets\Scripts\Core\Data\EnemyData.cs" />
     <Compile Include="Assets\Scripts\Visual\UI\DiamondMask.cs" />
     <Compile Include="Assets\Scripts\Visual\UI\HealthBar.cs" />
+    <Compile Include="Assets\Scripts\Core\Skills\OperatorSkills\CostRecoverySkill.cs" />
     <Compile Include="Assets\Scripts\Visual\UI\DeployableDeployingUI.cs" />
     <Compile Include="Assets\Scripts\Core\Unit\DeployableUnitEntity.cs" />
     <Compile Include="Assets\Scripts\Core\Stage\Manager\DeployableManager.cs" />
@@ -94,6 +95,7 @@
     <Compile Include="Assets\Scripts\Visual\UI\StatsPanel.cs" />
     <Compile Include="Assets\Scripts\Core\Stage\Manager\StatisticsManager.cs" />
     <Compile Include="Assets\Scripts\Visual\UI\InfoPanel.cs" />
+    <Compile Include="Assets\Scripts\Visual\Effects\CostParticleMotion.cs" />
     <Compile Include="Assets\Scripts\Core\Unit\Operator.cs" />
     <Compile Include="Assets\Scripts\Core\Stage\PathData.cs" />
     <Compile Include="Assets\Scripts\Visual\UI\DeployableBox.cs" />
@@ -101,8 +103,8 @@
     <Compile Include="Assets\Scripts\Core\Interfaces\ICombatEntity.cs" />
     <Compile Include="Assets\Scripts\Visual\UI\OperatorUI.cs" />
     <Compile Include="Assets\Scripts\Core\Stage\Manager\ObjectPoolManager.cs" />
-    <Compile Include="Assets\Scripts\Core\Interfaces\IMovable.cs" />
     <Compile Include="Assets\Scripts\Core\Stage\Map\EnemySpawner.cs" />
+    <Compile Include="Assets\Scripts\Core\Interfaces\IMovable.cs" />
     <Compile Include="Assets\Scripts\Core\Interfaces\ISkill.cs" />
     <Compile Include="Assets\Scripts\Core\Unit\Projectile.cs" />
     <Compile Include="Assets\Scripts\Core\Data\OperatorData.cs" />
