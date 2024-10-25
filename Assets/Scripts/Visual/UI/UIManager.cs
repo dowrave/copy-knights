@@ -152,5 +152,51 @@ public class UIManager : MonoBehaviour
         pauseOverlay.gameObject.SetActive(false);
     }
 
+    /// <summary>
+    /// UI 요소의 게임 화면 상에서의 위치
+    /// </summary>
+    public Vector2 GetUIElementScreenPosition(RectTransform rectTransform)
+    {
+        Rect screenRect = GetScreenRect(rectTransform);
+        return new Vector2(
+            screenRect.x + screenRect.width * 0.5f,
+            screenRect.y + screenRect.height * 0.5f
+        );
+    }
+    private Rect GetScreenRect(RectTransform rectTransform)
+    {
+        Vector2 size = Vector2.Scale(rectTransform.rect.size, rectTransform.lossyScale);
+        Rect rect = new Rect(0, 0, size.x, size.y);
+        rect.center = rectTransform.position;
+        return rect;
+    }
+
+    public Vector3 GetUIElementWorldProjection(RectTransform uiElement, float projectionHeight = 0f)
+    {
+        // UI 요소의 스크린 상의 좌표 얻기
+        Vector2 screenPos = GetUIElementScreenPosition(uiElement);
+
+        // 스크린 좌표를 레이로 변환
+        Ray ray = Camera.main.ScreenPointToRay(screenPos);
+
+        // 3. XZ 평면과의 교차점 계산
+        float denominator = Vector3.Dot(ray.direction, Vector3.up);
+        if (Mathf.Abs(denominator) > float.Epsilon)
+        {
+            float t = (projectionHeight - ray.origin.y) / ray.direction.y;
+            Vector3 projectedPoint = ray.origin + ray.direction * t;
+
+            Debug.Log($"UI Element '{uiElement.name}' projects to world position: {projectedPoint}");
+
+            // 디버그 시각화
+            Debug.DrawRay(ray.origin, ray.direction * 100f, Color.red, 1f);
+            Debug.DrawLine(Vector3.zero, projectedPoint, Color.blue, 1f);
+
+            return projectedPoint;
+        }
+
+        Debug.LogWarning("Could not project UI element to world space - ray is parallel to XZ plane");
+        return Vector3.zero;
+    }
     
 }

@@ -24,7 +24,7 @@ namespace SKills.OperatorSkills
             if (op == null) return;
 
             // 이펙트 생성
-            GameObject effect = Instantiate(skillEffectPrefab, op.transform.position + Vector3.up, Quaternion.identity);
+            GameObject effect = Instantiate(skillEffectPrefab, op.transform.position, Quaternion.identity);
 
             // 2초 후 이펙트 자동 제거
             Destroy(effect, 2f); 
