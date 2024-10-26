@@ -12,7 +12,9 @@ public class CostParticleMotion : MonoBehaviour
     private new ParticleSystem particleSystem;
     private ParticleSystem.Particle[] particles;
     private float elapsed = 0f;
-    private Vector2 targetScreenPos;
+
+    private Vector2 iconScreenPosition;
+    private Vector3 iconWorldPosition;
 
     [Header("Movement Settings")]
     [SerializeField] private float initialDuration = 1f;
@@ -38,22 +40,11 @@ public class CostParticleMotion : MonoBehaviour
         {
             deploymentCostIconTransform = GameObject.Find("MainCanvas/DeploymentCostPanel/DeploymentCostIcon").GetComponent<RectTransform>();
         }
-
-        UpdateTargetPosition();
     }
 
-    private void UpdateTargetPosition()
+    private void Start()
     {
-        // 게임 화면(스크린) 상에서의 위치를 잡음
-        targetScreenPos = UIManager.Instance.GetUIElementScreenPosition(deploymentCostIconTransform);
-
-        // 월드 투영 좌표 계산 (디버그용)
-        Vector3 worldProjection = UIManager.Instance.GetUIElementWorldProjection(deploymentCostIconTransform);
-        Debug.Log($"Target Screen Pos: {targetScreenPos}");
-        Debug.Log($"World Projection: {worldProjection}");
-
-        // Scene 뷰에서 시각화
-        //Debug.DrawSphere(worldProjection, 0.5f, Color.yellow, 1f);
+        iconWorldPosition = UIManager.Instance.CostIconWorldPosition;
     }
 
     private void LateUpdate()
@@ -74,24 +65,14 @@ public class CostParticleMotion : MonoBehaviour
 
     private void MoveParticleTowardsTarget(ref ParticleSystem.Particle particle)
     {
-        // 파티클의 월드 위치를 스크린 좌표로 변환
-        Vector2 particleScreenPos = Camera.main.WorldToScreenPoint(particle.position);
+        // 파티클 시스템의 좌표는 로컬 기준으로 처리되므로, 월드 좌표로 변환
+        Vector3 particleWorldPosition = particleSystem.transform.TransformPoint(particle.position);
 
-        // 스크린 좌표상에서의 방향 계산
-        Vector2 directionToTarget = (targetScreenPos - particleScreenPos).normalized;
-
-        // Screen Space에서의 이동을 World Space로 변환
-        Vector3 worldSpaceDirection = Camera.main.ScreenToWorldPoint(new Vector3(
-            particleScreenPos.x + directionToTarget.x,
-            particleScreenPos.y + directionToTarget.y,
-            Camera.main.WorldToScreenPoint(particle.position).z
-        )) - particle.position;
-        worldSpaceDirection.Normalize();
+        float distanceToTarget = Vector3.Distance(particle.position, iconWorldPosition);
 
         uint particleId = particle.randomSeed;
-        Vector3 targetVelocity = worldSpaceDirection * moveSpeed;
 
-        // 초기 속도 설정
+        // 초기 속도 설정 - 랜덤한 방향으로 약간 퍼지게 함
         if (!particleVelocities.ContainsKey(particleId))
         {
             Vector3 initialVelocity = new Vector3(
@@ -102,88 +83,32 @@ public class CostParticleMotion : MonoBehaviour
             particleVelocities[particleId] = initialVelocity;
         }
 
+        // 월드 좌표에서의 방향 계산
+        Vector3 directionToTarget = (iconWorldPosition - particleWorldPosition).normalized;
+        Vector3 targetVelocity = directionToTarget * moveSpeed;
+
+        // 월드 공간 속도 -> 로컬 공간 속도로 변환 : 나중에 적용할 particle.velocity는 로컬 좌표계에서 동작하기 때문에 이 작업을 거친다
+        Vector3 localTargetVelocity = particleSystem.transform.InverseTransformDirection(targetVelocity);
+
         // 부드러운 방향 전환
         Vector3 newVelocity = Vector3.Lerp(
             particleVelocities[particleId],
-            targetVelocity,
+            localTargetVelocity,
             Time.deltaTime * turnSpeed
         );
 
         // 파티클 크기 감소
         float lifeProgress = (elapsed - initialDuration) / (particle.startLifetime - initialDuration);
-        particle.startSize *= Mathf.Lerp(1f, 0.2f, lifeProgress);
+        particle.startSize *= Mathf.Lerp(1f, 0.8f, lifeProgress);
 
         // 새로운 속도 적용
         particleVelocities[particleId] = newVelocity;
         particle.velocity = newVelocity;
 
         // 목표 지점 근처 도달 시 파티클 제거
-        if (Vector2.Distance(particleScreenPos, targetScreenPos) < arrivalThreshold)
+        if (distanceToTarget < arrivalThreshold)
         {
             particle.remainingLifetime = 0f;
         }
-    }
-
-    // 디버깅용
-    private void OnGUI()
-    {
-        if (!showDebugMarker) return;
-
-        // 타겟 위치 표시 (Screen -> GUI 좌표계 변환)
-        Vector2 targetGuiPos = new Vector2(targetScreenPos.x, Screen.height - targetScreenPos.y);
-        DrawDebugMarker(targetGuiPos, targetMarkerColor, "Target");
-
-        // 활성 파티클 위치 표시
-        if (particles != null && particleSystem != null)
-        {
-            int numAliveParticles = particleSystem.GetParticles(particles);
-            for (int i = 0; i < numAliveParticles; i++)
-            {
-                Vector2 particleScreenPos = Camera.main.WorldToScreenPoint(particles[i].position);
-                Vector2 particleGuiPos = new Vector2(particleScreenPos.x, Screen.height - particleScreenPos.y);
-                DrawDebugMarker(particleGuiPos, particleMarkerColor, $"P{i}");
-            }
-        }
-
-        // 화면 해상도와 좌표계 정보
-        GUI.Label(
-            new Rect(10, 10, 300, 60),
-            $"Screen: {Screen.width} x {Screen.height}\n" +
-            $"Target Screen Pos: {targetScreenPos}\n" +
-            $"Target GUI Pos: {targetGuiPos}"
-        );
-    }
-
-    private void DrawDebugMarker(Vector2 position, Color color, string label)
-    {
-        Color originalColor = GUI.color;
-        GUI.color = color;
-
-        float halfSize = markerSize * 0.5f;
-
-        // 가로선
-        GUI.DrawTexture(
-            new Rect(position.x - halfSize, position.y - 1, markerSize, 2),
-            Texture2D.whiteTexture
-        );
-
-        // 세로선
-        GUI.DrawTexture(
-            new Rect(position.x - 1, position.y - halfSize, 2, markerSize),
-            Texture2D.whiteTexture
-        );
-
-        // 좌표 텍스트
-        GUI.Label(
-            new Rect(position.x + halfSize, position.y + halfSize, 200, 20),
-            $"{label}: ({position.x:F0}, {position.y:F0})"
-        );
-
-        GUI.color = originalColor;
-    }
-
-    private void OnParticleSystemStopped()
-    {
-        particleVelocities.Clear();
     }
 }

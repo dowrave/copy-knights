@@ -6,6 +6,7 @@ public class UIManager : MonoBehaviour
 {
     public static UIManager Instance { get; private set; }
 
+    [Header("Panels")]
     [SerializeField] private GameObject statsPanel;
     [SerializeField] private GameObject gameOverPanel;
     [SerializeField] private GameObject gameWinPanel; // 여기는 애니메이션이 들어가니까 일단 냅두기만 합니다
@@ -17,11 +18,11 @@ public class UIManager : MonoBehaviour
 
     private InfoPanel infoPanelScript;
 
-    // 상단 UI 요소
+    [Header("Top Panel Elements")]
     [SerializeField] private TextMeshProUGUI enemyCountText;
     [SerializeField] private TextMeshProUGUI lifePointsText;
 
-    // 우상단 UI 요소
+    [Header("Top Right Panel Elements")]
     [SerializeField] private Button currentSpeedButton;
     [SerializeField] private Button pauseButton;
     [SerializeField] private Image pauseOverlay;
@@ -29,6 +30,16 @@ public class UIManager : MonoBehaviour
     [SerializeField] private TextMeshProUGUI currentSpeedIcon;
     [SerializeField] private TextMeshProUGUI pauseButtonText;
 
+    [Header("Cost Panel Elements")]
+    [SerializeField] private GameObject costIcon;
+
+    // 코스트 이펙트에서 사용할 좌표
+    private Vector3 costIconWorldPosition;
+    public Vector3 CostIconWorldPosition 
+    {
+        get => costIconWorldPosition;
+        private set => costIconWorldPosition = value;
+    }
 
     // Awake는 모든 오브젝트의 초기화 전에 실행되어서 다른 스크립트가 참조할 수 있도록 한다. 특히 UI는 Awake를 쓸 것.
     private void Awake()
@@ -72,6 +83,10 @@ public class UIManager : MonoBehaviour
     private void Start()
     {
         InitializeListeners();
+
+        // 최초 카메라에서 코스트 아이콘의 월드 포지션을 잡아줌
+        RectTransform costIconComponent = costIcon.GetComponent<RectTransform>();
+        CostIconWorldPosition = GetUIElementWorldProjection(costIconComponent);
     }
 
     private void InitializeListeners()

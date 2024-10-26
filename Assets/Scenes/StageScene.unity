@@ -4680,6 +4680,7 @@ MonoBehaviour:
   currentSpeedText: {fileID: 7727327691878116001}
   currentSpeedIcon: {fileID: 2700272289677970785}
   pauseButtonText: {fileID: 737555800946771578}
+  costIcon: {fileID: 1856622395}
 --- !u!114 &4426849581333860165
 MonoBehaviour:
   m_ObjectHideFlags: 0
