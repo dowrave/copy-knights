@@ -6,6 +6,8 @@ public class UIManager : MonoBehaviour
 {
     public static UIManager Instance { get; private set; }
 
+    [SerializeField] private IconData iconData;
+
     [Header("Panels")]
     [SerializeField] private GameObject statsPanel;
     [SerializeField] private GameObject gameOverPanel;
@@ -76,13 +78,20 @@ public class UIManager : MonoBehaviour
         gameWinPanel.SetActive(false);
         infoPanel.SetActive(false);
 
-        //InitializeListeners();
+        if (iconData == null)
+        {
+            Debug.Log("IconData가 할당되지 않음");
+            return;
+        }
 
+        // Box 초기화가 Start 시점이라서 Awake 시점에서 생성
+        IconHelper.Initialize(iconData);
     }
 
     private void Start()
     {
         InitializeListeners();
+
 
         // 최초 카메라에서 코스트 아이콘의 월드 포지션을 잡아줌
         RectTransform costIconComponent = costIcon.GetComponent<RectTransform>();

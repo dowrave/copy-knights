@@ -96,6 +96,8 @@ public class DeployableManager : MonoBehaviour
         {
             Destroy(gameObject);
         }
+
+        IconHelper.OnIconDataInitialized += InitializeDeployableUI;
     }
 
     private void Start()

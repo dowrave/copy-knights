@@ -1203,8 +1203,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   DeployableBoxPrefab: {fileID: 4361422347105965548, guid: 32e0823a42592f84cb270798f13e6668, type: 3}
   bottomPanel: {fileID: 6315836792090120216}
-  availableTileColor: {r: 0, g: 1, b: 0, a: 0.5}
-  attackRangeTileColor: {r: 1, g: 0.9790576, b: 0, a: 0.5019608}
+  availableTileColor: {r: 0.32, g: 0.8, b: 0.32, a: 0.5}
+  attackRangeTileColor: {r: 0.8, g: 0.79058826, b: 0.32, a: 0.5019608}
   tileLayerMask:
     serializedVersion: 2
     m_Bits: 1024
@@ -3457,7 +3457,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 1, y: 0}
   m_AnchorMax: {x: 1, y: 0}
-  m_AnchoredPosition: {x: 0, y: 59}
+  m_AnchoredPosition: {x: 0, y: 70}
   m_SizeDelta: {x: 100, y: 50}
   m_Pivot: {x: 1, y: 0}
 --- !u!224 &2771725764372512561
@@ -3775,7 +3775,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0cd44c1031e13a943bb63640046fad76, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_UiScaleMode: 0
+  m_UiScaleMode: 1
   m_ReferencePixelsPerUnit: 100
   m_ScaleFactor: 1
   m_ReferenceResolution: {x: 800, y: 600}
@@ -4665,6 +4665,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 77bda755c9988654aa8ac0f206a28b9e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  iconData: {fileID: 11400000, guid: 7aa35ae3650dc1145b898d2b951ff2da, type: 2}
   statsPanel: {fileID: 748492372}
   gameOverPanel: {fileID: 3027162035940749476}
   gameWinPanel: {fileID: 5570793338769630143}
@@ -6503,7 +6504,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 0}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 0, y: 60}
+  m_SizeDelta: {x: 0, y: 70}
   m_Pivot: {x: 0.5, y: 0}
 --- !u!114 &6385919914304956715
 MonoBehaviour:
