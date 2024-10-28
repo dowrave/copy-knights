@@ -15,8 +15,8 @@ MonoBehaviour:
   TileName: Start
   terrain: 0
   isWalkable: 1
-  canPlaceOperator: 0
+  isDeployable: 1
   isStartPoint: 1
   isEndPoint: 0
-  tileColor: {r: 1, g: 0.05929699, b: 0, a: 1}
+  tileColor: {r: 0.7, g: 0.16470587, b: 0.1372549, a: 1}
   hasPit: 0

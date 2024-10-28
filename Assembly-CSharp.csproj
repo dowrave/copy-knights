@@ -94,6 +94,7 @@
     <Compile Include="Assets\Scripts\Core\Unit\Barricade.cs" />
     <Compile Include="Assets\Scripts\Visual\UI\StatsPanel.cs" />
     <Compile Include="Assets\Scripts\Core\Stage\Manager\StatisticsManager.cs" />
+    <Compile Include="Assets\Scripts\Core\Data\IconData.cs" />
     <Compile Include="Assets\Scripts\Visual\UI\InfoPanel.cs" />
     <Compile Include="Assets\Scripts\Visual\Effects\CostParticleMotion.cs" />
     <Compile Include="Assets\Scripts\Core\Unit\Operator.cs" />
@@ -109,6 +110,7 @@
     <Compile Include="Assets\Scripts\Core\Unit\Projectile.cs" />
     <Compile Include="Assets\Scripts\Core\Data\OperatorData.cs" />
     <Compile Include="Assets\Scripts\Core\Stage\Manager\SpawnerManager.cs" />
+    <Compile Include="Assets\Scripts\Visual\UI\Helper\IconHelper.cs" />
     <Compile Include="Assets\Scripts\Core\Skills\OperatorSkills\SmashSkill.cs" />
     <Compile Include="Assets\Scripts\Visual\UI\EnemyBarUI.cs" />
     <Compile Include="Assets\Scripts\Core\Data\UnitData.cs" />

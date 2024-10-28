@@ -15,8 +15,8 @@ MonoBehaviour:
   TileName: Hill(Default)
   terrain: 1
   isWalkable: 0
-  canPlaceOperator: 1
+  isDeployable: 1
   isStartPoint: 0
   isEndPoint: 0
-  tileColor: {r: 0.4716981, g: 0.42301401, b: 0.18022428, a: 1}
+  tileColor: {r: 0.7, g: 0.6398437, b: 0.35, a: 1}
   hasPit: 0

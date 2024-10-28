@@ -20,7 +20,7 @@ public class CostParticleMotion : MonoBehaviour
     [SerializeField] private float initialDuration = 1f;
     [SerializeField] private float moveSpeed = 10f;
     [SerializeField] private float turnSpeed = 5f;
-    [SerializeField] private float arrivalThreshold = 0.5f;
+    [SerializeField] private float arrivalThreshold = 2f;
 
     [Header("Debug Settings")]
     [SerializeField] private bool showDebugMarker = true;
@@ -69,7 +69,6 @@ public class CostParticleMotion : MonoBehaviour
         Vector3 particleWorldPosition = particleSystem.transform.TransformPoint(particle.position);
 
         float distanceToTarget = Vector3.Distance(particle.position, iconWorldPosition);
-
         uint particleId = particle.randomSeed;
 
         // 초기 속도 설정 - 랜덤한 방향으로 약간 퍼지게 함
@@ -98,8 +97,8 @@ public class CostParticleMotion : MonoBehaviour
         );
 
         // 파티클 크기 감소
-        float lifeProgress = (elapsed - initialDuration) / (particle.startLifetime - initialDuration);
-        particle.startSize *= Mathf.Lerp(1f, 0.8f, lifeProgress);
+        //float lifeProgress = (elapsed - initialDuration) / (particle.startLifetime - initialDuration);
+        //particle.startSize *= Mathf.Lerp(1f, 0.8f, lifeProgress);
 
         // 새로운 속도 적용
         particleVelocities[particleId] = newVelocity;

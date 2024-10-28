@@ -5,24 +5,24 @@ using UnityEngine.UI;
 
 public class DeployableBox : MonoBehaviour, IPointerDownHandler, IBeginDragHandler, IDragHandler, IEndDragHandler
 {
-    private GameObject boxIcon; // 자식 오브젝트 BoxIcon
-    private Image boxIconImage;
-    private TextMeshProUGUI costText;
-    [SerializeField] private GameObject deployablePrefab;
-    private DeployableUnitEntity deployableComponent;
-    private DeployableManager.DeployableInfo deployableInfo; 
+    [Header("UI References")]
+    [SerializeField] private Image boxIconImage;
+    [SerializeField] private Image operatorClassIcon;
+    [SerializeField] private Image inActiveImage;
+    [SerializeField] private TextMeshProUGUI costText;
+    [SerializeField] private TextMeshProUGUI cooldownText;
+    [SerializeField] private TextMeshProUGUI remainingCountText;
 
-    private Sprite icon;
+    private Sprite boxIcon;
+    private GameObject deployablePrefab;
+    private DeployableUnitEntity deployableComponent;
+    private DeployableManager.DeployableInfo deployableInfo;
 
     // 쿨다운 관련
-    private Image inActiveImage;
-    private TextMeshProUGUI cooldownText;
     private float cooldownTimer = 0f;
     private bool isOnCooldown = false;
 
     // 남은 갯수
-    private TextMeshProUGUI remainingCountText;
-
     private bool isDragging = false;
 
     // 배치 코스트 관련
@@ -42,32 +42,26 @@ public class DeployableBox : MonoBehaviour, IPointerDownHandler, IBeginDragHandl
 
         if (deployableComponent is Operator opComponent)
         {
-            icon = opComponent.Data.Icon;
+            boxIcon = opComponent.Data.Icon;
         }
         else if (deployableComponent is DeployableUnitEntity)
         {
-            icon = deployableComponent.Data.Icon;
+            boxIcon = deployableComponent.Data.Icon;
         }
 
-        // 초기 코스트 설정
+        // 오퍼레이터일 때와 아닐 때 구분
         if (deployableComponent is Operator op)
         {
-            baseDeploymentCost = op.Data.stats.DeploymentCost;
+            baseDeploymentCost = op.Data.stats.DeploymentCost; // 초기 배치 코스트 설정
+            IconHelper.SetClassIcon(operatorClassIcon, op.Data.operatorClass); // 클래스 아이콘 설정
         }
         else
         {
-            baseDeploymentCost = deployableComponent.Data.stats.DeploymentCost; 
+            baseDeploymentCost = deployableComponent.Data.stats.DeploymentCost;
+            operatorClassIcon.gameObject.SetActive(false);
         }
         currentDeploymentCost = baseDeploymentCost;
         deployCount = 0;
-
-        // Operator로 초기화했더라도 deployableComponent 변수 이름으로 DeployableComponent의 모든 기능 사용 가능
-        boxIcon = transform.Find("BoxIcon").gameObject;
-        boxIconImage = boxIcon.GetComponent<Image>();
-        costText = transform.Find("CostBackground/CostText").GetComponent<TextMeshProUGUI>();
-        inActiveImage = transform.Find("InActiveOverlay").GetComponent<Image>();
-        cooldownText = transform.Find("CooldownText").GetComponent<TextMeshProUGUI>();
-        remainingCountText = transform.Find("RemainingCountText").GetComponent<TextMeshProUGUI>();
 
         StageManager.Instance.OnDeploymentCostChanged += UpdateAvailability;
         InitializeVisuals();
@@ -101,9 +95,9 @@ public class DeployableBox : MonoBehaviour, IPointerDownHandler, IBeginDragHandl
     private void InitializeVisuals()
     {
         // 아이콘이 있다면 사용
-        if (icon != null)
+        if (boxIcon != null)
         {
-            boxIconImage.sprite = icon;
+            boxIconImage.sprite = boxIcon;
             boxIconImage.color = Color.white; // 원래의 아이콘 그대로 나타내기 위함
         }
         // 아니라면 deployable 모델의 설정을 가져옴

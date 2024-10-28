@@ -15,8 +15,8 @@ MonoBehaviour:
   TileName: Ground(Default)
   terrain: 0
   isWalkable: 1
-  canPlaceOperator: 1
+  isDeployable: 1
   isStartPoint: 0
   isEndPoint: 0
-  tileColor: {r: 0.745283, g: 0.5969323, b: 0.25663045, a: 1}
+  tileColor: {r: 0.7, g: 0.590625, b: 0.35, a: 1}
   hasPit: 0
