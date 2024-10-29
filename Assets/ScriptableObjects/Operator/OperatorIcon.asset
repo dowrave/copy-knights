@@ -14,14 +14,14 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   classIcons:
   - operatorClass: 0
-    icon: {fileID: 21300000, guid: 28a6759a25319524280bfb3f00d715ef, type: 3}
+    icon: {fileID: 21300000, guid: 6eea21899d5afdc4c96150526016f50c, type: 3}
   - operatorClass: 1
-    icon: {fileID: 21300000, guid: 4403c9f04cff9db4c86cdfb15e3406f2, type: 3}
+    icon: {fileID: 21300000, guid: b033fb9be7ef86b4a9ce278e0b857fd9, type: 3}
   - operatorClass: 2
     icon: {fileID: 21300000, guid: 85bacae8a3d9d124a84fe2b4c7882756, type: 3}
   - operatorClass: 3
     icon: {fileID: 21300000, guid: 3bd2518a99de80146b140a9edcf52e5a, type: 3}
   - operatorClass: 4
-    icon: {fileID: 21300000, guid: dd5933f2e1d8c3244874391406580082, type: 3}
+    icon: {fileID: 21300000, guid: ec8ff89e3867a724bbdb5cca41b58e66, type: 3}
   - operatorClass: 5
     icon: {fileID: 21300000, guid: 7920e22cb13bfab4dbed6d1cce55bad1, type: 3}
