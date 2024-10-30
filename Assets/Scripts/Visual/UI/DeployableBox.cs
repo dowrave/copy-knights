@@ -6,8 +6,9 @@ using UnityEngine.UI;
 public class DeployableBox : MonoBehaviour, IPointerDownHandler, IBeginDragHandler, IDragHandler, IEndDragHandler
 {
     [Header("UI References")]
-    [SerializeField] private Image boxIconImage;
-    [SerializeField] private Image operatorClassIcon;
+    [SerializeField] private Image operatorIllustImage;
+    [SerializeField] private GameObject operatorClassIconBox; // 클래스 아이콘의 부모 오브젝트
+    [SerializeField] private Image operatorClassIconImage; // 아이콘 자체 할당
     [SerializeField] private Image inActiveImage;
     [SerializeField] private TextMeshProUGUI costText;
     [SerializeField] private TextMeshProUGUI cooldownText;
@@ -53,12 +54,12 @@ public class DeployableBox : MonoBehaviour, IPointerDownHandler, IBeginDragHandl
         if (deployableComponent is Operator op)
         {
             baseDeploymentCost = op.Data.stats.DeploymentCost; // 초기 배치 코스트 설정
-            IconHelper.SetClassIcon(operatorClassIcon, op.Data.operatorClass); // 클래스 아이콘 설정
+            IconHelper.SetClassIcon(operatorClassIconImage, op.Data.operatorClass); // 클래스 아이콘 설정
         }
         else
         {
             baseDeploymentCost = deployableComponent.Data.stats.DeploymentCost;
-            operatorClassIcon.gameObject.SetActive(false);
+            operatorClassIconBox.gameObject.SetActive(false);
         }
         currentDeploymentCost = baseDeploymentCost;
         deployCount = 0;
@@ -97,8 +98,8 @@ public class DeployableBox : MonoBehaviour, IPointerDownHandler, IBeginDragHandl
         // 아이콘이 있다면 사용
         if (boxIcon != null)
         {
-            boxIconImage.sprite = boxIcon;
-            boxIconImage.color = Color.white; // 원래의 아이콘 그대로 나타내기 위함
+            operatorIllustImage.sprite = boxIcon;
+            operatorIllustImage.color = Color.white; // 원래의 아이콘 그대로 나타내기 위함
         }
         // 아니라면 deployable 모델의 설정을 가져옴
         else if (deployablePrefab != null)
@@ -106,7 +107,7 @@ public class DeployableBox : MonoBehaviour, IPointerDownHandler, IBeginDragHandl
             Renderer modelRenderer = deployablePrefab.GetComponentInChildren<Renderer>();
             if (modelRenderer != null && modelRenderer.sharedMaterial != null)
             {
-                boxIconImage.color = modelRenderer.sharedMaterial.color;
+                operatorIllustImage.color = modelRenderer.sharedMaterial.color;
             }
         }
 
@@ -131,10 +132,7 @@ public class DeployableBox : MonoBehaviour, IPointerDownHandler, IBeginDragHandl
             cooldownText.gameObject.SetActive(false);
         }
 
-        if (StageManager.Instance.CurrentDeploymentCost >= currentDeploymentCost)
-        {
-            inActiveImage.gameObject.SetActive(false);
-        }
+        UpdateAvailability();
     }
 
     public void StartCooldown(float cooldownTime)

@@ -434,7 +434,7 @@ GameObject:
   - component: {fileID: 2895844687629904351}
   - component: {fileID: 2668135105408265270}
   m_Layer: 5
-  m_Name: BoxIcon
+  m_Name: OperatorIllustration
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -769,8 +769,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ce776f519ea688049969a93d1530ddd3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  boxIconImage: {fileID: 2668135105408265270}
-  operatorClassIcon: {fileID: 3120701433108118999}
+  operatorIllustImage: {fileID: 2668135105408265270}
+  operatorClassIconBox: {fileID: 6798692037982273893}
+  operatorClassIconImage: {fileID: 3120701433108118999}
   inActiveImage: {fileID: 7572347816183708204}
   costText: {fileID: 3506960002150489217}
   cooldownText: {fileID: 3667584210642853660}
@@ -938,7 +939,7 @@ GameObject:
   - component: {fileID: 6657590276581838613}
   - component: {fileID: 5771436907301439583}
   m_Layer: 5
-  m_Name: OperatorIconBackground
+  m_Name: OperatorIconBox
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

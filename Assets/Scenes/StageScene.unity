@@ -696,6 +696,7 @@ MonoBehaviour:
   - operatorPrefab: {fileID: 4844663318455565301, guid: d3dcd961b53c71f45b440db97cb72987, type: 3}
   - operatorPrefab: {fileID: 4844663318455565301, guid: 37fe04f2eb5dcdc438f2eec05316e07c, type: 3}
   - operatorPrefab: {fileID: 5185628148525671535, guid: f6133e5c81658dc40ba3a9ece027c15e, type: 3}
+  - operatorPrefab: {fileID: 4844663318455565301, guid: 879f1c8fa0d27a2409ac84cbd55119a4, type: 3}
 --- !u!4 &627474655
 Transform:
   m_ObjectHideFlags: 0
