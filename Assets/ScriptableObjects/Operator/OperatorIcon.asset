@@ -18,10 +18,10 @@ MonoBehaviour:
   - operatorClass: 1
     icon: {fileID: 21300000, guid: b033fb9be7ef86b4a9ce278e0b857fd9, type: 3}
   - operatorClass: 2
-    icon: {fileID: 21300000, guid: 85bacae8a3d9d124a84fe2b4c7882756, type: 3}
+    icon: {fileID: 21300000, guid: c88f495f779c0234a9640ce9faf4cecb, type: 3}
   - operatorClass: 3
-    icon: {fileID: 21300000, guid: 3bd2518a99de80146b140a9edcf52e5a, type: 3}
+    icon: {fileID: 21300000, guid: 3b7c1653278e3824798e657c6521440f, type: 3}
   - operatorClass: 4
     icon: {fileID: 21300000, guid: ec8ff89e3867a724bbdb5cca41b58e66, type: 3}
   - operatorClass: 5
-    icon: {fileID: 21300000, guid: 7920e22cb13bfab4dbed6d1cce55bad1, type: 3}
+    icon: {fileID: 21300000, guid: 833228521e124f94fbc7054ca13cfcdd, type: 3}
