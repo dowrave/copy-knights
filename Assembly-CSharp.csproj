@@ -62,6 +62,7 @@
   <ItemGroup>
     <Compile Include="Assets\Scripts\Core\Interfaces\IFactionMember.cs" />
     <Compile Include="Assets\Scripts\Visual\Effects\ProjectileEffect.cs" />
+    <Compile Include="Assets\Scripts\Core\MainMenu\MainMenuManager.cs" />
     <Compile Include="Assets\Scripts\Visual\UI\DeployableBarUI.cs" />
     <Compile Include="Assets\Scripts\Core\Unit\MedicOperator.cs" />
     <Compile Include="Assets\Scripts\Core\Skills\OperatorSkills\BuffSkill.cs" />
