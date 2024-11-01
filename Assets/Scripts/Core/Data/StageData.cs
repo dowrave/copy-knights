@@ -4,7 +4,12 @@ using System.Collections.Generic;
 [CreateAssetMenu(fileName = "New Stage Data", menuName = "Game/Stage Data")]
 public class StageData : ScriptableObject
 {
-    public string stageName;
+    [Header("Stage Description")]
+    public string stageId; // 1-1, 1-2, 1-3 등등
+    public string stageName; // 스테이지 부제
+    public string stageDetail; // 스테이지 설명
+
+    [Header("Stage Functional Elements")]
     public GameObject mapPrefab;
     public List<EnemySpawnerData> spawnerData;
     public float playerHealthMultiplier = 1f;
