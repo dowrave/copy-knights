@@ -70,6 +70,7 @@
     <Compile Include="Assets\Scripts\Core\Interfaces\IBoxDeployableData.cs" />
     <Compile Include="Assets\Scripts\Core\MainMenu\SquadEditPanel.cs" />
     <Compile Include="Assets\Scripts\Core\Unit\Enemy.cs" />
+    <Compile Include="Assets\Scripts\Core\MainMenu\OperatorSlotButton.cs" />
     <Compile Include="Assets\Scripts\Core\Stage\Tile.cs" />
     <Compile Include="Assets\Scripts\Visual\UI\Stage\StatsPanel.cs" />
     <Compile Include="Assets\Scripts\Core\Stage\Manager\StageManager.cs" />
@@ -82,12 +83,12 @@
     <Compile Include="Assets\Scripts\Core\Skills\OperatorSkills\CostRecoverySkill.cs" />
     <Compile Include="Assets\Scripts\Core\Unit\DeployableUnitEntity.cs" />
     <Compile Include="Assets\Scripts\Core\Stage\Manager\DeployableManager.cs" />
-    <Compile Include="Assets\Scripts\Core\Skills\Base\Skill.cs" />
     <Compile Include="Assets\Scripts\Visual\UI\Stage\FloatingText.cs" />
+    <Compile Include="Assets\Scripts\Core\Skills\Base\Skill.cs" />
     <Compile Include="Assets\Scripts\Core\Data\DeployableUnitData.cs" />
     <Compile Include="Assets\Scripts\Core\Stage\Map\Map.cs" />
-    <Compile Include="Assets\Scripts\Core\Stage\Manager\CameraManager.cs" />
     <Compile Include="Assets\Scripts\Core\Data\TileData.cs" />
+    <Compile Include="Assets\Scripts\Core\Stage\Manager\CameraManager.cs" />
     <Compile Include="Assets\Scripts\Core\Unit\UnitEntity.cs" />
     <Compile Include="Assets\Scripts\Core\Unit\Barricade.cs" />
     <Compile Include="Assets\Scripts\Visual\UI\Stage\HealthBar.cs" />
@@ -95,9 +96,9 @@
     <Compile Include="Assets\Scripts\Core\Stage\Manager\StatisticsManager.cs" />
     <Compile Include="Assets\Scripts\Core\Data\IconData.cs" />
     <Compile Include="Assets\Scripts\Visual\Effects\CostParticleMotion.cs" />
-    <Compile Include="Assets\Scripts\Core\Unit\Operator.cs" />
-    <Compile Include="Assets\Scripts\Visual\UI\Stage\DeployableBarUI.cs" />
     <Compile Include="Assets\Scripts\Visual\UI\Stage\InfoPanel.cs" />
+    <Compile Include="Assets\Scripts\Visual\UI\Stage\DeployableBarUI.cs" />
+    <Compile Include="Assets\Scripts\Core\Unit\Operator.cs" />
     <Compile Include="Assets\Scripts\Visual\UI\Stage\DiamondOutline.cs" />
     <Compile Include="Assets\Scripts\Core\MainMenu\StageButton.cs" />
     <Compile Include="Assets\Scripts\Core\Interfaces\ICombatEntity.cs" />
