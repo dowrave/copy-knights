@@ -95,7 +95,7 @@ public class DeployableBox : MonoBehaviour, IPointerDownHandler, IBeginDragHandl
     /// </summary>
     private void InitializeVisuals()
     {
-        // 아이콘이 있다면 사용
+        // 일러스트가 있다면 박스 아이콘으로 사용
         if (boxIcon != null)
         {
             operatorIllustImage.sprite = boxIcon;
