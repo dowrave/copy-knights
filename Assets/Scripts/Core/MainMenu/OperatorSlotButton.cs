@@ -33,11 +33,14 @@ public class OperatorSlotButton : MonoBehaviour
     private bool isSelected = false;
     public bool IsSelected => isSelected;
 
+    // OperatorSlotButton 타입의 파라미터를 받는 이벤트 정의
     public UnityEvent<OperatorSlotButton> OnSlotClicked = new UnityEvent<OperatorSlotButton>();
 
     private void Awake()
     {
         if (button == null) button = GetComponent<Button>();
+
+        // Button 클릭 시 OnSlotClicked 이벤트 발생, 현재 OperatorSlotButton(this)을 파라미터로 전달함
         button.onClick.AddListener(() => OnSlotClicked.Invoke(this));
     }
 
