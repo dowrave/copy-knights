@@ -14,9 +14,9 @@ public class OwnedOperator
         {
             // 최초 접근 시
             if (_baseData == null) 
-            {   
+            {
                 // Lazy Loading에서 이런 식으로 게터임에도 필드를 할당하는 건 잘 확립된 방식임
-                //_baseData = PlayerDataManager.Instance.GetOwnedOperators(operatorId);  // PlayerDataManager에서 operatorID에 해당하는 OperatorData를 가져옴
+                _baseData = PlayerDataManager.Instance.GetOperatorDataFromDatabase(operatorId);  // PlayerDataManager에서 operatorID에 해당하는 OperatorData를 가져옴
             }
 
             return _baseData;
