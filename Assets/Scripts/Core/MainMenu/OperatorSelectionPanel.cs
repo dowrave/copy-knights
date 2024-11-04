@@ -34,21 +34,21 @@ public class OperatorSelectionPanel : MonoBehaviour
     /// </summary>
     private void PopulateOperators()
     {
-        //// 슬롯 정리
-        //ClearSlots();
+        // 슬롯 정리
+        ClearSlots();
 
-        //// 보유 중인 오퍼레이터 로드
-        //var ownedOperators = PlayerDataManager.Instance.GetOwnedOperators();
+        // 보유 중인 오퍼레이터 로드
+        var ownedOperators = PlayerDataManager.Instance.GetOwnedOperators();
 
-        //// 오퍼레이터 별로 슬롯 생성
-        //foreach (var operatorData in ownedOperators)
-        //{
-        //    OperatorSlotButton slot = Instantiate(slotButtonPrefab, contentContainer);
-        //    slot.Initialize(true);
-        //    slot.AssignOperator(operatorData);
-        //    slot.OnSlotClicked.AddListener(HandleSlotClicked);
-        //    operatorSlots.Add(slot);
-        //}
+        // 오퍼레이터 별로 슬롯 생성
+        foreach (var operatorData in ownedOperators)
+        {
+            OperatorSlotButton slot = Instantiate(slotButtonPrefab, contentContainer);
+            slot.Initialize(true);
+            slot.AssignOperator(operatorData);
+            slot.OnSlotClicked.AddListener(HandleSlotClicked);
+            operatorSlots.Add(slot);
+        }
     }
 
     private void HandleSlotClicked(OperatorSlotButton clickedSlot)
