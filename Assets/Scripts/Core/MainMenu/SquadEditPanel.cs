@@ -9,12 +9,12 @@ public class SquadEditPanel : MonoBehaviour
     [SerializeField] private Transform operatorSlotsContainer;
     [SerializeField] private List<OperatorSlotButton> operatorSlots = new List<OperatorSlotButton>();
     [SerializeField] private Button enterStageButton;
-    //[SerializeField] private OperatorSelectionPanel operatorSelectionPanel;
+    [SerializeField] private OperatorSelectionPanel operatorSelectionPanel;
 
     // 나중에 스테이지에서 정보를 받아와도 되겠다.
     private const int ACTIVE_OPERATOR_SLOTS = 6;
 
-    private OperatorSlotButton selectedSlot;
+    // private OperatorSlotButton selectedSlot; // SquadEditPanel에선 필요 없을 듯 - 슬롯을 클릭하면 바로 패널이 전환되기 때문에
     private List<OperatorData> currentSquad = new List<OperatorData>();
 
     private void Start()
@@ -34,12 +34,25 @@ public class SquadEditPanel : MonoBehaviour
             if (i < ACTIVE_OPERATOR_SLOTS)
             {
                 slot.Initialize(true);
+
+                slot.OnSlotClicked.AddListener(HandleSlotClicked); // 파라미터는 Invoke에 들어가는 값을 따라감
+
+                // 이렇게 작성하면 기능은 동일한데 필요없는 래퍼 함수만 하나 더 생김
+                //slot.OnSlotClicked.AddListener((slot) => HandleSlotClicked(slot));
             }
             else
             {
                 slot.Initialize(false);
             }
         }
+    }
+
+    /// <summary>
+    /// OperatorSlot 버튼 클릭 시 실행됨(이벤트 구독)
+    /// </summary>
+    private void HandleSlotClicked(OperatorSlotButton clickedSlot)
+    {
+        MainMenuManager.Instance.StartOperatorSelection(clickedSlot);
     }
 
     private void HandleStartButtonClicked()
