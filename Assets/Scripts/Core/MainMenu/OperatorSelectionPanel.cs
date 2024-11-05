@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -11,6 +12,17 @@ public class OperatorSelectionPanel : MonoBehaviour
     [SerializeField] private Button confirmButton;
     [SerializeField] private Button cancelButton;
     [SerializeField] private ScrollRect scrollRect;
+
+    [Header("Operator Stat Boxes")]
+    [SerializeField] TextMeshProUGUI healthText;
+    [SerializeField] TextMeshProUGUI RedeployTimeText;
+    [SerializeField] TextMeshProUGUI AttackPowerText;
+    [SerializeField] TextMeshProUGUI DeploymentCostText;
+    [SerializeField] TextMeshProUGUI DefenseText;
+    [SerializeField] TextMeshProUGUI BlockCountText;
+    [SerializeField] TextMeshProUGUI MagicResistanceText;
+    [SerializeField] TextMeshProUGUI AttackSpeedText;
+
 
     private List<OperatorSlotButton> operatorSlots = new List<OperatorSlotButton>();
     private OperatorSlotButton selectedSlot;

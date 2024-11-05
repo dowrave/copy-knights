@@ -51,17 +51,29 @@ public class PlayerDataManager : MonoBehaviour
     {
 #if UNITY_EDITOR
         // guid = globally identified identifier, 유니티에서 각 에셋에 할당하는 고유 식별자
-        string[] guids = UnityEditor.AssetDatabase.FindAssets("t:OperatorData", // t : OperatorData 타입의 모든 애셋을 찾아라
-            new[] { "Assets/ScriptableObjects/Operator " }); // 이 경로에 한해서만
+        string[] guids = UnityEditor.AssetDatabase.FindAssets("t:OperatorData", 
+            new[] { "Assets/ScriptableObjects/Operator" });
 
         foreach (string guid in guids)
         {
             string path = UnityEditor.AssetDatabase.GUIDToAssetPath(guid);
             OperatorData opData = UnityEditor.AssetDatabase.LoadAssetAtPath<OperatorData>(path);
-            if (opData != null)
+            if (opData != null && !string.IsNullOrEmpty(opData.entityName))
             {
                 operatorDatabase[opData.entityName] = opData;
-                Debug.Log($"Loaded OperatorData: {opData.entityName} from {path}");
+            }
+            else
+            {
+                Debug.LogError($"{path}에서 OperatorData 로드 실패, 혹은 {opData.entityName}이라는 엔티티 이름이 비어 있음");
+            }
+        }
+
+        // Validate starting operators are in database
+        foreach (var op in startingOperators)
+        {
+            if (op != null && !operatorDatabase.ContainsKey(op.entityName))
+            {
+                Debug.LogError($"Starting operator {op.entityName} not found in database!");
             }
         }
 #endif
