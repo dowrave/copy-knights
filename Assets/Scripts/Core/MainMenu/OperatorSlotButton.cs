@@ -44,30 +44,44 @@ public class OperatorSlotButton : MonoBehaviour
     {
         if (button == null) button = GetComponent<Button>();
 
-        // Button 클릭 시 OnSlotClicked 이벤트 발생, 현재 OperatorSlotButton(this)을 파라미터로 전달함
-        button.onClick.AddListener(() => OnSlotClicked.Invoke(this));
-    }
-
-    public void Initialize(bool isActive)
-    {
-        SetEmptyOrDisabled(isActive);
-        UpdateVisuals();
+        // 람다 함수를 온클릭 이벤트에 등록함. 람다 함수는 이벤트를 발생시킴.
+        // 최종적으로 클릭 시 OnSlotClicked이라는 이벤트가 발생하는 원리
+        button.onClick.AddListener(() => OnSlotClicked.Invoke(this)); 
     }
 
     /// <summary>
-    /// 1. Empty와 Disabled의 구현 차이가 거의 없어서 초기화 시 이용
-    /// 2. OperatorSelectionPanel에서 SquadEditPanel의 Slot을 비울 때에도 쓸 수 있음
+    /// 오퍼레이터 할당은 AssignOperator에서 별도로 진행
     /// </summary>
-    public void SetEmptyOrDisabled(bool isActive)
+    public void Initialize(bool isActive, OperatorData operatorData = null)
     {
         isThisActiveButton = isActive;
         button.interactable = isThisActiveButton;
 
+        if (operatorData != null)
+        {
+            AssignOperator(operatorData);
+        }
+        else
+        {
+            SetEmptyOrDisabled(isActive);
+        }
+    }
+
+    /// <summary>
+    /// 1. Empty와 Disabled의 구현 차이가 거의 없어서 함께 이용
+    /// 2. OperatorSelectionPanel에서 SquadEditPanel의 Slot을 비울 때에도 쓸 수 있음
+    /// </summary>
+    public void SetEmptyOrDisabled(bool isActive)
+    {
         AssignedOperator = null;
         activeComponent.SetActive(false);
         slotText.gameObject.SetActive(true);
+        UpdateVisuals();
     }
 
+    /// <summary>
+    /// 현재 슬롯에 오퍼레이터를 할당함
+    /// </summary>
     public void AssignOperator(OperatorData operatorData)
     {
         AssignedOperator = operatorData;
@@ -79,38 +93,36 @@ public class OperatorSlotButton : MonoBehaviour
     /// </summary>
     private void UpdateVisuals()
     {
-
-        if (isThisActiveButton)
+        if (!isThisActiveButton)
         {
-            if (!isThisActiveButton)
-            {
-                // 비활성 슬롯 표시
-                SetInactiveSlotVisuals();
-                return;
-            }
-
-            if (AssignedOperator == null)
-            {
-                // 빈 슬롯 표시
-                SetEmptySlotVisuals();
-                return;
-            }
-
-            // 오퍼레이터가 할당된 슬롯 표시
-            SetOperatorSlotVisuals();
-
-            // 선택 상태 표시
-            UpdateSelectionIndicator();
-
-            // 버튼 색상 업데이트
-            UpdateButtonColor();
+            // 비활성 슬롯 표시
+            SetInactiveSlotVisuals();
+            return;
         }
+
+        if (AssignedOperator == null)
+        {
+            // 빈 슬롯 표시
+            SetEmptySlotVisuals();
+            return;
+        }
+
+        // 오퍼레이터가 할당된 슬롯 표시
+        SetOperatorSlotVisuals();
+
+        // 선택 상태 표시
+        UpdateSelectionIndicator();
+
+        // 버튼 색상 업데이트
+        UpdateButtonColor();
     }
+    
 
     public void SetSelected(bool selected)
     {
         isSelected = selected;
         UpdateVisuals();
+        OnSlotClicked.Invoke(this);
     }
 
     public bool IsEmpty()

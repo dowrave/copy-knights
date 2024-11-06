@@ -9,7 +9,7 @@ public class SquadEditPanel : MonoBehaviour
     [SerializeField] private Transform operatorSlotsContainer;
     [SerializeField] private List<OperatorSlotButton> operatorSlots = new List<OperatorSlotButton>();
     [SerializeField] private Button enterStageButton;
-    [SerializeField] private OperatorSelectionPanel operatorSelectionPanel;
+    [SerializeField] private OperatorListPanel operatorListPanel;
 
     // 나중에 스테이지에서 정보를 받아와도 되겠다.
     private const int ACTIVE_OPERATOR_SLOTS = 6;
