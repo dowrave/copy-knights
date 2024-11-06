@@ -76,7 +76,6 @@
     <Compile Include="Assets\Scripts\Core\Stage\Manager\StageManager.cs" />
     <Compile Include="Assets\Scripts\Core\Data\PathData.cs" />
     <Compile Include="Assets\Scripts\Core\Stage\Manager\UserSquadManager.cs" />
-    <Compile Include="Assets\Scripts\Core\MainMenu\OperatorSelectionPanel.cs" />
     <Compile Include="Assets\Scripts\Visual\UI\Stage\DeployableBox.cs" />
     <Compile Include="Assets\Scripts\Core\Stage\Manager\ClickDetectionSystem.cs" />
     <Compile Include="Assets\Scripts\Core\Data\EnemyData.cs" />
@@ -87,6 +86,7 @@
     <Compile Include="Assets\Scripts\Visual\UI\Stage\FloatingText.cs" />
     <Compile Include="Assets\Scripts\Core\Skills\Base\Skill.cs" />
     <Compile Include="Assets\Scripts\Core\Data\DeployableUnitData.cs" />
+    <Compile Include="Assets\Scripts\Core\MainMenu\OperatorListPanel.cs" />
     <Compile Include="Assets\Scripts\Core\Stage\Map\Map.cs" />
     <Compile Include="Assets\Scripts\Core\Data\TileData.cs" />
     <Compile Include="Assets\Scripts\Core\Stage\Manager\CameraManager.cs" />
