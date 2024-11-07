@@ -11,7 +11,7 @@ public class OperatorListPanel : MonoBehaviour
     //[SerializeField] private ScrollRect operatorSlotContainerscrollRect;
     [SerializeField] private Transform operatorSlotContainer;
     [SerializeField] private TextMeshProUGUI operatorNameText;
-    [SerializeField] private OperatorSlotButton slotButtonPrefab;
+    [SerializeField] private OperatorSlot slotButtonPrefab;
     [SerializeField] private Button confirmButton;
     [SerializeField] private Button cancelButton;
 
@@ -31,8 +31,8 @@ public class OperatorListPanel : MonoBehaviour
     [SerializeField] private TextMeshProUGUI magicResistanceText;
     [SerializeField] private TextMeshProUGUI attackSpeedText;
 
-    private List<OperatorSlotButton> operatorSlots = new List<OperatorSlotButton>();
-    private OperatorSlotButton selectedSlot;
+    private List<OperatorSlot> operatorSlots = new List<OperatorSlot>();
+    private OperatorSlot selectedSlot;
     private List<Image> rangeTiles = new List<Image>();
     private float tileSize; 
 
@@ -41,7 +41,7 @@ public class OperatorListPanel : MonoBehaviour
         confirmButton.onClick.AddListener(OnConfirmButtonClicked);
         cancelButton.onClick.AddListener(OnCancelButtonClicked);
         confirmButton.interactable = false;
-        gameObject.SetActive(false);
+        //gameObject.SetActive(false); // 이거 있으면 실행 전에 이 오브젝트가 비활성화된 경우 ShowPanel 등에 의한 활성화가 아예 안됨
     }
 
     private void OnEnable()
@@ -75,14 +75,14 @@ public class OperatorListPanel : MonoBehaviour
         // 오퍼레이터 별로 슬롯 생성
         foreach (OperatorData operatorData in ownedOperators)
         {
-            OperatorSlotButton slot = Instantiate(slotButtonPrefab, operatorSlotContainer);
+            OperatorSlot slot = Instantiate(slotButtonPrefab, operatorSlotContainer);
             slot.Initialize(true, operatorData);
             operatorSlots.Add(slot);
             slot.OnSlotClicked.AddListener(HandleSlotClicked);
         }
     }
 
-    private void HandleSlotClicked(OperatorSlotButton clickedSlot)
+    private void HandleSlotClicked(OperatorSlot clickedSlot)
     {
         // 이미 선택된 슬롯 재클릭시 무시 (이거 없으면 무한 이벤트로 인한 스택 오버플로우 뜸)
         if (selectedSlot == clickedSlot) return; 
@@ -104,12 +104,7 @@ public class OperatorListPanel : MonoBehaviour
     {
         if (selectedSlot != null && selectedSlot.AssignedOperator != null)
         {
-            OperatorSlotButton currentSlot = MainMenuManager.Instance.CurrentEditingSlot;
-            if (currentSlot != null)
-            {
-                currentSlot.AssignOperator(selectedSlot.AssignedOperator);
-            }
-
+            UserSquadManager.Instance.ConfirmOperatorSelection(selectedSlot.AssignedOperator);
             // 돌아가기
             MainMenuManager.Instance.ShowPanel(MainMenuManager.MenuPanel.SquadEdit);
         }
@@ -134,7 +129,7 @@ public class OperatorListPanel : MonoBehaviour
 
     private void ClearSlots()
     {
-        foreach (OperatorSlotButton slot in operatorSlots)
+        foreach (OperatorSlot slot in operatorSlots)
         {
             Destroy(slot.gameObject);
         }
@@ -145,7 +140,7 @@ public class OperatorListPanel : MonoBehaviour
     /// OperatorSelectionPanel의 SideView에 나타나는 오퍼레이터와 관련된 정보를 업데이트한다.
     /// </summary>
     /// <param name="slot"></param>
-    private void UpdateSideView(OperatorSlotButton slot)
+    private void UpdateSideView(OperatorSlot slot)
     {
 
         OperatorData opData = slot.AssignedOperator;

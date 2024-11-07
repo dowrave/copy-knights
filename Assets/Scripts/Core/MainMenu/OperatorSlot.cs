@@ -7,7 +7,7 @@ using UnityEngine.Events;
 /// <summary>
 /// 스쿼드 편집 패널과 오퍼레이터 선택 패널에서 공통으로 사용되는 오퍼레이터 슬롯 버튼을 구현
 /// </summary>
-public class OperatorSlotButton : MonoBehaviour
+public class OperatorSlot : MonoBehaviour
 {
     [Header("UI Components")]
     [SerializeField] private GameObject activeComponent; // 사용 가능한 슬롯일 때 나타날 요소
@@ -38,7 +38,7 @@ public class OperatorSlotButton : MonoBehaviour
     public bool IsSelected => isSelected;
 
     // OperatorSlotButton 타입의 파라미터를 받는 이벤트 정의
-    public UnityEvent<OperatorSlotButton> OnSlotClicked = new UnityEvent<OperatorSlotButton>();
+    public UnityEvent<OperatorSlot> OnSlotClicked = new UnityEvent<OperatorSlot>();
 
     private void Awake()
     {
@@ -56,6 +56,7 @@ public class OperatorSlotButton : MonoBehaviour
     {
         isThisActiveButton = isActive;
         button.interactable = isThisActiveButton;
+
 
         if (operatorData != null)
         {
@@ -80,7 +81,7 @@ public class OperatorSlotButton : MonoBehaviour
     }
 
     /// <summary>
-    /// 현재 슬롯에 오퍼레이터를 할당함
+    /// 현재 슬롯에 오퍼레이터를 할당하고 시각 요소 업데이트
     /// </summary>
     public void AssignOperator(OperatorData operatorData)
     {

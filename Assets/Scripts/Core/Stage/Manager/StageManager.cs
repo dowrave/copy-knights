@@ -89,6 +89,7 @@ public class StageManager : MonoBehaviour
         public GameObject deployablePrefab;
         public int maxDeployCount;
     }
+
     [SerializeField] private List<StageDeployable> stageDeployables = new List<StageDeployable>();
 
     // ¿Ã∫•∆Æ

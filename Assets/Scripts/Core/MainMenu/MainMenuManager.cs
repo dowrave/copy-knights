@@ -32,19 +32,9 @@ public class MainMenuManager : MonoBehaviour
     [SerializeField] private IconData classIconData;
 
     private Dictionary<MenuPanel, GameObject> panelMap = new Dictionary<MenuPanel, GameObject>();
-    private MenuPanel currentPanel; // enum 타입이라 따로 초기화 안하면 0번인 StageSelect로 들어감
-
+    private MenuPanel currentPanel; // 디폴트는 0번에 있는 값. null이 아님.
 
     private StageData selectedStageData;
-    private OperatorSlotButton currentEditingSlot; // 현재 할당할 오퍼레이터 슬롯
-    public OperatorSlotButton CurrentEditingSlot 
-    { 
-        get => currentEditingSlot;
-        private set
-        {
-            currentEditingSlot = value;
-        }
-    }
 
 
     private void Awake()
@@ -59,7 +49,7 @@ public class MainMenuManager : MonoBehaviour
         }
 
         // Dict 초기화
-        foreach (var panelInfo in panels)
+        foreach (PanelInfo panelInfo in panels)
         {
             panelMap[panelInfo.type] = panelInfo.panel;
         }
@@ -70,6 +60,7 @@ public class MainMenuManager : MonoBehaviour
 
     private void Start()
     {
+        // StageSelectPanel만 활성화
         foreach (PanelInfo panel in panels)
         {
             if (panel.type == MenuPanel.StageSelect)
@@ -77,10 +68,12 @@ public class MainMenuManager : MonoBehaviour
                 ShowPanel(panel.type, false);
             } 
             else
-            { 
+            {
                 HidePanel(panel.panel, false);
             }
         }
+
+        UserSquadManager.Instance.OnSquadUpdated += OnSquadUpdated; 
     }
 
     public void ShowPanel(MenuPanel newPanel, bool animate = true)
@@ -93,6 +86,7 @@ public class MainMenuManager : MonoBehaviour
             HidePanel(currentPanelObj, animate);
         }
 
+        Debug.Log($"{newPanel}을 보여주려고 한다");
         // 새 패널 표시
         if (panelMap.TryGetValue(newPanel, out GameObject newPanelObj))
         {
@@ -109,19 +103,17 @@ public class MainMenuManager : MonoBehaviour
             CanvasGroup canvasGroup = panel.GetComponent<CanvasGroup>();
             if (canvasGroup != null)
             {
+
                 panel.SetActive(true);
+                Debug.Log($"{panel} 활성화 완료");
                 canvasGroup.alpha = 0f;
                 canvasGroup.DOFade(1f, 0.3f);
-            }
-            else
-            {
-                panel.SetActive(true);
+                return;
             }
         }
-        else
-        {
-            panel.SetActive(true);
-        }
+
+        panel.SetActive(true);
+        Debug.Log($"{panel} 활성화 완료");
     }
 
     private void HidePanel(GameObject panel, bool animate)
@@ -129,6 +121,7 @@ public class MainMenuManager : MonoBehaviour
         if (animate)
         {
             CanvasGroup canvasGroup = panel.GetComponent<CanvasGroup>();
+
             if (canvasGroup != null)
             {
                 canvasGroup.DOFade(0f, 0.3f).OnComplete(() => panel.SetActive(false));
@@ -138,12 +131,24 @@ public class MainMenuManager : MonoBehaviour
                 panel.SetActive(false);
             }
         }
+        else
+        {
+            panel.SetActive(false);
+        }
     }
 
     // 스테이지 시작
     public void StartStage(string stageName)
     {
-        SceneManager.LoadScene(stageName);
+        List<OperatorData> currentSquad = UserSquadManager.Instance.GetCurrentSquad();
+        if (currentSquad.Count > 0)
+        {
+            SceneManager.LoadScene(stageName);
+        }
+        else
+        {
+            Debug.LogWarning("빈 스쿼드로는 스테이지를 시작할 수 없음");
+        }
     }
 
     public void OnStageSelected(StageData stageData)
@@ -152,14 +157,28 @@ public class MainMenuManager : MonoBehaviour
         ShowPanel(MenuPanel.SquadEdit);
     }
 
-    /// <summary>
-    /// 현재 슬롯을 매니저에 할당하고, 오퍼레이터 선택 패널을 띄웁니다.
-    /// </summary>
-    public void StartOperatorSelection(OperatorSlotButton clickedSlot)
+    private void OnSquadUpdated()
     {
-        CurrentEditingSlot = clickedSlot;
-        ShowPanel(MenuPanel.OperatorList);
+        // UI 업데이트
+        UpdateSquadUI();
     }
 
+    private void UpdateSquadUI()
+    {
+        List<OperatorData> currentSquad = UserSquadManager.Instance.GetCurrentSquad();
+
+        // UI 업데이트
+    }
+
+    // SquadEditPanel의 슬롯에 OperatorListPanel에서 오퍼레이터를 결정하고 할당할 때 사용
+    public void OnOperatorSelected(int slotIndex, OperatorData newOperatorData)
+    {
+        UserSquadManager.Instance.TryReplaceOperator(slotIndex, newOperatorData);
+    }
+
+    private void OnDestroy()
+    {
+        UserSquadManager.Instance.OnSquadUpdated -= OnSquadUpdated;
+    }
 }
  

@@ -31,14 +31,10 @@ public class IconData: ScriptableObject
             Initialize();
         }
 
-        Debug.LogWarning($"iconDictionary 초기화 여부 : {iconDictionary}");
-
         if (iconDictionary.TryGetValue(operatorClass, out Sprite icon))
         {
             return icon;
         }
-
-        Debug.LogWarning($"아이콘이 클래스에서 발견되지 않음 : {operatorClass}");
         return null;
     }
 
