@@ -7,14 +7,9 @@ public class SquadEditPanel : MonoBehaviour
 {
     [Header("UI References")]
     [SerializeField] private Transform operatorSlotsContainer;
-    [SerializeField] private List<OperatorSlotButton> operatorSlots = new List<OperatorSlotButton>();
+    [SerializeField] private List<OperatorSlot> operatorSlots = new List<OperatorSlot>();
     [SerializeField] private Button enterStageButton;
-    [SerializeField] private OperatorListPanel operatorListPanel;
 
-    // 나중에 스테이지에서 정보를 받아와도 되겠다.
-    private const int ACTIVE_OPERATOR_SLOTS = 6;
-
-    // private OperatorSlotButton selectedSlot; // SquadEditPanel에선 필요 없을 듯 - 슬롯을 클릭하면 바로 패널이 전환되기 때문에
     private List<OperatorData> currentSquad = new List<OperatorData>();
 
     private void Start()
@@ -28,31 +23,71 @@ public class SquadEditPanel : MonoBehaviour
        // 슬롯별 타입 설정
        for (int i = 0; i < operatorSlots.Count; i++)
         {
-            OperatorSlotButton slot = operatorSlots[i];
-            
-            // 1. 활성화
-            if (i < ACTIVE_OPERATOR_SLOTS)
+            int slotIndex = i; // 클로저를 위해 로컬 변수로 복사
+            OperatorSlot slot = operatorSlots[i];
+
+            bool isActiveSlot = i < UserSquadManager.Instance.MaxSquadSize;
+            slot.Initialize(isActiveSlot);
+
+            if (isActiveSlot)
             {
-                slot.Initialize(true);
+                // 클로저를 사용하지 않고 i를 쓰면 루프가 끝난 후에는 모든 리스너가 마지막 i값을 참조하게 된다
+                // 클로저를 쓰면 반복마다 생성된 새로운 변수 slotIndex를 각 리스너가 자신만의 인덱스로 사용하게 된다.
+                slot.OnSlotClicked.AddListener((clickedSlot) => HandleSlotClicked(clickedSlot, slotIndex));
+            }
+        }
 
-                slot.OnSlotClicked.AddListener(HandleSlotClicked); // 파라미터는 Invoke에 들어가는 값을 따라감
+        UpdateSquadUI();
+    }
 
-                // 이렇게 작성하면 기능은 동일한데 필요없는 래퍼 함수만 하나 더 생김
-                //slot.OnSlotClicked.AddListener((slot) => HandleSlotClicked(slot));
+    private void OnEnable()
+    {
+        UpdateSquadUI();
+    }
+
+    private void UpdateSquadUI()
+    {
+        List<OperatorData> currentSquad = UserSquadManager.Instance.GetCurrentSquad();
+
+        for (int i = 0; i < operatorSlots.Count; i++)
+        {
+            OperatorSlot slot = operatorSlots[i];
+            bool isActiveSlot = i < UserSquadManager.Instance.MaxSquadSize;
+
+            if (isActiveSlot)
+            {
+                if (i < currentSquad.Count && currentSquad[i] != null)
+                {
+                    // 오퍼레이터 할당 슬롯
+                    slot.AssignOperator(currentSquad[i]);
+                }
+                else
+                {
+                    // 빈 슬롯
+                    slot.SetEmptyOrDisabled(true);
+                }
             }
             else
             {
-                slot.Initialize(false);
+                // 사용 불가능 슬롯
+                slot.SetEmptyOrDisabled(false);
             }
         }
+
+        UpdateEnterButtonState();
     }
 
     /// <summary>
     /// OperatorSlot 버튼 클릭 시 실행됨(이벤트 구독)
     /// </summary>
-    private void HandleSlotClicked(OperatorSlotButton clickedSlot)
+    private void HandleSlotClicked(OperatorSlot clickedSlot, int slotIndex)
     {
-        MainMenuManager.Instance.StartOperatorSelection(clickedSlot);
+        // 현재 수정 중인 인덱스 설정
+        UserSquadManager.Instance.StartEditingSlot(slotIndex);
+
+        // 패널 전환
+        MainMenuManager.Instance.ShowPanel(MainMenuManager.MenuPanel.OperatorList);
+
     }
 
     private void HandleStartButtonClicked()
@@ -67,7 +102,7 @@ public class SquadEditPanel : MonoBehaviour
     private int GetDeployedOperatorCount()
     {
         int count = 0;
-        for (int i = 0; i < ACTIVE_OPERATOR_SLOTS; i++)
+        for (int i = 0; i < UserSquadManager.Instance.MaxSquadSize; i++)
         {
             if (!operatorSlots[i].IsEmpty())
             {

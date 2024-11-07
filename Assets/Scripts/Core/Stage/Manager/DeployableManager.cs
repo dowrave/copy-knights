@@ -110,9 +110,9 @@ public class DeployableManager : MonoBehaviour
     {
         allDeployables.Clear();
 
-        foreach (var operatorPrefab in UserSquadManager.Instance.GetUserSquad())
+        foreach (OperatorData opData in UserSquadManager.Instance.GetCurrentSquad())
         {
-            AddDeployableInfo(operatorPrefab, 1, true);
+            AddDeployableInfo(opData.prefab, 1, true);
         }
 
         foreach (var stageDeployable in StageManager.Instance.GetStageDeployables())
