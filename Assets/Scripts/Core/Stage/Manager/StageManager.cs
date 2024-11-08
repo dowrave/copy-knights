@@ -131,9 +131,8 @@ public class StageManager : MonoBehaviour
         StartBattle(); // 게임 시작
     }
 
-    private void InitializeStage()
+    public void InitializeStage()
     {
-        MapManager.Instance.InitializeMap();
         SetGameState(GameState.Preparation);
         StartCoroutine(IncreaseCostOverTime());
 

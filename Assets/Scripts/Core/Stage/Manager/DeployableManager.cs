@@ -86,6 +86,8 @@ public class DeployableManager : MonoBehaviour
     private float lastPlacementTime;
     public bool IsClickingPrevented => Time.time - lastPlacementTime < preventClickingTime;
 
+    public event System.Action OnDeployableUIInitialized;
+
     private void Awake()
     {
         if (Instance == null)
@@ -100,7 +102,7 @@ public class DeployableManager : MonoBehaviour
         IconHelper.OnIconDataInitialized += InitializeDeployableUI;
     }
 
-    private void Start()
+    public void Initialize()
     {
         InitializeAllDeployables();
         InitializeDeployableUI();
@@ -110,7 +112,7 @@ public class DeployableManager : MonoBehaviour
     {
         allDeployables.Clear();
 
-        foreach (OperatorData opData in UserSquadManager.Instance.GetCurrentSquad())
+        foreach (OperatorData opData in GameManagement.Instance.UserSquadManager.GetCurrentSquad())
         {
             AddDeployableInfo(opData.prefab, 1, true);
         }
@@ -121,9 +123,10 @@ public class DeployableManager : MonoBehaviour
         }
     }
 
-    private void AddDeployableInfo(GameObject prefab, int maxCount, bool isUserOperator)
+    public void AddDeployableInfo(GameObject prefab, int maxCount, bool isUserOperator)
     {
         DeployableUnitEntity deployable = prefab.GetComponent<DeployableUnitEntity>();
+
         if (deployable != null)
         {
             allDeployables.Add(new DeployableInfo

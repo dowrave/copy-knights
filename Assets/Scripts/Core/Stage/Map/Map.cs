@@ -5,6 +5,11 @@ using System.Text;
 
 public class Map : MonoBehaviour
 {
+
+    [Header("Map Identity")]
+    [SerializeField] private string mapId;
+    public string Mapid => mapId; 
+
     [SerializeField] private int width;
     [SerializeField] private int height;
     public int Width => width;
@@ -18,7 +23,8 @@ public class Map : MonoBehaviour
 
     [SerializeField] private GameObject tilePrefab;
     [SerializeField] private GameObject enemySpawnerPrefab;
-    [SerializeField] private TileData[] serializedTileData;
+
+    private TileData[] serializedTileData;
     private TileData[,] tileDataArray;
     private Dictionary<Vector2Int, GameObject> tileObjects; // 좌표에 Tile 오브젝트 할당.
 

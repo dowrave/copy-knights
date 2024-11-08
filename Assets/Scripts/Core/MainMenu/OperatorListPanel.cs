@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using TMPro;
 using UnityEngine;
 using UnityEngine.Events;
@@ -59,21 +60,26 @@ public class OperatorListPanel : MonoBehaviour
         // 슬롯 정리
         ClearSlots();
 
-        // 보유 중인 오퍼레이터 로드
-        List<OperatorData> ownedOperators = PlayerDataManager.Instance.GetOwnedOperators();
+        // 현재 스쿼드 가져오기
+        List<OperatorData> currentSquad = GameManagement.Instance.UserSquadManager.GetCurrentSquad();
+
+        // 보유 중인 오퍼레이터 중, 현재 스쿼드에 없는 오퍼레이터만 가져옴
+        List<OperatorData> availableOperators = PlayerDataManager.Instance.GetOwnedOperators()
+            .Where(op => !currentSquad.Contains(op))
+            .ToList();
 
         // 그리드 영역의 너비 조절
         RectTransform slotContainerRectTransform = operatorSlotContainer.gameObject.GetComponent<RectTransform>(); 
-        if (ownedOperators.Count > 12)
+        if (availableOperators.Count > 12)
         {
             Vector2 currentSize = slotContainerRectTransform.sizeDelta;
-            float additionalWidth = 250 * Mathf.Floor( (ownedOperators.Count - 12) / 2);
+            float additionalWidth = 250 * Mathf.Floor( (availableOperators.Count - 12) / 2);
             
             slotContainerRectTransform.sizeDelta = new Vector2(currentSize.x + additionalWidth, currentSize.y);
         }
 
         // 오퍼레이터 별로 슬롯 생성
-        foreach (OperatorData operatorData in ownedOperators)
+        foreach (OperatorData operatorData in availableOperators)
         {
             OperatorSlot slot = Instantiate(slotButtonPrefab, operatorSlotContainer);
             slot.Initialize(true, operatorData);
@@ -104,7 +110,7 @@ public class OperatorListPanel : MonoBehaviour
     {
         if (selectedSlot != null && selectedSlot.AssignedOperator != null)
         {
-            UserSquadManager.Instance.ConfirmOperatorSelection(selectedSlot.AssignedOperator);
+            GameManagement.Instance.UserSquadManager.ConfirmOperatorSelection(selectedSlot.AssignedOperator);
             // 돌아가기
             MainMenuManager.Instance.ShowPanel(MainMenuManager.MenuPanel.SquadEdit);
         }

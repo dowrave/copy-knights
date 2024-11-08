@@ -4,14 +4,6 @@ using UnityEngine;
 
 public class EnemySpawner : MonoBehaviour
 {
-    [System.Serializable]
-    public class EnemySpawnInfo
-    {
-        public GameObject enemyPrefab;
-        public float spawnTime;
-        public PathData pathData;
-    }
-
     public List<EnemySpawnInfo> enemySpawnList = new List<EnemySpawnInfo>(); // 생성되는 적, 시간이 적혀 있음
 
     private bool isInitialized = false;

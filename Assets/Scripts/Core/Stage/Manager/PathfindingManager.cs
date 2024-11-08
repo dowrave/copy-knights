@@ -22,14 +22,20 @@ public class PathfindingManager : MonoBehaviour
 
     private void Awake()
     {
-        if (instance == null) { instance = this; }
-        else Destroy(gameObject);
-
-        currentMap = FindObjectOfType<Map>();
-        if (currentMap == null)
+        if (instance == null)
         {
-            Debug.LogError("Map not found in the scene!");
+            instance = this;
         }
+        else
+        {
+            Destroy(gameObject);
+        }
+
+        GameManagement.Instance.StageLoader.OnMapLoaded += OnMapLoaded;
+    }
+    private void OnMapLoaded(Map map)
+    {
+        currentMap = map;
     }
 
     /// <summary>

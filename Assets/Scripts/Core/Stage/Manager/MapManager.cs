@@ -10,7 +10,8 @@ using System.Collections.Generic;
 public class MapManager : MonoBehaviour
 { 
     public static MapManager Instance { get; private set; }
-    [SerializeField] private Map currentMap;
+    
+    private Map currentMap;
     public Map CurrentMap => currentMap;
 
     private void Awake()
@@ -25,28 +26,23 @@ public class MapManager : MonoBehaviour
         }
     }
 
-    private void Start()
-    {
-        InitializeMap();
-    }
-
-    //private int mapWidth, mapHeight;
-
-    // currentMap 자체는 StageManager에서 관리, MapManager에서는 이를 받는 구조를 취한다.
-    public void InitializeMap()
+    public void InitializeMap(Map map)
     {
         if (currentMap != null)
         {
-            currentMap = GetComponentInChildren<Map>();
-            currentMap.Initialize(currentMap.Width, currentMap.Height, true);
-            SpawnerManager.Instance.Initialize(currentMap);
-            //CameraManager.Instance.AdjustCameraToMap(currentMap.Width, currentMap.Height);
-            InitializeCameraManager();
+            Debug.LogWarning("이전 맵을 제거합니다");
+            Destroy(currentMap.gameObject);
         }
-        else
-        {
-            Debug.LogError("Current Map is Not Assigned in MapManager");
-        }
+
+        currentMap = map;
+
+        currentMap.Initialize(currentMap.Width, currentMap.Height, true);
+
+        // 다른 매니저에 맵 설정 알림
+        SpawnerManager.Instance.Initialize(currentMap);
+
+        // 카메라 설정
+        InitializeCameraManager();
     }
 
     private void InitializeCameraManager()
@@ -57,7 +53,7 @@ public class MapManager : MonoBehaviour
         }
         else
         {
-            Debug.LogError("카메라 매니저 인스턴스를 찾을 수 없었음");
+            Debug.LogError("카메라 매니저 인스턴스를 찾을 수 없음");
         }
     }
 
