@@ -89,7 +89,6 @@ public class Tile : MonoBehaviour
         data = tileData;
         GridPosition = gridPosition;
         IsWalkable = data.isWalkable;
-        Debug.Log($"{tileData.name} ¹èÄ¡, »ö±ò : {tileData.tileColor}");
 
         AdjustCubeScale();
         UpdateVisuals();

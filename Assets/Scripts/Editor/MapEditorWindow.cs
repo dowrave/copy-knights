@@ -6,6 +6,9 @@ using System.Linq;
 
 public class MapEditorWindow : EditorWindow
 {
+
+    private GameObject spawnerPrefab;
+
     public int currentMapWidth = 5;
     public int currentMapHeight = 5;
     private int newMapWidth;
@@ -15,7 +18,6 @@ public class MapEditorWindow : EditorWindow
     private Vector2 scrollPosition;
     private List<TileData> availableTileData = new List<TileData>();
 
-    private GameObject spawnerPrefab;
     private GameObject tilePrefab;
 
     private const string MAP_OBJECT_NAME = "Map";
@@ -335,9 +337,11 @@ public class MapEditorWindow : EditorWindow
     private void LoadAvailableTileData()
     {
         availableTileData.Clear();
-        string[] guids = AssetDatabase.FindAssets("t:TileData", new[] { "Assets/ScriptableObjects/Tiledata" });
+        string[] guids = AssetDatabase.FindAssets("t:TileData", new[] { "Assets/ScriptableObjects/TileData" });
+       
         foreach (string guid in guids)
         {
+            Debug.Log(guid);
             string path = AssetDatabase.GUIDToAssetPath(guid);
             TileData tileData = AssetDatabase.LoadAssetAtPath<TileData>(path);
             if (tileData != null)
@@ -354,7 +358,7 @@ public class MapEditorWindow : EditorWindow
 
     private void LoadSpawnerPrefab()
     {
-        spawnerPrefab = AssetDatabase.LoadAssetAtPath<GameObject>("Assets/Prefabs/Enemy Spawner.prefab");
+        spawnerPrefab = AssetDatabase.LoadAssetAtPath<GameObject>("Assets/Prefabs/Stage/Enemy Spawner.prefab");
         if (spawnerPrefab == null)
         {
             Debug.LogWarning("Enemy spawner prefab not found");

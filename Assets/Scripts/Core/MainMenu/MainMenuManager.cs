@@ -4,6 +4,9 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 
 
+/// <summary>
+/// 씬 전환 시에도 유지되어야 하는 전역 매니저를 관리하는 클래스
+/// </summary>
 public class MainMenuManager : MonoBehaviour
 {
     public static MainMenuManager Instance { get; private set; }
@@ -34,7 +37,7 @@ public class MainMenuManager : MonoBehaviour
     private Dictionary<MenuPanel, GameObject> panelMap = new Dictionary<MenuPanel, GameObject>();
     private MenuPanel currentPanel; // 디폴트는 0번에 있는 값. null이 아님.
 
-    private StageData selectedStageData;
+    private StageData selectedStage;
 
 
     private void Awake()
@@ -73,7 +76,7 @@ public class MainMenuManager : MonoBehaviour
             }
         }
 
-        UserSquadManager.Instance.OnSquadUpdated += OnSquadUpdated; 
+        GameManagement.Instance.UserSquadManager.OnSquadUpdated += OnSquadUpdated; 
     }
 
     public void ShowPanel(MenuPanel newPanel, bool animate = true)
@@ -138,12 +141,17 @@ public class MainMenuManager : MonoBehaviour
     }
 
     // 스테이지 시작
-    public void StartStage(string stageName)
+    public void StartStage()
     {
-        List<OperatorData> currentSquad = UserSquadManager.Instance.GetCurrentSquad();
+
+        List<OperatorData> currentSquad = GameManagement.Instance.UserSquadManager.GetCurrentSquad();
+
         if (currentSquad.Count > 0)
         {
-            SceneManager.LoadScene(stageName);
+            // 여기서는 씬의 이름을 불러와야 함(스테이지의 이름이 아님!)
+            //SceneManager.LoadScene(selectedStage.stageName);
+
+            GameManagement.Instance.StageLoader.LoadStage(selectedStage);
         }
         else
         {
@@ -153,7 +161,7 @@ public class MainMenuManager : MonoBehaviour
 
     public void OnStageSelected(StageData stageData)
     {
-        selectedStageData = stageData;
+        selectedStage = stageData;
         ShowPanel(MenuPanel.SquadEdit);
     }
 
@@ -165,7 +173,7 @@ public class MainMenuManager : MonoBehaviour
 
     private void UpdateSquadUI()
     {
-        List<OperatorData> currentSquad = UserSquadManager.Instance.GetCurrentSquad();
+        List<OperatorData> currentSquad = GameManagement.Instance.UserSquadManager.GetCurrentSquad();
 
         // UI 업데이트
     }
@@ -173,12 +181,12 @@ public class MainMenuManager : MonoBehaviour
     // SquadEditPanel의 슬롯에 OperatorListPanel에서 오퍼레이터를 결정하고 할당할 때 사용
     public void OnOperatorSelected(int slotIndex, OperatorData newOperatorData)
     {
-        UserSquadManager.Instance.TryReplaceOperator(slotIndex, newOperatorData);
+        GameManagement.Instance.UserSquadManager.TryReplaceOperator(slotIndex, newOperatorData);
     }
 
     private void OnDestroy()
     {
-        UserSquadManager.Instance.OnSquadUpdated -= OnSquadUpdated;
+        GameManagement.Instance.UserSquadManager.OnSquadUpdated -= OnSquadUpdated;
     }
 }
  

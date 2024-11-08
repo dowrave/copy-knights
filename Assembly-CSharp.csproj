@@ -74,6 +74,7 @@
     <Compile Include="Assets\Scripts\Visual\UI\Stage\StatsPanel.cs" />
     <Compile Include="Assets\Scripts\Core\Stage\Manager\StageManager.cs" />
     <Compile Include="Assets\Scripts\Core\Data\PathData.cs" />
+    <Compile Include="Assets\Scripts\Core\StageLoader.cs" />
     <Compile Include="Assets\Scripts\Visual\UI\Stage\DeployableBox.cs" />
     <Compile Include="Assets\Scripts\Core\Stage\Manager\ClickDetectionSystem.cs" />
     <Compile Include="Assets\Scripts\Core\Data\EnemyData.cs" />
@@ -105,12 +106,14 @@
     <Compile Include="Assets\Scripts\Core\Stage\Manager\ObjectPoolManager.cs" />
     <Compile Include="Assets\Scripts\Core\Stage\Map\EnemySpawner.cs" />
     <Compile Include="Assets\Scripts\Core\Interfaces\IMovable.cs" />
+    <Compile Include="Assets\Scripts\Core\UserSquadManager.cs" />
+    <Compile Include="Assets\Scripts\Core\GameManagement.cs" />
     <Compile Include="Assets\Scripts\Core\Interfaces\ISkill.cs" />
-    <Compile Include="Assets\Scripts\UserSquadManager.cs" />
     <Compile Include="Assets\Scripts\Core\Unit\Projectile.cs" />
     <Compile Include="Assets\Scripts\Core\Data\OperatorData.cs" />
     <Compile Include="Assets\Scripts\Core\Stage\Manager\SpawnerManager.cs" />
     <Compile Include="Assets\Scripts\Visual\UI\Stage\MaskedDiamondOverlay.cs" />
+    <Compile Include="Assets\Scripts\Core\Stage\Map\EnemySpawnInfo.cs" />
     <Compile Include="Assets\Scripts\Visual\UI\Helper\IconHelper.cs" />
     <Compile Include="Assets\Scripts\Visual\UI\Stage\DeploymentCostPanel.cs" />
     <Compile Include="Assets\Scripts\Visual\UI\Stage\DiamondMask.cs" />
