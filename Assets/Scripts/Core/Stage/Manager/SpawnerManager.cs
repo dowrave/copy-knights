@@ -5,7 +5,7 @@ using UnityEngine;
 public class SpawnerManager : MonoBehaviour
 {
     public static SpawnerManager Instance { get; private set; }
-    public List<EnemySpawner> spawners = new List<EnemySpawner>();
+    private List<EnemySpawner> spawners = new List<EnemySpawner>();
     private Map currentMap;
 
     private void Awake()
@@ -26,6 +26,9 @@ public class SpawnerManager : MonoBehaviour
         FindAllSpawners();
     }
 
+    /// <summary>
+    /// 맵에 있는 스포너들을 찾아서 자동으로 등록함
+    /// </summary>
     private void FindAllSpawners()
     {
         spawners.Clear();
@@ -33,7 +36,7 @@ public class SpawnerManager : MonoBehaviour
         foreach (EnemySpawner spawner in foundSpawners)
         {
             spawners.Add(spawner);
-            spawner.Initialize(currentMap); // 각 스포너에 mapManager 전달
+            spawner.Initialize(); // 각 스포너에 mapManager 전달
         }
     }
 

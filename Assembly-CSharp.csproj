@@ -87,9 +87,9 @@
     <Compile Include="Assets\Scripts\Core\Data\DeployableUnitData.cs" />
     <Compile Include="Assets\Scripts\Core\MainMenu\OperatorListPanel.cs" />
     <Compile Include="Assets\Scripts\Core\Stage\Map\Map.cs" />
-    <Compile Include="Assets\Scripts\Core\Data\TileData.cs" />
     <Compile Include="Assets\Scripts\Core\Stage\Manager\CameraManager.cs" />
     <Compile Include="Assets\Scripts\Core\OwnedOperator.cs" />
+    <Compile Include="Assets\Scripts\Core\Data\TileData.cs" />
     <Compile Include="Assets\Scripts\Core\Unit\UnitEntity.cs" />
     <Compile Include="Assets\Scripts\Core\Unit\Barricade.cs" />
     <Compile Include="Assets\Scripts\Visual\UI\Stage\HealthBar.cs" />
