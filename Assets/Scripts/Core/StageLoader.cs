@@ -95,15 +95,7 @@ public class StageLoader : MonoBehaviour
         // 1. 맵 생성
         yield return StartCoroutine(InitializeMap());
 
-        // 2. 스포너 초기화
-        if (!InitializeSpawners())
-        {
-            ReturnToMainMenu();
-            yield break;
-        }
-        yield return null;
-
-        // 3. 배치 가능한 유닛 초기화
+        // 2. 배치 가능한 유닛 초기화
         if (!InitializeDeployables())
         {
             ReturnToMainMenu();
@@ -111,8 +103,11 @@ public class StageLoader : MonoBehaviour
         }
         yield return null;
 
-        // 4. 스테이지 매니저 초기화
-        StageManager.Instance.InitializeStage();
+        // 3. 스테이지 매니저 초기화
+        StageManager.Instance.PrepareStage();
+
+        // 4. 스테이지 매니저로 스테이지 시작
+        StageManager.Instance.StartStage();
 
         CleanupCache();
     }
@@ -144,7 +139,6 @@ public class StageLoader : MonoBehaviour
                     mapObject.transform.localRotation = Quaternion.identity;
 
                     mapManager.InitializeMap(map);
-                    Debug.Log("맵 초기화 완료");
                     OnMapLoaded?.Invoke(map);
                 }
                 catch (System.Exception e)
@@ -154,30 +148,6 @@ public class StageLoader : MonoBehaviour
                 }
             }
         }
-    }
-
-    private bool InitializeSpawners()
-    {
-        if (cachedStageData == null || cachedStageData.spawnerData == null)
-        {
-            Debug.LogError("스포너 데이터가 없습니다");
-            return false;
-        }
-
-        foreach (var spawnerData in cachedStageData.spawnerData)
-        {
-            if (spawnerData == null)
-            {
-                continue;
-            }
-
-            GameObject spawnerObject = new GameObject("EnemySpawner");
-            EnemySpawner spawner = spawnerObject.AddComponent<EnemySpawner>();
-            spawnerObject.transform.position = spawnerData.position;
-            spawner.enemySpawnList = spawnerData.enemySpawnList;
-        }
-
-        return true;
     }
 
     private bool InitializeDeployables()

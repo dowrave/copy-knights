@@ -118,30 +118,40 @@ public class StageManager : MonoBehaviour
         UIManager.Instance.UpdateSpeedUpButtonVisual();
         UIManager.Instance.UpdatePauseButtonVisual();
 
-        CurrentLifePoints = maxLifePoints;
-
-        Debug.Log("스테이지 준비");
-        if (MapManager.Instance != null)
+        if (GameManagement.Instance == null && 
+            GameManagement.Instance.StageLoader != null)
         {
-            InitializeStage(); // 스테이지 준비
-
+            // StageLoader에 의한 초기화 대기
+            // 씬 전환에 의해 실행될 경우, Start에서 시작하면 라이프사이클이 불일치하므로 
+            // StageLoader에서 스테이지 시작을 처리한다.
+            return;
         }
 
-        Debug.Log("스테이지 시작");
-        StartBattle(); // 게임 시작
+        // 직접 실행할 경우 
+        PrepareStage();
+        StartStage();
     }
 
-    public void InitializeStage()
+    public void PrepareStage()
     {
+        Debug.Log("스테이지 준비");
         SetGameState(GameState.Preparation);
         StartCoroutine(IncreaseCostOverTime());
 
         // 게임 초기화
         totalEnemyCount = CalculateTotalEnemyCount();
         killedEnemyCount = 0;
-        currentLifePoints = maxLifePoints;
+        CurrentLifePoints = maxLifePoints;
 
         UIManager.Instance.InitializeUI();
+
+    }
+
+    public void StartStage()
+    {
+        Debug.Log("스테이지 시작");
+        SetGameState(GameState.Battle);
+        SpawnerManager.Instance.StartSpawning();
     }
 
     private int CalculateTotalEnemyCount()
@@ -158,12 +168,6 @@ public class StageManager : MonoBehaviour
     public List<StageDeployable> GetStageDeployables()
     {
         return stageDeployables;
-    }
-
-    public void StartBattle()
-    {
-        SetGameState(GameState.Battle);
-        SpawnerManager.Instance.StartSpawning();
     }
 
     public void SetGameState(GameState gameState)

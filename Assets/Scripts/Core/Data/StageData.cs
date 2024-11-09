@@ -17,14 +17,7 @@ public class StageData : ScriptableObject
     public GameObject mapPrefab; 
 
     [Header("Stage Functional Elements")]
-    public List<EnemySpawnerData> spawnerData;
     public float playerHealthMultiplier = 1f;
     public float enemyStatMultiplier = 1f;
 
-    [System.Serializable]
-    public class EnemySpawnerData
-    {
-        public Vector3 position;
-        public List<EnemySpawnInfo> enemySpawnList;
-    }
 }
