@@ -5,32 +5,13 @@ using UnityEngine;
 public class EnemySpawner : MonoBehaviour
 {
     public List<EnemySpawnInfo> enemySpawnList = new List<EnemySpawnInfo>(); // 생성되는 적, 시간이 적혀 있음
-
     private bool isInitialized = false;
-    private Vector3 startPoint;
-    private Vector3 endPoint;
-    private Map currentMap;
 
-    private Dictionary<string, PathData> pathDataDict = new Dictionary<string, PathData>();
-
-    public void Initialize(Map map)
+    public void Initialize()
     {
-        currentMap = map;
-        startPoint = transform.position;
-        endPoint = currentMap.FindEndPoint(); 
         isInitialized = true;
-
-        LoadAllPathData();
     }
 
-    private void LoadAllPathData()
-    {
-        PathData[] allPaths = Resources.LoadAll<PathData>("Paths"); // Resources/Paths 에 PathData 에셋들이 저장되어야 함
-        foreach (var path in allPaths)
-        {
-            pathDataDict[path.name] = path;
-        }
-    }
 
     public void StartSpawning()
     {
@@ -58,7 +39,7 @@ public class EnemySpawner : MonoBehaviour
     {
         if (spawnInfo.enemyPrefab == null) return;
 
-        GameObject enemyObject = Instantiate(spawnInfo.enemyPrefab, startPoint, Quaternion.identity);
+        GameObject enemyObject = Instantiate(spawnInfo.enemyPrefab, transform.position, Quaternion.identity);
         Enemy enemy = enemyObject.GetComponent<Enemy>();
         
         if (enemy != null)
@@ -70,14 +51,5 @@ public class EnemySpawner : MonoBehaviour
         {
             Destroy(enemyObject);
         }
-    }
-
-    private PathData GetPathData(string pathName)
-    {
-        if (pathDataDict.TryGetValue(pathName, out PathData pathData))
-        {
-            return pathData;
-        }
-        return null;
     }
 }
