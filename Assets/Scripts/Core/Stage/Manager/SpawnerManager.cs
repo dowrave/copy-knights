@@ -32,12 +32,20 @@ public class SpawnerManager : MonoBehaviour
     private void FindAllSpawners()
     {
         spawners.Clear();
-        EnemySpawner[] foundSpawners = FindObjectsOfType<EnemySpawner>();
-        foreach (EnemySpawner spawner in foundSpawners)
+
+        // Map 찾기
+        Map currentMap = MapManager.Instance?.CurrentMap; 
+        if (currentMap != null)
         {
-            spawners.Add(spawner);
-            spawner.Initialize(); // 각 스포너에 mapManager 전달
+            // FindObjectsOfType이나 GetComponentsInChildren이나 모두 리스트를 찾음
+            EnemySpawner[] foundSpawners = currentMap.GetComponentsInChildren<EnemySpawner>();
+            foreach (EnemySpawner spawner in foundSpawners)
+            {
+                spawners.Add(spawner);
+                spawner.Initialize();
+            }
         }
+
     }
 
 

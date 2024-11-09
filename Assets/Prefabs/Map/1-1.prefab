@@ -1124,7 +1124,23 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c034ddc81e3f5b34fa37814b1d51156f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  enemySpawnList: []
+  enemySpawnList:
+  - enemyType: 0
+    enemyPrefab: {fileID: 6542749020257112806, guid: b64bfbf4c6a80384295e7286bbcc9d3e, type: 3}
+    spawnTime: 0
+    pathData: {fileID: 11400000, guid: fe7cbd840229b0d478e3a6b3bf975101, type: 2}
+  - enemyType: 0
+    enemyPrefab: {fileID: 6542749020257112806, guid: b64bfbf4c6a80384295e7286bbcc9d3e, type: 3}
+    spawnTime: 1
+    pathData: {fileID: 11400000, guid: fe7cbd840229b0d478e3a6b3bf975101, type: 2}
+  - enemyType: 0
+    enemyPrefab: {fileID: 6542749020257112806, guid: b64bfbf4c6a80384295e7286bbcc9d3e, type: 3}
+    spawnTime: 2
+    pathData: {fileID: 11400000, guid: fe7cbd840229b0d478e3a6b3bf975101, type: 2}
+  - enemyType: 0
+    enemyPrefab: {fileID: 6542749020257112806, guid: b64bfbf4c6a80384295e7286bbcc9d3e, type: 3}
+    spawnTime: 3
+    pathData: {fileID: 11400000, guid: fe7cbd840229b0d478e3a6b3bf975101, type: 2}
 --- !u!1 &1520145842421689366
 GameObject:
   m_ObjectHideFlags: 0
