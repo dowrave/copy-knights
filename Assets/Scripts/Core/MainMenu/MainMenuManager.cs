@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using DG.Tweening;
+using Unity.VisualScripting.Antlr3.Runtime.Tree;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -69,14 +70,36 @@ public class MainMenuManager : MonoBehaviour
             if (panel.type == MenuPanel.StageSelect)
             {
                 ShowPanel(panel.type, false);
-            } 
+            }
             else
             {
                 HidePanel(panel.panel, false);
             }
         }
 
-        GameManagement.Instance.UserSquadManager.OnSquadUpdated += OnSquadUpdated; 
+        // 마지막 플레이 정보를 확인, 해당 스테이지 선택
+        string lastPlayedStage = PlayerPrefs.GetString("LastPlayedStage", null);
+        if (!string.IsNullOrEmpty(lastPlayedStage))
+        {
+            if (panelMap.TryGetValue(MenuPanel.StageSelect, out GameObject stageSelectObj))
+            {
+                var stageSelectPanel = stageSelectObj.GetComponent<StageSelectPanel>();
+                if (stageSelectPanel != null)
+                {
+                    StageData targetStageData = stageSelectPanel.GetStageDataById(lastPlayedStage);
+                    if (targetStageData != null)
+                    {
+                        OnStageSelected(targetStageData);
+                    }
+                }
+            }
+
+            // 사용 정보는 삭제
+            PlayerPrefs.DeleteKey("LastPlayedStage");
+            PlayerPrefs.Save();
+        }
+
+        GameManagement.Instance.UserSquadManager.OnSquadUpdated += OnSquadUpdated;
     }
 
     public void ShowPanel(MenuPanel newPanel, bool animate = true)
@@ -183,6 +206,8 @@ public class MainMenuManager : MonoBehaviour
     {
         GameManagement.Instance.UserSquadManager.TryReplaceOperator(slotIndex, newOperatorData);
     }
+
+   
 
     private void OnDestroy()
     {

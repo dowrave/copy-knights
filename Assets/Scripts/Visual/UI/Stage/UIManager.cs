@@ -1,3 +1,4 @@
+using System.Collections;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -9,14 +10,14 @@ public class UIManager : MonoBehaviour
     [SerializeField] private IconData iconData;
 
     [Header("Panels")]
-    [SerializeField] private GameObject statsPanel;
-    [SerializeField] private GameObject gameOverPanel;
-    [SerializeField] private GameObject gameWinPanel; // 여기는 애니메이션이 들어가니까 일단 냅두기만 합니다
-    [SerializeField] private GameObject deploymentCostPanel;
-    [SerializeField] private GameObject topCenterPanel; // 남은 적 수, 라이프 수
-    [SerializeField] private GameObject bottomPanel;
-    [SerializeField] private GameObject infoPanel;
-    //[SerializeField] private GameObject overlayPanel;
+    [SerializeField] private GameObject statsPanelObject;
+    [SerializeField] private GameObject gameOverPanelObject;
+    [SerializeField] private GameObject gameWinPanelObject; // 여기는 애니메이션이 들어가니까 일단 냅두기만 합니다
+    [SerializeField] private GameObject deploymentCostPanelObject;
+    [SerializeField] private GameObject topCenterPanelObject; // 남은 적 수, 라이프 수
+    [SerializeField] private GameObject bottomPanelObject;
+    [SerializeField] private GameObject infoPanelObject;
+    [SerializeField] private GameObject stageResultPanelObject; 
 
     private InfoPanel infoPanelScript;
 
@@ -35,7 +36,9 @@ public class UIManager : MonoBehaviour
     [Header("Cost Panel Elements")]
     [SerializeField] private GameObject costIcon;
 
-    // 코스트 이펙트에서 사용할 좌표
+    [SerializeField] private float resultDelay = 0.5f;
+
+    // 코스트 이펙트에서 사용할 좌표statsPanelObject
     private Vector3 costIconWorldPosition;
     public Vector3 CostIconWorldPosition 
     {
@@ -57,26 +60,26 @@ public class UIManager : MonoBehaviour
 
 
         // 인스펙터에서 할당하겠지만, 안전성을 위해
-        if (gameOverPanel == null)
+        if (gameOverPanelObject == null)
         {
-            gameOverPanel = transform.Find("GameOverPanel").gameObject;
+            gameOverPanelObject = transform.Find("GameOverPanel").gameObject;
         }
-        if (gameWinPanel == null)
+        if (gameWinPanelObject == null)
         {
-            gameWinPanel = transform.Find("GameWinPanel").gameObject;
+            gameWinPanelObject = transform.Find("GameWinPanel").gameObject;
         }
-        if (infoPanel == null)
+        if (infoPanelObject == null)
         {
-            infoPanel = transform.Find("InfoPanel").gameObject;
+            infoPanelObject = transform.Find("InfoPanel").gameObject;
         }
 
         // 비활성화 전에 참조를 넣어두는 게 좋다
-        infoPanelScript = infoPanel.GetComponent<InfoPanel>();
+        infoPanelScript = infoPanelObject.GetComponent<InfoPanel>();
 
         // 패널 비활성화
-        gameOverPanel.SetActive(false);
-        gameWinPanel.SetActive(false);
-        infoPanel.SetActive(false);
+        gameOverPanelObject.SetActive(false);
+        gameWinPanelObject.SetActive(false);
+        infoPanelObject.SetActive(false);
 
         if (iconData == null)
         {
@@ -118,18 +121,50 @@ public class UIManager : MonoBehaviour
 
     public void ShowGameOverUI()
     {
-        gameOverPanel.SetActive(true);
+        gameOverPanelObject.SetActive(true);
+
+        var clickHandler = gameOverPanelObject.GetComponent<Button>() ?? gameOverPanelObject.AddComponent<Button>();
+        clickHandler.onClick.AddListener(() =>
+        {
+            StartCoroutine(ShowResultAfterDelay(true));
+            gameOverPanelObject.SetActive(false);
+        });
     }
+
     public void ShowGameWinUI()
     {
-        gameWinPanel.SetActive(true);
+        gameWinPanelObject.SetActive(true);
+        var clickHandler = gameWinPanelObject.GetComponent<Button>() ?? gameWinPanelObject.AddComponent<Button>();
+        clickHandler.onClick.AddListener(() =>
+        {
+            StartCoroutine(ShowResultAfterDelay(true));
+            gameWinPanelObject.SetActive(false);
+        });
+    }
+
+    private IEnumerator ShowResultAfterDelay(bool isCleared)
+    {
+        yield return new WaitForSecondsRealtime(resultDelay); // Time.timeScale = 0이 되므로 이 메서드를 사용함
+
+        var resultData = new StageResultData
+        {
+            passedEnemies = StageManager.Instance.PassedEnemies,
+            isCleared = isCleared,
+            stageId = GameManagement.Instance.StageLoader.CachedStageData.stageId,
+            operatorStats = StatisticsManager.Instance.GetAllOperatorStats()
+        };
+
+        StageResultPanel stageResultPanel = stageResultPanelObject.GetComponent<StageResultPanel>();
+        stageResultPanel.Initialize(resultData);
+        stageResultPanelObject.SetActive(true);
+        
     }
 
     public void ShowDeployableInfo(DeployableUnitEntity deployable)
     {
         if (infoPanelScript != null)
         {
-            infoPanel.SetActive(true);
+            infoPanelObject.SetActive(true);
 
             infoPanelScript.UpdateInfo(deployable);
             CameraManager.Instance.AdjustForDeployableInfo(true, deployable);
@@ -138,9 +173,9 @@ public class UIManager : MonoBehaviour
 
     public void HideDeployableInfo()
     {
-        if (infoPanel != null)
+        if (infoPanelObject != null)
         {
-            infoPanel.SetActive(false);
+            infoPanelObject.SetActive(false);
             CameraManager.Instance.AdjustForDeployableInfo(false);
         }
     }

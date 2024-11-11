@@ -113,6 +113,15 @@ public class StatisticsManager : MonoBehaviour
     }
 
     /// <summary>
+    /// OperatorStats 구조체 리스트를 반환합니다. 
+    /// 마지막에
+    /// </summary>
+    public List<OperatorStats> GetAllOperatorStats()
+    {
+        return new List<OperatorStats>(allOperatorStats);
+    }
+
+    /// <summary>
     /// 특정 오퍼레이터의 특정 통계 유형에 대한 값을 반환합니다.
     /// </summary>
     public float GetOperatorValueForStatType(Operator op, StatType statType)

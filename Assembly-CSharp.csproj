@@ -79,6 +79,7 @@
     <Compile Include="Assets\Scripts\Core\Stage\Manager\ClickDetectionSystem.cs" />
     <Compile Include="Assets\Scripts\Core\Data\EnemyData.cs" />
     <Compile Include="Assets\Scripts\Core\Data\StageData.cs" />
+    <Compile Include="Assets\Scripts\Core\Data\StageResultData.cs" />
     <Compile Include="Assets\Scripts\Core\Skills\OperatorSkills\CostRecoverySkill.cs" />
     <Compile Include="Assets\Scripts\Core\Unit\DeployableUnitEntity.cs" />
     <Compile Include="Assets\Scripts\Core\Stage\Manager\DeployableManager.cs" />
@@ -95,6 +96,7 @@
     <Compile Include="Assets\Scripts\Visual\UI\Stage\HealthBar.cs" />
     <Compile Include="Assets\Scripts\Visual\UI\Stage\EnemyBarUI.cs" />
     <Compile Include="Assets\Scripts\Core\Stage\Manager\StatisticsManager.cs" />
+    <Compile Include="Assets\Scripts\Visual\UI\Stage\StageResultPanel.cs" />
     <Compile Include="Assets\Scripts\Core\Data\IconData.cs" />
     <Compile Include="Assets\Scripts\Visual\Effects\CostParticleMotion.cs" />
     <Compile Include="Assets\Scripts\Visual\UI\Stage\InfoPanel.cs" />
