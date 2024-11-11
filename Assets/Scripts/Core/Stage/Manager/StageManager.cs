@@ -32,7 +32,8 @@ public class StageManager : MonoBehaviour
     private int killedEnemyCount;
     private int maxLifePoints = 3;
     private int currentLifePoints;
-    private int passedEnemies;
+    private int passedEnemies = 0;
+    public int PassedEnemies => passedEnemies;
     public int KilledEnemyCount
     {
         get => killedEnemyCount;

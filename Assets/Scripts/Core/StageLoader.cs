@@ -17,6 +17,7 @@ public class StageLoader : MonoBehaviour
     [SerializeField] private GameObject loadingScreenPrefab;
 
     private StageData cachedStageData;
+    public StageData CachedStageData => cachedStageData; 
     private List<OperatorData> cachedSquadData;
     private bool isLoading;
 
@@ -88,7 +89,6 @@ public class StageLoader : MonoBehaviour
         if (StageManager.Instance == null)
         {
             Debug.LogError("스테이지 매니저가 씬에서 발견되지 않음");
-            ReturnToMainMenu();
             yield break;
         }
 
@@ -98,7 +98,7 @@ public class StageLoader : MonoBehaviour
         // 2. 배치 가능한 유닛 초기화
         if (!InitializeDeployables())
         {
-            ReturnToMainMenu();
+            Debug.Log("Deployable 유닛이 초기화되지 않음");
             yield break;
         }
         yield return null;
@@ -207,11 +207,25 @@ public class StageLoader : MonoBehaviour
         }
     }
 
-    private void ReturnToMainMenu()
+    public void ReturnToMainMenu()
     {
         SceneManager.LoadScene("MainMenu");
     }
 
+    /// <summary>
+    /// 2성 이하로 클리어 / 게임 패배시에 동작
+    /// 메인 메뉴로 돌아가서 현재 스테이지를 선택
+    /// </summary>
+    public void ReturnToMainMenuWithStageSelected()
+    {
+        string currentStageId = cachedStageData.stageId;
+
+        // 씬 전환 + 스테이지 선택 상태 전달
+        PlayerPrefs.SetString("LastPlayedStage", currentStageId);
+        PlayerPrefs.Save();
+
+        SceneManager.LoadScene("MainMenu");
+    }   
     private void CleanupCache()
     {
         cachedStageData = null;
@@ -230,4 +244,6 @@ public class StageLoader : MonoBehaviour
         CleanupCache();
         HideLoadingScreen();
     }
+
+    
 }

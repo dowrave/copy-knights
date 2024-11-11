@@ -1,5 +1,6 @@
 
 using System.Collections.Generic;
+using System.Linq;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -34,6 +35,18 @@ public class StageSelectPanel : MonoBehaviour
         stageDetailPanel.SetActive(false);
         confirmButton.onClick.AddListener(() => OnConfirmButtonClicked());
         confirmButton.interactable = false;
+    }
+
+    public StageData GetStageDataById(string stageId)
+    {
+        var targetButton = stageButtons.FirstOrDefault(btn => btn.StageData.stageId == stageId);
+
+        if (targetButton != null)
+        {
+            OnStageButtonClicked(targetButton);
+            return targetButton.StageData;
+        }
+        return null;
     }
 
     /// <summary>
