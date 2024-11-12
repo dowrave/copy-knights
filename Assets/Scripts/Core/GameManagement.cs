@@ -1,6 +1,8 @@
 using System.Collections;
 using System.Collections.Generic;
+using UnityEditor.SearchService;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 /// <summary>
 /// 씬 전환 과정에서 정보를 전달하는 매니저들을 관리한다
@@ -27,6 +29,9 @@ public class GameManagement : MonoBehaviour
         {
             Destroy(gameObject);
         }
+
+        // 유니티에서 씬 전환시 사용하라고 하는 방식임
+        SceneManager.sceneLoaded += OnSceneLoaded; 
     }
 
     private void ValidateComponents()
@@ -37,10 +42,9 @@ public class GameManagement : MonoBehaviour
         }
     }
 
-    public void OnSceneLoaded()
+
+    public void OnSceneLoaded(UnityEngine.SceneManagement.Scene scene, LoadSceneMode mode)
     {
-        stageLoader.OnSceneLoaded();
-        //userSquadManager.OnSceneLoaded();
     }
 
     private void OnApplicationQuit()
