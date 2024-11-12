@@ -80,6 +80,7 @@ public class UIManager : MonoBehaviour
         gameOverPanelObject.SetActive(false);
         gameWinPanelObject.SetActive(false);
         infoPanelObject.SetActive(false);
+        stageResultPanelObject.SetActive(false);
 
         if (iconData == null)
         {
@@ -131,6 +132,9 @@ public class UIManager : MonoBehaviour
         });
     }
 
+    /// <summary>
+    /// GameWin 패널을 띄우고 이를 클릭하면 결과로 넘어갑니다.
+    /// </summary>
     public void ShowGameWinUI()
     {
         gameWinPanelObject.SetActive(true);
@@ -142,6 +146,9 @@ public class UIManager : MonoBehaviour
         });
     }
 
+    /// <summary>
+    /// 게임 승리/오버 패널을 클릭 시 수 초 후 다음으로 넘어갑니다.
+    /// </summary>
     private IEnumerator ShowResultAfterDelay(bool isCleared)
     {
         yield return new WaitForSecondsRealtime(resultDelay); // Time.timeScale = 0이 되므로 이 메서드를 사용함
@@ -150,13 +157,12 @@ public class UIManager : MonoBehaviour
         {
             passedEnemies = StageManager.Instance.PassedEnemies,
             isCleared = isCleared,
-            stageData = GameManagement.Instance.StageLoader.CachedStageData,
             operatorStats = StatisticsManager.Instance.GetAllOperatorStats()
         };
 
+        stageResultPanelObject.SetActive(true);
         StageResultPanel stageResultPanel = stageResultPanelObject.GetComponent<StageResultPanel>();
         stageResultPanel.Initialize(resultData);
-        stageResultPanelObject.SetActive(true);
         
     }
 

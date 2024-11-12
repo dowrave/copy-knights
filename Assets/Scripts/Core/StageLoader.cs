@@ -4,7 +4,6 @@ using System.Linq.Expressions;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
-
 /// <summary>
 /// 역할
 /// 1. 스테이지 씬 전환, 로딩 프로세스 관리
@@ -59,6 +58,8 @@ public class StageLoader : MonoBehaviour
             yield return null; 
         }
 
+        // 씬 로딩 90% 시점에서 진행
+
         // 최소 로딩 시간 보장
         float elpasedTime = Time.time - loadStartTime;
         if (elpasedTime < MIN_LOADING_TIME)
@@ -68,22 +69,22 @@ public class StageLoader : MonoBehaviour
 
         // 스테이지 씬 활성화
         asyncLoad.allowSceneActivation = true;
-
         while (!asyncLoad.isDone)
         {
             yield return null;
         }
 
+        // 씬 로딩 완료 후 진행
         yield return StartCoroutine(InitializeStageRoutine());
 
         isLoading = false;
         HideLoadingScreen();
+        CleanupCache(); // 전달 후 StageLoader가 갖는 캐시 초기화
     }
 
     /// <summary>
-    /// 스테이지 씬이 로드된 상황을 가정함
+    /// 씬이 로드된 후에 호출됨
     /// </summary>
-    /// <returns></returns>
     private IEnumerator InitializeStageRoutine()
     {
         if (StageManager.Instance == null)
@@ -92,10 +93,13 @@ public class StageLoader : MonoBehaviour
             yield break;
         }
 
-        // 1. 맵 생성
+        // 1. StageManager에 stageData 전달
+        StageManager.Instance.SetStageData(CachedStageData);
+
+        // 2. 맵 생성
         yield return StartCoroutine(InitializeMap());
 
-        // 2. 배치 가능한 유닛 초기화
+        // 3. 배치 가능한 유닛 초기화
         if (!InitializeDeployables())
         {
             Debug.Log("Deployable 유닛이 초기화되지 않음");
@@ -103,13 +107,13 @@ public class StageLoader : MonoBehaviour
         }
         yield return null;
 
-        // 3. 스테이지 매니저 초기화
+        // 4. 스테이지 매니저 초기화
         StageManager.Instance.PrepareStage();
 
-        // 4. 스테이지 매니저로 스테이지 시작
+        // 5. 스테이지 매니저로 스테이지 시작
         StageManager.Instance.StartStage();
 
-        CleanupCache();
+        //CleanupCache();
     }
 
     private IEnumerator InitializeMap()
@@ -225,7 +229,8 @@ public class StageLoader : MonoBehaviour
         PlayerPrefs.Save();
 
         SceneManager.LoadScene("MainMenu");
-    }   
+    }  
+    
     private void CleanupCache()
     {
         cachedStageData = null;
@@ -233,7 +238,12 @@ public class StageLoader : MonoBehaviour
         cachedSquadData = null;
     }
 
-    public void OnSceneLoaded()
+    /// <summary>
+    /// 씬 전환 시마다 실행
+    /// </summary>
+    /// 
+
+    public void OnSceneLoaded(Scene scene, LoadSceneMode mode)
     {
         isLoading = false;
         CleanupCache();

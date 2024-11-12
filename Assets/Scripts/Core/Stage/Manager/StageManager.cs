@@ -19,6 +19,8 @@ public class StageManager : MonoBehaviour
 {
     public static StageManager Instance { get; private set; }
     public GameState currentState;
+    private StageData stageData;
+    public StageData StageData => stageData;
 
     // 배치 코스트
     // 편한 수정을 위해 엔진 상에서는 오픈
@@ -83,7 +85,9 @@ public class StageManager : MonoBehaviour
     }
     public float CurrentCostGauge => currentCostGauge;
 
-    // 스테이지마다 제공되는 deployable 요소들
+
+
+    // 스테이지마다 제공되는 deployable 요소들 
     [System.Serializable]
     public class StageDeployable
     {
@@ -91,7 +95,10 @@ public class StageManager : MonoBehaviour
         public int maxDeployCount;
     }
 
+    
     [SerializeField] private List<StageDeployable> stageDeployables = new List<StageDeployable>();
+
+    
 
     // 이벤트
     public event System.Action OnDeploymentCostChanged; // 이벤트 발동 조건은 currentDeploymentCost 값이 변할 때, 여기 등록된 함수들이 동작
@@ -158,7 +165,7 @@ public class StageManager : MonoBehaviour
     private int CalculateTotalEnemyCount()
     {
         int count = 0;
-        EnemySpawner[] spawners = FindObjectsOfType<EnemySpawner>();
+        EnemySpawner[] spawners = FindObjectsOfType<EnemySpawner>(); // 수정 필요) Map 프리팹에서 스포너들 정보 가져오는 식으로
         foreach (var spawner in spawners)
         {
             count += spawner.enemySpawnList.Count;
@@ -200,7 +207,7 @@ public class StageManager : MonoBehaviour
     public static GameObject FindStageObject()
     {
         // 모든 루트 게임 오브젝트 찾기
-        GameObject[] rootObjects = UnityEngine.SceneManagement.SceneManager.GetActiveScene().GetRootGameObjects();
+        GameObject[] rootObjects = SceneManager.GetActiveScene().GetRootGameObjects();
 
         // "Stage"로 시작하는 이름을 가진 게임 오브젝트를 찾습니다.
         foreach (GameObject obj in rootObjects)
@@ -267,7 +274,6 @@ public class StageManager : MonoBehaviour
         
         currentLifePoints--; // OnLifePointsChanged : 생명력이 깎이면 자동으로 UI 업데이트 발생
         passedEnemies++;
-        //UpdateUI();
 
         if (currentLifePoints <= 0)
         {
@@ -343,6 +349,11 @@ public class StageManager : MonoBehaviour
     public void RecoverDeploymentCost(int amount)
     {
         CurrentDeploymentCost = Mathf.Min(CurrentDeploymentCost + amount, maxDeploymentCost);
+    }
+
+    public void SetStageData(StageData data)
+    {
+        stageData = data;
     }
 }
 

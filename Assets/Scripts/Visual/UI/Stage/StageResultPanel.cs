@@ -9,21 +9,18 @@ using UnityEngine.UI;
 public class StageResultPanel : MonoBehaviour
 {
     [Header("Star Rating")]
-    // 뭔 느낌인지 모르겠음
     [SerializeField] private Image[] starImages;
-    [SerializeField] private Sprite filledStarSprite;
-    [SerializeField] private Sprite emptyStarSprite;
 
     [Header("Result Text")]
     [SerializeField] private TextMeshProUGUI stageIdText;
     [SerializeField] private TextMeshProUGUI stageNameText;
     [SerializeField] private TextMeshProUGUI clearOrFailedText;
 
-    [Header("Statistics")]
-    [SerializeField] private GameObject statsContainer;
-    [SerializeField] private StatisticItem statisticItemPrefab;
-    [SerializeField] private Transform statisticItemContainer;
-    [SerializeField] private Button toggleStatsButton;
+    //[Header("Statistics")]
+    //[SerializeField] private GameObject statsContainer;
+    //[SerializeField] private StatisticItem statisticItemPrefab;
+    //[SerializeField] private Transform statisticItemContainer;
+    //[SerializeField] private Button toggleStatsButton;
 
     // 별도의 내비게이션은 사용하지 않음 : 즉 결과 패널이 끝나면 바로 로비로 감
 
@@ -38,24 +35,24 @@ public class StageResultPanel : MonoBehaviour
         panelClickHandler.transition = Selectable.Transition.None; // 시각적인 클릭 효과 제거
         panelClickHandler.onClick.AddListener(OnPanelClicked);
 
-        // 토글 버튼 클릭이 패널 클릭을 트리거하지 않도록 설정
-        toggleStatsButton.onClick.AddListener(() =>
-        {
-            ToggleStats();
+        //// 토글 버튼 클릭이 패널 클릭을 트리거하지 않도록 설정
+        //toggleStatsButton.onClick.AddListener(() =>
+        //{
+        //    ToggleStats();
 
-            // 이벤트 전파 중지
-            UnityEngine.EventSystems.EventSystem.current.SetSelectedGameObject(null);
-        });
+        //    // 이벤트 전파 중지
+        //    UnityEngine.EventSystems.EventSystem.current.SetSelectedGameObject(null);
+        //});
     }
 
     private void OnPanelClicked()
     {
         // 토글 버튼(=스탯 전환 버튼) 영역을 클릭했을 때는 무시
-        if (UnityEngine.EventSystems.EventSystem.current.IsPointerOverGameObject() && 
-            UnityEngine.EventSystems.EventSystem.current.currentSelectedGameObject == toggleStatsButton.gameObject)
-        {
-            return;
-        }
+        //if (UnityEngine.EventSystems.EventSystem.current.IsPointerOverGameObject() && 
+        //    UnityEngine.EventSystems.EventSystem.current.currentSelectedGameObject == toggleStatsButton.gameObject)
+        //{
+        //    return;
+        //}
 
         // 3성 클리어가 아니라면 현재 스테이지를 선택한 상태로 돌아감
         if (!resultData.isCleared || resultData.StarCount < 3)
@@ -73,30 +70,34 @@ public class StageResultPanel : MonoBehaviour
         resultData = data;
 
         UpdateStarRating();
-        UpdateTitleAndStageInfo();
+        UpdateHeaders();
         CreateStatItems();
         HideStats();
     }
 
     private void UpdateStarRating()
     {
-        for (int i =0; i < starImages.Length; i ++)
+        for (int i = 0; i < resultData.StarCount; i ++)
         {
-            starImages[i].sprite = i < resultData.StarCount ? filledStarSprite : emptyStarSprite;
+            starImages[i].color = Color.cyan;
         }
     }
 
-    private void UpdateTitleAndStageInfo()
+    /// <summary>
+    /// 결과 창의 스테이지 숫자, 이름, 클리어 텍스트를 변경합니다.
+    /// </summary>
+    private void UpdateHeaders()
     {
-        stageIdText.text = $"{resultData.stageData.stageId}";
-        stageNameText.text = $"{resultData.stageData.stageName}";
+        StageData stageData = StageManager.Instance.StageData;
+        stageIdText.text = $"{stageData.stageId}";
+        stageNameText.text = $"{stageData.stageDetail}";
         clearOrFailedText.text = resultData.isCleared ? "작전 종료" : "작전 실패";
     }
 
     private void ToggleStats()
     {
         showingStats = !showingStats;
-        statsContainer.SetActive(showingStats);
+        //statsContainer.SetActive(showingStats);
     }
 
     private void CreateStatItems()
@@ -109,20 +110,20 @@ public class StageResultPanel : MonoBehaviour
         // 새로운 아이템 생성
         foreach (var stat in resultData.operatorStats)
         {
-            StatisticItem item = Instantiate(statisticItemPrefab, statisticItemContainer);
-            item.Initialize(stat.op, StatisticsManager.StatType.DamageDealt, false);
-            statItems.Add(item);
+            //StatisticItem item = Instantiate(statisticItemPrefab, statisticItemContainer);
+            //item.Initialize(stat.op, StatisticsManager.StatType.DamageDealt, false);
+            //statItems.Add(item);
         }
     }
 
     private void HideStats()
     {
         showingStats = false;
-        statsContainer.SetActive(false);
+        //statsContainer.SetActive(false);
     }
 
     private void OnDestroy()
     {
-        toggleStatsButton.onClick.RemoveAllListeners(); 
+        //toggleStatsButton.onClick.RemoveAllListeners(); 
     }
 }
