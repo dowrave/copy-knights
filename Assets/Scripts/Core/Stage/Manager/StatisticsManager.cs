@@ -6,6 +6,10 @@ public class StatisticsManager : MonoBehaviour
 {
     public static StatisticsManager Instance { get; private set; }
 
+
+    /// <summary>
+    /// 스테이지에서의 오퍼레이터에 관한 통계 구조체로, 오퍼레이터의 "능력치"와는 별개!
+    /// </summary>
     [System.Serializable]
     public struct OperatorStats
     {

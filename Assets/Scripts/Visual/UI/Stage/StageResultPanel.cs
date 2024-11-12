@@ -15,8 +15,9 @@ public class StageResultPanel : MonoBehaviour
     [SerializeField] private Sprite emptyStarSprite;
 
     [Header("Result Text")]
-    [SerializeField] private TextMeshProUGUI titleText;
     [SerializeField] private TextMeshProUGUI stageIdText;
+    [SerializeField] private TextMeshProUGUI stageNameText;
+    [SerializeField] private TextMeshProUGUI clearOrFailedText;
 
     [Header("Statistics")]
     [SerializeField] private GameObject statsContainer;
@@ -87,8 +88,9 @@ public class StageResultPanel : MonoBehaviour
 
     private void UpdateTitleAndStageInfo()
     {
-        titleText.text = resultData.isCleared ? "Stage Clear!" : "Stage Failed";
-        stageIdText.text = $"Stage {resultData.stageId}";
+        stageIdText.text = $"{resultData.stageData.stageId}";
+        stageNameText.text = $"{resultData.stageData.stageName}";
+        clearOrFailedText.text = resultData.isCleared ? "작전 종료" : "작전 실패";
     }
 
     private void ToggleStats()

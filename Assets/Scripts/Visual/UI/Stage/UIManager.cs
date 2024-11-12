@@ -150,7 +150,7 @@ public class UIManager : MonoBehaviour
         {
             passedEnemies = StageManager.Instance.PassedEnemies,
             isCleared = isCleared,
-            stageId = GameManagement.Instance.StageLoader.CachedStageData.stageId,
+            stageData = GameManagement.Instance.StageLoader.CachedStageData,
             operatorStats = StatisticsManager.Instance.GetAllOperatorStats()
         };
 
