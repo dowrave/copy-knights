@@ -13,20 +13,26 @@ public class StatisticItem : MonoBehaviour
     [SerializeField] private Color healingDoneColor;
     private bool showPercentage;
 
-    public Operator op { get; private set; }
+    public Operator Operator { get; private set; }
+    private StatisticsManager.OperatorStats opStats; 
     private StatisticsManager.StatType currentStatType;
+    private Image fillImage; // 게이지 길이를 나타내는 이미지
 
     /// <summary>
     /// StatItem을 초기화하고 필요한 이벤트를 구독합니다.
     /// </summary>
     public void Initialize(Operator op, StatisticsManager.StatType statType, bool showPercentage)
     {
-        this.op = op;
+        Operator = op;
         currentStatType = statType;
+
+        opStats = StatisticsManager.Instance.GetAllOperatorStats().Find(s => s.op == op);
+        fillImage = percentageBar.fillRect.GetComponent<Image>();
+
         SetOperatorIcon(op);
         SetBarColor(statType);
         SetDisplayMode(showPercentage); // 절대 수치 / 백분율 
-        UpdateDisplay();
+        UpdateDisplay(statType, showPercentage);
     }
 
     private void SetOperatorIcon(Operator op)
@@ -51,8 +57,6 @@ public class StatisticItem : MonoBehaviour
 
     private void SetBarColor(StatisticsManager.StatType statType)
     {
-        Image fillImage = percentageBar.fillRect.GetComponent<Image>();
-        
         if (fillImage != null)
         {
             switch (statType)
@@ -75,23 +79,34 @@ public class StatisticItem : MonoBehaviour
     /// </summary>
     private void OnStatUpdated(Operator op, StatisticsManager.StatType statType)
     {
-        if (this.op == op && statType == currentStatType)
+        if (this.Operator == op && statType == currentStatType)
         {
-            UpdateDisplay();
+            UpdateDisplay(statType, showPercentage);
         }
     }
 
     /// <summary>
-    /// StatItem의 디스플레이를 최신 값으로 업데이트합니다.
+    /// StatItem의 디스플레이를 업데이트합니다.
     /// </summary>
-    public void UpdateDisplay()
+    public void UpdateDisplay(StatisticsManager.StatType statType, bool showPercentage)
     {
-        float value = StatisticsManager.Instance.GetOperatorValueForStatType(this.op, currentStatType);
-        float totalValue = StatisticsManager.Instance.GetTotalValueForStatType(currentStatType);
+        float value = StatisticsManager.Instance.GetOperatorValueForStatType(opStats, statType);
+        float totalValue = StatisticsManager.Instance.GetTotalValueForStatType(statType);
         float percentage = (totalValue > 0) ? (value / totalValue) : 0; // 전체 값 중 해당 오퍼레이터가 기여한 값
 
-        SetValue(value);
-        SetPercentage(percentage);
+        fillImage.fillAmount = percentage; 
+
+        if (showPercentage)
+        {
+            SetPercentage(percentage);
+        }
+        else
+        {
+            SetValue(value);
+        }
+
+        SetDisplayMode(showPercentage);
+        SetBarColor(statType);
     }
 
     private void SetValue(float value)

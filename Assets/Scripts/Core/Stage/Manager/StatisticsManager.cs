@@ -8,7 +8,8 @@ public class StatisticsManager : MonoBehaviour
 
 
     /// <summary>
-    /// 스테이지에서의 오퍼레이터에 관한 통계 구조체로, 오퍼레이터의 "능력치"와는 별개!
+    /// 스테이지에서의 오퍼레이터에 관한 통계 구조체.
+    /// OperatorData.OperatorStats와 헷갈리지 않도록 유의!
     /// </summary>
     [System.Serializable]
     public struct OperatorStats
@@ -111,7 +112,7 @@ public class StatisticsManager : MonoBehaviour
     public List<OperatorStats> GetTopOperators(StatType statType, int count)
     {
         return allOperatorStats
-            .OrderByDescending(s => GetOperatorValueForStatType(s.op, statType))
+            .OrderByDescending(s => GetOperatorValueForStatType(s, statType))
             .Take(count)
             .ToList();
     }
@@ -128,9 +129,8 @@ public class StatisticsManager : MonoBehaviour
     /// <summary>
     /// 특정 오퍼레이터의 특정 통계 유형에 대한 값을 반환합니다.
     /// </summary>
-    public float GetOperatorValueForStatType(Operator op, StatType statType)
+    public float GetOperatorValueForStatType(OperatorStats stat, StatType statType)
     {
-        var stat = allOperatorStats.Find(s => s.op == op);
         switch (statType)
         {
             case StatType.DamageDealt:
@@ -145,11 +145,24 @@ public class StatisticsManager : MonoBehaviour
     }
 
     /// <summary>
-    /// 특정 통계 유형에 대한 모든 오퍼레이터의 총 값을 반환합니다.
+    /// 특정 통계 유형에 대한 모든 오퍼레이터의 값을 모두 더한 총합을 반환합니다.
     /// </summary>
     public float GetTotalValueForStatType(StatType statType)
     {
-        return allOperatorStats.Sum(s => GetOperatorValueForStatType(s.op, statType));
+        return allOperatorStats.Sum(s => GetOperatorValueForStatType(s, statType));
+    }
+    /// <summary>
+    /// 특정 통계 유형에 대해, 내림차순으로 정렬된 오퍼레이터 통계를 반환합니다.
+    /// </summary>
+    public List<(Operator op, float value)> GetSortedOperatorStats(StatType statType)
+    {
+        return allOperatorStats
+            .Select(stat => (
+                op: stat.op,
+                value: GetOperatorValueForStatType(stat, statType)
+            ))
+            .OrderByDescending(x => x.value)
+            .ToList();
     }
 
     public enum StatType

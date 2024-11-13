@@ -23,6 +23,8 @@ public class StageLoader : MonoBehaviour
     private GameObject loadingScreen;
     private const float MIN_LOADING_TIME = 0.5f;
 
+    private const string MAINMAIU_SCENE = "MainMenuScene"; // 스테이지 씬은 StageData 내에 있음
+
     public event System.Action<Map> OnMapLoaded;
 
     public void LoadStage(StageData stageData)
@@ -213,7 +215,7 @@ public class StageLoader : MonoBehaviour
 
     public void ReturnToMainMenu()
     {
-        SceneManager.LoadScene("MainMenu");
+        SceneManager.LoadScene(MAINMAIU_SCENE);
     }
 
     /// <summary>
@@ -228,7 +230,7 @@ public class StageLoader : MonoBehaviour
         PlayerPrefs.SetString("LastPlayedStage", currentStageId);
         PlayerPrefs.Save();
 
-        SceneManager.LoadScene("MainMenu");
+        SceneManager.LoadScene(MAINMAIU_SCENE);
     }  
     
     private void CleanupCache()

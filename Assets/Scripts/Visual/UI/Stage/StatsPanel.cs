@@ -171,13 +171,14 @@ public class StatsPanel : MonoBehaviour
         if (index < stats.Count)
         {
             Operator op = stats[index].op;
-            float value = StatisticsManager.Instance.GetOperatorValueForStatType(op, statType);
+            StatisticsManager.OperatorStats stat = stats[index];
+            float value = StatisticsManager.Instance.GetOperatorValueForStatType(stat, statType);
 
             if (value > 0) // 기여한 값이 0이라면 나타나지 않게 함
             {
                 item.gameObject.SetActive(true);
                 item.Initialize(stats[index].op, statType, showPercentage);
-                item.UpdateDisplay();
+                item.UpdateDisplay(statType, showPercentage);
             }
             else
             {
