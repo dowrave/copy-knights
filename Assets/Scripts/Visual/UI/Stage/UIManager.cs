@@ -157,7 +157,7 @@ public class UIManager : MonoBehaviour
         {
             passedEnemies = StageManager.Instance.PassedEnemies,
             isCleared = isCleared,
-            operatorStats = StatisticsManager.Instance.GetAllOperatorStats()
+            //operatorStats = StatisticsManager.Instance.GetAllOperatorStats()
         };
 
         stageResultPanelObject.SetActive(true);
