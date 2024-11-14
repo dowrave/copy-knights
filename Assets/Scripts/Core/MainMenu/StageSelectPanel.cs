@@ -70,11 +70,16 @@ public class StageSelectPanel : MonoBehaviour
         confirmButton.interactable = true;
     }
 
+
     private void OnConfirmButtonClicked()
     {
         if (currentSelectedStageButton != null)
         {
-            MainMenuManager.Instance.OnStageSelected(currentSelectedStageButton.StageData);
+            MainMenuManager.Instance.SetSelectedStage(currentSelectedStageButton.StageData);
+
+            GameObject squadEditPanel = MainMenuManager.Instance.PanelMap[MainMenuManager.MenuPanel.SquadEdit];
+            GameObject stageSelectPanel = MainMenuManager.Instance.PanelMap[MainMenuManager.MenuPanel.StageSelect];
+            MainMenuManager.Instance.FadeInAndHide(squadEditPanel, stageSelectPanel);
         }
     }
 

@@ -2,7 +2,6 @@ using System.Collections.Generic;
 using System.Linq;
 using TMPro;
 using UnityEngine;
-using UnityEngine.Events;
 using UnityEngine.UI;
 
 
@@ -14,7 +13,8 @@ public class OperatorListPanel : MonoBehaviour
     [SerializeField] private TextMeshProUGUI operatorNameText;
     [SerializeField] private OperatorSlot slotButtonPrefab;
     [SerializeField] private Button confirmButton;
-    [SerializeField] private Button cancelButton;
+    [SerializeField] private Button returnButton; // 이전 패널(SquadEditPanel)로 돌아가는 버튼
+    [SerializeField] private Button setEmptyButton; // 현재 슬롯을 비우는 버튼
 
     [Header("Attack Range Visualization")]
     [SerializeField] private RectTransform attackRangeContainer;
@@ -32,15 +32,23 @@ public class OperatorListPanel : MonoBehaviour
     [SerializeField] private TextMeshProUGUI magicResistanceText;
     [SerializeField] private TextMeshProUGUI attackSpeedText;
 
+    // 화면 오른쪽에 나타나는 사용 가능한 오퍼레이터 리스트 -- 혼동 주의!!
     private List<OperatorSlot> operatorSlots = new List<OperatorSlot>();
     private OperatorSlot selectedSlot;
+
+    // 왼쪽 창에 나타낼 공격범위 표시
     private List<Image> rangeTiles = new List<Image>();
-    private float tileSize; 
+    private float tileSize;
+
+    // UserSquadManager에서 현재 편집 중인 인덱스
+    private int nowEditingIndex; 
 
     private void Awake()
     {
         confirmButton.onClick.AddListener(OnConfirmButtonClicked);
-        cancelButton.onClick.AddListener(OnCancelButtonClicked);
+        returnButton.onClick.AddListener(OnReturnButtonClicked);
+        setEmptyButton.onClick.AddListener(OnSetEmptyButtonClicked);
+
         confirmButton.interactable = false;
         //gameObject.SetActive(false); // 이거 있으면 실행 전에 이 오브젝트가 비활성화된 경우 ShowPanel 등에 의한 활성화가 아예 안됨
     }
@@ -49,6 +57,8 @@ public class OperatorListPanel : MonoBehaviour
     {
         PopulateOperators();
         ResetSelection();
+        nowEditingIndex = GameManagement.Instance.UserSquadManager.EditingSlotIndex;
+        Debug.Log($"현재 편집 중인 스쿼드 인덱스 : {nowEditingIndex}");
     }
 
 
@@ -61,7 +71,7 @@ public class OperatorListPanel : MonoBehaviour
         ClearSlots();
 
         // 현재 스쿼드 가져오기
-        List<OperatorData> currentSquad = GameManagement.Instance.UserSquadManager.GetCurrentSquad();
+        List<OperatorData> currentSquad = GameManagement.Instance.UserSquadManager.GetActiveOperators();
 
         // 보유 중인 오퍼레이터 중, 현재 스쿼드에 없는 오퍼레이터만 가져옴
         List<OperatorData> availableOperators = PlayerDataManager.Instance.GetOwnedOperators()
@@ -112,16 +122,24 @@ public class OperatorListPanel : MonoBehaviour
         {
             GameManagement.Instance.UserSquadManager.ConfirmOperatorSelection(selectedSlot.AssignedOperator);
             // 돌아가기
-            MainMenuManager.Instance.ShowPanel(MainMenuManager.MenuPanel.SquadEdit);
+            ReturnToSquadEditPanel();
         }
     }
 
     /// <summary>
     /// 취소 버튼 클릭 시 동작
     /// </summary>
-    private void OnCancelButtonClicked()
+    private void OnReturnButtonClicked()
     {
-        MainMenuManager.Instance.ShowPanel(MainMenuManager.MenuPanel.SquadEdit);
+        GameManagement.Instance.UserSquadManager.CancelOperatorSelection();
+        ReturnToSquadEditPanel();
+    }
+
+    private void OnSetEmptyButtonClicked()
+    {
+        GameManagement.Instance.UserSquadManager.TryReplaceOperator(nowEditingIndex, null);
+        GameManagement.Instance.UserSquadManager.CancelOperatorSelection(); // 현재 스쿼드의 배치 중인 인덱스를 없앰
+        ReturnToSquadEditPanel();
     }
 
     private void ResetSelection()
@@ -220,6 +238,11 @@ public class OperatorListPanel : MonoBehaviour
         );
 
         rangeTiles.Add(tile);
+    }
+
+    private void ReturnToSquadEditPanel()
+    {
+        MainMenuManager.Instance.ActivateAndFadeOut(MainMenuManager.Instance.PanelMap[MainMenuManager.MenuPanel.SquadEdit], gameObject);
     }
 
     private void OnDisable()
