@@ -1,9 +1,6 @@
 using System.Collections.Generic;
 using DG.Tweening;
-using Unity.VisualScripting.Antlr3.Runtime.Tree;
 using UnityEngine;
-using UnityEngine.SceneManagement;
-
 
 /// <summary>
 /// 씬 전환 시에도 유지되어야 하는 전역 매니저를 관리하는 클래스
@@ -33,10 +30,13 @@ public class MainMenuManager : MonoBehaviour
     [Header("Panel References")]
     [SerializeField] private List<PanelInfo> panels;
 
+    [Header("Class Icon Data")]
     [SerializeField] private IconData classIconData;
 
+    [SerializeField] private float panelTransitionSpeed;
+
     private Dictionary<MenuPanel, GameObject> panelMap = new Dictionary<MenuPanel, GameObject>();
-    private MenuPanel currentPanel; // 디폴트는 0번에 있는 값. null이 아님.
+    public Dictionary<MenuPanel, GameObject> PanelMap => panelMap;
 
     private StageData selectedStage;
 
@@ -69,11 +69,11 @@ public class MainMenuManager : MonoBehaviour
         {
             if (panel.type == MenuPanel.StageSelect)
             {
-                ShowPanel(panel.type, false);
+                panel.panel.SetActive(true);
             }
             else
             {
-                HidePanel(panel.panel, false);
+                panel.panel.SetActive(false);
             }
         }
 
@@ -89,7 +89,7 @@ public class MainMenuManager : MonoBehaviour
                     StageData targetStageData = stageSelectPanel.GetStageDataById(lastPlayedStage);
                     if (targetStageData != null)
                     {
-                        OnStageSelected(targetStageData);
+                        SetSelectedStage(targetStageData);
                     }
                 }
             }
@@ -102,78 +102,33 @@ public class MainMenuManager : MonoBehaviour
         GameManagement.Instance.UserSquadManager.OnSquadUpdated += OnSquadUpdated;
     }
 
-    public void ShowPanel(MenuPanel newPanel, bool animate = true)
+    // 새 패널 페이드 인 후 이전 패널 비활성화
+    public void FadeInAndHide(GameObject panelToShow, GameObject panelToHide)
     {
-        if (currentPanel == newPanel) return;
-
-        // 현재 패널 숨기기
-        if (panelMap.TryGetValue(currentPanel, out GameObject currentPanelObj))
-        {
-            HidePanel(currentPanelObj, animate);
-        }
-
-        Debug.Log($"{newPanel}을 보여주려고 한다");
-        // 새 패널 표시
-        if (panelMap.TryGetValue(newPanel, out GameObject newPanelObj))
-        {
-            ShowPanelObject(newPanelObj, animate);
-            currentPanel = newPanel; 
-        }
+        CanvasGroup showGroup = panelToShow.GetComponent<CanvasGroup>();
+        panelToShow.SetActive(true);
+        showGroup.alpha = 0f;
+        showGroup.DOFade(1f, panelTransitionSpeed)
+            .OnComplete(() => panelToHide.SetActive(false));
     }
 
-    private void ShowPanelObject(GameObject panel, bool animate)
+    // 새 패널 활성화 후 이전 패널 페이드 아웃
+    public void ActivateAndFadeOut(GameObject panelToShow, GameObject panelToHide)
     {
-        if (animate)
-        {
-            // 애니메이션 처리
-            CanvasGroup canvasGroup = panel.GetComponent<CanvasGroup>();
-            if (canvasGroup != null)
-            {
-
-                panel.SetActive(true);
-                Debug.Log($"{panel} 활성화 완료");
-                canvasGroup.alpha = 0f;
-                canvasGroup.DOFade(1f, 0.3f);
-                return;
-            }
-        }
-
-        panel.SetActive(true);
-        Debug.Log($"{panel} 활성화 완료");
-    }
-
-    private void HidePanel(GameObject panel, bool animate)
-    {
-        if (animate)
-        {
-            CanvasGroup canvasGroup = panel.GetComponent<CanvasGroup>();
-
-            if (canvasGroup != null)
-            {
-                canvasGroup.DOFade(0f, 0.3f).OnComplete(() => panel.SetActive(false));
-            }
-            else
-            {
-                panel.SetActive(false);
-            }
-        }
-        else
-        {
-            panel.SetActive(false);
-        }
+        // 이전 패널 즉시 활성화 -> 현재 패널 페이드 아웃
+        panelToShow.SetActive(true);
+        CanvasGroup hideGroup = panelToHide.GetComponent<CanvasGroup>();
+        hideGroup.DOFade(0f, panelTransitionSpeed)
+            .OnComplete(() => panelToHide.SetActive(false));
     }
 
     // 스테이지 시작
     public void StartStage()
     {
+        List<OperatorData> currentSquad = GameManagement.Instance.UserSquadManager.GetActiveOperators();
 
-        List<OperatorData> currentSquad = GameManagement.Instance.UserSquadManager.GetCurrentSquad();
-
-        if (currentSquad.Count > 0)
+        if (currentSquad.Count > 0) // null을 값으로 갖는다면 포함해서 세므로 GetActiveOperators()을 써야 한다.
         {
-            // 여기서는 씬의 이름을 불러와야 함(스테이지의 이름이 아님!)
-            //SceneManager.LoadScene(selectedStage.stageName);
-
             GameManagement.Instance.StageLoader.LoadStage(selectedStage);
         }
         else
@@ -182,10 +137,12 @@ public class MainMenuManager : MonoBehaviour
         }
     }
 
-    public void OnStageSelected(StageData stageData)
+    /// <summary>
+    /// StageSelectPanel에서 이용 : 현재 스테이지 정보를 저장하고 SquadEditPanel로 넘어감
+    /// </summary>
+    public void SetSelectedStage(StageData stageData)
     {
         selectedStage = stageData;
-        ShowPanel(MenuPanel.SquadEdit);
     }
 
     private void OnSquadUpdated()
@@ -206,8 +163,6 @@ public class MainMenuManager : MonoBehaviour
     {
         GameManagement.Instance.UserSquadManager.TryReplaceOperator(slotIndex, newOperatorData);
     }
-
-   
 
     private void OnDestroy()
     {

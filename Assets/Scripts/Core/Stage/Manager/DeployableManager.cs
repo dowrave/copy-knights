@@ -112,7 +112,7 @@ public class DeployableManager : MonoBehaviour
     {
         allDeployables.Clear();
 
-        foreach (OperatorData opData in GameManagement.Instance.UserSquadManager.GetCurrentSquad())
+        foreach (OperatorData opData in GameManagement.Instance.UserSquadManager.GetActiveOperators())
         {
             AddDeployableInfo(opData.prefab, 1, true);
         }

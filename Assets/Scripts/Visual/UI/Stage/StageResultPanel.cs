@@ -40,7 +40,7 @@ public class StageResultPanel : MonoBehaviour
     private List<StatisticItem> statItems = new List<StatisticItem>();
     private List<StatisticsManager.OperatorStats> allOperatorStats;
     private StageResultData resultData;
- 
+
     private void Awake()
     {
         InitializeButtonList();
@@ -66,10 +66,11 @@ public class StageResultPanel : MonoBehaviour
 
     private void OnPanelClicked()
     {
-        // 버튼 클릭 시 패널 동작 무시
-        if (UnityEngine.EventSystems.EventSystem.current.IsPointerOverGameObject())
+        // 클릭된 UI 요소가 통계 패널이나 그 자식인지 확인
+        if (IsClickableElement(resultStatisticPanelObject))
         {
-            var currentSelected = EventSystem.current.currentSelectedGameObject;
+            Debug.Log("통계 패널 클릭");
+            return;
         }
 
         // 3성 클리어가 아니라면 현재 스테이지를 선택한 상태로 돌아감
@@ -81,8 +82,37 @@ public class StageResultPanel : MonoBehaviour
         {
             GameManagement.Instance.StageLoader.ReturnToMainMenu();
         }
-        Debug.Log("메인 메뉴로 돌아갑니다");
+    }
 
+
+    /// <summary>
+    /// 전체 패널 외에 별도로 동작해야 할 요소를 클릭했는가?
+    /// </summary>
+    private bool IsClickableElement(GameObject targetObj)
+    {
+        if (!EventSystem.current.IsPointerOverGameObject()) return false;
+
+        PointerEventData pointerData = new PointerEventData(EventSystem.current);
+        pointerData.position = Input.mousePosition;
+        List<RaycastResult> results = new List<RaycastResult>();
+        EventSystem.current.RaycastAll(pointerData, results);
+
+        foreach (var result in results)
+        {
+            // 클릭된 객체가 통계 패널이나 그 자식인지 확인
+            Transform current = result.gameObject.transform;
+            while (current != null)
+            {
+                if (current.gameObject == targetObj)
+                {
+                    return true;
+                }
+                current = current.parent;
+
+            }    
+        }
+
+        return false;
     }
 
     /// <summary>

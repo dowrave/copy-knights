@@ -3,7 +3,7 @@ using System.Linq;
 using UnityEngine;
 
 /// <summary>
-/// 메인 메뉴 씬에서 오퍼레이터들이 편성을 관리,
+/// 메인 메뉴 씬에서 오퍼레이터들이 편성을 관리하고,
 /// 스테이지 씬으로 편성된 리스트를 전달한다.
 /// </summary>
 public class UserSquadManager : MonoBehaviour
@@ -17,6 +17,7 @@ public class UserSquadManager : MonoBehaviour
 
     // 편집 상태 관리
     private int editingSlotIndex = -1;
+    public int EditingSlotIndex => editingSlotIndex;
     public bool IsEditingSquad => editingSlotIndex != -1; 
 
     // 이벤트
@@ -108,9 +109,18 @@ public class UserSquadManager : MonoBehaviour
             TryReplaceOperator(editingSlotIndex, selectedOperator);
             editingSlotIndex = -1; // 편집 상태 초기화
         }
+
+        Debug.Log("오퍼레이터 배치 후 스쿼드 확인");
+        for (int i = 0; i < currentSquad.Count(); i++)
+        {
+            Debug.Log($"{i}번째 오퍼레이터 : {currentSquad[i]}");
+        }
     }
 
-    public bool TryReplaceOperator(int index, OperatorData newOpData)
+    /// <summary>
+    /// Squad의 Index에 오퍼레이터를 배치/대체 하려고 할 때 사용
+    /// </summary>
+    public bool TryReplaceOperator(int index, OperatorData newOpData = null)
     {
         if (index < 0 || index >= MaxSquadSize)
         {
@@ -148,11 +158,23 @@ public class UserSquadManager : MonoBehaviour
         return true;
     }
 
+    /// <summary>
+    /// null이 포함된 currentSquad 리스트를 반환합니다.
+    /// </summary>
     public List<OperatorData> GetCurrentSquad()
-    {   
-        // 기존 new List<OperatorData>(currentSquad)는 null을 반환하므로 예상치 않은 순환을 돌 수 있음
+    {
+        return new List<OperatorData>(currentSquad);
+    }
+
+    /// <summary>
+    /// currentSquad에서 null인 것들은 제외하고 반환합니다.
+    /// </summary>
+    public List<OperatorData> GetActiveOperators()
+    {
         return currentSquad.Where(op => op != null).ToList();
     }
+
+
 
     /// <summary>
     /// 편성에서 오퍼레이터 제거
