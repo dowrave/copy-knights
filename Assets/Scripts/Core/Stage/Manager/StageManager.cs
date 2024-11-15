@@ -104,6 +104,7 @@ public class StageManager : MonoBehaviour
     public event System.Action OnDeploymentCostChanged; // 이벤트 발동 조건은 currentDeploymentCost 값이 변할 때, 여기 등록된 함수들이 동작
     public event System.Action<int> OnLifePointsChanged; // 라이프 포인트 변경 시 발생 이벤트
     public event System.Action OnEnemyKilled; // 적을 잡을 때마다 발생 이벤트
+    public event System.Action OnPreparationComplete; // 스테이지 준비 완료 이벤트 
 
     private void Awake()
     {
@@ -144,7 +145,6 @@ public class StageManager : MonoBehaviour
     {
         Debug.Log("스테이지 준비");
         SetGameState(GameState.Preparation);
-        StartCoroutine(IncreaseCostOverTime());
 
         // 게임 초기화
         totalEnemyCount = CalculateTotalEnemyCount();
@@ -153,12 +153,14 @@ public class StageManager : MonoBehaviour
 
         UIManager.Instance.InitializeUI();
 
+        OnPreparationComplete?.Invoke();
     }
 
     public void StartStage()
     {
         Debug.Log("스테이지 시작");
         SetGameState(GameState.Battle);
+        StartCoroutine(IncreaseCostOverTime());
         SpawnerManager.Instance.StartSpawning();
     }
 
@@ -223,7 +225,7 @@ public class StageManager : MonoBehaviour
 
     private IEnumerator IncreaseCostOverTime()
     {
-        while (true)
+        while (currentState == GameState.Battle)
         {
             yield return null; // 매 프레임마다 실행
             currentCostGauge += Time.deltaTime / costIncreaseInterval;

@@ -57,7 +57,6 @@ public class OperatorSlot : MonoBehaviour
         isThisActiveButton = isActive;
         button.interactable = isThisActiveButton;
 
-
         if (operatorData != null)
         {
             AssignOperator(operatorData);
@@ -137,6 +136,7 @@ public class OperatorSlot : MonoBehaviour
         slotText.gameObject.SetActive(true);
         slotText.text = "X";
         slotText.fontSize = 90;
+        UpdateButtonColor();
     }
 
     private void SetEmptySlotVisuals()
@@ -145,6 +145,7 @@ public class OperatorSlot : MonoBehaviour
         slotText.gameObject.SetActive(true);
         slotText.text = "Empty\nSlot";
         slotText.fontSize = 44;
+        UpdateButtonColor();
     }
 
     private void SetOperatorSlotVisuals()

@@ -109,12 +109,6 @@ public class UserSquadManager : MonoBehaviour
             TryReplaceOperator(editingSlotIndex, selectedOperator);
             editingSlotIndex = -1; // 편집 상태 초기화
         }
-
-        Debug.Log("오퍼레이터 배치 후 스쿼드 확인");
-        for (int i = 0; i < currentSquad.Count(); i++)
-        {
-            Debug.Log($"{i}번째 오퍼레이터 : {currentSquad[i]}");
-        }
     }
 
     /// <summary>
