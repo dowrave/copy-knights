@@ -95,7 +95,7 @@ public class SquadEditPanel : MonoBehaviour
     {
         // 현재 수정 중인 인덱스 설정
         GameManagement.Instance.UserSquadManager.StartEditingSlot(slotIndex);
-        MainMenuManager.Instance.FadeInAndHide(MainMenuManager.Instance.PanelMap[MainMenuManager.MenuPanel.OperatorList], gameObject);
+        MainMenuManager.Instance.FadeInAndHide(MainMenuManager.Instance.PanelMap[MainMenuManager.MenuPanel.OperatorInventory], gameObject);
     }
 
     private void HandleStartButtonClicked()

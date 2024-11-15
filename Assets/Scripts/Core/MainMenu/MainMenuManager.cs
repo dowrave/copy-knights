@@ -15,7 +15,7 @@ public class MainMenuManager : MonoBehaviour
         None, 
         StageSelect,
         SquadEdit,
-        OperatorList
+        OperatorInventory
         // 새로운 패널은 열거형으로 계속 추가하면 됨
     }
 

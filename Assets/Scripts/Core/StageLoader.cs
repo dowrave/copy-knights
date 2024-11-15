@@ -20,7 +20,7 @@ public class StageLoader : MonoBehaviour
     private List<OperatorData> cachedSquadData;
     private bool isLoading;
 
-    private GameObject loadingScreen;
+    private StageLoadingScreen loadingScreen;
     private const float MIN_LOADING_TIME = 0.5f;
 
     private const string MAINMAIU_SCENE = "MainMenuScene"; // 스테이지 씬은 StageData 내에 있음
@@ -53,14 +53,12 @@ public class StageLoader : MonoBehaviour
         AsyncOperation asyncLoad = SceneManager.LoadSceneAsync(cachedStageData.sceneToLoad);
         asyncLoad.allowSceneActivation = false; // 90%에서 일단 멈춤
 
-        // 씬 로드 진행
+        // 씬 로드 진행 - 로딩이 90% 됐을 때 다음으로 넘어간다.
         while (asyncLoad.progress < 0.9f)
         {
             // 로딩 진행률을 추가해도 좋다
             yield return null; 
         }
-
-        // 씬 로딩 90% 시점에서 진행
 
         // 최소 로딩 시간 보장
         float elpasedTime = Time.time - loadStartTime;
@@ -69,7 +67,6 @@ public class StageLoader : MonoBehaviour
             yield return new WaitForSeconds(MIN_LOADING_TIME - elpasedTime);
         }
 
-        // 스테이지 씬 활성화
         asyncLoad.allowSceneActivation = true;
         while (!asyncLoad.isDone)
         {
@@ -109,8 +106,19 @@ public class StageLoader : MonoBehaviour
         }
         yield return null;
 
-        // 4. 스테이지 매니저 초기화
-        StageManager.Instance.PrepareStage();
+        // 대기 화면이 있는 동안에 스테이지 준비까지 마침. 게임 시작은 대기 화면이 완전히 사라진 후
+        bool loadingScreenHidden = false; 
+        if (loadingScreen != null)
+        {
+            loadingScreen.OnHideComplete += () => loadingScreenHidden = true;
+
+            // 준비 완료 시 이벤트 발생, StageLoadingScreen의 페이드 아웃 시작
+            StageManager.Instance.PrepareStage(); 
+
+            // WaitUntil : 괄호 내의 델리게이트(함수)가 true가 될 때까지 함수를 일시정지 시킨다. 매 프레임 검사함.
+            yield return new WaitUntil(() => loadingScreenHidden);
+        }
+
 
         // 5. 스테이지 매니저로 스테이지 시작
         StageManager.Instance.StartStage();
@@ -197,11 +205,19 @@ public class StageLoader : MonoBehaviour
 
     private void ShowLoadingScreen()
     {
-        if (loadingScreenPrefab != null && loadingScreen == null)
+        if (loadingScreenPrefab == null) return;
+
+        GameObject loadingObj = Instantiate(loadingScreenPrefab);
+        loadingScreen = loadingObj.GetComponent<StageLoadingScreen>();
+
+        if (loadingScreen != null)
         {
-            loadingScreen = Instantiate(loadingScreenPrefab);
-            DontDestroyOnLoad(loadingScreen);
-        } 
+            loadingScreen.StartLoading(
+                    CachedStageData.stageId,
+                    CachedStageData.stageName
+                );
+            DontDestroyOnLoad(loadingObj);
+        }
     }
 
     private void HideLoadingScreen()

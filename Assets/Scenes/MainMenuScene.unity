@@ -1312,7 +1312,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: dcdce1ffcf01ecd4eb9339a43cf49ee0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  loadingScreenPrefab: {fileID: 0}
+  loadingScreenPrefab: {fileID: 7104490381318687846, guid: f992cb7b0c114794f81b59e5a8fb5598, type: 3}
 --- !u!4 &411509559
 Transform:
   m_ObjectHideFlags: 0

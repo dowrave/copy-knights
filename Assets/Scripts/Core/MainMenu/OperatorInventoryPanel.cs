@@ -4,8 +4,10 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
-
-public class OperatorListPanel : MonoBehaviour
+/// <summary>
+/// 보유한 오퍼레이터들을 보여주는 패널. 스쿼드를 편집하는 패널은 SquadEditPanel로 혼동에 주의하시오 
+/// </summary>
+public class OperatorInventoryPanel : MonoBehaviour
 {
     [Header("UI References")]
     //[SerializeField] private ScrollRect operatorSlotContainerscrollRect;
