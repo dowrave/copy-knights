@@ -61,6 +61,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Assets\Scripts\Core\Interfaces\IFactionMember.cs" />
+    <Compile Include="Assets\Scripts\Visual\UI\Stage\GameWinPanel.cs" />
     <Compile Include="Assets\Scripts\Visual\Effects\ProjectileEffect.cs" />
     <Compile Include="Assets\Scripts\Visual\UI\Stage\StatisticItem.cs" />
     <Compile Include="Assets\Scripts\Core\MainMenu\MainMenuManager.cs" />

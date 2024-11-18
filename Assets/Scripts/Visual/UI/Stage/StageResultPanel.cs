@@ -1,10 +1,10 @@
 using System.Collections.Generic;
 using System.Linq;
+using DG.Tweening;
 using TMPro;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
-using static StatisticsManager;
 
 /// <summary>
 /// 스테이지 씬에서 스테이지가 종료된 후에 나타날 패널
@@ -12,7 +12,16 @@ using static StatisticsManager;
 public class StageResultPanel : MonoBehaviour
 {
     [Header("Star Rating")]
-    [SerializeField] private Image[] starImages;
+    [SerializeField] private Image[] starImages; // star1, star2, star3 오브젝트들
+    [SerializeField] private Sprite inactiveStarSprite;
+    [SerializeField] private Sprite activeStarSprite;
+
+    [Header("Star Aniamtion")]
+    [SerializeField] private float starActivationInterval = 0.5f; // 다음 애니메이션 시작까지 인터벌
+    [SerializeField] private float starAnimationDuration = 0.5f; // 별 애니메이션 동작의 기준 속도
+    [SerializeField] private Color inActiveStarColor = new Color(0.4f, 0.4f, 0.4f);
+    [SerializeField] private Color activeStarColor = Color.cyan;
+
 
     [Header("Result Text")]
     [SerializeField] private TextMeshProUGUI stageIdText;
@@ -35,7 +44,7 @@ public class StageResultPanel : MonoBehaviour
 
 
     private bool showingPercentage = false;
-    private StatisticsManager.StatType currentStatType = StatType.DamageDealt;
+    private StatisticsManager.StatType currentStatType = StatisticsManager.StatType.DamageDealt;
     private List<Button> statButtons; // 표시(%, 타입) 전환 버튼
     private List<StatisticItem> statItems = new List<StatisticItem>();
     private List<StatisticsManager.OperatorStats> allOperatorStats;
@@ -130,7 +139,7 @@ public class StageResultPanel : MonoBehaviour
 
         damageDealtTab.onClick.AddListener(() =>
         {
-            currentStatType = StatType.DamageDealt;
+            currentStatType = StatisticsManager.StatType.DamageDealt;
             UpdateStats();
             UpdateButtonVisuals();
             StopEventPropagation();
@@ -138,7 +147,7 @@ public class StageResultPanel : MonoBehaviour
 
         damageTakenTab.onClick.AddListener(() =>
         {
-            currentStatType = StatType.DamageTaken;
+            currentStatType = StatisticsManager.StatType.DamageTaken;
             UpdateStats();
             UpdateButtonVisuals();
             StopEventPropagation();
@@ -146,7 +155,7 @@ public class StageResultPanel : MonoBehaviour
 
         healingDoneTab.onClick.AddListener(() =>
         {
-            currentStatType = StatType.HealingDone;
+            currentStatType = StatisticsManager.StatType.HealingDone;
             UpdateStats();
             UpdateButtonVisuals();
             StopEventPropagation();
@@ -171,8 +180,6 @@ public class StageResultPanel : MonoBehaviour
     private void UpdateStats()
     {
         var sortedStats = StatisticsManager.Instance.GetSortedOperatorStats(currentStatType);
-        Debug.Log("UpdateStats 동작, sortedStats을 받아옴");
-        Debug.Log($"CurrentStats : {currentStatType}");
 
         // StatItems 재정렬
         for (int i = 0; i < statItems.Count; i++)
@@ -220,12 +227,77 @@ public class StageResultPanel : MonoBehaviour
 
     private void UpdateStarRating()
     {
-        for (int i = 0; i < resultData.StarCount; i ++)
+        // 비활성화 상태로 초기화
+        for (int i = 0; i < starImages.Length; i++)
         {
-            starImages[i].color = Color.cyan;
+            SetStarInactive(starImages[i]);
         }
+
+        if (resultData.StarCount > 0)
+        {
+            StartCoroutine(AnimateStars());
+        }
+
     }
 
+    private void SetStarInactive(Image starImage)
+    {
+        starImage.sprite = inactiveStarSprite;
+        starImage.color = inActiveStarColor;
+        starImage.transform.localScale = Vector3.one; 
+    }
+
+    // 제네릭을 쓰는 상황이라 타입을 아래처럼 지정 / 평소에는 IEnumerator로 충분
+    /// <summary>
+    /// Star들의 애니메이션
+    /// </summary>
+    private System.Collections.IEnumerator AnimateStars()
+    {
+        for (int i = 0; i < resultData.StarCount; i++)
+        {
+
+            if (starImages[i] == null)
+            {
+                Debug.LogError($"Star image at index {i} is null!");
+                continue;
+            }
+            int currentIndex = i;
+
+            Image currentStar = starImages[currentIndex];
+
+            // 별이 잠시 작아졌다가 
+            currentStar.transform.DOScale(0.5f, starAnimationDuration * 0.2f);
+
+            // 스프라이트와 색상을 변경한 후 커지는 애니메이션
+            Sequence starSequence = DOTween.Sequence().SetUpdate(true).SetAutoKill();
+
+            starSequence.AppendCallback(() =>
+            {
+                currentStar.sprite = activeStarSprite;
+            });
+
+            starSequence.Append(currentStar.transform
+                .DOScale(1.2f, starAnimationDuration * 0.4f)
+                .SetEase(Ease.OutBack));
+
+            starSequence.Join(currentStar.DOColor(activeStarColor, starAnimationDuration * 0.4f));
+
+            // 크기 원상 복구
+            starSequence.Append(currentStar.transform
+                .DOScale(1f, starAnimationDuration * 0.4f)
+                .SetEase(Ease.OutBounce));
+
+            // 시퀀스 완료 대기
+            yield return starSequence.WaitForCompletion();
+
+            // 다음 별까지 딜레이
+            
+            yield return new WaitForSecondsRealtime(starActivationInterval); // 주의 : WaitForSeconds는 Time.timeScale의 영향을 받는다.
+
+        }
+
+        Debug.Log("All star animations completed");
+    }
     /// <summary>
     /// 결과 창의 스테이지 숫자, 이름, 클리어 텍스트를 변경합니다.
     /// </summary>
@@ -254,7 +326,7 @@ public class StageResultPanel : MonoBehaviour
         foreach (var (op, value) in sortedStats)
         {
             StatisticItem item = Instantiate(statisticItemPrefab, statisticItemContainer);
-            item.Initialize(op, StatType.DamageDealt, false);
+            item.Initialize(op, StatisticsManager.StatType.DamageDealt, false);
             statItems.Add(item);
         }
     }
@@ -274,7 +346,7 @@ public class StageResultPanel : MonoBehaviour
             // 통계 타입 버튼들
             else
             {
-                StatType buttonType = GetButtonStatType(button);
+                StatisticsManager.StatType buttonType = GetButtonStatType(button);
                 colors.normalColor = (currentStatType == buttonType) ? selectedColor : normalColor;
             }
 
@@ -282,12 +354,12 @@ public class StageResultPanel : MonoBehaviour
         }
     }
 
-    private StatType GetButtonStatType(Button button)
+    private StatisticsManager.StatType GetButtonStatType(Button button)
     {
-        if (button == damageDealtTab) return StatType.DamageDealt;
-        if (button == damageTakenTab) return StatType.DamageTaken;
-        if (button == healingDoneTab) return StatType.HealingDone;
-        return StatType.DamageDealt; // default
+        if (button == damageDealtTab) return StatisticsManager.StatType.DamageDealt;
+        if (button == damageTakenTab) return StatisticsManager.StatType.DamageTaken;
+        if (button == healingDoneTab) return StatisticsManager.StatType.HealingDone;
+        return StatisticsManager.StatType.DamageDealt; // default
     }
 
     /// <summary>

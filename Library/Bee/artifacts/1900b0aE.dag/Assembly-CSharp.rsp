@@ -441,6 +441,7 @@
 "Assets/Scripts/Visual/UI/Stage/DiamondOutline.cs"
 "Assets/Scripts/Visual/UI/Stage/EnemyBarUI.cs"
 "Assets/Scripts/Visual/UI/Stage/FloatingText.cs"
+"Assets/Scripts/Visual/UI/Stage/GameWinPanel.cs"
 "Assets/Scripts/Visual/UI/Stage/HealthBar.cs"
 "Assets/Scripts/Visual/UI/Stage/InfoPanel.cs"
 "Assets/Scripts/Visual/UI/Stage/MaskedDiamondOverlay.cs"
