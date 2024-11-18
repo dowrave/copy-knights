@@ -138,16 +138,17 @@ public class UIManager : MonoBehaviour
     public void ShowGameWinUI()
     {
         gameWinPanelObject.SetActive(true);
-        var clickHandler = gameWinPanelObject.GetComponent<Button>() ?? gameWinPanelObject.AddComponent<Button>();
-        clickHandler.onClick.AddListener(() =>
+        GameWinPanel gameWinPanel = gameWinPanelObject.GetComponent<GameWinPanel>();
+
+        // PlayAnimation 함수를 실행 후 종료를 기다린 뒤, ShowResultAfterDelay()를 실행함
+        gameWinPanel.PlayAnimation(() =>
         {
             StartCoroutine(ShowResultAfterDelay(true));
-            gameWinPanelObject.SetActive(false);
         });
     }
 
     /// <summary>
-    /// 게임 승리/오버 패널을 클릭 시 수 초 후 다음으로 넘어갑니다.
+    /// 게임 승리/패배 패널이 나타난 후에 결과 패널 활성화
     /// </summary>
     private IEnumerator ShowResultAfterDelay(bool isCleared)
     {
