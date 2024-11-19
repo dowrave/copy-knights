@@ -167,8 +167,7 @@ public class StageResultPanel : MonoBehaviour
     }
 
     /// <summary>
-    /// 각 아이템이 보여주는 정보를 변경합니다. 
-    /// % 전환이 있고, DamageDealt, DamageTaken, HealingDone 전환이 있습니다.
+    /// 통계에서 보여주는 정보를 변경합니다. 
     /// </summary>
     private void UpdateStats()
     {
@@ -216,6 +215,7 @@ public class StageResultPanel : MonoBehaviour
         UpdateStarRating();
         UpdateHeaders();
         CreateStatItems();
+        UpdateButtonVisuals(); // 버튼이 눌린 상태로 보이도록 초기화
     }
 
     private void UpdateStarRating()

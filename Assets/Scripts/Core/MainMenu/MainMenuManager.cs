@@ -36,7 +36,7 @@ public class MainMenuManager : MonoBehaviour
     private Dictionary<MenuPanel, GameObject> panelMap = new Dictionary<MenuPanel, GameObject>();
     public Dictionary<MenuPanel, GameObject> PanelMap => panelMap;
 
-    private StageData selectedStage;
+    public StageData SelectedStage { get; private set; }
 
     public event Action OnSelectedStageChanged;
 
@@ -58,6 +58,9 @@ public class MainMenuManager : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// 각 패널의 초기 상태 지시 구조는 MainMenuManager에서 관리하는 게 더 명확하다.
+    /// </summary>
     private void Start()
     {
         // StageSelectPanel만 활성화
@@ -79,7 +82,7 @@ public class MainMenuManager : MonoBehaviour
     }
 
     /// <summary>
-    /// 마지막으로 플레이한 스테이지가 2성 이하였거나 실패했던 경우
+    /// 마지막으로 플레이한 스테이지가 2성 이하였거나 실패했던 경우 
     /// 해당 스테이지를 선택한 상태로 메인 메뉴가 나타남
     /// </summary>
     private void SetLastPlayedStage()
@@ -93,10 +96,13 @@ public class MainMenuManager : MonoBehaviour
                 var stageSelectPanel = stageSelectObj.GetComponent<StageSelectPanel>();
                 if (stageSelectPanel != null)
                 {
-                    StageData targetStageData = stageSelectPanel.GetStageDataById(lastPlayedStage);
+                    // UI 상 CurrentStageButton 변경
+                    stageSelectPanel.SetStageButtonById(lastPlayedStage); 
+                    // 현재 선택된 스테이지 지정
+                    StageData targetStageData = stageSelectPanel.GetStageDataFromStageButton(stageSelectPanel.CurrentStageButton);
+
                     if (targetStageData != null)
                     {
-                        Debug.Log($"SetLastPlayedStage 동작, targetStageData : {targetStageData}");
                         SetSelectedStage(targetStageData);
                     }
                 }
@@ -134,7 +140,7 @@ public class MainMenuManager : MonoBehaviour
 
         if (currentSquad.Count > 0) // null을 값으로 갖는다면 포함해서 세므로 GetActiveOperators()을 써야 한다.
         {
-            GameManagement.Instance.StageLoader.LoadStage(selectedStage);
+            GameManagement.Instance.StageLoader.LoadStage(SelectedStage);
         }
         else
         {
@@ -147,7 +153,7 @@ public class MainMenuManager : MonoBehaviour
     /// </summary>
     public void SetSelectedStage(StageData stageData)
     {
-        selectedStage = stageData;
+        SelectedStage = stageData;
     }
 
     private void OnSquadUpdated()
