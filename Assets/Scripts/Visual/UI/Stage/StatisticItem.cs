@@ -1,3 +1,4 @@
+using System.Collections;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -31,8 +32,10 @@ public class StatisticItem : MonoBehaviour
 
         SetOperatorIcon(op);
         SetBarColor(statType);
-        SetDisplayMode(showPercentage); // 절대 수치 / 백분율 
-        UpdateDisplay(statType, showPercentage);
+        SetDisplayMode(showPercentage); // 절대 수치 / 백분율 전환
+
+        // 1프레임 대기 후에 업데이트 실행(percentage 실제 반영 문제 때문에 넣음)
+        StartCoroutine(DelayedUpdate(statType, showPercentage));
     }
 
     private void SetOperatorIcon(Operator op)
@@ -73,6 +76,15 @@ public class StatisticItem : MonoBehaviour
             }
         }
     }
+    
+    private IEnumerator DelayedUpdate(StatisticsManager.StatType statType, bool showPercentage)
+    {
+        // UI 레이아웃이 업데이트될 때까지 대기
+        yield return new WaitForEndOfFrame();
+
+        // 실제 값 업데이트
+        UpdateDisplay(statType, showPercentage);
+    }
 
     /// <summary>
     /// 통계 업데이트 이벤트에 대응하여 디스플레이를 업데이트합니다.
@@ -94,8 +106,7 @@ public class StatisticItem : MonoBehaviour
         float totalValue = StatisticsManager.Instance.GetTotalValueForStatType(statType);
         float percentage = (totalValue > 0) ? (value / totalValue) : 0; // 전체 값 중 해당 오퍼레이터가 기여한 값
 
-        fillImage.fillAmount = percentage; 
-
+        fillImage.fillAmount = percentage;
         if (showPercentage)
         {
             SetPercentage(percentage);

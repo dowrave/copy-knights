@@ -14,15 +14,16 @@ public class StageSelectPanel : MonoBehaviour
     [SerializeField] private TextMeshProUGUI stageDetailText;
     [SerializeField] private Button confirmButton;
 
-    private StageButton currentSelectedStageButton;
+    public StageButton CurrentStageButton { get; private set; }
+    private StageData selectedStage => MainMenuManager.Instance.SelectedStage;
 
     private void Start()
     {
-        InitializeButtons();
+        InitializeStageButtons();
         InitializeDetailPanel();
     }
 
-    private void InitializeButtons()
+    private void InitializeStageButtons()
     {
         foreach (StageButton button in stageButtons)
         {
@@ -32,23 +33,49 @@ public class StageSelectPanel : MonoBehaviour
 
     private void InitializeDetailPanel()
     {
-        stageDetailPanel.SetActive(false);
+        if (selectedStage != null)
+        {
+            stageDetailPanel.SetActive(true);
+            SetStageButtonById(selectedStage.stageId);
+        }
+        else
+        {
+            stageDetailPanel.SetActive(false);
+        }
+
         confirmButton.onClick.AddListener(() => OnConfirmButtonClicked());
-        confirmButton.interactable = false;
+        InitializeDetailPanelButtons();
     }
 
-    public StageData GetStageDataById(string stageId)
+    private void InitializeDetailPanelButtons()
     {
-        var targetButton = stageButtons.FirstOrDefault(btn => btn.StageData.stageId == stageId);
+        confirmButton.onClick.AddListener(() => OnConfirmButtonClicked());
+        if (selectedStage != null)
+        {
+            confirmButton.interactable = true;
+        }
+        else
+        {
+            confirmButton.interactable = false;
+        }
+    }
+
+    /// <summary>
+    /// stageId에 해당하는 버튼을 클릭 상태로 바꿈
+    /// </summary>
+    public void SetStageButtonById(string stageId)
+    {
+        StageButton targetButton = stageButtons.FirstOrDefault(btn => btn.StageData.stageId == stageId);
 
         if (targetButton != null)
         {
             OnStageButtonClicked(targetButton);
-            ShowDetailPanel(targetButton.StageData);
-            return targetButton.StageData;
         }
+    }
 
-        return null;
+    public StageData GetStageDataFromStageButton(StageButton stageButton)
+    {
+        return stageButton.StageData;
     }
 
     /// <summary>
@@ -56,23 +83,27 @@ public class StageSelectPanel : MonoBehaviour
     /// </summary>
     private void OnStageButtonClicked(StageButton clickedButton)
     {
-        if (currentSelectedStageButton != null)
+        Debug.Log("OnStageButtonClicked 동작");
+
+        if (CurrentStageButton != null)
         {
-            currentSelectedStageButton.SetSelected(false);
+            CurrentStageButton.SetSelected(false);
         }
 
         // 새로운 선택 처리
-        currentSelectedStageButton = clickedButton;
-        currentSelectedStageButton.SetSelected(true);
+        CurrentStageButton = clickedButton;
+        CurrentStageButton.SetSelected(true);
 
         // DetailPanel 업데이트
-        ShowDetailPanel(currentSelectedStageButton.StageData);
+        Debug.Log("ShowDetailPanel 실행");
+        ShowDetailPanel(CurrentStageButton.StageData);
     }
 
-    public void ShowDetailPanel(StageData stageData)
+    private void ShowDetailPanel(StageData stageData)
     {
         if (stageDetailPanel != null)
         {
+            Debug.Log("ShowDetailPanel 실행 : stageDetailPanel도 null이 아니다");
             stageDetailPanel.SetActive(true);
             stageTitleText.text = stageData.stageId;
             stageDetailText.text = stageData.stageDetail;
@@ -83,9 +114,9 @@ public class StageSelectPanel : MonoBehaviour
 
     private void OnConfirmButtonClicked()
     {
-        if (currentSelectedStageButton != null)
+        if (CurrentStageButton != null)
         {
-            MainMenuManager.Instance.SetSelectedStage(currentSelectedStageButton.StageData);
+            MainMenuManager.Instance.SetSelectedStage(CurrentStageButton.StageData);
 
             GameObject squadEditPanel = MainMenuManager.Instance.PanelMap[MainMenuManager.MenuPanel.SquadEdit];
             GameObject stageSelectPanel = MainMenuManager.Instance.PanelMap[MainMenuManager.MenuPanel.StageSelect];
@@ -100,10 +131,10 @@ public class StageSelectPanel : MonoBehaviour
     /// </summary>
     private void OnDisable()
     {
-        if (currentSelectedStageButton != null)
+        if (CurrentStageButton != null)
         {
-            currentSelectedStageButton.SetSelected(false);
-            currentSelectedStageButton = null;
+            CurrentStageButton.SetSelected(false);
+            CurrentStageButton = null;
         }
 
         stageDetailPanel.SetActive(false);
