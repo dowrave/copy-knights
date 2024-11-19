@@ -44,8 +44,10 @@ public class StageSelectPanel : MonoBehaviour
         if (targetButton != null)
         {
             OnStageButtonClicked(targetButton);
+            ShowDetailPanel(targetButton.StageData);
             return targetButton.StageData;
         }
+
         return null;
     }
 
@@ -64,10 +66,18 @@ public class StageSelectPanel : MonoBehaviour
         currentSelectedStageButton.SetSelected(true);
 
         // DetailPanel 업데이트
-        stageDetailPanel.SetActive(true);
-        stageTitleText.text = clickedButton.StageData.stageId;
-        stageDetailText.text = clickedButton.StageData.stageDetail;
-        confirmButton.interactable = true;
+        ShowDetailPanel(currentSelectedStageButton.StageData);
+    }
+
+    public void ShowDetailPanel(StageData stageData)
+    {
+        if (stageDetailPanel != null)
+        {
+            stageDetailPanel.SetActive(true);
+            stageTitleText.text = stageData.stageId;
+            stageDetailText.text = stageData.stageDetail;
+            confirmButton.interactable = true;
+        }
     }
 
 
@@ -79,6 +89,8 @@ public class StageSelectPanel : MonoBehaviour
 
             GameObject squadEditPanel = MainMenuManager.Instance.PanelMap[MainMenuManager.MenuPanel.SquadEdit];
             GameObject stageSelectPanel = MainMenuManager.Instance.PanelMap[MainMenuManager.MenuPanel.StageSelect];
+
+            // squadEditPanel을 보여주고 stageSelectPanel을 숨김
             MainMenuManager.Instance.FadeInAndHide(squadEditPanel, stageSelectPanel);
         }
     }

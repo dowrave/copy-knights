@@ -303,10 +303,16 @@ public class StageManager : MonoBehaviour
         StopAllCoroutines();
     }
 
-    private void ReturnToMenu()
+    public void ReturnToMainMenu(bool isPerfectClear = false)
     {
-        Time.timeScale = 1; // 게임 속도 복구
-        SceneManager.LoadScene("MainMenu");
+        if (isPerfectClear)
+        {
+            GameManagement.Instance.StageLoader.ReturnToMainMenu();
+        }
+        else
+        {
+            GameManagement.Instance.StageLoader.ReturnToMainMenuWithStageSelected();
+        }
     }
 
     public void SlowDownTime()

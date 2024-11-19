@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Resources;
 using UnityEditor.SearchService;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -13,9 +14,12 @@ public class GameManagement : MonoBehaviour
 
     [SerializeField] private StageLoader stageLoader;
     [SerializeField] private UserSquadManager userSquadManager;
+    [SerializeField] private ResourceManager resourceManager;
 
     public StageLoader StageLoader => stageLoader;
     public UserSquadManager UserSquadManager => userSquadManager;
+    public ResourceManager ResourceManager => resourceManager;
+
 
     private void Awake()
     {
@@ -36,20 +40,19 @@ public class GameManagement : MonoBehaviour
 
     private void ValidateComponents()
     {
-        if (stageLoader == null || userSquadManager == null)
+        if (stageLoader == null || userSquadManager == null || resourceManager == null)
         {
             Debug.LogError("GameManagement : SerializeField를 확인해볼 것");
         }
     }
 
-
     public void OnSceneLoaded(UnityEngine.SceneManagement.Scene scene, LoadSceneMode mode)
     {
+        Time.timeScale = 1f;
     }
 
     private void OnApplicationQuit()
     {
         stageLoader.OnGameQuit();
-        //userSquadManager.OnGameQuit();
     }
 }

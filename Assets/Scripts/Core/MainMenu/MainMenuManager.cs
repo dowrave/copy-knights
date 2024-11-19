@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using DG.Tweening;
 using UnityEngine;
@@ -30,9 +31,6 @@ public class MainMenuManager : MonoBehaviour
     [Header("Panel References")]
     [SerializeField] private List<PanelInfo> panels;
 
-    [Header("Class Icon Data")]
-    [SerializeField] private IconData classIconData;
-
     [SerializeField] private float panelTransitionSpeed;
 
     private Dictionary<MenuPanel, GameObject> panelMap = new Dictionary<MenuPanel, GameObject>();
@@ -40,6 +38,7 @@ public class MainMenuManager : MonoBehaviour
 
     private StageData selectedStage;
 
+    public event Action OnSelectedStageChanged;
 
     private void Awake()
     {
@@ -57,9 +56,6 @@ public class MainMenuManager : MonoBehaviour
         {
             panelMap[panelInfo.type] = panelInfo.panel;
         }
-
-        // OperatorClass 아이콘을 담당하는 IconHelper 초기화
-        IconHelper.Initialize(classIconData);
     }
 
     private void Start()
@@ -77,6 +73,17 @@ public class MainMenuManager : MonoBehaviour
             }
         }
 
+        SetLastPlayedStage();
+
+        GameManagement.Instance.UserSquadManager.OnSquadUpdated += OnSquadUpdated;
+    }
+
+    /// <summary>
+    /// 마지막으로 플레이한 스테이지가 2성 이하였거나 실패했던 경우
+    /// 해당 스테이지를 선택한 상태로 메인 메뉴가 나타남
+    /// </summary>
+    private void SetLastPlayedStage()
+    {
         // 마지막 플레이 정보를 확인, 해당 스테이지 선택
         string lastPlayedStage = PlayerPrefs.GetString("LastPlayedStage", null);
         if (!string.IsNullOrEmpty(lastPlayedStage))
@@ -89,17 +96,15 @@ public class MainMenuManager : MonoBehaviour
                     StageData targetStageData = stageSelectPanel.GetStageDataById(lastPlayedStage);
                     if (targetStageData != null)
                     {
+                        Debug.Log($"SetLastPlayedStage 동작, targetStageData : {targetStageData}");
                         SetSelectedStage(targetStageData);
                     }
                 }
             }
-
             // 사용 정보는 삭제
             PlayerPrefs.DeleteKey("LastPlayedStage");
             PlayerPrefs.Save();
         }
-
-        GameManagement.Instance.UserSquadManager.OnSquadUpdated += OnSquadUpdated;
     }
 
     // 새 패널 페이드 인 후 이전 패널 비활성화
@@ -138,7 +143,7 @@ public class MainMenuManager : MonoBehaviour
     }
 
     /// <summary>
-    /// StageSelectPanel에서 이용 : 현재 스테이지 정보를 저장하고 SquadEditPanel로 넘어감
+    /// 현재 스테이지 정보를 저장
     /// </summary>
     public void SetSelectedStage(StageData stageData)
     {

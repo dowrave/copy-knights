@@ -7,8 +7,6 @@ public class UIManager : MonoBehaviour
 {
     public static UIManager Instance { get; private set; }
 
-    [SerializeField] private IconData iconData;
-
     [Header("Panels")]
     [SerializeField] private GameObject statsPanelObject;
     [SerializeField] private GameObject gameOverPanelObject;
@@ -81,15 +79,6 @@ public class UIManager : MonoBehaviour
         gameWinPanelObject.SetActive(false);
         infoPanelObject.SetActive(false);
         stageResultPanelObject.SetActive(false);
-
-        if (iconData == null)
-        {
-            Debug.Log("IconData가 할당되지 않음");
-            return;
-        }
-
-        // Box 초기화가 Start 시점이라서 Awake 시점에서 생성
-        IconHelper.Initialize(iconData);
     }
 
     private void Start()
