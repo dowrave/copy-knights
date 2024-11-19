@@ -133,6 +133,7 @@
     <Compile Include="Assets\Scripts\Core\Interfaces\IRotatable.cs" />
     <Compile Include="Assets\Scripts\Core\Stage\Manager\MapManager.cs" />
     <Compile Include="Assets\Scripts\Core\Stage\Manager\PathfindingManager.cs" />
+    <Compile Include="Assets\Scripts\Core\ResourceManager.cs" />
     <Compile Include="Assets\Scripts\Core\Interfaces\ITargettable.cs" />
   </ItemGroup>
   <ItemGroup>

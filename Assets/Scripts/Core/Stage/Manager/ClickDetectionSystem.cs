@@ -98,8 +98,6 @@ public class ClickDetectionSystem : MonoBehaviour
         // 방향 선택 중이거나 드래깅 중일 때는 DeployableManager에서 처리함
         if (DeployableManager.Instance.IsSelectingDirection || DeployableManager.Instance.IsDraggingDeployable) return;
 
-
-
         // UI 요소가 클릭되지 않은 상태에서 다른 Clickable 요소 처리
         Ray ray = mainCamera.ScreenPointToRay(Input.mousePosition);
         RaycastHit clickableHit;
@@ -107,12 +105,10 @@ public class ClickDetectionSystem : MonoBehaviour
         // 배치 중인 상황이 아닐 때
         if (Physics.Raycast(ray, out clickableHit, Mathf.Infinity, clickableLayerMask))
         {
-            //Debug.Log("HandleObjectClick");
             HandleObjectClick(clickableHit);
         }
         else
         {
-            //Debug.Log("HandleEmptySpaceClick");
             HandleEmptySpaceClick();
         }
     }

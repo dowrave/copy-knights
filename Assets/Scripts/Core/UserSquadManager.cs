@@ -165,6 +165,11 @@ public class UserSquadManager : MonoBehaviour
     /// </summary>
     public List<OperatorData> GetActiveOperators()
     {
+        //if (currentSquad == null)
+        //{
+        //    InitializeSquad();
+        //}
+
         return currentSquad.Where(op => op != null).ToList();
     }
 

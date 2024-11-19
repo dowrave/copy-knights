@@ -23,7 +23,8 @@ public class StageLoader : MonoBehaviour
     private StageLoadingScreen loadingScreen;
     private const float MIN_LOADING_TIME = 0.5f;
 
-    private const string MAINMAIU_SCENE = "MainMenuScene"; // 스테이지 씬은 StageData 내에 있음
+    private const string MAINMENU_SCENE = "MainMenuScene"; // 스테이지 씬은 StageData 내에 있음
+    private const string STAGE_SCENE = "StageScene";
 
     public event System.Action<Map> OnMapLoaded;
 
@@ -78,7 +79,6 @@ public class StageLoader : MonoBehaviour
 
         isLoading = false;
         HideLoadingScreen();
-        CleanupCache(); // 전달 후 StageLoader가 갖는 캐시 초기화
     }
 
     /// <summary>
@@ -122,8 +122,6 @@ public class StageLoader : MonoBehaviour
 
         // 5. 스테이지 매니저로 스테이지 시작
         StageManager.Instance.StartStage();
-
-        //CleanupCache();
     }
 
     private IEnumerator InitializeMap()
@@ -231,7 +229,8 @@ public class StageLoader : MonoBehaviour
 
     public void ReturnToMainMenu()
     {
-        SceneManager.LoadScene(MAINMAIU_SCENE);
+        SceneManager.LoadScene(MAINMENU_SCENE);
+        CleanupCache();
     }
 
     /// <summary>
@@ -246,9 +245,12 @@ public class StageLoader : MonoBehaviour
         PlayerPrefs.SetString("LastPlayedStage", currentStageId);
         PlayerPrefs.Save();
 
-        SceneManager.LoadScene(MAINMAIU_SCENE);
-    }  
+        SceneManager.LoadScene(MAINMENU_SCENE);
+
+        // 스테이지 정보를 갖고 메인메뉴로 돌아가야 하므로 캐시를 정리하지 않음
+    }
     
+  
     private void CleanupCache()
     {
         cachedStageData = null;
@@ -264,7 +266,6 @@ public class StageLoader : MonoBehaviour
     public void OnSceneLoaded(Scene scene, LoadSceneMode mode)
     {
         isLoading = false;
-        CleanupCache();
     }
 
     public void OnGameQuit()

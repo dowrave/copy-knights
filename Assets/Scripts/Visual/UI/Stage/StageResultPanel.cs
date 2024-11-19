@@ -82,15 +82,8 @@ public class StageResultPanel : MonoBehaviour
             return;
         }
 
-        // 3성 클리어가 아니라면 현재 스테이지를 선택한 상태로 돌아감
-        if (!resultData.isCleared || resultData.StarCount < 3)
-        {
-            GameManagement.Instance.StageLoader.ReturnToMainMenuWithStageSelected();
-        }
-        else
-        {
-            GameManagement.Instance.StageLoader.ReturnToMainMenu();
-        }
+        bool isPerfectClear = resultData.passedEnemies == 0;
+        StageManager.Instance.ReturnToMainMenu(isPerfectClear);
     }
 
 

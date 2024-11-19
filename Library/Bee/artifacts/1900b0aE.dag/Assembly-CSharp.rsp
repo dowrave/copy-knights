@@ -402,6 +402,7 @@
 "Assets/Scripts/Core/MainMenu/StageSelectPanel.cs"
 "Assets/Scripts/Core/OwnedOperator.cs"
 "Assets/Scripts/Core/PlayerDataManager.cs"
+"Assets/Scripts/Core/ResourceManager.cs"
 "Assets/Scripts/Core/Skills/Base/Skill.cs"
 "Assets/Scripts/Core/Skills/OperatorSkills/BuffSkill.cs"
 "Assets/Scripts/Core/Skills/OperatorSkills/CostRecoverySkill.cs"

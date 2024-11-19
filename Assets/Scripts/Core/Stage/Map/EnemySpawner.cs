@@ -16,11 +16,11 @@ public class EnemySpawner : MonoBehaviour
 
     public void StartSpawning()
     {
-        Debug.Log("EnemySpanwer : StartSpawning 메서드 동작");
+        Debug.Log("EnemySpawner : StartSpawning 메서드 동작");
 
         if (isInitialized)
         {
-            Debug.Log("EnemySpanwer : 스폰 시작");
+            Debug.Log("EnemySpawner : 스폰 시작");
             StartCoroutine(SpawnEnemies());
         }
     }
