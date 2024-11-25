@@ -20,12 +20,15 @@ public class OperatorData : ScriptableObject, IBoxDeployableData
     // OperatorData
     public AttackType attackType;
     public AttackRangeType attackRangeType;
-    public Vector2Int[] attackableTiles = { Vector2Int.zero };
+    public List<Vector2Int> attackableTiles = new List<Vector2Int>{ Vector2Int.zero };
     public GameObject projectilePrefab;
 
     public List<Skill> skills;
     public int defaultSkillIndex;
     public float initialSP = 0f;
+
+    [Header("Elite Phase Settings")]
+    public ElitePhaseUnlocks elite1Unlocks;
 
 
     public enum OperatorClass
@@ -37,6 +40,16 @@ public class OperatorData : ScriptableObject, IBoxDeployableData
         Sniper,
         Medic
     }
+}
+
+[System.Serializable] 
+public class ElitePhaseUnlocks
+{
+    [Header("Attack Range Changes")]
+    public Vector2Int[] additionalAttackTiles;
+
+    [Header("New Skills")]
+    public Skill unlockedSkill;
 }
 
 
