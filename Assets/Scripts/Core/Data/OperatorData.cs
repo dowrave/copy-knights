@@ -27,9 +27,11 @@ public class OperatorData : ScriptableObject, IBoxDeployableData
     public int defaultSkillIndex;
     public float initialSP = 0f;
 
+    [Header("Level Up Stats")]
+    public OperatorLevelStats levelStats; // 레벨 1이 올라갈 때마다 상승하는 스탯량
+
     [Header("Elite Phase Settings")]
     public ElitePhaseUnlocks elite1Unlocks;
-
 
     public enum OperatorClass
     {
@@ -40,17 +42,27 @@ public class OperatorData : ScriptableObject, IBoxDeployableData
         Sniper,
         Medic
     }
+
+    [System.Serializable]
+    public class OperatorLevelStats
+    {
+        public float healthPerLevel;
+        public float attackPowerPerLevel;
+        public float defensePerLevel;
+        public float magicResistancePerLevel;
+    }
+
+    [System.Serializable] 
+    public class ElitePhaseUnlocks
+    {
+        [Header("Attack Range Changes")]
+        public Vector2Int[] additionalAttackTiles;
+
+        [Header("New Skills")]
+        public Skill unlockedSkill;
+    }
 }
 
-[System.Serializable] 
-public class ElitePhaseUnlocks
-{
-    [Header("Attack Range Changes")]
-    public Vector2Int[] additionalAttackTiles;
-
-    [Header("New Skills")]
-    public Skill unlockedSkill;
-}
 
 
 [System.Serializable]

@@ -16,7 +16,10 @@ public class MainMenuManager : MonoBehaviour
         None, 
         StageSelect,
         SquadEdit,
-        OperatorInventory
+        OperatorInventory,
+        OperatorDetail,
+        OperatorLevelUp,
+        OperatorPromotion
         // 새로운 패널은 열거형으로 계속 추가하면 됨
     }
 
@@ -113,7 +116,7 @@ public class MainMenuManager : MonoBehaviour
         }
     }
 
-    // 새 패널 페이드 인 후 이전 패널 비활성화
+    // 새 패널 페이드 인 후 이전 패널 비활성화, 주로 더 깊게 들어갈 때 사용
     public void FadeInAndHide(GameObject panelToShow, GameObject panelToHide)
     {
         CanvasGroup showGroup = panelToShow.GetComponent<CanvasGroup>();
@@ -123,7 +126,7 @@ public class MainMenuManager : MonoBehaviour
             .OnComplete(() => panelToHide.SetActive(false));
     }
 
-    // 새 패널 활성화 후 이전 패널 페이드 아웃
+    // 새 패널 활성화 후 이전 패널 페이드 아웃, 주로 깊은 패널에서 얕은 패널로 나올 때 사용
     public void ActivateAndFadeOut(GameObject panelToShow, GameObject panelToHide)
     {
         // 이전 패널 즉시 활성화 -> 현재 패널 페이드 아웃

@@ -108,6 +108,7 @@
     <Compile Include="Assets\Scripts\Core\MainMenu\SquadEditPanel.cs" />
     <Compile Include="Assets\Scripts\Core\Unit\Enemy.cs" />
     <Compile Include="Assets\Scripts\Core\OperatorGrowth\OperatorGrowthSystem.cs" />
+    <Compile Include="Assets\Scripts\Core\MainMenu\OperatorPromotionPanel.cs" />
     <Compile Include="Assets\Scripts\Core\Data\PathData.cs" />
     <Compile Include="Assets\Scripts\Core\StageLoader.cs" />
     <Compile Include="Assets\Scripts\Visual\UI\Stage\DeployableBox.cs" />
@@ -122,6 +123,8 @@
     <Compile Include="Assets\Scripts\Core\MainMenu\OperatorInventoryPanel.cs" />
     <Compile Include="Assets\Scripts\Visual\UI\Stage\DeployableBarUI.cs" />
     <Compile Include="Assets\Scripts\Core\MainMenu\StageButton.cs" />
+    <Compile Include="Assets\Scripts\Core\MainMenu\OperatorDetailPanel.cs" />
+    <Compile Include="Assets\Scripts\Core\MainMenu\OperatorLevelUpPanel.cs" />
     <Compile Include="Assets\Scripts\Core\Stage\Manager\ObjectPoolManager.cs" />
     <Compile Include="Assets\Scripts\Core\Stage\Map\EnemySpawner.cs" />
     <Compile Include="Assets\Scripts\Core\Interfaces\IMovable.cs" />
