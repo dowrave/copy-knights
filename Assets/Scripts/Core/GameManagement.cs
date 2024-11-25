@@ -15,10 +15,13 @@ public class GameManagement : MonoBehaviour
     [SerializeField] private StageLoader stageLoader;
     [SerializeField] private UserSquadManager userSquadManager;
     [SerializeField] private ResourceManager resourceManager;
+    [SerializeField] private PlayerDataManager playerDataManager;
 
     public StageLoader StageLoader => stageLoader;
     public UserSquadManager UserSquadManager => userSquadManager;
     public ResourceManager ResourceManager => resourceManager;
+    public PlayerDataManager PlayerDataManager => playerDataManager;
+
 
 
     private void Awake()

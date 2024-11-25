@@ -26,16 +26,9 @@ public class PlayerDataManager : MonoBehaviour
 
     private void Awake()
     {
-        if ( Instance == null )
-        {
-            Instance = this;
-            DontDestroyOnLoad(gameObject);
-            InitializeSystem();
-        }
-        else
-        {
-            Destroy(gameObject);
-        }
+
+        InitializeSystem();
+
     }
 
     private void InitializeSystem()
@@ -106,18 +99,21 @@ public class PlayerDataManager : MonoBehaviour
         }
     }
 
-    public List<OperatorData> GetOwnedOperators()
+    public OwnedOperator GetOwnedOperator(string operatorName)
     {
-        return playerData.ownedOperators
-            .Select(data => operatorDatabase[data.operatorId])
-            .ToList();
+        return playerData.ownedOperators.Find(op => op.operatorName == operatorName);
     }
 
-    public void AddOperator(string operatorId)
+    public List<OwnedOperator> GetOwnedOperators()
     {
-        if (!playerData.ownedOperators.Any(op => op.operatorId == operatorId))
+        return new List<OwnedOperator>(playerData.ownedOperators);
+    }
+
+    public void AddOperator(string operatorName)
+    {
+        if (!playerData.ownedOperators.Any(op => op.operatorName == operatorName))
         {
-            playerData.ownedOperators.Add(new OwnedOperator { operatorId = operatorId });
+            playerData.ownedOperators.Add(new OwnedOperator { operatorName = operatorName });
             SavePlayerData();
         }
     }
@@ -132,8 +128,16 @@ public class PlayerDataManager : MonoBehaviour
         PlayerPrefs.Save();
     }
 
-    public OperatorData GetOperatorDataFromDatabase(string operatorId)
+    public OperatorData GetOperatorData(string operatorName)
     {
-        return operatorDatabase[operatorId];
+        return operatorDatabase[operatorName];
+    }
+
+    public List<OperatorData> GetOwnedOperatorDatas()
+    {
+        return playerData.ownedOperators
+            .Select(owned => GetOperatorData(owned.operatorName))
+            .Where(data => data != null)
+            .ToList();
     }
 }

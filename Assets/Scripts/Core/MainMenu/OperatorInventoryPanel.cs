@@ -76,7 +76,7 @@ public class OperatorInventoryPanel : MonoBehaviour
         List<OperatorData> currentSquad = GameManagement.Instance.UserSquadManager.GetActiveOperators();
 
         // 보유 중인 오퍼레이터 중, 현재 스쿼드에 없는 오퍼레이터만 가져옴
-        List<OperatorData> availableOperators = PlayerDataManager.Instance.GetOwnedOperators()
+        List<OperatorData> availableOperators = PlayerDataManager.Instance.GetOwnedOperatorDatas()
             .Where(op => !currentSquad.Contains(op))
             .ToList();
 

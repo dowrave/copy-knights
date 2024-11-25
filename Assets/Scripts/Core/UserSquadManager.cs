@@ -57,7 +57,7 @@ public class UserSquadManager : MonoBehaviour
                     string operatorId = savedSquad.operatorIds[i];
                     if (!string.IsNullOrEmpty(operatorId))
                     {
-                        currentSquad[i] = PlayerDataManager.Instance.GetOperatorDataFromDatabase(operatorId);
+                        currentSquad[i] = GameManagement.Instance.PlayerDataManager.GetOperatorData(operatorId);
                     } 
                 }
                 OnSquadUpdated?.Invoke();
