@@ -3,94 +3,35 @@ using System.Linq;
 using UnityEngine;
 
 /// <summary>
-/// 메인 메뉴 씬에서 오퍼레이터들이 편성을 관리하고,
-/// 스테이지 씬으로 편성된 리스트를 전달한다.
+/// 실제 스쿼드 관리는 PlayerDataManager에서 이뤄진다.
+/// 여기서는 스쿼드 UI 조작 로직에 집중함
 /// </summary>
 public class UserSquadManager : MonoBehaviour
 {
-    [Header("Squad Settings")]
-    [SerializeField] private int maxSquadSize = 6;
-    public int MaxSquadSize => maxSquadSize;
-
-    // 현재 편성된 스쿼드
-    private List<OperatorData> currentSquad = new List<OperatorData>();
-
     // 편집 상태 관리
     private int editingSlotIndex = -1;
     public int EditingSlotIndex => editingSlotIndex;
-    public bool IsEditingSquad => editingSlotIndex != -1; 
+    public bool IsEditingSquad => editingSlotIndex != -1;
+
+    public int MaxSquadSize => GameManagement.Instance.PlayerDataManager.GetMaxSquadSize();
 
     // 이벤트
     public event System.Action OnSquadUpdated;
-    private void Awake()
+
+
+    private void OnEnable()
     {
-        InitializeSquad();
+        GameManagement.Instance.PlayerDataManager.OnSquadUpdated += HandleSquadUpdated;
     }
 
-    /// <summary>
-    /// 스쿼드의 초기화를 담당. MaxSquadSize만큼의 null을 만든다.
-    /// </summary>
-    private void InitializeSquad()
+    private void OnDisable()
     {
-        currentSquad = new List<OperatorData>(MaxSquadSize);
-        for (int i=0; i < MaxSquadSize; i++)
-        {
-            currentSquad.Add(null);
-        }
-
-        // 저장된 스쿼드 데이터가 있다면 로드함
-        LoadSquadData();
-    }
-    
-
-    private void LoadSquadData()
-    {
-        // PlayerPrefs에 저장된 스쿼드 데이터를 로드
-        string savedData = PlayerPrefs.GetString("SquadData", "");
-        if (!string.IsNullOrEmpty(savedData))
-        {
-            try
-            {
-                var savedSquad = JsonUtility.FromJson<SavedSquadData>(savedData);
-                for (int i = 0; i < savedSquad.operatorIds.Count && i < maxSquadSize; i++)
-                {
-                    string operatorId = savedSquad.operatorIds[i];
-                    if (!string.IsNullOrEmpty(operatorId))
-                    {
-                        currentSquad[i] = GameManagement.Instance.PlayerDataManager.GetOperatorData(operatorId);
-                    } 
-                }
-                OnSquadUpdated?.Invoke();
-            }
-            catch (System.Exception e)
-            {
-                Debug.LogError($"스쿼드 로드 실패 : {e.Message}");
-            }
-        }
+        GameManagement.Instance.PlayerDataManager.OnSquadUpdated -= HandleSquadUpdated; 
     }
 
-    private void SaveSquadData()
+    private void HandleSquadUpdated()
     {
-        try
-        {
-            // 스쿼드 데이터 = currentSquad에 있는 오퍼레이터들의 엔티티 이름을 리스트로 만듦
-            var squadData = new SavedSquadData
-            {
-                operatorIds = currentSquad
-                .Where(op => op != null)
-                .Select(op => op.entityName)
-                .ToList()
-            };
-
-            string jsonData = JsonUtility.ToJson(squadData);
-            PlayerPrefs.SetString("SquadData", jsonData);
-            PlayerPrefs.Save();
-        }
-
-        catch (System.Exception e)
-        {
-            Debug.LogError($"스쿼드 저장 실패 : {e.Message}");
-        }
+        OnSquadUpdated?.Invoke();
     }
 
     // 스쿼드 편집 관련 메서드
@@ -102,7 +43,7 @@ public class UserSquadManager : MonoBehaviour
         }
     }
 
-    public void ConfirmOperatorSelection(OperatorData selectedOperator)
+    public void ConfirmOperatorSelection(OwnedOperator selectedOperator)
     {
         if (IsEditingSquad)
         {
@@ -114,92 +55,33 @@ public class UserSquadManager : MonoBehaviour
     /// <summary>
     /// Squad의 Index에 오퍼레이터를 배치/대체 하려고 할 때 사용
     /// </summary>
-    public bool TryReplaceOperator(int index, OperatorData newOpData = null)
+    public bool TryReplaceOperator(int index, OwnedOperator newOp = null)
     {
-        if (index < 0 || index >= MaxSquadSize)
-        {
-            Debug.LogWarning("유효하지 않은 인덱스");
-            return false;
-        }
-
-        currentSquad[index] = newOpData;
-        OnSquadUpdated?.Invoke();
-        SaveSquadData();
-        return true;
+        return GameManagement.Instance.PlayerDataManager.TryUpdateSquad(index, newOp?.operatorName);
     }
 
     public void CancelOperatorSelection()
     {
         editingSlotIndex = -1;
     }
+    
 
-    public bool UpdateUserSquad(List<OperatorData> newSquad)
+    public List<OwnedOperator> GetCurrentSquad()
     {
-        if (newSquad.Count > MaxSquadSize)
-        {
-            Debug.LogWarning("현재 스쿼드의 크기가 최대 크기를 넘음!");
-            return false; 
-        }
-
-        if (newSquad.Count != newSquad.Distinct().Count())
-        {
-            Debug.LogWarning("이미 중복된 멤버가 있음!");
-            return false;
-        }
-
-        currentSquad = new List<OperatorData>(newSquad); // 복사 후 사용으로 안전성 보장
-        OnSquadUpdated?.Invoke();
-        return true;
+        return GameManagement.Instance.PlayerDataManager.GetCurrentSquad(); 
     }
 
     /// <summary>
     /// null이 포함된 currentSquad 리스트를 반환합니다.
     /// </summary>
-    public List<OperatorData> GetCurrentSquad()
+    public List<OwnedOperator> GetCurrentSquadWithNull()
     {
-        return new List<OperatorData>(currentSquad);
+        return GameManagement.Instance.PlayerDataManager.GetCurrentSquadWithNull();
     }
-
-    /// <summary>
-    /// currentSquad에서 null인 것들은 제외하고 반환합니다.
-    /// </summary>
-    public List<OperatorData> GetActiveOperators()
+    
+    // OperatorData를 사용한 리스트가 필요할 경우
+    public List<OperatorData> GetCurrentSquadData()
     {
-        //if (currentSquad == null)
-        //{
-        //    InitializeSquad();
-        //}
-
-        return currentSquad.Where(op => op != null).ToList();
+        return GameManagement.Instance.PlayerDataManager.GetCurrentSquadData();
     }
-
-
-
-    /// <summary>
-    /// 편성에서 오퍼레이터 제거
-    /// </summary>
-    public bool TryRemoveOperator(OperatorData opData)
-    {
-        bool removed = currentSquad.Remove(opData);
-        if (removed)
-        {
-            OnSquadUpdated?.Invoke();
-        }
-        return removed;
-    }
-
-
-    public void ClearSquad()
-    {
-        currentSquad.Clear();
-        OnSquadUpdated?.Invoke();
-    }
-
-    // 저장용 데이터 클래스
-    [System.Serializable]
-    private class SavedSquadData
-    {
-        public List<string> operatorIds = new List<string>();
-    }
-
 }

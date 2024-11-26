@@ -15,8 +15,8 @@ public class OperatorInventoryPanel : MonoBehaviour
     [SerializeField] private TextMeshProUGUI operatorNameText;
     [SerializeField] private OperatorSlot slotButtonPrefab;
     [SerializeField] private Button confirmButton;
-    [SerializeField] private Button returnButton; // 이전 패널(SquadEditPanel)로 돌아가는 버튼
     [SerializeField] private Button setEmptyButton; // 현재 슬롯을 비우는 버튼
+    [SerializeField] private Button detailButton; // OperatorDetailPanel로 가는 버튼
 
     [Header("Attack Range Visualization")]
     [SerializeField] private RectTransform attackRangeContainer;
@@ -48,8 +48,8 @@ public class OperatorInventoryPanel : MonoBehaviour
     private void Awake()
     {
         confirmButton.onClick.AddListener(OnConfirmButtonClicked);
-        returnButton.onClick.AddListener(OnReturnButtonClicked);
         setEmptyButton.onClick.AddListener(OnSetEmptyButtonClicked);
+        detailButton.onClick.AddListener(OnDetailButtonClicked);
 
         confirmButton.interactable = false;
         //gameObject.SetActive(false); // 이거 있으면 실행 전에 이 오브젝트가 비활성화된 경우 ShowPanel 등에 의한 활성화가 아예 안됨
@@ -73,10 +73,12 @@ public class OperatorInventoryPanel : MonoBehaviour
         ClearSlots();
 
         // 현재 스쿼드 가져오기
-        List<OperatorData> currentSquad = GameManagement.Instance.UserSquadManager.GetActiveOperators();
+        List<OwnedOperator> currentSquad = GameManagement.Instance.UserSquadManager.GetCurrentSquad();
+
+        Debug.Log(currentSquad.Count);
 
         // 보유 중인 오퍼레이터 중, 현재 스쿼드에 없는 오퍼레이터만 가져옴
-        List<OperatorData> availableOperators = PlayerDataManager.Instance.GetOwnedOperatorDatas()
+        List<OwnedOperator> availableOperators = GameManagement.Instance.PlayerDataManager.GetOwnedOperators()
             .Where(op => !currentSquad.Contains(op))
             .ToList();
 
@@ -91,10 +93,10 @@ public class OperatorInventoryPanel : MonoBehaviour
         }
 
         // 오퍼레이터 별로 슬롯 생성
-        foreach (OperatorData operatorData in availableOperators)
+        foreach (OwnedOperator op in availableOperators)
         {
             OperatorSlot slot = Instantiate(slotButtonPrefab, operatorSlotContainer);
-            slot.Initialize(true, operatorData);
+            slot.Initialize(true, op);
             operatorSlots.Add(slot);
             slot.OnSlotClicked.AddListener(HandleSlotClicked);
         }
@@ -113,6 +115,7 @@ public class OperatorInventoryPanel : MonoBehaviour
         UpdateSideView(clickedSlot);
         selectedSlot.SetSelected(true);
         confirmButton.interactable = true;
+        detailButton.interactable = true;
     }
     
     /// <summary>
@@ -120,21 +123,12 @@ public class OperatorInventoryPanel : MonoBehaviour
     /// </summary>
     private void OnConfirmButtonClicked()
     {
-        if (selectedSlot != null && selectedSlot.AssignedOperator != null)
+        if (selectedSlot != null && selectedSlot.OwnedOperator != null)
         {
-            GameManagement.Instance.UserSquadManager.ConfirmOperatorSelection(selectedSlot.AssignedOperator);
+            GameManagement.Instance.UserSquadManager.ConfirmOperatorSelection(selectedSlot.OwnedOperator);
             // 돌아가기
             ReturnToSquadEditPanel();
         }
-    }
-
-    /// <summary>
-    /// 취소 버튼 클릭 시 동작
-    /// </summary>
-    private void OnReturnButtonClicked()
-    {
-        GameManagement.Instance.UserSquadManager.CancelOperatorSelection();
-        ReturnToSquadEditPanel();
     }
 
     private void OnSetEmptyButtonClicked()
@@ -143,6 +137,14 @@ public class OperatorInventoryPanel : MonoBehaviour
         GameManagement.Instance.UserSquadManager.CancelOperatorSelection(); // 현재 스쿼드의 배치 중인 인덱스를 없앰
         ReturnToSquadEditPanel();
     }
+
+    private void OnDetailButtonClicked()
+    {
+        // (전제조건)슬롯마다 OwnedOperator를 바꿔야 함
+        // selectedSlot의 ownedOperator가 전달돼야 함
+        MainMenuManager.Instance.ActivateAndFadeOut(MainMenuManager.Instance.PanelMap[MainMenuManager.MenuPanel.OperatorDetail], gameObject);
+    }
+
 
     private void ResetSelection()
     {
@@ -169,7 +171,7 @@ public class OperatorInventoryPanel : MonoBehaviour
     private void UpdateSideView(OperatorSlot slot)
     {
 
-        OperatorData opData = slot.AssignedOperator;
+        OperatorData opData = slot.AssignedOperatorData;
         OperatorStats opStats = opData.stats;
 
         operatorNameText.text = opData.entityName;
@@ -246,6 +248,7 @@ public class OperatorInventoryPanel : MonoBehaviour
     {
         MainMenuManager.Instance.ActivateAndFadeOut(MainMenuManager.Instance.PanelMap[MainMenuManager.MenuPanel.SquadEdit], gameObject);
     }
+
 
     private void OnDisable()
     {

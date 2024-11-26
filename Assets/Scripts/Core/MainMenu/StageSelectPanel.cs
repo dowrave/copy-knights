@@ -83,8 +83,6 @@ public class StageSelectPanel : MonoBehaviour
     /// </summary>
     private void OnStageButtonClicked(StageButton clickedButton)
     {
-        Debug.Log("OnStageButtonClicked 동작");
-
         if (CurrentStageButton != null)
         {
             CurrentStageButton.SetSelected(false);
@@ -95,7 +93,6 @@ public class StageSelectPanel : MonoBehaviour
         CurrentStageButton.SetSelected(true);
 
         // DetailPanel 업데이트
-        Debug.Log("ShowDetailPanel 실행");
         ShowDetailPanel(CurrentStageButton.StageData);
     }
 
@@ -103,7 +100,6 @@ public class StageSelectPanel : MonoBehaviour
     {
         if (stageDetailPanel != null)
         {
-            Debug.Log("ShowDetailPanel 실행 : stageDetailPanel도 null이 아니다");
             stageDetailPanel.SetActive(true);
             stageTitleText.text = stageData.stageId;
             stageDetailText.text = stageData.stageDetail;

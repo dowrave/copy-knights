@@ -1,7 +1,9 @@
 using System;
 using System.Collections.Generic;
+using System.Xml;
 using DG.Tweening;
 using UnityEngine;
+using UnityEngine.UI;
 
 /// <summary>
 /// 씬 전환 시에도 유지되어야 하는 전역 매니저를 관리하는 클래스
@@ -28,8 +30,14 @@ public class MainMenuManager : MonoBehaviour
     {
         public MenuPanel type;
         public GameObject panel;
+        public MenuPanel parentPanel = MenuPanel.None; // "뒤로 가기" 버튼을 눌렀을 때 이동할 부모 패널 
     }
 
+    // 여러 패널에서 공통으로 사용할 뒤로 가기 버튼과 홈 버튼
+    [Header("Navigation")]
+    [SerializeField] private GameObject navButtonContainer;
+    [SerializeField] private Button backButton;
+    [SerializeField] private Button homeButton;
 
     [Header("Panel References")]
     [SerializeField] private List<PanelInfo> panels;
@@ -37,8 +45,12 @@ public class MainMenuManager : MonoBehaviour
     [SerializeField] private float panelTransitionSpeed;
 
     private Dictionary<MenuPanel, GameObject> panelMap = new Dictionary<MenuPanel, GameObject>();
+    private Dictionary<GameObject, MenuPanel> reversePanelMap = new Dictionary<GameObject, MenuPanel>();
+
+    private Dictionary<MenuPanel, MenuPanel> parentMap = new Dictionary<MenuPanel, MenuPanel>();
     public Dictionary<MenuPanel, GameObject> PanelMap => panelMap;
 
+    private MenuPanel currentPanel = MenuPanel.StageSelect;
     public StageData SelectedStage { get; private set; }
 
     public event Action OnSelectedStageChanged;
@@ -59,6 +71,55 @@ public class MainMenuManager : MonoBehaviour
         {
             panelMap[panelInfo.type] = panelInfo.panel;
         }
+
+        InitializeNavigation();
+    }
+
+    private void InitializeNavigation()
+    {
+        // Dict 초기화
+        foreach (PanelInfo panelInfo in panels)
+        {
+            panelMap[panelInfo.type] = panelInfo.panel;
+            parentMap[panelInfo.type] = panelInfo.parentPanel;
+            reversePanelMap[panelInfo.panel] = panelInfo.type; 
+        }
+
+        if (backButton != null) backButton.onClick.AddListener(NavigateBack);
+        if (homeButton != null) homeButton.onClick.AddListener(NavigateToHome);
+
+        UpdateNavigationButtons();
+    }
+
+    public void NavigateBack()
+    {
+        if (currentPanel == MenuPanel.None) return;
+
+        if (parentMap.TryGetValue(currentPanel, out MenuPanel parentPanel) && parentPanel != MenuPanel.None)
+        {
+            ActivateAndFadeOut(panelMap[parentPanel], panelMap[currentPanel]);
+        }
+        else
+        {
+            Debug.LogWarning($"{currentPanel}에는 부모가 없음");
+        }
+    }
+
+    public void NavigateToHome()
+    {
+        ActivateAndFadeOut(panelMap[MenuPanel.StageSelect], panelMap[currentPanel]);
+    }
+
+    private void UpdateNavigationButtons()
+    {
+        if (currentPanel == MenuPanel.StageSelect)
+        {
+            navButtonContainer.SetActive(false);
+        }
+        else
+        {
+            navButtonContainer.SetActive(true);
+        }
     }
 
     /// <summary>
@@ -78,7 +139,6 @@ public class MainMenuManager : MonoBehaviour
                 panel.panel.SetActive(false);
             }
         }
-
         SetLastPlayedStage();
 
         GameManagement.Instance.UserSquadManager.OnSquadUpdated += OnSquadUpdated;
@@ -119,27 +179,41 @@ public class MainMenuManager : MonoBehaviour
     // 새 패널 페이드 인 후 이전 패널 비활성화, 주로 더 깊게 들어갈 때 사용
     public void FadeInAndHide(GameObject panelToShow, GameObject panelToHide)
     {
+        if (reversePanelMap.TryGetValue(panelToShow, out MenuPanel newPanel))
+        {
+            currentPanel = newPanel;
+        }
+
         CanvasGroup showGroup = panelToShow.GetComponent<CanvasGroup>();
         panelToShow.SetActive(true);
         showGroup.alpha = 0f;
         showGroup.DOFade(1f, panelTransitionSpeed)
             .OnComplete(() => panelToHide.SetActive(false));
+
+        UpdateNavigationButtons();
     }
 
     // 새 패널 활성화 후 이전 패널 페이드 아웃, 주로 깊은 패널에서 얕은 패널로 나올 때 사용
     public void ActivateAndFadeOut(GameObject panelToShow, GameObject panelToHide)
     {
+        if (reversePanelMap.TryGetValue(panelToShow, out MenuPanel newPanel))
+        {
+            currentPanel = newPanel;
+        }
+
         // 이전 패널 즉시 활성화 -> 현재 패널 페이드 아웃
         panelToShow.SetActive(true);
         CanvasGroup hideGroup = panelToHide.GetComponent<CanvasGroup>();
         hideGroup.DOFade(0f, panelTransitionSpeed)
             .OnComplete(() => panelToHide.SetActive(false));
+
+        UpdateNavigationButtons();
     }
 
     // 스테이지 시작
     public void StartStage()
     {
-        List<OperatorData> currentSquad = GameManagement.Instance.UserSquadManager.GetActiveOperators();
+        List<OwnedOperator> currentSquad = GameManagement.Instance.UserSquadManager.GetCurrentSquad();
 
         if (currentSquad.Count > 0) // null을 값으로 갖는다면 포함해서 세므로 GetActiveOperators()을 써야 한다.
         {
@@ -167,15 +241,15 @@ public class MainMenuManager : MonoBehaviour
 
     private void UpdateSquadUI()
     {
-        List<OperatorData> currentSquad = GameManagement.Instance.UserSquadManager.GetCurrentSquad();
+        List<OwnedOperator> currentSquad = GameManagement.Instance.UserSquadManager.GetCurrentSquadWithNull();
 
         // UI 업데이트
     }
 
     // SquadEditPanel의 슬롯에 OperatorListPanel에서 오퍼레이터를 결정하고 할당할 때 사용
-    public void OnOperatorSelected(int slotIndex, OperatorData newOperatorData)
+    public void OnOperatorSelected(int slotIndex, OwnedOperator newOperator)
     {
-        GameManagement.Instance.UserSquadManager.TryReplaceOperator(slotIndex, newOperatorData);
+        GameManagement.Instance.UserSquadManager.TryReplaceOperator(slotIndex, newOperator);
     }
 
     private void OnDestroy()

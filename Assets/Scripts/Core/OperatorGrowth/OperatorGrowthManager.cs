@@ -83,7 +83,7 @@ public class OperatorGrowthManager: MonoBehaviour
         progress.currentLevel = 1;
 
         // 정예화에 따른 변경사항 적용
-        var opData = PlayerDataManager.Instance.GetOperatorData(operatorName);
+        var opData = GameManagement.Instance.PlayerDataManager.GetOperatorData(operatorName);
         if (opData != null)
         {
             progress.ApplyElitePhaseChanges(opData);

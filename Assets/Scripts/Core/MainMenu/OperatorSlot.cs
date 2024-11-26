@@ -30,8 +30,9 @@ public class OperatorSlot : MonoBehaviour
     // 사용 가능한 버튼인가를 표시
     private bool isThisActiveButton = false;
 
-    // 현재 슬롯에 할당된 "오퍼레이터 데이터"
-    public OperatorData AssignedOperator { get; private set; }
+    public OwnedOperator OwnedOperator { get; private set; }
+    public OperatorData AssignedOperatorData => OwnedOperator?.BaseData;
+
 
     // 선택 상태
     private bool isSelected = false;
@@ -49,17 +50,15 @@ public class OperatorSlot : MonoBehaviour
         button.onClick.AddListener(() => OnSlotClicked.Invoke(this)); 
     }
 
-    /// <summary>
-    /// 오퍼레이터 할당은 AssignOperator에서 별도로 진행
-    /// </summary>
-    public void Initialize(bool isActive, OperatorData operatorData = null)
+
+    public void Initialize(bool isActive, OwnedOperator ownedOp = null)
     {
         isThisActiveButton = isActive;
         button.interactable = isThisActiveButton;
 
-        if (operatorData != null)
+        if (ownedOp != null)
         {
-            AssignOperator(operatorData);
+            AssignOperator(ownedOp);
         }
         else
         {
@@ -68,12 +67,29 @@ public class OperatorSlot : MonoBehaviour
     }
 
     /// <summary>
+    /// Initialize를 수정, 기존 타입을 받는 구조도 수정된 Initialize로 보내게끔 이렇게 구성함
+    /// </summary>
+    public void Initialize(bool isActive, OperatorData operatorData)
+    {
+        if (operatorData != null)
+        {
+            var ownedOp = GameManagement.Instance.PlayerDataManager.GetOwnedOperator(operatorData.entityName);
+            Initialize(isActive, ownedOp);
+        }
+        else
+        {
+            Initialize(isActive, (OwnedOperator)null);
+        }
+    }
+
+
+    /// <summary>
     /// 1. Empty와 Disabled의 구현 차이가 거의 없어서 함께 이용
     /// 2. OperatorSelectionPanel에서 SquadEditPanel의 Slot을 비울 때에도 쓸 수 있음
     /// </summary>
     public void SetEmptyOrDisabled(bool isActive)
-    {
-        AssignedOperator = null;
+    { 
+        OwnedOperator = null;
         activeComponent.SetActive(false);
         slotText.gameObject.SetActive(true);
         UpdateVisuals();
@@ -82,9 +98,9 @@ public class OperatorSlot : MonoBehaviour
     /// <summary>
     /// 현재 슬롯에 오퍼레이터를 할당하고 시각 요소 업데이트
     /// </summary>
-    public void AssignOperator(OperatorData operatorData)
+    public void AssignOperator(OwnedOperator newOwnedOperator)
     {
-        AssignedOperator = operatorData;
+        OwnedOperator = newOwnedOperator;
         UpdateVisuals();
     }
 
@@ -100,7 +116,7 @@ public class OperatorSlot : MonoBehaviour
             return;
         }
 
-        if (AssignedOperator == null)
+        if (OwnedOperator == null)
         {
             // 빈 슬롯 표시
             SetEmptySlotVisuals();
@@ -127,7 +143,7 @@ public class OperatorSlot : MonoBehaviour
 
     public bool IsEmpty()
     {
-        return AssignedOperator == null;
+        return AssignedOperatorData == null;
     }
 
     private void SetInactiveSlotVisuals()
@@ -156,9 +172,9 @@ public class OperatorSlot : MonoBehaviour
 
         // 오퍼레이터 이미지 설정
         operatorImage.gameObject.SetActive(true);
-        if (AssignedOperator.icon != null)
+        if (AssignedOperatorData.icon != null)
         {
-            operatorImage.sprite = AssignedOperator.icon;
+            operatorImage.sprite = AssignedOperatorData.icon;
         }
         else
         {
@@ -167,22 +183,22 @@ public class OperatorSlot : MonoBehaviour
 
         // 클래스 아이콘 설정
         classIconImage.gameObject.SetActive(true);
-        IconHelper.SetClassIcon(classIconImage, AssignedOperator.operatorClass);
+        IconHelper.SetClassIcon(classIconImage, AssignedOperatorData.operatorClass);
 
         // 스킬 아이콘 설정
         UpdateSkillIcon();
 
         // 오퍼레이터 이름 설정
         operatorNameText.gameObject.SetActive(true);
-        operatorNameText.text = AssignedOperator.entityName;
+        operatorNameText.text = AssignedOperatorData.entityName;
     }
 
     private void UpdateSkillIcon()
     {
-        if (AssignedOperator.skills != null && AssignedOperator.skills.Count > 0)
+        if (AssignedOperatorData.skills != null && AssignedOperatorData.skills.Count > 0)
         {
             skillImage.gameObject.SetActive(true);
-            Sprite skillIcon = AssignedOperator.skills[0].SkillIcon;
+            Sprite skillIcon = AssignedOperatorData.skills[0].SkillIcon;
             if (skillIcon != null)
             {
                 skillImage.sprite = skillIcon;

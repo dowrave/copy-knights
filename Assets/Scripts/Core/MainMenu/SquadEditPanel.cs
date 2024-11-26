@@ -9,7 +9,6 @@ public class SquadEditPanel : MonoBehaviour
     [SerializeField] private Transform operatorSlotsContainer;
     [SerializeField] private List<OperatorSlot> operatorSlots = new List<OperatorSlot>();
     [SerializeField] private Button startButton;
-    [SerializeField] private Button backButton;
 
     private List<OperatorData> currentSquad = new List<OperatorData>();
     private GameObject stageSelectPanel;
@@ -18,7 +17,6 @@ public class SquadEditPanel : MonoBehaviour
     private void Awake()
     {
         startButton.onClick.AddListener(HandleStartButtonClicked);
-        backButton.onClick.AddListener(HandleBackButtonClicked);
     }
 
     private void Start()
@@ -53,12 +51,12 @@ public class SquadEditPanel : MonoBehaviour
     private void OnEnable()
     {
         UpdateSquadUI();
-        //UpdateVisuals();
     }
 
     private void UpdateSquadUI()
     {
-        List<OperatorData> currentSquad = GameManagement.Instance.UserSquadManager.GetCurrentSquad();
+        List<OwnedOperator> currentSquad = GameManagement.Instance.PlayerDataManager.GetCurrentSquadWithNull();
+        if (currentSquad.Count == 0) return; // 현재 스쿼드 정보가 없으면 실행 중단
 
         for (int i = 0; i < operatorSlots.Count; i++)
         {
@@ -67,6 +65,7 @@ public class SquadEditPanel : MonoBehaviour
 
             if (isActiveSlot)
             {
+                Debug.Log($"인덱스 : {i}");
                 if (currentSquad[i] != null)
                 {
                     // 오퍼레이터 할당 슬롯
@@ -102,11 +101,6 @@ public class SquadEditPanel : MonoBehaviour
     {
         // 어떤 스테이지인지는 MainMenuManager에서 관리 중
         MainMenuManager.Instance.StartStage();
-    }
-
-    private void HandleBackButtonClicked()
-    {
-        MainMenuManager.Instance.ActivateAndFadeOut(MainMenuManager.Instance.PanelMap[MainMenuManager.MenuPanel.StageSelect], gameObject);
     }
 
     /// <summary>
