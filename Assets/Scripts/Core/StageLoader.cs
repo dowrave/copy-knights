@@ -17,7 +17,7 @@ public class StageLoader : MonoBehaviour
 
     private StageData cachedStageData;
     public StageData CachedStageData => cachedStageData; 
-    private List<OperatorData> cachedSquadData;
+    private List<OwnedOperator> cachedSquadData;
     private bool isLoading;
 
     private StageLoadingScreen loadingScreen;
@@ -37,7 +37,7 @@ public class StageLoader : MonoBehaviour
         }
 
         cachedStageData = stageData;
-        cachedSquadData = new List<OperatorData>(GameManagement.Instance.UserSquadManager.GetCurrentSquad());
+        cachedSquadData = new List<OwnedOperator>(GameManagement.Instance.UserSquadManager.GetCurrentSquadWithNull());
 
         StartCoroutine(LoadStageRoutine());
     }
@@ -180,20 +180,20 @@ public class StageLoader : MonoBehaviour
         {
             DeployableManager.Instance.Initialize();
 
-            foreach (var opData in cachedSquadData)
+            foreach (OwnedOperator op in cachedSquadData)
             {
-                if (opData != null)
+                if (op != null)
                 {
                     var deployableInfo = new DeployableManager.DeployableInfo
                     {
-                        prefab = opData.prefab,
+                        prefab = op.BaseData.prefab,
                         maxDeployCount = 1,
                         remainingDeployCount = 1,
                         isUserOperator = true,
-                        redeployTime = opData.stats.RedeployTime
+                        redeployTime = op.BaseData.stats.RedeployTime
                     };
 
-                    DeployableManager.Instance.AddDeployableInfo(opData.prefab, 1, true);
+                    DeployableManager.Instance.AddDeployableInfo(op.BaseData.prefab, 1, true);
                 }
             }
         }

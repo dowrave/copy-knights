@@ -62,7 +62,7 @@ public class OperatorDetailPanel : MonoBehaviour
     public void Initialize(OperatorData operatorData)
     {
         this.operatorData = operatorData;
-        this.ownedOperator = PlayerDataManager.Instance.GetOwnedOperator(operatorData.entityName);
+        this.ownedOperator = GameManagement.Instance.PlayerDataManager.GetOwnedOperator(operatorData.entityName);
 
         UpdateBasicInfo();
         UpdateStats();
@@ -107,14 +107,14 @@ public class OperatorDetailPanel : MonoBehaviour
     {
         OperatorStats currentStats = ownedOperator.GetCurrentStats();
 
-        healthText.text = currentStats.Health.ToString("F0");
-        attackPowerText.text = currentStats.AttackPower.ToString("F0");
-        defenseText.text = currentStats.Defense.ToString("F0");
-        magicResistanceText.text = currentStats.MagicResistance.ToString("F0");
+        healthText.text = currentStats.Health.ToString();
+        attackPowerText.text = currentStats.AttackPower.ToString();
+        defenseText.text = currentStats.Defense.ToString();
+        magicResistanceText.text = currentStats.MagicResistance.ToString();
         deploymentCostText.text = currentStats.DeploymentCost.ToString();
         redeployTimeText.text = currentStats.RedeployTime.ToString();
         blockCountText.text = currentStats.MaxBlockableEnemies.ToString();
-        attackSpeedText.text = currentStats.AttackSpeed.ToString("F2");
+        attackSpeedText.text = currentStats.AttackSpeed.ToString();
     }
 
     private void UpdateGrowthInfo()
