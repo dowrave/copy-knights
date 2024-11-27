@@ -59,10 +59,10 @@ public class OperatorDetailPanel : MonoBehaviour
         }
     }
 
-    public void Initialize(OperatorData operatorData)
+    public void Initialize(OwnedOperator ownedOp)
     {
-        this.operatorData = operatorData;
-        this.ownedOperator = GameManagement.Instance.PlayerDataManager.GetOwnedOperator(operatorData.entityName);
+        ownedOperator = ownedOp;
+        operatorData = ownedOp.BaseData;
 
         UpdateBasicInfo();
         UpdateStats();
@@ -105,7 +105,7 @@ public class OperatorDetailPanel : MonoBehaviour
 
     private void UpdateStats()
     {
-        OperatorStats currentStats = ownedOperator.GetCurrentStats();
+        OperatorStats currentStats = ownedOperator.GetOperatorStats();
 
         healthText.text = currentStats.Health.ToString();
         attackPowerText.text = currentStats.AttackPower.ToString();
@@ -121,12 +121,17 @@ public class OperatorDetailPanel : MonoBehaviour
     {
         string currentExp = ownedOperator.currentExp.ToString();
         string maxExp = OperatorGrowthSystem.GetRequiredExp(ownedOperator.currentLevel).ToString();
-        expText.text = $"{currentExp} / {maxExp}";
+        //expText.text = $"{currentExp} / {maxExp}";
     }
 
     private void UpdateButtonStates()
     {
         levelUpButton.interactable = ownedOperator.CanLevelUp;
         promoteButton.interactable = ownedOperator.CanPromote; 
+    }
+
+    private void OnDisable()
+    {
+        
     }
 }

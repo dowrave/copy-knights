@@ -30,7 +30,7 @@ public class SquadEditPanel : MonoBehaviour
        // 슬롯 초기화
        for (int i = 0; i < operatorSlots.Count; i++)
         {
-            int slotIndex = i; // 클로저를 위해 로컬 변수로 복사
+            int slotIndex = i;  // 이런 식으로 복사해서 변수를 사용함 - i가 같이 움직일 위험이 있단다.
             OperatorSlot slot = operatorSlots[i];
 
             bool isActiveSlot = i < GameManagement.Instance.UserSquadManager.MaxSquadSize;
@@ -38,8 +38,6 @@ public class SquadEditPanel : MonoBehaviour
 
             if (isActiveSlot)
             {
-                // 클로저를 사용하지 않고 i를 쓰면 루프가 끝난 후에는 모든 리스너가 마지막 i값을 참조하게 된다
-                // 클로저를 쓰면 반복마다 생성된 새로운 변수 slotIndex를 각 리스너가 자신만의 인덱스로 사용하게 된다.
                 slot.OnSlotClicked.AddListener((clickedSlot) => HandleSlotClicked(clickedSlot, slotIndex));
             }
         }
@@ -65,7 +63,6 @@ public class SquadEditPanel : MonoBehaviour
 
             if (isActiveSlot)
             {
-                Debug.Log($"인덱스 : {i}");
                 if (currentSquad[i] != null)
                 {
                     // 오퍼레이터 할당 슬롯
@@ -106,7 +103,6 @@ public class SquadEditPanel : MonoBehaviour
     /// <summary>
     /// 활성화된 슬롯 중에서 오퍼레이터가 배치된 슬롯의 수
     /// </summary>
-    /// <returns></returns>
     private int GetDeployedOperatorCount()
     {
         int count = 0;

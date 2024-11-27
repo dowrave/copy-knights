@@ -1,6 +1,5 @@
-
-
 using System.Collections.Generic;
+using UnityEngine;
 
 /// <summary>
 /// 실제로 보유한 오퍼레이터는 이런 식으로 저장된다.
@@ -13,7 +12,9 @@ public class OwnedOperator
     public int currentLevel = 1;
     public OperatorGrowthSystem.ElitePhase currentPhase = OperatorGrowthSystem.ElitePhase.Elite0;
     public int selectedSkillIndex = 0;
-    public int currentExp = 0; 
+    public int currentExp = 0;
+    public OperatorStats currentStats;
+    public List<Vector2Int> currentAttackableTiles;
 
     public bool CanLevelUp => OperatorGrowthSystem.CanLevelUp(currentLevel, currentPhase, currentExp);
     public bool CanPromote => OperatorGrowthSystem.CanPromote(currentLevel, currentPhase);
@@ -36,21 +37,43 @@ public class OwnedOperator
         }
     }
 
+    // 생성자
+    public OwnedOperator(OperatorData opData)
+    {
+        operatorName = opData.entityName;
+        currentAttackableTiles = new List<Vector2Int>(opData.attackableTiles);
+        currentLevel = 1;
+        currentPhase = OperatorGrowthSystem.ElitePhase.Elite0;
+        currentExp = 0;
+        selectedSkillIndex = 0;
+
+        _baseData = opData;
+        
+        // 초기 스탯 설정
+        UpdateStats();
+    }
+
     /// <summary>
     /// 레벨이 반영된 현재 스탯 계산
     /// </summary>
-    public OperatorStats GetCurrentStats()
+    public void UpdateStats()
     {
+        if (BaseData == null)
+        {
+            Debug.LogError($"{BaseData}가 초기화되지 않음");
+            return;
+        }
+
         OperatorStats baseStats = BaseData.stats;
         OperatorData.OperatorLevelStats levelUpStats = BaseData.levelStats;
         int levelDifference = currentLevel - 1;
 
-        OperatorStats currentStats = new OperatorStats
+        currentStats = new OperatorStats
         {
-            AttackPower = baseStats.AttackPower * (levelUpStats.attackPowerPerLevel * levelDifference),
-            Health = baseStats.Health * (levelUpStats.healthPerLevel * levelDifference),
-            Defense = baseStats.Defense * (levelUpStats.defensePerLevel * levelDifference),
-            MagicResistance = baseStats.MagicResistance * (levelUpStats.magicResistancePerLevel * levelDifference),
+            AttackPower = baseStats.AttackPower + (levelUpStats.attackPowerPerLevel * levelDifference),
+            Health = baseStats.Health + (levelUpStats.healthPerLevel * levelDifference),
+            Defense = baseStats.Defense + (levelUpStats.defensePerLevel * levelDifference),
+            MagicResistance = baseStats.MagicResistance + (levelUpStats.magicResistancePerLevel * levelDifference),
             AttackSpeed = baseStats.AttackSpeed,
             DeploymentCost = baseStats.DeploymentCost,
             MaxBlockableEnemies = baseStats.MaxBlockableEnemies,
@@ -58,9 +81,10 @@ public class OwnedOperator
             SPRecoveryRate = baseStats.SPRecoveryRate,
             StartSP = baseStats.StartSP
         };
-
-        return currentStats; 
     }
+
+    public OperatorStats GetOperatorStats() => currentStats;
+    public List<Vector2Int> GetCurrentAttackableTiles() => currentAttackableTiles;
 
     /// <summary>
     /// 정예화 시에 해금되는 요소 적용
@@ -81,4 +105,5 @@ public class OwnedOperator
             }
         }
     }
+
 }

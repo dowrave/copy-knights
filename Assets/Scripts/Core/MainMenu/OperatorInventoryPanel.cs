@@ -43,7 +43,7 @@ public class OperatorInventoryPanel : MonoBehaviour
     private float tileSize;
 
     // UserSquadManager에서 현재 편집 중인 인덱스
-    private int nowEditingIndex; 
+    private int nowEditingIndex;  
 
     private void Awake()
     {
@@ -52,6 +52,7 @@ public class OperatorInventoryPanel : MonoBehaviour
         detailButton.onClick.AddListener(OnDetailButtonClicked);
 
         confirmButton.interactable = false;
+        detailButton.interactable = false;
         //gameObject.SetActive(false); // 이거 있으면 실행 전에 이 오브젝트가 비활성화된 경우 ShowPanel 등에 의한 활성화가 아예 안됨
     }
 
@@ -59,8 +60,9 @@ public class OperatorInventoryPanel : MonoBehaviour
     {
         PopulateOperators();
         ResetSelection();
+
         nowEditingIndex = GameManagement.Instance.UserSquadManager.EditingSlotIndex;
-        Debug.Log($"현재 편집 중인 스쿼드 인덱스 : {nowEditingIndex}");
+        Debug.Log($"인벤토리 패널 OnEnabled 활성화됨, 현재 인덱스 : {nowEditingIndex}");
     }
 
 
@@ -75,7 +77,6 @@ public class OperatorInventoryPanel : MonoBehaviour
         // 현재 스쿼드 가져오기
         List<OwnedOperator> currentSquad = GameManagement.Instance.UserSquadManager.GetCurrentSquad();
 
-        Debug.Log(currentSquad.Count);
 
         // 보유 중인 오퍼레이터 중, 현재 스쿼드에 없는 오퍼레이터만 가져옴
         List<OwnedOperator> availableOperators = GameManagement.Instance.PlayerDataManager.GetOwnedOperators()
@@ -140,8 +141,12 @@ public class OperatorInventoryPanel : MonoBehaviour
 
     private void OnDetailButtonClicked()
     {
-        // (전제조건)슬롯마다 OwnedOperator를 바꿔야 함
-        // selectedSlot의 ownedOperator가 전달돼야 함
+        if (selectedSlot != null && selectedSlot.OwnedOperator != null)
+        {
+            GameObject detailPanel = MainMenuManager.Instance.PanelMap[MainMenuManager.MenuPanel.OperatorDetail];
+            detailPanel.GetComponent<OperatorDetailPanel>().Initialize(selectedSlot.OwnedOperator);
+            MainMenuManager.Instance.ActivateAndFadeOut(detailPanel, gameObject);
+        }
         MainMenuManager.Instance.ActivateAndFadeOut(MainMenuManager.Instance.PanelMap[MainMenuManager.MenuPanel.OperatorDetail], gameObject);
     }
 
@@ -152,6 +157,8 @@ public class OperatorInventoryPanel : MonoBehaviour
         {
             selectedSlot.SetSelected(false);
             selectedSlot = null;
+            detailButton.interactable = false;
+            confirmButton.interactable = false;
         }
     }
 
@@ -167,15 +174,14 @@ public class OperatorInventoryPanel : MonoBehaviour
     /// <summary>
     /// OperatorSelectionPanel의 SideView에 나타나는 오퍼레이터와 관련된 정보를 업데이트한다.
     /// </summary>
-    /// <param name="slot"></param>
     private void UpdateSideView(OperatorSlot slot)
     {
 
-        OperatorData opData = slot.AssignedOperatorData;
-        OperatorStats opStats = opData.stats;
+        OwnedOperator op = slot.OwnedOperator;
+        OperatorStats opStats = op.currentStats;
+        OperatorData opData = op.BaseData;
 
         operatorNameText.text = opData.entityName;
-
         healthText.text = opStats.Health.ToString();
         redeployTimeText.text = opStats.RedeployTime.ToString();
         attackPowerText.text = opStats.AttackPower.ToString();
@@ -221,6 +227,21 @@ public class OperatorInventoryPanel : MonoBehaviour
         rangeTiles.Clear();
     }
 
+    private void ClearSideView()
+    {
+        operatorNameText.text = "";
+        healthText.text = "";
+        redeployTimeText.text = "";
+        attackPowerText.text = "";
+        deploymentCostText.text = "";
+        defenseText.text = "";
+        magicResistanceText.text = "";
+        blockCountText.text = "";
+        attackSpeedText.text = "";
+
+        ClearVisualAttackRange();
+    }
+
     private void CreateRangeTile(Vector2Int gridPos, bool isCenterTile)
     {
         // 프리팹 선택
@@ -252,7 +273,8 @@ public class OperatorInventoryPanel : MonoBehaviour
 
     private void OnDisable()
     {
-        ClearVisualAttackRange();
+        ClearSlots();
+        ClearSideView();
         ResetSelection();
     }
 }
