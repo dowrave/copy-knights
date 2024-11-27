@@ -44,9 +44,9 @@ public class MainMenuManager : MonoBehaviour
 
     [SerializeField] private float panelTransitionSpeed;
 
+    // 패널 간의 연결을 쉽게 하기 위한 Dict들
     private Dictionary<MenuPanel, GameObject> panelMap = new Dictionary<MenuPanel, GameObject>();
     private Dictionary<GameObject, MenuPanel> reversePanelMap = new Dictionary<GameObject, MenuPanel>();
-
     private Dictionary<MenuPanel, MenuPanel> parentMap = new Dictionary<MenuPanel, MenuPanel>();
     public Dictionary<MenuPanel, GameObject> PanelMap => panelMap;
 
@@ -54,6 +54,7 @@ public class MainMenuManager : MonoBehaviour
     public StageData SelectedStage { get; private set; }
 
     public event Action OnSelectedStageChanged;
+    //public event Action OnPanelChanged;
 
     private void Awake()
     {
@@ -98,6 +99,7 @@ public class MainMenuManager : MonoBehaviour
         if (parentMap.TryGetValue(currentPanel, out MenuPanel parentPanel) && parentPanel != MenuPanel.None)
         {
             ActivateAndFadeOut(panelMap[parentPanel], panelMap[currentPanel]);
+            //OnPanelChanged?.Invoke();
         }
         else
         {
@@ -112,6 +114,8 @@ public class MainMenuManager : MonoBehaviour
 
     private void UpdateNavigationButtons()
     {
+        Debug.Log(currentPanel);
+
         if (currentPanel == MenuPanel.StageSelect)
         {
             navButtonContainer.SetActive(false);
@@ -181,16 +185,21 @@ public class MainMenuManager : MonoBehaviour
     {
         if (reversePanelMap.TryGetValue(panelToShow, out MenuPanel newPanel))
         {
+            // 새 패널 활성화
+            panelToShow.SetActive(true);
             currentPanel = newPanel;
+            UpdateNavigationButtons();
+
+            // 새 패널 페이드 인
+            CanvasGroup showGroup = panelToShow.GetComponent<CanvasGroup>();
+            showGroup.alpha = 0f;
+            showGroup.DOKill(); 
+            showGroup.DOFade(1f, panelTransitionSpeed)
+                .OnComplete(() => {
+                    panelToHide.SetActive(false);
+                });
+
         }
-
-        CanvasGroup showGroup = panelToShow.GetComponent<CanvasGroup>();
-        panelToShow.SetActive(true);
-        showGroup.alpha = 0f;
-        showGroup.DOFade(1f, panelTransitionSpeed)
-            .OnComplete(() => panelToHide.SetActive(false));
-
-        UpdateNavigationButtons();
     }
 
     // 새 패널 활성화 후 이전 패널 페이드 아웃, 주로 깊은 패널에서 얕은 패널로 나올 때 사용
@@ -198,16 +207,22 @@ public class MainMenuManager : MonoBehaviour
     {
         if (reversePanelMap.TryGetValue(panelToShow, out MenuPanel newPanel))
         {
+            // 새 패널 활성화 
+            panelToShow.SetActive(true);
+            CanvasGroup showGroup = panelToShow.GetComponent<CanvasGroup>();
+            showGroup.alpha = 1f; // 어떤 패널은 알파가 0을 유지하는 경우가 있어서 일부러 넣음
+
             currentPanel = newPanel;
+            UpdateNavigationButtons();
+
+            // 현재 패널 페이드 아웃
+            CanvasGroup hideGroup = panelToHide.GetComponent<CanvasGroup>();
+            hideGroup.DOFade(0f, panelTransitionSpeed)
+                .OnComplete(() =>
+                {
+                    panelToHide.SetActive(false);
+                });
         }
-
-        // 이전 패널 즉시 활성화 -> 현재 패널 페이드 아웃
-        panelToShow.SetActive(true);
-        CanvasGroup hideGroup = panelToHide.GetComponent<CanvasGroup>();
-        hideGroup.DOFade(0f, panelTransitionSpeed)
-            .OnComplete(() => panelToHide.SetActive(false));
-
-        UpdateNavigationButtons();
     }
 
     // 스테이지 시작

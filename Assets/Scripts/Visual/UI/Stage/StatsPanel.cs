@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using DG.Tweening;
 using TMPro;
 using UnityEngine;
@@ -9,19 +10,20 @@ public class StatsPanel : MonoBehaviour
 {
     [SerializeField] private GameObject statisticsContainer;
     [SerializeField] private Button statisticsToggleButton;
+    public bool IsActive { get; private set; }
     TextMeshProUGUI toggleButtonText;
+
+    [Header("StatisticsItem")]
     [SerializeField] private Transform statsItemContainer;
     [SerializeField] private GameObject statItemPrefab;
     [SerializeField] private Button statsItemContainerButton; // 절대 수치 <-> 퍼센티지 변환 버튼, StatsItemContainer 그 자체
-    private bool showPercentage = false;
-
-    [SerializeField] private StatisticItem firstStatItem;
-    [SerializeField] private StatisticItem secondStatItem;
-    [SerializeField] private StatisticItem thirdStatItem;
+    [SerializeField] private StatisticItem[] statItems;
 
     [SerializeField] private Button damageDealtTab;
     [SerializeField] private Button damageTakenTab;
     [SerializeField] private Button healingDoneTab;
+
+    private bool showPercentage = false;
 
     // 수정할 수도 있으니 이렇게 달아둠
     private RectTransform containerRect;
@@ -55,15 +57,20 @@ public class StatsPanel : MonoBehaviour
         // 버튼 초기 색상 설정 : 이미 있는 걸 가져옴
         defaultTabColor = damageDealtTab.colors.normalColor;
     }
+
     private void Start()
     {
-        StatisticsManager.Instance.OnStatUpdated += ShowStatsByEvent;
 
         // 최초에는 모두 비활성화
-        firstStatItem.gameObject.SetActive(false);
-        secondStatItem.gameObject.SetActive(false);
-        thirdStatItem.gameObject.SetActive(false);
+        foreach (StatisticItem statItem in statItems)
+        {
+            statItem.gameObject.SetActive(false);
+        }
+        //firstStatItem.gameObject.SetActive(false);
+        //secondStatItem.gameObject.SetActive(false);
+        //thirdStatItem.gameObject.SetActive(false);
 
+        StatisticsManager.Instance.OnStatUpdated += ShowStatsByEvent;
         statisticsContainer.SetActive(false);
     }
 
@@ -74,10 +81,10 @@ public class StatsPanel : MonoBehaviour
     private void ToggleStats()
     {
         // 바뀔 상태
-        bool willBeActive = !statisticsContainer.activeSelf;
+        IsActive = !statisticsContainer.activeSelf;
 
         // 바뀔 상태가 활성인 경우
-        if (willBeActive)
+        if (IsActive)
         {
             statisticsContainer.SetActive(true);
 
@@ -116,7 +123,8 @@ public class StatsPanel : MonoBehaviour
 
     private void ShowStatsByEvent(StatisticsManager.StatType statType)
     {
-        if (currentDisplayedStatType != statType) return;
+        if (!IsActive) return; // 패널이 활성화되지 않았다면 실행할 필요 X
+        if (currentDisplayedStatType != statType) return; // 현재 패널에 띄운 타입의 업데이트가 아닐 경우도 실행 X
         ShowStats(statType);
     }
 
@@ -153,13 +161,13 @@ public class StatsPanel : MonoBehaviour
     /// </summary>
     public void UpdateStatItems(StatisticsManager.StatType statType)
     {
+        // 스탯에 따른 상위 3개의 (오퍼레이터 + 스탯) 반환
         var topOperators = StatisticsManager.Instance.GetTopOperators(statType, 3);
 
-        // 상위 3개의 statItem 반영 (topOperator 갯수에 따른 작동 여부는 메서드 내에 있음)
-        UpdateStatItem(firstStatItem, topOperators, 0, statType);
-        UpdateStatItem(secondStatItem, topOperators, 1, statType);
-        UpdateStatItem(thirdStatItem, topOperators, 2, statType);
-
+        for (int i=0; i < statItems.Count(); i++)
+        {
+            UpdateStatItem(statItems[i], topOperators, i, statType);
+        }
     }
 
     /// <summary>
@@ -188,20 +196,6 @@ public class StatsPanel : MonoBehaviour
         else
         {
             item.gameObject.SetActive(false);
-        }
-    }
-
-    /// <summary>
-    /// 새로운 StatItem을 생성합니다.
-    /// </summary>
-    private void CreateStatItem(Operator op, StatisticsManager.StatType statType)
-    {
-        GameObject item = Instantiate(statItemPrefab, statsItemContainer);
-        StatisticItem statItem = item.GetComponent<StatisticItem>();
-        if (statItem != null)
-        {
-            statItem.Initialize(op, statType, showPercentage);
-            activeStatItems.Add(statItem);
         }
     }
 

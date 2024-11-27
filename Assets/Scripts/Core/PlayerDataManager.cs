@@ -152,14 +152,8 @@ public class PlayerDataManager : MonoBehaviour
     {
         if (!playerData.ownedOperators.Any(op => op.operatorName == operatorName))
         {
-            OwnedOperator newOp = new OwnedOperator
-            {
-                operatorName = operatorName,
-                currentLevel = 1,
-                currentPhase = OperatorGrowthSystem.ElitePhase.Elite0,
-                currentExp = 0,
-                selectedSkillIndex = 0
-            };
+            OperatorData opData = GetOperatorData(operatorName);
+            OwnedOperator newOp = new OwnedOperator(opData);
             playerData.ownedOperators.Add(newOp);
             SavePlayerData();
             Debug.Log($"{newOp.operatorName}가 정상적으로 ownedOperator에 등록되었습니다");

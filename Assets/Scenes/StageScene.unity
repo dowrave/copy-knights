@@ -1626,7 +1626,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cf48a7c8f0823fe4fa0ce26b1adee165, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  maxSquadSize: 6
 --- !u!4 &627474655
 Transform:
   m_ObjectHideFlags: 0
@@ -2020,11 +2019,12 @@ MonoBehaviour:
   statisticsContainer: {fileID: 4079014642373924360}
   statisticsToggleButton: {fileID: 2728000184458652416}
   statsItemContainer: {fileID: 1664701191693515332}
-  statItemPrefab: {fileID: 2430217348483323847, guid: 5caf4c69e755be746aca960dccbfcda3, type: 3}
+  statItemPrefab: {fileID: 6908751904297322201, guid: 5caf4c69e755be746aca960dccbfcda3, type: 3}
   statsItemContainerButton: {fileID: 5008262749649990988}
-  firstStatItem: {fileID: 3680828840086779970}
-  secondStatItem: {fileID: 6081916849916444182}
-  thirdStatItem: {fileID: 3761091531827933169}
+  statItems:
+  - {fileID: 3680828840086779970}
+  - {fileID: 6081916849916444182}
+  - {fileID: 3761091531827933169}
   damageDealtTab: {fileID: 971502764979178629}
   damageTakenTab: {fileID: 8032576007155234459}
   healingDoneTab: {fileID: 6118110196983541561}
