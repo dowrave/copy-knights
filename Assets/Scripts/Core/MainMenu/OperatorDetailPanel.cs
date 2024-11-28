@@ -9,6 +9,7 @@ public class OperatorDetailPanel : MonoBehaviour
     [SerializeField] private Image classIconImage;
     [SerializeField] private TextMeshProUGUI operatorNameText;
     [SerializeField] private TextMeshProUGUI levelText;
+    [SerializeField] private TextMeshProUGUI maxLevelText;
     [SerializeField] private TextMeshProUGUI phaseText;
     [SerializeField] private Image[] skillIconImages;
 
@@ -26,6 +27,10 @@ public class OperatorDetailPanel : MonoBehaviour
     [SerializeField] private TextMeshProUGUI expText;
     [SerializeField] private Button levelUpButton;
     [SerializeField] private Button promoteButton;
+
+    [Header("Indicator")]
+    [SerializeField] private TextMeshProUGUI maxLevelIndicator;
+    [SerializeField] private TextMeshProUGUI canLevelUpIndicator;
 
     private OperatorData operatorData;
     private OwnedOperator ownedOperator;
@@ -85,7 +90,6 @@ public class OperatorDetailPanel : MonoBehaviour
         IconHelper.SetClassIcon(classIconImage, operatorData.operatorClass);
 
         operatorNameText.text = operatorData.entityName;
-        levelText.text = $"Level.{ownedOperator.currentLevel}";
         phaseText.text = $"Elite {(int)ownedOperator.currentPhase}";
 
         // 스킬 아이콘 - 현재 선택된 스킬을 OperatorData에서 가져옴
@@ -117,17 +121,36 @@ public class OperatorDetailPanel : MonoBehaviour
         attackSpeedText.text = currentStats.AttackSpeed.ToString();
     }
 
+    /// <summary>
+    /// 현재 경험치, 현재 레벨 업데이트
+    /// </summary>
     private void UpdateGrowthInfo()
     {
-        string currentExp = ownedOperator.currentExp.ToString();
-        string maxExp = OperatorGrowthSystem.GetRequiredExp(ownedOperator.currentLevel).ToString();
-        //expText.text = $"{currentExp} / {maxExp}";
+        int currentExp = ownedOperator.currentExp;
+        int maxExp = OperatorGrowthSystem.GetRequiredExp(ownedOperator.currentLevel);
+        int currentLevel = ownedOperator.currentLevel;
+        int maxLevel = OperatorGrowthSystem.GetMaxLevel(ownedOperator.currentPhase);
+
+        expText.text = $"EXP\n<size=44>{currentExp.ToString()}/{maxExp.ToString()}</size>";
+        levelText.text = $"LV\n<size=100><b>{currentLevel.ToString()}</b></size=100>";
+        maxLevelText.text = $"/{maxLevel.ToString()}";
+
+        if (currentLevel < maxLevel)
+        {
+            maxLevelIndicator.gameObject.SetActive(false);
+            canLevelUpIndicator.gameObject.SetActive(true);
+        }
+        else
+        {
+            maxLevelIndicator.gameObject.SetActive(true);
+            canLevelUpIndicator.gameObject.SetActive(false);
+        }
     }
 
     private void UpdateButtonStates()
     {
         levelUpButton.interactable = ownedOperator.CanLevelUp;
-        promoteButton.interactable = ownedOperator.CanPromote; 
+        promoteButton.interactable = ownedOperator.CanPromote;
     }
 
     private void OnDisable()
