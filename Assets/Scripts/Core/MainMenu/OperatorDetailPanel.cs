@@ -42,6 +42,9 @@ public class OperatorDetailPanel : MonoBehaviour
 
     private void SetupButtons()
     {
+        levelUpButton.interactable = true;
+        promoteButton.interactable = true;
+
         levelUpButton.onClick.AddListener(OnLevelUpClicked);
         promoteButton.onClick.AddListener(OnPromoteClicked);
     }
@@ -50,8 +53,10 @@ public class OperatorDetailPanel : MonoBehaviour
     {
         if (ownedOperator.CanLevelUp)
         {
-            GameObject levelUpPanel = MainMenuManager.Instance.PanelMap[MainMenuManager.MenuPanel.OperatorLevelUp];
-            MainMenuManager.Instance.FadeInAndHide(levelUpPanel, gameObject);
+            GameObject levelUpPanelObject = MainMenuManager.Instance.PanelMap[MainMenuManager.MenuPanel.OperatorLevelUp];
+            OperatorLevelUpPanel levelUpPanel = levelUpPanelObject.GetComponent<OperatorLevelUpPanel>();
+            MainMenuManager.Instance.FadeInAndHide(levelUpPanelObject, gameObject);
+            levelUpPanel.Initialize(ownedOperator);
         }
     }
 
@@ -131,7 +136,7 @@ public class OperatorDetailPanel : MonoBehaviour
         int currentLevel = ownedOperator.currentLevel;
         int maxLevel = OperatorGrowthSystem.GetMaxLevel(ownedOperator.currentPhase);
 
-        expText.text = $"EXP\n<size=44>{currentExp.ToString()}/{maxExp.ToString()}</size>";
+        expText.text = $"EXP\n<size=44><color=#FFE61A>{currentExp.ToString()}</color>/{maxExp.ToString()}</size>";
         levelText.text = $"LV\n<size=100><b>{currentLevel.ToString()}</b></size=100>";
         maxLevelText.text = $"/{maxLevel.ToString()}";
 
@@ -155,6 +160,5 @@ public class OperatorDetailPanel : MonoBehaviour
 
     private void OnDisable()
     {
-        
     }
 }
