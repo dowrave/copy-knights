@@ -37,15 +37,18 @@ public static class OperatorGrowthSystem
     /// </summary>
     public static int GetRequiredExp(int currentLevel)
     {
-        if (currentLevel <= 1) return 0;
-        return Mathf.RoundToInt(BASE_EXP_FOR_LEVEL_UP + (EXP_INCREASE_PER_LEVEL * (currentLevel - 2)));
+        if (currentLevel < 1) return 0;
+        return Mathf.RoundToInt(BASE_EXP_FOR_LEVEL_UP + (EXP_INCREASE_PER_LEVEL * (currentLevel - 1)));
     }
 
+    /// <summary>
+    /// 현재 정예화에서 만렙만 아니면 true로 놓겠음
+    /// </summary>
     public static bool CanLevelUp(int currentLevel, ElitePhase currentPhase, int currentExp)
     {
         int maxLevel = GetMaxLevel(currentPhase);
         if (currentLevel >= maxLevel) return false;
-        return currentExp >= GetRequiredExp(currentLevel + 1);
+        return true;
     }
 
     public static bool CanPromote(int currentLevel, ElitePhase currentPhase)

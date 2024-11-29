@@ -3,7 +3,6 @@ using UnityEngine.UI;
 using TMPro;
 using UnityEngine.Events;
 
-
 /// <summary>
 /// 스쿼드 편집 패널과 오퍼레이터 선택 패널에서 공통으로 사용되는 오퍼레이터 슬롯 버튼을 구현
 /// </summary>
@@ -22,7 +21,6 @@ public class OperatorSlot : MonoBehaviour
 
     [Header("Visual Settings")]
     [SerializeField] private Color normalColor = Color.white;
-    //[SerializeField] private Color selectedColor = Color.cyan;
     [SerializeField] private Color disabledColor = Color.gray;
 
     private Button button;
@@ -82,7 +80,6 @@ public class OperatorSlot : MonoBehaviour
         }
     }
 
-
     /// <summary>
     /// 1. Empty와 Disabled의 구현 차이가 거의 없어서 함께 이용
     /// 2. OperatorSelectionPanel에서 SquadEditPanel의 Slot을 비울 때에도 쓸 수 있음
@@ -133,7 +130,6 @@ public class OperatorSlot : MonoBehaviour
         UpdateButtonColor();
     }
     
-
     public void SetSelected(bool selected)
     {
         isSelected = selected;
