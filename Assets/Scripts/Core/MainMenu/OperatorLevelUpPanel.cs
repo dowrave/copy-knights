@@ -5,8 +5,9 @@ using TMPro;
 using UnityEngine.EventSystems;
 using System.Collections.Generic;
 using System.Linq;
+using System.Collections;
 
-public class OperatorLevelUpPanel : MonoBehaviour, IBeginDragHandler, IEndDragHandler
+public class OperatorLevelUpPanel : MonoBehaviour
 {
     [Header("Level Strip Components")]
     [SerializeField] private ScrollRect levelScrollRect;
@@ -20,7 +21,7 @@ public class OperatorLevelUpPanel : MonoBehaviour, IBeginDragHandler, IEndDragHa
 
     [Header("Info Settings")]
     [SerializeField] private float snapSpeed = 10f; // 스냅 애니메이션 속도
-    [SerializeField] private float velocityThreshold = 0.01f; // 스크롤이 멈췄다고 판단하는 속도 임계값
+    [SerializeField] private float velocityThreshold = 0.5f; // 스크롤이 멈췄다고 판단하는 속도 임계값
 
     private float snapThreshold; // 스냅 위치와의 거리 임계값
 
@@ -28,10 +29,10 @@ public class OperatorLevelUpPanel : MonoBehaviour, IBeginDragHandler, IEndDragHa
     private int currentLevel;
     private int maxLevel;
     private int selectedLevel;
-    private int totalLevels; // 표시될 전체 레벨 수
+    private int totalLevels;
 
     // 스크롤 관련 변수
-    private float levelItemHeight = 200f; // 각 레벨 항목의 높이, levelTextPrefab의 Height값과 동일. 하드코딩 ㄱ
+    //private float levelItemHeight = 0f; // 각 레벨 항목의 높이, levelTextPrefab의 Height값과 동일. 하드코딩 ㄱ
     private float contentHeight; // 전체 컨텐츠의 높이
     private float viewportHeight; // 뷰포트의 높이
     private float paddingHeight; // 뷰포트의 절반 높이
@@ -39,6 +40,8 @@ public class OperatorLevelUpPanel : MonoBehaviour, IBeginDragHandler, IEndDragHa
     private bool isScrolling = false; // 관성 스크롤 중인지 여부
     //private float targetScrollPosition = 0f; 
     private bool isInitialized = false;
+    private bool isUpdatingPanel = false;
+    private bool isPanelUpdated = false; // 이 레벨에 대한 패널이 업데이트 됐으면 true
 
     // 각 레벨에 대한 스크롤 위치를 저장하는 dict
     private Dictionary<int, float> levelToScrollPosition = new Dictionary<int, float>();
@@ -63,8 +66,8 @@ public class OperatorLevelUpPanel : MonoBehaviour, IBeginDragHandler, IEndDragHa
         currentLevel = op.currentLevel;
         maxLevel = OperatorGrowthSystem.GetMaxLevel(op.currentPhase);
         selectedLevel = currentLevel;
-        totalLevels = maxLevel - currentLevel + 1;
         viewportHeight = levelScrollRect.viewport.rect.height;
+        totalLevels = maxLevel - currentLevel + 1;
 
         // UI 초기화
         InitializeLevelStrip();
@@ -76,6 +79,9 @@ public class OperatorLevelUpPanel : MonoBehaviour, IBeginDragHandler, IEndDragHa
         isInitialized = true; 
     }
 
+    /// <summary>
+    /// 각 레벨 오브젝트를 스크롤 상에 배치함
+    /// </summary>
     private void InitializeLevelStrip()
     {
         // 기존 레벨 텍스트 제거
@@ -86,13 +92,10 @@ public class OperatorLevelUpPanel : MonoBehaviour, IBeginDragHandler, IEndDragHa
 
         VerticalLayoutGroup layoutGroup = contentRect.GetComponent<VerticalLayoutGroup>();
         float spacing = layoutGroup != null ? layoutGroup.spacing : 0f;
-        float actualPaddingHeight = viewportHeight * 0.5f - spacing - levelItemHeight / 2; // 패딩, 아이템 높이 등 반영
+        float paddingHeight = viewportHeight * 0.5f - spacing;
 
         // 상단 여백 구현
-        GameObject topPadding = new GameObject("TopPadding");
-        topPadding.transform.SetParent(contentRect, false);
-        RectTransform topPaddingRect = topPadding.AddComponent<RectTransform>();
-        topPaddingRect.sizeDelta = new Vector2(0, actualPaddingHeight);
+        CreatePadding("TopPadding", paddingHeight);
 
         // 현재 ~ 최대 레벨의 텍스트 생성(최대 레벨부터 역순으로 배치)
         for (int level = maxLevel; level >= currentLevel ; level--)
@@ -106,38 +109,54 @@ public class OperatorLevelUpPanel : MonoBehaviour, IBeginDragHandler, IEndDragHa
         }
 
         // 하단 여백 구현
-        GameObject bottomPadding = new GameObject("BottomPadding");
-        bottomPadding.transform.SetParent(contentRect, false);
-        RectTransform bottomPaddingRect = bottomPadding.AddComponent<RectTransform>();
-        bottomPaddingRect.sizeDelta = new Vector2(0, actualPaddingHeight);
-
-        // RectTransform의 크기 변화는 프레임 이후에 계산되므로, 강제로 갱신함
-        Canvas.ForceUpdateCanvases(); 
-
-        contentHeight = contentRect.rect.height;
+        CreatePadding("BottomPadding", paddingHeight);
 
         CalculateScrollPositions();
         SetSnapThreshold();
     }
 
+    private void CreatePadding(string name, float height)
+    {
+        GameObject padding = new GameObject(name);
+        padding.transform.SetParent(contentRect, false);
+        RectTransform paddingRect = padding.AddComponent<RectTransform>();
+        paddingRect.sizeDelta = new Vector2(0, height);
+    }
+
+
     /// <summary>
     /// 각 레벨 오브젝트와 스크롤 높이를 매핑하는 dict를 만듦
+    /// 스크롤이 끝나는 양쪽 끝에 currentLevel과 maxLevel이 와야 함
     /// </summary>
     private void CalculateScrollPositions()
-    {
+    { 
         levelToScrollPosition.Clear();
 
-        for (int i = currentLevel; i <= maxLevel; i++)
+        // 높이에 스페이싱 반영
+        VerticalLayoutGroup layoutGroup = contentRect.GetComponent<VerticalLayoutGroup>();
+        float spacing = layoutGroup != null ? layoutGroup.spacing : 0f;
+        float paddingHeight = viewportHeight * 0.5f - spacing;
+
+        // 전체 content 영역의 높이
+        contentHeight = paddingHeight * 2 + // 상하 패딩
+            (spacing * (totalLevels + 1));  // 각 요소 사이의 간격. 2개의 패딩까지 추가해서 spacing이 2개 더 생김
+
+        // 스크롤 가능 영역 높이 : 패딩 영역 제외하기
+        float totalScrollHeight = contentHeight - viewportHeight; // 스크롤이 0일 때 currentLevel이 중앙에, 1일 때 maxLevel이 중앙에 온다
+
+        for (int level = currentLevel; level <= maxLevel; level++)
         {
-            int level = i;
+            int index = level - currentLevel; 
+            float centerOffset = index * spacing; // 각 숫자 오브젝트가 중앙에 오는 높이
 
-            // 해당 레벨이 정중앙에 올 때의 스크롤 위치를 계산
-            float levelIndex = maxLevel - i;
-            float itemPosition = levelIndex * levelItemHeight + paddingHeight;
-            float normalizedPosition = Mathf.Clamp01(1f - (itemPosition / (contentHeight - viewportHeight)));
+            // 정규화된 위치 계산 (0~1 사이로 보장)
+            float normalizedPosition = Mathf.Clamp01(centerOffset / totalScrollHeight); // 정규화
 
-            levelToScrollPosition[i] = normalizedPosition;
-            Debug.Log($"level {i}의 정규화 포지션 : {normalizedPosition}");
+            // 정규화된 스크롤값은 currentLevel일 때 0, maxLevel일 때 1이 된다.
+
+            levelToScrollPosition[level] = normalizedPosition;
+
+            Debug.Log($"Level {level} normalized position: {normalizedPosition}");
         }
     }
 
@@ -175,18 +194,31 @@ public class OperatorLevelUpPanel : MonoBehaviour, IBeginDragHandler, IEndDragHa
 
         // 스크롤 상태 확인
         Vector2 velocity = levelScrollRect.velocity;
+
         isScrolling = velocity.magnitude > velocityThreshold; // 임계치를 넘으면 스크롤 중이라고 판단
 
-        // 드래그 중이 아니고, 스크롤이 거의 멈췄을 때
-        if (!isDragging && !isScrolling)
+        // 마우스 버튼 다운 확인
+        bool isMousePressed = Input.GetMouseButton(0);
+
+        // 자유 스크롤 중일 때는 selectedLevel만 업데이트
+        if (isMousePressed || isScrolling)
+        {
+            int newLevel = FindNearestLevel(levelScrollRect.verticalNormalizedPosition);
+            if (selectedLevel != newLevel)
+            {
+                selectedLevel = newLevel;
+                isPanelUpdated = false; // 레벨이 바뀌면 패널을 새로 업데이트해야 함
+                UpdateUI();
+            }
+            return; 
+        }
+
+        // 스크롤이 멈추고 마우스가 떨어지면 스냅핑 처리
+        if (!isUpdatingPanel)
         {
             float currentScrollPos = levelScrollRect.verticalNormalizedPosition;
             int nearestLevelFromCurrentScroll = FindNearestLevel(currentScrollPos);
             float nearestLevelPos = GetScrollPositionForLevel(nearestLevelFromCurrentScroll);
-
-            Debug.Log($"currentPos : {currentScrollPos}");
-            Debug.Log($"가장 가까운 레벨 : {nearestLevelFromCurrentScroll}");
-            Debug.Log($"currentPos : {nearestLevelPos}");
 
             // 가장 가까운 레벨로 부드럽게 스냅
             levelScrollRect.verticalNormalizedPosition = Mathf.Lerp(
@@ -194,37 +226,34 @@ public class OperatorLevelUpPanel : MonoBehaviour, IBeginDragHandler, IEndDragHa
                 nearestLevelPos,
                 Time.deltaTime * snapSpeed
             );
+
+            if (Mathf.Abs(currentScrollPos - nearestLevelPos) < 0.001f && !isPanelUpdated) // 레벨 당 간격이 0.02 언더라서 조건은 적합해보임
+            {
+                StartCoroutine(UpdatePanelWithDelay(nearestLevelFromCurrentScroll));
+            }
         }
     }
 
-    /// <summary>
-    /// scrollRect에서 값이 변할 때마다 호출되는 메서드
-    /// </summary>
+    private IEnumerator UpdatePanelWithDelay(int level)
+    {
+        // 패널 업데이트 시작
+        isUpdatingPanel = true;
+        selectedLevel = level;
+
+        yield return new WaitForSeconds(0.1f);
+
+        Debug.Log($"레벨 {level}에 대한 패널 업데이트");
+
+        // 패널 업데이트 완료
+        isUpdatingPanel = false;
+        isPanelUpdated = true;  // 레벨이 바뀌면 다시 false가 됨
+    }
+
     private void OnScrollValueChanged(Vector2 value)
     {
         if (!isInitialized) return;
-
-        // 1. 현재 스크롤의 normalizedPosition을 실제 컨텐츠 상의 위치로 변환함
-        float normalizedPosition = levelScrollRect.verticalNormalizedPosition;
-        float scrollContentPosition = (1f - normalizedPosition) * (contentHeight - viewportHeight);
-
-        // 2. 상단 여백을 고려한 실제 위치 계산
-        float levelPosition = scrollContentPosition - (viewportHeight * 0.5f);
-
-        // 3. 레벨 위치를 실제 레벨 숫자로 변환함
-        int newSelectedLevel = maxLevel - Mathf.RoundToInt(levelPosition / levelItemHeight);
-        newSelectedLevel = Mathf.Clamp(newSelectedLevel, currentLevel, maxLevel);
-
-        if (selectedLevel != newSelectedLevel)
-        {
-            selectedLevel = newSelectedLevel;
-
-            // 스크롤이 거의 멈췄을 때에만 타겟 포지션 업데이트
-            if (!isScrolling)
-            {
-                SetScrollToLevel(selectedLevel);
-            }
-        }
+        
+        // 스크롤 이벤트 감지할 게 있으면 추가
     }
 
     private void UpdateUI()
@@ -236,20 +265,6 @@ public class OperatorLevelUpPanel : MonoBehaviour, IBeginDragHandler, IEndDragHa
         {
             confirmButton.interactable = selectedLevel > currentLevel; 
         }
-    }
-
-    // IBeginDragHandler 구현
-    public void OnBeginDrag(PointerEventData eventData)
-    {
-        isDragging = true;
-    }
-
-    // IEndDragHandler 구현
-    public void OnEndDrag(PointerEventData eventData)
-    {
-        isDragging = false;
-        // 드래그가 끝나더라도 관성에 의한 스크롤이 계속됨
-        // 실제 스냅은 Update에서 스크롤 속도가 일정 이하가 됐을 때 수행됨
     }
 
     private void OnConfirmButtonClicked()

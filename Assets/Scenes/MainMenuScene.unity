@@ -10980,9 +10980,8 @@ MonoBehaviour:
   gaugeExpCircle: {fileID: 885265454}
   confirmButton: {fileID: 437799777}
   infoText: {fileID: 1351234426}
-  snapSpeed: 10
-  velocityThreshold: 0.01
-  snapThreshold: 0.01
+  snapSpeed: 2
+  velocityThreshold: 100
 --- !u!1 &1483234125
 GameObject:
   m_ObjectHideFlags: 0
@@ -12599,10 +12598,10 @@ MonoBehaviour:
   m_Horizontal: 0
   m_Vertical: 1
   m_MovementType: 1
-  m_Elasticity: 0.1
+  m_Elasticity: 0.3
   m_Inertia: 1
   m_DecelerationRate: 0.135
-  m_ScrollSensitivity: 1
+  m_ScrollSensitivity: 2
   m_Viewport: {fileID: 1720642919}
   m_HorizontalScrollbar: {fileID: 0}
   m_VerticalScrollbar: {fileID: 0}
@@ -14025,7 +14024,7 @@ MonoBehaviour:
     m_Top: 0
     m_Bottom: 0
   m_ChildAlignment: 4
-  m_Spacing: 250
+  m_Spacing: 400
   m_ChildForceExpandWidth: 0
   m_ChildForceExpandHeight: 0
   m_ChildControlWidth: 1
