@@ -41,3 +41,11 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 94f9ca36096d5e846b99fae318271cb3, type: 2}
   defaultSkillIndex: 0
   initialSP: 5
+  levelStats:
+    healthPerLevel: 9
+    attackPowerPerLevel: 4
+    defensePerLevel: 0.7
+    magicResistancePerLevel: 0
+  elite1Unlocks:
+    additionalAttackTiles: []
+    unlockedSkill: {fileID: 0}
