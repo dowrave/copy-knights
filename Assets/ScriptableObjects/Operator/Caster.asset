@@ -48,3 +48,11 @@ MonoBehaviour:
   skills: []
   defaultSkillIndex: 0
   initialSP: 0
+  levelStats:
+    healthPerLevel: 6
+    attackPowerPerLevel: 8
+    defensePerLevel: 4
+    magicResistancePerLevel: 0
+  elite1Unlocks:
+    additionalAttackTiles: []
+    unlockedSkill: {fileID: 0}

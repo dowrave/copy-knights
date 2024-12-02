@@ -57,6 +57,11 @@ public static class OperatorGrowthSystem
             currentLevel >= GetMaxLevel(currentPhase);
     }
 
+    public static bool CanPromote(OwnedOperator op)
+    {
+        return CanPromote(op.currentLevel, op.currentPhase);
+    }
+
     /// <summary>
     /// 오버플로우 없이 안전하게 경험치 획득
     /// </summary>
@@ -67,5 +72,29 @@ public static class OperatorGrowthSystem
 
         int requiredExpForMaxLevel = GetRequiredExp(maxLevel);
         return Mathf.Min(currentExp + expToAdd, requiredExpForMaxLevel); 
+    }
+
+    /// <summary>
+    /// (일단은) 현재 보유한 오퍼레이터의 특정 레벨에서의 스탯값을 계산함
+    /// </summary>
+    public static OperatorStats CalculateStatsForLevel(OwnedOperator op, int targetLevel)
+    {
+        int levelDifference = targetLevel - op.currentLevel;
+        OperatorData.OperatorLevelStats levelUpStats = op.BaseData.levelStats;
+
+        return new OperatorStats
+        {
+            AttackPower = op.currentStats.AttackPower + levelUpStats.attackPowerPerLevel * levelDifference,
+            Health = op.currentStats.Health + levelUpStats.healthPerLevel * levelDifference,
+            Defense = op.currentStats.AttackPower + levelUpStats.defensePerLevel * levelDifference,
+            MagicResistance = op.currentStats.MagicResistance + levelUpStats.magicResistancePerLevel * levelDifference,
+
+            AttackSpeed = op.currentStats.AttackSpeed,
+            DeploymentCost = op.currentStats.DeploymentCost,
+            MaxBlockableEnemies = op.currentStats.MaxBlockableEnemies,
+            RedeployTime = op.currentStats.RedeployTime,
+            SPRecoveryRate = op.currentStats.SPRecoveryRate,
+            StartSP = op.currentStats.StartSP
+        };
     }
 }

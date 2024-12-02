@@ -73,9 +73,9 @@ public class OperatorGrowthManager: MonoBehaviour
         return true;
     }
 
-    public bool TryPromoteOperator(string operatorName)
+    public bool TryPromoteOperator(OwnedOperator op)
     {
-        if (!operatorProgressData.TryGetValue(operatorName, out var progress)) return false;
+        if (!operatorProgressData.TryGetValue(op.operatorName, out var progress)) return false;
 
         if (!progress.CanPromote) return false;
 
@@ -83,7 +83,7 @@ public class OperatorGrowthManager: MonoBehaviour
         progress.currentLevel = 1;
 
         // 정예화에 따른 변경사항 적용
-        var opData = GameManagement.Instance.PlayerDataManager.GetOperatorData(operatorName);
+        var opData = GameManagement.Instance.PlayerDataManager.GetOperatorData(op.operatorName);
         if (opData != null)
         {
             progress.ApplyElitePhaseChanges(opData);
@@ -92,6 +92,7 @@ public class OperatorGrowthManager: MonoBehaviour
         SaveProgressData();
         return true;
     }
+
 
     public OperatorStats GetCurentStats(string operatorId)
     {

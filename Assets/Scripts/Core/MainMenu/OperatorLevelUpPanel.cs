@@ -21,9 +21,26 @@ public class OperatorLevelUpPanel : MonoBehaviour
 
     [Header("Info Settings")]
     [SerializeField] private float snapSpeed = 10f; // 스냅 애니메이션 속도
+
     [SerializeField] private float velocityThreshold = 0.5f; // 스크롤이 멈췄다고 판단하는 속도 임계값
 
     private float snapThreshold; // 스냅 위치와의 거리 임계값
+
+    [System.Serializable]
+    public class StatPreviewLine
+    {
+        public TextMeshProUGUI labelText;
+        public TextMeshProUGUI currentValue;
+        public TextMeshProUGUI arrowText;
+        public TextMeshProUGUI newValue;
+
+    }
+
+    [Header("Stat Previews")]
+    [SerializeField] private StatPreviewLine healthPreview;
+    [SerializeField] private StatPreviewLine attackPreview;
+    [SerializeField] private StatPreviewLine defensePreview;
+    [SerializeField] private StatPreviewLine magicResistancePreview;
 
     private OwnedOperator op;
     private int currentLevel;
@@ -71,6 +88,7 @@ public class OperatorLevelUpPanel : MonoBehaviour
 
         // UI 초기화
         InitializeLevelStrip();
+        InitializeStatTexts();
         UpdateUI();
 
         // 초기 위치 설정 : 현재 레벨이 원 중앙
@@ -113,6 +131,22 @@ public class OperatorLevelUpPanel : MonoBehaviour
 
         CalculateScrollPositions();
         SetSnapThreshold();
+    }
+
+    private void InitializeStatTexts()
+    {
+        if (op != null)
+        {
+            healthPreview.currentValue.text = op.currentStats.Health.ToString();
+            attackPreview.currentValue.text = op.currentStats.AttackPower.ToString();
+            defensePreview.currentValue.text = op.currentStats.Defense.ToString();
+            magicResistancePreview.currentValue.text = op.currentStats.MagicResistance.ToString();
+
+            healthPreview.newValue.text = op.currentStats.Health.ToString();
+            attackPreview.newValue.text = op.currentStats.AttackPower.ToString();
+            defensePreview.newValue.text = op.currentStats.Defense.ToString();
+            magicResistancePreview.newValue.text = op.currentStats.MagicResistance.ToString();
+        }
     }
 
     private void CreatePadding(string name, float height)
@@ -242,7 +276,23 @@ public class OperatorLevelUpPanel : MonoBehaviour
 
         yield return new WaitForSeconds(0.1f);
 
-        Debug.Log($"레벨 {level}에 대한 패널 업데이트");
+        OperatorStats targetLevelStats = OperatorGrowthSystem.CalculateStatsForLevel(op, level);
+
+        if (level == currentLevel)
+        {
+            healthPreview.newValue.text = targetLevelStats.Health.ToString();
+            attackPreview.newValue.text = targetLevelStats.AttackPower.ToString();
+            defensePreview.newValue.text = targetLevelStats.Defense.ToString();
+        }
+        else
+        {
+            healthPreview.newValue.text = $"<color=#179bff>{targetLevelStats.Health.ToString()}</color>";
+            attackPreview.newValue.text = $"<color=#179bff>{targetLevelStats.AttackPower.ToString()}</color>";
+            defensePreview.newValue.text = $"<color=#179bff>{targetLevelStats.Defense.ToString()}</color>";
+        }
+
+        magicResistancePreview.newValue.text = targetLevelStats.MagicResistance.ToString(); // 마법 저항력은 레벨업으로 바뀌지 않음
+
 
         // 패널 업데이트 완료
         isUpdatingPanel = false;
