@@ -129,6 +129,7 @@
     <Compile Include="Assets\Scripts\Core\Stage\Map\EnemySpawner.cs" />
     <Compile Include="Assets\Scripts\Core\Interfaces\IMovable.cs" />
     <Compile Include="Assets\Scripts\Core\GameManagement.cs" />
+    <Compile Include="Assets\Scripts\Core\MainMenu\NotificationPanel.cs" />
     <Compile Include="Assets\Scripts\Core\Unit\Projectile.cs" />
     <Compile Include="Assets\Scripts\Core\Stage\Manager\SpawnerManager.cs" />
     <Compile Include="Assets\Scripts\Visual\UI\Stage\MaskedDiamondOverlay.cs" />

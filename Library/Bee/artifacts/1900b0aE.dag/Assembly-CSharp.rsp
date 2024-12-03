@@ -408,6 +408,7 @@
 "Assets/Scripts/Core/Interfaces/ISkill.cs"
 "Assets/Scripts/Core/Interfaces/ITargettable.cs"
 "Assets/Scripts/Core/MainMenu/MainMenuManager.cs"
+"Assets/Scripts/Core/MainMenu/NotificationPanel.cs"
 "Assets/Scripts/Core/MainMenu/OperatorDetailPanel.cs"
 "Assets/Scripts/Core/MainMenu/OperatorInventoryPanel.cs"
 "Assets/Scripts/Core/MainMenu/OperatorLevelUpPanel.cs"

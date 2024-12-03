@@ -33,6 +33,9 @@ public class MainMenuManager : MonoBehaviour
         public MenuPanel parentPanel = MenuPanel.None; // "뒤로 가기" 버튼을 눌렀을 때 이동할 부모 패널 
     }
 
+    [Header("Canvas")]
+    [SerializeField] private Canvas mainCanvas;
+
     // 여러 패널에서 공통으로 사용할 뒤로 가기 버튼과 홈 버튼
     [Header("Navigation")]
     [SerializeField] private GameObject navButtonContainer;
@@ -43,6 +46,9 @@ public class MainMenuManager : MonoBehaviour
     [SerializeField] private List<PanelInfo> panels;
 
     [SerializeField] private float panelTransitionSpeed;
+
+    [Header("Notification")]
+    [SerializeField] private GameObject notificationPanelPrefab;
 
     // 패널 간의 연결을 쉽게 하기 위한 Dict들
     private Dictionary<MenuPanel, GameObject> panelMap = new Dictionary<MenuPanel, GameObject>();
@@ -265,6 +271,16 @@ public class MainMenuManager : MonoBehaviour
     public void OnOperatorSelected(int slotIndex, OwnedOperator newOperator)
     {
         GameManagement.Instance.UserSquadManager.TryReplaceOperator(slotIndex, newOperator);
+    }
+
+    public void ShowNotification(string message)
+    {
+        if (notificationPanelPrefab != null)
+        {
+            GameObject notificationObj = Instantiate(notificationPanelPrefab, mainCanvas.transform);
+            NotificationPanel notificationPanel = notificationObj.GetComponent<NotificationPanel>();
+            notificationPanel.Initialize(message);
+        }
     }
 
     private void OnDestroy()

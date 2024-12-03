@@ -1,6 +1,10 @@
-// 성장 시스템의 기본 규칙 정의
+
 using UnityEngine;
 
+/// <summary>
+/// 오퍼레이터 성장 시스템의 규칙 정의
+/// 정예화 별 최대 레벨, 정예화 수, 레벨업에 필요한 경험치 등
+/// </summary>
 public static class OperatorGrowthSystem
 {
     public enum ElitePhase

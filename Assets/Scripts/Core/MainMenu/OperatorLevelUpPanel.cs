@@ -33,7 +33,6 @@ public class OperatorLevelUpPanel : MonoBehaviour
         public TextMeshProUGUI currentValue;
         public TextMeshProUGUI arrowText;
         public TextMeshProUGUI newValue;
-
     }
 
     [Header("Stat Previews")]
@@ -47,13 +46,14 @@ public class OperatorLevelUpPanel : MonoBehaviour
     private int maxLevel;
     private int selectedLevel;
     private int totalLevels;
+    private bool canConfirm;
 
     // 스크롤 관련 변수
     //private float levelItemHeight = 0f; // 각 레벨 항목의 높이, levelTextPrefab의 Height값과 동일. 하드코딩 ㄱ
     private float contentHeight; // 전체 컨텐츠의 높이
     private float viewportHeight; // 뷰포트의 높이
     private float paddingHeight; // 뷰포트의 절반 높이
-    private bool isDragging = false; // 드래그 중인지 여부
+    private bool isMousePressed = false;
     private bool isScrolling = false; // 관성 스크롤 중인지 여부
     //private float targetScrollPosition = 0f; 
     private bool isInitialized = false;
@@ -71,6 +71,7 @@ public class OperatorLevelUpPanel : MonoBehaviour
             // 즉 스크롤이 변할 때마다 실행된다고 보면 되겠다
             levelScrollRect.onValueChanged.AddListener(OnScrollValueChanged);
         }
+
         if (confirmButton != null)
         {
             confirmButton.onClick.AddListener(OnConfirmButtonClicked);
@@ -91,8 +92,8 @@ public class OperatorLevelUpPanel : MonoBehaviour
         InitializeStatTexts();
         UpdateUI();
 
-        // 초기 위치 설정 : 현재 레벨이 원 중앙
-        SetScrollToLevel(currentLevel);
+        // 초기 위치 설정
+        SetInitialScrollPositon();
 
         isInitialized = true; 
     }
@@ -147,6 +148,20 @@ public class OperatorLevelUpPanel : MonoBehaviour
             defensePreview.newValue.text = op.currentStats.Defense.ToString();
             magicResistancePreview.newValue.text = op.currentStats.MagicResistance.ToString();
         }
+    }
+
+    /// <summary>
+    /// 초기 스크롤의 위치 설정
+    /// </summary>
+    private void SetInitialScrollPositon()
+    {
+
+        // 스크롤 위치 즉시 설정
+        levelScrollRect.verticalNormalizedPosition = GetScrollPositionForLevel(currentLevel);
+
+        // 스크롤 속도 초기화
+        levelScrollRect.velocity = Vector2.zero;
+
     }
 
     private void CreatePadding(string name, float height)
@@ -232,7 +247,7 @@ public class OperatorLevelUpPanel : MonoBehaviour
         isScrolling = velocity.magnitude > velocityThreshold; // 임계치를 넘으면 스크롤 중이라고 판단
 
         // 마우스 버튼 다운 확인
-        bool isMousePressed = Input.GetMouseButton(0);
+        isMousePressed = Input.GetMouseButton(0);
 
         // 자유 스크롤 중일 때는 selectedLevel만 업데이트
         if (isMousePressed || isScrolling)
@@ -308,7 +323,7 @@ public class OperatorLevelUpPanel : MonoBehaviour
 
     private void UpdateUI()
     {
-        // 정보 텍스트 업데이트
+        bool canConfirm = !isScrolling && !isMousePressed && !isUpdatingPanel && isPanelUpdated && selectedLevel > currentLevel;
 
         // 확인 버튼 활성화 상태 업데이트
         if (confirmButton != null)
@@ -319,9 +334,33 @@ public class OperatorLevelUpPanel : MonoBehaviour
 
     private void OnConfirmButtonClicked()
     {
-        // 레벨업 로직 구현 예정
-        Debug.Log($"{selectedLevel}로 레벨업 완료");
+        if (!confirmButton.interactable || selectedLevel <= currentLevel) return;
+
+        // 레벨업 진행
+        OperatorGrowthManager.Instance.TryLevelUpOperator(op, selectedLevel);
+        MainMenuManager.Instance.ShowNotification($"{selectedLevel}로 레벨업 완료");
+        UpdateLevelStrip(selectedLevel);
+
     }
 
+    /// <summary>
+    /// 레벨업 완료 후, 스크롤 부분 업데이트
+    /// </summary>
+    private void UpdateLevelStrip(int newLevel)
+    {
+        currentLevel = newLevel; 
+        totalLevels = maxLevel - currentLevel + 1;
+        InitializeLevelStrip();
+        SetScrollToLevel(currentLevel);
+    }
+
+    private void OnEnable()
+    {
+        // 패널 활성화마다 스크롤 위치를 현재 레벨로 초기화
+        if (isInitialized)
+        {
+            SetInitialScrollPositon();
+        }
+    }
 
 }

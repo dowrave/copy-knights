@@ -7,14 +7,13 @@ public class OperatorGrowthManager: MonoBehaviour
     public static OperatorGrowthManager Instance { get; private set; }
 
     // 진행 상황 저장 구조, operatorName이 Key.
-    private Dictionary<string, OperatorProgress> operatorProgressData = new Dictionary<string, OperatorProgress>();
+    //private Dictionary<string, OperatorProgress> operatorProgressData = new Dictionary<string, OperatorProgress>();
 
     private void Awake()
     {
         if (Instance == null)
         {
             Instance = this;
-            LoadProgressData();
         }
         else
         {
@@ -22,75 +21,43 @@ public class OperatorGrowthManager: MonoBehaviour
         }
     }
 
-    private void LoadProgressData()
-    {
-        string savedData = PlayerPrefs.GetString("OperatorProgress", "");
-        if (!string.IsNullOrEmpty(savedData))
-        {
-            try
-            {
-                var progressList = JsonUtility.FromJson<OperatorProgressList>(savedData);
-                operatorProgressData = progressList.progressList.ToDictionary(p => p.operatorName);
-            }
-            catch (System.Exception e)
-            {
-                Debug.LogError($"오퍼레이터 진행 상황 로드 실패 : {e}");
-            }
-        }
-    }
-
-    private void SaveProgressData()
-    {
-        try
-        {
-            var progressList = new OperatorProgressList
-            {
-                progressList = operatorProgressData.Values.ToList()
-            };
-            string jsonData = JsonUtility.ToJson(progressList);
-            PlayerPrefs.SetString("OperatorProgress", "");
-            PlayerPrefs.Save();
-        }
-        catch (System.Exception e)
-        {
-            Debug.LogError($"오퍼레이터 진행 상황 저장 실패 : {e}");
-        }
-    }
-
     // 오퍼레이터 성장 메서드
-    public bool TryLevelUpOperator(string operatorName)
+    /// <summary>
+    /// 오퍼레이터 레벨업 로직
+    /// </summary>
+    public bool TryLevelUpOperator(OwnedOperator op, int targetLevel)
     {
-        if (!operatorProgressData.TryGetValue(operatorName, out var progress))
-        {
-            progress = new OperatorProgress { operatorName = operatorName };
-            operatorProgressData[operatorName] = progress; 
-        }
+        // 레벨업 불가 상황들
+        if (op == null) return false;
+        if (targetLevel <= op.currentLevel) return false;
+        int maxLevel = OperatorGrowthSystem.GetMaxLevel(op.currentPhase);
+        if (targetLevel > maxLevel) return false; // 정예화별 최대 레벨 초과 시
 
-        if (!progress.CanLevelUp) return false;
+        // 레벨업 진행
+        op.currentLevel = targetLevel;
+        op.UpdateStats();
 
-        progress.currentLevel++;
-        SaveProgressData();
+        GameManagement.Instance.PlayerDataManager.SavePlayerData();
+
+        Debug.Log($"레벨업 및 저장 완료, {op.currentLevel}");
         return true;
     }
 
+    /// <summary>
+    /// 오퍼레이터 정예화 로직
+    /// </summary>
     public bool TryPromoteOperator(OwnedOperator op)
     {
-        if (!operatorProgressData.TryGetValue(op.operatorName, out var progress)) return false;
+        if (!OperatorGrowthSystem.CanPromote(op)) return false;
 
-        if (!progress.CanPromote) return false;
+        // 정예화 진행
+        op.currentPhase = OperatorGrowthSystem.ElitePhase.Elite1;
+        op.currentLevel = 1;
+        op.UpdateStats(); // 정예화에 따른 스탯, 해금 요소 적용
 
-        progress.currentPhase = OperatorGrowthSystem.ElitePhase.Elite1;
-        progress.currentLevel = 1;
+        GameManagement.Instance.PlayerDataManager.SavePlayerData();
 
-        // 정예화에 따른 변경사항 적용
-        var opData = GameManagement.Instance.PlayerDataManager.GetOperatorData(op.operatorName);
-        if (opData != null)
-        {
-            progress.ApplyElitePhaseChanges(opData);
-        }
-
-        SaveProgressData();
-        return true;
+        return true; 
     }
 
 

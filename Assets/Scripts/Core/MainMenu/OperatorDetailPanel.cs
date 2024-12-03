@@ -33,7 +33,7 @@ public class OperatorDetailPanel : MonoBehaviour
     [SerializeField] private TextMeshProUGUI canLevelUpIndicator;
 
     private OperatorData operatorData;
-    private OwnedOperator ownedOperator;
+    private OwnedOperator currentOperator;
 
     private void Awake()
     {
@@ -51,29 +51,44 @@ public class OperatorDetailPanel : MonoBehaviour
 
     private void OnLevelUpClicked()
     {
-        if (ownedOperator.CanLevelUp)
+        if (currentOperator.CanLevelUp)
         {
             GameObject levelUpPanelObject = MainMenuManager.Instance.PanelMap[MainMenuManager.MenuPanel.OperatorLevelUp];
             OperatorLevelUpPanel levelUpPanel = levelUpPanelObject.GetComponent<OperatorLevelUpPanel>();
             MainMenuManager.Instance.FadeInAndHide(levelUpPanelObject, gameObject);
-            levelUpPanel.Initialize(ownedOperator);
+            levelUpPanel.Initialize(currentOperator);
         }
     }
 
     private void OnPromoteClicked()
     {
-        if (ownedOperator.CanPromote)
+        if (currentOperator.CanPromote)
         {
             GameObject promotionPanel = MainMenuManager.Instance.PanelMap[MainMenuManager.MenuPanel.OperatorPromotion];
             MainMenuManager.Instance.FadeInAndHide(promotionPanel, gameObject);
         }
     }
 
+    private void OnEnable()
+    {
+        if (currentOperator != null)
+        {
+            UpdateAllUI();
+        }
+    }
+
     public void Initialize(OwnedOperator ownedOp)
     {
-        ownedOperator = ownedOp;
-        operatorData = ownedOp.BaseData;
+        if (currentOperator != ownedOp)
+        {
+            currentOperator = ownedOp;
+            operatorData = ownedOp.BaseData;
+        }
+        UpdateAllUI();
+    }
 
+    private void UpdateAllUI()
+    {
         UpdateBasicInfo();
         UpdateStats();
         UpdateGrowthInfo();
@@ -95,14 +110,14 @@ public class OperatorDetailPanel : MonoBehaviour
         IconHelper.SetClassIcon(classIconImage, operatorData.operatorClass);
 
         operatorNameText.text = operatorData.entityName;
-        phaseText.text = $"Elite {(int)ownedOperator.currentPhase}";
+        phaseText.text = $"Elite {(int)currentOperator.currentPhase}";
 
         // 스킬 아이콘 - 현재 선택된 스킬을 OperatorData에서 가져옴
         // if (operatorData.skills.Count > 0)
         //{ for (int i=0; i < operatorData.skills.Count; )
         //    if (operatorData.)
         //    {
-        //        skillIconImage.sprite = operatorData.skills[ownedOperator.selectedSkillIndex].SkillIcon;
+        //        skillIconImage.sprite = operatorData.skills[currentOperator.selectedSkillIndex].SkillIcon;
         //        skillIconImage.enabled = true;
         //    }
         //    else
@@ -114,7 +129,7 @@ public class OperatorDetailPanel : MonoBehaviour
 
     private void UpdateStats()
     {
-        OperatorStats currentStats = ownedOperator.GetOperatorStats();
+        OperatorStats currentStats = currentOperator.GetOperatorStats();
 
         healthText.text = currentStats.Health.ToString();
         attackPowerText.text = currentStats.AttackPower.ToString();
@@ -131,10 +146,10 @@ public class OperatorDetailPanel : MonoBehaviour
     /// </summary>
     private void UpdateGrowthInfo()
     {
-        int currentExp = ownedOperator.currentExp;
-        int maxExp = OperatorGrowthSystem.GetRequiredExp(ownedOperator.currentLevel);
-        int currentLevel = ownedOperator.currentLevel;
-        int maxLevel = OperatorGrowthSystem.GetMaxLevel(ownedOperator.currentPhase);
+        int currentExp = currentOperator.currentExp;
+        int maxExp = OperatorGrowthSystem.GetRequiredExp(currentOperator.currentLevel);
+        int currentLevel = currentOperator.currentLevel;
+        int maxLevel = OperatorGrowthSystem.GetMaxLevel(currentOperator.currentPhase);
 
         expText.text = $"EXP\n<size=44><color=#FFE61A>{currentExp.ToString()}</color>/{maxExp.ToString()}</size>";
         levelText.text = $"LV\n<size=100><b>{currentLevel.ToString()}</b></size=100>";
@@ -154,8 +169,8 @@ public class OperatorDetailPanel : MonoBehaviour
 
     private void UpdateButtonStates()
     {
-        levelUpButton.interactable = ownedOperator.CanLevelUp;
-        promoteButton.interactable = ownedOperator.CanPromote;
+        levelUpButton.interactable = currentOperator.CanLevelUp;
+        promoteButton.interactable = currentOperator.CanPromote;
     }
 
     private void OnDisable()
