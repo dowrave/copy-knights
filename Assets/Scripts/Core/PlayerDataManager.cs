@@ -22,15 +22,16 @@ public class PlayerDataManager : MonoBehaviour
 
     [Header("초기 지급 오퍼레이터")]
     [SerializeField] private List<OperatorData> startingOperators; // 초기 지급 오퍼레이터
-
     [SerializeField] private int defaultMaxSquadSize = 6;
+
+
 
     public event System.Action OnSquadUpdated;
 
 
     private void Awake()
     {
-        ResetPlayerData();
+        ResetPlayerData(); // 디버깅용
         InitializeSystem();
     }
 
@@ -162,8 +163,9 @@ public class PlayerDataManager : MonoBehaviour
 
     /// <summary>
     /// PlayerPrefs에 Json으로 PlayerData를 저장한다. 이 때 저장 위치는 플랫폼(윈도우/MAC/안드로이드/iOS 등) 별로 다르다
+    /// 저장되는 데이터는 System.serializable 속성이 붙은 클래스나 구조체인데, 저장할 수 없는 것도 있으니 그건 그 때 찾아보셈.
     /// </summary>
-    private void SavePlayerData()
+    public void SavePlayerData()
     {
         string jsonData = JsonUtility.ToJson(playerData);
         PlayerPrefs.SetString("PlayerData", jsonData);
