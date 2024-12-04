@@ -5,23 +5,15 @@ using UnityEngine.SceneManagement;
 
 public class ResourceManager : MonoBehaviour
 {
-    public static ResourceManager Instance { get; private set; }
-
     [Header("Shared Resources")]
     [SerializeField] private IconData iconData;
 
+    [Header("Update Text Color")]
+    public string textUpdateColor = "#179bff"; // 업데이트되는 요소 미리 보여줄 때 사용
+
     private void Awake()
     {
-        if (Instance == null)
-        {
-            Instance = this;
-            DontDestroyOnLoad(gameObject);
-            InitializeResources();
-        }
-        else
-        {
-            Destroy(gameObject);
-        }
+        InitializeResources();
     }
 
     private void InitializeResources()

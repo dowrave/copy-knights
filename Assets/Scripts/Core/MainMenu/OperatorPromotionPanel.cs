@@ -1,5 +1,4 @@
-using System.Collections;
-using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -7,13 +6,19 @@ public class OperatorPromotionPanel : MonoBehaviour
 {
 
     [Header("Controls")]
-    [SerializeField] private Button confirmButton; 
+    [SerializeField] private Button confirmButton;
+
+    [Header("UnlockContents")]
+    [SerializeField] private TextMeshProUGUI SkillUnlockText;
+    [SerializeField] private Image attackRangePrefab;
 
     private OwnedOperator op;
+    private string updateColor;
 
     private void Awake()
     {
         confirmButton.onClick.AddListener(OnConfirmButtonClicked);
+        updateColor = GameManagement.Instance.ResourceManager.textUpdateColor;
     }
 
     public void Initialize(OwnedOperator op)
@@ -34,5 +39,17 @@ public class OperatorPromotionPanel : MonoBehaviour
         {
             OperatorGrowthManager.Instance.TryPromoteOperator(op);
         }
+    }
+
+    private void ShowAttackRangePreview()
+    {
+        ClearRangeVisuals();
+
+        //CreateRangeTile(Vector2Int.zero, true, false);
+    }
+
+    private void ClearRangeVisuals()
+    {
+
     }
 }

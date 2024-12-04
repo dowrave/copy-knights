@@ -13,6 +13,12 @@ public class OperatorDetailPanel : MonoBehaviour
     [SerializeField] private TextMeshProUGUI phaseText;
     [SerializeField] private Image[] skillIconImages;
 
+    [Header("Attack Range Visualization")]
+    [SerializeField] private RectTransform attackRangeContainer;
+    [SerializeField] private float centerPositionOffset; // 타일 시각화 위치를 위한 중심 이동
+
+    private UIHelper.AttackRangeHelper attackRangeHelper;
+
     [Header("Stats")]
     [SerializeField] private TextMeshProUGUI healthText;
     [SerializeField] private TextMeshProUGUI attackPowerText;
@@ -25,6 +31,7 @@ public class OperatorDetailPanel : MonoBehaviour
 
     [Header("Growth")]
     [SerializeField] private TextMeshProUGUI expText;
+    [SerializeField] private Slider expGauge;
     [SerializeField] private Button levelUpButton;
     [SerializeField] private Button promoteButton;
 
@@ -67,6 +74,15 @@ public class OperatorDetailPanel : MonoBehaviour
             GameObject promotionPanel = MainMenuManager.Instance.PanelMap[MainMenuManager.MenuPanel.OperatorPromotion];
             MainMenuManager.Instance.FadeInAndHide(promotionPanel, gameObject);
         }
+    }
+    private void Start()
+    {
+        // AttackRangeHelper 초기화
+        attackRangeHelper = UIHelper.Instance.CreateAttackRangeHelper(
+            attackRangeContainer,
+            centerPositionOffset
+        );
+        Debug.Log("OpeatorDetailPanel에서 attackRangeHelper의 초기화 완료");
     }
 
     private void OnEnable()
@@ -112,6 +128,12 @@ public class OperatorDetailPanel : MonoBehaviour
         operatorNameText.text = operatorData.entityName;
         phaseText.text = $"Elite {(int)currentOperator.currentPhase}";
 
+        // 공격 범위 설정
+        Debug.Log($"attackRangeHelper : {attackRangeHelper}");
+
+        attackRangeHelper.ShowBasicRange(currentOperator.currentAttackableTiles);
+
+
         // 스킬 아이콘 - 현재 선택된 스킬을 OperatorData에서 가져옴
         // if (operatorData.skills.Count > 0)
         //{ for (int i=0; i < operatorData.skills.Count; )
@@ -146,14 +168,17 @@ public class OperatorDetailPanel : MonoBehaviour
     /// </summary>
     private void UpdateGrowthInfo()
     {
-        int currentExp = currentOperator.currentExp;
-        int maxExp = OperatorGrowthSystem.GetRequiredExp(currentOperator.currentLevel);
+        float currentExp = currentOperator.currentExp;
+        float maxExp = OperatorGrowthSystem.GetRequiredExp(currentOperator.currentLevel);
         int currentLevel = currentOperator.currentLevel;
         int maxLevel = OperatorGrowthSystem.GetMaxLevel(currentOperator.currentPhase);
 
         expText.text = $"EXP\n<size=44><color=#FFE61A>{currentExp.ToString()}</color>/{maxExp.ToString()}</size>";
         levelText.text = $"LV\n<size=100><b>{currentLevel.ToString()}</b></size=100>";
         maxLevelText.text = $"/{maxLevel.ToString()}";
+
+        // exp 게이지 업데이트. float로 와야 함!
+        expGauge.value = currentExp / maxExp; 
 
         if (currentLevel < maxLevel)
         {
@@ -169,7 +194,7 @@ public class OperatorDetailPanel : MonoBehaviour
 
     private void UpdateButtonStates()
     {
-        levelUpButton.interactable = currentOperator.CanLevelUp;
+        levelUpButton.interactable = currentOperator.currentLevel == OperatorGrowthSystem.GetMaxLevel(currentOperator.currentPhase);
         promoteButton.interactable = currentOperator.CanPromote;
     }
 
