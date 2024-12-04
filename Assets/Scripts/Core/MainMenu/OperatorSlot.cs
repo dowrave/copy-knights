@@ -14,6 +14,8 @@ public class OperatorSlot : MonoBehaviour
 
     [Header("Active Component References")]
     [SerializeField] private Image operatorImage;
+    [SerializeField] private Slider expSlider;
+    [SerializeField] private TextMeshProUGUI levelText;
     [SerializeField] private Image classIconImage;
     [SerializeField] private Image skillImage;
     [SerializeField] private TextMeshProUGUI operatorNameText;
@@ -176,6 +178,10 @@ public class OperatorSlot : MonoBehaviour
         {
             operatorImage.gameObject.SetActive(false);
         }
+
+        // 경험치 게이지, 레벨 표시
+        expSlider.value = (float)OwnedOperator.currentExp / OperatorGrowthSystem.GetRequiredExp(OwnedOperator.currentLevel);
+        levelText.text = $"LV\r\n<size=40><b>{OwnedOperator.currentLevel}</b>\r\n</size>";
 
         // 클래스 아이콘 설정
         classIconImage.gameObject.SetActive(true);

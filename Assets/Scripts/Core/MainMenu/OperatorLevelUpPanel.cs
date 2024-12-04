@@ -13,11 +13,10 @@ public class OperatorLevelUpPanel : MonoBehaviour
     [SerializeField] private ScrollRect levelScrollRect;
     [SerializeField] private RectTransform contentRect;
     [SerializeField] private GameObject levelTextPrefab;
-    [SerializeField] private RectTransform gaugeExpCircle;
 
     [Header("Info Display")]
     [SerializeField] private Button confirmButton;
-    [SerializeField] private TextMeshProUGUI infoText;
+    [SerializeField] private Slider expGauge;
 
     [Header("Info Settings")]
     [SerializeField] private float snapSpeed = 10f; // 스냅 애니메이션 속도
@@ -25,6 +24,7 @@ public class OperatorLevelUpPanel : MonoBehaviour
     [SerializeField] private float velocityThreshold = 0.5f; // 스크롤이 멈췄다고 판단하는 속도 임계값
 
     private float snapThreshold; // 스냅 위치와의 거리 임계값
+    private string updateColor;
 
     [System.Serializable]
     public class StatPreviewLine
@@ -46,13 +46,11 @@ public class OperatorLevelUpPanel : MonoBehaviour
     private int maxLevel;
     private int selectedLevel;
     private int totalLevels;
-    private bool canConfirm;
 
     // 스크롤 관련 변수
     //private float levelItemHeight = 0f; // 각 레벨 항목의 높이, levelTextPrefab의 Height값과 동일. 하드코딩 ㄱ
     private float contentHeight; // 전체 컨텐츠의 높이
     private float viewportHeight; // 뷰포트의 높이
-    private float paddingHeight; // 뷰포트의 절반 높이
     private bool isMousePressed = false;
     private bool isScrolling = false; // 관성 스크롤 중인지 여부
     //private float targetScrollPosition = 0f; 
@@ -76,6 +74,8 @@ public class OperatorLevelUpPanel : MonoBehaviour
         {
             confirmButton.onClick.AddListener(OnConfirmButtonClicked);
         }
+
+        updateColor = GameManagement.Instance.ResourceManager.textUpdateColor;
     }
 
     public void Initialize(OwnedOperator op)
@@ -89,11 +89,12 @@ public class OperatorLevelUpPanel : MonoBehaviour
 
         // UI 초기화
         InitializeLevelStrip();
+        UpdateExpGauge();
         InitializeStatTexts();
-        UpdateUI();
+        UpdateConfirmButton();
 
         // 초기 위치 설정
-        SetInitialScrollPositon();
+        SetInitialScrollPositon(); 
 
         isInitialized = true; 
     }
@@ -212,8 +213,11 @@ public class OperatorLevelUpPanel : MonoBehaviour
     // 스냅핑 간격 설정
     private void SetSnapThreshold()
     {
-        // 레벨업을 할 수 있을 때에만 이 패널에 들어올 수 있기 때문에 currentLevel + 1이 무조건 존재함
-        snapThreshold = levelToScrollPosition[currentLevel + 1] - levelToScrollPosition[currentLevel];
+        // 현재 정예화의 최대 레벨이 아닐 때에만 계산
+        if (currentLevel != OperatorGrowthSystem.GetMaxLevel(op.currentPhase))
+        {
+            snapThreshold = levelToScrollPosition[currentLevel + 1] - levelToScrollPosition[currentLevel];
+        }
     }
 
     // 특정 레벨의 스크롤 위치를 가져옴
@@ -257,7 +261,6 @@ public class OperatorLevelUpPanel : MonoBehaviour
             {
                 selectedLevel = newLevel;
                 isPanelUpdated = false; // 레벨이 바뀌면 패널을 새로 업데이트해야 함
-                UpdateUI();
             }
             return; 
         }
@@ -301,9 +304,9 @@ public class OperatorLevelUpPanel : MonoBehaviour
         }
         else
         {
-            healthPreview.newValue.text = $"<color=#179bff>{targetLevelStats.Health.ToString()}</color>";
-            attackPreview.newValue.text = $"<color=#179bff>{targetLevelStats.AttackPower.ToString()}</color>";
-            defensePreview.newValue.text = $"<color=#179bff>{targetLevelStats.Defense.ToString()}</color>";
+            healthPreview.newValue.text = $"<color={updateColor}>{targetLevelStats.Health.ToString()}</color>";
+            attackPreview.newValue.text = $"<color={updateColor}>{targetLevelStats.AttackPower.ToString()}</color>";
+            defensePreview.newValue.text = $"<color={updateColor}>{targetLevelStats.Defense.ToString()}</color>";
         }
 
         magicResistancePreview.newValue.text = targetLevelStats.MagicResistance.ToString(); // 마법 저항력은 레벨업으로 바뀌지 않음
@@ -312,6 +315,7 @@ public class OperatorLevelUpPanel : MonoBehaviour
         // 패널 업데이트 완료
         isUpdatingPanel = false;
         isPanelUpdated = true;  // 레벨이 바뀌면 다시 false가 됨
+        UpdateConfirmButton();
     }
 
     private void OnScrollValueChanged(Vector2 value)
@@ -323,12 +327,36 @@ public class OperatorLevelUpPanel : MonoBehaviour
 
     private void UpdateUI()
     {
-        bool canConfirm = !isScrolling && !isMousePressed && !isUpdatingPanel && isPanelUpdated && selectedLevel > currentLevel;
+        UpdateExpGauge();
+        UpdateConfirmButton();
+    }
+
+    /// <summary>
+    /// 
+    /// </summary>
+    private void UpdateExpGauge()
+    {
+        // 아이템을 사용해서 어떤 레벨이 됐을 때의 경험치 연산 식이 필요함
+        
+        // 특정 레벨에 도달하기 위해 필요한 최소한의 아이템 수, 그 때의 레벨과 현재 경험치, 그 레벨의 최대 경험치를 구하면 됨
+        // 그 로직 자체는 여기서 구현할 건 아니고 여기는 시각화만 담당함
+        // 아직은 경험치 아이템을 구현하지 않았으므로 그걸 구현한 다음에 진행하면 됨
+
+        // 이건 임시방편
+        float currentExp = op.currentExp;
+        float maxExp = OperatorGrowthSystem.GetRequiredExp(op.currentLevel);
+
+        expGauge.value = currentExp / maxExp;
+    }
+
+    private void UpdateConfirmButton()
+    {
+        bool canConfirm = !isScrolling && isPanelUpdated && selectedLevel > currentLevel;
 
         // 확인 버튼 활성화 상태 업데이트
         if (confirmButton != null)
         {
-            confirmButton.interactable = selectedLevel > currentLevel; 
+            confirmButton.interactable = canConfirm;
         }
     }
 
@@ -338,9 +366,14 @@ public class OperatorLevelUpPanel : MonoBehaviour
 
         // 레벨업 진행
         OperatorGrowthManager.Instance.TryLevelUpOperator(op, selectedLevel);
-        MainMenuManager.Instance.ShowNotification($"{selectedLevel}로 레벨업 완료");
-        UpdateLevelStrip(selectedLevel);
 
+        // 레벨업에 따른 패널값과 스크롤 오브젝트 수정
+        InitializeStatTexts();
+        UpdateLevelStrip(selectedLevel);
+        UpdateConfirmButton();
+
+        // 패널
+        MainMenuManager.Instance.ShowNotification($"레벨업 완료");
     }
 
     /// <summary>

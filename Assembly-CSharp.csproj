@@ -63,6 +63,7 @@
     <Compile Include="Assets\Scripts\Core\Interfaces\IFactionMember.cs" />
     <Compile Include="Assets\Scripts\Visual\Effects\ProjectileEffect.cs" />
     <Compile Include="Assets\Scripts\Visual\UI\Stage\StatisticItem.cs" />
+    <Compile Include="Assets\Scripts\Core\MainMenu\UIHelper.cs" />
     <Compile Include="Assets\Scripts\Core\Skills\OperatorSkills\BuffSkill.cs" />
     <Compile Include="Assets\Scripts\Core\Interfaces\IBoxDeployableData.cs" />
     <Compile Include="Assets\Scripts\Core\Stage\Tile.cs" />

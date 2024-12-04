@@ -417,6 +417,7 @@
 "Assets/Scripts/Core/MainMenu/SquadEditPanel.cs"
 "Assets/Scripts/Core/MainMenu/StageButton.cs"
 "Assets/Scripts/Core/MainMenu/StageSelectPanel.cs"
+"Assets/Scripts/Core/MainMenu/UIHelper.cs"
 "Assets/Scripts/Core/OperatorGrowth/OperatorGrowthManager.cs"
 "Assets/Scripts/Core/OperatorGrowth/OperatorGrowthSystem.cs"
 "Assets/Scripts/Core/OperatorProgress.cs"

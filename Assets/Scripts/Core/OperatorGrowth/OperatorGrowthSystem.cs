@@ -42,6 +42,9 @@ public static class OperatorGrowthSystem
     public static int GetRequiredExp(int currentLevel)
     {
         if (currentLevel < 1) return 0;
+
+        // 정예화 반영 필요
+
         return Mathf.RoundToInt(BASE_EXP_FOR_LEVEL_UP + (EXP_INCREASE_PER_LEVEL * (currentLevel - 1)));
     }
 

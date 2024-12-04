@@ -1,5 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
 using DG.Tweening;
 using TMPro;
 using UnityEngine;
@@ -29,7 +27,7 @@ public class NotificationPanel : MonoBehaviour
         }
 
         currentSequence = DOTween.Sequence().SetUpdate(true)
-            .Append(panelRect.DOAnchorPosX(0f, 0.3f).SetEase(Ease.OutBack))
+            .Append(panelRect.DOAnchorPosX(-10f, 0.3f).SetEase(Ease.OutBack))
             .AppendInterval(2f)
             .Append(panelRect.DOAnchorPosX(400f, 0.3f).SetEase(Ease.InBack))
             .OnComplete(() =>
