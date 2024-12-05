@@ -2,7 +2,6 @@
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
-using UnityEngine.EventSystems;
 using System.Collections.Generic;
 using System.Linq;
 using System.Collections;
@@ -23,7 +22,7 @@ public class OperatorLevelUpPanel : MonoBehaviour
 
     [SerializeField] private float velocityThreshold = 0.5f; // 스크롤이 멈췄다고 판단하는 속도 임계값
 
-    private float snapThreshold; // 스냅 위치와의 거리 임계값
+    private float snapThreshold; // 스냅 거리 임계값. IDE에서 안쓴다고 하는데 쓰고 있다. 주의.
     private string updateColor;
 
     [System.Serializable]
@@ -48,12 +47,10 @@ public class OperatorLevelUpPanel : MonoBehaviour
     private int totalLevels;
 
     // 스크롤 관련 변수
-    //private float levelItemHeight = 0f; // 각 레벨 항목의 높이, levelTextPrefab의 Height값과 동일. 하드코딩 ㄱ
     private float contentHeight; // 전체 컨텐츠의 높이
     private float viewportHeight; // 뷰포트의 높이
     private bool isMousePressed = false;
     private bool isScrolling = false; // 관성 스크롤 중인지 여부
-    //private float targetScrollPosition = 0f; 
     private bool isInitialized = false;
     private bool isUpdatingPanel = false;
     private bool isPanelUpdated = false; // 이 레벨에 대한 패널이 업데이트 됐으면 true
@@ -65,8 +62,7 @@ public class OperatorLevelUpPanel : MonoBehaviour
     {
         if (levelScrollRect != null)
         {
-            // onValueChanged는 내부의 normalizedPositon([0, 1]) 값의 변화를 감지함
-            // 즉 스크롤이 변할 때마다 실행된다고 보면 되겠다
+            // 스크롤이 변할 때마다 실행된다. onValueChanged는 내부의 normalizedPositon([0, 1]) 값의 변화를 감지함
             levelScrollRect.onValueChanged.AddListener(OnScrollValueChanged);
         }
 
@@ -139,15 +135,16 @@ public class OperatorLevelUpPanel : MonoBehaviour
     {
         if (op != null)
         {
-            healthPreview.currentValue.text = op.currentStats.Health.ToString();
-            attackPreview.currentValue.text = op.currentStats.AttackPower.ToString();
-            defensePreview.currentValue.text = op.currentStats.Defense.ToString();
-            magicResistancePreview.currentValue.text = op.currentStats.MagicResistance.ToString();
+            OperatorStats initialStats = op.currentStats;
+            healthPreview.currentValue.text = initialStats.Health.ToString();
+            attackPreview.currentValue.text = initialStats.AttackPower.ToString();
+            defensePreview.currentValue.text = initialStats.Defense.ToString();
+            magicResistancePreview.currentValue.text = initialStats.MagicResistance.ToString();
 
-            healthPreview.newValue.text = op.currentStats.Health.ToString();
-            attackPreview.newValue.text = op.currentStats.AttackPower.ToString();
-            defensePreview.newValue.text = op.currentStats.Defense.ToString();
-            magicResistancePreview.newValue.text = op.currentStats.MagicResistance.ToString();
+            healthPreview.newValue.text = initialStats.Health.ToString();
+            attackPreview.newValue.text = initialStats.AttackPower.ToString();
+            defensePreview.newValue.text = initialStats.Defense.ToString();
+            magicResistancePreview.newValue.text = initialStats.MagicResistance.ToString();
         }
     }
 
@@ -156,13 +153,11 @@ public class OperatorLevelUpPanel : MonoBehaviour
     /// </summary>
     private void SetInitialScrollPositon()
     {
-
         // 스크롤 위치 즉시 설정
         levelScrollRect.verticalNormalizedPosition = GetScrollPositionForLevel(currentLevel);
 
         // 스크롤 속도 초기화
         levelScrollRect.velocity = Vector2.zero;
-
     }
 
     private void CreatePadding(string name, float height)
@@ -205,8 +200,6 @@ public class OperatorLevelUpPanel : MonoBehaviour
             // 정규화된 스크롤값은 currentLevel일 때 0, maxLevel일 때 1이 된다.
 
             levelToScrollPosition[level] = normalizedPosition;
-
-            Debug.Log($"Level {level} normalized position: {normalizedPosition}");
         }
     }
 
@@ -311,7 +304,6 @@ public class OperatorLevelUpPanel : MonoBehaviour
 
         magicResistancePreview.newValue.text = targetLevelStats.MagicResistance.ToString(); // 마법 저항력은 레벨업으로 바뀌지 않음
 
-
         // 패널 업데이트 완료
         isUpdatingPanel = false;
         isPanelUpdated = true;  // 레벨이 바뀌면 다시 false가 됨
@@ -321,19 +313,8 @@ public class OperatorLevelUpPanel : MonoBehaviour
     private void OnScrollValueChanged(Vector2 value)
     {
         if (!isInitialized) return;
-        
-        // 스크롤 이벤트 감지할 게 있으면 추가
     }
 
-    private void UpdateUI()
-    {
-        UpdateExpGauge();
-        UpdateConfirmButton();
-    }
-
-    /// <summary>
-    /// 
-    /// </summary>
     private void UpdateExpGauge()
     {
         // 아이템을 사용해서 어떤 레벨이 됐을 때의 경험치 연산 식이 필요함
@@ -393,6 +374,33 @@ public class OperatorLevelUpPanel : MonoBehaviour
         if (isInitialized)
         {
             SetInitialScrollPositon();
+        }
+    }
+
+    private void OnDisable()
+    {
+        // 패널이 비활성화될 때 모든 상태를 초기화
+        isInitialized = false;
+        currentLevel = 0;
+        maxLevel = 0;
+        selectedLevel = 0;
+        totalLevels = 0;
+        levelToScrollPosition.Clear();
+
+        // 스크롤뷰의 컨텐츠도 정리
+        if (contentRect != null)
+        {
+            foreach (Transform child in contentRect)
+            {
+                Destroy(child.gameObject);
+            }
+        }
+
+        // 스크롤 위치도 리셋
+        if (levelScrollRect != null)
+        {
+            levelScrollRect.velocity = Vector2.zero;
+            levelScrollRect.verticalNormalizedPosition = 0f;
         }
     }
 

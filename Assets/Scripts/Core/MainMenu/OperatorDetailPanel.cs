@@ -16,6 +16,7 @@ public class OperatorDetailPanel : MonoBehaviour
     [Header("Attack Range Visualization")]
     [SerializeField] private RectTransform attackRangeContainer;
     [SerializeField] private float centerPositionOffset; // 타일 시각화 위치를 위한 중심 이동
+    [SerializeField] private float tileSize = 25f;
 
     private UIHelper.AttackRangeHelper attackRangeHelper;
 
@@ -37,6 +38,7 @@ public class OperatorDetailPanel : MonoBehaviour
 
     [Header("Indicator")]
     [SerializeField] private TextMeshProUGUI maxLevelIndicator;
+    [SerializeField] private TextMeshProUGUI maxPromotionIndicator;
     [SerializeField] private TextMeshProUGUI canLevelUpIndicator;
 
     private OperatorData operatorData;
@@ -56,51 +58,34 @@ public class OperatorDetailPanel : MonoBehaviour
         promoteButton.onClick.AddListener(OnPromoteClicked);
     }
 
-    private void OnLevelUpClicked()
-    {
-        if (currentOperator.CanLevelUp)
-        {
-            GameObject levelUpPanelObject = MainMenuManager.Instance.PanelMap[MainMenuManager.MenuPanel.OperatorLevelUp];
-            OperatorLevelUpPanel levelUpPanel = levelUpPanelObject.GetComponent<OperatorLevelUpPanel>();
-            MainMenuManager.Instance.FadeInAndHide(levelUpPanelObject, gameObject);
-            levelUpPanel.Initialize(currentOperator);
-        }
-    }
-
-    private void OnPromoteClicked()
-    {
-        if (currentOperator.CanPromote)
-        {
-            GameObject promotionPanel = MainMenuManager.Instance.PanelMap[MainMenuManager.MenuPanel.OperatorPromotion];
-            MainMenuManager.Instance.FadeInAndHide(promotionPanel, gameObject);
-        }
-    }
-    private void Start()
-    {
-        // AttackRangeHelper 초기화
-        attackRangeHelper = UIHelper.Instance.CreateAttackRangeHelper(
-            attackRangeContainer,
-            centerPositionOffset
-        );
-        Debug.Log("OpeatorDetailPanel에서 attackRangeHelper의 초기화 완료");
-    }
-
-    private void OnEnable()
-    {
-        if (currentOperator != null)
-        {
-            UpdateAllUI();
-        }
-    }
 
     public void Initialize(OwnedOperator ownedOp)
     {
         if (currentOperator != ownedOp)
         {
+            ClearAttackRange();
+
             currentOperator = ownedOp;
             operatorData = ownedOp.BaseData;
+
+            // AttackRangeHelper 초기화
+            attackRangeHelper = UIHelper.Instance.CreateAttackRangeHelper(
+                attackRangeContainer,
+                centerPositionOffset,
+                tileSize
+            );
+
+            UpdateAllUI();
         }
-        UpdateAllUI();
+    }
+
+    private void OnEnable()
+    {
+        // 현재 오퍼레이터가 할당된 경우에만 UI 업데이트 실행
+        if (currentOperator != null)
+        {
+            UpdateAllUI();
+        }
     }
 
     private void UpdateAllUI()
@@ -111,8 +96,10 @@ public class OperatorDetailPanel : MonoBehaviour
         UpdateButtonStates();
     }
 
+
     private void UpdateBasicInfo()
     {
+        // 배경이 되는 오퍼레이터 이미지 설정
         if (operatorData.Icon != null)
         {
             operatorIconImage.sprite = operatorData.Icon;
@@ -123,14 +110,12 @@ public class OperatorDetailPanel : MonoBehaviour
             operatorIconImage.enabled = false; 
         }
 
+        operatorNameText.text = operatorData.entityName;
+
+        // 클래스 아이콘 설정
         IconHelper.SetClassIcon(classIconImage, operatorData.operatorClass);
 
-        operatorNameText.text = operatorData.entityName;
-        phaseText.text = $"Elite {(int)currentOperator.currentPhase}";
-
         // 공격 범위 설정
-        Debug.Log($"attackRangeHelper : {attackRangeHelper}");
-
         attackRangeHelper.ShowBasicRange(currentOperator.currentAttackableTiles);
 
 
@@ -164,9 +149,18 @@ public class OperatorDetailPanel : MonoBehaviour
     }
 
     /// <summary>
-    /// 현재 경험치, 현재 레벨 업데이트
+    /// 현재 경험치, 현재 레벨, 정예화 상태 업데이트
     /// </summary>
     private void UpdateGrowthInfo()
+    {
+        UpdateExpInfo();
+        UpdatePromotionInfo();
+    }
+
+    /// <summary>
+    /// 경험치, 레벨 관련 정보 업데이트
+    /// </summary>
+    private void UpdateExpInfo()
     {
         float currentExp = currentOperator.currentExp;
         float maxExp = OperatorGrowthSystem.GetRequiredExp(currentOperator.currentLevel);
@@ -176,9 +170,7 @@ public class OperatorDetailPanel : MonoBehaviour
         expText.text = $"EXP\n<size=44><color=#FFE61A>{currentExp.ToString()}</color>/{maxExp.ToString()}</size>";
         levelText.text = $"LV\n<size=100><b>{currentLevel.ToString()}</b></size=100>";
         maxLevelText.text = $"/{maxLevel.ToString()}";
-
-        // exp 게이지 업데이트. float로 와야 함!
-        expGauge.value = currentExp / maxExp; 
+        expGauge.value = currentExp / maxExp;
 
         if (currentLevel < maxLevel)
         {
@@ -192,13 +184,61 @@ public class OperatorDetailPanel : MonoBehaviour
         }
     }
 
-    private void UpdateButtonStates()
+    /// <summary>
+    /// 정예화 관련 정보 업데이트
+    /// </summary>
+    private void UpdatePromotionInfo()
     {
-        levelUpButton.interactable = currentOperator.currentLevel == OperatorGrowthSystem.GetMaxLevel(currentOperator.currentPhase);
-        promoteButton.interactable = currentOperator.CanPromote;
+        phaseText.text = $"{(int)currentOperator.currentPhase}";
+
+        if (currentOperator.currentPhase == OperatorGrowthSystem.ElitePhase.Elite0)
+        {
+            maxPromotionIndicator.gameObject.SetActive(false);
+        }
+        else
+        {
+            maxPromotionIndicator.gameObject.SetActive(true);
+        }
     }
 
-    private void OnDisable()
+    private void UpdateButtonStates()
     {
+        // 레벨업 버튼 : 현재 정예화의 최대 레벨보다 낮을 때 사용 가능
+        levelUpButton.interactable = currentOperator.currentLevel < OperatorGrowthSystem.GetMaxLevel(currentOperator.currentPhase);
+
+        // 정예화 버튼 : 0정예화에서만 클릭 가능
+        promoteButton.interactable = currentOperator.currentPhase == OperatorGrowthSystem.ElitePhase.Elite0;
+    }
+
+    private void ClearAttackRange()
+    {
+        if (attackRangeHelper != null)
+        {
+            attackRangeHelper.ClearTiles();
+        }
+    }
+
+
+    private void OnLevelUpClicked()
+    {
+        if (currentOperator.CanLevelUp)
+        {
+            GameObject levelUpPanelObject = MainMenuManager.Instance.PanelMap[MainMenuManager.MenuPanel.OperatorLevelUp];
+            OperatorLevelUpPanel levelUpPanel = levelUpPanelObject.GetComponent<OperatorLevelUpPanel>();
+            MainMenuManager.Instance.FadeInAndHide(levelUpPanelObject, gameObject);
+            levelUpPanel.Initialize(currentOperator);
+        }
+    }
+
+    private void OnPromoteClicked()
+    {
+        // 0정예화일 때에만 진입 가능
+        if (currentOperator.currentPhase == OperatorGrowthSystem.ElitePhase.Elite0)
+        {
+            GameObject promotionPanelObject = MainMenuManager.Instance.PanelMap[MainMenuManager.MenuPanel.OperatorPromotion];
+            MainMenuManager.Instance.FadeInAndHide(promotionPanelObject, gameObject);
+            OperatorPromotionPanel promotionPanel = promotionPanelObject.GetComponent<OperatorPromotionPanel>();
+            promotionPanel.Initialize(currentOperator);
+        }
     }
 }
