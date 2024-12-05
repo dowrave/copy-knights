@@ -56,14 +56,12 @@ public class OperatorData : ScriptableObject, IBoxDeployableData
     public class ElitePhaseUnlocks
     {
         [Header("Attack Range Changes")]
-        public Vector2Int[] additionalAttackTiles;
+        public List<Vector2Int> additionalAttackTiles;
 
         [Header("New Skills")]
         public Skill unlockedSkill;
     }
 }
-
-
 
 [System.Serializable]
 public struct OperatorStats

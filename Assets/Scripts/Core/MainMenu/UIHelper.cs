@@ -35,16 +35,17 @@ public class UIHelper : MonoBehaviour
     {
         private List<Image> rangeTiles = new List<Image>();
         private RectTransform containerRect;
-        private float centerOffset;
+        private float centerOffset; // 컨테이너에 들어가는 중앙 그리드의 x 위치
         private float tileSize;
 
         // 생성자에서 프리팹 참조를 제거하고 컨테이너와 오프셋만 받도록 수정
-        public AttackRangeHelper(RectTransform container, float offset)
+        public AttackRangeHelper(RectTransform container, float offset, float? tileSize)
         {
             containerRect = container;
             centerOffset = offset;
-            // 타일 크기는 Instance의 프리팹에서 가져옴
-            tileSize = Instance.filledTilePrefab.rectTransform.rect.width;
+
+            // 타일 크기는 지정할 수 있으며, 없다면 기본 프리팹의 사이즈 이용
+            this.tileSize = tileSize ?? Instance.filledTilePrefab.rectTransform.rect.width;
         }
 
         private Image CreateTile(Vector2Int gridPos, bool isCenter, bool isHighlight)
@@ -53,8 +54,11 @@ public class UIHelper : MonoBehaviour
             Image tilePrefab = isCenter ? Instance.filledTilePrefab :
                              isHighlight ? Instance.highlightTilePrefab :
                              Instance.outlineTilePrefab;
-
             Image tile = GameObject.Instantiate(tilePrefab, containerRect);
+
+            // 타일 크기 지정
+            RectTransform tileRect = tile.GetComponent<RectTransform>();
+            tileRect.sizeDelta = new Vector2(tileSize, tileSize);
 
             float interval = tileSize / 4f;
             float gridX = gridPos.x * (tileSize + interval);
@@ -90,7 +94,7 @@ public class UIHelper : MonoBehaviour
             CreateTile(Vector2Int.zero, true, false);
         }
 
-        private void ClearTiles()
+        public void ClearTiles()
         {
             foreach (var tile in rangeTiles)
             {
@@ -114,8 +118,9 @@ public class UIHelper : MonoBehaviour
             }
         }
     }
-    public AttackRangeHelper CreateAttackRangeHelper(RectTransform container, float offset)
+
+    public AttackRangeHelper CreateAttackRangeHelper(RectTransform container, float offset, float? tileSize = null)
     {
-        return new AttackRangeHelper(container, offset);
+        return new AttackRangeHelper(container, offset, tileSize);
     }
 }
