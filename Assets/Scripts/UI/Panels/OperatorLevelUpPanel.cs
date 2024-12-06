@@ -4,6 +4,7 @@ using TMPro;
 using System.Collections.Generic;
 using System.Linq;
 using System.Collections;
+using DG.Tweening;
 
 public class OperatorLevelUpPanel : MonoBehaviour
 {
@@ -15,14 +16,17 @@ public class OperatorLevelUpPanel : MonoBehaviour
     [Header("Info Display")]
     [SerializeField] private Button confirmButton;
     [SerializeField] private Slider expGauge;
+    [SerializeField] private Button maxLevelButton; 
 
     [Header("Info Settings")]
     [SerializeField] private float snapSpeed = 10f; // 스냅 애니메이션 속도
 
     [SerializeField] private float velocityThreshold = 0.5f; // 스크롤이 멈췄다고 판단하는 속도 임계값
 
-    private float snapThreshold; // 스냅 거리 임계값. IDE에서 안쓴다고 하는데 쓰고 있다. 주의.
+    private float snapThreshold; // 스냅 거리 임계값. 지우지 않도록 주의.
     private string updateColor;
+
+    private ExpCalculationSystem.ExpItemUsagePlan currentUsagePlan;
 
     [System.Serializable]
     public class StatPreviewLine
@@ -54,6 +58,9 @@ public class OperatorLevelUpPanel : MonoBehaviour
     private bool isUpdatingPanel = false;
     private bool isPanelUpdated = false; // 이 레벨에 대한 패널이 업데이트 됐으면 true
 
+    private Vector2 maxButtonOriginalPosition;
+    private readonly float buttonOffsetX = 50f;
+
     // 각 레벨에 대한 스크롤 위치를 저장하는 dict
     private Dictionary<int, float> levelToScrollPosition = new Dictionary<int, float>();
 
@@ -70,7 +77,15 @@ public class OperatorLevelUpPanel : MonoBehaviour
             confirmButton.onClick.AddListener(OnConfirmButtonClicked);
         }
 
+        if (maxLevelButton != null)
+        {
+            maxLevelButton.onClick.AddListener(OnMaxLevelButtonClicked);
+        }
+
+        maxButtonOriginalPosition = maxLevelButton.GetComponent<RectTransform>().anchoredPosition;
+
         updateColor = GameManagement.Instance.ResourceManager.textUpdateColor;
+        SetMaxLevelButtonVisible(true);
     }
 
     public void Initialize(OwnedOperator op)
@@ -245,6 +260,13 @@ public class OperatorLevelUpPanel : MonoBehaviour
         // 마우스 버튼 다운 확인
         isMousePressed = Input.GetMouseButton(0);
 
+        // Max 버튼 상태 업데이트
+        if (isScrolling)
+        {
+            SetMaxLevelButtonVisible(false);
+        }
+        
+
         // 자유 스크롤 중일 때는 selectedLevel만 업데이트
         if (isMousePressed || isScrolling)
         {
@@ -256,6 +278,7 @@ public class OperatorLevelUpPanel : MonoBehaviour
             }
             return; 
         }
+
 
         // 스크롤이 멈추고 마우스가 떨어지면 스냅핑 처리
         if (!isUpdatingPanel)
@@ -307,6 +330,7 @@ public class OperatorLevelUpPanel : MonoBehaviour
         isUpdatingPanel = false;
         isPanelUpdated = true;  // 레벨이 바뀌면 다시 false가 됨
         UpdateConfirmButton();
+        SetMaxLevelButtonVisible(true);
     }
 
     private void OnScrollValueChanged(Vector2 value)
@@ -366,6 +390,53 @@ public class OperatorLevelUpPanel : MonoBehaviour
         InitializeLevelStrip();
         SetScrollToLevel(currentLevel);
     }
+
+    private void UpdateItemUsageDisplay()
+    {
+
+    }
+
+    private void OnMaxLevelButtonClicked()
+    {
+        List<(ItemData, int)> availableItems = GameManagement.Instance.PlayerDataManager.GetAllItems()
+            .Where(x => x.itemData.type == ItemData.ItemType.Exp)
+            .ToList();
+
+        var (maxLevel, usagePlan) = ExpCalculationSystem.CalculateMaxLevel(op, availableItems);
+
+        if (maxLevel > op.currentLevel)
+        {
+            SetScrollToLevel(maxLevel);
+            currentUsagePlan = usagePlan;
+            //UpdateItemUsageDisplay(0);
+        }
+    }
+
+    /// <summary>
+    /// 스크롤 상태에 따른 버튼 표시 설정
+    /// </summary>
+    private void SetMaxLevelButtonVisible(bool visible)
+    {
+        maxLevelButton.transform.DOKill(); // 진행 중인 애니메이션 중단
+        CanvasGroup buttonCanvasGroup = maxLevelButton.GetComponent<CanvasGroup>();
+
+        // 목표 위치와 투명도 설정
+        Vector2 targetAnchoredPosition = visible ?
+            maxButtonOriginalPosition :
+            maxButtonOriginalPosition + new Vector2(buttonOffsetX, 0f);
+
+        float targetAlpha = visible ? 1f : 0.3f;
+
+        // 애니메이션 시퀀스 생성
+        Sequence sequence = DOTween.Sequence();
+        sequence.Join(maxLevelButton.GetComponent<RectTransform>()
+            .DOAnchorPos(targetAnchoredPosition, 0.3f)
+            .SetEase(Ease.OutQuad));
+        sequence.Join(buttonCanvasGroup
+            .DOFade(targetAlpha, 0.3f)
+            .SetEase(Ease.OutQuad));
+    }
+
     private void OnEnable()
     {
         // 패널 활성화마다 스크롤 위치를 현재 레벨로 초기화

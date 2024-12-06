@@ -1,13 +1,12 @@
 using UnityEngine;
 
 [CreateAssetMenu(fileName = "New Item", menuName = "Game/Item Data")]
-public class ItemData : MonoBehaviour
+public class ItemData : ScriptableObject
 {
     // 아이템 종류 : 경험치 소/중, 정예화 재료
     public enum ItemType
     {
-        ExpSmall,
-        ExpLarge,
+        Exp,
         EliteItem
     }
 
@@ -27,8 +26,7 @@ public class ItemData : MonoBehaviour
     {
         switch (type)
         {
-            case ItemType.ExpSmall:
-            case ItemType.ExpLarge:
+            case ItemType.Exp:
                 if (target.currentLevel >= OperatorGrowthSystem.GetMaxLevel(target.currentPhase))
                     return false;
 
