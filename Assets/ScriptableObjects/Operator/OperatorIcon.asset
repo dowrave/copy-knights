@@ -25,3 +25,8 @@ MonoBehaviour:
     icon: {fileID: 21300000, guid: ec8ff89e3867a724bbdb5cca41b58e66, type: 3}
   - operatorClass: 5
     icon: {fileID: 21300000, guid: 833228521e124f94fbc7054ca13cfcdd, type: 3}
+  elitePhaseIcons:
+  - phase: 0
+    icon: {fileID: 0}
+  - phase: 1
+    icon: {fileID: 21300000, guid: 36e3ca5ba2305dc44810d2bc764b4926, type: 3}
