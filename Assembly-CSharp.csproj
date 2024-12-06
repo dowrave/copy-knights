@@ -63,6 +63,7 @@
     <Compile Include="Assets\Scripts\Interfaces\ICombatEntity.cs" />
     <Compile Include="Assets\Scripts\Utils\StageLoader.cs" />
     <Compile Include="Assets\Scripts\Core\Managers\ObjectPoolManager.cs" />
+    <Compile Include="Assets\Scripts\Core\Systems\ExpCalculationSystem.cs" />
     <Compile Include="Assets\Scripts\UI\Components\DeployableBox.cs" />
     <Compile Include="Assets\Scripts\Map\EnemySpawner.cs" />
     <Compile Include="Assets\Scripts\Interfaces\IBoxDeployableData.cs" />
@@ -108,6 +109,7 @@
     <Compile Include="Assets\Scripts\Core\Managers\OperatorGrowthManager.cs" />
     <Compile Include="Assets\Scripts\Barricade.cs" />
     <Compile Include="Assets\Scripts\Map\Map.cs" />
+    <Compile Include="Assets\Scripts\Data\ItemInventoryData.cs" />
     <Compile Include="Assets\Scripts\Entities\Combat\Projectile\ProjectileEffect.cs" />
     <Compile Include="Assets\Scripts\UI\Components\HealthBar.cs" />
     <Compile Include="Assets\Scripts\Entities\Operators\MedicOperator.cs" />

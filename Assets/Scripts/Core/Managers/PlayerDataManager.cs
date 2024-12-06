@@ -8,13 +8,14 @@ using UnityEngine;
 /// </summary>
 public class PlayerDataManager : MonoBehaviour
 {
-    // 플레이어가 소유한 오퍼레이터 정보
+    // 플레이어가 소유한 데이터 정보
     [System.Serializable] 
     private class PlayerData
     {
         public List<OwnedOperator> ownedOperators = new List<OwnedOperator>();
         public List<string> currentSquadOperatorNames = new List<string>(); // 직렬화의 용이성, 저장 공간 저장 등의 이유로 string만을 사용
         public int maxSquadSize;
+        public UserInventoryData inventory = new UserInventoryData();
     }
 
     private PlayerData playerData;
@@ -24,7 +25,7 @@ public class PlayerDataManager : MonoBehaviour
     [SerializeField] private List<OperatorData> startingOperators; // 초기 지급 오퍼레이터
     [SerializeField] private int defaultMaxSquadSize = 6;
 
-
+    private Dictionary<string, ItemData> itemDatabase = new Dictionary<string, ItemData>();
 
     public event System.Action OnSquadUpdated;
 
@@ -37,7 +38,8 @@ public class PlayerDataManager : MonoBehaviour
 
     private void InitializeSystem()
     {
-        LoadOperatorDatabase(); 
+        LoadOperatorDatabase();
+        LoadItemDatabase();
         LoadOrCreatePlayerData();
     }
 
@@ -281,4 +283,76 @@ public class PlayerDataManager : MonoBehaviour
         return new List<string>(playerData.currentSquadOperatorNames); 
     }
 
+    private void LoadItemDatabase()
+    {
+#if UNITY_EDITOR 
+        string[] guids = UnityEditor.AssetDatabase.FindAssets("t:ItemData",
+            new[] { "Assets/ScriptableObjects/Items" });
+        foreach (string guid in guids)
+        {
+            string path = UnityEditor.AssetDatabase.GUIDToAssetPath(guid);
+            ItemData itemData = UnityEditor.AssetDatabase.LoadAssetAtPath<ItemData>(path);
+            if (itemData != null)
+            {
+                itemDatabase[itemData.name] = itemData;
+            }
+        }
+#endif
+    }
+
+    public bool AddItem(string itemName, int count = 1)
+    {
+        UserInventoryData.ItemStack existingItem = playerData.inventory.items.Find(i => i.itemName == itemName);
+
+        // dict를 이용, 아이템이 있으면 값만 더하고 없으면 새로 만듦
+        if (existingItem != null)
+        {
+            existingItem.count += count;
+        }
+        else
+        {
+            playerData.inventory.items.Add(new UserInventoryData.ItemStack(itemName, count));
+        }
+
+        SavePlayerData();
+        return true;
+    }
+
+    public bool UseItem(string itemName, OwnedOperator target)
+    {
+        UserInventoryData.ItemStack itemStack = playerData.inventory.items.Find(i => i.itemName == itemName);
+        
+        if (itemStack == null || itemStack.count <= 0) return false; // 아이템 스택이 없는 경우
+        if (!itemDatabase.TryGetValue(itemName, out ItemData itemData)) return false; // 아이템이 없는 경우
+
+        if (itemData.UseOn(target))
+        {
+            itemStack.count--;
+            if (itemStack.count <= 0)
+                playerData.inventory.items.Remove(itemStack);
+            SavePlayerData();
+            return true;
+        }
+        return false; 
+    }
+
+    public List<(ItemData itemData, int count)> GetAllItems()
+    {
+        List<(ItemData, int)> result = new List<(ItemData data, int count)>();
+        foreach (var itemStack in playerData.inventory.items)
+        {
+            if (itemDatabase.TryGetValue(itemStack.itemName, out ItemData itemData))
+            {
+                result.Add((itemData, itemStack.count));
+            }
+        }
+
+        return result;
+    }
+
+    public int GetItemCount(string itemName)
+    {
+        UserInventoryData.ItemStack itemStack = playerData.inventory.items.Find(i => i.itemName == itemName);
+        return itemStack?.count ?? 0;
+    }
 }
