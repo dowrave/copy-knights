@@ -7,7 +7,7 @@ using UnityEngine.UI;
 /// <summary>
 /// 아이템 상세 정보를 표시하는 패널. 화면 중앙에 표시되며 다른 UI 요소들을 흐리게 만든다.
 /// </summary>
-public class ItemDetailPanel : MonoBehaviour
+public class ItemInfoPopup : MonoBehaviour
 {
     [Header("Panel Components")]
     [SerializeField] private RectTransform panelRect;
@@ -18,7 +18,7 @@ public class ItemDetailPanel : MonoBehaviour
     [SerializeField] private TextMeshProUGUI itemNameText;
     [SerializeField] private TextMeshProUGUI itemDescriptionText;
     [SerializeField] private TextMeshProUGUI itemCountText;
-    [SerializeField] private RectTransform contentContainer; // 실제 컨텐츠 컨테이너
+    //[SerializeField] private RectTransform contentContainer; // 실제 컨텐츠 컨테이너
 
     [Header("Panel Settings")]
     [SerializeField] private float dimAlpha = 0.7f; // 딤 처리 강도
@@ -39,7 +39,7 @@ public class ItemDetailPanel : MonoBehaviour
     {
         // 배경 딤 영역 설정
         backgroundDim.color = new Color(0f, 0f, 0f, dimAlpha);
-        backgroundDim.gameObject.AddComponent<Button>().onClick.AddListener(Hide);
+        backgroundDim.gameObject.GetComponent<Button>().onClick.AddListener(Hide);
 
         backgroundUICanvasGroup = transform.root.GetComponent<CanvasGroup>();
 
@@ -72,7 +72,6 @@ public class ItemDetailPanel : MonoBehaviour
     /// </summary>
     private void Show()
     {
-
         gameObject.SetActive(true);
 
         if (backgroundUICanvasGroup != null)
@@ -117,9 +116,15 @@ public class ItemDetailPanel : MonoBehaviour
 
         hideSequence.OnComplete(() =>
         {
-            gameObject.SetActive(false);
-            currentItem = null; // 아이템 정보 초기화
+            PopupManager.Instance.OnPopupClosed(this);
+
+            ClearData();
         });
+    }
+
+    public void ClearData()
+    {
+        currentItem = null;
     }
 
     private void OnDisable()
