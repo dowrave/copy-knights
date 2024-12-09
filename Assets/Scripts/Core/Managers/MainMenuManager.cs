@@ -21,7 +21,8 @@ public class MainMenuManager : MonoBehaviour
         OperatorInventory,
         OperatorDetail,
         OperatorLevelUp,
-        OperatorPromotion
+        OperatorPromotion,
+        ItemInventory
         // 새로운 패널은 열거형으로 계속 추가하면 됨
     }
 

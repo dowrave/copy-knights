@@ -101,6 +101,9 @@ public class PlayerDataManager : MonoBehaviour
                 AddOperator(op.entityName);
             }
 
+            // 초기 아이템 지급
+            AddStartingItems();
+
             // 스쿼드 리스트를 초기화함
             InitializeEmptySquad();
             SavePlayerData();
@@ -354,5 +357,29 @@ public class PlayerDataManager : MonoBehaviour
     {
         UserInventoryData.ItemStack itemStack = playerData.inventory.items.Find(i => i.itemName == itemName);
         return itemStack?.count ?? 0;
+    }
+
+
+    /// <summary>
+    /// 아이템 데이터베이스를 이용해 초기 아이템 지급
+    /// 이름은 itemData.name 필드의 그것(LoadItemDatabase 참조)
+    /// </summary>
+    private void AddStartingItems()
+    {
+
+        if (itemDatabase.TryGetValue("ItemExpSmall", out ItemData expSmall))
+        {
+            playerData.inventory.items.Add(new UserInventoryData.ItemStack("ExpSmall", 5));
+        }
+
+        if (itemDatabase.TryGetValue("ItemExpMiddle", out ItemData expMiddle))
+        {
+            playerData.inventory.items.Add(new UserInventoryData.ItemStack("ExpSmall", 1));
+        }
+
+        if (itemDatabase.TryGetValue("ItemPromotion", out ItemData promotion))
+        {
+            playerData.inventory.items.Add(new UserInventoryData.ItemStack("ItemPromotion", 1));
+        }
     }
 }

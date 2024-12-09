@@ -75,6 +75,7 @@
     <Compile Include="Assets\Scripts\UI\Panels\StageLoadingScreen.cs" />
     <Compile Include="Assets\Scripts\UI\Panels\OperatorPromotionPanel.cs" />
     <Compile Include="Assets\Scripts\Interfaces\IDeployable.cs" />
+    <Compile Include="Assets\Scripts\UI\Panels\ItemInfoPopup.cs" />
     <Compile Include="Assets\Scripts\Core\Managers\StatisticsManager.cs" />
     <Compile Include="Assets\Scripts\Data\OperatorIconData.cs" />
     <Compile Include="Assets\Scripts\Utils\OperatorIconHelper.cs" />
@@ -96,7 +97,6 @@
     <Compile Include="Assets\Scripts\UI\Components\StatisticItem.cs" />
     <Compile Include="Assets\Scripts\Utils\UIHelper.cs" />
     <Compile Include="Assets\Scripts\UI\Components\OperatorSlot.cs" />
-    <Compile Include="Assets\Scripts\UI\Panels\ItemDetailPanel.cs" />
     <Compile Include="Assets\Scripts\Interfaces\ISkill.cs" />
     <Compile Include="Assets\Scripts\UI\Panels\SquadEditPanel.cs" />
     <Compile Include="Assets\Scripts\Core\Managers\GameManagement.cs" />
@@ -105,6 +105,7 @@
     <Compile Include="Assets\Scripts\Interfaces\ITargettable.cs" />
     <Compile Include="Assets\Scripts\Core\Managers\ResourceManager.cs" />
     <Compile Include="Assets\Scripts\Projectile.cs" />
+    <Compile Include="Assets\Scripts\Core\Managers\PopupManager.cs" />
     <Compile Include="Assets\Scripts\Data\StageResultData.cs" />
     <Compile Include="Assets\Scripts\UI\Panels\OperatorInventoryPanel.cs" />
     <Compile Include="Assets\Scripts\Core\Managers\OperatorGrowthManager.cs" />
@@ -135,6 +136,7 @@
     <Compile Include="Assets\Scripts\Interfaces\IRotatable.cs" />
     <Compile Include="Assets\Scripts\Core\Managers\DeployableManager.cs" />
     <Compile Include="Assets\Scripts\Skills\OperatorSkills\CostRecoverySkill.cs" />
+    <Compile Include="Assets\Scripts\UI\Panels\ItemInventoryPanel.cs" />
     <Compile Include="Assets\Scripts\UI\Components\EnemyBarUI.cs" />
     <Compile Include="Assets\Scripts\Skills\OperatorSkills\SmashSkill.cs" />
     <Compile Include="Assets\Scripts\UI\Panels\OperatorDetailPanel.cs" />

@@ -59,6 +59,7 @@ public class ItemUIElement : MonoBehaviour, IPointerClickHandler
     public void OnPointerClick(PointerEventData eventData)
     {
         OnItemClicked?.Invoke(itemData);
+        PopupManager.Instance.ShowItemInfoPopup(itemData);
     }
 
     public (ItemData data, int count) getItemInfo()
