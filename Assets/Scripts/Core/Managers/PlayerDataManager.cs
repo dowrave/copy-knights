@@ -366,15 +366,15 @@ public class PlayerDataManager : MonoBehaviour
     /// </summary>
     private void AddStartingItems()
     {
-
-        if (itemDatabase.TryGetValue("ItemExpSmall", out ItemData expSmall))
+        // 여기 들어가는 키값이 ItemData.name 값임 / 생성자
+        if (itemDatabase.TryGetValue("ExpSmall", out ItemData expSmall))
         {
             playerData.inventory.items.Add(new UserInventoryData.ItemStack("ExpSmall", 5));
         }
 
-        if (itemDatabase.TryGetValue("ItemExpMiddle", out ItemData expMiddle))
+        if (itemDatabase.TryGetValue("ExpMiddle", out ItemData expMiddle))
         {
-            playerData.inventory.items.Add(new UserInventoryData.ItemStack("ExpSmall", 1));
+            playerData.inventory.items.Add(new UserInventoryData.ItemStack("ExpMiddle", 1));
         }
 
         if (itemDatabase.TryGetValue("ItemPromotion", out ItemData promotion))
