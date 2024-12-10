@@ -1,3 +1,4 @@
+using System.Collections;
 using DG.Tweening;
 using TMPro;
 using UnityEngine;
@@ -21,11 +22,11 @@ public class ItemInfoPopup : MonoBehaviour
     //[SerializeField] private RectTransform contentContainer; // 실제 컨텐츠 컨테이너
 
     [Header("Panel Settings")]
-    [SerializeField] private float dimAlpha = 0.7f; // 딤 처리 강도
+    [SerializeField] private float dimAlpha = 0.8f; // 딤 처리 강도
 
     [Header("Animation Settings")]
-    [SerializeField] private float fadeInDuration = 0.3f;
-    [SerializeField] private float scaleUpDuration = 0.3f;
+    [SerializeField] private float fadeInDuration = 0.1f;
+    [SerializeField] private float scaleUpDuration = 0.1f;
 
     private CanvasGroup backgroundUICanvasGroup; // 흐리게 할 요소들의 CanvasGroup
     private ItemData currentItem;
@@ -65,23 +66,16 @@ public class ItemInfoPopup : MonoBehaviour
         // 보유 수량
         int count = GameManagement.Instance.PlayerDataManager.GetItemCount(currentItem.itemName);
         itemCountText.text = count.ToString();
+
+        // 레이아웃 즉시 갱신
+        //LayoutRebuilder.ForceRebuildLayoutImmediate((RectTransform)itemCountContainer.transform);
     }
 
-    /// <summary>
-    /// 패널을 보여주고 애니메이션을 재생한다
-    /// </summary>
     private void Show()
     {
         gameObject.SetActive(true);
-
-        if (backgroundUICanvasGroup != null)
-        {
-            backgroundUICanvasGroup.DOFade(0.3f, fadeInDuration);
-            backgroundUICanvasGroup.interactable = false;
-            backgroundUICanvasGroup.blocksRaycasts = false; 
-        }
-
-        PlayShowAnimation();
+        ShowWithLayout();
+        //StartCoroutine(ShowWithLayout());
     }
 
     private void PlayShowAnimation()
@@ -90,11 +84,9 @@ public class ItemInfoPopup : MonoBehaviour
         transform.DOKill();
 
         panelCanvasGroup.alpha = 0f;
-        transform.localScale = Vector3.zero;
 
         Sequence showSequence = DOTween.Sequence();
         showSequence.Append(panelCanvasGroup.DOFade(1f, fadeInDuration));
-        showSequence.Join(transform.DOScale(1f, scaleUpDuration).SetEase(Ease.OutBack));
     }
 
     /// <summary>
@@ -105,14 +97,8 @@ public class ItemInfoPopup : MonoBehaviour
         Sequence hideSequence = DOTween.Sequence();
 
         hideSequence.Append(panelCanvasGroup.DOFade(0f, fadeInDuration));
-        hideSequence.Join(transform.DOScale(0.8f, fadeInDuration));
-
-        if (backgroundUICanvasGroup != null)
-        {
-            backgroundUICanvasGroup.DOFade(1f, fadeInDuration);
-            backgroundUICanvasGroup.interactable = true;
-            backgroundUICanvasGroup.blocksRaycasts = true;
-        }
+        //hideSequence.Join(transform.DOScale(0.8f, fadeInDuration));
+        hideSequence.Join(backgroundDim.DOFade(1f, fadeInDuration));
 
         hideSequence.OnComplete(() =>
         {
@@ -125,6 +111,16 @@ public class ItemInfoPopup : MonoBehaviour
     public void ClearData()
     {
         currentItem = null;
+    }
+
+    /// <summary>
+    /// 캔버스를 1번 새로고침해서 ContentSizeFitter로 바뀌는 내용이 반영되도록 함
+    /// </summary>
+    private void ShowWithLayout()
+    {
+        panelCanvasGroup.alpha = 0f;
+        backgroundDim.DOFade(dimAlpha, fadeInDuration);
+        PlayShowAnimation();
     }
 
     private void OnDisable()

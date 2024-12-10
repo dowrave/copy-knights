@@ -9,6 +9,7 @@ using UnityEngine.UI;
 public class StageSelectPanel : MonoBehaviour
 {
     [SerializeField] List<StageButton> stageButtons;
+    [SerializeField] private Button cancelArea; // buttonContainer가 이 역할을 함
     [SerializeField] private GameObject stageDetailPanel;
     [SerializeField] private TextMeshProUGUI stageTitleText;
     [SerializeField] private TextMeshProUGUI stageDetailText;
@@ -43,13 +44,16 @@ public class StageSelectPanel : MonoBehaviour
             stageDetailPanel.SetActive(false);
         }
 
-        confirmButton.onClick.AddListener(() => OnConfirmButtonClicked());
+        confirmButton.onClick.AddListener(OnConfirmButtonClicked);
+        cancelArea.onClick.AddListener(OnCancelAreaClicked);
+
         InitializeDetailPanelButtons();
+        cancelArea.interactable = false;
     }
 
     private void InitializeDetailPanelButtons()
     {
-        confirmButton.onClick.AddListener(() => OnConfirmButtonClicked());
+        confirmButton.onClick.AddListener(OnConfirmButtonClicked);
         if (selectedStage != null)
         {
             confirmButton.interactable = true;
@@ -96,11 +100,23 @@ public class StageSelectPanel : MonoBehaviour
         ShowDetailPanel(CurrentStageButton.StageData);
     }
 
+    private void OnCancelAreaClicked()
+    {
+        if (CurrentStageButton != null)
+        {
+            CurrentStageButton.SetSelected(false);
+            CurrentStageButton = null;
+        }
+        stageDetailPanel.SetActive(false);
+        cancelArea.interactable = false;
+    }
+
     private void ShowDetailPanel(StageData stageData)
     {
         if (stageDetailPanel != null)
         {
             stageDetailPanel.SetActive(true);
+            cancelArea.interactable = true;
             stageTitleText.text = stageData.stageId;
             stageDetailText.text = stageData.stageDetail;
             confirmButton.interactable = true;
@@ -134,6 +150,7 @@ public class StageSelectPanel : MonoBehaviour
         }
 
         stageDetailPanel.SetActive(false);
+        cancelArea.interactable = false;
         confirmButton.interactable = false;
     }
 }

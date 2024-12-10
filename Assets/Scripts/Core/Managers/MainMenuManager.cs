@@ -42,6 +42,7 @@ public class MainMenuManager : MonoBehaviour
     [SerializeField] private GameObject navButtonContainer;
     [SerializeField] private Button backButton;
     [SerializeField] private Button homeButton;
+    [SerializeField] private Button inventoryButton;
 
     [Header("Panel References")]
     [SerializeField] private List<PanelInfo> panels;
@@ -95,8 +96,10 @@ public class MainMenuManager : MonoBehaviour
 
         if (backButton != null) backButton.onClick.AddListener(NavigateBack);
         if (homeButton != null) homeButton.onClick.AddListener(NavigateToHome);
+        if (inventoryButton != null) inventoryButton.onClick.AddListener(NavigateToInventory);
 
-        UpdateNavigationButtons();
+
+        UpdateTopAreaButtons();
     }
 
     public void NavigateBack()
@@ -119,17 +122,23 @@ public class MainMenuManager : MonoBehaviour
         ActivateAndFadeOut(panelMap[MenuPanel.StageSelect], panelMap[currentPanel]);
     }
 
-    private void UpdateNavigationButtons()
+    public void NavigateToInventory()
     {
-        Debug.Log(currentPanel);
+        ActivateAndFadeOut(panelMap[MenuPanel.ItemInventory], panelMap[currentPanel]);
+    }
+
+    private void UpdateTopAreaButtons()
+    {
 
         if (currentPanel == MenuPanel.StageSelect)
         {
             navButtonContainer.SetActive(false);
+            inventoryButton.gameObject.SetActive(true);
         }
         else
         {
             navButtonContainer.SetActive(true);
+            inventoryButton.gameObject.SetActive(false);
         }
     }
 
@@ -195,7 +204,7 @@ public class MainMenuManager : MonoBehaviour
             // 새 패널 활성화
             panelToShow.SetActive(true);
             currentPanel = newPanel;
-            UpdateNavigationButtons();
+            UpdateTopAreaButtons();
 
             // 새 패널 페이드 인
             CanvasGroup showGroup = panelToShow.GetComponent<CanvasGroup>();
@@ -220,7 +229,7 @@ public class MainMenuManager : MonoBehaviour
             showGroup.alpha = 1f; // 어떤 패널은 알파가 0을 유지하는 경우가 있어서 일부러 넣음
 
             currentPanel = newPanel;
-            UpdateNavigationButtons();
+            UpdateTopAreaButtons();
 
             // 현재 패널 페이드 아웃
             CanvasGroup hideGroup = panelToHide.GetComponent<CanvasGroup>();
