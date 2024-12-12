@@ -159,6 +159,7 @@ public class MainMenuManager : MonoBehaviour
                 panel.panel.SetActive(false);
             }
         }
+
         SetLastPlayedStage();
 
         GameManagement.Instance.UserSquadManager.OnSquadUpdated += OnSquadUpdated;

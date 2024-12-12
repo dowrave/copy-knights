@@ -181,7 +181,11 @@ public class OperatorSlot : MonoBehaviour
         }
 
         // 경험치 게이지, 레벨, 정예화 표시
-        expSlider.value = (float)OwnedOperator.currentExp / OperatorGrowthSystem.GetRequiredExp(OwnedOperator.currentLevel);
+        int remainingExp = OperatorGrowthSystem.GetRemainingExpForNextLevel(
+            OwnedOperator.currentPhase, 
+            OwnedOperator.currentLevel, 
+            OwnedOperator.currentExp);
+        expSlider.value = (float)OwnedOperator.currentExp / remainingExp;
         levelText.text = $"LV\r\n<size=40><b>{OwnedOperator.currentLevel}</b>\r\n</size>";
         OperatorIconHelper.SetElitePhaseIcon(promotionImage, OwnedOperator.currentPhase);
 

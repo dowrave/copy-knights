@@ -321,22 +321,30 @@ public class PlayerDataManager : MonoBehaviour
         return true;
     }
 
-    public bool UseItem(string itemName, OwnedOperator target)
+    public bool UseItems(Dictionary<string, int> itemsToUse)
     {
-        UserInventoryData.ItemStack itemStack = playerData.inventory.items.Find(i => i.itemName == itemName);
-        
-        if (itemStack == null || itemStack.count <= 0) return false; // 아이템 스택이 없는 경우
-        if (!itemDatabase.TryGetValue(itemName, out ItemData itemData)) return false; // 아이템이 없는 경우
-
-        if (itemData.UseOn(target))
+       // 모든 아이템 수량 검증
+       foreach (var (itemName, count) in itemsToUse)
         {
-            itemStack.count--;
-            if (itemStack.count <= 0)
-                playerData.inventory.items.Remove(itemStack);
-            SavePlayerData();
-            return true;
+            var itemStack = playerData.inventory.items.Find(i => i.itemName == itemName);
+            if (itemStack == null || itemStack.count < count)
+            {
+                return false;
+            }
         }
-        return false; 
+
+       foreach (var (itemName, count) in itemsToUse)
+        {
+            var itemStack = playerData.inventory.items.Find(i => i.itemName == itemName);
+            itemStack.count -= count;
+            if (itemStack.count <= 0)
+            {
+                playerData.inventory.items.Remove(itemStack);
+            }
+        }
+
+        SavePlayerData();
+        return true;
     }
 
     public List<(ItemData itemData, int count)> GetAllItems()

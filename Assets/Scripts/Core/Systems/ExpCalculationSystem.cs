@@ -16,8 +16,17 @@ public static class ExpCalculationSystem
     /// 목표 경험치에 도달하기 위한 최적의 아이템 사용 계획
     /// 높은 경험치부터 우선적으로 사용함
     /// </summary>
-    public static ExpItemUsagePlan CalculatOptimalItemUsage(int targetExp, List<(ItemData item, int count)> availableItems)
+    public static ExpItemUsagePlan CalculateOptimalItemUsage(
+            OperatorGrowthSystem.ElitePhase phase,
+            int currentLevel,
+            int targetLevel,
+            int currentExp,
+            List<(ItemData item, int count)> availableItems)
     {
+
+        // 필요 경험치 계산
+        int requiredExp = OperatorGrowthSystem.GetTotalExpRequiredForLevel(phase, currentLevel, targetLevel, currentExp);
+
         ExpItemUsagePlan result = new ExpItemUsagePlan
         {
             itemsToUse = new Dictionary<ItemData, int>(),
@@ -31,7 +40,7 @@ public static class ExpCalculationSystem
             .OrderByDescending(x => x.item.expAmount)
             .ToList();
 
-        int remainingExpNeeded = targetExp;
+        int remainingExpNeeded = requiredExp;
 
         foreach (var (item, availableCount) in sortedItems)
         {
@@ -49,7 +58,7 @@ public static class ExpCalculationSystem
             }
         }
 
-        result.remainingExp = Mathf.Max(0, result.totalExp - targetExp);
+        result.remainingExp = Mathf.Max(0, result.totalExp - requiredExp);
         return result;
     }
 
@@ -60,7 +69,6 @@ public static class ExpCalculationSystem
         OwnedOperator op, 
         List<(ItemData item, int count)> availableItems)
     {
-        int currentLevel = op.currentLevel;
         int maxLevelForPhase = OperatorGrowthSystem.GetMaxLevel(op.currentPhase);
 
         // 모든 사용 가능한 경험치를 계산
@@ -69,24 +77,18 @@ public static class ExpCalculationSystem
             .Sum(i => i.item.expAmount * i.count);
         totalAvailableExp += op.currentExp; // 현재 경험치도 포함
 
-        // 레벨별로 필요한 경험치 계산, 최대 레벨 찾기
-        int accumulatedExp = 0;
-        int targetLevel = currentLevel;
-        
-        while (targetLevel < maxLevelForPhase)
-        {
-            int nextLevelExp = OperatorGrowthSystem.GetRequiredExp(targetLevel);
+        // 도달 가능한 레벨 계산
+        var (reachableLevel, remainingExp) = OperatorGrowthSystem.CalculateReachableLevel(op.currentPhase, op.currentLevel, totalAvailableExp);
 
-            // 누적 경험치가 사용 가능 경험치를 넘으면 탈출
-            if (accumulatedExp + nextLevelExp > totalAvailableExp) 
-                break;
+        // 사용할 아이템 계산
+        var usagePlan = CalculateOptimalItemUsage(
+            op.currentPhase,
+            op.currentLevel,
+            reachableLevel,
+            op.currentExp,
+            availableItems
+            );
 
-            accumulatedExp += nextLevelExp;
-            targetLevel++;
-        }
-
-        ExpItemUsagePlan usagePlan = CalculatOptimalItemUsage(accumulatedExp - op.currentExp, availableItems);
-
-        return (targetLevel, usagePlan);
+        return (reachableLevel, usagePlan);
     }
 }

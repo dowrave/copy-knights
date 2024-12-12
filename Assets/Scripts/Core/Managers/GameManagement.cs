@@ -17,6 +17,9 @@ public class GameManagement : MonoBehaviour
     [SerializeField] private ResourceManager resourceManager;
     [SerializeField] private PlayerDataManager playerDataManager;
 
+    [Header("System Data")]
+    [SerializeField] private OperatorLevelData operatorLevelData; // 인스펙터에서 설정
+
     public StageLoader StageLoader => stageLoader;
     public UserSquadManager UserSquadManager => userSquadManager;
     public ResourceManager ResourceManager => resourceManager;
@@ -31,6 +34,7 @@ public class GameManagement : MonoBehaviour
             Instance = this;
             DontDestroyOnLoad(gameObject);
             ValidateComponents();
+            InitializeSystems(); // 시스템 초기화
         }
         else
         {
@@ -47,6 +51,11 @@ public class GameManagement : MonoBehaviour
         {
             Debug.LogError("GameManagement : SerializeField를 확인해볼 것");
         }
+    }
+
+    private void InitializeSystems()
+    {
+        OperatorGrowthSystem.Initalize(operatorLevelData);
     }
 
     public void OnSceneLoaded(UnityEngine.SceneManagement.Scene scene, LoadSceneMode mode)

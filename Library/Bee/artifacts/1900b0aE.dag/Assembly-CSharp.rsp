@@ -414,6 +414,7 @@
 "Assets/Scripts/Data/ItemInventoryData.cs"
 "Assets/Scripts/Data/OperatorData.cs"
 "Assets/Scripts/Data/OperatorIconData.cs"
+"Assets/Scripts/Data/OperatorLevelData.cs"
 "Assets/Scripts/Data/PathData.cs"
 "Assets/Scripts/Data/StageData.cs"
 "Assets/Scripts/Data/StageResultData.cs"
