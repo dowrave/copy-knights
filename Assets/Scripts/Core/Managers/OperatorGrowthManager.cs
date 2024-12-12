@@ -27,14 +27,14 @@ public class OperatorGrowthManager: MonoBehaviour
     /// </summary>
     public bool TryLevelUpOperator(OwnedOperator op, int targetLevel, ExpCalculationSystem.ExpItemUsagePlan usagePlan)
     {
-        // 1. 아이템 사용 가능 여부 검증
+        // 아이템 사용 가능 여부 검증
         Dictionary<string, int> itemsToUse = usagePlan.itemsToUse.ToDictionary(pair => pair.Key.itemName, pair => pair.Value);
 
-        // 2. 아이템 소비 시도
+        // 아이템 소비 시도
         bool itemUseSuccess = GameManagement.Instance.PlayerDataManager.UseItems(itemsToUse);
         if (!itemUseSuccess) return false;
 
-        // 4. 레벨업, 경험치, 스탯 계산
+        // 레벨업, 경험치, 스탯 계산
         op.currentLevel = targetLevel;
         op.currentExp = usagePlan.remainingExp;
         op.currentStats = OperatorGrowthSystem.CalculateStats(op, targetLevel, op.currentPhase);

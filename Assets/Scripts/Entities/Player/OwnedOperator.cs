@@ -67,31 +67,6 @@ public class OwnedOperator
     public OperatorStats GetOperatorStats() => currentStats;
     public List<Vector2Int> GetCurrentAttackableTiles() => currentAttackableTiles;
 
-    // 레벨업 처리
-    public bool LevelUp(int targetLevel)
-    {
-        if (targetLevel <= currentLevel) return false;
-        if (targetLevel > OperatorGrowthSystem.GetMaxLevel(currentPhase)) return false; // 정예화 최대 레벨 체크
-
-        // targetLevel에 도달하기 위해 필요한 경험치 계산
-        int requiredExp = OperatorGrowthSystem.GetTotalExpRequiredForLevel(
-            currentPhase,
-            currentLevel,
-            targetLevel,
-            currentExp);
-
-        if (currentExp < requiredExp) return false;
-
-        // 레벨업 진행
-        currentExp -= requiredExp;
-        currentLevel = targetLevel;
-
-        // 스탯 반영
-        currentStats = OperatorGrowthSystem.CalculateStats(this, targetLevel, currentPhase);
-
-        return true; 
-    }
-
     // 정예화 처리
     public bool Promote()
     {
