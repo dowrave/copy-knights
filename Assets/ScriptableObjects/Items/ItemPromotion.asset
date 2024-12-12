@@ -15,6 +15,6 @@ MonoBehaviour:
   type: 1
   itemName: ItemPromotion
   description: "\uC815\uC608\uD654\uC5D0\uB9CC \uC4F0\uC774\uB294 \uC7AC\uB8CC"
-  icon: {fileID: 0}
+  icon: {fileID: 21300000, guid: 046c0e6825db194438ecb3a3c770aad7, type: 3}
   expAmount: 0
   canPromote: 1

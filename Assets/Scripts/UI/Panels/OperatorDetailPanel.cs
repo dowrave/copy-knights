@@ -94,7 +94,7 @@ public class OperatorDetailPanel : MonoBehaviour
         UpdateBasicInfo();
         UpdateStats();
         UpdateGrowthInfo();
-        UpdateButtonStates();
+        //UpdateButtonStates();
     }
 
 
@@ -163,10 +163,13 @@ public class OperatorDetailPanel : MonoBehaviour
     /// </summary>
     private void UpdateExpInfo()
     {
-        float currentExp = currentOperator.currentExp;
-        float maxExp = OperatorGrowthSystem.GetRequiredExp(currentOperator.currentLevel);
         int currentLevel = currentOperator.currentLevel;
         int maxLevel = OperatorGrowthSystem.GetMaxLevel(currentOperator.currentPhase);
+        int currentExp = currentOperator.currentExp;
+        float maxExp = OperatorGrowthSystem.GetMaxExpForNextLevel(
+            currentOperator.currentPhase,
+            currentLevel
+        );
 
         expText.text = $"EXP\n<size=44><color=#FFE61A>{currentExp.ToString()}</color>/{maxExp.ToString()}</size>";
         levelText.text = $"LV\n<size=100><b>{currentLevel.ToString()}</b></size=100>";
@@ -204,14 +207,14 @@ public class OperatorDetailPanel : MonoBehaviour
 
     }
 
-    private void UpdateButtonStates()
-    {
-        // 레벨업 버튼 : 현재 정예화의 최대 레벨보다 낮을 때 사용 가능
-        levelUpButton.interactable = currentOperator.currentLevel < OperatorGrowthSystem.GetMaxLevel(currentOperator.currentPhase);
+    //private void UpdateButtonStates()
+    //{
+    //    // 레벨업 버튼 : 현재 정예화의 최대 레벨보다 낮을 때 사용 가능
+    //    levelUpButton.interactable = currentOperator.currentLevel < OperatorGrowthSystem.GetMaxLevel(currentOperator.currentPhase);
 
-        // 정예화 버튼 : 0정예화에서만 클릭 가능
-        promoteButton.interactable = currentOperator.currentPhase == OperatorGrowthSystem.ElitePhase.Elite0;
-    }
+    //    // 정예화 버튼 : 0정예화에서만 클릭 가능
+    //    promoteButton.interactable = currentOperator.currentPhase == OperatorGrowthSystem.ElitePhase.Elite0;
+    //}
 
     private void ClearAttackRange()
     {
@@ -224,12 +227,19 @@ public class OperatorDetailPanel : MonoBehaviour
 
     private void OnLevelUpClicked()
     {
+        Debug.Log("레벨업 버튼 클릭됨");
         if (currentOperator.CanLevelUp)
         {
+            Debug.Log("레벨업 버튼 클릭됨 : 레벨업 가능");
+
             GameObject levelUpPanelObject = MainMenuManager.Instance.PanelMap[MainMenuManager.MenuPanel.OperatorLevelUp];
             OperatorLevelUpPanel levelUpPanel = levelUpPanelObject.GetComponent<OperatorLevelUpPanel>();
             MainMenuManager.Instance.FadeInAndHide(levelUpPanelObject, gameObject);
             levelUpPanel.Initialize(currentOperator);
+        }
+        else if (currentOperator.currentLevel == OperatorGrowthSystem.GetMaxLevel(currentOperator.currentPhase))
+        {
+            MainMenuManager.Instance.ShowNotification("현재 정예화에서의 최대 레벨입니다.");
         }
     }
 

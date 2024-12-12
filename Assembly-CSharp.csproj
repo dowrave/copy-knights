@@ -130,6 +130,7 @@
     <Compile Include="Assets\Scripts\Core\Managers\UIManager.cs" />
     <Compile Include="Assets\Scripts\UI\Components\FloatingText.cs" />
     <Compile Include="Assets\Scripts\Data\EnemyData.cs" />
+    <Compile Include="Assets\Scripts\Data\OperatorLevelData.cs" />
     <Compile Include="Assets\Scripts\UI\Effects\CostParticleMotion.cs" />
     <Compile Include="Assets\Scripts\UI\Components\MaskedDiamondOverlay.cs" />
     <Compile Include="Assets\Scripts\Data\DeployableUnitData.cs" />

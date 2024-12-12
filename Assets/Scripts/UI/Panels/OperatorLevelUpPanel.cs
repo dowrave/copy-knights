@@ -21,6 +21,12 @@ public class OperatorLevelUpPanel : MonoBehaviour
     [Header("Info Settings")]
     [SerializeField] private float snapSpeed = 10f; // 스냅 애니메이션 속도
 
+    [Header("Item Usage Display")]
+    [SerializeField] private Transform itemUsageContainer; // 아이템 표시 컨테이너
+    [SerializeField] private ItemUIElement itemUIPrefab; // 아이템 UI 프리팹
+    [SerializeField] private Color usageItemBackgroundColor = new Color(0.8f, 0.4f, 0.2f, 1f); // 사용되는 아이템 갯수 색깔
+    private List<ItemUIElement> activeItemElements = new List<ItemUIElement>(); // 현재 표시중인 아이템 요소들
+
     [SerializeField] private float velocityThreshold = 0.5f; // 스크롤이 멈췄다고 판단하는 속도 임계값
 
     private float snapThreshold; // 스냅 거리 임계값. 지우지 않도록 주의.
@@ -242,10 +248,24 @@ public class OperatorLevelUpPanel : MonoBehaviour
             .Key;
     }
 
-    private void SetScrollToLevel(int targetLevel)
+    private void SetScrollToLevel(int targetLevel, bool animate = false)
     {
-        // 스크롤 위치 설정
-        levelScrollRect.verticalNormalizedPosition = GetScrollPositionForLevel(targetLevel);
+        float targetPosition = GetScrollPositionForLevel(targetLevel);
+
+        if (animate)
+        {
+            DOTween.To(
+                () => levelScrollRect.verticalNormalizedPosition,
+                x => levelScrollRect.verticalNormalizedPosition = x,
+                targetPosition,
+                0.5f
+            ).SetEase(Ease.OutCubic);
+        }
+        else
+        {
+            // 즉시 이동
+            levelScrollRect.verticalNormalizedPosition = targetPosition;
+        }
     }
 
     private void Update()
@@ -294,7 +314,7 @@ public class OperatorLevelUpPanel : MonoBehaviour
                 Time.deltaTime * snapSpeed
             );
 
-            if (Mathf.Abs(currentScrollPos - nearestLevelPos) < 0.001f && !isPanelUpdated) // 레벨 당 간격이 0.02 언더라서 조건은 적합해보임
+            if (Mathf.Abs(currentScrollPos - nearestLevelPos) < 0.05f && !isPanelUpdated) // 레벨 당 간격이 0.02 언더라서 조건은 적합해보임
             {
                 StartCoroutine(UpdatePanelWithDelay(nearestLevelFromCurrentScroll));
             }
@@ -326,6 +346,8 @@ public class OperatorLevelUpPanel : MonoBehaviour
 
         magicResistancePreview.newValue.text = targetLevelStats.MagicResistance.ToString(); // 마법 저항력은 레벨업으로 바뀌지 않음
 
+        UpdateLevelUpPreviewDisplay();
+
         // 패널 업데이트 완료
         isUpdatingPanel = false;
         isPanelUpdated = true;  // 레벨이 바뀌면 다시 false가 됨
@@ -340,16 +362,8 @@ public class OperatorLevelUpPanel : MonoBehaviour
 
     private void UpdateExpGauge()
     {
-        // 아이템을 사용해서 어떤 레벨이 됐을 때의 경험치 연산 식이 필요함
-        
-        // 특정 레벨에 도달하기 위해 필요한 최소한의 아이템 수, 그 때의 레벨과 현재 경험치, 그 레벨의 최대 경험치를 구하면 됨
-        // 그 로직 자체는 여기서 구현할 건 아니고 여기는 시각화만 담당함
-        // 아직은 경험치 아이템을 구현하지 않았으므로 그걸 구현한 다음에 진행하면 됨
-
-        // 이건 임시방편
         float currentExp = op.currentExp;
-        float maxExp = OperatorGrowthSystem.GetRequiredExp(op.currentLevel);
-
+        float maxExp = OperatorGrowthSystem.GetMaxExpForNextLevel(op.currentPhase, op.currentLevel);
         expGauge.value = currentExp / maxExp;
     }
 
@@ -368,16 +382,27 @@ public class OperatorLevelUpPanel : MonoBehaviour
     {
         if (!confirmButton.interactable || selectedLevel <= currentLevel) return;
 
-        // 레벨업 진행
-        OperatorGrowthManager.Instance.TryLevelUpOperator(op, selectedLevel);
+        // 레벨업 진행 요청
+        bool success = OperatorGrowthManager.Instance.TryLevelUpOperator(
+            op,
+            selectedLevel,
+            currentUsagePlan
+        );
 
-        // 레벨업에 따른 패널값과 스크롤 오브젝트 수정
-        InitializeStatTexts();
-        UpdateLevelStrip(selectedLevel);
-        UpdateConfirmButton();
-
-        // 패널
-        MainMenuManager.Instance.ShowNotification($"레벨업 완료");
+        if (success)
+        {
+            // UI 업데이트
+            InitializeStatTexts();
+            UpdateLevelStrip(selectedLevel);
+            ClearItemDisplay();
+            UpdateExpGauge();
+            UpdateConfirmButton();
+            MainMenuManager.Instance.ShowNotification("레벨업 완료");
+        }
+        else
+        {
+            MainMenuManager.Instance.ShowNotification("레벨업에 실패했습니다");
+        }
     }
 
     /// <summary>
@@ -391,9 +416,59 @@ public class OperatorLevelUpPanel : MonoBehaviour
         SetScrollToLevel(currentLevel);
     }
 
-    private void UpdateItemUsageDisplay()
+    private void UpdateLevelUpPreviewDisplay()
+    {
+        ClearItemDisplay();
+
+        // 매니저에서 아이템 사용 계획 가져오기
+        currentUsagePlan = OperatorGrowthManager.Instance.CalculateRequiredItems(op, selectedLevel);
+
+        // UI에 사용될 아이템 표시
+        foreach (var itemPair in currentUsagePlan.itemsToUse)
+        {
+            ItemUIElement itemElement = Instantiate(itemUIPrefab, itemUsageContainer);
+            itemElement.Initialize(itemPair.Key, itemPair.Value);
+
+            // 사용 예정 아이템의 배경색 변경
+            if (itemElement.itemCountBackground != null)
+            {
+                itemElement.itemCountBackground.color = usageItemBackgroundColor;
+            }
+
+            activeItemElements.Add(itemElement);
+        }
+
+        // 사용 계획에 따른 Exp 업데이트
+        if (currentUsagePlan.totalExp > 0)
+        {
+            // 현재 정예화 1레벨에서 selectedLevel에 도달하기까지 필요한 총 경험치 양
+            float neededExp = OperatorGrowthSystem.GetTotalExpRequiredForLevel(op.currentPhase, 1, selectedLevel, 0);
+
+            // 목표 레벨에 도달하고 남은 경험치 양
+            float newCurrentExp = op.currentExp + currentUsagePlan.totalExp - neededExp;
+
+            float maxExp = OperatorGrowthSystem.GetMaxExpForNextLevel(op.currentPhase, op.currentLevel);
+            expGauge.value = Mathf.Min(newCurrentExp / maxExp, 1f);
+        } 
+        else
+        {
+            expGauge.value = op.currentExp / OperatorGrowthSystem.GetMaxExpForNextLevel(op.currentPhase, op.currentLevel);
+        }
+    }
+
+    private void UpdateUsageItemPreview()
     {
 
+    }
+    
+    private void ClearItemDisplay()
+    {
+        // 기존 아이템 UI 제거
+        foreach (var element in activeItemElements)
+        {
+            Destroy(element.gameObject);
+        }
+        activeItemElements.Clear();
     }
 
     private void OnMaxLevelButtonClicked()
@@ -404,11 +479,13 @@ public class OperatorLevelUpPanel : MonoBehaviour
 
         var (maxLevel, usagePlan) = ExpCalculationSystem.CalculateMaxLevel(op, availableItems);
 
+        Debug.Log($"모든 아이템 사용 시 최대 도달 레벨 : {maxLevel}");
+
         if (maxLevel > op.currentLevel)
         {
-            SetScrollToLevel(maxLevel);
+            SetScrollToLevel(maxLevel, true);
             currentUsagePlan = usagePlan;
-            //UpdateItemUsageDisplay(0);
+            UpdateLevelUpPreviewDisplay();
         }
     }
 

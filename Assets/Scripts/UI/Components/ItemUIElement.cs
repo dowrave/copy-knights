@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -10,14 +11,18 @@ public class ItemUIElement : MonoBehaviour, IPointerClickHandler
     [SerializeField] private Image backgroundImage;
     [SerializeField] private Image itemIconImage;
     [SerializeField] private TextMeshProUGUI countText;
+    public Image itemCountBackground;
 
     [Header("Visual Settings")]
     [SerializeField] private Color commonColor = new Color(0.7f, 0.7f, 0.7f);
     [SerializeField] private Color rareColor = new Color(0.2f, 0.5f, 1f);
     [SerializeField] private Color epicColor = new Color(0.8f, 0.3f, 1f);
 
+
+
     private ItemData itemData;
     private int itemCount;
+
 
     // 아이템 클릭 시 호출 이벤트 
     public System.Action<ItemData> OnItemClicked;
