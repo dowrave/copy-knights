@@ -145,26 +145,33 @@ public static class OperatorGrowthSystem
         return Mathf.Min(currentExp + itemExp, requiredExpForMaxLevel); 
     }
 
+    /// <summary>
+    /// 각 레벨에서의 스탯 계산.
+    /// 기준점은 baseStats으로 잡는다.
+    /// </summary>
+
     public static OperatorStats CalculateStats(OwnedOperator op, int targetLevel, ElitePhase targetPhase)
     {
         int actualTargetLevel = CalculateActualLevel(targetPhase, targetLevel);
-        int levelDifference = actualTargetLevel - op.currentLevel;
+        int baseLevel = CalculateActualLevel(ElitePhase.Elite0, 1);
+        int levelDifference = actualTargetLevel - baseLevel;
 
         OperatorData.OperatorLevelStats levelUpStats = op.BaseData.levelStats;
+        OperatorStats baseStats = op.BaseData.stats; 
 
         return new OperatorStats
         {
-            AttackPower = op.currentStats.AttackPower + levelUpStats.attackPowerPerLevel * levelDifference,
-            Health = op.currentStats.Health + levelUpStats.healthPerLevel * levelDifference,
-            Defense = op.currentStats.AttackPower + levelUpStats.defensePerLevel * levelDifference,
-            MagicResistance = op.currentStats.MagicResistance + levelUpStats.magicResistancePerLevel * levelDifference,
+            AttackPower = baseStats.AttackPower + levelUpStats.attackPowerPerLevel * levelDifference,
+            Health = baseStats.Health + levelUpStats.healthPerLevel * levelDifference,
+            Defense = baseStats.AttackPower + levelUpStats.defensePerLevel * levelDifference,
+            MagicResistance = baseStats.MagicResistance + levelUpStats.magicResistancePerLevel * levelDifference,
 
-            AttackSpeed = op.currentStats.AttackSpeed,
-            DeploymentCost = op.currentStats.DeploymentCost,
-            MaxBlockableEnemies = op.currentStats.MaxBlockableEnemies,
-            RedeployTime = op.currentStats.RedeployTime,
-            SPRecoveryRate = op.currentStats.SPRecoveryRate,
-            StartSP = op.currentStats.StartSP
+            AttackSpeed = baseStats.AttackSpeed,
+            DeploymentCost = baseStats.DeploymentCost,
+            MaxBlockableEnemies = baseStats.MaxBlockableEnemies,
+            RedeployTime = baseStats.RedeployTime,
+            SPRecoveryRate = baseStats.SPRecoveryRate,
+            StartSP = baseStats.StartSP
         };
     }
 

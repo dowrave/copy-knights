@@ -25,6 +25,7 @@ public class OperatorLevelUpPanel : MonoBehaviour
     [SerializeField] private Transform itemUsageContainer; // 아이템 표시 컨테이너
     [SerializeField] private ItemUIElement itemUIPrefab; // 아이템 UI 프리팹
     [SerializeField] private Color usageItemBackgroundColor = new Color(0.8f, 0.4f, 0.2f, 1f); // 사용되는 아이템 갯수 색깔
+    [SerializeField] private TextMeshProUGUI cantReachLevelText; // 해당 레벨에 도달이 불가능할 때 아이템 대신 등장
     private List<ItemUIElement> activeItemElements = new List<ItemUIElement>(); // 현재 표시중인 아이템 요소들
 
     [SerializeField] private float velocityThreshold = 0.5f; // 스크롤이 멈췄다고 판단하는 속도 임계값
@@ -93,8 +94,8 @@ public class OperatorLevelUpPanel : MonoBehaviour
         }
 
         maxButtonOriginalPosition = maxLevelButton.GetComponent<RectTransform>().anchoredPosition;
-
         updateColor = GameManagement.Instance.ResourceManager.textUpdateColor;
+        cantReachLevelText.gameObject.SetActive(false);
         SetMaxLevelButtonVisible(true);
     }
 
@@ -351,8 +352,8 @@ public class OperatorLevelUpPanel : MonoBehaviour
 
         yield return new WaitForSeconds(0.1f);
 
+        // 스탯 패널 업데이트
         OperatorStats targetLevelStats = OperatorGrowthSystem.CalculateStats(op, targetLevel, op.currentPhase);
-
         if (targetLevel == currentLevel)
         {
             healthPreview.newValue.text = targetLevelStats.Health.ToString();
@@ -365,9 +366,9 @@ public class OperatorLevelUpPanel : MonoBehaviour
             attackPreview.newValue.text = $"<color={updateColor}>{targetLevelStats.AttackPower.ToString()}</color>";
             defensePreview.newValue.text = $"<color={updateColor}>{targetLevelStats.Defense.ToString()}</color>";
         }
-
         magicResistancePreview.newValue.text = targetLevelStats.MagicResistance.ToString(); // 마법 저항력은 레벨업으로 바뀌지 않음
 
+        // 
         UpdateLevelUpPreviewDisplay();
 
         // 패널 업데이트 완료
@@ -384,14 +385,24 @@ public class OperatorLevelUpPanel : MonoBehaviour
 
     private void UpdateExpGauge()
     {
-        float currentExp = op.currentExp;
-        float maxExp = OperatorGrowthSystem.GetMaxExpForNextLevel(op.currentPhase, op.currentLevel);
-        expGauge.value = currentExp / maxExp;
+        if (selectedLevel <= maxReachableLevel)
+        {
+            float currentExp = op.currentExp;
+            float maxExp = OperatorGrowthSystem.GetMaxExpForNextLevel(op.currentPhase, op.currentLevel);
+            expGauge.value = currentExp / maxExp;
+        }
+        else
+        {
+            expGauge.value = 0f;
+        }
     }
 
     private void UpdateConfirmButton()
     {
-        bool canConfirm = !isScrolling && isPanelUpdated && selectedLevel > currentLevel;
+        bool canConfirm = !isScrolling && 
+            isPanelUpdated && 
+            selectedLevel > currentLevel && 
+            selectedLevel <= maxReachableLevel;
 
         // 확인 버튼 활성화 상태 업데이트
         if (confirmButton != null)
@@ -438,46 +449,58 @@ public class OperatorLevelUpPanel : MonoBehaviour
         SetScrollToLevel(currentLevel);
     }
 
+    /// <summary>
+    /// 레벨업에 필요한 아이템 미리보기, 경험치 게이지 표시 등
+    /// </summary>
     private void UpdateLevelUpPreviewDisplay()
     {
         ClearItemDisplay();
 
-        // 매니저에서 아이템 사용 계획 가져오기
-        currentUsagePlan = OperatorGrowthManager.Instance.CalculateRequiredItems(op, selectedLevel);
-
-        // UI에 사용될 아이템 표시
-        foreach (var itemPair in currentUsagePlan.itemsToUse)
+        // 도달이 불가능하다면 아이템 표시 패널에 불가능 표시
+        if (selectedLevel > maxReachableLevel)
         {
-            ItemUIElement itemElement = Instantiate(itemUIPrefab, itemUsageContainer);
-            itemElement.Initialize(itemPair.Key, itemPair.Value);
+            cantReachLevelText.gameObject.SetActive(true);
+        }
+        else
+        {
+            cantReachLevelText.gameObject.SetActive(false);
 
-            // 사용 예정 아이템의 배경색 변경
-            if (itemElement.itemCountBackground != null)
+            // 매니저에서 아이템 사용 계획 가져오기
+            currentUsagePlan = OperatorGrowthManager.Instance.CalculateRequiredItems(op, selectedLevel);
+
+            // UI에 사용될 아이템 표시
+            foreach (var itemPair in currentUsagePlan.itemsToUse)
             {
-                itemElement.itemCountBackground.color = usageItemBackgroundColor;
+                ItemUIElement itemElement = Instantiate(itemUIPrefab, itemUsageContainer);
+                itemElement.Initialize(itemPair.Key, itemPair.Value);
+
+                // 사용 예정 아이템의 배경색 변경
+                if (itemElement.itemCountBackground != null)
+                {
+                    itemElement.itemCountBackground.color = usageItemBackgroundColor;
+                }
+
+                activeItemElements.Add(itemElement);
             }
 
-            activeItemElements.Add(itemElement);
-        }
-
-        if (currentUsagePlan.totalExp > 0)
-        {
             // 해당 레벨에서의 경험치 게이지 표시
-            float maxExpForLevel = OperatorGrowthSystem.GetMaxExpForNextLevel(
-                op.currentPhase,
-                currentUsagePlan.targetLevel
-            );
-            expGauge.value = currentUsagePlan.remainingExp / maxExpForLevel;
-        }
+            if (currentUsagePlan.totalExp > 0)
+            {
+                float maxExpForLevel = OperatorGrowthSystem.GetMaxExpForNextLevel(
+                    op.currentPhase,
+                    currentUsagePlan.targetLevel
+                );
+                expGauge.value = currentUsagePlan.remainingExp / maxExpForLevel;
+            }
 
-        if (currentUsagePlan.targetLevel > selectedLevel)
-        {
-            SetScrollToLevel(currentUsagePlan.targetLevel, true);
-
-            selectedLevel = currentUsagePlan.targetLevel;
-
-            // isPanelUpdated를 false로 설정하여 새 레벨에 대한 UI 업데이트 트리거
-            isPanelUpdated = false; 
+            // 아이템들을 사용했을 때 도달하는 레벨이 유저가 지정한 레벨보다 높다면 해당 레벨로 이동
+            if (currentUsagePlan.targetLevel > selectedLevel)
+            {
+                SetScrollToLevel(currentUsagePlan.targetLevel, true);
+                selectedLevel = currentUsagePlan.targetLevel;
+                // isPanelUpdated를 false로 설정하여 새 레벨에 대한 UI 업데이트 트리거
+                isPanelUpdated = false; 
+            }
         }
 
     }
