@@ -91,7 +91,9 @@ public static class OperatorGrowthSystem
     /// 현재의 정예화 단계 내에서만 계산합니다.
     /// </summary>
     public static (int reachableLevel, int remainingExp) CalculateReachableLevel(
-        ElitePhase phase, int currentLevel, int totalExp)
+        ElitePhase phase, 
+        int currentLevel, 
+        int totalExp)
     {
         int remainingExp = totalExp;
         int level = currentLevel;

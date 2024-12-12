@@ -34,12 +34,9 @@ public class OperatorGrowthManager: MonoBehaviour
         bool itemUseSuccess = GameManagement.Instance.PlayerDataManager.UseItems(itemsToUse);
         if (!itemUseSuccess) return false;
 
-        // 3. 경험치 효과 계산 및 레벨업 적용
-        int totalExp = usagePlan.totalExp;
-        op.currentExp += totalExp;
-
-        // 4. 레벨업, 스탯 재계산
+        // 4. 레벨업, 경험치, 스탯 계산
         op.currentLevel = targetLevel;
+        op.currentExp = usagePlan.remainingExp;
         op.currentStats = OperatorGrowthSystem.CalculateStats(op, targetLevel, op.currentPhase);
 
         return true;
