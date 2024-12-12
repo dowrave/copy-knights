@@ -33,6 +33,7 @@ public class OperatorLevelUpPanel : MonoBehaviour
     private string updateColor;
 
     private ExpCalculationSystem.ExpItemUsagePlan currentUsagePlan;
+    int maxReachableLevel;
 
     [System.Serializable]
     public class StatPreviewLine
@@ -66,6 +67,9 @@ public class OperatorLevelUpPanel : MonoBehaviour
 
     private Vector2 maxButtonOriginalPosition;
     private readonly float buttonOffsetX = 50f;
+
+    private ExpCalculationSystem.ExpItemUsagePlan maxLevelPlan;
+
 
     // 각 레벨에 대한 스크롤 위치를 저장하는 dict
     private Dictionary<int, float> levelToScrollPosition = new Dictionary<int, float>();
@@ -126,6 +130,10 @@ public class OperatorLevelUpPanel : MonoBehaviour
             Destroy(child.gameObject);
         }
 
+        // 달성 가능 최대 레벨
+        maxLevelPlan = OperatorGrowthManager.Instance.CalculateRequiredItems(op, maxLevel);
+        maxReachableLevel = maxLevelPlan.targetLevel; 
+
         VerticalLayoutGroup layoutGroup = contentRect.GetComponent<VerticalLayoutGroup>();
         float spacing = layoutGroup != null ? layoutGroup.spacing : 0f;
         float paddingHeight = viewportHeight * 0.5f - spacing;
@@ -141,6 +149,12 @@ public class OperatorLevelUpPanel : MonoBehaviour
             if (levelText != null)
             {
                 levelText.text = $"<size=32>Lv</size>\r\n{level}";
+
+                if (level > maxReachableLevel)
+                {
+                    Color grayColor = new Color(0.5f, 0.5f, 0.5f);
+                    levelText.color = grayColor;
+                }
             }
         }
 
@@ -254,12 +268,20 @@ public class OperatorLevelUpPanel : MonoBehaviour
 
         if (animate)
         {
+            DOTween.Kill(levelScrollRect);
+
             DOTween.To(
                 () => levelScrollRect.verticalNormalizedPosition,
                 x => levelScrollRect.verticalNormalizedPosition = x,
                 targetPosition,
                 0.5f
-            ).SetEase(Ease.OutCubic);
+            )
+            .SetEase(Ease.OutCubic)
+            .OnComplete(() =>
+             {
+                 // 스크롤 완료 후 해당 레벨 정보 업데이트
+                 StartCoroutine(UpdatePanelWithDelay(targetLevel));
+             });
         }
         else
         {
@@ -438,29 +460,28 @@ public class OperatorLevelUpPanel : MonoBehaviour
             activeItemElements.Add(itemElement);
         }
 
-        // 사용 계획에 따른 Exp 업데이트
         if (currentUsagePlan.totalExp > 0)
         {
-            // 현재 정예화 1레벨에서 selectedLevel에 도달하기까지 필요한 총 경험치 양
-            float neededExp = OperatorGrowthSystem.GetTotalExpRequiredForLevel(op.currentPhase, 1, selectedLevel, 0);
-
-            // 목표 레벨에 도달하고 남은 경험치 양
-            float newCurrentExp = op.currentExp + currentUsagePlan.totalExp - neededExp;
-
-            float maxExp = OperatorGrowthSystem.GetMaxExpForNextLevel(op.currentPhase, op.currentLevel);
-            expGauge.value = Mathf.Min(newCurrentExp / maxExp, 1f);
-        } 
-        else
-        {
-            expGauge.value = op.currentExp / OperatorGrowthSystem.GetMaxExpForNextLevel(op.currentPhase, op.currentLevel);
+            // 해당 레벨에서의 경험치 게이지 표시
+            float maxExpForLevel = OperatorGrowthSystem.GetMaxExpForNextLevel(
+                op.currentPhase,
+                currentUsagePlan.targetLevel
+            );
+            expGauge.value = currentUsagePlan.remainingExp / maxExpForLevel;
         }
+
+        if (currentUsagePlan.targetLevel > selectedLevel)
+        {
+            SetScrollToLevel(currentUsagePlan.targetLevel, true);
+
+            selectedLevel = currentUsagePlan.targetLevel;
+
+            // isPanelUpdated를 false로 설정하여 새 레벨에 대한 UI 업데이트 트리거
+            isPanelUpdated = false; 
+        }
+
     }
 
-    private void UpdateUsageItemPreview()
-    {
-
-    }
-    
     private void ClearItemDisplay()
     {
         // 기존 아이템 UI 제거
