@@ -13,6 +13,11 @@ public class MedicOperator : Operator
         base.Initialize(operatorData);
     }
 
+    public override void Initialize(OwnedOperator ownedOp)
+    {
+        base.Initialize(ownedOp);
+    }
+
     protected override void Update()
     {
         base.Update(); // 수정된 ValidateCurrentTarget 내용이 반영된다.
@@ -50,7 +55,7 @@ public class MedicOperator : Operator
 
         Vector2Int operatorGridPos = MapManager.Instance.CurrentMap.WorldToGridPosition(transform.position);
 
-        foreach (Vector2Int offset in Data.attackableTiles)
+        foreach (Vector2Int offset in BaseData.attackableTiles)
         {
             Vector2Int rotatedOffset = RotateOffset(offset, facingDirection);
             Vector2Int targetGridPos = operatorGridPos + rotatedOffset;
@@ -82,7 +87,7 @@ public class MedicOperator : Operator
     {
         // 여기서 Ranged 여부가 결정하는 건 투사체의 유무임
         // 즉 Melee여도 원거리를 가질 수 있음 -- 사정거리랑 공격 타입을 별도로 구현했기 때문에 이런 현상이 발생했다.
-        if (Data.attackRangeType == AttackRangeType.Ranged)
+        if (BaseData.attackRangeType == AttackRangeType.Ranged)
         {
             base.PerformRangedAttack(target, attackType, healValue, true);
         }

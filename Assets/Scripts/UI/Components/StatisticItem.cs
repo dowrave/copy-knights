@@ -41,14 +41,14 @@ public class StatisticItem : MonoBehaviour
     private void SetOperatorIcon(Operator op)
     {
         // 아이콘이 있다면 아이콘 할당
-        if (op.Data.Icon != null)
+        if (op.BaseData.Icon != null)
         {
-            operatorIcon.sprite = op.Data.Icon;
+            operatorIcon.sprite = op.BaseData.Icon;
         }
         // 없다면 머티리얼 색을 가져옴
         else
         {
-            operatorIcon.color = op.Data.prefab.GetComponentInChildren<Renderer>().sharedMaterial.color;
+            operatorIcon.color = op.BaseData.prefab.GetComponentInChildren<Renderer>().sharedMaterial.color;
         }
     }
 

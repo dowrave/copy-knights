@@ -36,11 +36,9 @@ MonoBehaviour:
   attackableTiles:
   - {x: -1, y: 0}
   - {x: 0, y: 0}
-  projectilePrefab: {fileID: 0}
-  skills:
-  - {fileID: 11400000, guid: a282fb770a3e6a74b91bb698f9ff496e, type: 2}
-  defaultSkillIndex: 0
+  elite0Skill: {fileID: 11400000, guid: a282fb770a3e6a74b91bb698f9ff496e, type: 2}
   initialSP: 0
+  projectilePrefab: {fileID: 0}
   levelStats:
     healthPerLevel: 12
     attackPowerPerLevel: 10

@@ -42,7 +42,7 @@ namespace Skills.OperatorSkills
             float originalDefense = op.currentStats.Defense;
             float originalMagicResistance = op.currentStats.MagicResistance;
             int originalBlockableEnemies = op.currentStats.MaxBlockableEnemies;
-            Vector2Int[] originalAttackableTiles = op.CurrentAttackbleTiles.Clone() as Vector2Int[];
+            List<Vector2Int> originalAttackableTiles = new List<Vector2Int>(op.CurrentAttackbleTiles);
 
             // 버프 적용
             op.CurrentHealth *= Modifiers.HealthModifier;
@@ -127,7 +127,7 @@ namespace Skills.OperatorSkills
                 }
             }
 
-            op.CurrentAttackbleTiles = newAttackbleTiles.ToArray();
+            op.CurrentAttackbleTiles = newAttackbleTiles;
         }
 
         private GameObject CreateBuffVisualEffect(Operator op)

@@ -43,22 +43,22 @@ public class DeployableBox : MonoBehaviour, IPointerDownHandler, IBeginDragHandl
 
         if (deployableComponent is Operator opComponent)
         {
-            boxIcon = opComponent.Data.Icon;
+            boxIcon = opComponent.BaseData.Icon;
         }
         else if (deployableComponent is DeployableUnitEntity)
         {
-            boxIcon = deployableComponent.Data.Icon;
+            boxIcon = deployableComponent.BaseData.Icon;
         }
 
         // 오퍼레이터일 때와 아닐 때 구분
         if (deployableComponent is Operator op)
         {
-            baseDeploymentCost = op.Data.stats.DeploymentCost; // 초기 배치 코스트 설정
-            OperatorIconHelper.SetClassIcon(operatorClassIconImage, op.Data.operatorClass); // 클래스 아이콘 설정
+            baseDeploymentCost = op.BaseData.stats.DeploymentCost; // 초기 배치 코스트 설정
+            OperatorIconHelper.SetClassIcon(operatorClassIconImage, op.BaseData.operatorClass); // 클래스 아이콘 설정
         }
         else
         {
-            baseDeploymentCost = deployableComponent.Data.stats.DeploymentCost;
+            baseDeploymentCost = deployableComponent.BaseData.stats.DeploymentCost;
             operatorClassIconBox.gameObject.SetActive(false);
         }
         currentDeploymentCost = baseDeploymentCost;

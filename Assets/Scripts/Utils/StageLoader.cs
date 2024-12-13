@@ -194,6 +194,7 @@ public class StageLoader : MonoBehaviour
                     };
 
                     DeployableManager.Instance.AddDeployableInfo(op.BaseData.prefab, 1, true);
+                    //DeployableManager.Instance.AddOwnedOperatorInfo(op);
                 }
             }
         }

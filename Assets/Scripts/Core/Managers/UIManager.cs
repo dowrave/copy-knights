@@ -8,13 +8,13 @@ public class UIManager : MonoBehaviour
     public static UIManager Instance { get; private set; }
 
     [Header("Panels")]
-    [SerializeField] private GameObject statsPanelObject;
+    [SerializeField] private GameObject statsPanelObject; // 통계 패널
     [SerializeField] private GameObject gameOverPanelObject;
     [SerializeField] private GameObject gameWinPanelObject; // 여기는 애니메이션이 들어가니까 일단 냅두기만 합니다
     [SerializeField] private GameObject deploymentCostPanelObject;
     [SerializeField] private GameObject topCenterPanelObject; // 남은 적 수, 라이프 수
     [SerializeField] private GameObject bottomPanelObject;
-    [SerializeField] private GameObject infoPanelObject;
+    [SerializeField] private GameObject infoPanelObject; // 선택된 오퍼레이터 정보 패널
     [SerializeField] private GameObject stageResultPanelObject; 
 
     private InfoPanel infoPanelScript;
@@ -54,21 +54,6 @@ public class UIManager : MonoBehaviour
         else
         {
             Destroy(gameObject);
-        }
-
-
-        // 인스펙터에서 할당하겠지만, 안전성을 위해
-        if (gameOverPanelObject == null)
-        {
-            gameOverPanelObject = transform.Find("GameOverPanel").gameObject;
-        }
-        if (gameWinPanelObject == null)
-        {
-            gameWinPanelObject = transform.Find("GameWinPanel").gameObject;
-        }
-        if (infoPanelObject == null)
-        {
-            infoPanelObject = transform.Find("InfoPanel").gameObject;
         }
 
         // 비활성화 전에 참조를 넣어두는 게 좋다
