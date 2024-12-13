@@ -1,7 +1,9 @@
 using TMPro;
 using UnityEngine;
 
-
+/// <summary>
+/// 스테이지에서 사용되는, 오퍼레이터의 정보를 표시하는 패널입니다.
+/// </summary>
 public class InfoPanel : MonoBehaviour
 {
 
@@ -34,13 +36,13 @@ public class InfoPanel : MonoBehaviour
         if (deployable is Operator op)
         {
             currentOperator = op;
-            nameText.text = op.Data.entityName;
+            nameText.text = op.BaseData.entityName;
             statsContainer.SetActive(true);
             UpdateOperatorInfo();
         }
         else
         {
-            nameText.text = deployable.Data.entityName;
+            nameText.text = deployable.BaseData.entityName;
             //statsContainer.SetActive(false);
         }
 
@@ -64,16 +66,16 @@ public class InfoPanel : MonoBehaviour
             blockCountText.text = $"저지수: {currentOperator.currentStats.MaxBlockableEnemies}";
         }
 
-
         else
         {
-            // 배치되지 않은 경우 Data의 값을 가져옴
-            float initialHealth = currentOperator.Data.stats.Health; 
+            // (수정 필요!!) 배치되지 않은 경우 OwnedOperator에 있는 기본 스탯값을 가져와야 함
+            // 근데 그럴라면 Operator의 초기화 로직을 분리할 필요가 있다.
+            float initialHealth = currentOperator.BaseData.stats.Health; 
             UpdateHealthText(initialHealth, initialHealth);
-            attackText.text = $"공격력: {currentOperator.Data.stats.AttackPower}";
-            defenseText.text = $"방어력: {currentOperator.Data.stats.Defense}";
-            magicResistanceText.text = $"마법저항력: {currentOperator.Data.stats.MagicResistance}";
-            blockCountText.text = $"저지수: {currentOperator.Data.stats.MaxBlockableEnemies}";
+            attackText.text = $"공격력: {currentOperator.BaseData.stats.AttackPower}";
+            defenseText.text = $"방어력: {currentOperator.BaseData.stats.Defense}";
+            magicResistanceText.text = $"마법저항력: {currentOperator.BaseData.stats.MagicResistance}";
+            blockCountText.text = $"저지수: {currentOperator.BaseData.stats.MaxBlockableEnemies}";
         }
     }
 

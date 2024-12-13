@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
+using Skills.Base;
 
 /// <summary>
 /// 실제로 보유한 오퍼레이터는 이런 식으로 저장된다.
@@ -11,10 +12,13 @@ public class OwnedOperator
     public string operatorName; // OperatorData의 entityName과 매칭
     public int currentLevel = 1;
     public OperatorGrowthSystem.ElitePhase currentPhase = OperatorGrowthSystem.ElitePhase.Elite0;
-    public int selectedSkillIndex = 0;
     public int currentExp = 0;
     public OperatorStats currentStats;
     public List<Vector2Int> currentAttackableTiles;
+
+    public List<Skill> unlockedSkills = new List<Skill>();
+    public Skill selectedSkill;
+    public int selectedSkillIndex = 0;
 
     public bool CanLevelUp => OperatorGrowthSystem.CanLevelUp(currentPhase, currentLevel);
     public bool CanPromote => OperatorGrowthSystem.CanPromote(currentPhase, currentLevel);
@@ -47,21 +51,9 @@ public class OwnedOperator
         selectedSkillIndex = 0;
 
         _baseData = opData;
+        currentStats = opData.stats;
 
-        // 초기 스탯 설정
-        currentStats = new OperatorStats
-        {
-            AttackPower = opData.stats.AttackPower,
-            Health = opData.stats.Health,
-            Defense = opData.stats.Defense,
-            MagicResistance = opData.stats.MagicResistance,
-            AttackSpeed = opData.stats.AttackSpeed,
-            DeploymentCost = opData.stats.DeploymentCost,
-            MaxBlockableEnemies = opData.stats.MaxBlockableEnemies,
-            RedeployTime = opData.stats.RedeployTime,
-            SPRecoveryRate = opData.stats.SPRecoveryRate,
-            StartSP = opData.stats.StartSP
-        };
+        unlockedSkills.Add(opData.elite0Skill);
     }
 
     public OperatorStats GetOperatorStats() => currentStats;
@@ -95,9 +87,9 @@ public class OwnedOperator
             currentAttackableTiles.AddRange(BaseData.elite1Unlocks.additionalAttackTiles);
 
             // 새로운 스킬 추가
-            if (BaseData.elite1Unlocks.unlockedSkill != null && !BaseData.skills.Contains(BaseData.elite1Unlocks.unlockedSkill))
+            if (BaseData.elite1Unlocks.unlockedSkill != null && !unlockedSkills.Contains(BaseData.elite1Unlocks.unlockedSkill))
             {
-                BaseData.skills.Add(BaseData.elite1Unlocks.unlockedSkill);
+                unlockedSkills.Add(BaseData.elite1Unlocks.unlockedSkill);
             }
         }
     }

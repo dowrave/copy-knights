@@ -44,10 +44,9 @@ MonoBehaviour:
   - {x: -2, y: 1}
   - {x: -2, y: -1}
   - {x: -3, y: 0}
-  projectilePrefab: {fileID: 491002625568547402, guid: 242911767b11b7e47878ad612c5c8254, type: 3}
-  skills: []
-  defaultSkillIndex: 0
+  elite0Skill: {fileID: 11400000, guid: 56285db420c7a9249a3a7967d3550fd4, type: 2}
   initialSP: 0
+  projectilePrefab: {fileID: 491002625568547402, guid: 242911767b11b7e47878ad612c5c8254, type: 3}
   levelStats:
     healthPerLevel: 6
     attackPowerPerLevel: 8

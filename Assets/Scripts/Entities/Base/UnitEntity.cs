@@ -6,9 +6,7 @@ using UnityEngine;
 /// </summary>
 public abstract class UnitEntity : MonoBehaviour, ITargettable, IFactionMember
 {
-    [SerializeField]
-    private UnitData unitData;
-    public UnitData Data => unitData;
+    public UnitData BaseData { get; private set; }
 
     private UnitStats currentStats; // 프로퍼티로 구현하지 않음. 
     public Faction Faction { get; protected set; }
@@ -37,7 +35,7 @@ public abstract class UnitEntity : MonoBehaviour, ITargettable, IFactionMember
 
     public void Initialize(UnitData unitData)
     {
-        this.unitData = unitData;
+        this.BaseData = unitData;
         currentStats = unitData.stats;
 
         InitializeUnitProperties();
@@ -51,7 +49,7 @@ public abstract class UnitEntity : MonoBehaviour, ITargettable, IFactionMember
         // 현재 위치를 기반으로 한 타일 설정
         UpdateCurrentTile();
 
-        Prefab = Data.prefab;
+        Prefab = BaseData.prefab;
     }
 
     public virtual void TakeDamage(AttackType attackType, float damage)

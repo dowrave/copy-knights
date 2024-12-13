@@ -5,9 +5,7 @@ using UnityEngine.UIElements;
 
 public class DeployableUnitEntity: UnitEntity, IDeployable
 {
-    [SerializeField]
-    private DeployableUnitData deployableUnitData;
-    public new DeployableUnitData Data { get => deployableUnitData; private set => deployableUnitData = value; }
+    public DeployableUnitData BaseData { get; private set; }
 
     [HideInInspector]
     public DeployableUnitStats currentStats;
@@ -16,7 +14,7 @@ public class DeployableUnitEntity: UnitEntity, IDeployable
     public bool IsDeployed { get; protected set; }
     public int InitialDeploymentCost { get; protected set; } // 최초 배치 코스트 - DeploymentCost는 게임 중 증가할 수 있음
 
-    public Sprite? Icon => Data.Icon;
+    public Sprite? Icon => BaseData.Icon;
 
     // 미리보기 관련
     protected bool isPreviewMode = false;
@@ -56,8 +54,8 @@ public class DeployableUnitEntity: UnitEntity, IDeployable
 
     private void InitializeDeployableData(DeployableUnitData deployableData)
     {
-        this.deployableUnitData = deployableData;
-        currentStats = deployableUnitData.stats;
+        BaseData = deployableData;
+        currentStats = BaseData.stats;
     }
 
     /// <summary>
@@ -69,8 +67,8 @@ public class DeployableUnitEntity: UnitEntity, IDeployable
         IsPreviewMode = true; // 미리보기 활성화
 
         // A ?? B : A가 null일 경우 B를 사용
-        CanDeployGround = Data?.canDeployOnGround ?? false; 
-        CanDeployHill = Data?.canDeployOnHill ?? false;
+        CanDeployGround = BaseData?.canDeployOnGround ?? false; 
+        CanDeployHill = BaseData?.canDeployOnHill ?? false;
 
         InitialDeploymentCost = currentStats.DeploymentCost; // 초기 배치 코스트 설정
     }
@@ -90,9 +88,9 @@ public class DeployableUnitEntity: UnitEntity, IDeployable
             modelRenderer = modelObject.GetComponent<Renderer>();
         }
         // DeployableUnitData 초기화 (만약 SerializeField로 설정되어 있다면 이미 할당되어 있음)
-        if (deployableUnitData != null)
+        if (BaseData != null)
         {
-            currentStats = deployableUnitData.stats;
+            currentStats = BaseData.stats;
         }
     }
 
@@ -149,8 +147,8 @@ public class DeployableUnitEntity: UnitEntity, IDeployable
     {
         if (IsInvalidTile(tile)) return false;
 
-        if (tile.data.terrain == TileData.TerrainType.Ground && Data.canDeployOnGround) return true;
-        if (tile.data.terrain == TileData.TerrainType.Hill && Data.canDeployOnHill) return true;
+        if (tile.data.terrain == TileData.TerrainType.Ground && BaseData.canDeployOnGround) return true;
+        if (tile.data.terrain == TileData.TerrainType.Hill && BaseData.canDeployOnHill) return true;
 
         return false;
     }
@@ -263,7 +261,7 @@ public class DeployableUnitEntity: UnitEntity, IDeployable
     }
 
     /// <summary>
-    /// Data, Stat이 엔티티마다 다르기 때문에 자식 메서드에서 재정의가 항상 필요
+    /// BaseData, Stat이 엔티티마다 다르기 때문에 자식 메서드에서 재정의가 항상 필요
     /// </summary>
     protected override void InitializeUnitProperties()
     {
@@ -271,7 +269,7 @@ public class DeployableUnitEntity: UnitEntity, IDeployable
 
         // 현재 위치를 기반으로 한 타일 설정
         base.UpdateCurrentTile();
-        Prefab = Data.prefab;
+        Prefab = BaseData.prefab;
     }
 
     /// <summary>

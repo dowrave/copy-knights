@@ -21,11 +21,11 @@ public class OperatorData : ScriptableObject, IBoxDeployableData
     public AttackType attackType;
     public AttackRangeType attackRangeType;
     public List<Vector2Int> attackableTiles = new List<Vector2Int>{ Vector2Int.zero };
-    public GameObject projectilePrefab;
-
-    public List<Skill> skills;
-    public int defaultSkillIndex;
+    public Skill elite0Skill; // 최초 스킬, "스킬들"은 OwnedOperator에서 관리되고 선택된다.
     public float initialSP = 0f;
+
+    [Header("For Ranged")]
+    public GameObject projectilePrefab;
 
     [Header("Level Up Stats")]
     public OperatorLevelStats levelStats; // 레벨 1이 올라갈 때마다 상승하는 스탯량
@@ -134,5 +134,3 @@ public struct OperatorStats
         set => _deployableUnitStats.RedeployTime = value;
     }
 }
-
-#nullable restore

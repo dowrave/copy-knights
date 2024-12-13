@@ -32,7 +32,7 @@ public class OperatorSlot : MonoBehaviour
     private bool isThisActiveButton = false;
 
     public OwnedOperator OwnedOperator { get; private set; }
-    public OperatorData AssignedOperatorData => OwnedOperator?.BaseData;
+    public OperatorData opData => OwnedOperator?.BaseData;
 
 
     // 선택 상태
@@ -142,7 +142,7 @@ public class OperatorSlot : MonoBehaviour
 
     public bool IsEmpty()
     {
-        return AssignedOperatorData == null;
+        return opData == null;
     }
 
     private void SetInactiveSlotVisuals()
@@ -171,9 +171,9 @@ public class OperatorSlot : MonoBehaviour
 
         // 오퍼레이터 이미지 설정
         operatorImage.gameObject.SetActive(true);
-        if (AssignedOperatorData.icon != null)
+        if (opData.icon != null)
         {
-            operatorImage.sprite = AssignedOperatorData.icon;
+            operatorImage.sprite = opData.icon;
         }
         else
         {
@@ -188,22 +188,22 @@ public class OperatorSlot : MonoBehaviour
 
         // 클래스 아이콘 설정
         classIconImage.gameObject.SetActive(true);
-        OperatorIconHelper.SetClassIcon(classIconImage, AssignedOperatorData.operatorClass);
+        OperatorIconHelper.SetClassIcon(classIconImage, opData.operatorClass);
 
         // 스킬 아이콘 설정
         UpdateSkillIcon();
 
         // 오퍼레이터 이름 설정
         operatorNameText.gameObject.SetActive(true);
-        operatorNameText.text = AssignedOperatorData.entityName;
+        operatorNameText.text = opData.entityName;
     }
 
     private void UpdateSkillIcon()
     {
-        if (AssignedOperatorData.skills != null && AssignedOperatorData.skills.Count > 0)
+        if (OwnedOperator.unlockedSkills != null && OwnedOperator.unlockedSkills.Count > 0)
         {
             skillImage.gameObject.SetActive(true);
-            Sprite skillIcon = AssignedOperatorData.skills[0].SkillIcon;
+            Sprite skillIcon = OwnedOperator.unlockedSkills[0].SkillIcon;
             if (skillIcon != null)
             {
                 skillImage.sprite = skillIcon;

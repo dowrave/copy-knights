@@ -2,19 +2,16 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using Skills.Base;
-using System.Text;
 
 public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
 {
-    [SerializeField]
-    protected OperatorData operatorData;
-    public new OperatorData Data { get => operatorData; protected set => operatorData = value; }
+    public OperatorData BaseData { get; protected set; } 
     
     [HideInInspector] public new OperatorStats currentStats;
 
     // ICombatEntity 필드
-    public AttackType AttackType => operatorData.attackType;
-    public AttackRangeType AttackRangeType => operatorData.attackRangeType;
+    public AttackType AttackType => BaseData.attackType;
+    public AttackRangeType AttackRangeType => BaseData.attackRangeType;
 
     public float AttackPower
     {
@@ -84,7 +81,7 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
     public float AttackCooldown { get; protected set; }
     public float AttackDuration { get; protected set; }
    
-    public Vector2Int[] CurrentAttackbleTiles { get; set; }
+    public List<Vector2Int> CurrentAttackbleTiles { get; set; }
 
     // 공격 범위 내에 있는 적들 
     protected List<Enemy> enemiesInRange = new List<Enemy>();
@@ -130,13 +127,10 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
 
     // 원거리 공격 오브젝트 풀 옵션
     protected int initialPoolSize = 5;
-    protected string projectileTag; 
+    protected string projectileTag;
 
     // 스킬 관련
-    protected List<Skill> skills;
-    protected Skill activeSkill;
-    public Skill ActiveSkill => activeSkill;
-
+    public Skill ActiveSkill { get; set; }
     public bool IsSkillActive { get; protected set; } = false;
     public float SkillDuration { get; protected set; } = 0f;
     public float RemainingSkillDuration { get; protected set; } = 0f;
@@ -151,42 +145,70 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
     {
         base.Awake();
     }
-
-    public virtual void Initialize(OperatorData operatorData)
+    
+    /// <summary>
+    /// 성장 정보를 담은 초기화 방식
+    /// </summary>
+    public virtual void Initialize(OwnedOperator ownedOp)
     {
-        InitializeOperatorData(operatorData);
+        // 기본 데이터 초기화
+        BaseData = ownedOp.BaseData;
+
+        // 현재 상태 반영
+        currentStats = ownedOp.currentStats;
+        CurrentAttackbleTiles = new List<Vector2Int>(ownedOp.currentAttackableTiles);
+
+        // 스킬 설정
+        // 나중에 메인 메뉴에서 스킬을 선택할 수 있을 걸 감안하면, OwnedOperator에서 설정하는 게 더 맞는 것 같다
+        ActiveSkill = ownedOp.selectedSkill;
+
+        CurrentSP = ownedOp.currentStats.StartSP;
+        MaxSP = ActiveSkill?.SPCost ?? 0f;
+
+
+        if (modelObject == null)
+        {
+            InitializeVisual();
+        }
+
+        // 원거리 투사체 오브젝트 풀 초기화
+        if (AttackRangeType == AttackRangeType.Ranged)
+        {
+            InitializeProjectilePool();
+        }
+
+    }
+
+    /// <summary>
+    /// 오퍼레이터 미리보기가 발생하는 시점에 동작함
+    /// </summary>
+    public virtual void Initialize(OperatorData BaseData)
+    {
+        InitializeOperatorData(BaseData);
         InitializeUnitProperties();
         InitializeDeployableProperties();
         InitializeOperatorProperties();
     }
 
-    protected void InitializeOperatorData(OperatorData operatorData)
+    protected void InitializeOperatorData(OperatorData BaseData)
     {
-        currentStats = operatorData.stats;
-        CurrentSP = operatorData.initialSP;
-
-        if (Data == null)
-        {
-            Debug.LogError("Data가 null임!!!");
-        }
+        currentStats = BaseData.stats;
+        CurrentSP = BaseData.initialSP;
     }
 
+    /// <summary>
+    /// BaseData, Stat이 엔티티마다 다르기 때문에 자식 메서드에서 재정의가 항상 필요
+    /// </summary>
+    protected override void InitializeUnitProperties()
+    {
+        UpdateCurrentTile();
+        Prefab = BaseData.prefab;
+    }
 
     // 오퍼레이터 관련 설정들 초기화
     protected void InitializeOperatorProperties()
     {
-
         CreateDirectionIndicator(); // 방향 표시기 생성
-
-        // 사용하는 스킬 설정
-        skills = Data.skills;
-        SetActiveSkill(operatorData.defaultSkillIndex);
-
-        // MaxSP값 설정
-        if (activeSkill != null)
-        {
-            MaxSP = activeSkill.SPCost;
-        }
 
         // 원거리 투사체 오브젝트 풀 초기화
         if (AttackRangeType == AttackRangeType.Ranged)
@@ -207,9 +229,9 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
         }
 
         // DeployableUnitData 초기화 (만약 SerializeField로 설정되어 있다면 이미 할당되어 있음)
-        if (operatorData != null)
+        if (BaseData != null)
         {
-            currentStats = operatorData.stats;
+            currentStats = BaseData.stats;
         }
     }
 
@@ -274,7 +296,7 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
             ActiveSkill.OnAttack(this, ref damage, ref showDamagePopup);    
         }
 
-        switch (operatorData.attackRangeType)
+        switch (BaseData.attackRangeType)
         {
             case AttackRangeType.Melee:
                 PerformMeleeAttack(target, attackType, damage, showDamagePopup);
@@ -299,7 +321,7 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
     protected virtual void PerformRangedAttack(UnitEntity target, AttackType attackType, float damage, bool showDamagePopup)
     {
         SetAttackTimings();
-        if (Data.projectilePrefab != null)
+        if (BaseData.projectilePrefab != null)
         {
             // 투사체 생성 위치
             Vector3 spawnPosition = transform.position + Vector3.up * 0.5f;
@@ -323,7 +345,7 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
         Vector2Int operatorGridPos = MapManager.Instance.CurrentMap.WorldToGridPosition(transform.position);
 
         // 공격 범위(타일들)에 있는 적들을 수집합니다
-        foreach (Vector2Int offset in operatorData.attackableTiles)
+        foreach (Vector2Int offset in BaseData.attackableTiles)
         {
             Vector2Int rotatedOffset = RotateOffset(offset, facingDirection);
             Vector2Int targetGridPos = operatorGridPos + rotatedOffset;
@@ -402,7 +424,7 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
             enemy.UnblockFrom(this);
         }
         blockedEnemies.Clear();
-        nowBlockingCount = Data.stats.MaxBlockableEnemies;
+        nowBlockingCount = BaseData.stats.MaxBlockableEnemies;
 
     }
 
@@ -524,7 +546,7 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
         Vector2Int operatorGridPos = MapManager.Instance.CurrentMap.WorldToGridPosition(transform.position);
         List<Tile> tilesToHighlight = new List<Tile>();
 
-        foreach (Vector2Int offset in operatorData.attackableTiles)
+        foreach (Vector2Int offset in BaseData.attackableTiles)
         {
             Vector2Int rotatedIOffset = RotateOffset(offset, facingDirection);
             Vector2Int targetGridPos = operatorGridPos + rotatedIOffset;
@@ -566,7 +588,7 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
         Vector2Int targetGridPos = MapManager.Instance.CurrentMap.WorldToGridPosition(CurrentTarget.transform.position);
         Vector2Int operatorGridPos = MapManager.Instance.CurrentMap.WorldToGridPosition(transform.position);
 
-        foreach (Vector2Int offset in operatorData.attackableTiles)
+        foreach (Vector2Int offset in BaseData.attackableTiles)
         {
             Vector2Int rotatedOffset = RotateOffset(offset, facingDirection);
             Vector2Int inRangeGridPos = operatorGridPos + rotatedOffset;
@@ -602,14 +624,7 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
         return IsDeployed && CurrentSP >= MaxSP;
     }
 
-    /// <summary>
-    /// Data, Stat이 엔티티마다 다르기 때문에 자식 메서드에서 재정의가 항상 필요
-    /// </summary>
-    protected override void InitializeUnitProperties()
-    {
-        UpdateCurrentTile();
-        Prefab = Data.prefab; 
-    }
+
 
     protected override void InitializeHP()
     {
@@ -678,8 +693,8 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
     /// </summary>
     public void InitializeProjectilePool()
     {
-        projectileTag = $"{Data.entityName}_Projectile";
-        ObjectPoolManager.Instance.CreatePool(projectileTag, Data.projectilePrefab, initialPoolSize);
+        projectileTag = $"{BaseData.entityName}_Projectile";
+        ObjectPoolManager.Instance.CreatePool(projectileTag, BaseData.projectilePrefab, initialPoolSize);
     }
 
     protected void CleanupProjectilePool()
@@ -751,29 +766,20 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
             IsCurrentTargetInRange(); // 공격 범위 내에 있음
     }
 
-    // 스킬 관련
-    public void SetActiveSkill(int index)
-    {
-        if (index >= 0 && index < skills.Count)
-        {
-            activeSkill = skills[index];
-        }
-    }
-
     public void UseSkill()
     {
-        if (CanUseSkill() && activeSkill != null)
+        if (CanUseSkill() && ActiveSkill != null)
         {
-            activeSkill.Activate(this);
+            ActiveSkill.Activate(this);
             UpdateOperatorUI();
         }
     }
 
     protected void UpdateAttackbleTiles()
     {
-        CurrentAttackbleTiles = Data.attackableTiles
+        CurrentAttackbleTiles = BaseData.attackableTiles
             .Select(tile => RotateOffset(tile, FacingDirection))
-            .ToArray();
+            .ToList();
     }
 
     // 스킬 사용 시 SP Bar 관련 설정
