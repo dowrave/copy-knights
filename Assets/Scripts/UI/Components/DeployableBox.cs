@@ -36,34 +36,29 @@ public class DeployableBox : MonoBehaviour, IPointerDownHandler, IBeginDragHandl
     public void Initialize(GameObject prefab)
     {
         deployablePrefab = prefab;
-        deployableComponent = deployablePrefab.GetComponent<DeployableUnitEntity>(); // 자식 클래스 Operator도 DeployableUnitEntity 형태로 저장
+        deployableComponent = deployablePrefab.GetComponent<DeployableUnitEntity>(); // 다형성 활용
         deployableInfo = DeployableManager.Instance.GetDeployableInfo(prefab);
 
-        deployableComponent.InitializeFromPrefab();
+        deployableComponent.InitializeFromPrefab(); // 프리팹의 기본 정보 초기화
 
-        if (deployableComponent is Operator opComponent)
+        // BaseData는 Initialize 시점에서 초기화되므로 (deployableUnitEntity, Operator) , 
+        // Box에 사용되는 BaseData는 다른 곳에서 가져와야 한다
+        if (deployableComponent is Operator && deployableInfo.ownedOperator != null)
         {
-            boxIcon = opComponent.BaseData.Icon;
-        }
-        else if (deployableComponent is DeployableUnitEntity)
-        {
-            boxIcon = deployableComponent.BaseData.Icon;
-        }
-
-        // 오퍼레이터일 때와 아닐 때 구분
-        if (deployableComponent is Operator op)
-        {
+            OwnedOperator op = deployableInfo.ownedOperator;
             baseDeploymentCost = op.BaseData.stats.DeploymentCost; // 초기 배치 코스트 설정
             OperatorIconHelper.SetClassIcon(operatorClassIconImage, op.BaseData.operatorClass); // 클래스 아이콘 설정
+            boxIcon = op.BaseData.Icon;
         }
         else
         {
-            baseDeploymentCost = deployableComponent.BaseData.stats.DeploymentCost;
+            baseDeploymentCost = deployableInfo.deployableUnitData.stats.DeploymentCost;
             operatorClassIconBox.gameObject.SetActive(false);
+            boxIcon = deployableInfo.deployableUnitData.Icon;
         }
+
         currentDeploymentCost = baseDeploymentCost;
         deployCount = 0;
-
         StageManager.Instance.OnDeploymentCostChanged += UpdateAvailability;
         InitializeVisuals();
     }
@@ -179,7 +174,7 @@ public class DeployableBox : MonoBehaviour, IPointerDownHandler, IBeginDragHandl
     {
         if (CanInteract())
         {
-            DeployableManager.Instance.StartDeployableSelection(deployablePrefab);
+            DeployableManager.Instance.StartDeployableSelection(deployableInfo);
         }
     }
 
@@ -189,7 +184,7 @@ public class DeployableBox : MonoBehaviour, IPointerDownHandler, IBeginDragHandl
         if (CanInteract())
         {
             isDragging = true;
-            DeployableManager.Instance.StartDragging(deployablePrefab);
+            DeployableManager.Instance.StartDragging(deployableInfo);
         }
     }
 
@@ -198,7 +193,7 @@ public class DeployableBox : MonoBehaviour, IPointerDownHandler, IBeginDragHandl
     {
         if (isDragging && CanInteract())
         {
-            DeployableManager.Instance.HandleDragging(deployablePrefab);
+            DeployableManager.Instance.HandleDragging(deployableInfo);
         }
     }
 
@@ -255,3 +250,5 @@ public class DeployableBox : MonoBehaviour, IPointerDownHandler, IBeginDragHandl
         return currentDeploymentCost;
     }
 }
+
+#nullable enable

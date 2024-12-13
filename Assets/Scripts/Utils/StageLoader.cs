@@ -37,7 +37,7 @@ public class StageLoader : MonoBehaviour
         }
 
         cachedStageData = stageData;
-        cachedSquadData = new List<OwnedOperator>(GameManagement.Instance.UserSquadManager.GetCurrentSquadWithNull());
+        cachedSquadData = new List<OwnedOperator>(GameManagement.Instance.UserSquadManager.GetCurrentSquad());
 
         StartCoroutine(LoadStageRoutine());
     }
@@ -98,12 +98,9 @@ public class StageLoader : MonoBehaviour
         // 2. 맵 생성
         yield return StartCoroutine(InitializeMap());
 
-        // 3. 배치 가능한 유닛 초기화
-        if (!InitializeDeployables())
-        {
-            Debug.Log("Deployable 유닛이 초기화되지 않음");
-            yield break;
-        }
+        // 3. 배치 가능한 요소들 초기화
+        InitializeDeployables();
+
         yield return null;
 
         // 대기 화면이 있는 동안에 스테이지 준비까지 마침. 게임 시작은 대기 화면이 완전히 사라진 후
@@ -164,40 +161,22 @@ public class StageLoader : MonoBehaviour
 
     private bool InitializeDeployables()
     {
-        if (DeployableManager.Instance == null)
+        if (DeployableManager.Instance == null || cachedSquadData == null)
         {
-            Debug.LogError("DeployableManager가 없습니다");
+            Debug.LogError("DeployableManager나 스쿼드 데이터가 없습니다");
             return false;
         }
 
-        if (cachedSquadData == null)
+        // 맵에서 배치 가능한 요소를 가져옴
+        var mapDeployables = new List<MapDeployableData>(MapManager.Instance.CurrentMap?.GetMapDeployables());
+        if (mapDeployables == null) 
         {
-            Debug.LogError("스쿼드 데이터가 없습니다");
+            Debug.LogWarning("리스트가 정상적으로 초기화되지 않았습니다"); 
             return false;
         }
 
-        if (DeployableManager.Instance != null)
-        {
-            DeployableManager.Instance.Initialize();
-
-            foreach (OwnedOperator op in cachedSquadData)
-            {
-                if (op != null)
-                {
-                    var deployableInfo = new DeployableManager.DeployableInfo
-                    {
-                        prefab = op.BaseData.prefab,
-                        maxDeployCount = 1,
-                        remainingDeployCount = 1,
-                        isUserOperator = true,
-                        redeployTime = op.BaseData.stats.RedeployTime
-                    };
-
-                    DeployableManager.Instance.AddDeployableInfo(op.BaseData.prefab, 1, true);
-                    //DeployableManager.Instance.AddOwnedOperatorInfo(op);
-                }
-            }
-        }
+        // 빈 리스트인 경우도 여기로 내려올 수 있음
+        DeployableManager.Instance.Initialize(cachedSquadData, mapDeployables);
 
         return true;
     }
@@ -262,7 +241,6 @@ public class StageLoader : MonoBehaviour
     /// <summary>
     /// 씬 전환 시마다 실행
     /// </summary>
-    /// 
 
     public void OnSceneLoaded(Scene scene, LoadSceneMode mode)
     {

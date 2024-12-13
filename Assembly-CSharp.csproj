@@ -66,7 +66,6 @@
     <Compile Include="Assets\Scripts\Core\Systems\ExpCalculationSystem.cs" />
     <Compile Include="Assets\Scripts\UI\Components\DeployableBox.cs" />
     <Compile Include="Assets\Scripts\Map\EnemySpawner.cs" />
-    <Compile Include="Assets\Scripts\Interfaces\IBoxDeployableData.cs" />
     <Compile Include="Assets\Scripts\Data\PathData.cs" />
     <Compile Include="Assets\Scripts\Entities\Enemy\Enemy.cs" />
     <Compile Include="Assets\Scripts\UI\Components\OperatorUI.cs" />
@@ -142,6 +141,7 @@
     <Compile Include="Assets\Scripts\Skills\OperatorSkills\SmashSkill.cs" />
     <Compile Include="Assets\Scripts\UI\Panels\OperatorDetailPanel.cs" />
     <Compile Include="Assets\Scripts\UI\Panels\NotificationPanel.cs" />
+    <Compile Include="Assets\Scripts\Data\MapDeployableData.cs" />
     <Compile Include="Assets\Scripts\Core\Managers\StageManager.cs" />
     <Compile Include="Assets\Scripts\Data\ItemData.cs" />
     <Compile Include="Assets\Scripts\Core\Managers\PathfindingManager.cs" />

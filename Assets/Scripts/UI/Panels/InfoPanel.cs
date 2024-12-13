@@ -24,7 +24,7 @@ public class InfoPanel : MonoBehaviour
         statsContainer.SetActive(false);
     }
 
-    public void UpdateInfo(DeployableUnitEntity deployable)
+    public void UpdateInfo(DeployableManager.DeployableInfo deployableInfo)
     {
         if (currentOperator != null)
         {
@@ -33,16 +33,16 @@ public class InfoPanel : MonoBehaviour
         }
 
         // Operator 특정 정보 업데이트
-        if (deployable is Operator op)
+        if (deployableInfo.ownedOperator != null)
         {
-            currentOperator = op;
-            nameText.text = op.BaseData.entityName;
+            currentOperator = deployableInfo.prefab.GetComponent<Operator>();
+            nameText.text = deployableInfo.operatorData.entityName;
             statsContainer.SetActive(true);
             UpdateOperatorInfo();
         }
         else
         {
-            nameText.text = deployable.BaseData.entityName;
+            nameText.text = deployableInfo.deployableUnitData.entityName;
             //statsContainer.SetActive(false);
         }
 

@@ -141,13 +141,15 @@ public class UIManager : MonoBehaviour
         
     }
 
-    public void ShowDeployableInfo(DeployableUnitEntity deployable)
+    public void ShowDeployableInfo(DeployableManager.DeployableInfo deployableInfo)
     {
         if (infoPanelScript != null)
         {
             infoPanelObject.SetActive(true);
 
-            infoPanelScript.UpdateInfo(deployable);
+            infoPanelScript.UpdateInfo(deployableInfo);
+
+            DeployableUnitEntity deployable = deployableInfo.prefab.GetComponent<DeployableUnitEntity>();
             CameraManager.Instance.AdjustForDeployableInfo(true, deployable);
         }
     }

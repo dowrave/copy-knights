@@ -3182,11 +3182,15 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   mapId: 1-1
+  tilePrefab: {fileID: 4667640908928492419, guid: 4b0f68de89c80ab419cdfffd87622bbc, type: 3}
+  enemySpawnerPrefab: {fileID: 2919812726486536999, guid: 7f67aa5fcbb982a4b8201f06b95a6b48, type: 3}
+  mapDeployables:
+  - deployablePrefab: {fileID: 8875430263191699086, guid: 445bdcb62b7e4c84b9ac1f5d640cb325, type: 3}
+    deployableData: {fileID: 11400000, guid: 137922d0524493444ba9997d212523d8, type: 2}
+    maxDeployCount: 3
   width: 10
   height: 7
   cameraPosition: {x: 4.25, y: 6, z: 0.5}
-  tilePrefab: {fileID: 4667640908928492419, guid: 4b0f68de89c80ab419cdfffd87622bbc, type: 3}
-  enemySpawnerPrefab: {fileID: 2919812726486536999, guid: 7f67aa5fcbb982a4b8201f06b95a6b48, type: 3}
 --- !u!1 &4596445287924887939
 GameObject:
   m_ObjectHideFlags: 0
