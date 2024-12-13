@@ -14,9 +14,10 @@ public class InfoPanel : MonoBehaviour
     [SerializeField] private TextMeshProUGUI magicResistanceText;
     [SerializeField] private TextMeshProUGUI blockCountText;
 
-    private DeployableUnitEntity currentDeployable;
     private Operator currentOperator;
+    private DeployableUnitEntity currentDeployable;
     private GameObject statsContainer;
+    private DeployableManager.DeployableInfo currentDeployableInfo;
 
     private void Awake() 
     {
@@ -24,28 +25,58 @@ public class InfoPanel : MonoBehaviour
         statsContainer.SetActive(false);
     }
 
-    public void UpdateInfo(DeployableManager.DeployableInfo deployableInfo)
+    public void UpdateUnDeployedInfo(DeployableManager.DeployableInfo deployableInfo)
     {
+        currentDeployableInfo = deployableInfo;
+        //Debug.Log($"currentDeployableInfo : {currentDeployableInfo}");
+        //Debug.Log($"currentDeployableInfo.ownedOperator : {currentDeployableInfo.ownedOperator}");
+
+        // Operator 정보 업데이트
+        if (currentDeployableInfo.ownedOperator != null)
+        {
+            currentOperator = currentDeployableInfo.prefab.GetComponent<Operator>();
+            currentDeployable = null;
+            nameText.text = currentDeployableInfo.operatorData.entityName;
+            statsContainer.SetActive(true);
+            UpdateOperatorInfo();
+        }
+        else // deployableUnitEntity 정보 업데이트
+        {
+            currentDeployable = currentDeployableInfo.prefab.GetComponent<DeployableUnitEntity>();
+            currentOperator = null;
+            nameText.text = currentDeployableInfo.deployableUnitData.entityName;
+            statsContainer.SetActive(false);
+        }
+    }
+
+    /// <summary>
+    /// 배치된 유닛을 클릭했을 때의 패널 정보 갱신
+    /// </summary>
+    public void UpdateDeployedInfo(DeployableUnitEntity deployableUnitEntity)
+    {
+        // 기존에 currentOperator가 있었다면 이벤트 해제
         if (currentOperator != null)
         {
             currentOperator.OnHealthChanged -= UpdateHealthText;
             currentOperator.OnStatsChanged -= UpdateOperatorInfo;
         }
 
-        // Operator 특정 정보 업데이트
-        if (deployableInfo.ownedOperator != null)
+        if (deployableUnitEntity is Operator op)
         {
-            currentOperator = deployableInfo.prefab.GetComponent<Operator>();
-            nameText.text = deployableInfo.operatorData.entityName;
+            currentOperator = op;
+            currentDeployable = null;
+            nameText.text = currentDeployableInfo.operatorData.entityName;
             statsContainer.SetActive(true);
             UpdateOperatorInfo();
         }
         else
         {
-            nameText.text = deployableInfo.deployableUnitData.entityName;
-            //statsContainer.SetActive(false);
-        }
+            currentDeployable = deployableUnitEntity;
+            currentOperator = null;
 
+            nameText.text = currentDeployableInfo.deployableUnitData.entityName;
+            statsContainer.SetActive(false);
+        }
     }
 
     private void UpdateOperatorInfo()
@@ -56,9 +87,8 @@ public class InfoPanel : MonoBehaviour
         if (currentOperator.IsDeployed)
         {
             currentOperator.OnHealthChanged += UpdateHealthText;
-            currentOperator.OnStatsChanged += UpdateOperatorInfo; 
+            currentOperator.OnStatsChanged += UpdateOperatorInfo;
 
-            // 배치된 경우 현재의 값을 사용
             UpdateHealthText(currentOperator.CurrentHealth, currentOperator.MaxHealth);
             attackText.text = $"공격력: {currentOperator.currentStats.AttackPower}";
             defenseText.text = $"방어력: {currentOperator.currentStats.Defense}";
@@ -66,16 +96,18 @@ public class InfoPanel : MonoBehaviour
             blockCountText.text = $"저지수: {currentOperator.currentStats.MaxBlockableEnemies}";
         }
 
+        // 배치되지 않은 경우
         else
         {
-            // (수정 필요!!) 배치되지 않은 경우 OwnedOperator에 있는 기본 스탯값을 가져와야 함
-            // 근데 그럴라면 Operator의 초기화 로직을 분리할 필요가 있다.
-            float initialHealth = currentOperator.BaseData.stats.Health; 
+            OperatorStats ownedOperatorStats = currentDeployableInfo.ownedOperator.currentStats;
+
+            // 배치되지 않은 경우 : OwnedOperator의 정보를 가져옴
+            float initialHealth = ownedOperatorStats.Health; 
             UpdateHealthText(initialHealth, initialHealth);
-            attackText.text = $"공격력: {currentOperator.BaseData.stats.AttackPower}";
-            defenseText.text = $"방어력: {currentOperator.BaseData.stats.Defense}";
-            magicResistanceText.text = $"마법저항력: {currentOperator.BaseData.stats.MagicResistance}";
-            blockCountText.text = $"저지수: {currentOperator.BaseData.stats.MaxBlockableEnemies}";
+            attackText.text = $"공격력: {ownedOperatorStats.AttackPower}";
+            defenseText.text = $"방어력: {ownedOperatorStats.Defense}";
+            magicResistanceText.text = $"마법저항력: {ownedOperatorStats.MagicResistance}";
+            blockCountText.text = $"저지수: {ownedOperatorStats.MaxBlockableEnemies}";
         }
     }
 

@@ -153,6 +153,7 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
     {
         // 기본 데이터 초기화
         BaseData = ownedOp.BaseData;
+        CurrentSP = BaseData.initialSP;
 
         // 현재 상태 반영
         currentStats = ownedOp.currentStats;
@@ -161,54 +162,17 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
         // 스킬 설정
         // 나중에 메인 메뉴에서 스킬을 선택할 수 있을 걸 감안하면, OwnedOperator에서 설정하는 게 더 맞는 것 같다
         ActiveSkill = ownedOp.selectedSkill;
-
         CurrentSP = ownedOp.currentStats.StartSP;
         MaxSP = ActiveSkill?.SPCost ?? 0f;
 
+        IsPreviewMode = true;
 
         if (modelObject == null)
         {
             InitializeVisual();
         }
 
-        // 원거리 투사체 오브젝트 풀 초기화
-        if (AttackRangeType == AttackRangeType.Ranged)
-        {
-            InitializeProjectilePool();
-        }
-
-    }
-
-    /// <summary>
-    /// 오퍼레이터 미리보기가 발생하는 시점에 동작함
-    /// </summary>
-    public virtual void Initialize(OperatorData BaseData)
-    {
-        InitializeOperatorData(BaseData);
-        InitializeUnitProperties();
-        InitializeDeployableProperties();
-        InitializeOperatorProperties();
-    }
-
-    protected void InitializeOperatorData(OperatorData BaseData)
-    {
-        currentStats = BaseData.stats;
-        CurrentSP = BaseData.initialSP;
-    }
-
-    /// <summary>
-    /// BaseData, Stat이 엔티티마다 다르기 때문에 자식 메서드에서 재정의가 항상 필요
-    /// </summary>
-    protected override void InitializeUnitProperties()
-    {
-        UpdateCurrentTile();
-        Prefab = BaseData.prefab;
-    }
-
-    // 오퍼레이터 관련 설정들 초기화
-    protected void InitializeOperatorProperties()
-    {
-        CreateDirectionIndicator(); // 방향 표시기 생성
+        CreateDirectionIndicator();
 
         // 원거리 투사체 오브젝트 풀 초기화
         if (AttackRangeType == AttackRangeType.Ranged)
@@ -438,7 +402,6 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
         if (ActiveSkill.AutoRecover)
         {
             CurrentSP = Mathf.Min(CurrentSP + currentStats.SPRecoveryRate * Time.deltaTime, MaxSP);    
-
         }
 
         if (CurrentSP != oldSP)
@@ -470,12 +433,15 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
 
     protected override void Die()
     {
+       
+
         // 사망 후 작동해야 하는 로직이 있을 듯?
         UnblockAllEnemies();
 
         // 오브젝트 파괴
         //Destroy(deployableBarUI.gameObject); // 하단 체력/SP 바
         Destroy(operatorUIInstance.gameObject);
+        OnSPChanged = null;
         Destroy(directionIndicator.gameObject); // 방향 표시기
 
         base.Die();
@@ -605,6 +571,7 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
     public override void Deploy(Vector3 position)
     {
         base.Deploy(position);
+        IsPreviewMode = false;
         SetDeploymentOrder();
         SetDirection(facingDirection);
         UpdateAttackbleTiles();
@@ -615,7 +582,10 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
 
     public override void Retreat()
     {
-        base.Retreat();
+        // 코스트 회수 로직 필요
+
+
+        Die();
     }
 
     // ISkill 메서드

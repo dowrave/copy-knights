@@ -8,11 +8,6 @@ public class MedicOperator : Operator
     private UnitEntity currentTargetOperator;
     private List<DeployableUnitEntity> targetsInRange = new List<DeployableUnitEntity>();
 
-    public override void Initialize(OperatorData operatorData)
-    {
-        base.Initialize(operatorData);
-    }
-
     public override void Initialize(OwnedOperator ownedOp)
     {
         base.Initialize(ownedOp);
@@ -23,10 +18,9 @@ public class MedicOperator : Operator
         base.Update(); // 수정된 ValidateCurrentTarget 내용이 반영된다.
     }
 
-
     protected override void ValidateCurrentTarget()
     {
-       // 오버라이드하지만 비워둔다. 여기서는 별도로 넣지 않음. SetCurrentTarget에서 그 동작을 다하는 것 같기 때문.
+       // 오버라이드하지만 비워둔다. SetCurrentTarget에서 그 동작을 다하는 것 같기 때문.
     }
 
     public override void SetCurrentTarget()

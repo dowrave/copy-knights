@@ -84,7 +84,6 @@ public class ClickDetectionSystem : MonoBehaviour
     /// </summary>
     private void HandleClick()
     {
-        
         List<RaycastResult> results = PerformScreenRaycast();
         List<RaycastResult> uiResults = results.Where(r => r.module is GraphicRaycaster).ToList();
 
@@ -188,34 +187,6 @@ public class ClickDetectionSystem : MonoBehaviour
     private void HandleEmptySpaceClick()
     {
         DeployableManager.Instance.CancelCurrentAction();
-    }
-
-    /// <summary>
-    /// 클릭 디버깅용 - 해결됨
-    /// </summary>
-    private void DebugClick(RaycastHit hit)
-    {
-        Debug.Log($"Hit 오브젝트: {hit.collider.gameObject.name}");
-        Debug.Log($"Hit 위치: {hit.point}");
-        Debug.Log($"Hit 오브젝트 태그: {hit.collider.gameObject.tag}");
-        Debug.Log($"Hit 오브젝트 레이어: {LayerMask.LayerToName(hit.collider.gameObject.layer)}");
-
-        Component[] components = hit.collider.gameObject.GetComponents<Component>();
-        Debug.Log("Hit 오브젝트의 컴포넌트 목록:");
-        foreach (Component component in components)
-        {
-            Debug.Log($"- {component.GetType().Name}");
-        }
-
-        IDeployable deployable = hit.collider.GetComponent<IDeployable>();
-        if (deployable != null)
-        {
-            Debug.Log("Hit 오브젝트는 IDeployable 인터페이스를 구현했습니다.");
-        }
-        else
-        {
-            Debug.Log("Hit 오브젝트는 IDeployable 인터페이스를 구현하지 않았습니다.");
-        }
     }
 
     /// <summary>

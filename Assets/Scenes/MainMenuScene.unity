@@ -10362,6 +10362,7 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 63da6f9593ceb004a9d47e09da76144c, type: 2}
   - {fileID: 11400000, guid: 5741ce8ccb3daaf4b9f24148fa1675c3, type: 2}
   - {fileID: 11400000, guid: 276225db76094cf44a6a3bfc55db40e2, type: 2}
+  - {fileID: 11400000, guid: 4ca9aabe2b7e1d74aa7dc882e7800ba7, type: 2}
   defaultMaxSquadSize: 6
 --- !u!4 &920941512
 Transform:

@@ -78,6 +78,10 @@ public class DeployableManager : MonoBehaviour
     private float originalTimeScale = 1f;
 
     private List<DeployableUnitEntity> deployedItems = new List<DeployableUnitEntity>();
+
+    // 엔티티 이름과 deployableInfo를 매핑하는 딕셔너리
+    private static Dictionary<string, DeployableInfo> deployableInfoMap = new Dictionary<string, DeployableInfo>();
+
     // 임시 클릭 방지 시간
     private float preventClickingTime = 0.1f;
     private float lastPlacementTime;
@@ -105,6 +109,7 @@ public class DeployableManager : MonoBehaviour
         )
     {
         allDeployables.Clear();
+        deployableInfoMap.Clear();
 
         // OwnedOperator -> DeployableInfo로 변환해서 추가
         foreach (OwnedOperator op in squadData.Where(op => op != null))
@@ -118,13 +123,17 @@ public class DeployableManager : MonoBehaviour
                 ownedOperator = op,
                 operatorData = op.BaseData
             };
+
             allDeployables.Add(info);
+            deployableInfoMap[op.BaseData.entityName] = info; // (오퍼레이터 엔티티 이름 - 배치 정보) 매핑
         }
 
         // 스테이지 제공 요소 -> DeployableInfo로 변환
         foreach (var deployable in stageDeployables)
         {
-            allDeployables.Add(deployable.ToDeployableInfo());
+            var info = deployable.ToDeployableInfo();
+            allDeployables.Add(info);
+            deployableInfoMap[deployable.deployableData.entityName] = info; // (배치 요소 이름 - 배치 정보) 매핑
         }
 
         InitializeDeployableUI();
@@ -195,34 +204,36 @@ public class DeployableManager : MonoBehaviour
     /// </summary>
     private bool CheckTileCondition(Tile tile)
     {
-        if (currentDeployable is Operator op)
+        if (currentDeployableInfo.operatorData != null)
         {
-            return (tile.data.terrain == TileData.TerrainType.Ground && op.BaseData.canDeployOnGround) ||
-                    (tile.data.terrain == TileData.TerrainType.Hill && op.BaseData.canDeployOnHill);
+            return (tile.data.terrain == TileData.TerrainType.Ground && currentDeployableInfo.operatorData.canDeployOnGround) ||
+                    (tile.data.terrain == TileData.TerrainType.Hill && currentDeployableInfo.operatorData.canDeployOnHill);
         }
-        else
+        else if (currentDeployableInfo.deployableUnitData != null)
         {
-            return (tile.data.terrain == TileData.TerrainType.Ground && currentDeployable.BaseData.canDeployOnGround) ||
-                    (tile.data.terrain == TileData.TerrainType.Hill && currentDeployable.BaseData.canDeployOnHill);
+            return (tile.data.terrain == TileData.TerrainType.Ground && currentDeployableInfo.deployableUnitData.canDeployOnGround) ||
+                    (tile.data.terrain == TileData.TerrainType.Hill && currentDeployableInfo.deployableUnitData.canDeployOnHill);
         }
+        else 
+            return false;
     }
 
 
     // BottomPanelOperatorBox 마우스버튼 다운 시 작동, 배치하려는 오퍼레이터의 정보를 변수에 넣는다.
     public void StartDeployableSelection(DeployableInfo deployableInfo)
     {
-        if (currentDeployableInfo != deployableInfo)
-        {
-            currentDeployableInfo = deployableInfo;
-            ResetPlacement();
+        ResetPlacement();
 
+        if (currentDeployableInfo != deployableInfo)
+        {    
+            currentDeployableInfo = deployableInfo;
             currentDeployablePrefab = currentDeployableInfo.prefab;
             currentDeployable = currentDeployablePrefab.GetComponent<DeployableUnitEntity>();
+
             IsDeployableSelecting = true;
 
-            UIManager.Instance.ShowDeployableInfo(currentDeployableInfo);
+            UIManager.Instance.ShowUndeployedInfo(currentDeployableInfo);
 
-            // Highlight available tiles
             HighlightAvailableTiles();
         }
     }
@@ -253,13 +264,13 @@ public class DeployableManager : MonoBehaviour
     }
 
     /// <summary>
-    /// 배치되는 타일이 정해졌을 때 동작
+    /// 드래그 중 커서를 뗐을 때의 동작
     /// </summary>
     public void EndDragging(GameObject deployablePrefab)
     {
-
         if (IsDraggingDeployable && currentDeployablePrefab == deployablePrefab)
         {
+            Debug.Log("드래그 종료");
             IsDraggingDeployable = false;
             Tile hoveredTile = GetHoveredTile();
 
@@ -279,6 +290,7 @@ public class DeployableManager : MonoBehaviour
             }
             else
             {
+                Debug.Log("배치 과정 취소");
                 CancelDeployableSelection();
                 UIManager.Instance.HideDeployableInfo();
             }
@@ -292,19 +304,13 @@ public class DeployableManager : MonoBehaviour
             GameObject deployableObject = Instantiate(currentDeployablePrefab);
             currentDeployable = deployableObject.GetComponent<DeployableUnitEntity>();
 
-            // 메딕으로서의 초기화
-            if (currentDeployable is MedicOperator medic)
+            if (currentDeployable is Operator op)
             {
-                medic.Initialize(medic.BaseData);
-            }
-            // 공격가능한 오퍼레이터로서의 초기화
-            else if (currentDeployable is Operator op)
-            {
-                op.Initialize(op.BaseData);
+                op.Initialize(currentDeployableInfo.ownedOperator);
             }
             else
             {
-                currentDeployable.Initialize(currentDeployable.BaseData);
+                currentDeployable.Initialize(currentDeployableInfo.deployableUnitData);
             }
         }
     }
@@ -534,6 +540,7 @@ public class DeployableManager : MonoBehaviour
     /// </summary>
     private void ResetPlacement()
     {
+        Debug.Log("ResetPlacement 동작");
         IsDeployableSelecting = false;
         IsDraggingDeployable = false;
         IsSelectingDirection = false;
@@ -541,6 +548,8 @@ public class DeployableManager : MonoBehaviour
 
         if (currentDeployable != null)
         {
+            Debug.Log($"currentDeployable.IsPreviewMode : {currentDeployable.IsPreviewMode}");
+
             if (currentDeployable.IsPreviewMode)
             {
                 Destroy(currentDeployable.transform.gameObject);
@@ -548,6 +557,7 @@ public class DeployableManager : MonoBehaviour
             currentDeployable = null;
         }
         currentDeployablePrefab = null;
+        currentDeployableInfo = null;
 
         UIManager.Instance.HideDeployableInfo();
         StageManager.Instance.UpdateTimeScale(); // 시간 원상복구
@@ -631,7 +641,7 @@ public class DeployableManager : MonoBehaviour
 
     public void ShowDeployableInfoPanel(DeployableInfo deployableInfo)
     {
-        UIManager.Instance.ShowDeployableInfo(deployableInfo);
+        UIManager.Instance.ShowUndeployedInfo(deployableInfo);
     }
 
     public void HideDeployableInfoPanel()
@@ -690,5 +700,10 @@ public class DeployableManager : MonoBehaviour
     public DeployableInfo GetDeployableInfo(GameObject prefab)
     {
         return allDeployables.Find(d => d.prefab == prefab);
+    }
+
+    public DeployableInfo GetDeployableInfoByName(string entityName)
+    {
+        return deployableInfoMap.TryGetValue(entityName, out var info) ? info : null;
     }
 }

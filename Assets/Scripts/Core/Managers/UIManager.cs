@@ -141,16 +141,32 @@ public class UIManager : MonoBehaviour
         
     }
 
-    public void ShowDeployableInfo(DeployableManager.DeployableInfo deployableInfo)
+    /// <summary>
+    /// 배치되지 않은 유닛의 미리보기 동작
+    /// </summary>
+    public void ShowUndeployedInfo(DeployableManager.DeployableInfo deployableInfo)
     {
         if (infoPanelScript != null)
         {
             infoPanelObject.SetActive(true);
 
-            infoPanelScript.UpdateInfo(deployableInfo);
+            infoPanelScript.UpdateUnDeployedInfo(deployableInfo);
 
             DeployableUnitEntity deployable = deployableInfo.prefab.GetComponent<DeployableUnitEntity>();
             CameraManager.Instance.AdjustForDeployableInfo(true, deployable);
+        }
+    }
+
+    /// <summary>
+    /// 배치된 유닛의 미리보기 동작
+    /// </summary>
+    public void ShowDeployedInfo(DeployableUnitEntity deployableUnitEntity)
+    {
+        if (infoPanelScript != null)
+        {
+            infoPanelObject.SetActive(true);
+            infoPanelScript.UpdateDeployedInfo(deployableUnitEntity);
+            CameraManager.Instance.AdjustForDeployableInfo(true, deployableUnitEntity);
         }
     }
 
