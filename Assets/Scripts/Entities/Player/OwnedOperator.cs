@@ -48,12 +48,12 @@ public class OwnedOperator
         currentLevel = 1;
         currentPhase = OperatorGrowthSystem.ElitePhase.Elite0;
         currentExp = 0;
-        selectedSkillIndex = 0;
-
+        
         _baseData = opData;
         currentStats = opData.stats;
 
         unlockedSkills.Add(opData.elite0Skill);
+        selectedSkill = unlockedSkills[0];
     }
 
     public OperatorStats GetOperatorStats() => currentStats;

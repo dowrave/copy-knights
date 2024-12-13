@@ -14,6 +14,8 @@ public class DeployableUnitEntity: UnitEntity, IDeployable
     public bool IsDeployed { get; protected set; }
     public int InitialDeploymentCost { get; protected set; } // 최초 배치 코스트 - DeploymentCost는 게임 중 증가할 수 있음
 
+    private DeployableManager.DeployableInfo? deployableInfo;
+
     public Sprite? Icon => BaseData.Icon;
 
     // 미리보기 관련
@@ -56,6 +58,7 @@ public class DeployableUnitEntity: UnitEntity, IDeployable
     {
         BaseData = deployableData;
         currentStats = BaseData.stats;
+        deployableInfo = DeployableManager.Instance.GetDeployableInfoByName(BaseData.entityName);
     }
 
     /// <summary>
@@ -158,16 +161,6 @@ public class DeployableUnitEntity: UnitEntity, IDeployable
         return tile == null || tile.IsOccupied || tile.data.isStartPoint || tile.data.isEndPoint;
     }
 
-    public virtual void EnablePreviewMode()
-    {
-        IsPreviewMode = true;
-    }
-
-    public virtual void DisablePreviewMode()
-    {
-        IsPreviewMode = false;
-    }
-
     public void UpdatePreviewPosition(Vector3 position)
     {
         if (IsPreviewMode)
@@ -214,26 +207,25 @@ public class DeployableUnitEntity: UnitEntity, IDeployable
 
     /// <summary>
     /// 배치된 유닛 클릭 시의 동작
-    /// 배치 완료 시에 커서가 배치 가능한 유닛 위에 있는 상황이라면 동작할 수 있음
     /// </summary>
     public virtual void OnClick()
     {
-        // 커서가 배치 가능한 유닛 위에 배치 직후에 있는 상황
+        // 배치 직후 클릭 방지
         if (Time.time - lastDeployTime < preventInteractingTime)
         {
             DeployableManager.Instance.CancelPlacement();
             return;
         }
 
-        // 배치된 오퍼레이터 & 미리보기 오퍼레이터를 클릭한 게 아닐 때
+        // 배치된 오퍼레이터 클릭 동작
         if (IsDeployed && !IsPreviewMode && StageManager.Instance.currentState == GameState.Battle)
         {
             DeployableManager.Instance.CancelPlacement();
 
-            // 미리보기 상태에선 동작하면 안됨
+            // 미리보기 상태에선 동작 X
             if (IsPreviewMode == false)
             {
-                UIManager.Instance.ShowDeployableInfo(this);
+                UIManager.Instance.ShowDeployedInfo(this);
             }
 
             ShowActionUI();
@@ -243,7 +235,7 @@ public class DeployableUnitEntity: UnitEntity, IDeployable
     protected virtual void ShowActionUI()
     {
         DeployableManager.Instance.ShowActionUI(this);
-        UIManager.Instance.ShowDeployableInfo(this);
+        UIManager.Instance.ShowDeployedInfo(this);
     }
 
     private void UpdateVisuals()
