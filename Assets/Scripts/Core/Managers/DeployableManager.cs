@@ -1,5 +1,6 @@
 using UnityEngine;
 using System.Collections.Generic;
+using System.Linq;
 
 /// <summary>
 /// 배치 가능한 요소들의 배치 로직을 담당함
@@ -14,8 +15,14 @@ public class DeployableManager : MonoBehaviour
         public GameObject prefab;
         public int maxDeployCount;
         public int remainingDeployCount;
-        public bool isUserOperator;
         public float redeployTime;
+
+        // 오퍼레이터일 때 할당
+        public OwnedOperator? ownedOperator;
+        public OperatorData? operatorData;
+
+        // 일반 배치 가능한 유닛일 때 할당
+        public DeployableUnitData? deployableUnitData;
     }
 
     private enum UIState
@@ -35,6 +42,7 @@ public class DeployableManager : MonoBehaviour
     // Deployable 관련 변수
     private List<DeployableInfo> allDeployables = new List<DeployableInfo>(); // 합친 거
     private Dictionary<GameObject, DeployableBox> deployableUIBoxes = new Dictionary<GameObject, DeployableBox>();
+    private DeployableInfo currentDeployableInfo;
     private GameObject currentDeployablePrefab;
     private DeployableUnitEntity currentDeployable;
 
@@ -70,9 +78,6 @@ public class DeployableManager : MonoBehaviour
     private float originalTimeScale = 1f;
 
     private List<DeployableUnitEntity> deployedItems = new List<DeployableUnitEntity>();
-
-    private Dictionary<GameObject, OwnedOperator> ownedOperatorMap = new Dictionary<GameObject, OwnedOperator>();
-
     // 임시 클릭 방지 시간
     private float preventClickingTime = 0.1f;
     private float lastPlacementTime;
@@ -94,51 +99,35 @@ public class DeployableManager : MonoBehaviour
         OperatorIconHelper.OnIconDataInitialized += InitializeDeployableUI;
     }
 
-    public void Initialize()
-    {
-        InitializeAllDeployables();
-        InitializeDeployableUI();
-    }
-
-    private void InitializeAllDeployables()
+    public void Initialize(
+        List<OwnedOperator> squadData,
+        List<MapDeployableData> stageDeployables
+        )
     {
         allDeployables.Clear();
 
-        foreach (OwnedOperator op in GameManagement.Instance.UserSquadManager.GetCurrentSquad())
+        // OwnedOperator -> DeployableInfo로 변환해서 추가
+        foreach (OwnedOperator op in squadData.Where(op => op != null))
         {
-            AddDeployableInfo(op.BaseData.prefab, 1, true);
-        }
-
-        foreach (var stageDeployable in StageManager.Instance.GetStageDeployables())
-        {
-            AddDeployableInfo(stageDeployable.deployablePrefab, stageDeployable.maxDeployCount, false);
-        }
-    }
-
-    public void AddDeployableInfo(GameObject prefab, int maxCount, bool isUserOperator)
-    {
-        DeployableUnitEntity deployable = prefab.GetComponent<DeployableUnitEntity>();
-
-        if (deployable != null)
-        {
-            allDeployables.Add(new DeployableInfo
+            var info = new DeployableInfo
             {
-                prefab = prefab,
-                maxDeployCount = maxCount,
-                remainingDeployCount = maxCount,
-                isUserOperator = isUserOperator,
-                redeployTime = deployable.currentStats.RedeployTime
-            });
+                prefab = op.BaseData.prefab,
+                maxDeployCount = 1,
+                remainingDeployCount = 1,
+                redeployTime = op.BaseData.stats.RedeployTime,
+                ownedOperator = op,
+                operatorData = op.BaseData
+            };
+            allDeployables.Add(info);
         }
-        else
-        {
-            Debug.LogWarning($"유효하지 않은 deployable Prefab : {prefab.name}");
-        }
-    }
 
-    public void AddOwnedOperatorInfo(OwnedOperator op)
-    {
-        ownedOperatorMap[op.BaseData.prefab] = op;
+        // 스테이지 제공 요소 -> DeployableInfo로 변환
+        foreach (var deployable in stageDeployables)
+        {
+            allDeployables.Add(deployable.ToDeployableInfo());
+        }
+
+        InitializeDeployableUI();
     }
 
     /// <summary>
@@ -220,17 +209,18 @@ public class DeployableManager : MonoBehaviour
 
 
     // BottomPanelOperatorBox 마우스버튼 다운 시 작동, 배치하려는 오퍼레이터의 정보를 변수에 넣는다.
-    public void StartDeployableSelection(GameObject deployablePrefab)
+    public void StartDeployableSelection(DeployableInfo deployableInfo)
     {
-
-        if (currentDeployablePrefab != deployablePrefab)
+        if (currentDeployableInfo != deployableInfo)
         {
+            currentDeployableInfo = deployableInfo;
             ResetPlacement();
-            currentDeployablePrefab = deployablePrefab;
+
+            currentDeployablePrefab = currentDeployableInfo.prefab;
             currentDeployable = currentDeployablePrefab.GetComponent<DeployableUnitEntity>();
             IsDeployableSelecting = true;
 
-            UIManager.Instance.ShowDeployableInfo(currentDeployable);
+            UIManager.Instance.ShowDeployableInfo(currentDeployableInfo);
 
             // Highlight available tiles
             HighlightAvailableTiles();
@@ -240,9 +230,9 @@ public class DeployableManager : MonoBehaviour
     /// <summary>
     /// BottomPanelDeployableBox 마우스버튼 다운 시 동작
     /// </summary>
-    public void StartDragging(GameObject deployablePrefab)
+    public void StartDragging(DeployableInfo deployableInfo)
     {
-        if (currentDeployablePrefab == deployablePrefab)
+        if (currentDeployableInfo == deployableInfo)
         {
             IsDeployableSelecting = false;
             IsDraggingDeployable = true;
@@ -254,9 +244,9 @@ public class DeployableManager : MonoBehaviour
     /// <summary>
     /// BottomPanelDeployableBox 마우스버튼 다운 후 드래그 시 동작
     /// </summary>
-    public void HandleDragging(GameObject deployablePrefab)
+    public void HandleDragging(DeployableInfo deployableInfo)
     {
-        if (IsDraggingDeployable && currentDeployablePrefab == deployablePrefab)
+        if (IsDraggingDeployable && currentDeployableInfo == deployableInfo)
         {
             UpdatePreviewDeployable();
         }
@@ -639,9 +629,9 @@ public class DeployableManager : MonoBehaviour
         }
     }
 
-    public void ShowDeployableInfoPanel(DeployableUnitEntity deployable)
+    public void ShowDeployableInfoPanel(DeployableInfo deployableInfo)
     {
-        UIManager.Instance.ShowDeployableInfo(deployable);
+        UIManager.Instance.ShowDeployableInfo(deployableInfo);
     }
 
     public void HideDeployableInfoPanel()

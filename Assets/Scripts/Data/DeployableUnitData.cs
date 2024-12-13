@@ -2,7 +2,7 @@
 using UnityEngine;
 
 [CreateAssetMenu(fileName = "New Deployable Unit Data", menuName = "Game/Deployable Unit Data")]
-public class DeployableUnitData : ScriptableObject, IBoxDeployableData
+public class DeployableUnitData : ScriptableObject
 {
     // UnitData
     public string entityName;

@@ -8,7 +8,15 @@ public class Map : MonoBehaviour
 
     [Header("Map Identity")]
     [SerializeField] private string mapId;
-    public string Mapid => mapId; 
+    public string Mapid => mapId;
+
+
+    [Header("References")]
+    [SerializeField] private GameObject tilePrefab;
+    [SerializeField] private GameObject enemySpawnerPrefab;
+
+    [Header("Deployable Settings")]
+    [SerializeField] private List<MapDeployableData> mapDeployables = new List<MapDeployableData>();
 
     [SerializeField] private int width;
     [SerializeField] private int height;
@@ -20,9 +28,6 @@ public class Map : MonoBehaviour
     public Vector3 CameraPosition => cameraPosition;
     public Vector3 CameraRotation => cameraRotation;
 
-
-    [SerializeField] private GameObject tilePrefab;
-    [SerializeField] private GameObject enemySpawnerPrefab;
 
     private TileData[] serializedTileData;
     private TileData[,] tileDataArray;
@@ -332,5 +337,10 @@ public class Map : MonoBehaviour
                 RemoveTile(x, y);
             }
         }
+    }
+
+    public IReadOnlyList<MapDeployableData> GetMapDeployables()
+    {
+        return mapDeployables.AsReadOnly();
     }
 }

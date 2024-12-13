@@ -3,7 +3,7 @@ using UnityEngine;
 using Skills.Base;
 
 [CreateAssetMenu(fileName = "New Operator Data", menuName = "Game/Operator Data")]
-public class OperatorData : ScriptableObject, IBoxDeployableData
+public class OperatorData : ScriptableObject
 {
     // UnitData
     public string entityName;

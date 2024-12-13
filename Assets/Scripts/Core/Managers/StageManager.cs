@@ -84,22 +84,6 @@ public class StageManager : MonoBehaviour
         }
     }
     public float CurrentCostGauge => currentCostGauge;
-
-
-
-    // 스테이지마다 제공되는 deployable 요소들 
-    [System.Serializable]
-    public class StageDeployable
-    {
-        public GameObject deployablePrefab;
-        public int maxDeployCount;
-    }
-
-    
-    [SerializeField] private List<StageDeployable> stageDeployables = new List<StageDeployable>();
-
-    
-
     // 이벤트
     public event System.Action OnDeploymentCostChanged; // 이벤트 발동 조건은 currentDeploymentCost 값이 변할 때, 여기 등록된 함수들이 동작
     public event System.Action<int> OnLifePointsChanged; // 라이프 포인트 변경 시 발생 이벤트
@@ -173,11 +157,6 @@ public class StageManager : MonoBehaviour
             count += spawner.enemySpawnList.Count;
         }
         return count;
-    }
-
-    public List<StageDeployable> GetStageDeployables()
-    {
-        return stageDeployables;
     }
 
     public void SetGameState(GameState gameState)

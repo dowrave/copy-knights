@@ -1463,6 +1463,7 @@ MonoBehaviour:
   stageDeployables:
   - deployablePrefab: {fileID: 8875430263191699086, guid: 445bdcb62b7e4c84b9ac1f5d640cb325, type: 3}
     maxDeployCount: 3
+    deployableData: {fileID: 11400000, guid: 137922d0524493444ba9997d212523d8, type: 2}
 --- !u!4 &572659672
 Transform:
   m_ObjectHideFlags: 0
