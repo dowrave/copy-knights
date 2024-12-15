@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5438a935ea24a4e4e9b5cdd31bc627a8, type: 3}
   m_Name: Cost_Recovery_8
   m_EditorClassIdentifier: 
-  Name: Cost Recovery Default
+  Name: "\uCF54\uC2A4\uD2B8 \uD68C\uBCF5"
   description: "\uBC30\uCE58 \uCF54\uC2A4\uD2B8 8\uC744 \uC790\uB3D9\uC73C\uB85C
     \uD68C\uBCF5\uD569\uB2C8\uB2E4"
   SPCost: 12

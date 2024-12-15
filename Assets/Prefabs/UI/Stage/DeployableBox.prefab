@@ -509,7 +509,7 @@ GameObject:
   - component: {fileID: 6229571318401264609}
   - component: {fileID: 4464491422823538037}
   m_Layer: 5
-  m_Name: RemainingCountText
+  m_Name: CountText
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -775,7 +775,7 @@ MonoBehaviour:
   inActiveImage: {fileID: 7572347816183708204}
   costText: {fileID: 3506960002150489217}
   cooldownText: {fileID: 3667584210642853660}
-  remainingCountText: {fileID: 4464491422823538037}
+  countText: {fileID: 4464491422823538037}
 --- !u!1 &5266507036077911420
 GameObject:
   m_ObjectHideFlags: 0

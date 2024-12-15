@@ -406,6 +406,7 @@
 "Assets/Scripts/Core/Managers/StatisticsManager.cs"
 "Assets/Scripts/Core/Managers/UIManager.cs"
 "Assets/Scripts/Core/Managers/UserSquadManager.cs"
+"Assets/Scripts/Core/States/DeployableGameState.cs"
 "Assets/Scripts/Core/Systems/ExpCalculationSystem.cs"
 "Assets/Scripts/Core/Systems/OperatorGrowthSystem.cs"
 "Assets/Scripts/Data/DeployableUnitData.cs"
