@@ -5,7 +5,7 @@ using Skills.Base;
 
 public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
 {
-    public OperatorData BaseData { get; protected set; } 
+    public new OperatorData BaseData { get; protected set; } 
     
     [HideInInspector] public new OperatorStats currentStats;
 
@@ -433,8 +433,6 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
 
     protected override void Die()
     {
-       
-
         // 사망 후 작동해야 하는 로직이 있을 듯?
         UnblockAllEnemies();
 
@@ -444,10 +442,10 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
         OnSPChanged = null;
         Destroy(directionIndicator.gameObject); // 방향 표시기
 
-        base.Die();
-
         // 하단 UI 활성화
         DeployableManager.Instance.OnDeployableRemoved(this);
+
+        base.Die();
     }
 
     public override void OnClick()
@@ -582,9 +580,6 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
 
     public override void Retreat()
     {
-        // 코스트 회수 로직 필요
-
-
         Die();
     }
 

@@ -35,7 +35,7 @@ MonoBehaviour:
   attackRangeType: 0
   attackableTiles:
   - {x: 0, y: 0}
-  elite0Skill: {fileID: 11400000, guid: 56285db420c7a9249a3a7967d3550fd4, type: 2}
+  elite0Skill: {fileID: 11400000, guid: 56faa0a8b9215bf43a3fabf75602a487, type: 2}
   initialSP: 0
   projectilePrefab: {fileID: 0}
   levelStats:

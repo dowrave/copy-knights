@@ -14,7 +14,6 @@ public class DeployableManager : MonoBehaviour
     {
         public GameObject prefab;
         public int maxDeployCount;
-        public int remainingDeployCount;
         public float redeployTime;
 
         // 오퍼레이터일 때 할당
@@ -41,10 +40,15 @@ public class DeployableManager : MonoBehaviour
 
     // Deployable 관련 변수
     private List<DeployableInfo> allDeployables = new List<DeployableInfo>(); // 합친 거
-    private Dictionary<GameObject, DeployableBox> deployableUIBoxes = new Dictionary<GameObject, DeployableBox>();
+    private Dictionary<DeployableInfo, DeployableBox> deployableUIBoxes = new Dictionary<DeployableInfo, DeployableBox>();
     private DeployableInfo currentDeployableInfo;
     private GameObject currentDeployablePrefab;
     private DeployableUnitEntity currentDeployable;
+
+    // 각 DeployableInfo에 대한 게임 상태를 관리
+    private Dictionary<DeployableInfo, DeployableGameState> gameStates = new Dictionary<DeployableInfo, DeployableGameState>();
+    public Dictionary<DeployableInfo, DeployableGameState> GameStates => gameStates;
+
 
     [Header("Highlight Color")]
     // 하이라이트 관련 변수 - 인스펙터에서 설정
@@ -118,7 +122,6 @@ public class DeployableManager : MonoBehaviour
             {
                 prefab = op.BaseData.prefab,
                 maxDeployCount = 1,
-                remainingDeployCount = 1,
                 redeployTime = op.BaseData.stats.RedeployTime,
                 ownedOperator = op,
                 operatorData = op.BaseData
@@ -146,14 +149,18 @@ public class DeployableManager : MonoBehaviour
     {
         foreach (var deployableInfo in allDeployables)
         {
+            // deployableInfo에 대한 각 게임 상태 생성
+            gameStates[deployableInfo] = new DeployableGameState(deployableInfo);
+
             GameObject boxObject = Instantiate(DeployableBoxPrefab, bottomPanel);
             DeployableBox box = boxObject.GetComponent<DeployableBox>();
 
             if (box != null)
             {
-                box.Initialize(deployableInfo.prefab);
-                deployableUIBoxes[deployableInfo.prefab] = box;
-                box.UpdateRemainingCount(deployableInfo.remainingDeployCount);
+                box.Initialize(deployableInfo);
+                deployableUIBoxes[deployableInfo] = box;
+                box.UpdateDisplay(gameStates[deployableInfo]);
+                //box.UpdateRemainingCount(deployableInfo.maxDeployCount);
             }
         }
     }
@@ -477,62 +484,56 @@ public class DeployableManager : MonoBehaviour
     /// </summary>
     private void DeployDeployable(Tile tile)
     {
-        DeployableInfo deployableInfo = allDeployables.Find(d => d.prefab == currentDeployablePrefab);
-        if (deployableInfo == null)
-        {
-            Debug.LogError($"{deployableInfo}를 찾을 수 없음");
-            return;
-        }
+        DeployableGameState gameState = gameStates[currentDeployableInfo];
+        int cost = gameState.CurrentDeploymentCost;
 
-        // DeployableBox에서 현재 적용되어야 할 코스트를 가져옴
-        DeployableBox box_ = deployableUIBoxes[currentDeployablePrefab];
-        int deploymentCost = box_.GetCurrentDeploymentCost();
-
-        if (currentDeployable is Operator op)
+        // 코스트 지불 가능 & 배치 가능 상태
+        if (StageManager.Instance.TryUseDeploymentCost(cost) && gameState.OnDeploy())
         {
-            if (StageManager.Instance.TryUseDeploymentCost(deploymentCost))
+            if (currentDeployable is Operator op)
             {
                 op.Deploy(tile.transform.position);
                 op.SetDirection(placementDirection);
             }
             else
             {
-                Debug.LogError($"배치 실패: 필요 코스트({deploymentCost}) > 현재 코스트({StageManager.Instance.CurrentDeploymentCost})");
-                return;
-            }
-        }
-        else
-        {
-            if (StageManager.Instance.TryUseDeploymentCost(deploymentCost))
-            {
                 currentDeployable.Deploy(tile.transform.position);
             }
-            else
-            {
-                Debug.LogError($"배치 실패: 필요 코스트({deploymentCost}) > 현재 코스트({StageManager.Instance.CurrentDeploymentCost})");
-                return;
-            }
         }
 
-        // 배치 리스트에 아이템 추가
+        // 배치된 유닛 목록에 추가
         deployedItems.Add(currentDeployable);
+        UpdateDeployableUI(currentDeployableInfo);
+
+        ResetPlacement();
+        StageManager.Instance.UpdateTimeScale();
 
         // 배치 후 박스의 처리
-        if (deployableUIBoxes.TryGetValue(currentDeployablePrefab, out DeployableBox box))
+        //if (deployableUIBoxes.TryGetValue(currentDeployableInfo, out DeployableBox box))
+        //{
+        //    box.UpdateRemainingCount(currentDeployableInfo.remainingDeployCount);
+        //    box.StartCooldown(currentDeployableInfo.redeployTime);
+
+        //    if (gameState.RemainingDeployCount <= 0)
+        //    {
+        //        box.gameObject.SetActive(false);
+        //    }
+        //}
+    }
+    
+    private void UpdateDeployableUI(DeployableInfo info)
+    {
+        if (deployableUIBoxes.TryGetValue(info, out DeployableBox box))
         {
-            deployableInfo.remainingDeployCount--;
+            var gameState = gameStates[info];
+            box.UpdateDisplay(gameState);
 
-            box.UpdateRemainingCount(deployableInfo.remainingDeployCount);
-            box.StartCooldown(deployableInfo.redeployTime);
-
-            if (deployableInfo.remainingDeployCount <= 0)
+            // 더 이상 배치할 수 없다면 박스 비활성화
+            if (gameState.RemainingDeployCount <= 0)
             {
                 box.gameObject.SetActive(false);
             }
         }
-
-        ResetPlacement();
-        StageManager.Instance.UpdateTimeScale();
     }
 
     /// <summary>
@@ -540,7 +541,6 @@ public class DeployableManager : MonoBehaviour
     /// </summary>
     private void ResetPlacement()
     {
-        Debug.Log("ResetPlacement 동작");
         IsDeployableSelecting = false;
         IsDraggingDeployable = false;
         IsSelectingDirection = false;
@@ -548,8 +548,6 @@ public class DeployableManager : MonoBehaviour
 
         if (currentDeployable != null)
         {
-            Debug.Log($"currentDeployable.IsPreviewMode : {currentDeployable.IsPreviewMode}");
-
             if (currentDeployable.IsPreviewMode)
             {
                 Destroy(currentDeployable.transform.gameObject);
@@ -596,20 +594,27 @@ public class DeployableManager : MonoBehaviour
     {
         deployedItems.Remove(deployable);
         UIManager.Instance.HideDeployableInfo();
-
         HideAllUIs();
         ResetHighlights();
 
-        GameObject prefab = deployable.Prefab;
-        if (prefab != null && deployableUIBoxes.TryGetValue(prefab, out DeployableBox box))
+        DeployableInfo info;
+        if (deployable is Operator op)
         {
-            box.gameObject.SetActive(true);
+            info = GetDeployableInfoByName(op.BaseData.entityName);
+        }
+        else
+        {
+            info = GetDeployableInfoByName(deployable.BaseData.entityName);
+        }
 
-            // 일단 Operator는 제거됐을 때 재배치 쿨타임이 동작해야 함
-            if (deployable is Operator op)
+        if (info != null && gameStates.TryGetValue(info, out var gameState))
+        {
+            gameState.OnRemoved(); // 제거 시점에 상태 업데이트
+            
+            if (deployableUIBoxes.TryGetValue(info, out DeployableBox box))
             {
-                box.OnOperatorReturn(); // 코스트 증가
-                box.StartCooldown(op.currentStats.RedeployTime);
+                box.UpdateDisplay(gameState);
+                box.gameObject.SetActive(true);
             }
         }
     }
@@ -694,12 +699,6 @@ public class DeployableManager : MonoBehaviour
     public void UpdateDeploymentOrder()
     {
         CurrentDeploymentOrder += 1;
-    }
-
-    // deployableInfo 접근 메서드
-    public DeployableInfo GetDeployableInfo(GameObject prefab)
-    {
-        return allDeployables.Find(d => d.prefab == prefab);
     }
 
     public DeployableInfo GetDeployableInfoByName(string entityName)

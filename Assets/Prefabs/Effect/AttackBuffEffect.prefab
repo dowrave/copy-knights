@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 2824007990925571873}
   - component: {fileID: 133813294441726030}
   m_Layer: 11
-  m_Name: BuffOnEffect
+  m_Name: AttackBuffEffect
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

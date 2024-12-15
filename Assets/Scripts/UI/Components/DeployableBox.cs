@@ -12,55 +12,71 @@ public class DeployableBox : MonoBehaviour, IPointerDownHandler, IBeginDragHandl
     [SerializeField] private Image inActiveImage;
     [SerializeField] private TextMeshProUGUI costText;
     [SerializeField] private TextMeshProUGUI cooldownText;
-    [SerializeField] private TextMeshProUGUI remainingCountText;
+    [SerializeField] private TextMeshProUGUI countText;
 
     private Sprite boxIcon;
     private GameObject deployablePrefab;
     private DeployableUnitEntity deployableComponent;
     private DeployableManager.DeployableInfo deployableInfo;
-
-    // 쿨다운 관련
-    private float cooldownTimer = 0f;
-    private bool isOnCooldown = false;
+    private DeployableGameState deployableGameState;
 
     // 남은 갯수
     private bool isDragging = false;
+     private int currentDeploymentCost;
 
-    // 배치 코스트 관련
-    private int baseDeploymentCost;
-    private int currentDeploymentCost;
-    private int deployCount = 0;
-    private const int MAX_COST_INCREASE = 2; // 최대 코스트 증가 횟수
-    private const float COST_INCREASE_RATE = 0.5f; // 코스트 증가율
-
-    public void Initialize(GameObject prefab)
+    public void Initialize(DeployableManager.DeployableInfo info)
     {
-        deployablePrefab = prefab;
+        deployableInfo = info;
+        deployablePrefab = info.prefab;
         deployableComponent = deployablePrefab.GetComponent<DeployableUnitEntity>(); // 다형성 활용
-        deployableInfo = DeployableManager.Instance.GetDeployableInfo(prefab);
+        deployableGameState = DeployableManager.Instance.GameStates[deployableInfo];
+        //deployableComponent.InitializeFromPrefab(); // 프리팹의 기본 정보 초기화
 
-        deployableComponent.InitializeFromPrefab(); // 프리팹의 기본 정보 초기화
-
-        // BaseData는 Initialize 시점에서 초기화되므로 (deployableUnitEntity, Operator) , 
-        // Box에 사용되는 BaseData는 다른 곳에서 가져와야 한다
-        if (deployableComponent is Operator && deployableInfo.ownedOperator != null)
+        if (deployableComponent is Operator)
         {
             OwnedOperator op = deployableInfo.ownedOperator;
-            baseDeploymentCost = op.BaseData.stats.DeploymentCost; // 초기 배치 코스트 설정
+            currentDeploymentCost = op.BaseData.stats.DeploymentCost; // 초기 배치 코스트 설정
             OperatorIconHelper.SetClassIcon(operatorClassIconImage, op.BaseData.operatorClass); // 클래스 아이콘 설정
             boxIcon = op.BaseData.Icon;
         }
         else
         {
-            baseDeploymentCost = deployableInfo.deployableUnitData.stats.DeploymentCost;
+            currentDeploymentCost = deployableInfo.deployableUnitData.stats.DeploymentCost;
             operatorClassIconBox.gameObject.SetActive(false);
             boxIcon = deployableInfo.deployableUnitData.Icon;
         }
 
-        currentDeploymentCost = baseDeploymentCost;
-        deployCount = 0;
         StageManager.Instance.OnDeploymentCostChanged += UpdateAvailability;
         InitializeVisuals();
+    }
+
+    public void UpdateDisplay(DeployableGameState gameState)
+    {
+        costText.text = gameState.CurrentDeploymentCost.ToString();
+
+        // 오퍼레이터가 아니라면 배치 가능 횟수 표시
+        if (!gameState.IsOperator)
+        {
+            countText.gameObject.SetActive(true);
+            countText.text = $"x{gameState.RemainingDeployCount}";
+        }
+        else
+        {
+            countText.gameObject.SetActive(false);
+        }
+
+        // 쿨타임 상태 표시
+        if (gameState.IsOnCooldown)
+        {
+            inActiveImage.gameObject.SetActive(true);
+            cooldownText.gameObject.SetActive(true);
+            cooldownText.text = Mathf.Ceil(gameState.CooldownTimer).ToString();
+        }
+        else
+        {
+            inActiveImage.gameObject.SetActive(false);
+            cooldownText.gameObject.SetActive(false);
+        }
     }
 
     private void OnDestroy()
@@ -70,18 +86,10 @@ public class DeployableBox : MonoBehaviour, IPointerDownHandler, IBeginDragHandl
 
     private void Update()
     {
-        if (isOnCooldown)
+        if (deployableGameState.IsOnCooldown)
         {
-            cooldownTimer -= Time.deltaTime;
-            if (cooldownTimer <= 0)
-            {
-                EndCooldown();
-            }
-
-            else
-            {
-                UpdateCooldownVisuals();
-            }
+            deployableGameState.UpdateCooldown();
+            UpdateDisplay(deployableGameState);
         }
     }
 
@@ -106,51 +114,8 @@ public class DeployableBox : MonoBehaviour, IPointerDownHandler, IBeginDragHandl
             }
         }
 
-        // 코스트 정보 가져오는 위치가 달라서 작성
-        if (deployableComponent is Operator opComponent)
-        {
-            costText.text = opComponent.currentStats.DeploymentCost.ToString();
-        }
-        else
-        {
-            costText.text = deployableComponent.currentStats.DeploymentCost.ToString();
-        }
-
-        // 1번만 배치 가능한 요소는 우측 하단의 갯수 표시를 비활성화함
-        if (deployableInfo.maxDeployCount <= 1)
-        {
-            remainingCountText.gameObject.SetActive(false);
-        }
-
-        if (!isOnCooldown)
-        {
-            cooldownText.gameObject.SetActive(false);
-        }
-
+        UpdateDisplay(deployableGameState);
         UpdateAvailability();
-    }
-
-    public void StartCooldown(float cooldownTime)
-    {
-        isOnCooldown = true;
-        cooldownTimer = cooldownTime;
-        gameObject.SetActive(true);
-        UpdateCooldownVisuals();
-    }
-
-    private void UpdateCooldownVisuals()
-    {
-        inActiveImage.gameObject.SetActive(true);
-        cooldownText.gameObject.SetActive(true);
-        //InActiveImage.fillAmount = cooldownTimer / 70f; // 재배치 시간 70으로 고정 (나중에 수정 필요)
-        cooldownText.text = Mathf.Ceil(cooldownTimer).ToString();
-    }
-
-    private void EndCooldown()
-    {
-        isOnCooldown = false;
-        inActiveImage.gameObject.SetActive(false);
-        cooldownText.gameObject.SetActive(false);
     }
 
     private void UpdateAvailability()
@@ -164,9 +129,6 @@ public class DeployableBox : MonoBehaviour, IPointerDownHandler, IBeginDragHandl
             inActiveImage.gameObject.SetActive(true); // 흐릿한 박스 제거
         }
     }
-
-    // 이 스크립트는 각 Box를 구현한 거임 
-    // 즉, 하단 패널 박스를 누르면 그 박스에 할당된 오퍼레이터 프리팹에 관한 로직들이 작동하기 시작함 
 
     // 마우스 동작 관련 : 동작하지 않는다면 상속을 확인하라
     // 마우스 버튼을 눌렀다가 같은 위치에서 뗐을 때 발생
@@ -209,45 +171,8 @@ public class DeployableBox : MonoBehaviour, IPointerDownHandler, IBeginDragHandl
 
     private bool CanInteract()
     {
-        return !isOnCooldown && StageManager.Instance.CurrentDeploymentCost >= currentDeploymentCost;
-    }
-
-    public void UpdateRemainingCount(int count)
-    {
-        if (remainingCountText != null)
-        {
-            if (count > 0)
-            {
-                remainingCountText.text = $"X{count}";
-            }
-            else
-            {
-                gameObject.SetActive(false);
-            }
-        }
-    }
-
-    /// <summary>
-    /// 2회까지 배치 코스트를 업데이트함
-    /// </summary>
-    private void UpdateDeploymentCost()
-    {
-        float multiplier = 1f + (Mathf.Min(deployCount, MAX_COST_INCREASE - 1) * COST_INCREASE_RATE);
-        currentDeploymentCost = Mathf.RoundToInt(baseDeploymentCost * multiplier);
-    }
-
-    public void OnOperatorReturn()
-    {
-        deployCount++;
-        UpdateDeploymentCost();
-
-        // 코스트 UI 업데이트
-        costText.text = currentDeploymentCost.ToString("F0");
-    }
-
-    public int GetCurrentDeploymentCost()
-    {
-        return currentDeploymentCost;
+        return !deployableGameState.IsOnCooldown && 
+            StageManager.Instance.CurrentDeploymentCost >= currentDeploymentCost;
     }
 }
 

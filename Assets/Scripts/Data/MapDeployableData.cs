@@ -1,5 +1,8 @@
 using UnityEngine;
 
+/// <summary>
+/// 스테이지 별로 제공되는 배치 가능한 요소들의 데이터. 바리케이드 등이 있다.
+/// </summary>
 [System.Serializable]
 public class MapDeployableData
 {
@@ -13,7 +16,6 @@ public class MapDeployableData
         {
             prefab = deployablePrefab,
             maxDeployCount = maxDeployCount,
-            remainingDeployCount = maxDeployCount,
             redeployTime = deployableData.stats.RedeployTime,
             deployableUnitData = deployableData
         };  

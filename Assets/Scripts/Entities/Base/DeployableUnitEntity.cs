@@ -5,7 +5,7 @@ using UnityEngine.UIElements;
 
 public class DeployableUnitEntity: UnitEntity, IDeployable
 {
-    public DeployableUnitData BaseData { get; private set; }
+    public new DeployableUnitData BaseData { get; private set; }
 
     [HideInInspector]
     public DeployableUnitStats currentStats;
