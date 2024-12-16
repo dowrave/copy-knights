@@ -84,7 +84,6 @@ public class PlayerDataManager : MonoBehaviour
     private void LoadOrCreatePlayerData()
     {
         // PlayerPrefs에 저장된 PlayerData를 불러오거나 없으면 null(빈 칸)
-        //PlayerPrefs.DeleteKey("PlayerData");
         string savedData = PlayerPrefs.GetString("PlayerData", "");
 
         // 저장된 정보가 없는 경우 새로 생성
@@ -92,7 +91,8 @@ public class PlayerDataManager : MonoBehaviour
         {
             playerData = new PlayerData
             {
-                maxSquadSize = defaultMaxSquadSize
+                maxSquadSize = defaultMaxSquadSize,
+                currentSquadOperatorNames = new List<string>()
             };
 
             // 초기 오퍼레이터를 ownedOperators에 추가
@@ -126,11 +126,6 @@ public class PlayerDataManager : MonoBehaviour
 
     private void ValidateSquadSize()
     {
-        if (playerData.currentSquadOperatorNames == null)
-        {
-            playerData.currentSquadOperatorNames = new List<string>();
-        }
-
         if (playerData.currentSquadOperatorNames.Count > playerData.maxSquadSize)
         {
             playerData.currentSquadOperatorNames = playerData.currentSquadOperatorNames
@@ -377,7 +372,7 @@ public class PlayerDataManager : MonoBehaviour
         // 여기 들어가는 키값이 ItemData.name 값임 / 생성자
         if (itemDatabase.TryGetValue("ExpSmall", out ItemData expSmall))
         {
-            playerData.inventory.items.Add(new UserInventoryData.ItemStack("ExpSmall", 5));
+            playerData.inventory.items.Add(new UserInventoryData.ItemStack(expSmall.itemName, 5));
         }
 
         if (itemDatabase.TryGetValue("ExpMiddle", out ItemData expMiddle))

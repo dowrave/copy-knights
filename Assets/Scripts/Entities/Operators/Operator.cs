@@ -219,6 +219,7 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
         if (IsDeployed)
         {
             UpdateAttackTimings();
+            RecoverSP();
 
             if (AttackDuration > 0) return;
 
@@ -230,7 +231,6 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
                 Attack(CurrentTarget, AttackType, AttackPower);
             }
 
-            RecoverSP();
             if (ActiveSkill.AutoActivate && CurrentSP == MaxSP)
             {
                 UseSkill();

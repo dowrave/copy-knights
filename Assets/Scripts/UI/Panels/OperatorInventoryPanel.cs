@@ -66,10 +66,7 @@ public class OperatorInventoryPanel : MonoBehaviour
         PopulateOperators();
         ResetSelection();
 
-
-
         nowEditingIndex = GameManagement.Instance.UserSquadManager.EditingSlotIndex;
-        Debug.Log($"인벤토리 패널 OnEnabled 활성화됨, 현재 인덱스 : {nowEditingIndex}");
     }
 
 
@@ -83,7 +80,6 @@ public class OperatorInventoryPanel : MonoBehaviour
 
         // 현재 스쿼드 가져오기
         List<OwnedOperator> currentSquad = GameManagement.Instance.UserSquadManager.GetCurrentSquad();
-
 
         // 보유 중인 오퍼레이터 중, 현재 스쿼드에 없는 오퍼레이터만 가져옴
         List<OwnedOperator> availableOperators = GameManagement.Instance.PlayerDataManager.GetOwnedOperators()

@@ -26,7 +26,7 @@ public class OperatorSlot : MonoBehaviour
     [SerializeField] private Color normalColor = Color.white;
     [SerializeField] private Color disabledColor = Color.gray;
 
-    private Button button;
+    [SerializeField] private Button button;
 
     // 사용 가능한 버튼인가를 표시
     private bool isThisActiveButton = false;
@@ -229,7 +229,7 @@ public class OperatorSlot : MonoBehaviour
 
     private void UpdateButtonColor()
     {
-        Image buttonImage = button.GetComponent<Image>();
+        Image buttonImage = GetComponent<Image>();
         if (buttonImage != null)
         {
             buttonImage.color = button.interactable ? normalColor : disabledColor;

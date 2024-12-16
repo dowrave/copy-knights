@@ -686,6 +686,7 @@ MonoBehaviour:
   selectedIndicator: {fileID: 9029915977545299551}
   normalColor: {r: 0.2, g: 0.2, b: 0.2, a: 1}
   disabledColor: {r: 0.5, g: 0.5, b: 0.5, a: 1}
+  button: {fileID: 6733946604415247864}
   OnSlotClicked:
     m_PersistentCalls:
       m_Calls: []

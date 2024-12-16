@@ -2,6 +2,7 @@ using UnityEngine;
 using Skills.Base;
 using System.Collections;
 using System.Collections.Generic;
+using UnityEngine.VFX;
 
 
 namespace Skills.OperatorSkills
@@ -64,13 +65,21 @@ namespace Skills.OperatorSkills
             }
 
             // 버프 이펙트 생성
+            VisualEffect buffVFX = null;
             GameObject buffEffect = null;
+
             if (BuffEffectPrefab != null)
             {
-                // 
                 Vector3 buffEffectPosition = new Vector3(op.transform.position.x, 0.05f, op.transform.position.z);
                 buffEffect = Instantiate(BuffEffectPrefab, buffEffectPosition, Quaternion.identity);
                 buffEffect.transform.SetParent(op.transform);
+
+                // VFX 컴포넌트 가져오기
+                buffVFX = buffEffect.GetComponent<VisualEffect>();
+                if (buffVFX != null)
+                {
+                    buffVFX.Play();
+                }
             }
 
             // SP Bar 색 변경
@@ -104,6 +113,11 @@ namespace Skills.OperatorSkills
             // 버프 이펙트 제거
             if (buffEffect != null)
             {
+                if (buffVFX != null)
+                {
+                    buffVFX.Stop(); // VFX 재생 중지
+                }
+
                 Destroy(buffEffect);
             }
 
