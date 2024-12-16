@@ -46,7 +46,7 @@ MonoBehaviour:
   - {x: -3, y: 0}
   - {x: -3, y: 1}
   - {x: -3, y: -1}
-  elite0Skill: {fileID: 11400000, guid: 56285db420c7a9249a3a7967d3550fd4, type: 2}
+  elite0Skill: {fileID: 11400000, guid: 995527ce5801e694d87660bc7d920ddd, type: 2}
   initialSP: 0
   projectilePrefab: {fileID: 491002625568547402, guid: aafc574985029a948b9552d341db4180, type: 3}
   levelStats:

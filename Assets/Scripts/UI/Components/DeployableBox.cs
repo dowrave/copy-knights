@@ -30,7 +30,6 @@ public class DeployableBox : MonoBehaviour, IPointerDownHandler, IBeginDragHandl
         deployablePrefab = info.prefab;
         deployableComponent = deployablePrefab.GetComponent<DeployableUnitEntity>(); // 다형성 활용
         deployableGameState = DeployableManager.Instance.GameStates[deployableInfo];
-        //deployableComponent.InitializeFromPrefab(); // 프리팹의 기본 정보 초기화
 
         if (deployableComponent is Operator)
         {
@@ -65,16 +64,16 @@ public class DeployableBox : MonoBehaviour, IPointerDownHandler, IBeginDragHandl
             countText.gameObject.SetActive(false);
         }
 
+        UpdateAvailability();
+
         // 쿨타임 상태 표시
         if (gameState.IsOnCooldown)
         {
-            inActiveImage.gameObject.SetActive(true);
             cooldownText.gameObject.SetActive(true);
             cooldownText.text = Mathf.Ceil(gameState.CooldownTimer).ToString();
         }
         else
         {
-            inActiveImage.gameObject.SetActive(false);
             cooldownText.gameObject.SetActive(false);
         }
     }
@@ -104,6 +103,7 @@ public class DeployableBox : MonoBehaviour, IPointerDownHandler, IBeginDragHandl
             operatorIllustImage.sprite = boxIcon;
             operatorIllustImage.color = Color.white; // 원래의 아이콘 그대로 나타내기 위함
         }
+
         // 아니라면 deployable 모델의 설정을 가져옴
         else if (deployablePrefab != null)
         {
