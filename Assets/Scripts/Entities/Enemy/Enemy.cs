@@ -8,7 +8,7 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity
 {
     [SerializeField]
     private EnemyData enemyData;
-    public new EnemyData Data => enemyData;
+    public new EnemyData BaseData => enemyData;
 
     private EnemyStats currentStats;
 
@@ -70,6 +70,15 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity
 
         InitializeUnitProperties();
         InitializeEnemyProperties();
+
+        // 공격 이펙트 풀 생성
+        if (BaseData.hitEffectPrefab != null)
+        {
+            ObjectPoolManager.Instance.CreateEffectPool(
+                BaseData.entityName,
+                BaseData.hitEffectPrefab
+            );
+        }
     }
 
     private void OnEnable()
@@ -339,13 +348,13 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity
     private void PerformMeleeAttack(UnitEntity target, AttackType attackType, float damage)
     {
         SetAttackTimings(); // 이걸 따로 호출하는 경우가 있어서 여기서 다시 설정
-        target.TakeDamage(AttackType, damage);
+        target.TakeDamage(AttackType, damage, this, BaseData.hitEffectPrefab);
     }
 
     private void PerformRangedAttack(UnitEntity target, AttackType attackType, float damage)
     {
         SetAttackTimings();
-        if (Data.projectilePrefab != null)
+        if (BaseData.projectilePrefab != null)
         {
             // 투사체 생성 위치
             Vector3 spawnPosition = transform.position + Vector3.up * 0.5f;
@@ -356,7 +365,7 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity
                 Projectile projectile = projectileObj.GetComponent<Projectile>();
                 if (projectile != null)
                 {
-                    projectile.Initialize(this, target, attackType, damage, false, projectileTag);
+                    projectile.Initialize(this, target, attackType, damage, false, projectileTag, BaseData.hitEffectPrefab);
                 }
             }
         }
@@ -388,6 +397,12 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity
 
         StageManager.Instance.OnEnemyDefeated(); // 사망한 적 수 +1
 
+        // 공격 이펙트 프리팹 제거
+        if (BaseData.hitEffectPrefab != null)
+        {
+            ObjectPoolManager.Instance.RemovePool("Effect_" + BaseData.entityName);
+        }
+
         // UI 제거
         if (enemyBarUI != null)
         {
@@ -397,7 +412,7 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity
         base.Die();
     }
 
-    public override void TakeDamage(AttackType attackType, float damage, UnitEntity attacker = null)
+    public override void TakeDamage(AttackType attackType, float damage, UnitEntity attacker = null, GameObject hitEffectPrefab = null)
     {
         float actualDamage = CalculateActualDamage(attackType, damage);
         CurrentHealth = Mathf.Max(0, CurrentHealth - actualDamage);
@@ -406,6 +421,11 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity
         if (attacker is Operator op)
         {
             StatisticsManager.Instance.UpdateDamageDealt(op, actualDamage);
+        }
+
+        if (hitEffectPrefab != null)
+        {
+            PlayGetHitEffect(hitEffectPrefab);
         }
 
         if (CurrentHealth <= 0)
@@ -475,7 +495,7 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity
         // 현재 위치를 기반으로 한 타일 설정
         UpdateCurrentTile();
 
-        Prefab = Data.prefab;
+        Prefab = BaseData.prefab;
     }
 
     /// <summary>
@@ -528,8 +548,8 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity
 
     public void InitializeProjectilePool()
     {
-        projectileTag = $"{Data.entityName}_Projectile";
-        ObjectPoolManager.Instance.CreatePool(projectileTag, Data.projectilePrefab, initialPoolSize);
+        projectileTag = $"{BaseData.entityName}_Projectile";
+        ObjectPoolManager.Instance.CreatePool(projectileTag, BaseData.projectilePrefab, initialPoolSize);
     }
 
     private void CleanupProjectilePool()

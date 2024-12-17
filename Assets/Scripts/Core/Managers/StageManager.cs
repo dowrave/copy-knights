@@ -26,59 +26,56 @@ public class StageManager : MonoBehaviour
     // 편한 수정을 위해 엔진 상에서는 오픈
     [SerializeField] private float costIncreaseInterval = 1f; // 코스트 회복 속도의 역수
     [SerializeField] private int maxDeploymentCost = 99;
-    [SerializeField] private int currentDeploymentCost = 10;
+    [SerializeField] private int _currentDeploymentCost = 10;
     private float currentCostGauge = 0f;
 
     // 게임 상태 변수
-    private int totalEnemyCount;
-    private int killedEnemyCount;
-    private int maxLifePoints = 3;
-    private int currentLifePoints;
-    private int passedEnemies = 0;
-    public int PassedEnemies => passedEnemies;
+    public int TotalEnemyCount { get; private set; }
+    public int MaxLifePoints { get; private set; } = 3;
+    public int PassedEnemies { get; private set; } = 0;
+
+
+    private int _killedEnemyCount;
+    private int _currentLifePoints;
     public int KilledEnemyCount
     {
-        get => killedEnemyCount;
+        get => _killedEnemyCount;
         private set
         {
-            if (killedEnemyCount != value)
+            if (_killedEnemyCount != value)
             {
-                killedEnemyCount = value;
-                OnLifePointsChanged?.Invoke(killedEnemyCount);
+                _killedEnemyCount = value;
+                OnLifePointsChanged?.Invoke(_killedEnemyCount);
             }
         }
     }
-    public int TotalEnemyCount => totalEnemyCount;
-    public int MaxLifePoints => maxLifePoints;
     public int CurrentLifePoints
     {
-        get => currentLifePoints;
+        get => _currentLifePoints;
         private set
         {
-            if (currentLifePoints != value)
+            if (_currentLifePoints != value)
             {
-                currentLifePoints = value;
-                OnLifePointsChanged?.Invoke(currentLifePoints);
+                _currentLifePoints = value;
+                OnLifePointsChanged?.Invoke(_currentLifePoints);
             }
         }
     }
-    private bool isSpeedUp = false;
+    public bool IsSpeedUp { get; private set; } = false;
+
     private const float speedUpScale = 2f;
-    private float originalTimeScale = 1f;
+    private const float originalTimeScale = 1f;
     private const float placementTimeScale = 0.2f;
-    public bool IsSpeedUp => isSpeedUp;
-    public float SpeedUpScale => speedUpScale;
-    public float OriginalTimeScale => originalTimeScale;
-    public float PlacementTimeScale => placementTimeScale;
+
     public int CurrentDeploymentCost
     {
-        get => currentDeploymentCost;
+        get => _currentDeploymentCost;
         private set
         {
             // 불필요한 업데이트 방지 - 값이 변경될 때만 코드가 실행된다
-            if (currentDeploymentCost != value)
+            if (_currentDeploymentCost != value)
             {
-                currentDeploymentCost = value;
+                _currentDeploymentCost = value;
                 OnDeploymentCostChanged?.Invoke(); // 값이 변경될 때 이벤트 발생. 
             }
         }
@@ -114,9 +111,7 @@ public class StageManager : MonoBehaviour
         if (GameManagement.Instance == null && 
             GameManagement.Instance.StageLoader != null)
         {
-            // StageLoader에 의한 초기화 대기
-            // 씬 전환에 의해 실행될 경우, Start에서 시작하면 라이프사이클이 불일치하므로 
-            // StageLoader에서 스테이지 시작을 처리한다.
+            // StageLoader에서 스테이지 시작을 처리함
             return;
         }
 
@@ -131,9 +126,9 @@ public class StageManager : MonoBehaviour
         SetGameState(GameState.Preparation);
 
         // 게임 초기화
-        totalEnemyCount = CalculateTotalEnemyCount();
-        killedEnemyCount = 0;
-        CurrentLifePoints = maxLifePoints;
+        TotalEnemyCount = CalculateTotalEnemyCount();
+        KilledEnemyCount = 0;
+        CurrentLifePoints = MaxLifePoints;
 
         UIManager.Instance.InitializeUI();
 
@@ -166,7 +161,7 @@ public class StageManager : MonoBehaviour
         switch (gameState)
         {
             case GameState.Battle:
-                Time.timeScale = isSpeedUp ? SpeedUpScale : OriginalTimeScale;
+                Time.timeScale = IsSpeedUp ? speedUpScale : originalTimeScale;
                 UIManager.Instance.HidePauseOverlay();
                 break;
             case GameState.Paused:
@@ -184,24 +179,6 @@ public class StageManager : MonoBehaviour
         // 다른 필요한 상태 관련 로직...
     }
 
-
-    public static GameObject FindStageObject()
-    {
-        // 모든 루트 게임 오브젝트 찾기
-        GameObject[] rootObjects = SceneManager.GetActiveScene().GetRootGameObjects();
-
-        // "Stage"로 시작하는 이름을 가진 게임 오브젝트를 찾습니다.
-        foreach (GameObject obj in rootObjects)
-        {
-            if (obj.name.StartsWith("Stage"))
-            {
-                return obj;
-            }
-        }
-
-        return null; // Stage를 찾지 못한 경우
-    }
-
     private IEnumerator IncreaseCostOverTime()
     {
         while (currentState == GameState.Battle)
@@ -212,9 +189,9 @@ public class StageManager : MonoBehaviour
             if (currentCostGauge >= 1f)
             {
                 currentCostGauge -= 1f;
-                if (currentDeploymentCost < maxDeploymentCost)
+                if (_currentDeploymentCost < maxDeploymentCost)
                 {
-                    CurrentDeploymentCost++; // 프로퍼티의 세터도 이렇게 사용할 수 있는 듯
+                    CurrentDeploymentCost++;
                 }
             }
         }
@@ -238,11 +215,11 @@ public class StageManager : MonoBehaviour
     {
         if (currentState == GameState.GameOver) return;
 
-        killedEnemyCount++;
+        KilledEnemyCount++;
         UIManager.Instance.UpdateEnemyKillCountText();
 
         // 사실 "생성된" 적을 포함하면 조건을 조금 더 다르게 줘야 함
-        if (killedEnemyCount + passedEnemies >= totalEnemyCount)
+        if (KilledEnemyCount + PassedEnemies >= TotalEnemyCount)
         {
             GameWin();
         }
@@ -252,15 +229,14 @@ public class StageManager : MonoBehaviour
     {
         if (currentState == GameState.GameOver || currentState == GameState.GameWin) return; 
 
-        
-        currentLifePoints--; // OnLifePointsChanged : 생명력이 깎이면 자동으로 UI 업데이트 발생
-        passedEnemies++;
+        CurrentLifePoints--; // OnLifePointsChanged : 생명력이 깎이면 자동으로 UI 업데이트 발생
+        PassedEnemies++;
 
-        if (currentLifePoints <= 0)
+        if (CurrentLifePoints <= 0)
         {
             GameOver();
         }
-        else if (killedEnemyCount + passedEnemies >= totalEnemyCount)
+        else if (KilledEnemyCount + PassedEnemies >= TotalEnemyCount)
         {
             GameWin();
         }
@@ -296,14 +272,14 @@ public class StageManager : MonoBehaviour
 
     public void SlowDownTime()
     {
-        Time.timeScale = PlacementTimeScale;
+        Time.timeScale = placementTimeScale;
     }
 
     public void UpdateTimeScale()
     {
         if (currentState != GameState.Paused)
         {
-            Time.timeScale = isSpeedUp ? SpeedUpScale : OriginalTimeScale;
+            Time.timeScale = IsSpeedUp ? speedUpScale : originalTimeScale;
         }
     }
 
@@ -311,7 +287,7 @@ public class StageManager : MonoBehaviour
     {
         if (currentState != GameState.Battle) return;
 
-        isSpeedUp = !isSpeedUp;
+        IsSpeedUp = !IsSpeedUp;
         UpdateTimeScale();
         UIManager.Instance.UpdateSpeedUpButtonVisual();
     }

@@ -14,6 +14,9 @@ public class EnemyData : ScriptableObject
     public AttackRangeType attackRangeType;
     public int blockCount = 1;
     public GameObject projectilePrefab;
+
+    [Header("Hit Effects")] // 피격 대상에게서 출력
+    public GameObject hitEffectPrefab;
 }
 
 

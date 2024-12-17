@@ -16,15 +16,14 @@ public class Projectile : MonoBehaviour
     private string poolTag;
     public string PoolTag { get; private set; }
     private bool shouldDestroy;
-
-    private ProjectileEffect effects;
-
-    private void Awake()
-    {
-        effects = GetComponentInChildren<ProjectileEffect>();
-    }
-
-    public void Initialize(UnitEntity attacker, UnitEntity target, AttackType attackType, float value, bool showValue, string poolTag)
+    private GameObject hitEffectPrefab;
+    public void Initialize(UnitEntity attacker,
+        UnitEntity target, 
+        AttackType attackType, 
+        float value, 
+        bool showValue, 
+        string poolTag,
+        GameObject hitEffectPrefab)
     {
         UnSubscribeFromEvents();
 
@@ -34,6 +33,7 @@ public class Projectile : MonoBehaviour
         this.value = value;
         this.showValue = showValue;
         this.poolTag = poolTag;
+        this.hitEffectPrefab = hitEffectPrefab;
         lastKnownPosition = target.transform.position;
         shouldDestroy = false;
 
@@ -82,7 +82,8 @@ public class Projectile : MonoBehaviour
         {
             if (isHealing)
             {
-                target.TakeHeal(value, attacker);
+                // 힐 이펙트도 피격 이펙트로 포함하겠음
+                target.TakeHeal(value, attacker, hitEffectPrefab);
             }
             else
             {
@@ -92,7 +93,7 @@ public class Projectile : MonoBehaviour
                     ObjectPoolManager.Instance.ShowFloatingText(target.transform.position, value, false);
                 }
 
-                target.TakeDamage(attackType, value, attacker);
+                target.TakeDamage(attackType, value, attacker, hitEffectPrefab);
 
             }
         }

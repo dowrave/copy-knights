@@ -274,7 +274,7 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
     protected virtual void PerformMeleeAttack(UnitEntity target, AttackType attackType, float damage, bool showDamagePopup)
     {
         SetAttackTimings();
-        target.TakeDamage(attackType, damage, this);
+        target.TakeDamage(attackType, damage, this, BaseData.hitEffectPrefab);
 
         if (showDamagePopup)
         {
@@ -296,7 +296,7 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
                 Projectile projectile = projectileObj.GetComponent<Projectile>();
                 if (projectile != null)
                 {
-                    projectile.Initialize(this, target, attackType, damage, showDamagePopup, projectileTag);
+                    projectile.Initialize(this, target, attackType, damage, showDamagePopup, projectileTag, BaseData.hitEffectPrefab);
                 }
             }
         }
@@ -366,7 +366,7 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
     // 저지 가능하다면 현 저지수 + 1
     public void TryBlockEnemy(Enemy enemy)
     {
-        int enemyBlockCount = enemy.Data.blockCount;
+        int enemyBlockCount = enemy.BaseData.blockCount;
         if (CanBlockEnemy(enemyBlockCount))
         {
             blockedEnemies.Add(enemy);
@@ -378,7 +378,7 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
     {
         Debug.LogWarning("적 저지 해제");
         blockedEnemies.Remove(enemy);
-        nowBlockingCount -= enemy.Data.blockCount;
+        nowBlockingCount -= enemy.BaseData.blockCount;
     }
 
     public void UnblockAllEnemies()
@@ -425,9 +425,9 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
         return false; 
     }
 
-    public override void TakeDamage(AttackType attackType, float damage)
+    public override void TakeDamage(AttackType attackType, float damage, UnitEntity attacker = null, GameObject hitEffectPrefab = null)
     {
-        base.TakeDamage(attackType, damage);
+        base.TakeDamage(attackType, damage, attacker, hitEffectPrefab);
         StatisticsManager.Instance.UpdateDamageTaken(this, damage);
     }
 
@@ -441,6 +441,12 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
         Destroy(operatorUIInstance.gameObject);
         OnSPChanged = null;
         Destroy(directionIndicator.gameObject); // 방향 표시기
+
+        // 이펙트 풀 정리
+        if (BaseData.hitEffectPrefab != null)
+        {
+            ObjectPoolManager.Instance.RemovePool("Effect_" + BaseData.entityName);
+        } 
 
         // 하단 UI 활성화
         DeployableManager.Instance.OnDeployableRemoved(this);
@@ -576,6 +582,12 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
         CreateOperatorUI();
         ShowDirectionIndicator(true);
         CurrentSP = currentStats.StartSP;
+
+        // 오브젝트 풀 생성 - Medic도 이걸로 될 듯
+        ObjectPoolManager.Instance.CreateEffectPool(
+            BaseData.entityName,
+            BaseData.hitEffectPrefab
+        );
     }
 
     public override void Retreat()
