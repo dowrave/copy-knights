@@ -33,10 +33,14 @@ public class ObjectPoolManager : MonoBehaviour
     public List<Pool> pools;
     public Dictionary<string, Queue<GameObject>> poolDictionary;
 
-    // 텍스트 관련
+    [Header("텍스트 관련")]
     [SerializeField] private GameObject floatingTextPrefab;
-    public string FLOATING_TEXT_TAG = "FloatingText";
     [SerializeField] private int floatingTextCounts = 2;
+    public string FLOATING_TEXT_TAG = "FloatingText";
+
+    [Header("이펙트 관련")]
+    [SerializeField] private int effectPoolSize = 3;
+    private const string EFFECT_PREFIX = "Effect_";
 
     private void Start()
     {
@@ -49,9 +53,6 @@ public class ObjectPoolManager : MonoBehaviour
     /// <summary>
     /// 지정된 태그, 프리팹, 크기로 새로운 오브젝트 풀을 생성합니다.
     /// </summary>
-    /// <param name="tag">풀의 고유 식별자</param>
-    /// <param name="prefab">풀에서 사용할 게임 오브젝트 프리팹</param>
-    /// <param name="size">풀의 초기 크기</param>
     public void CreatePool(string tag, GameObject prefab, int size)
     {
         Queue<GameObject> objectPool = new Queue<GameObject>(); 
@@ -66,13 +67,21 @@ public class ObjectPoolManager : MonoBehaviour
         poolDictionary[tag] = objectPool;
     }
 
+    public void CreateEffectPool(string effectName, GameObject effectPrefab)
+    {
+        // 이펙트 별로 고유한 태그를 생성함
+        string poolTag = EFFECT_PREFIX + effectName; 
+
+        if (!poolDictionary.ContainsKey(poolTag))
+        {
+            CreatePool(poolTag, effectPrefab, effectPoolSize);
+        }
+    }
+
+
     /// <summary>
     /// 지정된 태그의 풀에서 오브젝트를 가져와 활성화하고 위치와 회전을 설정합니다.
     /// </summary>
-    /// <param name="tag">풀의 태그</param>
-    /// <param name="position">스폰 위치</param>
-    /// <param name="rotation">스폰 회전</param>
-    /// <returns>스폰된 게임 오브젝트</returns>
     public GameObject SpawnFromPool(string tag, Vector3 position, Quaternion rotation)
     {
         if (!poolDictionary.ContainsKey(tag)) return null;
@@ -91,15 +100,9 @@ public class ObjectPoolManager : MonoBehaviour
         GameObject objectToSpawn = objectPool.Dequeue();
         return SetupPooledObject(objectToSpawn, tag, position, rotation);
     }
-
     /// <summary>
     /// 풀에서 가져온 오브젝트를 설정합니다. 위치, 회전을 설정하고 IPooledObject 인터페이스를 구현한 경우 OnObjectSpawn을 호출합니다.
     /// </summary>
-    /// <param name="obj">설정할 게임 오브젝트</param>
-    /// <param name="tag">풀의 태그</param>
-    /// <param name="position">설정할 위치</param>
-    /// <param name="rotation">설정할 회전</param>
-    /// <returns>설정된 게임 오브젝트</returns>
     private GameObject SetupPooledObject(GameObject obj, string tag, Vector3 position, Quaternion rotation)
     {
         obj.SetActive(true);
@@ -118,8 +121,6 @@ public class ObjectPoolManager : MonoBehaviour
     /// <summary>
     /// 사용이 끝난 오브젝트를 풀로 반환합니다. 풀이 제거 예정인 경우 오브젝트를 파괴합니다.
     /// </summary>
-    /// <param name="tag">풀의 태그</param>
-    /// <param name="obj">반환할 게임 오브젝트</param>
     public void ReturnToPool(string tag, GameObject obj)
     {
         if (poolDictionary.TryGetValue(tag, out Queue<GameObject> objectPool))
@@ -133,7 +134,6 @@ public class ObjectPoolManager : MonoBehaviour
     /// <summary>
     /// 지정된 태그의 풀을 완전히 제거합니다. 풀의 모든 오브젝트를 파괴합니다.
     /// </summary>
-    /// <param name="tag">제거할 풀의 태그</param>
     public void RemovePool(string tag)
     {
         if (poolDictionary.TryGetValue(tag, out Queue<GameObject> objectPool))

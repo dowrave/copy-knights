@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.VFX;
 
 /// <summary>
 /// Operator, Enemy, Barricade 등의 타일 위의 유닛들과 관련된 엔티티
@@ -52,19 +53,25 @@ public abstract class UnitEntity : MonoBehaviour, ITargettable, IFactionMember
         Prefab = BaseData.prefab;
     }
 
-    public virtual void TakeDamage(AttackType attackType, float damage)
-    {
-        TakeDamage(attackType, damage, null);
-    }
+    //public virtual void TakeDamage(AttackType attackType, float damage)
+    //{
+    //    TakeDamage(attackType, damage, null);
+    //}
     
     /// <summary>
     /// 피격 대미지 계산, 체력 갱신
     /// </summary>
-    public virtual void TakeDamage(AttackType attacktype, float damage, UnitEntity attacker = null)
+    public virtual void TakeDamage(AttackType attacktype, 
+        float damage, 
+        UnitEntity attacker = null,
+        GameObject hitEffectPrefab = null)
     {
         float actualDamage = CalculateActualDamage(attacktype, damage);
         CurrentHealth = Mathf.Max(0, CurrentHealth - actualDamage);
         OnHealthChanged?.Invoke(CurrentHealth, MaxHealth);
+
+        // 피격 이펙트 생성 및 재성
+        PlayGetHitEffect(hitEffectPrefab);
 
         if (CurrentHealth <= 0)
         {
@@ -146,17 +153,42 @@ public abstract class UnitEntity : MonoBehaviour, ITargettable, IFactionMember
         CurrentHealth = MaxHealth;
     }
 
-    public virtual void TakeHeal(float healAmount, UnitEntity healer = null)
+    public virtual void TakeHeal(float healAmount, UnitEntity healer = null, GameObject healEffectPrefab = null)
     {
         float oldHealth = CurrentHealth;
         CurrentHealth += healAmount; 
         float actualHealAmount = CurrentHealth - oldHealth; // 실제 힐량
 
+        if (healEffectPrefab != null)
+        {
+            PlayGetHitEffect(healEffectPrefab);
+        }
+        
         ObjectPoolManager.Instance.ShowFloatingText(transform.position, actualHealAmount, true);
+
 
         if (healer is Operator healerOperator)
         {
             StatisticsManager.Instance.UpdateHealingDone(healerOperator, actualHealAmount);
+        }
+    }
+
+    protected virtual void PlayGetHitEffect(GameObject hitEffectPrefab)
+    {
+        // 피격 이펙트 생성 및 재성
+        if (hitEffectPrefab != null)
+        {
+            Vector3 effectPosition = transform.position;
+            GameObject hitEffect = Instantiate(hitEffectPrefab, effectPosition, Quaternion.identity);
+
+            // VFX 컴포넌트 재생
+            VisualEffect vfx = hitEffect.GetComponent<VisualEffect>();
+            if (vfx != null)
+            {
+                vfx.Play();
+            }
+
+            Destroy(hitEffect, 2f);
         }
     }
 }

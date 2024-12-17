@@ -48,7 +48,7 @@ public class EnemySpawner : MonoBehaviour
         
         if (enemy != null)
         {
-            EnemyData enemyData = enemy.Data;
+            EnemyData enemyData = enemy.BaseData;
             enemy.Initialize(enemyData, spawnInfo.pathData);
         }
         else
