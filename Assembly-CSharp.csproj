@@ -73,6 +73,7 @@
     <Compile Include="Assets\Scripts\Core\Managers\PlayerDataManager.cs" />
     <Compile Include="Assets\Scripts\UI\Panels\StageLoadingScreen.cs" />
     <Compile Include="Assets\Scripts\UI\Panels\OperatorPromotionPanel.cs" />
+    <Compile Include="Assets\Scripts\Interfaces\ICombatData.cs" />
     <Compile Include="Assets\Scripts\Interfaces\IDeployable.cs" />
     <Compile Include="Assets\Scripts\UI\Panels\ItemInfoPopup.cs" />
     <Compile Include="Assets\Scripts\Core\Managers\StatisticsManager.cs" />

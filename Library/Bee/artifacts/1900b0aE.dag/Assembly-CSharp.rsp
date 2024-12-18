@@ -429,6 +429,7 @@
 "Assets/Scripts/Entities/Operators/MedicOperator.cs"
 "Assets/Scripts/Entities/Operators/Operator.cs"
 "Assets/Scripts/Entities/Player/OwnedOperator.cs"
+"Assets/Scripts/Interfaces/ICombatData.cs"
 "Assets/Scripts/Interfaces/ICombatEntity.cs"
 "Assets/Scripts/Interfaces/IDeployable.cs"
 "Assets/Scripts/Interfaces/IFactionMember.cs"

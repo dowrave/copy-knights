@@ -2,7 +2,7 @@
 using UnityEngine;
 
 [CreateAssetMenu(fileName = "New Enemy Data", menuName = "Game/Enemy Data")]
-public class EnemyData : ScriptableObject
+public class EnemyData : ScriptableObject, ICombatData
 {
     // UnitData
     public string entityName;
@@ -17,6 +17,10 @@ public class EnemyData : ScriptableObject
 
     [Header("Hit Effects")] // 피격 대상에게서 출력
     public GameObject hitEffectPrefab;
+
+    public GameObject HitEffectPrefab => hitEffectPrefab;
+    public AttackType AttackType => attackType;
+    public AttackRangeType AttackRangeType => attackRangeType;
 }
 
 

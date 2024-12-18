@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
-using UnityEngine.UIElements;
+using static ICombatEntity;
 
 public class Enemy : UnitEntity, IMovable, ICombatEntity
 {
@@ -143,7 +143,7 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity
                 // 공격 가능한 상태라면
                 if (CurrentTarget != null && AttackCooldown <= 0)
                 {
-                    PerformMeleeAttack(CurrentTarget, AttackType, AttackPower); // 저지를 당하는 상태라면, 적의 공격 범위에 관계 없이 근거리 공격을 함
+                    PerformMeleeAttack(CurrentTarget, AttackPower); // 저지를 당하는 상태라면, 적의 공격 범위에 관계 없이 근거리 공격을 함
                 }
             }
 
@@ -152,13 +152,13 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity
             {
                 if (targetBarricade != null && Vector3.Distance(transform.position, targetBarricade.transform.position) < 0.5f)
                 {
-                    PerformMeleeAttack(targetBarricade, AttackType, AttackPower); // 무조건 근거리 공격
+                    PerformMeleeAttack(targetBarricade, AttackPower); // 무조건 근거리 공격
                 }
 
                 // 타겟이 있고, 공격이 가능한 상태
                 if (CanAttack())
                 {
-                    Attack(CurrentTarget, AttackType, AttackPower);
+                    Attack(CurrentTarget, AttackPower);
                 }
 
                 // 이동 관련 로직. 저지 중이 아닐 때에만 동작해야 한다. 
@@ -327,31 +327,33 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity
         }
     }
 
-    public void Attack(UnitEntity target, AttackType attackType, float damage)
+    public void Attack(UnitEntity target, float damage)
     {
-        PerformAttack(target, attackType, damage);
+        PerformAttack(target, damage);
     }
 
-    private void PerformAttack(UnitEntity target, AttackType attackType, float damage)
+    private void PerformAttack(UnitEntity target, float damage)
     {
         switch (AttackRangeType)
         {
             case AttackRangeType.Melee:
-                PerformMeleeAttack(target, attackType, damage);
+                PerformMeleeAttack(target, damage);
                 break;
             case AttackRangeType.Ranged:
-                PerformRangedAttack(target, attackType, damage);
+                PerformRangedAttack(target, damage);
                 break;
         }
     }
 
-    private void PerformMeleeAttack(UnitEntity target, AttackType attackType, float damage)
+    private void PerformMeleeAttack(UnitEntity target, float damage)
     {
         SetAttackTimings(); // 이걸 따로 호출하는 경우가 있어서 여기서 다시 설정
-        target.TakeDamage(AttackType, damage, this, BaseData.hitEffectPrefab);
+        AttackSource attackSource = new AttackSource(transform.position, false);
+
+        target.TakeDamage(this, attackSource, damage);
     }
 
-    private void PerformRangedAttack(UnitEntity target, AttackType attackType, float damage)
+    private void PerformRangedAttack(UnitEntity target, float damage)
     {
         SetAttackTimings();
         if (BaseData.projectilePrefab != null)
@@ -365,7 +367,7 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity
                 Projectile projectile = projectileObj.GetComponent<Projectile>();
                 if (projectile != null)
                 {
-                    projectile.Initialize(this, target, attackType, damage, false, projectileTag, BaseData.hitEffectPrefab);
+                    projectile.Initialize(this, target, damage, false, projectileTag, BaseData.hitEffectPrefab);
                 }
             }
         }
@@ -412,21 +414,25 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity
         base.Die();
     }
 
-    public override void TakeDamage(AttackType attackType, float damage, UnitEntity attacker = null, GameObject hitEffectPrefab = null)
+    public override void TakeDamage(UnitEntity attacker, AttackSource attackSource, float damage)
     {
-        float actualDamage = CalculateActualDamage(attackType, damage);
-        CurrentHealth = Mathf.Max(0, CurrentHealth - actualDamage);
-
-        // attacker가 null일 때에도 잘 동작합니다
-        if (attacker is Operator op)
+        if (attacker is ICombatEntity icombatEntity)
         {
-            StatisticsManager.Instance.UpdateDamageDealt(op, actualDamage);
+            float actualDamage = CalculateActualDamage(icombatEntity.AttackType, damage);
+            CurrentHealth = Mathf.Max(0, CurrentHealth - actualDamage);
+
+            // attacker가 null일 때에도 잘 동작합니다
+            if (attacker is Operator op)
+            {
+                StatisticsManager.Instance.UpdateDamageDealt(op, actualDamage);
+
+                if (op.BaseData.hitEffectPrefab != null)
+                {
+                    PlayGetHitEffect(attacker, attackSource);
+                }
+            }
         }
 
-        if (hitEffectPrefab != null)
-        {
-            PlayGetHitEffect(hitEffectPrefab);
-        }
 
         if (CurrentHealth <= 0)
         {
