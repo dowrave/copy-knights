@@ -22,7 +22,7 @@ public class ObjectPoolManager : MonoBehaviour
     {
         if (Instance == null)
         {
-            Instance = this; 
+            Instance = this;
         }
         else
         {
@@ -36,11 +36,12 @@ public class ObjectPoolManager : MonoBehaviour
     [Header("텍스트 관련")]
     [SerializeField] private GameObject floatingTextPrefab;
     [SerializeField] private int floatingTextCounts = 2;
-    public string FLOATING_TEXT_TAG = "FloatingText";
+    public string FLOATING_TEXT_TAG { get; private set; } = "FloatingText";
 
     [Header("이펙트 관련")]
     [SerializeField] private int effectPoolSize = 3;
-    private const string EFFECT_PREFIX = "Effect_";
+    public string EFFECT_PREFIX { get; private set; } = "Effect_";
+
 
     private void Start()
     {

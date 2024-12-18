@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using Skills.Base;
+using static ICombatEntity;
 
 public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
 {
@@ -12,6 +13,7 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
     // ICombatEntity 필드
     public AttackType AttackType => BaseData.attackType;
     public AttackRangeType AttackRangeType => BaseData.attackRangeType;
+
 
     public float AttackPower
     {
@@ -228,7 +230,7 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
 
             if (CanAttack())
             {
-                Attack(CurrentTarget, AttackType, AttackPower);
+                Attack(CurrentTarget, AttackPower);
             }
 
             if (ActiveSkill.AutoActivate && CurrentSP == MaxSP)
@@ -247,13 +249,13 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
     }
 
     // 인터페이스만 계승, 이 안에서는 대미지 팝업 요소만 추가해서 PerformAttack으로 전달
-    public virtual void Attack(UnitEntity target, AttackType attackType, float damage)
+    public virtual void Attack(UnitEntity target, float damage)
     {
         bool showDamagePopup = false;
-        PerformAttack(target, attackType, damage, showDamagePopup);
+        PerformAttack(target, damage, showDamagePopup);
     }
 
-    protected void PerformAttack(UnitEntity target, AttackType attackType, float damage, bool showDamagePopup)
+    protected void PerformAttack(UnitEntity target, float damage, bool showDamagePopup)
     {
         if (ActiveSkill != null)
         {
@@ -263,18 +265,22 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
         switch (BaseData.attackRangeType)
         {
             case AttackRangeType.Melee:
-                PerformMeleeAttack(target, attackType, damage, showDamagePopup);
+                PerformMeleeAttack(target, damage, showDamagePopup);
                 break;
             case AttackRangeType.Ranged:
-                PerformRangedAttack(target, attackType, damage, showDamagePopup);
+                PerformRangedAttack(target, damage, showDamagePopup);
                 break;
         }
     }
 
-    protected virtual void PerformMeleeAttack(UnitEntity target, AttackType attackType, float damage, bool showDamagePopup)
+    protected virtual void PerformMeleeAttack(UnitEntity target, float damage, bool showDamagePopup)
     {
         SetAttackTimings();
-        target.TakeDamage(attackType, damage, this, BaseData.hitEffectPrefab);
+
+        //target.TakeDamage(attackType, damage, this, BaseData.hitEffectPrefab);
+        AttackSource attackSource = new AttackSource(transform.position, false);
+
+        target.TakeDamage(this, attackSource, damage);
 
         if (showDamagePopup)
         {
@@ -282,7 +288,7 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
         }
     }
 
-    protected virtual void PerformRangedAttack(UnitEntity target, AttackType attackType, float damage, bool showDamagePopup)
+    protected virtual void PerformRangedAttack(UnitEntity target, float damage, bool showDamagePopup)
     {
         SetAttackTimings();
         if (BaseData.projectilePrefab != null)
@@ -296,7 +302,7 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
                 Projectile projectile = projectileObj.GetComponent<Projectile>();
                 if (projectile != null)
                 {
-                    projectile.Initialize(this, target, attackType, damage, showDamagePopup, projectileTag, BaseData.hitEffectPrefab);
+                    projectile.Initialize(this, target, damage, showDamagePopup, projectileTag, BaseData.hitEffectPrefab);
                 }
             }
         }
@@ -425,9 +431,9 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
         return false; 
     }
 
-    public override void TakeDamage(AttackType attackType, float damage, UnitEntity attacker = null, GameObject hitEffectPrefab = null)
+    public override void TakeDamage(UnitEntity attacker, AttackSource attackSource, float damage)
     {
-        base.TakeDamage(attackType, damage, attacker, hitEffectPrefab);
+        base.TakeDamage(attacker, attackSource, damage);
         StatisticsManager.Instance.UpdateDamageTaken(this, damage);
     }
 

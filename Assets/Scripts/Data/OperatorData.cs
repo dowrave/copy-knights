@@ -3,7 +3,7 @@ using UnityEngine;
 using Skills.Base;
 
 [CreateAssetMenu(fileName = "New Operator Data", menuName = "Game/Operator Data")]
-public class OperatorData : ScriptableObject
+public class OperatorData : ScriptableObject, ICombatData
 {
     // UnitData
     public string entityName;
@@ -36,6 +36,10 @@ public class OperatorData : ScriptableObject
     [Header("Elite Phase Settings")]
     public ElitePhaseUnlocks elite1Unlocks;
 
+
+    public GameObject HitEffectPrefab => hitEffectPrefab;
+    public AttackType AttackType => attackType;
+    public AttackRangeType AttackRangeType => attackRangeType;
     public enum OperatorClass
     {
         Vanguard,

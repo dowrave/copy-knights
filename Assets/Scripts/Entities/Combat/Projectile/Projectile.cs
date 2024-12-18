@@ -1,12 +1,13 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using static ICombatEntity;
 
 // 투사체 관리 클래스
 public class Projectile : MonoBehaviour
 {
     public float speed = 10f;
-    private float value;
+    private float value; // 대미지 or 힐값
     private bool showValue;
     private AttackType attackType;
     private bool isHealing = false;
@@ -19,7 +20,6 @@ public class Projectile : MonoBehaviour
     private GameObject hitEffectPrefab;
     public void Initialize(UnitEntity attacker,
         UnitEntity target, 
-        AttackType attackType, 
         float value, 
         bool showValue, 
         string poolTag,
@@ -29,7 +29,6 @@ public class Projectile : MonoBehaviour
 
         this.attacker = attacker;
         this.target = target;
-        this.attackType = attackType;
         this.value = value;
         this.showValue = showValue;
         this.poolTag = poolTag;
@@ -80,10 +79,12 @@ public class Projectile : MonoBehaviour
         // 타겟이 살아있는 경우
         if (target != null)
         {
+            AttackSource attackSource = new AttackSource(transform.position, true);
+
             if (isHealing)
             {
                 // 힐 이펙트도 피격 이펙트로 포함하겠음
-                target.TakeHeal(value, attacker, hitEffectPrefab);
+                target.TakeHeal(attacker, attackSource, value);
             }
             else
             {
@@ -93,7 +94,7 @@ public class Projectile : MonoBehaviour
                     ObjectPoolManager.Instance.ShowFloatingText(target.transform.position, value, false);
                 }
 
-                target.TakeDamage(attackType, value, attacker, hitEffectPrefab);
+                target.TakeDamage(attacker, attackSource, value);
 
             }
         }

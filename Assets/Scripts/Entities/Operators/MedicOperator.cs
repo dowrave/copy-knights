@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using static ICombatEntity;
 
 public class MedicOperator : Operator
 {
@@ -72,22 +73,23 @@ public class MedicOperator : Operator
         }
     }
 
-    public override void Attack(UnitEntity target, AttackType attackType, float damage)
+    public override void Attack(UnitEntity target, float damage)
     {
-        Heal(target, attackType, damage);
+        Heal(target, damage);
     }
 
-    private void Heal(UnitEntity target, AttackType attackType, float healValue)
+    private void Heal(UnitEntity target,  float healValue)
     {
         // 여기서 Ranged 여부가 결정하는 건 투사체의 유무임
         // 즉 Melee여도 원거리를 가질 수 있음 -- 사정거리랑 공격 타입을 별도로 구현했기 때문에 이런 현상이 발생했다.
         if (BaseData.attackRangeType == AttackRangeType.Ranged)
         {
-            base.PerformRangedAttack(target, attackType, healValue, true);
+            base.PerformRangedAttack(target, healValue, true);
         }
         else
         {
-            target.TakeHeal(healValue, this);
+            AttackSource attackSource = new AttackSource(transform.position, false);
+            target.TakeHeal(this, attackSource, healValue);
         }
     }
 }

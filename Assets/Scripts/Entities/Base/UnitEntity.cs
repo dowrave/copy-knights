@@ -1,6 +1,8 @@
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.VFX;
+using static ICombatEntity;
 
 /// <summary>
 /// Operator, Enemy, Barricade 등의 타일 위의 유닛들과 관련된 엔티티
@@ -53,38 +55,30 @@ public abstract class UnitEntity : MonoBehaviour, ITargettable, IFactionMember
         Prefab = BaseData.prefab;
     }
 
-    //public virtual void TakeDamage(AttackType attackType, float damage)
-    //{
-    //    TakeDamage(attackType, damage, null);
-    //}
-    
     /// <summary>
     /// 피격 대미지 계산, 체력 갱신
     /// </summary>
-    public virtual void TakeDamage(AttackType attacktype, 
-        float damage, 
-        UnitEntity attacker = null,
-        GameObject hitEffectPrefab = null)
+    public virtual void TakeDamage(UnitEntity attacker, AttackSource attackSource, float damage)
     {
-        float actualDamage = CalculateActualDamage(attacktype, damage);
-        CurrentHealth = Mathf.Max(0, CurrentHealth - actualDamage);
-        OnHealthChanged?.Invoke(CurrentHealth, MaxHealth);
-
-        // 피격 이펙트 생성 및 재성
-        PlayGetHitEffect(hitEffectPrefab);
-
-        if (CurrentHealth <= 0)
+        if (attacker is ICombatEntity iCombatEntity)
         {
-            Die(); // 자식 메서드에서 오버라이드했다면 오버라이드한 메서드가 호출
+            float actualDamage = CalculateActualDamage(iCombatEntity.AttackType, damage);
+            CurrentHealth = Mathf.Max(0, CurrentHealth - actualDamage);
+            OnHealthChanged?.Invoke(CurrentHealth, MaxHealth);
+
+            PlayGetHitEffect(attacker, attackSource);
+
+            if (CurrentHealth <= 0)
+            {
+                Die(); // 자식 메서드에서 오버라이드했다면 오버라이드한 메서드가 호출
+            }
         }
+
     }
 
     /// <summary>
     /// 대미지 계산 로직
     /// </summary>
-    /// <param name="attacktype">공격 타입 : 물리, 마법, 트루</param>
-    /// <param name="damage">들어온 대미지</param>
-    /// <returns>대미지 계산 결과</returns>
     protected virtual float CalculateActualDamage(AttackType attacktype, float incomingDamage)
     {
         float actualDamage = 0; // 할당해야 return문에서 오류가 안남
@@ -153,15 +147,15 @@ public abstract class UnitEntity : MonoBehaviour, ITargettable, IFactionMember
         CurrentHealth = MaxHealth;
     }
 
-    public virtual void TakeHeal(float healAmount, UnitEntity healer = null, GameObject healEffectPrefab = null)
+    public virtual void TakeHeal(UnitEntity healer, AttackSource attackSource, float healAmount)
     {
         float oldHealth = CurrentHealth;
         CurrentHealth += healAmount; 
         float actualHealAmount = CurrentHealth - oldHealth; // 실제 힐량
 
-        if (healEffectPrefab != null)
+        if (healer is MedicOperator medic && medic.BaseData.hitEffectPrefab != null)
         {
-            PlayGetHitEffect(healEffectPrefab);
+            PlayGetHitEffect(medic, attackSource);
         }
         
         ObjectPoolManager.Instance.ShowFloatingText(transform.position, actualHealAmount, true);
@@ -173,22 +167,67 @@ public abstract class UnitEntity : MonoBehaviour, ITargettable, IFactionMember
         }
     }
 
-    protected virtual void PlayGetHitEffect(GameObject hitEffectPrefab)
+    protected virtual void PlayGetHitEffect(UnitEntity attacker, AttackSource attackSource)
     {
-        // 피격 이펙트 생성 및 재성
+        GameObject hitEffectPrefab;
+        string entityName;
+
+        if (attacker is Operator op)
+        {
+            OperatorData opData = op.BaseData;
+            hitEffectPrefab = opData.hitEffectPrefab;
+            entityName = opData.entityName;
+
+        }
+        else if (attacker is Enemy enemy)
+        {
+            EnemyData enemyData = enemy.BaseData;
+            hitEffectPrefab = enemyData.hitEffectPrefab;
+            entityName = enemyData.entityName;
+        }
+        else
+        {
+            Debug.LogError("이펙트를 발견하지 못함");
+            return;
+        }
+
+        Debug.Log($"{attacker}의 hitEffectPrefab : {hitEffectPrefab}");
+
         if (hitEffectPrefab != null)
         {
             Vector3 effectPosition = transform.position;
-            GameObject hitEffect = Instantiate(hitEffectPrefab, effectPosition, Quaternion.identity);
+
+            // 풀에서 이펙트 오브젝트 가져오기
+            string effectTag = ObjectPoolManager.Instance.EFFECT_PREFIX + entityName;
+            GameObject hitEffect = ObjectPoolManager.Instance.SpawnFromPool(effectTag, effectPosition, Quaternion.identity);
+
+            Debug.Log($"{attacker}의 hitEffect : {hitEffect}");
 
             // VFX 컴포넌트 재생
             VisualEffect vfx = hitEffect.GetComponent<VisualEffect>();
             if (vfx != null)
             {
+                // 방향 프로퍼티가 노출된 이펙트는 방향을 계산
+                if (vfx.HasVector3("AttackDirection"))
+                {
+                    Vector3 attackDirection = (transform.position - attackSource.Position).normalized;
+                    vfx.SetVector3("AttackDirection", attackDirection);
+                }
+
                 vfx.Play();
             }
 
-            Destroy(hitEffect, 2f);
+            StartCoroutine(ReturnEffectToPool(effectTag, hitEffect));
+        }
+    }
+
+    private IEnumerator ReturnEffectToPool(string tag, GameObject effect)
+    {
+        yield return new WaitForSeconds(0.25f); // 이펙트가 나타날 시간은 줘야 함
+
+        if (effect != null)
+        {
+            ObjectPoolManager.Instance.ReturnToPool(tag, effect);
         }
     }
 }
