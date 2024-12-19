@@ -2,6 +2,7 @@
 
 # Unity generated
 /[Ll]ibrary/
+/Library/*
 [Ll]ibrary/
 [Tt]emp/
 [Oo]bj/
