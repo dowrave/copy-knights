@@ -18,5 +18,5 @@ MonoBehaviour:
   isDeployable: 1
   isStartPoint: 0
   isEndPoint: 0
-  tileColor: {r: 0.4509804, g: 0.375817, b: 0.2254902, a: 1}
-  hasPit: 1
+  tileColor: {r: 0.8, g: 0.64695656, b: 0.32000002, a: 1}
+  hasPit: 0
