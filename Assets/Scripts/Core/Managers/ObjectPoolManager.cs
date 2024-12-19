@@ -10,7 +10,7 @@ public class ObjectPoolManager : MonoBehaviour
 {
     public static ObjectPoolManager Instance;
 
-    [System.Serializable]
+    [System.Serializable] 
     public class Pool
     {
         public string tag;
@@ -30,8 +30,9 @@ public class ObjectPoolManager : MonoBehaviour
         }
     }
 
-    public List<Pool> pools;
+    private Dictionary<string, Pool> poolInfos = new Dictionary<string, Pool>();
     public Dictionary<string, Queue<GameObject>> poolDictionary;
+    private Dictionary<string, HashSet<GameObject>> activeObjects; // 현재 활성화된 오브젝트들 추적
 
     [Header("텍스트 관련")]
     [SerializeField] private GameObject floatingTextPrefab;
@@ -46,6 +47,7 @@ public class ObjectPoolManager : MonoBehaviour
     private void Start()
     {
         poolDictionary = new Dictionary<string, Queue<GameObject>>();
+        activeObjects = new Dictionary<string, HashSet<GameObject>>();
 
         // 팝업 텍스트 풀 생성
         CreatePool(FLOATING_TEXT_TAG, floatingTextPrefab, floatingTextCounts);
@@ -56,8 +58,10 @@ public class ObjectPoolManager : MonoBehaviour
     /// </summary>
     public void CreatePool(string tag, GameObject prefab, int size)
     {
-        Queue<GameObject> objectPool = new Queue<GameObject>(); 
+        Queue<GameObject> objectPool = new Queue<GameObject>();
 
+        poolInfos[tag] = new Pool { tag = tag, prefab = prefab, size = size };
+        
         for (int i = 0; i < size; i++)
         {
             GameObject obj = Instantiate(prefab);
@@ -85,21 +89,29 @@ public class ObjectPoolManager : MonoBehaviour
     /// </summary>
     public GameObject SpawnFromPool(string tag, Vector3 position, Quaternion rotation)
     {
-        if (!poolDictionary.ContainsKey(tag)) return null;
+        if (!poolDictionary.ContainsKey(tag) || !poolInfos.ContainsKey(tag)) return null;
 
-        Queue<GameObject> objectPool = poolDictionary[tag];
-
-        // 모든 생성된 객체가 나갔다면 새로운 인스턴스를 만듦
-        if (objectPool.Count == 0)
+        if (!activeObjects.ContainsKey(tag))
         {
-            Pool poolInfo = pools.Find(p => p.tag == tag);
-            GameObject newObj = Instantiate(poolInfo.prefab);
-            return SetupPooledObject(newObj, tag, position, rotation);
+            activeObjects[tag] = new HashSet<GameObject>();
         }
 
-        // 이미 생성된 객체가 있다면, 그냥 큐에서 빼냄
-        GameObject objectToSpawn = objectPool.Dequeue();
-        return SetupPooledObject(objectToSpawn, tag, position, rotation);
+        Queue<GameObject> objectPool = poolDictionary[tag];
+        GameObject obj;
+
+        // (if) 풀을 모두 사용했다면 새로 생성 / (else) 풀의 내용 사용
+        if (objectPool.Count == 0)
+        {
+            Pool poolInfo = poolInfos[tag];
+            obj = Instantiate(poolInfo.prefab);
+        }
+        else
+        {
+            obj = objectPool.Dequeue();
+        }
+
+        activeObjects[tag].Add(obj);
+        return SetupPooledObject(obj, tag, position, rotation);
     }
     /// <summary>
     /// 풀에서 가져온 오브젝트를 설정합니다. 위치, 회전을 설정하고 IPooledObject 인터페이스를 구현한 경우 OnObjectSpawn을 호출합니다.
@@ -126,9 +138,18 @@ public class ObjectPoolManager : MonoBehaviour
     {
         if (poolDictionary.TryGetValue(tag, out Queue<GameObject> objectPool))
         {
-            // 뺄 때, 큐에서 뺀 다음 활성화했음 -> 넣을 때도 큐에 넣은 다음 비활성화? 비활성화한 다음 큐에 넣음? 
+            // 큐에 넣은 뒤 비활성화
             poolDictionary[tag].Enqueue(obj);
+            if (activeObjects.ContainsKey(tag))
+            {
+                activeObjects[tag].Remove(obj);
+            }
             obj.SetActive(false);
+        }
+        else
+        {
+            // 풀이 없어진 경우, 활성화된 오브젝트 제거
+            Destroy(obj);
         }
     }
 
@@ -146,7 +167,7 @@ public class ObjectPoolManager : MonoBehaviour
             }
 
             poolDictionary.Remove(tag);
-            pools.RemoveAll(p => p.tag == tag);
+            poolInfos.Remove(tag);
         }
     }
 

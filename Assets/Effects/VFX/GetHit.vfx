@@ -129,8 +129,8 @@ MonoBehaviour:
     max: Infinity
     enumValues: []
     descendantCount: 0
-  - name: LifeTime
-    path: LifeTime
+  - name: Lifetime
+    path: Lifetime
     tooltip: Effect Duration
     sheetType: m_Float
     realType: Single
@@ -910,7 +910,7 @@ MonoBehaviour:
       m_Type:
         m_SerializableType: UnityEngine.AnimationCurve, UnityEngine.CoreModule, Version=0.0.0.0,
           Culture=neutral, PublicKeyToken=null
-      m_SerializableObject: '{"frames":[{"time":-1.6734983921051026,"value":0.9974244236946106,"inTangent":-0.055688563734292987,"outTangent":-0.055688563734292987,"tangentMode":0,"leftTangentMode":1,"rightTangentMode":1,"broken":false},{"time":1.832639217376709,"value":0.8021726608276367,"inTangent":-0.055688563734292987,"outTangent":-0.055688563734292987,"tangentMode":0,"leftTangentMode":1,"rightTangentMode":1,"broken":false}],"preWrapMode":8,"postWrapMode":8,"version":1}'
+      m_SerializableObject: '{"frames":[{"time":0.0,"value":0.0,"inTangent":1.0,"outTangent":1.0,"tangentMode":0,"leftTangentMode":1,"rightTangentMode":1,"broken":false},{"time":1.0,"value":1.0,"inTangent":1.0,"outTangent":1.0,"tangentMode":0,"leftTangentMode":1,"rightTangentMode":1,"broken":false}],"preWrapMode":8,"postWrapMode":8,"version":1}'
     m_Space: 2147483647
   m_Property:
     name: Size
@@ -3473,7 +3473,7 @@ MonoBehaviour:
   m_InputSlots: []
   m_OutputSlots:
   - {fileID: 8926484042661614880}
-  m_ExposedName: LifeTime
+  m_ExposedName: Lifetime
   m_Exposed: 1
   m_Order: 1
   m_Category: 
