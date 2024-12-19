@@ -1,6 +1,5 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.VFX;
 using static ICombatEntity;
 
 // 투사체 관리 클래스
@@ -17,7 +16,9 @@ public class Projectile : MonoBehaviour
     private string poolTag;
     public string PoolTag { get; private set; }
     private bool shouldDestroy;
-    private GameObject hitEffectPrefab;
+    private VisualEffect vfx; 
+
+
     public void Initialize(UnitEntity attacker,
         UnitEntity target, 
         float value, 
@@ -32,12 +33,17 @@ public class Projectile : MonoBehaviour
         this.value = value;
         this.showValue = showValue;
         this.poolTag = poolTag;
-        this.hitEffectPrefab = hitEffectPrefab;
         lastKnownPosition = target.transform.position;
         shouldDestroy = false;
 
         target.OnDestroyed += OnTargetDestroyed;
         attacker.OnDestroyed += OnAttackerDestroyed;
+
+        vfx = GetComponent<VisualEffect>();
+        if (vfx != null)
+        {
+            vfx.Play();
+        }
 
         // 공격자와 대상이 같다면 힐로 간주
         if (attacker.Faction == target.Faction)
@@ -146,6 +152,11 @@ public class Projectile : MonoBehaviour
     private void OnDisable()
     {
         UnSubscribeFromEvents();
+
+        if (vfx != null)
+        {
+            vfx.Stop();
+        }
 
         target = null;
         attacker = null;

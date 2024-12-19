@@ -191,8 +191,6 @@ public abstract class UnitEntity : MonoBehaviour, ITargettable, IFactionMember
             return;
         }
 
-        Debug.Log($"{attacker}의 hitEffectPrefab : {hitEffectPrefab}");
-
         if (hitEffectPrefab != null)
         {
             Vector3 effectPosition = transform.position;
@@ -201,10 +199,10 @@ public abstract class UnitEntity : MonoBehaviour, ITargettable, IFactionMember
             string effectTag = ObjectPoolManager.Instance.EFFECT_PREFIX + entityName;
             GameObject hitEffect = ObjectPoolManager.Instance.SpawnFromPool(effectTag, effectPosition, Quaternion.identity);
 
-            Debug.Log($"{attacker}의 hitEffect : {hitEffect}");
-
             // VFX 컴포넌트 재생
             VisualEffect vfx = hitEffect.GetComponent<VisualEffect>();
+            float effectLifetime = 1f;
+            
             if (vfx != null)
             {
                 // 방향 프로퍼티가 노출된 이펙트는 방향을 계산
@@ -214,16 +212,22 @@ public abstract class UnitEntity : MonoBehaviour, ITargettable, IFactionMember
                     vfx.SetVector3("AttackDirection", attackDirection);
                 }
 
+                if (vfx.HasFloat("LifeTime"))
+                {
+                    int lifeTimeID = Shader.PropertyToID("Lifetime");
+                    effectLifetime = vfx.GetFloat(lifeTimeID);
+                }
+
                 vfx.Play();
             }
 
-            StartCoroutine(ReturnEffectToPool(effectTag, hitEffect));
+            StartCoroutine(ReturnEffectToPool(effectTag, hitEffect, effectLifetime));
         }
     }
 
-    private IEnumerator ReturnEffectToPool(string tag, GameObject effect)
+    private IEnumerator ReturnEffectToPool(string tag, GameObject effect, float lifeTime = 1f)
     {
-        yield return new WaitForSeconds(0.25f); // 이펙트가 나타날 시간은 줘야 함
+        yield return new WaitForSeconds(lifeTime); // 이펙트가 나타날 시간은 줘야 함
 
         if (effect != null)
         {
