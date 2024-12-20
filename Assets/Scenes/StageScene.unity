@@ -1258,7 +1258,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a8c1934ef0180ad4e9a62ff485394b4d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  pools: []
   floatingTextPrefab: {fileID: 8444373851247964013, guid: 6f3037bccc0f59f42b3573dce42ac869, type: 3}
   floatingTextCounts: 5
   effectPoolSize: 3

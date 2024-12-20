@@ -443,10 +443,9 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
         UnblockAllEnemies();
 
         // 오브젝트 파괴
-        //Destroy(deployableBarUI.gameObject); // 하단 체력/SP 바
         Destroy(operatorUIInstance.gameObject);
-        OnSPChanged = null;
         Destroy(directionIndicator.gameObject); // 방향 표시기
+        OnSPChanged = null;
 
         // 이펙트 풀 정리
         if (BaseData.hitEffectPrefab != null)

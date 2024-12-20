@@ -24,4 +24,4 @@ MonoBehaviour:
     DefenseModifier: 1
     MagicResistanceModifier: 1
     ChangedAttackableTiles: []
-  BuffEffectPrefab: {fileID: 7525705040406820042, guid: 2ea7639541c834e4683cd0362b48e8ca, type: 3}
+  BuffEffectPrefab: {fileID: 2673592997991987600, guid: 71dcdfc208cb9544faefa0e237696144, type: 3}

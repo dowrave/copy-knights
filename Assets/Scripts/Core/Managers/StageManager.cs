@@ -184,6 +184,7 @@ public class StageManager : MonoBehaviour
         while (currentState == GameState.Battle)
         {
             yield return null; // 매 프레임마다 실행
+
             currentCostGauge += Time.deltaTime / costIncreaseInterval;
 
             if (currentCostGauge >= 1f)
