@@ -47,7 +47,7 @@ MonoBehaviour:
   elite0Skill: {fileID: 11400000, guid: a282fb770a3e6a74b91bb698f9ff496e, type: 2}
   initialSP: 0
   hitEffectPrefab: {fileID: 610392011688501501, guid: 97a9619bfb0bdb54b954e9b0b00769fb, type: 3}
-  projectilePrefab: {fileID: 491002625568547402, guid: 4d6c27687fdc48845835de1eac0d716c, type: 3}
+  projectilePrefab: {fileID: 6343874499148937872, guid: ecb22296bba4fc8478231b01a5480065, type: 3}
   levelStats:
     healthPerLevel: 5
     attackPowerPerLevel: 6

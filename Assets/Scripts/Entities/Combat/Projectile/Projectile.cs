@@ -16,8 +16,13 @@ public class Projectile : MonoBehaviour
     private string poolTag;
     public string PoolTag { get; private set; }
     private bool shouldDestroy;
-    private VisualEffect vfx; 
 
+    private VisualEffect vfx;
+    private Vector3 vfxBaseDirection;
+
+    // VFX에서 자체 회전을 가질 때에만 사용
+    private float rotationSpeed = 360f; // 초당 회전 각도 (도 단위)
+    private float currentRotation = 0f;
 
     public void Initialize(UnitEntity attacker,
         UnitEntity target, 
@@ -39,9 +44,11 @@ public class Projectile : MonoBehaviour
         target.OnDestroyed += OnTargetDestroyed;
         attacker.OnDestroyed += OnAttackerDestroyed;
 
-        vfx = GetComponent<VisualEffect>();
+        vfx = GetComponentInChildren<VisualEffect>();
+
         if (vfx != null)
         {
+            InitializeVFXDirection(); // 방향이 있는 VFX는 초기 방향을 설정함
             vfx.Play();
         }
 
@@ -66,14 +73,86 @@ public class Projectile : MonoBehaviour
             lastKnownPosition = target.transform.position;
         }
 
-        // 마지막으로 알려진 위치로 이동
+        // 방향 계산 및 이동
         Vector3 direction = (lastKnownPosition - transform.position).normalized;
         transform.position += direction * speed * Time.deltaTime;
+
+        // VFX의 방향 업데이트
+        UpdateVFXDirection(direction);
 
         // 목표 지점 도달 확인
         if (Vector3.Distance(transform.position, lastKnownPosition) < 0.1f)
         {
             OnReachTarget();
+        }
+    }
+
+    /// <summary>
+    /// 방향이 있는 VFX의 초기 방향을 설정합니다.
+    /// </summary>
+    private void InitializeVFXDirection() 
+    {
+        if (vfx != null && vfx.HasVector3("BaseDirection"))
+        {
+            vfxBaseDirection = vfx.GetVector3("BaseDirection").normalized;
+
+            // 초기 방향 계산
+            Vector3 initialDirection = (lastKnownPosition - transform.position).normalized;
+
+            // 기본 -> 목표 방향으로의 회전 계산해서 VFX에 전달
+            Quaternion rotation = Quaternion.FromToRotation(vfxBaseDirection, initialDirection);
+            Vector3 eulerAngles = rotation.eulerAngles;
+
+            // VFX에 초기 회전 적용
+            if (vfx.HasVector3("EulerAngle"))
+            {
+                vfx.SetVector3("EulerAngle", eulerAngles);
+            }
+            if (vfx.HasVector3("FlyingDirection"))
+            {
+                vfx.SetVector3("FlyingDirection", initialDirection);
+            }
+        }
+    }
+
+    /// <summary>
+    /// 방향 벡터를 받아 VFX에 오일러 각으로 변환해 전달합니다.
+    /// </summary>
+    private void UpdateVFXDirection(Vector3 directionVector)
+    {
+        if (vfx != null)
+        {
+            if (vfx.HasVector3("FlyingDirection"))
+            {
+                vfx.SetVector3("FlyingDirection", directionVector);
+            }
+
+            // 이펙트의 방향에 따른 회전
+            if (vfxBaseDirection != null)
+            {
+                Quaternion directionRotation = Quaternion.FromToRotation(vfxBaseDirection, directionVector);
+                Vector3 eulerAngles = directionRotation.eulerAngles;
+
+                // 자체적인 회전을 갖는 이펙트라면
+                if (vfx.HasBool("SelfRotation"))
+                {
+                    currentRotation += rotationSpeed * Time.deltaTime;
+                    currentRotation %= 360f; // 360도를 넘지 않는 정규화
+
+                    // 진행 방향을 축으로 하는 자체 회전
+                    Quaternion axialRotation = Quaternion.AngleAxis(currentRotation, directionVector);
+
+                    // 회전 결합 (결합 순서가 중요함)
+                    Quaternion finalRotation = axialRotation * directionRotation;
+                    eulerAngles = finalRotation.eulerAngles;
+                }
+
+
+                if (vfx.HasVector3("EulerAngle"))
+                {
+                    vfx.SetVector3("EulerAngle", eulerAngles);
+                }
+            }
         }
     }
 
@@ -146,6 +225,11 @@ public class Projectile : MonoBehaviour
         {
             attacker.OnDestroyed -= OnAttackerDestroyed; 
         }
+    }
+
+    private void OnEnable()
+    {
+        vfx = GetComponentInChildren<VisualEffect>();
     }
 
     // 풀에서 재사용될 때 호출될 메서드
