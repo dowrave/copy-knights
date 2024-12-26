@@ -17,6 +17,8 @@ public abstract class UnitEntity : MonoBehaviour, ITargettable, IFactionMember
     public Tile CurrentTile { get; protected set; }
     public GameObject Prefab { get; protected set; }
 
+    protected ShieldSystem shieldSystem;
+
     // 스탯 관련
     public float CurrentHealth
     {
@@ -24,7 +26,7 @@ public abstract class UnitEntity : MonoBehaviour, ITargettable, IFactionMember
         set
         {
             currentStats.Health = Mathf.Clamp(value, 0, MaxHealth); // 0 ~ 최대 체력 사이로 값 유지
-            OnHealthChanged?.Invoke(currentStats.Health, MaxHealth);
+            OnHealthChanged?.Invoke(currentStats.Health, MaxHealth, shieldSystem.CurrentShield);
         }
     }
     public float MaxHealth { get; set; } // 최대 체력도 변할 수 있음
@@ -33,8 +35,13 @@ public abstract class UnitEntity : MonoBehaviour, ITargettable, IFactionMember
     protected List<ICombatEntity> attackingEntities = new List<ICombatEntity>();
 
     // 이벤트
-    public event System.Action<float, float> OnHealthChanged;
+    public event System.Action<float, float, float> OnHealthChanged;
     public event System.Action OnDestroyed;
+
+    protected virtual void Awake()
+    {
+        shieldSystem = new ShieldSystem();
+    }
 
     public void Initialize(UnitData unitData)
     {
@@ -62,9 +69,15 @@ public abstract class UnitEntity : MonoBehaviour, ITargettable, IFactionMember
     {
         if (attacker is ICombatEntity iCombatEntity)
         {
+            // 방어 / 마법 저항력이 고려된 실제 들어오는 대미지
             float actualDamage = CalculateActualDamage(iCombatEntity.AttackType, damage);
-            CurrentHealth = Mathf.Max(0, CurrentHealth - actualDamage);
-            OnHealthChanged?.Invoke(CurrentHealth, MaxHealth);
+
+            // 쉴드를 깎고 남은 대미지
+            float remainingDamage = shieldSystem.AbsorbDamage(actualDamage);
+
+            // 체력 계산
+            CurrentHealth = Mathf.Max(0, CurrentHealth - remainingDamage);
+            OnHealthChanged?.Invoke(CurrentHealth, MaxHealth, shieldSystem.CurrentShield);
 
             PlayGetHitEffect(attacker, attackSource);
 
@@ -234,4 +247,8 @@ public abstract class UnitEntity : MonoBehaviour, ITargettable, IFactionMember
             ObjectPoolManager.Instance.ReturnToPool(tag, effect);
         }
     }
+
+    public void ActivateShield(float amount) => shieldSystem.ActivateShield(amount);
+    public void DeactivateShield() => shieldSystem.DeactivateShield();
+    public float GetCurrentShield() => shieldSystem.CurrentShield;
 }

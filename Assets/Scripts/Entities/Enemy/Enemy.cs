@@ -57,9 +57,10 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity
     [SerializeField] private GameObject enemyBarUIPrefab;
     private EnemyBarUI enemyBarUI;
 
-    private void Awake()
+    protected override void Awake()
     {
         Faction = Faction.Enemy;
+        base.Awake();
     }
 
     public void Initialize(EnemyData enemyData, PathData pathData)
@@ -416,10 +417,16 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity
 
     public override void TakeDamage(UnitEntity attacker, AttackSource attackSource, float damage)
     {
-        if (attacker is ICombatEntity icombatEntity)
+        if (attacker is ICombatEntity iCombatEntity)
         {
-            float actualDamage = CalculateActualDamage(icombatEntity.AttackType, damage);
-            CurrentHealth = Mathf.Max(0, CurrentHealth - actualDamage);
+            // 방어 / 마법 저항력이 고려된 실제 들어오는 대미지
+            float actualDamage = CalculateActualDamage(iCombatEntity.AttackType, damage);
+
+            // 쉴드를 깎고 남은 대미지
+            float remainingDamage = shieldSystem.AbsorbDamage(actualDamage);
+
+            // 체력 계산
+            CurrentHealth = Mathf.Max(0, CurrentHealth - remainingDamage);
 
             // attacker가 null일 때에도 잘 동작합니다
             if (attacker is Operator op)

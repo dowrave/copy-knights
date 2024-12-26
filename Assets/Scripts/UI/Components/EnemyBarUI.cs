@@ -39,7 +39,7 @@ public class EnemyBarUI : MonoBehaviour
         if (enemy != null)
         {
             UpdatePosition();
-            UpdateUI();
+            //UpdateUI();
         }
         else
         {
@@ -51,14 +51,14 @@ public class EnemyBarUI : MonoBehaviour
     {
         if (enemy != null)
         {
-
-            UpdateHealthBar(enemy.CurrentHealth, enemy.MaxHealth);
+            UpdateHealthBar(enemy.CurrentHealth, enemy.MaxHealth, enemy.GetCurrentShield());
+            Debug.Log($"EnemyBarUI : {enemy.CurrentHealth}, {enemy.MaxHealth}");
         }
     }
 
-    public void UpdateHealthBar(float currentHealth, float maxHealth)
+    public void UpdateHealthBar(float currentHealth, float maxHealth, float currentShield = 0)
     {
-        healthBar.UpdateHealthBar(currentHealth, maxHealth);
+        healthBar.UpdateHealthBar(currentHealth, maxHealth, currentShield);
     }
 
     public void SetHealthBarVisible(bool isVisible)

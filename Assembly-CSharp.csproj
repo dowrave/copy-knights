@@ -109,8 +109,10 @@
     <Compile Include="Assets\Scripts\Data\StageResultData.cs" />
     <Compile Include="Assets\Scripts\UI\Panels\OperatorInventoryPanel.cs" />
     <Compile Include="Assets\Scripts\Core\Managers\OperatorGrowthManager.cs" />
+    <Compile Include="Assets\Scripts\Core\Systems\ShieldSystem.cs" />
     <Compile Include="Assets\Scripts\Entities\Barricade.cs" />
     <Compile Include="Assets\Scripts\Map\Map.cs" />
+    <Compile Include="Assets\Scripts\Skills\OperatorSkills\ShieldSkill.cs" />
     <Compile Include="Assets\Scripts\Data\ItemInventoryData.cs" />
     <Compile Include="Assets\Scripts\UI\Components\ItemUIElement.cs" />
     <Compile Include="Assets\Scripts\UI\Components\HealthBar.cs" />

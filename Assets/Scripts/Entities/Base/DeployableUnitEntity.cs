@@ -41,10 +41,11 @@ public class DeployableUnitEntity: UnitEntity, IDeployable
     private float preventInteractingTime = 0.1f; 
     private float lastDeployTime;
 
-    protected virtual void Awake()
+    protected override void Awake()
     {
         InitializeVisual();
         Faction = Faction.Ally; // 배치 가능한 요소는 모두 아군으로 간주
+        base.Awake();
     }
 
     public void Initialize(DeployableUnitData deployableUnitData)

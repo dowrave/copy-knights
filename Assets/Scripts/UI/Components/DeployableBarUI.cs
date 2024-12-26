@@ -8,10 +8,17 @@ public class DeployableBarUI : MonoBehaviour
 
     private float backOffset = 0; // UI의 높이 오프셋
     private Operator op;
+
     private void Awake()
     {
-        healthBar = transform.Find("HealthBar").GetComponent<HealthBar>();
-        spBar = transform.Find("SPBar").GetComponent<HealthBar>();
+        if (healthBar == null)
+        {
+            healthBar = transform.Find("HealthBar").GetComponent<HealthBar>();
+        }
+        if (spBar == null)
+        {
+            spBar = transform.Find("SPBar").GetComponent<HealthBar>();
+        }
     }
 
     public void Initialize(IDeployable deployable)
@@ -25,8 +32,6 @@ public class DeployableBarUI : MonoBehaviour
 
             UpdateUI();
             UpdatePosition();
-
-            Debug.Log("Bar UI 초기화 완료");
         }
     }
 
@@ -46,13 +51,14 @@ public class DeployableBarUI : MonoBehaviour
     {
         if (op != null)
         {
-            UpdateHealthBar(op.CurrentHealth, op.MaxHealth);
+            UpdateHealthBar(op.CurrentHealth, op.MaxHealth, op.GetCurrentShield());
             UpdateSPBar(op.CurrentSP, op.MaxSP);
         }
     }
-    public void UpdateHealthBar(float currentHealth, float maxHealth)
+
+    public void UpdateHealthBar(float currentHealth, float maxHealth, float currentShield)
     {
-        healthBar.UpdateHealthBar(currentHealth, maxHealth);
+        healthBar.UpdateHealthBar(currentHealth, maxHealth, currentShield);
     }
 
     public void UpdateSPBar(float currentSP, float maxSP)

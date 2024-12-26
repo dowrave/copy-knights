@@ -6,7 +6,6 @@ using UnityEngine;
 /// </summary>
 public class InfoPanel : MonoBehaviour
 {
-
     [SerializeField] private TextMeshProUGUI nameText;
     [SerializeField] private TextMeshProUGUI healthText;
     [SerializeField] private TextMeshProUGUI attackText;
@@ -28,8 +27,6 @@ public class InfoPanel : MonoBehaviour
     public void UpdateUnDeployedInfo(DeployableManager.DeployableInfo deployableInfo)
     {
         currentDeployableInfo = deployableInfo;
-        //Debug.Log($"currentDeployableInfo : {currentDeployableInfo}");
-        //Debug.Log($"currentDeployableInfo.ownedOperator : {currentDeployableInfo.ownedOperator}");
 
         // Operator 정보 업데이트
         if (currentDeployableInfo.ownedOperator != null)
@@ -111,7 +108,7 @@ public class InfoPanel : MonoBehaviour
         }
     }
 
-    private void UpdateHealthText(float currentHealth, float maxHealth)
+    private void UpdateHealthText(float currentHealth, float maxHealth, float currentShield = 0)
     {
         healthText.text = $"체력 : {currentHealth} / {maxHealth}";
     }

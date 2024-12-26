@@ -6,76 +6,102 @@ public class HealthBar : MonoBehaviour
 {
     // 체력바 UI 관리
     private Slider slider;
-    [SerializeField] private Image fillImage; // HealthBar의 색깔로 접근하기 위한 컴포넌트를 설정
-    [SerializeField] private bool showDamageEffect; 
+    [SerializeField] private Image healthFill;
+    [SerializeField] private Image shieldFill;
     [SerializeField] private Image damageOverlayImage;
     [SerializeField] private float damageFadeTime = 0.5f;
 
+    [Header("체력 게이지인 경우 체크")]
+    [SerializeField] private bool showDamageEffect;
+
+    [Header("GaugeColor")]
+    [SerializeField] private Color healthFillColor;
+    [SerializeField] private Color shieldFillColor; // 체력 게이지 전용
+    [SerializeField] private Color damageOverlayColor;  // 체력 게이지 전용
+
     private float currentAmount;
-    private float maxAmount;
+    private float maxAmount; // Health, SP 등 게이지가 주로 나타내는 값의 최대 수치
+    private float totalAmount; // 추가로 반영되는 값까지 포함한 수치
     private Coroutine damageCoroutine; 
 
     private void Awake()
     {
-        if (slider == null) slider = GetComponent<Slider>(); 
-        if (fillImage == null) fillImage = transform.Find("Fill Area/Fill").GetComponent<Image>();
+        slider = GetComponent<Slider>(); 
+
         if (showDamageEffect)
         {
             if (damageOverlayImage == null)
             {
                 damageOverlayImage = transform.Find("DamageOverlay").GetComponent<Image>();
             }
-             damageOverlayImage.color = GetSofterColor(fillImage.color);
+            damageOverlayImage.color = damageOverlayColor;
+            shieldFill.gameObject.SetActive(true);
         }
         else
         {
-            damageOverlayImage.gameObject.SetActive(false);
+            damageOverlayImage?.gameObject.SetActive(false);
+            shieldFill.gameObject.SetActive(false);
         }
+
+        healthFill.color = healthFillColor;
+        shieldFill.color = shieldFillColor;
     }
 
     /// <summary>
-    /// 더 밝고 연한 색을 반환함
+    /// 게이지 업데이트
     /// </summary>
-    private Color GetSofterColor(Color originalColor, float saturationAmount = 0.7f, float valueAmount = 0.1f)
+    public void UpdateHealthBar(float newValue, float maxValue, float currentShield = 0)
     {
-        float h, s, v;
-        Color.RGBToHSV(originalColor, out h, out s, out v);
+        maxAmount = maxValue;
+        float previousTotalAmount = totalAmount;
+        totalAmount = maxValue + currentShield;
 
-        // 0 ~ 1 사이로 값을 지정
-        s = Mathf.Clamp01(s - saturationAmount);
-        v = Mathf.Clamp01(v + valueAmount);
+        slider.maxValue = totalAmount; 
 
-        return Color.HSVToRGB(h, s, v);
-    }
-
-    /// <summary>
-    /// 체력 게이지 업데이트(현재 체력, 최대 체력)
-    /// </summary>
-    public void UpdateHealthBar(float newAmount, float maxAmount)
-    {
-        this.maxAmount = maxAmount;
+        // 이전 값 저장 후 갱신
         float previousAmount = currentAmount;
-        currentAmount = newAmount;
+        currentAmount = newValue;
+        
+        // 메인 게이지 비율 갱신
+        float valueRatio = newValue / totalAmount;
+        healthFill.fillAmount = valueRatio;
+        healthFill.rectTransform.anchorMin = new Vector2(0, 0);
+        healthFill.rectTransform.anchorMax = new Vector2(valueRatio, 1);
 
-        // Fill Area/Fill 부분의 값만 변경됨
-        slider.maxValue = maxAmount;
-        slider.value = currentAmount;
-
-        // 이펙트 보여주기 : damageOverlayImage 관련
-        // 상황) 체력 회복
-        if (previousAmount < currentAmount)
+        // 보호막 게이지 시각화
+        if (currentShield > 0)
         {
-            // 체력 닳는 이펙트를 보여주고 있는 상황이라면 이를 멈춤
+            // 시작점은 체력의 끝
+            float shieldStartRatio = valueRatio;
+            float shieldEndRatio = (newValue + currentShield) / totalAmount;
+            float shieldRatio = currentShield / totalAmount;
+
+            // x축으로 shieldStartRatio 부분부터 shieldEndRatio까지, y축은 게이지 전체를 채우는 구조
+            shieldFill.gameObject.SetActive(true);
+            shieldFill.rectTransform.anchorMin = new Vector2(shieldStartRatio, 0); 
+            shieldFill.rectTransform.anchorMax = new Vector2(shieldEndRatio, 1);
+
+            shieldFill.fillAmount = currentShield / totalAmount;
+        }
+        else
+        {
+            shieldFill.gameObject.SetActive(false);
+        }
+
+        // damageOverlay : 서서히 감소하는 체력 구현
+
+        // 체력이 회복되거나 보호막이 깎이는 등, 게이지에서 체력의 비율이 올라가는 상황
+        if (previousAmount < currentAmount || totalAmount != previousTotalAmount)
+        {
             if (damageCoroutine != null)
             {
                 StopCoroutine(damageCoroutine);
                 damageCoroutine = null;
             }
 
-            damageOverlayImage.fillAmount = currentAmount / maxAmount; 
+            damageOverlayImage.fillAmount = currentAmount / totalAmount; 
         }
-
-        // 상황) 체력 손실 시 서서히 닳는 효과 구현
+        //  체력이 닳는 상황
         else if (showDamageEffect && previousAmount > currentAmount)
         {
             ShowDamageEffect(previousAmount);
@@ -89,21 +115,27 @@ public class HealthBar : MonoBehaviour
             StopCoroutine(damageCoroutine);
         }
 
-        //damageOverlayImage.fillAmount = previousAmount / maxAmount;
         damageCoroutine = StartCoroutine(FadeDamageOverlay());
     }
 
     private IEnumerator FadeDamageOverlay()
     {
         float elapsedTime = 0f;
-        float startFillAmount = damageOverlayImage.fillAmount;
-        float targetFillAmount = currentAmount / maxAmount;
-
+        //float startFillAmount = damageOverlayImage.fillAmount;
+        //float targetFillAmount = currentAmount / maxAmount;
+        float startRatio = damageOverlayImage.rectTransform.anchorMax.x;
+        float targetRatio = currentAmount / totalAmount;
+        
         while (elapsedTime < damageFadeTime)
         {
             elapsedTime += Time.deltaTime;
             float t = elapsedTime / damageFadeTime;
-            damageOverlayImage.fillAmount = Mathf.Lerp(startFillAmount, targetFillAmount, t);
+
+            // anchor로 게이지 크기 서서히 감소
+            float currentRatio = Mathf.Lerp(startRatio, targetRatio, t);
+            damageOverlayImage.rectTransform.anchorMax = new Vector2(currentRatio, 1);
+
+            //damageOverlayImage.fillAmount = Mathf.Lerp(startFillAmount, targetFillAmount, t);
             yield return null;
         }
     }
@@ -115,15 +147,14 @@ public class HealthBar : MonoBehaviour
 
     public Color GetColor()
     {
-        return fillImage != null ? fillImage.color : Color.white;
+        return healthFill != null ? healthFill.color : Color.white;
     }
 
     public void SetColor(Color color)
     {
-        if (fillImage != null)
+        if (healthFill != null)
         {
-            fillImage.color = color;
-            damageOverlayImage.color = GetSofterColor(color);
+            healthFill.color = color;
         }
     }
 }

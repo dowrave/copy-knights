@@ -18,6 +18,9 @@ namespace Skills.Base
 
         // 공격 시에 적용
         public virtual void OnAttack(Operator op, ref float damage, ref bool showDamage) { } 
+
+        // 스킬 종료시의 처리
+        protected virtual void OnSkillEnd(Operator op) { }
     }
 
 }

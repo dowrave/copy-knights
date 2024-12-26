@@ -25,7 +25,17 @@ namespace Skills.OperatorSkills
         public float duration = 10f;
         public BuffModifiers Modifiers;
         public GameObject BuffEffectPrefab;
-        //public Color SPBarColor = Color.yellow;
+
+        // 값 임시 저장 필드
+        private float originalMaxHealth;
+        private float originalAttackPower;
+        private float originalAttackSpeed;
+        private float originalDefense;
+        private float originalMagicResistance;
+        int originalBlockableEnemies;
+        List<Vector2Int> originalAttackableTiles;
+        VisualEffect buffVFX;
+        GameObject buffEffect;
 
         public override void Activate(Operator op)
         {
@@ -37,13 +47,13 @@ namespace Skills.OperatorSkills
         {
             // 원래 스탯 저장
             //float originalCurrentHealth = op.CurrentHealth; 
-            float originalMaxHealth = op.MaxHealth;
-            float originalAttackPower = op.AttackPower;
-            float origianlAttackSpeed = op.AttackSpeed; 
-            float originalDefense = op.currentStats.Defense;
-            float originalMagicResistance = op.currentStats.MagicResistance;
-            int originalBlockableEnemies = op.currentStats.MaxBlockableEnemies;
-            List<Vector2Int> originalAttackableTiles = new List<Vector2Int>(op.CurrentAttackbleTiles);
+            originalMaxHealth = op.MaxHealth;
+            originalAttackPower = op.AttackPower;
+            originalAttackSpeed = op.AttackSpeed; 
+            originalDefense = op.currentStats.Defense;
+            originalMagicResistance = op.currentStats.MagicResistance;
+            originalBlockableEnemies = op.currentStats.MaxBlockableEnemies;
+            originalAttackableTiles = new List<Vector2Int>(op.CurrentAttackbleTiles);
 
             // 버프 적용
             op.CurrentHealth *= Modifiers.HealthModifier;
@@ -95,34 +105,7 @@ namespace Skills.OperatorSkills
             }
 
             // 버프 해제
-
-            // 1. 해제 직전의 현재 체력 > 최대 체력이라면 현재 체력은 원래의 최대 체력값이 됨
-            if (op.CurrentHealth > originalMaxHealth) 
-            {
-                op.CurrentHealth = originalMaxHealth; 
-            }
-            // 2. 해제 직전의 현재 체력 <= 최대 체력이면 그대로 유지
-
-            op.MaxHealth = originalMaxHealth;
-            op.AttackPower = originalAttackPower;
-            op.currentStats.Defense = originalDefense;
-            op.currentStats.MagicResistance = originalMagicResistance;
-            op.CurrentAttackbleTiles = originalAttackableTiles;
-            op.MaxBlockableEnemies = originalBlockableEnemies;
-
-            // 버프 이펙트 제거
-            if (buffEffect != null)
-            {
-                if (buffVFX != null)
-                {
-                    buffVFX.Stop(); // VFX 재생 중지
-                }
-
-                Destroy(buffEffect);
-            }
-
-            // SP Bar 복구
-            op.EndSkillDurationDisplay();
+            OnSkillEnd(op);
         }
 
         /// <summary>
@@ -157,6 +140,41 @@ namespace Skills.OperatorSkills
                 Camera.main.transform.rotation * Vector3.up);
 
             return buffEffect;
+        }
+
+        protected override void OnSkillEnd(Operator op)
+        {
+            base.OnSkillEnd(op);
+
+
+            // 1. 해제 직전의 현재 체력 > 최대 체력이라면 현재 체력은 원래의 최대 체력값이 됨
+            if (op.CurrentHealth > originalMaxHealth)
+            {
+                op.CurrentHealth = originalMaxHealth;
+            }
+            // 2. 해제 직전의 현재 체력 <= 최대 체력이면 그대로 유지
+
+            op.MaxHealth = originalMaxHealth;
+            op.AttackPower = originalAttackPower;
+            op.AttackSpeed = originalAttackSpeed;
+            op.currentStats.Defense = originalDefense;
+            op.currentStats.MagicResistance = originalMagicResistance;
+            op.CurrentAttackbleTiles = originalAttackableTiles;
+            op.MaxBlockableEnemies = originalBlockableEnemies;
+
+            // 버프 이펙트 제거
+            if (buffEffect != null)
+            {
+                if (buffVFX != null)
+                {
+                    buffVFX.Stop(); // VFX 재생 중지
+                }
+
+                Destroy(buffEffect);
+            }
+
+            // SP Bar 복구
+            op.EndSkillDurationDisplay();
         }
     }
 }
