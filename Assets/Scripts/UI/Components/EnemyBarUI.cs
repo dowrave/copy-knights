@@ -52,7 +52,6 @@ public class EnemyBarUI : MonoBehaviour
         if (enemy != null)
         {
             UpdateHealthBar(enemy.CurrentHealth, enemy.MaxHealth, enemy.GetCurrentShield());
-            Debug.Log($"EnemyBarUI : {enemy.CurrentHealth}, {enemy.MaxHealth}");
         }
     }
 

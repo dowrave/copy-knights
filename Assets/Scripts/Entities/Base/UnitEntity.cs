@@ -29,7 +29,8 @@ public abstract class UnitEntity : MonoBehaviour, ITargettable, IFactionMember
             OnHealthChanged?.Invoke(currentStats.Health, MaxHealth, shieldSystem.CurrentShield);
         }
     }
-    public float MaxHealth { get; set; } // 최대 체력도 변할 수 있음
+    public float MaxHealth { get; set; }
+
 
     // 이 개체를 공격하는 엔티티 목록
     protected List<ICombatEntity> attackingEntities = new List<ICombatEntity>();
@@ -41,6 +42,10 @@ public abstract class UnitEntity : MonoBehaviour, ITargettable, IFactionMember
     protected virtual void Awake()
     {
         shieldSystem = new ShieldSystem();
+        shieldSystem.OnShieldChanged += (shield) =>
+        {
+            OnHealthChanged?.Invoke(CurrentHealth, MaxHealth, shield);
+        };
     }
 
     public void Initialize(UnitData unitData)

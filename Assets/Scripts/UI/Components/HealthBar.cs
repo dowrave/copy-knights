@@ -121,8 +121,7 @@ public class HealthBar : MonoBehaviour
     private IEnumerator FadeDamageOverlay()
     {
         float elapsedTime = 0f;
-        //float startFillAmount = damageOverlayImage.fillAmount;
-        //float targetFillAmount = currentAmount / maxAmount;
+
         float startRatio = damageOverlayImage.rectTransform.anchorMax.x;
         float targetRatio = currentAmount / totalAmount;
         
@@ -135,7 +134,6 @@ public class HealthBar : MonoBehaviour
             float currentRatio = Mathf.Lerp(startRatio, targetRatio, t);
             damageOverlayImage.rectTransform.anchorMax = new Vector2(currentRatio, 1);
 
-            //damageOverlayImage.fillAmount = Mathf.Lerp(startFillAmount, targetFillAmount, t);
             yield return null;
         }
     }

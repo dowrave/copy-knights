@@ -13,6 +13,8 @@ public class ShieldSystem
     public float CurrentShield => currentShield;
     public float MaxShield => maxShield;
 
+    public event System.Action<float> OnShieldChanged;
+
     public void ActivateShield(float amount)
     {
         maxShield = amount;
@@ -46,9 +48,10 @@ public class ShieldSystem
 
     }
 
-    private void SetShield(float value)
+    public void SetShield(float value)
     {
         currentShield = Mathf.Clamp(value, 0f, maxShield);
+        OnShieldChanged?.Invoke(currentShield);
 
         if (currentShield <= 0)
         {
