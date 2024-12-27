@@ -34,8 +34,8 @@ namespace Skills.OperatorSkills
         private float originalMagicResistance;
         int originalBlockableEnemies;
         List<Vector2Int> originalAttackableTiles;
-        VisualEffect buffVFX;
-        GameObject buffEffect;
+        protected VisualEffect buffVFX;
+        protected GameObject buffEffect;
 
         public override void Activate(Operator op)
         {
@@ -75,15 +75,14 @@ namespace Skills.OperatorSkills
             }
 
             // 버프 이펙트 생성
-            VisualEffect buffVFX = null;
-            GameObject buffEffect = null;
+            buffVFX = null;
+            buffEffect = null;
 
             if (BuffEffectPrefab != null)
             {
                 Vector3 buffEffectPosition = new Vector3(op.transform.position.x, 0.05f, op.transform.position.z);
                 buffEffect = Instantiate(BuffEffectPrefab, buffEffectPosition, Quaternion.identity);
                 buffEffect.transform.SetParent(op.transform);
-
                 // VFX 컴포넌트 가져오기
                 buffVFX = buffEffect.GetComponent<VisualEffect>();
                 if (buffVFX != null)
@@ -146,14 +145,13 @@ namespace Skills.OperatorSkills
         {
             base.OnSkillEnd(op);
 
-
             // 1. 해제 직전의 현재 체력 > 최대 체력이라면 현재 체력은 원래의 최대 체력값이 됨
             if (op.CurrentHealth > originalMaxHealth)
             {
                 op.CurrentHealth = originalMaxHealth;
             }
-            // 2. 해제 직전의 현재 체력 <= 최대 체력이면 그대로 유지
 
+            // 2. 해제 직전의 현재 체력 <= 최대 체력이면 그대로 유지
             op.MaxHealth = originalMaxHealth;
             op.AttackPower = originalAttackPower;
             op.AttackSpeed = originalAttackSpeed;
@@ -169,7 +167,6 @@ namespace Skills.OperatorSkills
                 {
                     buffVFX.Stop(); // VFX 재생 중지
                 }
-
                 Destroy(buffEffect);
             }
 

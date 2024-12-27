@@ -13,7 +13,7 @@ GameObject:
   - component: {fileID: 2645934172642921739}
   - component: {fileID: 7098454271830987021}
   - component: {fileID: 5993496874452969842}
-  m_Layer: 9
+  m_Layer: 5
   m_Name: EnemyBarUI
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -85,7 +85,7 @@ MonoBehaviour:
   m_FallbackScreenDPI: 96
   m_DefaultSpriteDPI: 96
   m_DynamicPixelsPerUnit: 1
-  m_PresetInfoIsWorld: 0
+  m_PresetInfoIsWorld: 1
 --- !u!114 &7098454271830987021
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -139,6 +139,10 @@ PrefabInstance:
       propertyPath: m_FillAmount
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 756135920970946284, guid: e2398dcf759e75743b0e55cc17de6acc, type: 3}
+      propertyPath: m_Layer
+      value: 5
+      objectReference: {fileID: 0}
     - target: {fileID: 1688514557807072176, guid: e2398dcf759e75743b0e55cc17de6acc, type: 3}
       propertyPath: m_AnchorMin.x
       value: 0.325
@@ -159,9 +163,17 @@ PrefabInstance:
       propertyPath: m_LocalPosition.z
       value: 0.00002259016
       objectReference: {fileID: 0}
+    - target: {fileID: 2151420207133738341, guid: e2398dcf759e75743b0e55cc17de6acc, type: 3}
+      propertyPath: m_Layer
+      value: 5
+      objectReference: {fileID: 0}
     - target: {fileID: 4361264696287308240, guid: e2398dcf759e75743b0e55cc17de6acc, type: 3}
       propertyPath: m_FillAmount
       value: 0.325
+      objectReference: {fileID: 0}
+    - target: {fileID: 5822929250571809993, guid: e2398dcf759e75743b0e55cc17de6acc, type: 3}
+      propertyPath: m_Layer
+      value: 5
       objectReference: {fileID: 0}
     - target: {fileID: 5834165964443546629, guid: e2398dcf759e75743b0e55cc17de6acc, type: 3}
       propertyPath: m_Pivot.x
@@ -250,6 +262,10 @@ PrefabInstance:
     - target: {fileID: 6166015491020962495, guid: e2398dcf759e75743b0e55cc17de6acc, type: 3}
       propertyPath: m_Name
       value: HealthBar
+      objectReference: {fileID: 0}
+    - target: {fileID: 6166015491020962495, guid: e2398dcf759e75743b0e55cc17de6acc, type: 3}
+      propertyPath: m_Layer
+      value: 5
       objectReference: {fileID: 0}
     - target: {fileID: 6509785638678916096, guid: e2398dcf759e75743b0e55cc17de6acc, type: 3}
       propertyPath: m_SizeDelta.x

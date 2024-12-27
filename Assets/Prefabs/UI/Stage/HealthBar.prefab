@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 2078242553357954668}
   - component: {fileID: 2750022121488022803}
   - component: {fileID: 4361264696287308240}
-  m_Layer: 5
+  m_Layer: 9
   m_Name: HealthFill
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -86,7 +86,7 @@ GameObject:
   - component: {fileID: 1688514557807072176}
   - component: {fileID: 1602456470164408548}
   - component: {fileID: 97537113958457845}
-  m_Layer: 5
+  m_Layer: 9
   m_Name: ShieldFill
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -161,7 +161,7 @@ GameObject:
   - component: {fileID: 842163489222484437}
   - component: {fileID: 7499874358525816841}
   - component: {fileID: 4872841892573702157}
-  m_Layer: 5
+  m_Layer: 9
   m_Name: DamageOverlay
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -238,7 +238,7 @@ GameObject:
   - component: {fileID: 7940435949015412083}
   - component: {fileID: 1439389142476021949}
   - component: {fileID: 6587073260241711005}
-  m_Layer: 5
+  m_Layer: 9
   m_Name: HealthBar
   m_TagString: Untagged
   m_Icon: {fileID: 0}

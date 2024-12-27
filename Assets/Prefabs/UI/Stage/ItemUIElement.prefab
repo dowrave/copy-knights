@@ -13,7 +13,7 @@ GameObject:
   - component: {fileID: 1201595309889817896}
   - component: {fileID: 670381154766975496}
   - component: {fileID: 3837003923884680831}
-  m_Layer: 5
+  m_Layer: 8
   m_Name: ItemCountBackground
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -130,7 +130,7 @@ GameObject:
   - component: {fileID: 9171595417131835813}
   - component: {fileID: 2094559988798836555}
   - component: {fileID: 7099197027598765225}
-  m_Layer: 5
+  m_Layer: 8
   m_Name: ItemUIElement
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -211,8 +211,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   backgroundImage: {fileID: 6321489942551284011}
   itemIconImage: {fileID: 879291587049708621}
-  itemCountBackground: {fileID: 1201595309889817896}
   countText: {fileID: 5628012550882501142}
+  itemCountBackground: {fileID: 1201595309889817896}
   commonColor: {r: 0.7, g: 0.7, b: 0.7, a: 1}
   rareColor: {r: 0.2, g: 0.5, b: 1, a: 1}
   epicColor: {r: 0.8, g: 0.3, b: 1, a: 1}
@@ -227,7 +227,7 @@ GameObject:
   - component: {fileID: 4317000417524299590}
   - component: {fileID: 2132426637254437110}
   - component: {fileID: 879291587049708621}
-  m_Layer: 5
+  m_Layer: 8
   m_Name: ItemImage
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -302,7 +302,7 @@ GameObject:
   - component: {fileID: 2464850043036757225}
   - component: {fileID: 924612877060100723}
   - component: {fileID: 5628012550882501142}
-  m_Layer: 5
+  m_Layer: 8
   m_Name: ItemCountText
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -436,7 +436,7 @@ GameObject:
   - component: {fileID: 1232703805799156442}
   - component: {fileID: 9108850816766649461}
   - component: {fileID: 6321489942551284011}
-  m_Layer: 5
+  m_Layer: 8
   m_Name: RarityBorder
   m_TagString: Untagged
   m_Icon: {fileID: 0}

@@ -87,10 +87,10 @@ public class InfoPanel : MonoBehaviour
             currentOperator.OnStatsChanged += UpdateOperatorInfo;
 
             UpdateHealthText(currentOperator.CurrentHealth, currentOperator.MaxHealth);
-            attackText.text = $"공격력: {currentOperator.currentStats.AttackPower}";
-            defenseText.text = $"방어력: {currentOperator.currentStats.Defense}";
-            magicResistanceText.text = $"마법저항력: {currentOperator.currentStats.MagicResistance}";
-            blockCountText.text = $"저지수: {currentOperator.currentStats.MaxBlockableEnemies}";
+            attackText.text = $"공격력: {Mathf.Ceil(currentOperator.currentStats.AttackPower)}";
+            defenseText.text = $"방어력: {Mathf.Ceil(currentOperator.currentStats.Defense)}";
+            magicResistanceText.text = $"마법저항력: {Mathf.Ceil(currentOperator.currentStats.MagicResistance)}";
+            blockCountText.text = $"저지수: {Mathf.Ceil(currentOperator.currentStats.MaxBlockableEnemies)}";
         }
 
         // 배치되지 않은 경우
@@ -101,16 +101,16 @@ public class InfoPanel : MonoBehaviour
             // 배치되지 않은 경우 : OwnedOperator의 정보를 가져옴
             float initialHealth = ownedOperatorStats.Health; 
             UpdateHealthText(initialHealth, initialHealth);
-            attackText.text = $"공격력: {ownedOperatorStats.AttackPower}";
-            defenseText.text = $"방어력: {ownedOperatorStats.Defense}";
-            magicResistanceText.text = $"마법저항력: {ownedOperatorStats.MagicResistance}";
-            blockCountText.text = $"저지수: {ownedOperatorStats.MaxBlockableEnemies}";
+            attackText.text = $"공격력: {Mathf.Ceil(ownedOperatorStats.AttackPower)}";
+            defenseText.text = $"방어력: {Mathf.Ceil(ownedOperatorStats.Defense)}";
+            magicResistanceText.text = $"마법저항력: {Mathf.Ceil(ownedOperatorStats.MagicResistance)}";
+            blockCountText.text = $"저지수: {Mathf.Ceil(ownedOperatorStats.MaxBlockableEnemies)}";
         }
     }
 
     private void UpdateHealthText(float currentHealth, float maxHealth, float currentShield = 0)
     {
-        healthText.text = $"체력 : {currentHealth} / {maxHealth}";
+        healthText.text = $"체력 : {Mathf.Ceil(currentHealth)} / {Mathf.Ceil(maxHealth)}";
     }
 
     private void OnDisable()

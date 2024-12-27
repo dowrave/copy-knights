@@ -17,7 +17,7 @@ public abstract class UnitEntity : MonoBehaviour, ITargettable, IFactionMember
     public Tile CurrentTile { get; protected set; }
     public GameObject Prefab { get; protected set; }
 
-    protected ShieldSystem shieldSystem;
+    public ShieldSystem shieldSystem;
 
     // ½ºÅÈ °ü·Ã
     public float CurrentHealth
@@ -42,7 +42,7 @@ public abstract class UnitEntity : MonoBehaviour, ITargettable, IFactionMember
     protected virtual void Awake()
     {
         shieldSystem = new ShieldSystem();
-        shieldSystem.OnShieldChanged += (shield) =>
+        shieldSystem.OnShieldChanged += (shield, onShieldDepleted) =>
         {
             OnHealthChanged?.Invoke(CurrentHealth, MaxHealth, shield);
         };

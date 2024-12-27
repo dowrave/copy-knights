@@ -16,7 +16,7 @@ TagManager:
   - UI_Overlay
   - UI_WorldSpace
   - Tile
-  - BuffEffect
+  - Effect
   - 
   - 
   - 
@@ -44,7 +44,7 @@ TagManager:
   - name: Deployable
     uniqueID: 2801499103
     locked: 0
-  - name: BuffEffect
+  - name: Effect
     uniqueID: 19170391
     locked: 0
   - name: Tile

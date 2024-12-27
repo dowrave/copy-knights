@@ -13,7 +13,7 @@ GameObject:
   - component: {fileID: 5942269116690765502}
   - component: {fileID: 5014289655642690059}
   - component: {fileID: 2367504790208865396}
-  m_Layer: 9
+  m_Layer: 5
   m_Name: DeployableBarUI
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -86,7 +86,7 @@ MonoBehaviour:
   m_FallbackScreenDPI: 96
   m_DefaultSpriteDPI: 96
   m_DynamicPixelsPerUnit: 1
-  m_PresetInfoIsWorld: 0
+  m_PresetInfoIsWorld: 1
 --- !u!114 &5014289655642690059
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -130,6 +130,10 @@ PrefabInstance:
       propertyPath: m_FillAmount
       value: 0.412
       objectReference: {fileID: 0}
+    - target: {fileID: 756135920970946284, guid: e2398dcf759e75743b0e55cc17de6acc, type: 3}
+      propertyPath: m_Layer
+      value: 5
+      objectReference: {fileID: 0}
     - target: {fileID: 1688514557807072176, guid: e2398dcf759e75743b0e55cc17de6acc, type: 3}
       propertyPath: m_AnchorMin.x
       value: 0
@@ -141,6 +145,10 @@ PrefabInstance:
     - target: {fileID: 2078242553357954668, guid: e2398dcf759e75743b0e55cc17de6acc, type: 3}
       propertyPath: m_AnchorMax.y
       value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 2151420207133738341, guid: e2398dcf759e75743b0e55cc17de6acc, type: 3}
+      propertyPath: m_Layer
+      value: 5
       objectReference: {fileID: 0}
     - target: {fileID: 4361264696287308240, guid: e2398dcf759e75743b0e55cc17de6acc, type: 3}
       propertyPath: m_Color.b
@@ -181,6 +189,10 @@ PrefabInstance:
     - target: {fileID: 4872841892573702157, guid: e2398dcf759e75743b0e55cc17de6acc, type: 3}
       propertyPath: m_FillAmount
       value: 0.82
+      objectReference: {fileID: 0}
+    - target: {fileID: 5822929250571809993, guid: e2398dcf759e75743b0e55cc17de6acc, type: 3}
+      propertyPath: m_Layer
+      value: 5
       objectReference: {fileID: 0}
     - target: {fileID: 5822929250571809993, guid: e2398dcf759e75743b0e55cc17de6acc, type: 3}
       propertyPath: m_IsActive
@@ -281,6 +293,10 @@ PrefabInstance:
     - target: {fileID: 6166015491020962495, guid: e2398dcf759e75743b0e55cc17de6acc, type: 3}
       propertyPath: m_Name
       value: HealthBar
+      objectReference: {fileID: 0}
+    - target: {fileID: 6166015491020962495, guid: e2398dcf759e75743b0e55cc17de6acc, type: 3}
+      propertyPath: m_Layer
+      value: 5
       objectReference: {fileID: 0}
     - target: {fileID: 7687801562270615777, guid: e2398dcf759e75743b0e55cc17de6acc, type: 3}
       propertyPath: m_Value
@@ -386,6 +402,10 @@ PrefabInstance:
       propertyPath: m_FillAmount
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 756135920970946284, guid: e2398dcf759e75743b0e55cc17de6acc, type: 3}
+      propertyPath: m_Layer
+      value: 5
+      objectReference: {fileID: 0}
     - target: {fileID: 1688514557807072176, guid: e2398dcf759e75743b0e55cc17de6acc, type: 3}
       propertyPath: m_AnchorMin.x
       value: 0
@@ -405,6 +425,10 @@ PrefabInstance:
     - target: {fileID: 2078242553357954668, guid: e2398dcf759e75743b0e55cc17de6acc, type: 3}
       propertyPath: m_LocalPosition.z
       value: 0.00001090765
+      objectReference: {fileID: 0}
+    - target: {fileID: 2151420207133738341, guid: e2398dcf759e75743b0e55cc17de6acc, type: 3}
+      propertyPath: m_Layer
+      value: 5
       objectReference: {fileID: 0}
     - target: {fileID: 2151420207133738341, guid: e2398dcf759e75743b0e55cc17de6acc, type: 3}
       propertyPath: m_IsActive
@@ -433,6 +457,10 @@ PrefabInstance:
     - target: {fileID: 4872841892573702157, guid: e2398dcf759e75743b0e55cc17de6acc, type: 3}
       propertyPath: m_FillAmount
       value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5822929250571809993, guid: e2398dcf759e75743b0e55cc17de6acc, type: 3}
+      propertyPath: m_Layer
+      value: 5
       objectReference: {fileID: 0}
     - target: {fileID: 5822929250571809993, guid: e2398dcf759e75743b0e55cc17de6acc, type: 3}
       propertyPath: m_IsActive
@@ -525,6 +553,10 @@ PrefabInstance:
     - target: {fileID: 6166015491020962495, guid: e2398dcf759e75743b0e55cc17de6acc, type: 3}
       propertyPath: m_Name
       value: SPBar
+      objectReference: {fileID: 0}
+    - target: {fileID: 6166015491020962495, guid: e2398dcf759e75743b0e55cc17de6acc, type: 3}
+      propertyPath: m_Layer
+      value: 5
       objectReference: {fileID: 0}
     - target: {fileID: 7687801562270615777, guid: e2398dcf759e75743b0e55cc17de6acc, type: 3}
       propertyPath: m_Value

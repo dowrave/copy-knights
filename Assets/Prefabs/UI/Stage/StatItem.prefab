@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 5999144181019919594}
   - component: {fileID: 6496600592048616242}
   - component: {fileID: 3662310551153740462}
-  m_Layer: 5
+  m_Layer: 8
   m_Name: Value
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -145,7 +145,7 @@ GameObject:
   - component: {fileID: 4522615768733859708}
   - component: {fileID: 8558593047105527163}
   - component: {fileID: 5747671726373801888}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Fill
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -220,7 +220,7 @@ GameObject:
   - component: {fileID: 6198882824933036543}
   - component: {fileID: 2494363311268627656}
   - component: {fileID: 2617076440173378804}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Background
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -294,7 +294,7 @@ GameObject:
   m_Component:
   - component: {fileID: 7933280984849850128}
   - component: {fileID: 1996897179425036174}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: PercentageBar
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -382,7 +382,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 6311760416124097266}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Fill Area
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -420,7 +420,7 @@ GameObject:
   - component: {fileID: 409512453432412613}
   - component: {fileID: 625928521371499996}
   - component: {fileID: 8211515062714017963}
-  m_Layer: 5
+  m_Layer: 8
   m_Name: OperatorIcon
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -496,7 +496,7 @@ GameObject:
   - component: {fileID: 3815984314464146701}
   - component: {fileID: 4718824040333034803}
   - component: {fileID: 376849629588691562}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: StatItem
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -591,7 +591,7 @@ GameObject:
   m_Component:
   - component: {fileID: 4720106873219776033}
   - component: {fileID: 9119675263447408310}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: TopLayer
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -639,7 +639,7 @@ GameObject:
   - component: {fileID: 926360461853300385}
   - component: {fileID: 5810757826749422340}
   - component: {fileID: 4577985894523130404}
-  m_Layer: 5
+  m_Layer: 8
   m_Name: Value(Percentage)
   m_TagString: Untagged
   m_Icon: {fileID: 0}

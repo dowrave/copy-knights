@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 1721217634876411807}
   - component: {fileID: 8921944753909895169}
   - component: {fileID: 3667584210642853660}
-  m_Layer: 5
+  m_Layer: 8
   m_Name: CooldownText
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -145,7 +145,7 @@ GameObject:
   - component: {fileID: 3013613325651971929}
   - component: {fileID: 6431523574620528952}
   - component: {fileID: 3506960002150489217}
-  m_Layer: 5
+  m_Layer: 8
   m_Name: CostText
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -279,7 +279,7 @@ GameObject:
   - component: {fileID: 564790052222354521}
   - component: {fileID: 5967578774393822473}
   - component: {fileID: 3120701433108118999}
-  m_Layer: 5
+  m_Layer: 8
   m_Name: OperatorIcon
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -354,7 +354,7 @@ GameObject:
   - component: {fileID: 5891488405857024112}
   - component: {fileID: 3390755328935109818}
   - component: {fileID: 205482752195050165}
-  m_Layer: 5
+  m_Layer: 8
   m_Name: TopContainer
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -433,7 +433,7 @@ GameObject:
   - component: {fileID: 2517977359460801798}
   - component: {fileID: 2895844687629904351}
   - component: {fileID: 2668135105408265270}
-  m_Layer: 5
+  m_Layer: 8
   m_Name: OperatorIllustration
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -508,7 +508,7 @@ GameObject:
   - component: {fileID: 2039039994051275041}
   - component: {fileID: 6229571318401264609}
   - component: {fileID: 4464491422823538037}
-  m_Layer: 5
+  m_Layer: 8
   m_Name: CountText
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -644,7 +644,7 @@ GameObject:
   - component: {fileID: 6488080678099393793}
   - component: {fileID: 2015920184108376305}
   - component: {fileID: 3369836329132661105}
-  m_Layer: 5
+  m_Layer: 8
   m_Name: DeployableBox
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -787,7 +787,7 @@ GameObject:
   - component: {fileID: 8036971288336510154}
   - component: {fileID: 7854846748723702353}
   - component: {fileID: 7572347816183708204}
-  m_Layer: 5
+  m_Layer: 8
   m_Name: InActiveOverlay
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -862,7 +862,7 @@ GameObject:
   - component: {fileID: 4800159939841111601}
   - component: {fileID: 8401465666411740867}
   - component: {fileID: 1292301028173704002}
-  m_Layer: 5
+  m_Layer: 8
   m_Name: CostBackground
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -938,7 +938,7 @@ GameObject:
   - component: {fileID: 6816544308307322411}
   - component: {fileID: 6657590276581838613}
   - component: {fileID: 5771436907301439583}
-  m_Layer: 5
+  m_Layer: 8
   m_Name: OperatorIconBox
   m_TagString: Untagged
   m_Icon: {fileID: 0}
