@@ -15,8 +15,9 @@ public class EnemyData : ScriptableObject, ICombatData
     public int blockCount = 1;
     public GameObject projectilePrefab;
 
-    [Header("Hit Effects")] // 피격 대상에게서 출력
-    public GameObject hitEffectPrefab;
+    [Header("VFX Effects")]
+    public GameObject meleeAttackEffectPrefab; // 근접 공격 이펙트
+    public GameObject hitEffectPrefab; // 공격이 적중했을 때의 이펙트
 
     public GameObject HitEffectPrefab => hitEffectPrefab;
     public AttackType AttackType => attackType;

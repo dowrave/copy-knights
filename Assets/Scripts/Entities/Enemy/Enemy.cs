@@ -1,8 +1,11 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.Serialization;
 using UnityEngine;
+using UnityEngine.VFX;
 using static ICombatEntity;
+using static UnityEngine.GraphicsBuffer;
 
 public class Enemy : UnitEntity, IMovable, ICombatEntity
 {
@@ -54,6 +57,10 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity
     protected int initialPoolSize = 5;
     protected string? projectileTag;
 
+    // 이펙트 풀 태그
+    string meleeAttackEffectTag;
+    string hitEffectTag;
+
     [SerializeField] private GameObject enemyBarUIPrefab;
     private EnemyBarUI enemyBarUI;
 
@@ -72,14 +79,7 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity
         InitializeUnitProperties();
         InitializeEnemyProperties();
 
-        // 공격 이펙트 풀 생성
-        if (BaseData.hitEffectPrefab != null)
-        {
-            ObjectPoolManager.Instance.CreateEffectPool(
-                BaseData.entityName,
-                BaseData.hitEffectPrefab
-            );
-        }
+        CreateEffectPool();
     }
 
     private void OnEnable()
@@ -172,17 +172,6 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity
         }
     }
 
-    protected void OnDestroy()
-    {
-        // 타일에서 제거
-        CurrentTile.EnemyExited(this);
-
-        if (AttackRangeType == AttackRangeType.Ranged)
-        {
-            CleanupProjectilePool();
-        }
-    }
-
     /// <summary>
     /// pathData.nodes를 이용해 currentPath 초기화
     /// </summary>
@@ -266,16 +255,6 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity
         }
     }
 
-    private IEnumerator RemoveFromPreviousTileDelay(Tile previousTile)
-    {
-        yield return new WaitForSeconds(0f);
-
-        if (previousTile != null && previousTile != CurrentTile)
-        {
-            previousTile.EnemyExited(this);
-        }
-    }
-
     // 대기 중일 때 실행
     private IEnumerator WaitAtNode(float waitTime)
     {
@@ -351,6 +330,8 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity
         SetAttackTimings(); // 이걸 따로 호출하는 경우가 있어서 여기서 다시 설정
         AttackSource attackSource = new AttackSource(transform.position, false);
 
+        PlayMeleeAttackEffect(target);
+
         target.TakeDamage(this, attackSource, damage);
     }
 
@@ -377,11 +358,6 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity
     protected bool IsTargetInRange(UnitEntity target)
     {
         return Vector3.Distance(target.transform.position, transform.position) <= AttackRange;
-    }
-
-    private bool HasTargetInRange()
-    {
-        return targetsInRange.Count > 0;
     }
 
     protected override void Die()
@@ -488,14 +464,6 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity
         return Vector3.Distance(transform.position, lastNodePosition) < 0.05f;
     }
 
-    // 그리드 -> 월드 좌표 변환 후, 월드 좌표의 y좌표를 0.5로 넣음
-    private Vector3 GetAdjustedNextPosition()
-    {
-        Vector3 adjustedPosition = nextPosition;
-        adjustedPosition.y = 0.5f;
-        return adjustedPosition;
-    }
-
     /// <summary>
     /// Data, Stat이 엔티티마다 다르기 때문에 자식 메서드에서 재정의가 항상 필요
     /// </summary>
@@ -565,15 +533,6 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity
         ObjectPoolManager.Instance.CreatePool(projectileTag, BaseData.projectilePrefab, initialPoolSize);
     }
 
-    private void CleanupProjectilePool()
-    {
-        if (!string.IsNullOrEmpty(projectileTag))
-        {
-            ObjectPoolManager.Instance.RemovePool(projectileTag);
-        }
-    }
-
-    // 경로와 남은 거리 관련
     /// <summary>
     /// 현재 경로상에서 목적지까지 남은 거리 계산
     /// </summary>
@@ -625,7 +584,7 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity
     }
 
     /// <summary>
-    /// 경로가 다시 열렸더라도 targetBarricade를 제거하는 건 불가능하게 설정
+    /// 바리케이드 제거 시의 동작
     /// </summary>
     private IEnumerator OnBarricadeRemoved(Barricade barricade)
     {
@@ -669,22 +628,6 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity
     }
 
     /// <summary>
-    /// 현재 위치 -> 타겟 위치까지 향하는 경로를 체크
-    /// </summary>
-    private List<PathNode> CalculatePath(Vector3 currentPosition, Vector3 targetPosition)
-    {
-        return PathfindingManager.Instance.FindPathAsNodes(currentPosition, targetPosition);
-    }
-
-    /// <summary>
-    /// targetBarricade 설정
-    /// </summary>
-    private void SetTargetBarricade()
-    {
-        targetBarricade = PathfindingManager.Instance.GetNearestBarricade(transform.position); 
-    }
-
-    /// <summary>
     /// CalculatePath로 탐색된 경로를 받아옴
     /// pathData, currentPath, currentNodeIndex 초기화
     /// </summary>
@@ -708,7 +651,7 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity
     /// </summary>
     private bool CalculateAndSetPath(Vector3 currentPosition, Vector3 targetPosition)
     {
-        List<PathNode> tempPathNodes = CalculatePath(currentPosition, targetPosition);
+        List<PathNode> tempPathNodes = PathfindingManager.Instance.FindPathAsNodes(currentPosition, targetPosition);
 
         if (tempPathNodes == null || tempPathNodes.Count == 0) return false; // 목적지로 향하는 경로가 없음
 
@@ -722,7 +665,8 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity
 
     private void SetBarricadePath()
     {
-        SetTargetBarricade();
+        targetBarricade = PathfindingManager.Instance.GetNearestBarricade(transform.position);
+
         if (targetBarricade != null)
         {
             CalculateAndSetPath(transform.position, targetBarricade.transform.position);
@@ -739,7 +683,6 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity
             SetBarricadePath();
         }
     }
-
 
     public void UpdateAttackTimings()
     {
@@ -795,6 +738,56 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity
             AttackDuration <= 0;
     }
 
+    private void CreateEffectPool()
+    {
+        // 근접 공격 이펙트 풀 생성
+        if (BaseData.meleeAttackEffectPrefab != null)
+        {
+            meleeAttackEffectTag = BaseData.entityName + BaseData.meleeAttackEffectPrefab.name;
+            ObjectPoolManager.Instance.CreatePool(
+                meleeAttackEffectTag,
+                BaseData.meleeAttackEffectPrefab
+            );
+        }
+
+        // 피격 이펙트 풀 생성
+        if (BaseData.hitEffectPrefab != null)
+        {
+            hitEffectTag = BaseData.entityName + BaseData.hitEffectPrefab.name;
+            ObjectPoolManager.Instance.CreatePool(
+                hitEffectTag,
+                BaseData.hitEffectPrefab
+            );
+        }
+    }
+
+    private void PlayMeleeAttackEffect(UnitEntity target)
+    {
+        // 이펙트 처리
+        if (BaseData.meleeAttackEffectPrefab != null)
+        {
+            GameObject effectObj = ObjectPoolManager.Instance.SpawnFromPool(
+                   meleeAttackEffectTag,
+                   transform.position,
+                   Quaternion.identity
+           );
+            VisualEffect vfx = effectObj.GetComponent<VisualEffect>();
+
+            // 방향이 있다면 방향 계산
+            if (vfx != null && vfx.HasVector3("BaseDirection"))
+            {
+                Vector3 baseDirection = vfx.GetVector3("BaseDirection");
+                Vector3 attackDirection = (target.transform.position - transform.position).normalized;
+                Quaternion rotation = Quaternion.FromToRotation(baseDirection, attackDirection);
+                effectObj.transform.rotation = rotation;
+
+                vfx.Play();
+            }
+
+            StartCoroutine(ReturnEffectToPool(meleeAttackEffectTag, effectObj, 1f));
+        }
+    }
+
     private void CreateEnemyBarUI()
     {
         if (enemyBarUIPrefab != null)
@@ -804,4 +797,41 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity
             enemyBarUI.Initialize(this);
         }
     }
+
+
+    private void RemoveProjectilePool()
+    {
+        if (!string.IsNullOrEmpty(projectileTag))
+        {
+            ObjectPoolManager.Instance.RemovePool(projectileTag);
+        }
+    }
+
+    private void RemoveEffectPool()
+    {
+        if (meleeAttackEffectTag != null)
+        {
+            ObjectPoolManager.Instance.RemovePool(meleeAttackEffectTag);
+        }
+
+        if (hitEffectTag != null)
+        {
+            ObjectPoolManager.Instance.RemovePool(hitEffectTag);
+        }
+    }
+
+    protected void OnDestroy()
+    {
+        // 타일에서 제거
+        CurrentTile.EnemyExited(this);
+
+        RemoveEffectPool();
+
+        if (AttackRangeType == AttackRangeType.Ranged)
+        {
+            RemoveProjectilePool();
+        }
+    }
+
 }
+

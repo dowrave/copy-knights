@@ -1,19 +1,18 @@
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using UnityEngine.VFX;
 using Skills.Base;
 using static ICombatEntity;
 
 public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
 {
     public new OperatorData BaseData { get; protected set; } 
-    
-    [HideInInspector] public new OperatorStats currentStats;
+    [HideInInspector] public new OperatorStats currentStats; // 일단 public으로 구현
 
     // ICombatEntity 필드
     public AttackType AttackType => BaseData.attackType;
     public AttackRangeType AttackRangeType => BaseData.attackRangeType;
-
 
     public float AttackPower
     {
@@ -131,6 +130,10 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
     protected int initialPoolSize = 5;
     protected string projectileTag;
 
+    // 이펙트 풀 태그
+    string meleeAttackEffectTag;
+    string hitEffectTag;
+
     // 스킬 관련
     public Skill ActiveSkill { get; set; }
     public bool IsSkillActive { get; protected set; } = false;
@@ -240,13 +243,6 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
         }
     }
 
-    protected void OnDestroy()
-    {
-        if (AttackRangeType == AttackRangeType.Ranged)
-        {
-            CleanupProjectilePool();
-        }
-    }
 
     // 인터페이스만 계승, 이 안에서는 대미지 팝업 요소만 추가해서 PerformAttack으로 전달
     public virtual void Attack(UnitEntity target, float damage)
@@ -276,12 +272,11 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
     protected virtual void PerformMeleeAttack(UnitEntity target, float damage, bool showDamagePopup)
     {
         SetAttackTimings();
-
-        //target.TakeDamage(attackType, damage, this, BaseData.hitEffectPrefab);
         AttackSource attackSource = new AttackSource(transform.position, false);
 
-        target.TakeDamage(this, attackSource, damage);
+        PlayMeleeAttackEffect(target);
 
+        target.TakeDamage(this, attackSource, damage);
         if (showDamagePopup)
         {
             ObjectPoolManager.Instance.ShowFloatingText(target.transform.position, damage, false);
@@ -341,18 +336,6 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
         return offset;
     }
 
-
-    protected Vector2Int WorldToRelativeGridPosition(Vector3 worldPosition)
-    {
-        if (MapManager.Instance.CurrentMap != null)
-        {
-            Vector2Int absoluteGridPos = MapManager.Instance.CurrentMap.WorldToGridPosition(worldPosition);
-            Vector2Int operatorGridPos = MapManager.Instance.CurrentMap.WorldToGridPosition(transform.position);
-            return absoluteGridPos - operatorGridPos;
-        }
-        return Vector2Int.zero;
-    }
-
     public void SetDeploymentOrder()
     {
         DeploymentOrder = DeployableManager.Instance.CurrentDeploymentOrder;
@@ -360,8 +343,6 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
     }
 
     // --- 저지 관련 메서드들
-
-   
     public bool CanBlockEnemy(int enemyBlockCount)
     {
         // 현재 저지 중인 적 + 지금 저지하려는 적이 차지하는 저지 수가 최대 저지수 이하
@@ -382,7 +363,6 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
 
     public void UnblockEnemy(Enemy enemy)
     {
-        Debug.LogWarning("적 저지 해제");
         blockedEnemies.Remove(enemy);
         nowBlockingCount -= enemy.BaseData.blockCount;
     }
@@ -550,9 +530,7 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
         {
             CurrentTarget.RemoveAttackingEntity(this);
             CurrentTarget = null;
-            Debug.Log($"현재 타겟 해제 동작 후: {CurrentTarget}");
         }
-        
     }
 
     /// <summary>
@@ -580,6 +558,24 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
     public override void Deploy(Vector3 position)
     {
         base.Deploy(position);
+
+        if (BaseData.deployEffectPrefab != null)
+        {
+            GameObject deployEffect = Instantiate(
+                BaseData.deployEffectPrefab,
+                transform.position,
+                Quaternion.identity
+            );
+
+            var vfx = deployEffect.GetComponent<VisualEffect>();
+            if (vfx != null)
+            {
+                vfx.Play();
+                Destroy(deployEffect, 1.2f); // 1초 후 파괴. 
+            }
+        }
+
+        // 이펙트 파괴를 기다리지 않고 동작함
         IsPreviewMode = false;
         SetDeploymentOrder();
         SetDirection(facingDirection);
@@ -588,11 +584,8 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
         ShowDirectionIndicator(true);
         CurrentSP = currentStats.StartSP;
 
-        // 오브젝트 풀 생성 - Medic도 이걸로 될 듯
-        ObjectPoolManager.Instance.CreateEffectPool(
-            BaseData.entityName,
-            BaseData.hitEffectPrefab
-        );
+        // 이펙트 오브젝트 풀 생성
+        CreateEffectPool();
     }
 
     public override void Retreat()
@@ -605,8 +598,6 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
     {
         return IsDeployed && CurrentSP >= MaxSP;
     }
-
-
 
     protected override void InitializeHP()
     {
@@ -662,43 +653,19 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
         CurrentTarget = null;
     }
 
-    /// <summary>
-    /// CurrentTarget에게 자신이 공격하고 있음을 알림
-    /// </summary>
-    public void NotifyTarget()
-    {
-        CurrentTarget.AddAttackingEntity(this);
-    }
-
-    /// <summary>
-    /// 투사체 풀을 만듦. 오퍼레이터마다의 고유한 이름이 모두 다르므로 풀의 태그 이름도 모두 다름
-    /// </summary>
-    public void InitializeProjectilePool()
-    {
-        projectileTag = $"{BaseData.entityName}_Projectile";
-        ObjectPoolManager.Instance.CreatePool(projectileTag, BaseData.projectilePrefab, initialPoolSize);
-    }
-
-    protected void CleanupProjectilePool()
-    {
-        if (!string.IsNullOrEmpty(projectileTag))
-        {
-            ObjectPoolManager.Instance.RemovePool(projectileTag);
-        }
-    }
-
-    // ICombatEntity 메서드들
-
-    /// <summary>
-    /// Update에 구현, 
-    /// 두 값 모두 있을 때에만 작동한다.
-    /// </summary>
     public void UpdateAttackTimings()
     {
         UpdateAttackDuration();
         UpdateAttackCooldown();
     }
 
+    // ICombatEntity 메서드들
+    public void NotifyTarget()
+    {
+        CurrentTarget.AddAttackingEntity(this);
+    }
+
+    // 공격 모션 
     public void UpdateAttackDuration()
     {
         if (AttackDuration > 0f)
@@ -707,6 +674,7 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
         }
     }
 
+    // 다음 공격 가능 시간
     public void UpdateAttackCooldown()
     {
         if (AttackCooldown > 0f)
@@ -793,6 +761,97 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
         if (operatorUIScript != null)
         {
             operatorUIScript.UpdateUI();
+        }
+    }
+
+    private void CreateEffectPool()
+    {
+        // 근접 공격 이펙트 풀 생성
+        if (BaseData.meleeAttackEffectPrefab != null)
+        {
+            meleeAttackEffectTag = BaseData.entityName + BaseData.meleeAttackEffectPrefab.name;
+            ObjectPoolManager.Instance.CreatePool(
+                meleeAttackEffectTag,
+                BaseData.meleeAttackEffectPrefab
+            );
+        }
+
+        // 피격 이펙트 풀 생성
+        if (BaseData.hitEffectPrefab != null)
+        {
+            hitEffectTag = BaseData.entityName + BaseData.hitEffectPrefab.name;
+            ObjectPoolManager.Instance.CreatePool(
+                hitEffectTag,
+                BaseData.hitEffectPrefab
+            );
+        }
+    }
+
+    private void PlayMeleeAttackEffect(UnitEntity target)
+    {
+        // 이펙트 처리
+        if (BaseData.meleeAttackEffectPrefab != null)
+        {
+            GameObject effectObj = ObjectPoolManager.Instance.SpawnFromPool(
+                   meleeAttackEffectTag,
+                   transform.position,
+                   Quaternion.identity
+           );
+            VisualEffect vfx = effectObj.GetComponent<VisualEffect>();
+
+            // 방향이 있다면 방향 계산
+            if (vfx != null && vfx.HasVector3("BaseDirection"))
+            {
+                Vector3 baseDirection = vfx.GetVector3("BaseDirection");
+                Vector3 attackDirection = (target.transform.position - transform.position).normalized;
+                Quaternion rotation = Quaternion.FromToRotation(baseDirection, attackDirection);
+                effectObj.transform.rotation = rotation;
+
+                vfx.Play();
+            }
+
+            StartCoroutine(ReturnEffectToPool(meleeAttackEffectTag, effectObj, 1f));
+        }
+    }
+
+    private void RemoveEffectPool()
+    {
+        if (meleeAttackEffectTag != null)
+        {
+            ObjectPoolManager.Instance.RemovePool(meleeAttackEffectTag);
+        }
+
+        if (hitEffectTag != null)
+        {
+            ObjectPoolManager.Instance.RemovePool(hitEffectTag);
+        }
+    }
+
+    /// <summary>
+    /// 투사체 풀을 만듦. 오퍼레이터마다의 고유한 이름이 모두 다르므로 풀의 태그 이름도 모두 다름
+    /// </summary>
+    public void InitializeProjectilePool()
+    {
+        projectileTag = $"{BaseData.entityName}_Projectile";
+        ObjectPoolManager.Instance.CreatePool(projectileTag, BaseData.projectilePrefab, initialPoolSize);
+    }
+
+    protected void RemoveProjectilePool()
+    {
+        if (!string.IsNullOrEmpty(projectileTag))
+        {
+            ObjectPoolManager.Instance.RemovePool(projectileTag);
+        }
+    }
+
+
+    protected void OnDestroy()
+    {
+        RemoveEffectPool();
+
+        if (AttackRangeType == AttackRangeType.Ranged)
+        {
+            RemoveProjectilePool();
         }
     }
 }

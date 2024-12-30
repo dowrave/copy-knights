@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using UnityEngine.VFX;
 
 /// <summary>
 /// 오브젝트 풀링(=탄알집)을 이용하는 것들을 구현해줍니다
@@ -41,7 +42,6 @@ public class ObjectPoolManager : MonoBehaviour
 
     [Header("이펙트 관련")]
     [SerializeField] private int effectPoolSize = 3;
-    public string EFFECT_PREFIX { get; private set; } = "Effect_";
 
 
     private void Start()
@@ -56,7 +56,7 @@ public class ObjectPoolManager : MonoBehaviour
     /// <summary>
     /// 지정된 태그, 프리팹, 크기로 새로운 오브젝트 풀을 생성합니다.
     /// </summary>
-    public void CreatePool(string tag, GameObject prefab, int size)
+    public void CreatePool(string tag, GameObject prefab, int size = 5)
     {
         Queue<GameObject> objectPool = new Queue<GameObject>();
 
@@ -71,18 +71,6 @@ public class ObjectPoolManager : MonoBehaviour
 
         poolDictionary[tag] = objectPool;
     }
-
-    public void CreateEffectPool(string effectName, GameObject effectPrefab)
-    {
-        // 이펙트 별로 고유한 태그를 생성함
-        string poolTag = EFFECT_PREFIX + effectName; 
-
-        if (!poolDictionary.ContainsKey(poolTag))
-        {
-            CreatePool(poolTag, effectPrefab, effectPoolSize);
-        }
-    }
-
 
     /// <summary>
     /// 지정된 태그의 풀에서 오브젝트를 가져와 활성화하고 위치와 회전을 설정합니다.
@@ -113,6 +101,7 @@ public class ObjectPoolManager : MonoBehaviour
         activeObjects[tag].Add(obj);
         return SetupPooledObject(obj, tag, position, rotation);
     }
+
     /// <summary>
     /// 풀에서 가져온 오브젝트를 설정합니다. 위치, 회전을 설정하고 IPooledObject 인터페이스를 구현한 경우 OnObjectSpawn을 호출합니다.
     /// </summary>

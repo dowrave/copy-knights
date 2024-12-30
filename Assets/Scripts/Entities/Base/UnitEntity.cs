@@ -188,20 +188,20 @@ public abstract class UnitEntity : MonoBehaviour, ITargettable, IFactionMember
     protected virtual void PlayGetHitEffect(UnitEntity attacker, AttackSource attackSource)
     {
         GameObject hitEffectPrefab;
-        string entityName;
+        string attackerName;
 
         if (attacker is Operator op)
         {
             OperatorData opData = op.BaseData;
             hitEffectPrefab = opData.hitEffectPrefab;
-            entityName = opData.entityName;
-
+            attackerName = opData.entityName;
         }
+
         else if (attacker is Enemy enemy)
         {
             EnemyData enemyData = enemy.BaseData;
             hitEffectPrefab = enemyData.hitEffectPrefab;
-            entityName = enemyData.entityName;
+            attackerName = enemyData.entityName;
         }
         else
         {
@@ -214,7 +214,7 @@ public abstract class UnitEntity : MonoBehaviour, ITargettable, IFactionMember
             Vector3 effectPosition = transform.position;
 
             // 풀에서 이펙트 오브젝트 가져오기
-            string effectTag = ObjectPoolManager.Instance.EFFECT_PREFIX + entityName;
+            string effectTag = attackerName + hitEffectPrefab.name;
             GameObject hitEffect = ObjectPoolManager.Instance.SpawnFromPool(effectTag, effectPosition, Quaternion.identity);
 
             // VFX 컴포넌트 재생
@@ -243,7 +243,7 @@ public abstract class UnitEntity : MonoBehaviour, ITargettable, IFactionMember
         }
     }
 
-    private IEnumerator ReturnEffectToPool(string tag, GameObject effect, float lifeTime = 1f)
+    protected IEnumerator ReturnEffectToPool(string tag, GameObject effect, float lifeTime = 1f)
     {
         yield return new WaitForSeconds(lifeTime); // 이펙트가 나타날 시간은 줘야 함
 

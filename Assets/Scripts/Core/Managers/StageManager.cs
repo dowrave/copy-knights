@@ -86,6 +86,7 @@ public class StageManager : MonoBehaviour
     public event System.Action<int> OnLifePointsChanged; // 라이프 포인트 변경 시 발생 이벤트
     public event System.Action OnEnemyKilled; // 적을 잡을 때마다 발생 이벤트
     public event System.Action OnPreparationComplete; // 스테이지 준비 완료 이벤트 
+    public event System.Action<GameState> OnGameStateChanged;
 
     private void Awake()
     {
@@ -176,6 +177,7 @@ public class StageManager : MonoBehaviour
         }
 
         UIManager.Instance.UpdatePauseButtonVisual();
+        OnGameStateChanged?.Invoke(gameState);
         // 다른 필요한 상태 관련 로직...
     }
 

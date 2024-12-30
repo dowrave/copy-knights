@@ -24,8 +24,10 @@ public class OperatorData : ScriptableObject, ICombatData
     public Skill elite0Skill; // 최초 스킬, "스킬들"은 OwnedOperator에서 관리되고 선택된다.
     public float initialSP = 0f;
 
-    [Header("Hit Effects")] // 피격 대상에게서 출력
-    public GameObject hitEffectPrefab;
+    [Header("VisualEffects")] 
+    public GameObject deployEffectPrefab; // 배치 이펙트
+    public GameObject meleeAttackEffectPrefab; // 근접 공격 이펙트(공격 시도 시 발생)
+    public GameObject hitEffectPrefab; // 공격이 적중했을 때의 이펙트
 
     [Header("For Ranged")]
     public GameObject projectilePrefab;
