@@ -106,7 +106,7 @@ public class DeployableUnitEntity: UnitEntity, IDeployable
             IsPreviewMode = false;
             base.UpdateCurrentTile();
             CurrentTile.SetOccupied(this);
-            transform.position = SetPosition(position);
+            SetPosition(position);
             InitializeHP();
             lastDeployTime = Time.time;
         }
@@ -115,15 +115,11 @@ public class DeployableUnitEntity: UnitEntity, IDeployable
     /// <summary>
     /// 타일 위에서의 실제 배치 위치 조정
     /// </summary>
-    protected Vector3 SetPosition(Vector3 worldPosition)
+    protected void SetPosition(Vector3 worldPosition)
     {
-        if (this is Barricade)
+        if (CurrentTile != null)
         {
-            return worldPosition + Vector3.up * 0.1f;
-        }
-        else
-        {
-            return worldPosition + Vector3.up * 0.5f;
+            transform.position = worldPosition + Vector3.up * (CurrentTile.GetHeightScale() / 2 + 0.5f);
         }
     }
 

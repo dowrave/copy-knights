@@ -81,6 +81,12 @@ public class StageManager : MonoBehaviour
         }
     }
     public float CurrentCostGauge => currentCostGauge;
+
+    // 코루틴 멈추는 현상 대비 
+    private Coroutine costIncreaseCoroutine;
+    private float lastCostUpdateTime;
+    private const float COST_CHECK_INTERVAL = 1f; 
+
     // 이벤트
     public event System.Action OnDeploymentCostChanged; // 이벤트 발동 조건은 currentDeploymentCost 값이 변할 때, 여기 등록된 함수들이 동작
     public event System.Action<int> OnLifePointsChanged; // 라이프 포인트 변경 시 발생 이벤트
@@ -121,6 +127,18 @@ public class StageManager : MonoBehaviour
         StartStage();
     }
 
+    private void Update()
+    {
+        if (currentState == GameState.Battle)
+        {
+            if (Time.time - lastCostUpdateTime > COST_CHECK_INTERVAL)
+            {
+                Debug.LogWarning("1초 동안 코스트 업데이트가 감지되지 않음, 코스트 회복 재시작");
+                RestartCostIncrease();
+            }
+        }
+    }
+
     public void PrepareStage()
     {
         Debug.Log("스테이지 준비");
@@ -140,6 +158,7 @@ public class StageManager : MonoBehaviour
     {
         Debug.Log("스테이지 시작");
         SetGameState(GameState.Battle);
+        lastCostUpdateTime = Time.time;
         StartCoroutine(IncreaseCostOverTime());
         SpawnerManager.Instance.StartSpawning();
     }
@@ -183,20 +202,32 @@ public class StageManager : MonoBehaviour
 
     private IEnumerator IncreaseCostOverTime()
     {
-        while (currentState == GameState.Battle)
+        while (true)
         {
-            yield return null; // 매 프레임마다 실행
-
-            currentCostGauge += Time.deltaTime / costIncreaseInterval;
-
-            if (currentCostGauge >= 1f)
+            if (currentState == GameState.Battle)
             {
-                currentCostGauge -= 1f;
-                if (_currentDeploymentCost < maxDeploymentCost)
+                yield return null; // 매 프레임마다 실행
+
+                currentCostGauge += Time.deltaTime / costIncreaseInterval;
+                lastCostUpdateTime = Time.time; 
+
+                if (currentCostGauge >= 1f)
                 {
-                    CurrentDeploymentCost++;
+                    currentCostGauge -= 1f;
+                    if (_currentDeploymentCost < maxDeploymentCost)
+                    {
+                        CurrentDeploymentCost++;
+                    }
                 }
             }
+
+            // Pause, Battle이 아닐 때 코루틴 종료
+            if (currentState != GameState.Battle && currentState != GameState.Paused)
+            {
+                yield break; 
+            }
+
+            yield return null;
         }
     }
 
@@ -210,6 +241,7 @@ public class StageManager : MonoBehaviour
             CurrentDeploymentCost -= cost;
             return true;
         }
+
         return false; 
     }
 
@@ -320,6 +352,16 @@ public class StageManager : MonoBehaviour
     public void SetStageData(StageData data)
     {
         stageData = data;
+    }
+
+    private void RestartCostIncrease()
+    {
+        if (costIncreaseCoroutine != null)
+        {
+            StopCoroutine(costIncreaseCoroutine);
+        }
+        costIncreaseCoroutine = StartCoroutine(IncreaseCostOverTime());
+        lastCostUpdateTime = Time.time; // 계속적인 재실행 대비
     }
 }
 

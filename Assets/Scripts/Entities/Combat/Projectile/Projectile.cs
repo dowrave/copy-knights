@@ -5,7 +5,7 @@ using static ICombatEntity;
 // 투사체 관리 클래스
 public class Projectile : MonoBehaviour
 {
-    public float speed = 10f;
+    public float speed = 5f;
     private float value; // 대미지 or 힐값
     private bool showValue;
     private AttackType attackType;

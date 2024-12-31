@@ -17,7 +17,7 @@ public class Tile : MonoBehaviour
     public bool IsWalkable { get; private set; }
 
     private Transform cubeTransform;
-    float tileScale = 0.98f;
+    private float tileScale = 0.98f;
     public Vector2 size2D;
 
     // 타일 위에 있는 적들을 저장하는 리스트, 오퍼레이터의 공격 범위가 타일이므로 유지함
@@ -51,8 +51,8 @@ public class Tile : MonoBehaviour
         cubeTransform = transform.Find("Cube");
         InitializeGridPosition();
         size2D = new Vector2(tileScale, tileScale);
-        
     }
+
     private void OnValidate()
     {
         Initialize();
@@ -110,14 +110,11 @@ public class Tile : MonoBehaviour
 
         }
     }
-    private float GetHeightScale()
+
+    // 배치될 요소는 이 값의 절반보다 위에 놔야 함
+    public float GetHeightScale()
     {
         return (data != null && data.terrain == TileData.TerrainType.Hill) ? 0.5f : 0.1f;
-    }
-
-    public float GetHeight()
-    {
-        return transform.localScale.y;
     }
 
     protected void UpdateVisuals()

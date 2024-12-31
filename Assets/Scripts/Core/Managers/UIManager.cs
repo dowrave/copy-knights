@@ -186,7 +186,7 @@ public class UIManager : MonoBehaviour
 
     public void UpdateLifePointsText(int currentLifePoints)
     {
-        lifePointsText.text = $"{currentLifePoints}";
+        lifePointsText.text = $"<color=#ff7485>{currentLifePoints}</color>";
     }
 
     public void UpdateSpeedUpButtonVisual()

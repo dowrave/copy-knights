@@ -27,5 +27,5 @@ MonoBehaviour:
   attackRangeType: 1
   blockCount: 1
   projectilePrefab: {fileID: 2265705452529792940, guid: dfde16b8edf06274c855a9e6428e39e0, type: 3}
-  meleeAttackEffectPrefab: {fileID: 0}
+  meleeAttackEffectPrefab: {fileID: 2667795462971242445, guid: ab921526673becc4dba3450e1f02e066, type: 3}
   hitEffectPrefab: {fileID: 610392011688501501, guid: f7af33fe8ce3ac14ba1eefd6c034cd3a, type: 3}
