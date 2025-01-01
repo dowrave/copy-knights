@@ -60,15 +60,11 @@ public class StatsPanel : MonoBehaviour
 
     private void Start()
     {
-
         // 최초에는 모두 비활성화
         foreach (StatisticItem statItem in statItems)
         {
             statItem.gameObject.SetActive(false);
         }
-        //firstStatItem.gameObject.SetActive(false);
-        //secondStatItem.gameObject.SetActive(false);
-        //thirdStatItem.gameObject.SetActive(false);
 
         StatisticsManager.Instance.OnStatUpdated += ShowStatsByEvent;
         statisticsContainer.SetActive(false);
@@ -196,17 +192,6 @@ public class StatsPanel : MonoBehaviour
         else
         {
             item.gameObject.SetActive(false);
-        }
-    }
-
-    /// <summary>
-    /// StatItem들의 순서를 재정렬합니다.
-    /// </summary>
-    private void ReorganizeStatItems()
-    {
-        for (int i = 0; i < activeStatItems.Count; i++)
-        {
-            activeStatItems[i].transform.SetSiblingIndex(i);
         }
     }
 

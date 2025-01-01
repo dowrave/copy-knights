@@ -52,7 +52,7 @@ public class StageLoader : MonoBehaviour
 
         // 비동기 씬 로드
         AsyncOperation asyncLoad = SceneManager.LoadSceneAsync(cachedStageData.sceneToLoad);
-        asyncLoad.allowSceneActivation = false; // 90%에서 일단 멈춤
+        asyncLoad.allowSceneActivation = false;
 
         // 씬 로드 진행 - 로딩이 90% 됐을 때 다음으로 넘어간다.
         while (asyncLoad.progress < 0.9f)

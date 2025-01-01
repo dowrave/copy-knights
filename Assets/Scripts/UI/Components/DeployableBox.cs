@@ -18,7 +18,7 @@ public class DeployableBox : MonoBehaviour, IPointerDownHandler, IBeginDragHandl
     private GameObject deployablePrefab;
     private DeployableUnitEntity deployableComponent;
     private DeployableManager.DeployableInfo deployableInfo;
-    private DeployableGameState deployableGameState;
+    private DeployableUnitState deployableUnitState;
 
     // 남은 갯수
     private bool isDragging = false;
@@ -29,7 +29,7 @@ public class DeployableBox : MonoBehaviour, IPointerDownHandler, IBeginDragHandl
         deployableInfo = info;
         deployablePrefab = info.prefab;
         deployableComponent = deployablePrefab.GetComponent<DeployableUnitEntity>(); // 다형성 활용
-        deployableGameState = DeployableManager.Instance.GameStates[deployableInfo];
+        deployableUnitState = DeployableManager.Instance.UnitStates[deployableInfo];
 
         if (deployableComponent is Operator)
         {
@@ -47,17 +47,18 @@ public class DeployableBox : MonoBehaviour, IPointerDownHandler, IBeginDragHandl
 
         StageManager.Instance.OnDeploymentCostChanged += UpdateAvailability;
         InitializeVisuals();
+        Debug.Log($"박스 초기화됨 : {info}");
     }
 
-    public void UpdateDisplay(DeployableGameState gameState)
+    public void UpdateDisplay(DeployableUnitState unitState)
     {
-        costText.text = gameState.CurrentDeploymentCost.ToString();
+        costText.text = unitState.CurrentDeploymentCost.ToString();
 
         // 오퍼레이터가 아니라면 배치 가능 횟수 표시
-        if (!gameState.IsOperator)
+        if (!unitState.IsOperator)
         {
             countText.gameObject.SetActive(true);
-            countText.text = $"x{gameState.RemainingDeployCount}";
+            countText.text = $"x{unitState.RemainingDeployCount}";
         }
         else
         {
@@ -67,10 +68,10 @@ public class DeployableBox : MonoBehaviour, IPointerDownHandler, IBeginDragHandl
         UpdateAvailability();
 
         // 쿨타임 상태 표시
-        if (gameState.IsOnCooldown)
+        if (unitState.IsOnCooldown)
         {
             cooldownText.gameObject.SetActive(true);
-            cooldownText.text = Mathf.Ceil(gameState.CooldownTimer).ToString();
+            cooldownText.text = Mathf.Ceil(unitState.CooldownTimer).ToString();
         }
         else
         {
@@ -85,10 +86,10 @@ public class DeployableBox : MonoBehaviour, IPointerDownHandler, IBeginDragHandl
 
     private void Update()
     {
-        if (deployableGameState.IsOnCooldown)
+        if (deployableUnitState.IsOnCooldown)
         {
-            deployableGameState.UpdateCooldown();
-            UpdateDisplay(deployableGameState);
+            deployableUnitState.UpdateCooldown();
+            UpdateDisplay(deployableUnitState);
         }
     }
 
@@ -114,7 +115,7 @@ public class DeployableBox : MonoBehaviour, IPointerDownHandler, IBeginDragHandl
             }
         }
 
-        UpdateDisplay(deployableGameState);
+        UpdateDisplay(deployableUnitState);
         UpdateAvailability();
     }
 
@@ -171,7 +172,7 @@ public class DeployableBox : MonoBehaviour, IPointerDownHandler, IBeginDragHandl
 
     private bool CanInteract()
     {
-        return !deployableGameState.IsOnCooldown && 
+        return !deployableUnitState.IsOnCooldown && 
             StageManager.Instance.CurrentDeploymentCost >= currentDeploymentCost;
     }
 }

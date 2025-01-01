@@ -119,7 +119,15 @@ public class DeployableUnitEntity: UnitEntity, IDeployable
     {
         if (CurrentTile != null)
         {
-            transform.position = worldPosition + Vector3.up * (CurrentTile.GetHeightScale() / 2 + 0.5f);
+            // 오퍼레이터는 살짝 띄워서 배치
+            if (this is Operator)
+            {
+                transform.position = worldPosition + Vector3.up * (CurrentTile.GetHeightScale() / 2 + 0.5f);
+            }
+            else
+            {
+                transform.position = worldPosition + Vector3.up * (CurrentTile.GetHeightScale() / 2);
+            }
         }
     }
 
@@ -164,18 +172,6 @@ public class DeployableUnitEntity: UnitEntity, IDeployable
         {
             transform.position = position;
         }
-    }
-
-    /// <summary>
-    /// 자식 오브젝트인 Model이 있는지 여부를 체크
-    /// </summary>
-    private bool ValidateModelStructure()
-    {
-        if (modelObject == null || modelRenderer == null)
-        {
-            return false;
-        }
-        return true;
     }
 
     /// <summary>
@@ -254,8 +250,6 @@ public class DeployableUnitEntity: UnitEntity, IDeployable
     /// </summary>
     protected override void InitializeUnitProperties()
     {
-        // 현재 체력, 최대 체력 설정 - Deploy 메서드 참조
-
         // 현재 위치를 기반으로 한 타일 설정
         base.UpdateCurrentTile();
         Prefab = BaseData.prefab;

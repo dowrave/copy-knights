@@ -207,15 +207,6 @@ public class OperatorDetailPanel : MonoBehaviour
 
     }
 
-    //private void UpdateButtonStates()
-    //{
-    //    // 레벨업 버튼 : 현재 정예화의 최대 레벨보다 낮을 때 사용 가능
-    //    levelUpButton.interactable = currentOperator.currentLevel < OperatorGrowthSystem.GetMaxLevel(currentOperator.currentPhase);
-
-    //    // 정예화 버튼 : 0정예화에서만 클릭 가능
-    //    promoteButton.interactable = currentOperator.currentPhase == OperatorGrowthSystem.ElitePhase.Elite0;
-    //}
-
     private void ClearAttackRange()
     {
         if (attackRangeHelper != null)
@@ -227,11 +218,8 @@ public class OperatorDetailPanel : MonoBehaviour
 
     private void OnLevelUpClicked()
     {
-        Debug.Log("레벨업 버튼 클릭됨");
         if (currentOperator.CanLevelUp)
         {
-            Debug.Log("레벨업 버튼 클릭됨 : 레벨업 가능");
-
             GameObject levelUpPanelObject = MainMenuManager.Instance.PanelMap[MainMenuManager.MenuPanel.OperatorLevelUp];
             OperatorLevelUpPanel levelUpPanel = levelUpPanelObject.GetComponent<OperatorLevelUpPanel>();
             MainMenuManager.Instance.FadeInAndHide(levelUpPanelObject, gameObject);

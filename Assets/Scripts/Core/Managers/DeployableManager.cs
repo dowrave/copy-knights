@@ -46,8 +46,8 @@ public class DeployableManager : MonoBehaviour
     private DeployableUnitEntity currentDeployable;
 
     // 각 DeployableInfo에 대한 게임 상태를 관리
-    private Dictionary<DeployableInfo, DeployableGameState> gameStates = new Dictionary<DeployableInfo, DeployableGameState>();
-    public Dictionary<DeployableInfo, DeployableGameState> GameStates => gameStates;
+    private Dictionary<DeployableInfo, DeployableUnitState> unitStates = new Dictionary<DeployableInfo, DeployableUnitState>();
+    public Dictionary<DeployableInfo, DeployableUnitState> UnitStates => unitStates;
 
 
     [Header("Highlight Color")]
@@ -147,10 +147,13 @@ public class DeployableManager : MonoBehaviour
     /// </summary>
     private void InitializeDeployableUI()
     {
+        // 로비 실행 동작 방지. 스테이지 씬에서는 실행 시점이 Battle이라 괜찮음
+        if (StageManager.Instance.currentState != GameState.Battle) return;
+
         foreach (var deployableInfo in allDeployables)
         {
             // deployableInfo에 대한 각 게임 상태 생성
-            gameStates[deployableInfo] = new DeployableGameState(deployableInfo);
+            unitStates[deployableInfo] = new DeployableUnitState(deployableInfo);
 
             GameObject boxObject = Instantiate(DeployableBoxPrefab, bottomPanel);
             DeployableBox box = boxObject.GetComponent<DeployableBox>();
@@ -159,8 +162,7 @@ public class DeployableManager : MonoBehaviour
             {
                 box.Initialize(deployableInfo);
                 deployableUIBoxes[deployableInfo] = box;
-                box.UpdateDisplay(gameStates[deployableInfo]);
-                //box.UpdateRemainingCount(deployableInfo.maxDeployCount);
+                box.UpdateDisplay(unitStates[deployableInfo]);
             }
         }
     }
@@ -168,9 +170,6 @@ public class DeployableManager : MonoBehaviour
     private void Update()
     {
         if (StageManager.Instance.currentState != GameState.Battle) { return; }
-
-        // 여기에는 해당 상태일 때 계속 작동하고 있어야 하는 함수가 들어감
-        // !! 상태를 변경할 때에만 작동되어야 하는 함수는 여기에 들어가면 안됨! !! 
 
         // 1. 하단 UI의 오퍼레이터 클릭 시 배치 가능한 타일들 하이라이트
         if (IsDeployableSelecting)
@@ -484,7 +483,7 @@ public class DeployableManager : MonoBehaviour
     /// </summary>
     private void DeployDeployable(Tile tile)
     {
-        DeployableGameState gameState = gameStates[currentDeployableInfo];
+        DeployableUnitState gameState = unitStates[currentDeployableInfo];
         int cost = gameState.CurrentDeploymentCost;
 
         // 코스트 지불 가능 & 배치 가능 상태
@@ -507,25 +506,13 @@ public class DeployableManager : MonoBehaviour
 
         ResetPlacement();
         StageManager.Instance.UpdateTimeScale();
-
-        // 배치 후 박스의 처리
-        //if (deployableUIBoxes.TryGetValue(currentDeployableInfo, out DeployableBox box))
-        //{
-        //    box.UpdateRemainingCount(currentDeployableInfo.remainingDeployCount);
-        //    box.StartCooldown(currentDeployableInfo.redeployTime);
-
-        //    if (gameState.RemainingDeployCount <= 0)
-        //    {
-        //        box.gameObject.SetActive(false);
-        //    }
-        //}
     }
     
     private void UpdateDeployableUI(DeployableInfo info)
     {
         if (deployableUIBoxes.TryGetValue(info, out DeployableBox box))
         {
-            var gameState = gameStates[info];
+            var gameState = unitStates[info];
             box.UpdateDisplay(gameState);
 
             // 더 이상 배치할 수 없다면 박스 비활성화
@@ -597,26 +584,31 @@ public class DeployableManager : MonoBehaviour
         HideAllUIs();
         ResetHighlights();
 
-        DeployableInfo info;
-        if (deployable is Operator op)
+        // 박스 재생성. 전투 중일 때에만 동작
+        if (StageManager.Instance != null && StageManager.Instance.currentState != GameState.Battle)
         {
-            info = GetDeployableInfoByName(op.BaseData.entityName);
-        }
-        else
-        {
-            info = GetDeployableInfoByName(deployable.BaseData.entityName);
-        }
-
-        if (info != null && gameStates.TryGetValue(info, out var gameState))
-        {
-            gameState.OnRemoved(); // 제거 시점에 상태 업데이트
-            
-            if (deployableUIBoxes.TryGetValue(info, out DeployableBox box))
+            DeployableInfo info;
+            if (deployable is Operator op)
             {
-                box.UpdateDisplay(gameState);
-                box.gameObject.SetActive(true);
+                info = GetDeployableInfoByName(op.BaseData.entityName);
+            }
+            else
+            {
+                info = GetDeployableInfoByName(deployable.BaseData.entityName);
+            }
+
+            if (info != null && unitStates.TryGetValue(info, out var unitState))
+            {
+                unitState.OnRemoved(); // 제거 시점에 상태 업데이트
+            
+                if (deployableUIBoxes.TryGetValue(info, out DeployableBox box))
+                {
+                    box.UpdateDisplay(unitState);
+                    box.gameObject.SetActive(true);
+                }
             }
         }
+
     }
 
     public void SetActiveActionUI(DeployableActionUI ui)

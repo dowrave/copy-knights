@@ -67,15 +67,12 @@ public class ItemInfoPopup : MonoBehaviour
         int count = GameManagement.Instance.PlayerDataManager.GetItemCount(currentItem.itemName);
         itemCountText.text = count.ToString();
 
-        // 레이아웃 즉시 갱신
-        //LayoutRebuilder.ForceRebuildLayoutImmediate((RectTransform)itemCountContainer.transform);
     }
 
     private void Show()
     {
         gameObject.SetActive(true);
         ShowWithLayout();
-        //StartCoroutine(ShowWithLayout());
     }
 
     private void PlayShowAnimation()

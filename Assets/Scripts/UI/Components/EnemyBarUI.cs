@@ -39,7 +39,6 @@ public class EnemyBarUI : MonoBehaviour
         if (enemy != null)
         {
             UpdatePosition();
-            //UpdateUI();
         }
         else
         {
@@ -76,10 +75,5 @@ public class EnemyBarUI : MonoBehaviour
         {
             transform.position = enemy.transform.position + Vector3.back * backOffset;
         }
-
-        //transform.rotation = Quaternion.Euler(90, 0, 0);
-
-        // Canvas가 항상 카메라를 향하도록 회전 설정
-        //transform.rotation = Camera.main.transform.rotation;
     }
 }

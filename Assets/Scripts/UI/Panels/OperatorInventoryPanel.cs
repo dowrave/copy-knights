@@ -49,7 +49,6 @@ public class OperatorInventoryPanel : MonoBehaviour
 
         confirmButton.interactable = false;
         detailButton.interactable = false;
-        //gameObject.SetActive(false); // 이거 있으면 실행 전에 이 오브젝트가 비활성화된 경우 ShowPanel 등에 의한 활성화가 아예 안됨
     }
 
     private void Start()
@@ -196,7 +195,6 @@ public class OperatorInventoryPanel : MonoBehaviour
 
         // 공격 범위 시각화
         attackRangeHelper.ShowBasicRange(op.currentAttackableTiles);
-        //UpdateVisualAttackRange(opData);
     }
 
     private void ClearSideView()

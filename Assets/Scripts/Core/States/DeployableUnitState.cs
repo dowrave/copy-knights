@@ -4,7 +4,7 @@ using UnityEngine;
 /// <summary>
 /// 배치 가능한 유닛의 현재 세션에서의 상태를 관리합니다.
 /// </summary>
-public class DeployableGameState
+public class DeployableUnitState
 {
     private readonly DeployableInfo deployableInfo;
     public int DeploymentCount { get; private set; }
@@ -18,7 +18,7 @@ public class DeployableGameState
 
     public bool IsOperator { get; private set; }
 
-    public DeployableGameState(DeployableInfo info)
+    public DeployableUnitState(DeployableInfo info)
     {
         deployableInfo = info;
         IsOperator = deployableInfo.ownedOperator != null;

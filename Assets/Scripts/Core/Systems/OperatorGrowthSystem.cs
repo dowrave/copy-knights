@@ -25,8 +25,7 @@ public static class OperatorGrowthSystem
 
     public static int GetMaxLevel(ElitePhase phase)
     {
-        // 원래 swtich (phase) {case Elite0: return Elite0MaxLevel ...} 같은 서술이지만
-        // 이거는 C#의 패턴 매칭을 사용한 switch 표현식임
+        // C#의 패턴 매칭을 사용한 switch 표현식
         return phase switch
         {
             ElitePhase.Elite0 => Elite0MaxLevel,

@@ -221,19 +221,21 @@ public class OperatorLevelUpPanel : MonoBehaviour
         contentHeight = paddingHeight * 2 + // 상하 패딩
             (spacing * (totalLevels + 1));  // 각 요소 사이의 간격. 2개의 패딩까지 추가해서 spacing이 2개 더 생김
 
-        // 스크롤 가능 영역 높이 : 패딩 영역 제외하기
-        float totalScrollHeight = contentHeight - viewportHeight; // 스크롤이 0일 때 currentLevel이 중앙에, 1일 때 maxLevel이 중앙에 온다
+        // 스크롤 가능 영역 높이 : 패딩 영역 제외
+        // 스크롤이 0일 때 currentLevel이 중앙에, 1일 때 maxLevel이 중앙에 온다
+        float totalScrollHeight = contentHeight - viewportHeight; 
 
         for (int level = currentLevel; level <= maxLevel; level++)
         {
-            int index = level - currentLevel; 
-            float centerOffset = index * spacing; // 각 숫자 오브젝트가 중앙에 오는 높이
+            int index = level - currentLevel;
+
+            // 각 숫자 오브젝트가 중앙에 오는 높이
+            float centerOffset = index * spacing; 
 
             // 정규화된 위치 계산 (0~1 사이로 보장)
             float normalizedPosition = Mathf.Clamp01(centerOffset / totalScrollHeight); // 정규화
 
             // 정규화된 스크롤값은 currentLevel일 때 0, maxLevel일 때 1이 된다.
-
             levelToScrollPosition[level] = normalizedPosition;
         }
     }
@@ -298,7 +300,8 @@ public class OperatorLevelUpPanel : MonoBehaviour
         // 스크롤 상태 확인
         Vector2 velocity = levelScrollRect.velocity;
 
-        isScrolling = velocity.magnitude > velocityThreshold; // 임계치를 넘으면 스크롤 중이라고 판단
+        // 임계치를 넘으면 스크롤 중이라고 판단
+        isScrolling = velocity.magnitude > velocityThreshold; 
 
         // 마우스 버튼 다운 확인
         isMousePressed = Input.GetMouseButton(0);
