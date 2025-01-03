@@ -116,7 +116,7 @@ namespace Skills.OperatorSkills
 
             foreach (Vector2Int additionalTile in Modifiers.ChangedAttackableTiles)
             {
-                Vector2Int rotatedTile = op.RotateOffset(additionalTile, op.FacingDirection);
+                Vector2Int rotatedTile = DirectionSystem.RotateGridOffset(additionalTile, op.FacingDirection);
                 if (!newAttackbleTiles.Contains(rotatedTile))
                 {
                     newAttackbleTiles.Add(rotatedTile);

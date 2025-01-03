@@ -87,6 +87,7 @@
     <Compile Include="Assets\Scripts\Entities\Base\UnitEntity.cs" />
     <Compile Include="Assets\Scripts\Interfaces\IMovable.cs" />
     <Compile Include="Assets\Scripts\Core\Managers\MainMenuManager.cs" />
+    <Compile Include="Assets\Scripts\Skills\SkillEffectController\GuardPromoFXController.cs" />
     <Compile Include="Assets\Scripts\UI\Panels\StageSelectPanel.cs" />
     <Compile Include="Assets\Scripts\Skills\OperatorSkills\BuffSkill.cs" />
     <Compile Include="Assets\Scripts\UI\Panels\InfoPanel.cs" />
@@ -100,6 +101,7 @@
     <Compile Include="Assets\Scripts\Interfaces\ISkill.cs" />
     <Compile Include="Assets\Scripts\UI\Panels\SquadEditPanel.cs" />
     <Compile Include="Assets\Scripts\Core\Managers\GameManagement.cs" />
+    <Compile Include="Assets\Scripts\Skills\OperatorSkills\GuardPromotionSkill.cs" />
     <Compile Include="Assets\Scripts\UI\Components\DiamondMask.cs" />
     <Compile Include="Assets\Scripts\UI\Components\DeployableDeployingUI.cs" />
     <Compile Include="Assets\Scripts\Interfaces\ITargettable.cs" />
@@ -146,6 +148,7 @@
     <Compile Include="Assets\Scripts\UI\Panels\NotificationPanel.cs" />
     <Compile Include="Assets\Scripts\Data\MapDeployableData.cs" />
     <Compile Include="Assets\Scripts\Core\Managers\StageManager.cs" />
+    <Compile Include="Assets\Scripts\Core\Systems\DirectionSystem.cs" />
     <Compile Include="Assets\Scripts\Data\ItemData.cs" />
     <Compile Include="Assets\Scripts\Core\Managers\PathfindingManager.cs" />
     <Compile Include="Assets\Scripts\UI\Panels\StatsPanel.cs" />

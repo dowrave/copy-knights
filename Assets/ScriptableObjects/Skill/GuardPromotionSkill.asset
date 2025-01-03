@@ -1,0 +1,23 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2a7e772044e775043a0046eb398d319f, type: 3}
+  m_Name: GuardPromotionSkill
+  m_EditorClassIdentifier: 
+  Name: SlashTest
+  description: "\uC804\uBC29 3\uCE78\uC5D0 \uAC80\uACA9\uC744 \uB0A0\uB824 \uC801\uB4E4\uC5D0\uAC8C
+    \uD53C\uD574\uB97C \uC785\uD799\uB2C8\uB2E4.\n"
+  SPCost: 1
+  SkillIcon: {fileID: 0}
+  damageMultiplier: 2
+  skillEffectPrefab: {fileID: 2616778333904927978, guid: a1b5a5fdd4e11c54e916725d4c24d68b, type: 3}
+  effectSpeed: 8
+  effectLifetime: 0.5

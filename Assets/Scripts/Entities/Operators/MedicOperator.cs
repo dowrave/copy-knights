@@ -45,14 +45,13 @@ public class MedicOperator : Operator
     /// </summary>
     private void GetTargetsInRange()
     {
-
         targetsInRange.Clear();
 
         Vector2Int operatorGridPos = MapManager.Instance.CurrentMap.WorldToGridPosition(transform.position);
 
         foreach (Vector2Int offset in BaseData.attackableTiles)
         {
-            Vector2Int rotatedOffset = RotateOffset(offset, facingDirection);
+            Vector2Int rotatedOffset = DirectionSystem.RotateGridOffset(offset, facingDirection);
             Vector2Int targetGridPos = operatorGridPos + rotatedOffset;
 
             Tile targetTile = MapManager.Instance.CurrentMap.GetTile(targetGridPos.x, targetGridPos.y);
