@@ -117,6 +117,7 @@
     <Compile Include="Assets\Scripts\Skills\OperatorSkills\ShieldSkill.cs" />
     <Compile Include="Assets\Scripts\Data\ItemInventoryData.cs" />
     <Compile Include="Assets\Scripts\UI\Components\ItemUIElement.cs" />
+    <Compile Include="Assets\Scripts\Skills\OperatorSkills\DoubleShotSkill.cs" />
     <Compile Include="Assets\Scripts\UI\Components\HealthBar.cs" />
     <Compile Include="Assets\Scripts\Entities\Operators\MedicOperator.cs" />
     <Compile Include="Assets\Scripts\Core\Systems\OperatorGrowthSystem.cs" />

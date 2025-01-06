@@ -726,7 +726,7 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity
         AttackDuration = 0.3f / AttackSpeed;
     }
 
-    public void SetAttackCooldown()
+    public void SetAttackCooldown(float? intentionalCooldown = null)
     {
         AttackCooldown = 1 / AttackSpeed;
     }

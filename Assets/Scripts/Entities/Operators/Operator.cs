@@ -135,7 +135,7 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
     string hitEffectTag;
 
     // 스킬 관련
-    public Skill ActiveSkill { get; set; }
+    public Skill CurrentSkill { get; set; }
     public bool IsSkillActive { get; protected set; } = false;
     public float SkillDuration { get; protected set; } = 0f;
     public float RemainingSkillDuration { get; protected set; } = 0f;
@@ -165,10 +165,9 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
         CurrentAttackbleTiles = new List<Vector2Int>(ownedOp.currentAttackableTiles);
 
         // 스킬 설정
-        // 나중에 메인 메뉴에서 스킬을 선택할 수 있을 걸 감안하면, OwnedOperator에서 설정하는 게 더 맞는 것 같다
-        ActiveSkill = ownedOp.selectedSkill;
+        CurrentSkill = ownedOp.selectedSkill;
         CurrentSP = ownedOp.currentStats.StartSP;
-        MaxSP = ActiveSkill?.SPCost ?? 0f;
+        MaxSP = CurrentSkill?.SPCost ?? 0f;
 
         IsPreviewMode = true;
 
@@ -233,10 +232,19 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
 
             if (CanAttack())
             {
-                Attack(CurrentTarget, AttackPower);
+                // 공격 형식을 바꿔야 하는 경우 스킬의 동작을 따라감
+                if (ShouldModifyAttackAction())
+                {
+                    CurrentSkill.PerformSkillAction(this);
+                }
+                // 아니라면 평타
+                else
+                {
+                    Attack(CurrentTarget, AttackPower);
+                }
             }
 
-            if (ActiveSkill.AutoActivate && CurrentSP == MaxSP)
+            if (CurrentSkill.AutoActivate && CurrentSP == MaxSP)
             {
                 UseSkill();
             }
@@ -253,10 +261,13 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
 
     protected void PerformAttack(UnitEntity target, float damage, bool showDamagePopup)
     {
-        if (ActiveSkill != null)
+        if (CurrentSkill != null)
         {
-            ActiveSkill.OnAttack(this, ref damage, ref showDamagePopup);    
+            CurrentSkill.OnAttack(this, ref damage, ref showDamagePopup);    
         }
+        
+
+        SetAttackTimings();
 
         switch (BaseData.attackRangeType)
         {
@@ -271,7 +282,6 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
 
     protected virtual void PerformMeleeAttack(UnitEntity target, float damage, bool showDamagePopup)
     {
-        SetAttackTimings();
         AttackSource attackSource = new AttackSource(transform.position, false);
 
         PlayMeleeAttackEffect(target);
@@ -285,7 +295,6 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
 
     protected virtual void PerformRangedAttack(UnitEntity target, float damage, bool showDamagePopup)
     {
-        SetAttackTimings();
         if (BaseData.projectilePrefab != null)
         {
             // 투사체 생성 위치
@@ -334,8 +343,6 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
     // --- 저지 관련 메서드들
     public bool CanBlockEnemy(int enemyBlockCount)
     {
-        // 현재 저지 중인 적 + 지금 저지하려는 적이 차지하는 저지 수가 최대 저지수 이하
-        // currentStats을 쓴 이유는 저지수가 올라가는 스킬 등도 있을 수 있기 때문에
         return nowBlockingCount + enemyBlockCount <= currentStats.MaxBlockableEnemies;
     }
 
@@ -370,11 +377,11 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
     // SP 자동회복 로직 추가
     protected void RecoverSP()
     {
-        if (IsDeployed == false || ActiveSkill == null) { return;  }
+        if (IsDeployed == false || CurrentSkill == null) { return;  }
 
         float oldSP = CurrentSP;
 
-        if (ActiveSkill.AutoRecover)
+        if (CurrentSkill.AutoRecover)
         {
             CurrentSP = Mathf.Min(CurrentSP + currentStats.SPRecoveryRate * Time.deltaTime, MaxSP);    
         }
@@ -504,9 +511,7 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
         DeployableManager.Instance.HighlightTiles(tilesToHighlight, DeployableManager.Instance.attackRangeTileColor);
     }
 
-    /// <summary>
-    /// 현재 타겟의 유효성 검사 : CurrentTarget이 공격 범위 내에 없다면 제거함
-    /// </summary>
+    /// 현재 타겟의 유효성 검사
     protected virtual void ValidateCurrentTarget()
     {
         if (CurrentTarget == null)
@@ -522,9 +527,7 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
         }
     }
 
-    /// <summary>
     /// CurrentTarget이 이동했을 때, 공격범위 내에 있는지 체크
-    /// </summary>
     protected bool IsCurrentTargetInRange()
     {
         Vector2Int targetGridPos = MapManager.Instance.CurrentMap.WorldToGridPosition(CurrentTarget.transform.position);
@@ -594,9 +597,8 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
         CurrentHealth = MaxHealth;
     }
 
-    /// <summary>
-    /// 공격 대상 설정 로직
-    /// </summary>
+
+    // 공격 대상 설정 로직
     public virtual void SetCurrentTarget()
     {
         // 1. 저지 중일 때 -> 저지 중인 적
@@ -631,9 +633,8 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
         CurrentTarget = null;
     }
 
-    /// <summary>
-    /// 공격 대상 제거 로직
-    /// </summary>
+
+    // 공격 대상 제거 로직
     public void RemoveCurrentTarget()
     {
         if (CurrentTarget == null) return;
@@ -691,9 +692,16 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
         AttackDuration = 0.3f / AttackSpeed;
     }
 
-    public void SetAttackCooldown()
+    public void SetAttackCooldown(float? intentionalCooldown = null)
     {
-        AttackCooldown = 1 / AttackSpeed;
+        if (intentionalCooldown.HasValue)
+        {
+            AttackCooldown = intentionalCooldown.Value;
+        }
+        else
+        {
+            AttackCooldown = 1 / AttackSpeed;
+        }
     }
 
     public bool CanAttack()
@@ -707,9 +715,9 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
 
     public void UseSkill()
     {
-        if (CanUseSkill() && ActiveSkill != null)
+        if (CanUseSkill() && CurrentSkill != null)
         {
-            ActiveSkill.Activate(this);
+            CurrentSkill.Activate(this);
             UpdateOperatorUI();
         }
     }
@@ -831,6 +839,11 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
         {
             ObjectPoolManager.Instance.RemovePool(projectileTag);
         }
+    }
+
+    private bool ShouldModifyAttackAction()
+    {
+        return CurrentSkill.ModifiesAttackAction && IsSkillActive;
     }
 
 

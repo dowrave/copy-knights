@@ -39,11 +39,11 @@ namespace Skills.OperatorSkills
 
         public override void Activate(Operator op)
         {
-            op.StartCoroutine(ApplyBuff(op));
+            ApplyBuff(op);
         }
 
 
-        private IEnumerator ApplyBuff(Operator op)
+        private void ApplyBuff(Operator op)
         {
             // 원래 스탯 저장
             //float originalCurrentHealth = op.CurrentHealth; 
@@ -69,20 +69,18 @@ namespace Skills.OperatorSkills
             }
 
            // 저지 수 변화
-           if (Modifiers.ChangedBlockableEnemies.HasValue) // HasValue : nullable 타입이 값을 갖고 있는지 확인
+           if (Modifiers.ChangedBlockableEnemies.HasValue)
             {
-                op.MaxBlockableEnemies = Modifiers.ChangedBlockableEnemies.Value; // nullable 타입이 가진 실제 값을 반환. 반드시 HasValue 체크가 선행되어야 함
+                op.MaxBlockableEnemies = Modifiers.ChangedBlockableEnemies.Value; 
             }
 
             // 버프 이펙트 생성
-            buffVFX = null;
-            buffEffect = null;
-
             if (BuffEffectPrefab != null)
             {
                 Vector3 buffEffectPosition = new Vector3(op.transform.position.x, 0.05f, op.transform.position.z);
                 buffEffect = Instantiate(BuffEffectPrefab, buffEffectPosition, Quaternion.identity);
                 buffEffect.transform.SetParent(op.transform);
+
                 // VFX 컴포넌트 가져오기
                 buffVFX = buffEffect.GetComponent<VisualEffect>();
                 if (buffVFX != null)
@@ -91,17 +89,7 @@ namespace Skills.OperatorSkills
                 }
             }
 
-            // SP Bar 색 변경
-            op.StartSkillDurationDisplay(duration);
-
-            // 버프 지속 시간
-            float elapsedTime = 0f;
-            while (elapsedTime < duration)
-            {
-                yield return null;
-                elapsedTime += Time.deltaTime;
-                op.UpdateSkillDurationDisplay(1 - (elapsedTime / duration));
-            }
+            op.StartCoroutine(HandleSkillDuration(op, duration));
 
             // 버프 해제
             OnSkillEnd(op);
@@ -171,7 +159,7 @@ namespace Skills.OperatorSkills
             }
 
             // SP Bar 복구
-            op.EndSkillDurationDisplay();
+            //op.EndSkillDurationDisplay();
         }
     }
 }
