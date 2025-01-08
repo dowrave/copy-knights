@@ -12,12 +12,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 808d2113472678a43b0734783e7ecbfc, type: 3}
   m_Name: DoubleShotSkill
   m_EditorClassIdentifier: 
-  Name: DoubleShot
+  skillName: 
   description: "\uC2A4\uD0AC \uC9C0\uC18D\uC2DC\uAC04 \uB3D9\uC548 120%\uC758 \uACF5\uACA9\uB825\uC73C\uB85C
     2\uBC88 \uACF5\uACA9\uD569\uB2C8\uB2E4."
   SPCost: 1
-  SkillIcon: {fileID: 0}
+  skillIcon: {fileID: 0}
+  autoRecover: 1
+  autoActivate: 0
+  modifiesAttackAction: 1
+  duration: 15
+  skillEffectPrefab: {fileID: 0}
   damageMultiplier: 1.2
   delayBetweenShots: 0.1
-  SkillEffectPrefab: {fileID: 2673592997991987600, guid: 381db8c2cd5da5649918316d5cfe2633, type: 3}
-  skillDuration: 1

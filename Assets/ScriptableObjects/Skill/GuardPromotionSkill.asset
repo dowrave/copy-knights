@@ -12,12 +12,21 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2a7e772044e775043a0046eb398d319f, type: 3}
   m_Name: GuardPromotionSkill
   m_EditorClassIdentifier: 
-  Name: SlashTest
+  skillName: 
   description: "\uC804\uBC29 3\uCE78\uC5D0 \uAC80\uACA9\uC744 \uB0A0\uB824 \uC801\uB4E4\uC5D0\uAC8C
     \uD53C\uD574\uB97C \uC785\uD799\uB2C8\uB2E4.\n"
   SPCost: 1
-  SkillIcon: {fileID: 0}
-  damageMultiplier: 2
+  skillIcon: {fileID: 0}
+  autoRecover: 1
+  autoActivate: 0
+  modifiesAttackAction: 0
+  duration: 0
   skillEffectPrefab: {fileID: 2616778333904927978, guid: a1b5a5fdd4e11c54e916725d4c24d68b, type: 3}
+  damageMultiplier: 2
+  slashEffectPrefab: {fileID: 0}
   effectSpeed: 8
   effectLifetime: 0.5
+  attackRange:
+  - {x: -1, y: 0}
+  - {x: -2, y: 0}
+  - {x: -3, y: 0}

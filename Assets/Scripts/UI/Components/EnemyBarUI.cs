@@ -20,7 +20,6 @@ public class EnemyBarUI : MonoBehaviour
 
         healthBar = GetComponentInChildren<HealthBar>();
 
-        
         if (mainCamera != null)
         {
             transform.LookAt(transform.position + mainCamera.transform.rotation * Vector3.forward, mainCamera.transform.rotation * Vector3.up);

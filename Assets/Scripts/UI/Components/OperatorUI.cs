@@ -51,7 +51,7 @@ public class OperatorUI : MonoBehaviour
 
     public void UpdateUI()
     {
-        if (op.IsSkillActive)
+        if (op.IsSkillOn)
         {
             deployableBarUIScript.SetSPBarColor(onSkillSPBarColor);
         }
@@ -60,7 +60,6 @@ public class OperatorUI : MonoBehaviour
             deployableBarUIScript.SetSPBarColor(originalSPBarColor);
         }
 
-        //deployableBarUIScript.UpdateSPBar(op.CurrentSP, op.MaxSP);
-        SetSkillIconVisibility(op.CurrentSP >= op.MaxSP && !op.IsSkillActive);
+        SetSkillIconVisibility(op.CurrentSP >= op.MaxSP && !op.IsSkillOn);
     }
 }

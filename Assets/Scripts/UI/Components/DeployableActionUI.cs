@@ -70,7 +70,7 @@ public class DeployableActionUI : MonoBehaviour
     {
         if (deployable is Operator op)
         {
-            if (op.CurrentSkill.AutoActivate == false)
+            if (op.CurrentSkill.autoActivate == false)
             {
                 op.UseSkill();
                 UpdateSkillButton();
@@ -110,9 +110,9 @@ public class DeployableActionUI : MonoBehaviour
         if (!currentOperator || !currentOperator.CurrentSkill) return;
         
         // 스킬 아이콘이 있다면 아이콘을 버튼 이미지로 설정
-        if (currentOperator.CurrentSkill.SkillIcon != null)
+        if (currentOperator.CurrentSkill.skillIcon != null)
         {
-            skillIconImage.sprite = currentOperator.CurrentSkill.SkillIcon;
+            skillIconImage.sprite = currentOperator.CurrentSkill.skillIcon;
             skillIconImage.gameObject.SetActive(true);
             skillButton.GetComponentInChildren<Text>().gameObject.SetActive(false);
         }
@@ -123,7 +123,7 @@ public class DeployableActionUI : MonoBehaviour
     private void UpdateSkillButtonState(float currentSP, float maxSP)
     {
         // 오퍼레이터의 스킬이 자동 발동이라면 활성화될 필요 없음
-        if (deployable is Operator op && op.CurrentSkill.AutoActivate)
+        if (deployable is Operator op && op.CurrentSkill.autoActivate)
         {
             skillButtonInactivePanel.SetActive(true);
             return;

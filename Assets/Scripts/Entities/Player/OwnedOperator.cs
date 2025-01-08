@@ -16,8 +16,8 @@ public class OwnedOperator
     public OperatorStats currentStats;
     public List<Vector2Int> currentAttackableTiles;
 
-    public List<Skill> unlockedSkills = new List<Skill>();
-    public Skill selectedSkill;
+    public List<BaseSkill> unlockedSkills = new List<BaseSkill>();
+    public BaseSkill selectedSkill;
     public int selectedSkillIndex = 0;
 
     public bool CanLevelUp => OperatorGrowthSystem.CanLevelUp(currentPhase, currentLevel);

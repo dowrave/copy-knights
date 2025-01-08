@@ -85,11 +85,11 @@
     <Compile Include="Assets\Scripts\Entities\Base\DeployableUnitEntity.cs" />
     <Compile Include="Assets\Scripts\Utils\ClickDetectionSystem.cs" />
     <Compile Include="Assets\Scripts\Entities\Base\UnitEntity.cs" />
+    <Compile Include="Assets\Scripts\Skills\OperatorSkills\StatModifierSkill.cs" />
     <Compile Include="Assets\Scripts\Interfaces\IMovable.cs" />
     <Compile Include="Assets\Scripts\Core\Managers\MainMenuManager.cs" />
     <Compile Include="Assets\Scripts\Skills\SkillEffectController\GuardPromoFXController.cs" />
     <Compile Include="Assets\Scripts\UI\Panels\StageSelectPanel.cs" />
-    <Compile Include="Assets\Scripts\Skills\OperatorSkills\BuffSkill.cs" />
     <Compile Include="Assets\Scripts\UI\Panels\InfoPanel.cs" />
     <Compile Include="Assets\Scripts\Data\TileData.cs" />
     <Compile Include="Assets\Scripts\Core\Managers\SpawnerManager.cs" />
@@ -104,6 +104,7 @@
     <Compile Include="Assets\Scripts\Skills\OperatorSkills\GuardPromotionSkill.cs" />
     <Compile Include="Assets\Scripts\UI\Components\DiamondMask.cs" />
     <Compile Include="Assets\Scripts\UI\Components\DeployableDeployingUI.cs" />
+    <Compile Include="Assets\Scripts\Skills\Base\PassiveSkill.cs" />
     <Compile Include="Assets\Scripts\Interfaces\ITargettable.cs" />
     <Compile Include="Assets\Scripts\Core\Managers\ResourceManager.cs" />
     <Compile Include="Assets\Scripts\Core\Managers\PopupManager.cs" />
@@ -120,10 +121,10 @@
     <Compile Include="Assets\Scripts\Skills\OperatorSkills\DoubleShotSkill.cs" />
     <Compile Include="Assets\Scripts\UI\Components\HealthBar.cs" />
     <Compile Include="Assets\Scripts\Entities\Operators\MedicOperator.cs" />
+    <Compile Include="Assets\Scripts\Skills\Base\BaseSkill.cs" />
     <Compile Include="Assets\Scripts\Core\Systems\OperatorGrowthSystem.cs" />
     <Compile Include="Assets\Scripts\Map\Tile.cs" />
     <Compile Include="Assets\Scripts\UI\Panels\DeploymentCostPanel.cs" />
-    <Compile Include="Assets\Scripts\Skills\Base\Skill.cs" />
     <Compile Include="Assets\Scripts\Core\Managers\UserSquadManager.cs" />
     <Compile Include="Assets\Scripts\UI\Components\DeployableBarUI.cs" />
     <Compile Include="Assets\Scripts\Core\Managers\MapManager.cs" />
@@ -142,6 +143,7 @@
     <Compile Include="Assets\Scripts\Core\Managers\DeployableManager.cs" />
     <Compile Include="Assets\Scripts\Skills\OperatorSkills\CostRecoverySkill.cs" />
     <Compile Include="Assets\Scripts\UI\Panels\ItemInventoryPanel.cs" />
+    <Compile Include="Assets\Scripts\Skills\Base\ActiveSkill.cs" />
     <Compile Include="Assets\Scripts\Entities\Combat\Projectile\Projectile.cs" />
     <Compile Include="Assets\Scripts\UI\Components\EnemyBarUI.cs" />
     <Compile Include="Assets\Scripts\Skills\OperatorSkills\SmashSkill.cs" />

@@ -9,6 +9,9 @@ public class DeployableBarUI : MonoBehaviour
     private float backOffset = 0; // UI의 높이 오프셋
     private Operator op;
 
+    private Camera mainCamera;
+    private Canvas canvas;
+
     private void Awake()
     {
         if (healthBar == null)
@@ -18,6 +21,16 @@ public class DeployableBarUI : MonoBehaviour
         if (spBar == null)
         {
             spBar = transform.Find("SPBar").GetComponent<HealthBar>();
+        }
+
+        canvas = GetComponent<Canvas>();
+        canvas.renderMode = RenderMode.WorldSpace;
+        mainCamera = Camera.main;
+        canvas.worldCamera = mainCamera;
+
+        if (mainCamera != null)
+        {
+            transform.LookAt(transform.position + mainCamera.transform.rotation * Vector3.forward, mainCamera.transform.rotation * Vector3.up);
         }
     }
 

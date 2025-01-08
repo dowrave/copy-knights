@@ -5,11 +5,13 @@ using UnityEngine;
 namespace Skills.OperatorSkills
 {
     [CreateAssetMenu(fileName = "New Guard Skill", menuName = "Skills/GuardPromotionSkill")]
-    public class GuardPromotionSkill : Skill
+    public class GuardPromotionSkill : ActiveSkill
     {
-        [Header("Skill Settings")]
+        [Header("Damage Settings")]
         [SerializeField] private float damageMultiplier = 2f;
-        [SerializeField] private GameObject skillEffectPrefab;
+
+        [Header("Skill Settings")]
+        [SerializeField] private GameObject slashEffectPrefab;
         [SerializeField] private float effectSpeed = 8f;
         [SerializeField] private float effectLifetime = 0.5f;
 
@@ -23,9 +25,12 @@ namespace Skills.OperatorSkills
             new Vector2Int(-3, 0)
         };
 
-        public override bool AutoRecover => true;
-        public override bool AutoActivate => false;
+        protected override void SetDefaults()
+        {
+            autoRecover = true;
+        }
 
+        // 이펙트 구현 및 동작이 주요 매커니즘이므로 별도의 이펙트 생성 동작은 진행하지 않음
         public override void Activate(Operator op)
         {
             if (!op.IsDeployed || !op.CanUseSkill()) return;

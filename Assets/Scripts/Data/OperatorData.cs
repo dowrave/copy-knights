@@ -21,7 +21,7 @@ public class OperatorData : ScriptableObject, ICombatData
     public AttackType attackType;
     public AttackRangeType attackRangeType;
     public List<Vector2Int> attackableTiles = new List<Vector2Int>{ Vector2Int.zero };
-    public Skill elite0Skill; // 최초 스킬, "스킬들"은 OwnedOperator에서 관리되고 선택된다.
+    public BaseSkill elite0Skill; // 최초 스킬, "스킬들"은 OwnedOperator에서 관리되고 선택된다.
     public float initialSP = 0f;
 
     [Header("VisualEffects")] 
@@ -68,7 +68,7 @@ public class OperatorData : ScriptableObject, ICombatData
         public List<Vector2Int> additionalAttackTiles;
 
         [Header("New Skills")]
-        public Skill unlockedSkill;
+        public BaseSkill unlockedSkill;
     }
 }
 

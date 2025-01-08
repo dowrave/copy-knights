@@ -203,7 +203,7 @@ public class OperatorSlot : MonoBehaviour
         if (OwnedOperator.unlockedSkills != null && OwnedOperator.unlockedSkills.Count > 0)
         {
             skillImage.gameObject.SetActive(true);
-            Sprite skillIcon = OwnedOperator.unlockedSkills[0].SkillIcon;
+            Sprite skillIcon = OwnedOperator.unlockedSkills[0].skillIcon;
             if (skillIcon != null)
             {
                 skillImage.sprite = skillIcon;

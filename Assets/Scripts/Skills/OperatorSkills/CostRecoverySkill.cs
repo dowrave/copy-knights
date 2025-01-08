@@ -4,20 +4,17 @@ using Skills.Base;
 namespace SKills.OperatorSkills
 {
     [CreateAssetMenu(fileName = "New Cost Recovery Skill", menuName = "Skills/Cost Recovery Skill")]
-    public class CostRecoverySkill : Skill
+    public class CostRecoverySkill : PassiveSkill
     {
-        [SerializeField] private GameObject skillEffectPrefab; 
-
         [Header("Cost Recovery Settings")]
         [SerializeField] private int costRecoveryAmount = 8;
-        [SerializeField] private bool isAutoActivate = true;
-        [SerializeField] private float skillDuration = 0f;
+        [SerializeField] private GameObject skillEffectPrefab;
 
-        public override bool AutoRecover => true;
-        public override bool AutoActivate => isAutoActivate;
-
-        private OperatorStats originalStats;
-        private bool bonusesApplied = false;
+        protected override void SetDefaults()
+        {
+            autoRecover = true;
+            autoActivate = true;
+        }
 
         public override void Activate(Operator op)
         {

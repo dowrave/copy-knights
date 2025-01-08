@@ -167,8 +167,8 @@ MonoBehaviour:
     y: 0
     width: 734
     height: 465
-  m_MinSize: {x: 201, y: 221}
-  m_MaxSize: {x: 4001, y: 4021}
+  m_MinSize: {x: 200, y: 200}
+  m_MaxSize: {x: 4000, y: 4000}
   m_ActualView: {fileID: 15}
   m_Panes:
   - {fileID: 15}
@@ -324,8 +324,8 @@ MonoBehaviour:
     y: 0
     width: 669
     height: 528
-  m_MinSize: {x: 276, y: 71}
-  m_MaxSize: {x: 4001, y: 4021}
+  m_MinSize: {x: 275, y: 50}
+  m_MaxSize: {x: 4000, y: 4000}
   m_ActualView: {fileID: 20}
   m_Panes:
   - {fileID: 20}
@@ -1090,7 +1090,7 @@ MonoBehaviour:
       scrollPos: {x: 0, y: 0}
       m_SelectedIDs: 
       m_LastClickedID: 0
-      m_ExpandedIDs: 1efbfffff4ffffff84780000
+      m_ExpandedIDs: 1efbffff
       m_RenameOverlay:
         m_UserAcceptedRename: 0
         m_Name: 
@@ -1173,10 +1173,10 @@ MonoBehaviour:
   m_LockTracker:
     m_IsLocked: 0
   m_FolderTreeState:
-    scrollPos: {x: 0, y: 825}
-    m_SelectedIDs: fc860000
-    m_LastClickedID: 34556
-    m_ExpandedIDs: 0000000076860000788600007a8600007c8600007e86000080860000828600008486000086860000888600008a8600008c8600008e86000090860000928600009486000096860000988600009a8600009c8600009e860000a6860000aa86000000ca9a3b
+    scrollPos: {x: 0, y: 837}
+    m_SelectedIDs: 0e870000
+    m_LastClickedID: 34574
+    m_ExpandedIDs: 000000007a8600007c8600007e86000080860000828600008486000086860000888600008a8600008c8600008e86000090860000928600009486000096860000988600009a8600009c8600009e860000a0860000a2860000a4860000a686000000ca9a3b
     m_RenameOverlay:
       m_UserAcceptedRename: 0
       m_Name: 
@@ -1204,7 +1204,7 @@ MonoBehaviour:
     scrollPos: {x: 0, y: 0}
     m_SelectedIDs: 
     m_LastClickedID: 0
-    m_ExpandedIDs: 0000000076860000788600007a8600007c8600007e86000080860000828600008486000086860000888600008a8600008c8600008e86000090860000928600009486000096860000988600009a8600009c8600009e860000
+    m_ExpandedIDs: 000000007a8600007c8600007e86000080860000828600008486000086860000888600008a8600008c8600008e86000090860000928600009486000096860000988600009a8600009c8600009e860000a0860000a2860000a4860000a6860000
     m_RenameOverlay:
       m_UserAcceptedRename: 0
       m_Name: 
@@ -1235,18 +1235,18 @@ MonoBehaviour:
     m_ExpandedInstanceIDs: 5c7900004e550000ec5400002aa900006e5e00000098000032620000aa5e0000425d00009a63000040710000f85d0000f65d00006c5b000008a10000c4710000c26b000040740000146e00003639010030f20100def70100ce020200e8ae020064760000646e0000206e000074cc000084b9010096740000bc6a0000f8730000e4720000567f0000f880000066790000747a0000de0201002a9a0000b882000000000000
     m_RenameOverlay:
       m_UserAcceptedRename: 0
-      m_Name: DoubleShotSkill
-      m_OriginalName: DoubleShotSkill
+      m_Name: 
+      m_OriginalName: 
       m_EditFieldRect:
         serializedVersion: 2
         x: 0
         y: 0
         width: 0
         height: 0
-      m_UserData: -6108
+      m_UserData: 0
       m_IsWaitingForDelay: 0
       m_IsRenaming: 0
-      m_OriginalEventType: 0
+      m_OriginalEventType: 11
       m_IsRenamingFilename: 1
       m_ClientGUIView: {fileID: 11}
     m_CreateAssetUtility:

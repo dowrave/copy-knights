@@ -12,16 +12,19 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: dd75ae2c82a93b249a8e5571199facdd, type: 3}
   m_Name: DefenseBuff
   m_EditorClassIdentifier: 
-  Name: "\uBC29\uC5B4\uB825 \uAC15\uD654"
+  skillName: 
   description: "\uBC29\uC5B4\uB825\uC744 50% \uC62C\uB824\uC90D\uB2C8\uB2E4."
   SPCost: 12
-  SkillIcon: {fileID: 0}
+  skillIcon: {fileID: 0}
+  autoRecover: 1
+  autoActivate: 0
+  modifiesAttackAction: 0
   duration: 12
-  Modifiers:
-    HealthModifier: 1
-    AttackPowerModifier: 1
-    AttackSpeedModifier: 1
-    DefenseModifier: 1.5
-    MagicResistanceModifier: 1
-    ChangedAttackableTiles: []
-  BuffEffectPrefab: {fileID: 2673592997991987600, guid: 43f083d1a6e670d40a1998803b5a1140, type: 3}
+  skillEffectPrefab: {fileID: 0}
+  modifiers:
+    healthModifier: 1
+    attackPowerModifier: 1
+    attackSpeedModifier: 1
+    defenseModifier: 1.5
+    magicResistanceModifier: 1
+    attackRangeModifier: []

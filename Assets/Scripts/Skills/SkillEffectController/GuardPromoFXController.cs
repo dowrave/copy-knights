@@ -10,11 +10,17 @@ public class GuardPromoFXController : MonoBehaviour
     private float damageMultiplier;
     private List<Vector2Int> baseAttackRange; 
 
+    // 파티클 시스템 관련
     [SerializeField] private ParticleSystem mainEffect;
     private ParticleSystem.Particle[] particles;
+
+    // 대미지 적용 적 추적
     private HashSet<Enemy> damagedEnemies = new HashSet<Enemy>();
+
+    // 공격 가능 타일 좌표
     private HashSet<Vector2Int> attackableGridPositions = new HashSet<Vector2Int>();
-    private bool isInitialized;
+
+    private bool isInitialized = false;
 
     public void Initialize(Operator op, Vector3 dir, float spd, float life, float dmgMult, List<Vector2Int> attackRange)
     {

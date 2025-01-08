@@ -101,7 +101,7 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
     }
 
     // 저지 관련
-    protected List<Enemy> blockedEnemies = new List<Enemy>(); // 저지 중인 적들. 공격 대상 선정 때문에 남겨둔다.
+    protected List<Enemy> blockedEnemies = new List<Enemy>();
     protected int nowBlockingCount = 0;
 
     public int DeploymentOrder { get; protected set; } // 배치 순서
@@ -135,10 +135,8 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
     string hitEffectTag;
 
     // 스킬 관련
-    public Skill CurrentSkill { get; set; }
-    public bool IsSkillActive { get; protected set; } = false;
-    public float SkillDuration { get; protected set; } = 0f;
-    public float RemainingSkillDuration { get; protected set; } = 0f;
+    public BaseSkill CurrentSkill { get; private set; }
+    public bool IsSkillOn { get; private set; }
 
     // 이벤트들
     public event System.Action<float, float> OnSPChanged;
@@ -151,9 +149,7 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
         base.Awake();
     }
     
-    /// <summary>
-    /// 성장 정보를 담은 초기화 방식
-    /// </summary>
+
     public virtual void Initialize(OwnedOperator ownedOp)
     {
         // 기본 데이터 초기화
@@ -196,7 +192,6 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
             modelRenderer = modelObject.GetComponent<Renderer>();
         }
 
-        // DeployableUnitData 초기화 (만약 SerializeField로 설정되어 있다면 이미 할당되어 있음)
         if (BaseData != null)
         {
             currentStats = BaseData.stats;
@@ -242,9 +237,12 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
                 {
                     Attack(CurrentTarget, AttackPower);
                 }
+
+                SetAttackDuration();
+                SetAttackCooldown();
             }
 
-            if (CurrentSkill.AutoActivate && CurrentSP == MaxSP)
+            if (CurrentSkill.autoActivate && CurrentSP == MaxSP)
             {
                 UseSkill();
             }
@@ -265,9 +263,6 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
         {
             CurrentSkill.OnAttack(this, ref damage, ref showDamagePopup);    
         }
-        
-
-        SetAttackTimings();
 
         switch (BaseData.attackRangeType)
         {
@@ -381,9 +376,9 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
 
         float oldSP = CurrentSP;
 
-        if (CurrentSkill.AutoRecover)
+        if (CurrentSkill.autoRecover)
         {
-            CurrentSP = Mathf.Min(CurrentSP + currentStats.SPRecoveryRate * Time.deltaTime, MaxSP);    
+            CurrentSP = Mathf.Min(CurrentSP + currentStats.SPRecoveryRate * Time.deltaTime, MaxSP);
         }
 
         if (CurrentSP != oldSP)
@@ -396,17 +391,6 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
         }
     }
 
-    public bool TryUseSkill(float spCost)
-    {
-        if (CurrentSP >= spCost)
-        {
-            CurrentSP -= spCost;
-
-            return true;
-        }
-        return false; 
-    }
-
     public override void TakeDamage(UnitEntity attacker, AttackSource attackSource, float damage)
     {
         base.TakeDamage(attacker, attackSource, damage);
@@ -415,12 +399,12 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
 
     protected override void Die()
     {
-        // 사망 후 작동해야 하는 로직이 있을 듯?
+        // 사망 후 동작 로직
         UnblockAllEnemies();
 
         // 오브젝트 파괴
         Destroy(operatorUIInstance.gameObject);
-        Destroy(directionIndicator.gameObject); // 방향 표시기
+        Destroy(directionIndicator.gameObject);
         OnSPChanged = null;
 
         // 이펙트 풀 정리
@@ -457,9 +441,8 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
         enemiesInRange.Remove(enemy); // 안하면 리스트에 파괴된 오브젝트가 남아서 0번 인덱스를 캐치하지 못함
     }
 
-    /// <summary>
-    /// 방향 표시 UI 생성
-    /// </summary>
+
+    // 방향 표시 UI 생성
     protected void CreateDirectionIndicator()
     {
         GameObject indicator = new GameObject("DirectionIndicator");
@@ -673,25 +656,13 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
         }
     }
 
-
-    // 공격 모션 시간, 공격 쿨타임 시간 설정
-    public void SetAttackTimings()
-    {
-        if (AttackDuration <= 0f)
-        {
-            SetAttackDuration();
-        }
-        if (AttackCooldown <= 0f)
-        {
-            SetAttackCooldown();
-        }
-    }
-
+    // 공격 모션
     public void SetAttackDuration()
     {
         AttackDuration = 0.3f / AttackSpeed;
     }
 
+    // 다음 공격까지의 대기 시간
     public void SetAttackCooldown(float? intentionalCooldown = null)
     {
         if (intentionalCooldown.HasValue)
@@ -732,9 +703,6 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
     // 스킬 사용 시 SP Bar 관련 설정
     public void StartSkillDurationDisplay(float duration)
     {
-        IsSkillActive = true;
-        SkillDuration = duration;
-        RemainingSkillDuration = duration;
         UpdateOperatorUI();
     }
 
@@ -746,10 +714,6 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
 
     public void EndSkillDurationDisplay()
     {
-        IsSkillActive = false;
-        SkillDuration = 0f;
-        RemainingSkillDuration = 0f;
-        CurrentSP = 0;
         UpdateOperatorUI();
     }
 
@@ -824,9 +788,6 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
         }
     }
 
-    /// <summary>
-    /// 투사체 풀을 만듦. 오퍼레이터마다의 고유한 이름이 모두 다르므로 풀의 태그 이름도 모두 다름
-    /// </summary>
     public void InitializeProjectilePool()
     {
         projectileTag = $"{BaseData.entityName}_Projectile";
@@ -843,7 +804,13 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
 
     private bool ShouldModifyAttackAction()
     {
-        return CurrentSkill.ModifiesAttackAction && IsSkillActive;
+        return CurrentSkill.modifiesAttackAction && IsSkillOn;
+    }
+
+    // 지속 시간이 있는 스킬을 켜거나 끌 때 때 호출됨
+    public void SetSkillOnState(bool skillOnState)
+    {
+        IsSkillOn = skillOnState;
     }
 
 
