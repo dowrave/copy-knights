@@ -297,6 +297,8 @@ public class PathfindingManager : MonoBehaviour
         List<Vector2Int> tilesOnPath = GetTilesOnPath(start, end);
         foreach (Vector2Int tilePos in tilesOnPath)
         {
+            Tile tile = MapManager.Instance.GetTile(tilePos.x, tilePos.y);
+
             if (MapManager.Instance.GetTile(tilePos.x, tilePos.y).IsWalkable == false)
             {
                 return false;

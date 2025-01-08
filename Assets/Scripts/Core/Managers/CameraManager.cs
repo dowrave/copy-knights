@@ -96,7 +96,8 @@ public class CameraManager : MonoBehaviour
             {
                 newPosition = (originalPosition +
                                 Vector3.up * cameraHeightAmount +
-                                (Vector3.right * mapWidth * cameraShiftAmount);
+                                (Vector3.right * mapWidth * cameraShiftAmount)
+                                );
             }
 
             StartCoroutine(LerpPosition(MainCamera.transform, newPosition, animationDuration));
