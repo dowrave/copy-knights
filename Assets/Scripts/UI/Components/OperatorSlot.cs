@@ -34,10 +34,7 @@ public class OperatorSlot : MonoBehaviour
     public OwnedOperator OwnedOperator { get; private set; }
     public OperatorData opData => OwnedOperator?.BaseData;
 
-
-    // 선택 상태
-    private bool isSelected = false;
-    public bool IsSelected => isSelected;
+    public bool IsSelected { get; private set } = false;
 
     // OperatorSlotButton 타입의 파라미터를 받는 이벤트 정의
     public UnityEvent<OperatorSlot> OnSlotClicked = new UnityEvent<OperatorSlot>();
@@ -67,9 +64,7 @@ public class OperatorSlot : MonoBehaviour
         }
     }
 
-    /// <summary>
-    /// Initialize를 수정, 기존 타입을 받는 구조도 수정된 Initialize로 보내게끔 이렇게 구성함
-    /// </summary>
+    // Initialize를 수정, 기존 타입을 받는 구조도 수정된 Initialize로 보내게끔 이렇게 구성함
     public void Initialize(bool isActive, OperatorData operatorData)
     {
         if (operatorData != null)
@@ -83,10 +78,9 @@ public class OperatorSlot : MonoBehaviour
         }
     }
 
-    /// <summary>
-    /// 1. Empty와 Disabled의 구현 차이가 거의 없어서 함께 이용
-    /// 2. OperatorSelectionPanel에서 SquadEditPanel의 Slot을 비울 때에도 쓸 수 있음
-    /// </summary>
+
+    // 1. Empty와 Disabled의 구현 차이가 거의 없어서 함께 이용
+    // 2. OperatorSelectionPanel에서 SquadEditPanel의 Slot을 비울 때에도 쓸 수 있음
     public void SetEmptyOrDisabled(bool isActive)
     { 
         OwnedOperator = null;
@@ -95,18 +89,17 @@ public class OperatorSlot : MonoBehaviour
         UpdateVisuals();
     }
 
-    /// <summary>
-    /// 현재 슬롯에 오퍼레이터를 할당하고 시각 요소 업데이트
-    /// </summary>
+
+    // 현재 슬롯에 오퍼레이터를 할당하고 시각 요소 업데이트
+
     public void AssignOperator(OwnedOperator newOwnedOperator)
     {
         OwnedOperator = newOwnedOperator;
         UpdateVisuals();
     }
 
-    /// <summary>
-    /// 상태 변화에 따른 버튼의 모든 시각적인 요소를 처리함
-    /// </summary>
+
+    // 상태 변화에 따른 버튼의 모든 시각적인 요소를 처리함
     private void UpdateVisuals()
     {
         if (!isThisActiveButton)
@@ -135,7 +128,7 @@ public class OperatorSlot : MonoBehaviour
     
     public void SetSelected(bool selected)
     {
-        isSelected = selected;
+        IsSelected = selected;
         UpdateVisuals();
         OnSlotClicked.Invoke(this);
     }
@@ -223,7 +216,7 @@ public class OperatorSlot : MonoBehaviour
     {
         if (selectedIndicator != null)
         {
-            selectedIndicator.gameObject.SetActive(isSelected);
+            selectedIndicator.gameObject.SetActive(IsSelected);
         }
     }
 

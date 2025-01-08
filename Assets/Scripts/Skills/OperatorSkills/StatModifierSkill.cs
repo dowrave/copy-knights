@@ -90,6 +90,7 @@ namespace Skills.OperatorSkills
             }
         }
 
+        // 스탯 복구
         private void RestoreOriginalStats(Operator op)
         {
             // 현재 체력이 원래 최대 체력보다 높다면, 원래 최대 체력으로 제한합니다
@@ -99,7 +100,6 @@ namespace Skills.OperatorSkills
                 op.CurrentHealth = originalMaxHealth;
             }
 
-            // 나머지 스탯들을 원래대로 복구합니다
             op.AttackPower = originalAttackPower;
             op.AttackSpeed = originalAttackSpeed;
             op.Defense = originalDefense;
@@ -110,18 +110,17 @@ namespace Skills.OperatorSkills
 
         private void UpdateAttackRange(Operator op)
         {
-            // 기존 공격 범위에 새로운 타일들을 추가합니다
+            
             List<Vector2Int> newRange = new List<Vector2Int>(op.CurrentAttackbleTiles);
 
             foreach (Vector2Int additionalTile in modifiers.attackRangeModifier)
             {
-                // 오퍼레이터의 현재 방향에 맞게 타일 좌표를 회전시킵니다
+
                 Vector2Int rotatedTile = DirectionSystem.RotateGridOffset(
                     additionalTile,
                     op.FacingDirection
                 );
 
-                // 중복되지 않는 경우에만 추가합니다
                 if (!newRange.Contains(rotatedTile))
                 {
                     newRange.Add(rotatedTile);

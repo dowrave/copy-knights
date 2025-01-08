@@ -2,9 +2,8 @@ using System.Collections.Generic;
 using UnityEngine;
 using Skills.Base;
 
-/// <summary>
-/// 실제로 보유한 오퍼레이터는 이런 식으로 저장된다.
-/// </summary>
+
+// 실제로 보유한 오퍼레이터의 저장
 [System.Serializable]
 public class OwnedOperator
 {
@@ -33,7 +32,7 @@ public class OwnedOperator
             // 최초 접근 시
             if (_baseData == null) 
             {
-                // Lazy Loading에서 이런 식으로 게터임에도 필드를 할당하는 건 잘 확립된 방식임
+                // Lazy Loading에서 게터임에도 필드를 할당하는 건 잘 확립된 방식임
                 _baseData = GameManagement.Instance.PlayerDataManager.GetOperatorData(operatorName);  // PlayerDataManager에서 operatorID에 해당하는 OperatorData를 가져옴
             }
             return _baseData;
@@ -76,9 +75,8 @@ public class OwnedOperator
         return true;
     }
 
-    /// <summary>
-    /// 정예화 시에 해금되는 요소 적용
-    /// </summary>
+
+    // 정예화 시에 해금되는 요소 적용
     public void ApplyElitePhaseUnlocks()
     {
         if (currentPhase >= OperatorGrowthSystem.ElitePhase.Elite1)
