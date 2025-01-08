@@ -3,11 +3,14 @@ using UnityEngine.EventSystems;
 
 public class OperatorUI : MonoBehaviour
 {
-    public GameObject deployableBarUI;  // 기존에 할당된 Bar UI
-    private DeployableBarUI deployableBarUIScript;
-    public GameObject skillIconUI;      // 스킬 아이콘 UI
+    [Header("Components")]
+    [SerializeField] private GameObject deployableBarUI;  // 기존에 할당된 Bar UI
+    [SerializeField] private GameObject skillIconUI;      // 스킬 아이콘 UI
+    [SerializeField] private SpriteRenderer directionIndicator; // 방향 표시기
 
-    public Operator op;
+    private DeployableBarUI deployableBarUIScript;
+
+    private Operator op;
     private Color originalSPBarColor;
     [SerializeField] private Color onSkillSPBarColor;
 
@@ -27,6 +30,8 @@ public class OperatorUI : MonoBehaviour
         {
             transform.LookAt(transform.position + mainCamera.transform.rotation * Vector3.forward, mainCamera.transform.rotation * Vector3.up);
         }
+
+        directionIndicator.enabled = false;
     }
 
     public void Initialize(Operator op)
@@ -61,5 +66,23 @@ public class OperatorUI : MonoBehaviour
         }
 
         SetSkillIconVisibility(op.CurrentSP >= op.MaxSP && !op.IsSkillOn);
+
+        SetDirectionIndicator(op.FacingDirection);
+    }
+
+    public void SetDirectionIndicator(Vector3 direction)
+    {
+        directionIndicator.enabled = op.IsDeployed ? true : false;
+
+        if (directionIndicator != null)
+        {
+            float zRot = 0f;
+            if (op.FacingDirection == Vector3.left) zRot = 0;
+            else if (op.FacingDirection == Vector3.right) zRot = 180;
+            else if (op.FacingDirection == Vector3.forward) zRot = -90;
+            else if (op.FacingDirection == Vector3.back) zRot = 90;
+
+            directionIndicator.transform.localRotation = Quaternion.Euler(30, 0, zRot);
+        }
     }
 }

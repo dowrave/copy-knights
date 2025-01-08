@@ -34,7 +34,7 @@ public class OperatorSlot : MonoBehaviour
     public OwnedOperator OwnedOperator { get; private set; }
     public OperatorData opData => OwnedOperator?.BaseData;
 
-    public bool IsSelected { get; private set } = false;
+    public bool IsSelected { get; private set; } = false;
 
     // OperatorSlotButton 타입의 파라미터를 받는 이벤트 정의
     public UnityEvent<OperatorSlot> OnSlotClicked = new UnityEvent<OperatorSlot>();

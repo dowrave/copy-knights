@@ -7,7 +7,6 @@ public class FloatingText : MonoBehaviour
     [SerializeField] private float lifetime = 1f;
     [SerializeField] private float moveSpeed = 1f;
     [SerializeField] private AnimationCurve alphaCurve;
-    //private TextMeshProUGUI valueText; // Canvas를 부모에 갖고 있다면 이렇게 씀
     private TMP_Text valueText; // WorldSpace에 바로 쓴다면 이렇게 씀
 
     [SerializeField] private Color attackColor;
@@ -19,7 +18,6 @@ public class FloatingText : MonoBehaviour
     {
         if (valueText == null)
         {
-            //valueText = GetComponent<TextMeshProUGUI>(); // Canvas를 부모에 갖고 있다면 이렇게 씀
             valueText = GetComponent<TextMeshPro>(); // WorldSpace에 바로 쓴다면 이렇게 씀
         }
     }
@@ -38,8 +36,6 @@ public class FloatingText : MonoBehaviour
     {
         if (valueText != null)
         {
-            
-
             // 색 설정
             if (isHealing)
             {

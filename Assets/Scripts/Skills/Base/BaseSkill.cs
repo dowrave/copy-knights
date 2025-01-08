@@ -16,11 +16,12 @@ namespace Skills.Base
         public bool autoActivate = false; // 자동발동 여부
         public bool modifiesAttackAction = false; // 기본 공격이 다르게 나가는 스킬일 때 true
 
+        protected abstract void SetDefaults(); // 인스펙터 bool 필드값들 초기 설정.
 
+        // 동작이 필요할 때 구현
         public virtual void Activate(Operator op) { } // 액티브 스킬을 켰을 때의 동작
-        public virtual void PerformSkillAction(Operator op) { } // 공격 액션을 수정해야 하는 경우 
+        public virtual void PerformSkillAction(Operator op) { } // 공격 액션을 수정해야 하는 경우
         public virtual void OnAttack(Operator op, ref float damage, ref bool showDamagePopup) { } // 공격에 효과를 추가하는 경우
-        protected abstract void SetDefaults();         // 인스펙터 bool 필드값들 초기 설정.
 
         protected void Reset()
         {

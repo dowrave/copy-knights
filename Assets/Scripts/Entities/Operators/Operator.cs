@@ -96,7 +96,6 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
         {
             facingDirection = value.normalized;
             transform.forward = facingDirection;
-            UpdateDirectionIndicator(facingDirection);
         }
     }
 
@@ -171,8 +170,6 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
         {
             InitializeVisual();
         }
-
-        CreateDirectionIndicator();
 
         // 원거리 투사체 오브젝트 풀 초기화
         if (AttackRangeType == AttackRangeType.Ranged)
@@ -404,7 +401,7 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
 
         // 오브젝트 파괴
         Destroy(operatorUIInstance.gameObject);
-        Destroy(directionIndicator.gameObject);
+        
         OnSPChanged = null;
 
         // 이펙트 풀 정리
@@ -439,40 +436,6 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
 
         // 범위 내 적 리스트에서 제거
         enemiesInRange.Remove(enemy); // 안하면 리스트에 파괴된 오브젝트가 남아서 0번 인덱스를 캐치하지 못함
-    }
-
-
-    // 방향 표시 UI 생성
-    protected void CreateDirectionIndicator()
-    {
-        GameObject indicator = new GameObject("DirectionIndicator");
-        indicator.transform.SetParent(transform);
-        indicator.transform.localPosition = new Vector3(0, -0.1f, 0);
-        indicator.transform.localRotation = Quaternion.Euler(90, 0, -90);
-        indicator.transform.localScale = new Vector3(0.3f, 0.3f, 0.3f);
-
-        directionIndicator = indicator.AddComponent<SpriteRenderer>();
-        directionIndicator.sprite = Resources.Load<Sprite>("direction_sprite");
-        directionIndicator.enabled = false;
-    }
-
-    public void UpdateDirectionIndicator(Vector3 direction)
-    {
-        if (directionIndicator != null)
-        {
-            float angle = Vector3.SignedAngle(Vector3.left, direction, Vector3.up);
-
-            // x축 회전 : 바닥에 눕히기 / z축 중심으로 -angle만큼 회전시키면 방향이 맞음(테스트 완료)
-            directionIndicator.transform.localRotation = Quaternion.Euler(90, 0, -90);
-        }
-    }
-
-    public void ShowDirectionIndicator(bool show)
-    {
-        if (directionIndicator != null)
-        {
-            directionIndicator.enabled = show;
-        }
     }
 
     public void HighlightAttackRange()
@@ -556,7 +519,6 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
         SetDirection(facingDirection);
         UpdateAttackbleTiles();
         CreateOperatorUI();
-        ShowDirectionIndicator(true);
         CurrentSP = currentStats.StartSP;
 
         // 이펙트 오브젝트 풀 생성

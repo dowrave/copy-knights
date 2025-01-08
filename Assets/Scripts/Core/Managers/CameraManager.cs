@@ -1,6 +1,4 @@
 using System.Collections;
-using System.Collections.Generic;
-using TMPro;
 using UnityEngine;
 
 public class CameraManager : MonoBehaviour
@@ -88,7 +86,6 @@ public class CameraManager : MonoBehaviour
 
                 newPosition = new Vector3(
                     operatorPosition.x,
-                    //originalPosition.y + cameraHeightAmount,
                     originalPosition.y,
                     operatorPosition.z - clickedOperatorZShiftAmount
                 );
@@ -99,10 +96,7 @@ public class CameraManager : MonoBehaviour
             {
                 newPosition = (originalPosition +
                                 Vector3.up * cameraHeightAmount +
-                                //Vector3.up +
-                                (Vector3.right * mapWidth * cameraShiftAmount));
-                                //Vector3.right * mapWidth);
-
+                                (Vector3.right * mapWidth * cameraShiftAmount);
             }
 
             StartCoroutine(LerpPosition(MainCamera.transform, newPosition, animationDuration));
