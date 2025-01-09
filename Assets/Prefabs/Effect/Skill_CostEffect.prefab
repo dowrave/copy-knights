@@ -13,7 +13,7 @@ GameObject:
   - component: {fileID: 8121655660851779579}
   - component: {fileID: 5887020825010218458}
   m_Layer: 0
-  m_Name: CostSkillEffect
+  m_Name: Skill_CostEffect
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

@@ -4,8 +4,8 @@ using UnityEngine;
 
 namespace Skills.OperatorSkills
 {
-    [CreateAssetMenu(fileName = "New Guard Skill", menuName = "Skills/GuardPromotionSkill")]
-    public class GuardPromotionSkill : ActiveSkill
+    [CreateAssetMenu(fileName = "New Slash Skill", menuName = "Skills/SlashSkill")]
+    public class SlashSkill : ActiveSkill
     {
         [Header("Damage Settings")]
         [SerializeField] private float damageMultiplier = 2f;
@@ -34,19 +34,19 @@ namespace Skills.OperatorSkills
         public override void Activate(Operator op)
         {
             if (!op.IsDeployed || !op.CanUseSkill()) return;
+            Debug.Log("SlashSkill Activate 동작");
             
             op.CurrentSP = 0;
-
             Vector2Int operatorGridPos = MapManager.Instance.ConvertToGridPosition(op.transform.position);
             Vector3 direction = op.FacingDirection;
 
-            if (skillEffectPrefab != null)
+            if (slashEffectPrefab != null)
             {
                 Vector3 spawnPosition = op.transform.position;
-                GameObject effectObj = Instantiate(skillEffectPrefab, spawnPosition, Quaternion.LookRotation(direction));
+                GameObject effectObj = Instantiate(slashEffectPrefab, spawnPosition, Quaternion.LookRotation(direction));
 
                 // 이펙트 컨트롤러 추가 및 초기화
-                GuardPromoFXController effectController = effectObj.AddComponent<GuardPromoFXController>();
+                SlashSkillEffectController effectController = effectObj.GetComponent<SlashSkillEffectController>();
                 effectController.Initialize(op, direction, effectSpeed, effectLifetime, damageMultiplier, attackRange);
             }
         }

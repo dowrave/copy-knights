@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using UnityEngine;
 
-public class GuardPromoFXController : MonoBehaviour
+public class SlashSkillEffectController : MonoBehaviour
 {
     private Operator attacker;
     private float lifetime;
@@ -49,6 +49,7 @@ public class GuardPromoFXController : MonoBehaviour
         {
             mainEffect.Play(); // 이거 없으면 아래에서 파티클 감지 못함
         }
+
         isInitialized = true;
     }
 

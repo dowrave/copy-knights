@@ -1,6 +1,6 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
---- !u!1 &610392011688501501
+--- !u!1 &8148887100782903967
 GameObject:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -8,40 +8,40 @@ GameObject:
   m_PrefabAsset: {fileID: 0}
   serializedVersion: 6
   m_Component:
-  - component: {fileID: 5793718517480362393}
-  - component: {fileID: 6869103620455959622}
-  - component: {fileID: 3300775608954183700}
+  - component: {fileID: 4715041052010680276}
+  - component: {fileID: 4243730290013193871}
+  - component: {fileID: 5916695188121576148}
   m_Layer: 0
-  m_Name: HitEffect(Enemy)
+  m_Name: GetHit_HealEffect
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!4 &5793718517480362393
+--- !u!4 &4715041052010680276
 Transform:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 610392011688501501}
+  m_GameObject: {fileID: 8148887100782903967}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 1, z: 0}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!2083052967 &6869103620455959622
+--- !u!2083052967 &4243730290013193871
 VisualEffect:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 610392011688501501}
+  m_GameObject: {fileID: 8148887100782903967}
   m_Enabled: 1
-  m_Asset: {fileID: 8926484042661614526, guid: 0d6a7e69d16c1064e908c2990547fc42, type: 3}
+  m_Asset: {fileID: 8926484042661614526, guid: f4a10df248dfaa644beb24c231a452fc, type: 3}
   m_InitialEventName: OnPlay
   m_InitialEventNameOverriden: 0
   m_StartSeed: 0
@@ -51,33 +51,15 @@ VisualEffect:
   m_PropertySheet:
     m_Float:
       m_Array:
-      - m_Value: 10
-        m_Name: BaseSpeed
-        m_Overridden: 1
-      - m_Value: 5
-        m_Name: Spread
-        m_Overridden: 1
-      - m_Value: 0.4
-        m_Name: VerticalSpread
-        m_Overridden: 1
-      - m_Value: 0.1
-        m_Name: MainEffectScale
-        m_Overridden: 1
-      - m_Value: 1.5
-        m_Name: MainEffectSize
+      - m_Value: 2
+        m_Name: LifeTime
         m_Overridden: 1
     m_Vector2f:
       m_Array: []
     m_Vector3f:
       m_Array: []
     m_Vector4f:
-      m_Array:
-      - m_Value: {x: 1.4980392, y: 0, z: 0.07329502, w: 1}
-        m_Name: Color01
-        m_Overridden: 1
-      - m_Value: {x: 0.9431988, y: 0, z: 0.6402124, w: 1}
-        m_Name: Color02
-        m_Overridden: 1
+      m_Array: []
     m_Uint:
       m_Array: []
     m_Int:
@@ -92,14 +74,14 @@ VisualEffect:
       m_Array: []
     m_Bool:
       m_Array: []
---- !u!73398921 &3300775608954183700
+--- !u!73398921 &5916695188121576148
 VFXRenderer:
   serializedVersion: 1
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 610392011688501501}
+  m_GameObject: {fileID: 8148887100782903967}
   m_Enabled: 1
   m_CastShadows: 0
   m_ReceiveShadows: 0

@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 6869103620455959622}
   - component: {fileID: 3300775608954183700}
   m_Layer: 0
-  m_Name: HitEffect(Sniper)
+  m_Name: GetHit_SniperEffect
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

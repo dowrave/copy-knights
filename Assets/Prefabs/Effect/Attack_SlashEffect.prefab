@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 8082164910910942525}
   - component: {fileID: 4445296492210126486}
   m_Layer: 0
-  m_Name: SlashEffect(Enemy)
+  m_Name: Attack_SlashEffect
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -43,7 +43,7 @@ VisualEffect:
   m_Enabled: 1
   m_Asset: {fileID: 8926484042661614526, guid: 1142db2fb2a0c524ba9f158df719e549, type: 3}
   m_InitialEventName: OnPlay
-  m_InitialEventNameOverriden: 1
+  m_InitialEventNameOverriden: 0
   m_StartSeed: 0
   m_ResetSeedOnPlay: 1
   m_AllowInstancing: 1
@@ -56,13 +56,7 @@ VisualEffect:
     m_Vector3f:
       m_Array: []
     m_Vector4f:
-      m_Array:
-      - m_Value: {x: 25.056604, y: 0.9077847, z: 0.6559319, w: 1}
-        m_Name: BrightColor
-        m_Overridden: 1
-      - m_Value: {x: 4.181567, y: 0, z: 0.16043732, w: 1}
-        m_Name: Color1
-        m_Overridden: 1
+      m_Array: []
     m_Uint:
       m_Array: []
     m_Int:

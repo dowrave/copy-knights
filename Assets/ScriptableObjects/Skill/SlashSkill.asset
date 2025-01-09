@@ -9,21 +9,21 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 2a7e772044e775043a0046eb398d319f, type: 3}
-  m_Name: GuardPromotionSkill
+  m_Script: {fileID: 11500000, guid: a1135d3d187b47d46bae0876f086965a, type: 3}
+  m_Name: SlashSkill
   m_EditorClassIdentifier: 
-  skillName: 
-  description: "\uC804\uBC29 3\uCE78\uC5D0 \uAC80\uACA9\uC744 \uB0A0\uB824 \uC801\uB4E4\uC5D0\uAC8C
-    \uD53C\uD574\uB97C \uC785\uD799\uB2C8\uB2E4.\n"
+  skillName: Slash Skill
+  description: "\uACF5\uACA9\uB825\uC758 200%\uC5D0 \uD574\uB2F9\uD558\uB294 \uB300\uBBF8\uC9C0\uB97C
+    \uC785\uD788\uB294 \uAC80\uACA9\uC744 \uC804\uBC29 3\uCE78\uC5D0 \uB0A0\uB9BD\uB2C8\uB2E4."
   SPCost: 1
   skillIcon: {fileID: 0}
   autoRecover: 1
   autoActivate: 0
   modifiesAttackAction: 0
   duration: 0
-  skillEffectPrefab: {fileID: 2616778333904927978, guid: a1b5a5fdd4e11c54e916725d4c24d68b, type: 3}
+  skillEffectPrefab: {fileID: 0}
   damageMultiplier: 2
-  slashEffectPrefab: {fileID: 0}
+  slashEffectPrefab: {fileID: 2616778333904927978, guid: a1b5a5fdd4e11c54e916725d4c24d68b, type: 3}
   effectSpeed: 8
   effectLifetime: 0.5
   attackRange:
