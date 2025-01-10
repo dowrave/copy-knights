@@ -34,7 +34,6 @@ namespace Skills.OperatorSkills
         public override void Activate(Operator op)
         {
             if (!op.IsDeployed || !op.CanUseSkill()) return;
-            Debug.Log("SlashSkill Activate 동작");
             
             op.CurrentSP = 0;
             Vector2Int operatorGridPos = MapManager.Instance.ConvertToGridPosition(op.transform.position);
@@ -46,7 +45,7 @@ namespace Skills.OperatorSkills
                 GameObject effectObj = Instantiate(slashEffectPrefab, spawnPosition, Quaternion.LookRotation(direction));
 
                 // 이펙트 컨트롤러 추가 및 초기화
-                SlashSkillEffectController effectController = effectObj.GetComponent<SlashSkillEffectController>();
+                SlashSkillController effectController = effectObj.GetComponent<SlashSkillController>();
                 effectController.Initialize(op, direction, effectSpeed, effectLifetime, damageMultiplier, attackRange);
             }
         }

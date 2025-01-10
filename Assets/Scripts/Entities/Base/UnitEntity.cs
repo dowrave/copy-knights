@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.VFX;
 using static ICombatEntity;
@@ -31,6 +32,8 @@ public abstract class UnitEntity : MonoBehaviour, ITargettable, IFactionMember
     }
     public float MaxHealth { get; set; }
 
+    protected List<CrowdControl> activeCC = new List<CrowdControl>();
+
 
     // 이 개체를 공격하는 엔티티 목록
     protected List<ICombatEntity> attackingEntities = new List<ICombatEntity>();
@@ -38,6 +41,7 @@ public abstract class UnitEntity : MonoBehaviour, ITargettable, IFactionMember
     // 이벤트
     public event System.Action<float, float, float> OnHealthChanged;
     public event System.Action OnDestroyed;
+    public event System.Action<CrowdControl, bool> OnCrowdControlChanged;
 
     protected virtual void Awake()
     {
@@ -54,6 +58,11 @@ public abstract class UnitEntity : MonoBehaviour, ITargettable, IFactionMember
         currentStats = unitData.stats;
 
         InitializeUnitProperties();
+    }
+
+    protected virtual void Update()
+    {
+        UpdateCrowdControls();
     }
 
     // Data, Stat이 엔티티마다 다르기 때문에 자식 메서드에서 재정의 고려
@@ -91,7 +100,6 @@ public abstract class UnitEntity : MonoBehaviour, ITargettable, IFactionMember
                 Die(); // 자식 메서드에서 오버라이드했다면 오버라이드한 메서드가 호출
             }
         }
-
     }
 
     /// <summary>
@@ -156,6 +164,7 @@ public abstract class UnitEntity : MonoBehaviour, ITargettable, IFactionMember
             entity.RemoveCurrentTarget();
         }
         OnDestroyed?.Invoke();
+        RemoveAllCrowdControls();
         Destroy(gameObject);
     }
 
@@ -196,7 +205,6 @@ public abstract class UnitEntity : MonoBehaviour, ITargettable, IFactionMember
             hitEffectPrefab = opData.hitEffectPrefab;
             attackerName = opData.entityName;
         }
-
         else if (attacker is Enemy enemy)
         {
             EnemyData enemyData = enemy.BaseData;
@@ -256,4 +264,48 @@ public abstract class UnitEntity : MonoBehaviour, ITargettable, IFactionMember
     public void ActivateShield(float amount) => shieldSystem.ActivateShield(amount);
     public void DeactivateShield() => shieldSystem.DeactivateShield();
     public float GetCurrentShield() => shieldSystem.CurrentShield;
+
+    public virtual void AddCrowdControl(CrowdControl cc)
+    {
+        // 일단 같은 타입이면 적용 안함
+        if (activeCC.Any(existing => existing.GetType() == cc.GetType())) return;
+
+        activeCC.Add(cc);
+
+        // CC 추가 이벤트 -> UI 업데이트 등에 사용
+        OnCrowdControlChanged?.Invoke(cc, true);
+    }
+
+    public virtual void RemoveCrowdControl(CrowdControl cc)
+    {
+        if (activeCC.Remove(cc))
+        {
+            cc.ForceRemove();
+            OnCrowdControlChanged?.Invoke(cc, false);
+        }
+    }
+
+    // CC 효과 갱신
+    protected virtual void UpdateCrowdControls()
+    {
+        for (int i = activeCC.Count - 1; i>=0; i--)
+        {
+            var cc = activeCC[i];
+            cc.Update();
+
+            if (cc.IsExpired)
+            {
+                OnCrowdControlChanged?.Invoke(cc, false);
+                activeCC.RemoveAt(i);
+            }
+        }
+    }
+
+    protected virtual void RemoveAllCrowdControls()
+    {
+        foreach (var cc in activeCC.ToList())
+        {
+            RemoveCrowdControl(cc);
+        }
+    }
 }

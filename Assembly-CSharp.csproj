@@ -72,6 +72,7 @@
     <Compile Include="Assets\Scripts\Interfaces\IFactionMember.cs" />
     <Compile Include="Assets\Scripts\Core\Managers\PlayerDataManager.cs" />
     <Compile Include="Assets\Scripts\UI\Panels\StageLoadingScreen.cs" />
+    <Compile Include="Assets\Scripts\Skills\OperatorSkills\ArcaneFieldSkill.cs" />
     <Compile Include="Assets\Scripts\UI\Panels\OperatorPromotionPanel.cs" />
     <Compile Include="Assets\Scripts\Interfaces\ICombatData.cs" />
     <Compile Include="Assets\Scripts\Interfaces\IDeployable.cs" />
@@ -94,6 +95,7 @@
     <Compile Include="Assets\Scripts\Core\Managers\SpawnerManager.cs" />
     <Compile Include="Assets\Scripts\UI\Components\DeployableActionUI.cs" />
     <Compile Include="Assets\Scripts\Entities\Operators\Operator.cs" />
+    <Compile Include="Assets\Scripts\CC\CrowdControl.cs" />
     <Compile Include="Assets\Scripts\UI\Components\StatisticItem.cs" />
     <Compile Include="Assets\Scripts\Utils\UIHelper.cs" />
     <Compile Include="Assets\Scripts\UI\Components\OperatorSlot.cs" />
@@ -101,7 +103,6 @@
     <Compile Include="Assets\Scripts\Skills\OperatorSkills\SlashSkill.cs" />
     <Compile Include="Assets\Scripts\UI\Panels\SquadEditPanel.cs" />
     <Compile Include="Assets\Scripts\Core\Managers\GameManagement.cs" />
-    <Compile Include="Assets\Scripts\Skills\SkillEffectController\SlashSkillEffectController.cs" />
     <Compile Include="Assets\Scripts\UI\Components\DiamondMask.cs" />
     <Compile Include="Assets\Scripts\UI\Components\DeployableDeployingUI.cs" />
     <Compile Include="Assets\Scripts\Skills\Base\PassiveSkill.cs" />
@@ -109,16 +110,19 @@
     <Compile Include="Assets\Scripts\Core\Managers\ResourceManager.cs" />
     <Compile Include="Assets\Scripts\Core\Managers\PopupManager.cs" />
     <Compile Include="Assets\Scripts\Data\StageResultData.cs" />
+    <Compile Include="Assets\Scripts\CC\Types\SlowEffect.cs" />
     <Compile Include="Assets\Scripts\UI\Panels\OperatorInventoryPanel.cs" />
     <Compile Include="Assets\Scripts\Core\Managers\OperatorGrowthManager.cs" />
     <Compile Include="Assets\Scripts\Core\Systems\ShieldSystem.cs" />
     <Compile Include="Assets\Scripts\Core\States\DeployableUnitState.cs" />
     <Compile Include="Assets\Scripts\Entities\Barricade.cs" />
     <Compile Include="Assets\Scripts\Map\Map.cs" />
+    <Compile Include="Assets\Scripts\Skills\SkillController\ArcaneFieldController.cs" />
     <Compile Include="Assets\Scripts\Skills\OperatorSkills\ShieldSkill.cs" />
     <Compile Include="Assets\Scripts\Data\ItemInventoryData.cs" />
     <Compile Include="Assets\Scripts\UI\Components\ItemUIElement.cs" />
     <Compile Include="Assets\Scripts\Skills\OperatorSkills\DoubleShotSkill.cs" />
+    <Compile Include="Assets\Scripts\Skills\SkillController\SlashSkillController.cs" />
     <Compile Include="Assets\Scripts\UI\Components\HealthBar.cs" />
     <Compile Include="Assets\Scripts\Entities\Operators\MedicOperator.cs" />
     <Compile Include="Assets\Scripts\Skills\Base\BaseSkill.cs" />

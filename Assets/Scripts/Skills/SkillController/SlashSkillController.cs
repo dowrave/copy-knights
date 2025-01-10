@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using UnityEngine;
 
-public class SlashSkillEffectController : MonoBehaviour
+public class SlashSkillController : MonoBehaviour
 {
     private Operator attacker;
     private float lifetime;

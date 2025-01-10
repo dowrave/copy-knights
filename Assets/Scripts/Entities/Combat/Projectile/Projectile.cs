@@ -8,7 +8,6 @@ public class Projectile : MonoBehaviour
     public float speed = 5f;
     private float value; // 대미지 or 힐값
     private bool showValue;
-    private AttackType attackType;
     private bool isHealing = false;
     private UnitEntity attacker;
     private UnitEntity target;
@@ -77,7 +76,6 @@ public class Projectile : MonoBehaviour
         Vector3 direction = (lastKnownPosition - transform.position).normalized;
         transform.position += direction * speed * Time.deltaTime;
 
-        // VFX의 방향 업데이트
         UpdateVFXDirection(direction);
 
         // 목표 지점 도달 확인
@@ -87,9 +85,7 @@ public class Projectile : MonoBehaviour
         }
     }
 
-    /// <summary>
-    /// 방향이 있는 VFX의 초기 방향을 설정합니다.
-    /// </summary>
+    // 방향이 있는 VFX의 초기 방향 설정
     private void InitializeVFXDirection() 
     {
         if (vfx != null && vfx.HasVector3("BaseDirection"))
@@ -115,9 +111,8 @@ public class Projectile : MonoBehaviour
         }
     }
 
-    /// <summary>
-    /// 방향 벡터를 받아 VFX에 오일러 각으로 변환해 전달합니다.
-    /// </summary>
+
+    // 방향 벡터를 받아 VFX에 오일러 각으로 변환해 전달한다
     private void UpdateVFXDirection(Vector3 directionVector)
     {
         if (vfx != null)
@@ -156,9 +151,7 @@ public class Projectile : MonoBehaviour
         }
     }
 
-    /// <summary>
-    /// 목표 위치에 도달 시에 동작
-    /// </summary>
+    // 목표 위치에 도달 시에 동작
     private void OnReachTarget()
     {
         // 타겟이 살아있는 경우

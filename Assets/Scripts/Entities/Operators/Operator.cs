@@ -210,7 +210,7 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
         }
     }
 
-    protected virtual void Update()
+    protected override void Update()
     {
         if (IsDeployed)
         {
@@ -244,6 +244,8 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
                 UseSkill();
             }
         }
+
+        base.Update();
     }
 
 

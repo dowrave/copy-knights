@@ -20,10 +20,7 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity
     public float AttackPower { get => currentStats.AttackPower; private set => currentStats.AttackPower = value; }
     public float AttackSpeed { get => currentStats.AttackSpeed; private set => currentStats.AttackSpeed = value; }
     public float MovementSpeed { get => currentStats.MovementSpeed; private set => currentStats.MovementSpeed = value; }
-
-
     public int BlockCount { get => enemyData.blockCount; private set => enemyData.blockCount = value; } // Enemy가 차지하는 저지 수
-
     public float AttackCooldown { get; private set; } // 다음 공격까지의 대기 시간
     public float AttackDuration { get; private set; } // 공격 모션 시간. Animator가 추가될 때 수정 필요할 듯. 항상 Cooldown보다 짧아야 함.
 
@@ -120,13 +117,9 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity
             // 스포너의 위치랑 동일해도 상관없는데 pathData가 또 별도로 있어서 거시기하다.
             transform.position = MapManager.Instance.ConvertToWorldPosition(pathData.nodes[0].gridPosition) + Vector3.up * 0.5f;
         }
-        else
-        {
-            Debug.LogWarning("PathData is not set or empty. Initial position not set.");
-        }
     }
 
-    private void Update()
+    protected override void Update()
     {
         UpdateAttackDuration();
         UpdateAttackCooldown();
@@ -171,6 +164,8 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity
                 }
             }
         }
+
+        base.Update();
     }
 
 
@@ -576,9 +571,7 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity
         StartCoroutine(OnBarricadeRemoved(barricade));
     }
 
-    /// <summary>
-    /// 바리케이드 제거 시의 동작
-    /// </summary>
+    // 바리케이드 제거 시 동작
     private IEnumerator OnBarricadeRemoved(Barricade barricade)
     {
         // 바리케이드가 파괴될 시간 확보
@@ -593,13 +586,11 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity
         // 해당 바리케이드가 목표였던 Enemy들의 targetBarricade 해제
         else if (targetBarricade == barricade)
         {
-            Debug.Log($"{gameObject.name} : TargetBarricade = barricade 조건문을 탔음");
             targetBarricade = null;
             FindPathToDestinationOrBarricade();
-            Debug.Log($"{gameObject.name} : {targetBarricade}");
         }
 
-        // 다른 바리케이드가 targetBarricade로 설정되어 있는 Enemy들은 그걸 파괴하러 이동하므로 별 동작 X
+        // 다른 바리케이드를 목표로 하고 있다면 별도 동작 X
     }
 
     // 현재 pathData를 사용하는 경로가 막혔는지를 점검한다
@@ -798,6 +789,11 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity
         {
             ObjectPoolManager.Instance.RemovePool(hitEffectTag);
         }
+    }
+
+    public void SetMovementSpeed(float newSpeed)
+    {
+        MovementSpeed = newSpeed;
     }
 
     protected void OnDestroy()
