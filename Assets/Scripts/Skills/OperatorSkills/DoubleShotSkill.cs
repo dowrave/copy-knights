@@ -33,7 +33,7 @@ namespace Skills.OperatorSkills
             }
         }
 
-        public override void PerformSkillAction(Operator op)
+        public override void PerformChangedAttackAction(Operator op)
         {
             if (!op.IsSkillOn) return;
             op.StartCoroutine(PerformDoubleShot(op));
@@ -55,7 +55,6 @@ namespace Skills.OperatorSkills
             {
                 op.Attack(target, modifiedDamage);
             }
-            //yield return new WaitForSeconds(1f / op.AttackSpeed);
         }
     }
 }

@@ -20,8 +20,12 @@ namespace Skills.Base
 
         // 동작이 필요할 때 구현
         public virtual void Activate(Operator op) { } // 액티브 스킬을 켰을 때의 동작
-        public virtual void PerformSkillAction(Operator op) { } // 공격 액션을 수정해야 하는 경우
+        public virtual void PerformChangedAttackAction(Operator op) { } // 공격 액션을 수정해야 하는 경우
         public virtual void OnAttack(Operator op, ref float damage, ref bool showDamagePopup) { } // 공격에 효과를 추가하는 경우
+
+        // 오브젝트 풀링을 사용할 경우
+        public virtual void InitializeSkillObjectPool() { } // 오브젝트 풀 구현
+        public virtual void CleanupSkillObjectPool() { } // 오브젝트 풀 제거
 
         protected void Reset()
         {

@@ -10,7 +10,7 @@ namespace Skills.Base
         [Header("Skill Duration")]
         public float duration = 0f;
 
-        [Header("Skill Effects")]
+        [Header("Skill Duration Effects")]
         [SerializeField] protected GameObject skillEffectPrefab;
 
         protected GameObject effectInstance;

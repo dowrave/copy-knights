@@ -158,6 +158,7 @@
     <Compile Include="Assets\Scripts\Core\Systems\DirectionSystem.cs" />
     <Compile Include="Assets\Scripts\Data\ItemData.cs" />
     <Compile Include="Assets\Scripts\Core\Managers\PathfindingManager.cs" />
+    <Compile Include="Assets\Scripts\UI\Effects\SkillRangeEffect.cs" />
     <Compile Include="Assets\Scripts\UI\Panels\StatsPanel.cs" />
     <Compile Include="Assets\Scripts\Data\UnitData.cs" />
     <Compile Include="Assets\Scripts\UI\Panels\StageResultPanel.cs" />

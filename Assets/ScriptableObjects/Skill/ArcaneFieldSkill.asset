@@ -7,24 +7,25 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 0}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 495e51ec39fc80944be82319a686ad44, type: 3}
   m_Name: ArcaneFieldSkill
   m_EditorClassIdentifier: 
   skillName: ArcaneFieldSkill
   description: "\uACF5\uACA9 \uBC94\uC704 \uB0B4\uC5D0 \uB300\uC0C1\uC774 \uC788\uC744
-    \uB54C, \uB300\uC0C1\uC758 \uC911\uC2EC\uC744 \uAE30\uC900\uC73C\uB85C \uD55C
-    13\uCE78\uC758 \uBC94\uC704\uC5D0 \uBC94\uC704 \uB3C4\uD2B8 \uD53C\uD574\uC640
-    \uB454\uD654\uB97C \uAC00\uD569\uB2C8\uB2E4."
+    \uB54C, \uAE30\uBCF8 \uACF5\uACA9\uC744 \uC911\uC9C0\uD558\uACE0 \uBC94\uC704
+    \uB3C4\uD2B8 \uD53C\uD574\uC640 \uB454\uD654\uB97C \uAC00\uD569\uB2C8\uB2E4."
   SPCost: 1
   skillIcon: {fileID: 0}
   autoRecover: 1
   autoActivate: 0
-  modifiesAttackAction: 0
-  duration: 0
+  modifiesAttackAction: 1
+  duration: 3
   skillEffectPrefab: {fileID: 0}
-  damagePerSecond: 100
+  damagePerTickRatio: 0.5
   slowAmount: 0.3
-  fieldDuration: 3
+  damageInterval: 0.5
   fieldEffectPrefab: {fileID: 926762040787327029, guid: bb7f19d33fefe14408ec775a2d8506f8, type: 3}
+  skillRangeEffectPrefab: {fileID: 4360018886635934139, guid: fa3175149c04e4e42aec56b55c84b046, type: 3}
+  rangeEffectColor: {r: 0.46163654, g: 0.0040494935, b: 0.8584906, a: 1}

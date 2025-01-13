@@ -76,7 +76,7 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity
         InitializeUnitProperties();
         InitializeEnemyProperties();
 
-        CreateEffectPool();
+        CreateObjectPool();
     }
 
     private void OnEnable()
@@ -103,11 +103,6 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity
         {
             FindPathToDestinationOrBarricade();
         }
-
-        if (AttackRangeType == AttackRangeType.Ranged)
-        {
-            InitializeProjectilePool();
-        }
     }
 
     private void SetupInitialPosition()
@@ -132,22 +127,22 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity
             // 공격 범위 내의 적 리스트 & 현재 공격 대상 갱신
             SetCurrentTarget();
 
-            // 1. 저지 중인 오퍼레이터가 있을 때
+            // 1. 저지를 당하는 상태라면 근거리 공격을 함
             if (blockingOperator != null)
             {
-                // 공격 가능한 상태라면
                 if (CurrentTarget != null && AttackCooldown <= 0)
                 {
-                    PerformMeleeAttack(CurrentTarget, AttackPower); // 저지를 당하는 상태라면, 적의 공격 범위에 관계 없이 근거리 공격을 함
+                    PerformMeleeAttack(CurrentTarget, AttackPower); 
                 }
             }
 
             // 2. 저지 중이 아닐 때
             else
             {
+                // 바리케이트가 타겟일 경우
                 if (targetBarricade != null && Vector3.Distance(transform.position, targetBarricade.transform.position) < 0.5f)
                 {
-                    PerformMeleeAttack(targetBarricade, AttackPower); // 무조건 근거리 공격
+                    PerformMeleeAttack(targetBarricade, AttackPower);
                 }
 
                 // 타겟이 있고, 공격이 가능한 상태
@@ -156,7 +151,7 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity
                     Attack(CurrentTarget, AttackPower);
                 }
 
-                // 이동 관련 로직. 저지 중이 아닐 때에만 동작해야 한다. 
+                // 이동 관련 로직.
                 else if (!isWaiting) // 경로 이동 중 기다리는 상황이 아니라면
                 {
                     MoveAlongPath(); // 이동
@@ -520,8 +515,11 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity
 
     public void InitializeProjectilePool()
     {
-        projectileTag = $"{BaseData.entityName}_Projectile";
-        ObjectPoolManager.Instance.CreatePool(projectileTag, BaseData.projectilePrefab, initialPoolSize);
+        if (AttackRangeType == AttackRangeType.Ranged)
+        {
+            projectileTag = $"{BaseData.entityName}_Projectile";
+            ObjectPoolManager.Instance.CreatePool(projectileTag, BaseData.projectilePrefab, initialPoolSize);
+        }
     }
 
 
@@ -709,7 +707,7 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity
             AttackDuration <= 0;
     }
 
-    private void CreateEffectPool()
+    private void CreateObjectPool()
     {
         // 근접 공격 이펙트 풀 생성
         if (BaseData.meleeAttackEffectPrefab != null)
@@ -730,6 +728,8 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity
                 BaseData.hitEffectPrefab
             );
         }
+
+        InitializeProjectilePool();
     }
 
     private void PlayMeleeAttackEffect(UnitEntity target)
@@ -772,13 +772,13 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity
 
     private void RemoveProjectilePool()
     {
-        if (!string.IsNullOrEmpty(projectileTag))
+        if (AttackRangeType == AttackRangeType.Ranged && !string.IsNullOrEmpty(projectileTag))
         {
             ObjectPoolManager.Instance.RemovePool(projectileTag);
         }
     }
 
-    private void RemoveEffectPool()
+    private void RemoveObjectPool()
     {
         if (meleeAttackEffectTag != null)
         {
@@ -789,6 +789,8 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity
         {
             ObjectPoolManager.Instance.RemovePool(hitEffectTag);
         }
+
+        RemoveProjectilePool();
     }
 
     public void SetMovementSpeed(float newSpeed)
@@ -801,12 +803,7 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity
         // 타일에서 제거
         CurrentTile.EnemyExited(this);
 
-        RemoveEffectPool();
-
-        if (AttackRangeType == AttackRangeType.Ranged)
-        {
-            RemoveProjectilePool();
-        }
+        RemoveObjectPool();
     }
 
 }

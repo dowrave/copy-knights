@@ -7,7 +7,7 @@ public class ArcaneFieldController : MonoBehaviour
 {
     private Operator caster;
     private Vector2Int centerPosition;
-    private Vector2Int[] affectedPattern;
+    private List<Vector2Int> affectedPattern;
     private float damagePerTick;
     private float slowAmount;
     private float fieldDuration; // 필드 지속 시간
@@ -19,7 +19,7 @@ public class ArcaneFieldController : MonoBehaviour
     private HashSet<Vector2Int> affectedTiles = new HashSet<Vector2Int>();
     private Dictionary<Enemy, SlowEffect> affectedEnemies = new Dictionary<Enemy, SlowEffect>();
 
-    public void Initialize(Operator op, Vector2Int center, Vector2Int[] pattern, float damagePerTick, float slow, float fieldDuration, float damageInterval)
+    public void Initialize(Operator op, Vector2Int center, List<Vector2Int> pattern, float damagePerTick, float slow, float fieldDuration, float damageInterval)
     {
         caster = op;
         centerPosition = center;

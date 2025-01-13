@@ -212,13 +212,11 @@ public class Map : MonoBehaviour
 
     public void RemoveTile(int x, int y)
     {
-        Debug.Log($"RemoveTile : 들어온 좌표 {x}, {y}");
         if (!IsValidGridPosition(x, y)) return;
 
         Vector2Int gridPos = new Vector2Int(x, y);
         if (tileObjects.TryGetValue(gridPos, out GameObject tileObj))
         {
-            Debug.Log($"RemoveTile : {gridPos} 값이 들어왔음 : 발견한 오브젝트 : {tileObj.name}");
             DestroyImmediate(tileObj);
             tileObjects.Remove(gridPos);
         }
@@ -234,14 +232,23 @@ public class Map : MonoBehaviour
         return null;
     }
 
-    /// <summary>
-    /// 해당 "그리드" 좌표를 갖고 있는 타일을 반환함. 월드 좌표가 아님!!
-    /// </summary>
-    public Tile GetTile(int x, int y)
+    // 해당 그리드 좌표에 대한 타일을 반환합니다
+    public Tile GetTile(int gridX, int gridY)
     {
-        if (!IsValidGridPosition(x, y)) return null;
-        Vector2Int gridPos = new Vector2Int(x, y);
-        return tileObjects.TryGetValue(gridPos, out GameObject tileObj) ? tileObj.GetComponent<Tile>() : null;
+        if (!IsValidGridPosition(gridX, gridY)) return null;
+
+        if (IsTileAt(gridX, gridY))
+        {
+            Vector2Int gridPos = new Vector2Int(gridX, gridY);
+            GameObject tileObj = tileObjects[gridPos];
+            return tileObj.GetComponent<Tile>();
+        }
+        return null;
+    }
+
+    public bool IsTileAt(int gridX, int gridY)
+    {
+        return tileObjects.ContainsKey(new Vector2Int(gridX, gridY));
     }
 
     public bool IsValidGridPosition(int x, int y)
@@ -277,12 +284,11 @@ public class Map : MonoBehaviour
     }
 
 
-    /// <summary>
-    /// 월드 y 좌표는 0으로 설정. 
-    /// 0.5로 설정하고 싶다면 Vector3.Up * 0.5f을 사용하자.
-    /// </summary>
+
+    // 월드 y 좌표는 0으로 설정. 
+    // 0.5로 설정하고 싶다면 Vector3.Up * 0.5f을 사용하자.
     public Vector3 GridToWorldPosition(Vector2Int gridPos)
-    {
+    { 
         return new Vector3(gridPos.x, 0, height - 1 - gridPos.y);
     }
 

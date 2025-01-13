@@ -24,8 +24,6 @@ public interface ICombatEntity
     void RemoveCurrentTarget(); // 현재 공격 대상 제거
     void NotifyTarget(); // 공격 대상에게 자신이 공격하고 있음을 알림
 
-    void InitializeProjectilePool();
-
     public readonly struct AttackSource
     {
         public Vector3 Position { get; }

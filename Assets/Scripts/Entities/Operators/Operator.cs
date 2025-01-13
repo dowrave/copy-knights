@@ -126,7 +126,6 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
     protected SpriteRenderer directionIndicator; // 방향 표시 UI
 
     // 원거리 공격 오브젝트 풀 옵션
-    protected int initialPoolSize = 5;
     protected string projectileTag;
 
     // 이펙트 풀 태그
@@ -142,13 +141,6 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
     public event System.Action OnStatsChanged; 
 
     // 필드 끝 --------------------------------------------------------------------------------------------
-
-    protected override void Awake()
-    {
-        base.Awake();
-    }
-    
-
     public virtual void Initialize(OwnedOperator ownedOp)
     {
         // 기본 데이터 초기화
@@ -169,12 +161,6 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
         if (modelObject == null)
         {
             InitializeVisual();
-        }
-
-        // 원거리 투사체 오브젝트 풀 초기화
-        if (AttackRangeType == AttackRangeType.Ranged)
-        {
-            InitializeProjectilePool();
         }
     }
 
@@ -227,7 +213,7 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
                 // 공격 형식을 바꿔야 하는 경우 스킬의 동작을 따라감
                 if (ShouldModifyAttackAction())
                 {
-                    CurrentSkill.PerformSkillAction(this);
+                    CurrentSkill.PerformChangedAttackAction(this);
                 }
                 // 아니라면 평타
                 else
@@ -524,7 +510,7 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
         CurrentSP = currentStats.StartSP;
 
         // 이펙트 오브젝트 풀 생성
-        CreateEffectPool();
+        CreateObjectPool();
     }
 
     public override void Retreat()
@@ -689,7 +675,9 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
         }
     }
 
-    private void CreateEffectPool()
+
+    // 구현할 오브젝트 풀링이 있다면 여기다 넣음
+    private void CreateObjectPool()
     {
         // 근접 공격 이펙트 풀 생성
         if (BaseData.meleeAttackEffectPrefab != null)
@@ -710,6 +698,12 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
                 BaseData.hitEffectPrefab
             );
         }
+
+        // 원거리인 경우 투사체 풀 생성
+        InitializeProjectilePool();
+
+        // 스킬 이펙트 풀 생성
+        CurrentSkill.InitializeSkillObjectPool();
     }
 
     private void PlayMeleeAttackEffect(UnitEntity target)
@@ -739,7 +733,7 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
         }
     }
 
-    private void RemoveEffectPool()
+    private void RemoveObjectPool()
     {
         if (meleeAttackEffectTag != null)
         {
@@ -750,17 +744,23 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
         {
             ObjectPoolManager.Instance.RemovePool(hitEffectTag);
         }
+
+        RemoveProjectilePool();
+        CurrentSkill.CleanupSkillObjectPool();
     }
 
     public void InitializeProjectilePool()
     {
-        projectileTag = $"{BaseData.entityName}_Projectile";
-        ObjectPoolManager.Instance.CreatePool(projectileTag, BaseData.projectilePrefab, initialPoolSize);
+        if (AttackRangeType == AttackRangeType.Ranged)
+        {
+            projectileTag = $"{BaseData.entityName}_Projectile";
+            ObjectPoolManager.Instance.CreatePool(projectileTag, BaseData.projectilePrefab, 5);
+        }
     }
 
     protected void RemoveProjectilePool()
     {
-        if (!string.IsNullOrEmpty(projectileTag))
+        if (AttackRangeType == AttackRangeType.Ranged && !string.IsNullOrEmpty(projectileTag))
         {
             ObjectPoolManager.Instance.RemovePool(projectileTag);
         }
@@ -771,7 +771,7 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
         return CurrentSkill.modifiesAttackAction && IsSkillOn;
     }
 
-    // 지속 시간이 있는 스킬을 켜거나 끌 때 때 호출됨
+    // 지속 시간이 있는 스킬을 켜거나 끌 때 호출됨
     public void SetSkillOnState(bool skillOnState)
     {
         IsSkillOn = skillOnState;
@@ -780,11 +780,6 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
 
     protected void OnDestroy()
     {
-        RemoveEffectPool();
-
-        if (AttackRangeType == AttackRangeType.Ranged)
-        {
-            RemoveProjectilePool();
-        }
+        RemoveObjectPool();
     }
 }
