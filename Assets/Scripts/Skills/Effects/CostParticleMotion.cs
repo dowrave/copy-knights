@@ -1,10 +1,8 @@
 using UnityEngine;
 using System.Collections.Generic;
-using DG.Tweening;
 
 /// <summary>
 /// 코스트 획득 시 파티클이 코스트 아이콘으로 날아가는 처리
-/// World Space의 파티클이 Screen Space - Overlay Canvas의 UI 요소로 이동
 /// </summary>
 public class CostParticleMotion : MonoBehaviour
 {
@@ -67,8 +65,17 @@ public class CostParticleMotion : MonoBehaviour
     {
         // 파티클 시스템의 좌표는 로컬 기준으로 처리되므로, 월드 좌표로 변환
         Vector3 particleWorldPosition = particleSystem.transform.TransformPoint(particle.position);
+        Vector3 projectedParticlePosition = new Vector3(particleWorldPosition.x, 0f, particleWorldPosition.z);
 
-        float distanceToTarget = Vector3.Distance(particle.position, iconWorldPosition);
+        float distanceToTarget = Vector3.Distance(projectedParticlePosition, iconWorldPosition);
+
+        // 목표 지점 근처 도달 시 파티클 제거
+        if (distanceToTarget < arrivalThreshold)
+        {
+            particle.remainingLifetime = 0f;
+            return;
+        }
+
         uint particleId = particle.randomSeed;
 
         // 초기 속도 설정 - 랜덤한 방향으로 약간 퍼지게 함
@@ -76,7 +83,7 @@ public class CostParticleMotion : MonoBehaviour
         {
             Vector3 initialVelocity = new Vector3(
                 Random.Range(-0.3f, 0.3f),
-                Random.Range(0f, 0.5f),
+                Random.Range(0.5f, 1f),
                 Random.Range(-0.3f, 0.3f)
             );
             particleVelocities[particleId] = initialVelocity;
@@ -96,18 +103,8 @@ public class CostParticleMotion : MonoBehaviour
             Time.deltaTime * turnSpeed
         );
 
-        // 파티클 크기 감소
-        //float lifeProgress = (elapsed - initialDuration) / (particle.startLifetime - initialDuration);
-        //particle.startSize *= Mathf.Lerp(1f, 0.8f, lifeProgress);
-
         // 새로운 속도 적용
         particleVelocities[particleId] = newVelocity;
         particle.velocity = newVelocity;
-
-        // 목표 지점 근처 도달 시 파티클 제거
-        if (distanceToTarget < arrivalThreshold)
-        {
-            particle.remainingLifetime = 0f;
-        }
     }
 }

@@ -10,6 +10,10 @@ public class SkillRangeEffect : MonoBehaviour, IPooledObject
     [SerializeField] private ParticleSystem leftEffect;
     [SerializeField] private ParticleSystem rightEffect;
 
+    [Header("Floor")]
+    [SerializeField] private MeshRenderer floorRenderer;
+    [SerializeField] private float baseAlpha;
+
     [Header("Effect Color")]
     [SerializeField] private Color effectColor;
 
@@ -24,10 +28,14 @@ public class SkillRangeEffect : MonoBehaviour, IPooledObject
         Vector2Int.right
     };
 
-    private string poolTag; 
+    private string poolTag;
+    private static MaterialPropertyBlock propertyBlock;
+    private static readonly int colorID = Shader.PropertyToID("_BaseColor");
 
     private void Awake()
     {
+        if (propertyBlock == null) propertyBlock = new MaterialPropertyBlock();
+
         // 방향별 파티클 시스템 매핑
         directionEffects = new Dictionary<Vector2Int, ParticleSystem>
         {
@@ -45,6 +53,9 @@ public class SkillRangeEffect : MonoBehaviour, IPooledObject
         {
             effect.Stop();
         }
+
+        // 바닥도 초기엔 비활성화
+        floorRenderer.gameObject.SetActive(false);
     }
     private void Update()
     {
@@ -82,6 +93,14 @@ public class SkillRangeEffect : MonoBehaviour, IPooledObject
             {
                 effect.Stop();
             }
+        }
+
+        // 바닥 이펙트 조정
+        floorRenderer.gameObject.SetActive(true);
+        if (floorRenderer != null)
+        {
+            propertyBlock.SetColor(colorID, new Color(effectColor.r, effectColor.g, effectColor.b, baseAlpha));
+            floorRenderer.SetPropertyBlock(propertyBlock);
         }
 
         // 언덕에 이펙트 배치하는 상황

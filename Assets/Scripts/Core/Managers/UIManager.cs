@@ -210,9 +210,8 @@ public class UIManager : MonoBehaviour
         pauseOverlay.gameObject.SetActive(false);
     }
 
-    /// <summary>
-    /// UI 요소의 게임 화면 상에서의 위치
-    /// </summary>
+
+    // UI 요소의 게임 화면상의 위치 위치
     public Vector2 GetUIElementScreenPosition(RectTransform rectTransform)
     {
         Rect screenRect = GetScreenRect(rectTransform);
