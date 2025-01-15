@@ -20,7 +20,7 @@ MonoBehaviour:
   autoActivate: 0
   modifiesAttackAction: 0
   duration: 5
-  skillEffectPrefab: {fileID: 0}
+  skillVFXPrefab: {fileID: 2673592997991987600, guid: 381db8c2cd5da5649918316d5cfe2633, type: 3}
   modifiers:
     healthModifier: 1
     attackPowerModifier: 1.5

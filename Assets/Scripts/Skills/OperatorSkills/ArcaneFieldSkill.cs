@@ -19,6 +19,8 @@ namespace Skills.OperatorSkills
         [SerializeField] private Color rangeEffectColor;
         private const string EFFECT_TAG = "ArcaneField";
 
+        private Enemy target;
+
         // 범위 
         private readonly List<Vector2Int> crossPattern = new List<Vector2Int>
         {
@@ -34,18 +36,13 @@ namespace Skills.OperatorSkills
             modifiesAttackAction = true;
         }
 
-        public override void Activate(Operator op)
+        protected override void PlaySkillEffect(Operator op)
         {
-            Enemy targetEnemy = op.CurrentTarget as Enemy; // 변환 실패시 null
-            if (targetEnemy == null) return; // 타겟이 없을 때는 스킬 취소
-
-            base.Activate(op);
-
             // 스킬 범위 계산
-            Vector2Int centerPos = MapManager.Instance.ConvertToGridPosition(targetEnemy.transform.position);
+            Vector2Int centerPos = MapManager.Instance.ConvertToGridPosition(target.transform.position);
             HashSet<Vector2Int> affectedArea = CalculateAffectedArea(centerPos);
 
-            // 유효한 타일에만 범위 이펙트 생성
+            // 유효한 타일에만 VFX 생성
             foreach (Vector2Int pos in affectedArea)
             {
                 if (MapManager.Instance.CurrentMap.IsValidGridPosition(pos.x, pos.y))
@@ -56,19 +53,25 @@ namespace Skills.OperatorSkills
                     );
 
                     var rangeEffect = effectObj.GetComponent<SkillRangeEffect>();
-                    rangeEffect.Initialize(pos, affectedArea, rangeEffectColor, duration);
+                    rangeEffect.Initialize(pos, affectedArea, rangeEffectColor, duration, EFFECT_TAG);
                 }
-            } 
+            }
 
-            op.CurrentSP = 0;
-
-            // 적 위치를 기준으로 장판 생성
+            // 실제 효과 장판 생성
             CreateDamageField(op, centerPos);
+        }
+
+        public override void Activate(Operator op)
+        {
+            target = op.CurrentTarget as Enemy;
+            if (target == null) return; // 타겟이 없을 때는 스킬 취소
+
+            base.Activate(op);
         }
 
         public override void PerformChangedAttackAction(Operator op)
         {
-            // 스킬이 활성화된 동안 공격하지 않음 - 빈 칸
+            // 빈 칸 
         }
 
         private HashSet<Vector2Int> CalculateAffectedArea(Vector2Int center)

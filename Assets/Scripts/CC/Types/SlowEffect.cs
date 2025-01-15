@@ -5,7 +5,7 @@ public class SlowEffect : CrowdControl
     private float slowAmount;
     private float originalSpeed;
 
-    public void Initialize(Enemy target, UnitEntity source, float duration, float slowAmount)
+    public void Initialize(ICrowdControlTarget target, UnitEntity source, float duration, float slowAmount)
     {
         this.slowAmount = Mathf.Clamp01(slowAmount);
         base.Initialize(target, source, duration);

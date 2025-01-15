@@ -4913,7 +4913,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   deploymentCostIconTransform: {fileID: 0}
   initialDuration: 0.5
-  moveSpeed: 8
+  moveSpeed: 12
   turnSpeed: 5
   arrivalThreshold: 0.1
   showDebugMarker: 0

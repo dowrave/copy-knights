@@ -126,6 +126,7 @@
     <Compile Include="Assets\Scripts\Skills\SkillController\SlashSkillController.cs" />
     <Compile Include="Assets\Scripts\UI\Components\HealthBar.cs" />
     <Compile Include="Assets\Scripts\Entities\Operators\MedicOperator.cs" />
+    <Compile Include="Assets\Scripts\Skills\OperatorSkills\MeteorSkill.cs" />
     <Compile Include="Assets\Scripts\Skills\Base\BaseSkill.cs" />
     <Compile Include="Assets\Scripts\Core\Systems\OperatorGrowthSystem.cs" />
     <Compile Include="Assets\Scripts\Map\Tile.cs" />
@@ -142,6 +143,7 @@
     <Compile Include="Assets\Scripts\Data\EnemyData.cs" />
     <Compile Include="Assets\Scripts\Data\OperatorLevelData.cs" />
     <Compile Include="Assets\Scripts\UI\Components\MaskedDiamondOverlay.cs" />
+    <Compile Include="Assets\Scripts\CC\Types\StunEffect.cs" />
     <Compile Include="Assets\Scripts\Data\DeployableUnitData.cs" />
     <Compile Include="Assets\Scripts\Skills\Effects\SkillRangeEffect.cs" />
     <Compile Include="Assets\Scripts\Interfaces\IRotatable.cs" />
@@ -152,6 +154,7 @@
     <Compile Include="Assets\Scripts\Entities\Combat\Projectile\Projectile.cs" />
     <Compile Include="Assets\Scripts\UI\Components\EnemyBarUI.cs" />
     <Compile Include="Assets\Scripts\Skills\OperatorSkills\SmashSkill.cs" />
+    <Compile Include="Assets\Scripts\Interfaces\ICrowdControlTarget.cs" />
     <Compile Include="Assets\Scripts\UI\Panels\OperatorDetailPanel.cs" />
     <Compile Include="Assets\Scripts\UI\Panels\NotificationPanel.cs" />
     <Compile Include="Assets\Scripts\Data\MapDeployableData.cs" />

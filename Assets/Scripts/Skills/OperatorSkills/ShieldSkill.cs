@@ -34,36 +34,22 @@ namespace Skills.OperatorSkills
             modifiesAttackAction = true;
         }
 
-        public override void Activate(Operator op)
+        protected override void PlaySkillEffect(Operator op)
         {
-            if (!op.IsDeployed || !op.CanUseSkill()) return;
-
             StoreOriginalStats(op);
-
             ApplyStatModifiers(op);
-
             op.shieldSystem.OnShieldChanged += HandleShieldChanged;
-
             op.ActivateShield(shieldAmount);
-
-            base.PlaySkillEffect(op);
-            PlayAdditionalEffects(op);
-
-            // 지속 시간이 없는 경우는 없다고 하겠음 일단
-            op.StartCoroutine(HandleSkillDuration(op));
         }
 
         protected override void OnSkillEnd(Operator op)
         {
             op.DeactivateShield();
-
             op.shieldSystem.OnShieldChanged -= HandleShieldChanged;
-
             RestoreOriginalStats(op);
-
             if (currentShieldEffect != null)
             {
-                SafeDestroySkillEffect(currentShieldEffect);
+                SafeDestroySkillVFX(currentShieldEffect);
                 ShieldVFX = null;
                 currentShieldEffect = null;
             }
@@ -90,7 +76,7 @@ namespace Skills.OperatorSkills
             op.MagicResistance = originalMagicResistance;
         }
 
-        protected override void PlayAdditionalEffects(Operator op)
+        protected override void PlayAdditionalVFX(Operator op)
         {
             if (shieldEffectPrefab != null)
             {

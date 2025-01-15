@@ -2,7 +2,7 @@ using UnityEngine;
 
 public abstract class CrowdControl
 {
-    protected Enemy target;
+    protected ICrowdControlTarget target;
     protected UnitEntity source;
     protected float duration;
     protected float elapsedTime;
@@ -11,7 +11,7 @@ public abstract class CrowdControl
     public bool IsExpired => elapsedTime >= duration;
 
     // CC 효과 초기화 및 적용
-    public virtual void Initialize(Enemy target, UnitEntity source, float duration)
+    public virtual void Initialize(ICrowdControlTarget target, UnitEntity source, float duration)
     {
         this.target = target;
         this.source = source;

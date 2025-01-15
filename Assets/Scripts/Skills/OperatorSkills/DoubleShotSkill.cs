@@ -18,19 +18,9 @@ namespace Skills.OperatorSkills
             modifiesAttackAction = true;
         }
 
-        public override void Activate(Operator op)
+        protected override void PlaySkillEffect(Operator op)
         {
-            if (!op.IsDeployed || !op.CanUseSkill()) return;
-
             op.SetAttackCooldown(0f);
-
-            base.PlaySkillEffect(op);
-            PlayAdditionalEffects(op);
-            
-            if (duration > 0 )
-            {
-                op.StartCoroutine(HandleSkillDuration(op));
-            }
         }
 
         public override void PerformChangedAttackAction(Operator op)

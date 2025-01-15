@@ -67,8 +67,10 @@ public class SkillRangeEffect : MonoBehaviour, IPooledObject
         fieldDuration -= Time.deltaTime;
     }
 
-    public void Initialize(Vector2Int position, HashSet<Vector2Int> effectRange, Color effectColor, float duration)
-    { 
+    public void Initialize(Vector2Int position, HashSet<Vector2Int> effectRange, Color effectColor, float duration, string tag)
+    {
+        poolTag = tag;
+
         // 이 위치에 타일이 없으면 실행 X
         if (!MapManager.Instance.CurrentMap.IsTileAt(position.x, position.y)) return;
 
@@ -119,6 +121,9 @@ public class SkillRangeEffect : MonoBehaviour, IPooledObject
         {
             effect.Stop();
         }
+        floorRenderer.gameObject.SetActive(false);
+        Debug.Log($"SkillRangeEffect.StopAllEfffects - PoolTag : {poolTag}");
+        ObjectPoolManager.Instance.ReturnToPool(poolTag, gameObject);
     }
 
 

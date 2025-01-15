@@ -7,7 +7,7 @@ using UnityEngine.VFX;
 using static ICombatEntity;
 using static UnityEngine.GraphicsBuffer;
 
-public class Enemy : UnitEntity, IMovable, ICombatEntity
+public class Enemy : UnitEntity, IMovable, ICombatEntity, ICrowdControlTarget
 {
     [SerializeField]
     private EnemyData enemyData;
@@ -19,7 +19,7 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity
     public AttackRangeType AttackRangeType => enemyData.attackRangeType;
     public float AttackPower { get => currentStats.AttackPower; private set => currentStats.AttackPower = value; }
     public float AttackSpeed { get => currentStats.AttackSpeed; private set => currentStats.AttackSpeed = value; }
-    public float MovementSpeed { get => currentStats.MovementSpeed; private set => currentStats.MovementSpeed = value; }
+    public float MovementSpeed { get => currentStats.MovementSpeed; }
     public int BlockCount { get => enemyData.blockCount; private set => enemyData.blockCount = value; } // Enemy가 차지하는 저지 수
     public float AttackCooldown { get; private set; } // 다음 공격까지의 대기 시간
     public float AttackDuration { get; private set; } // 공격 모션 시간. Animator가 추가될 때 수정 필요할 듯. 항상 Cooldown보다 짧아야 함.
@@ -60,6 +60,13 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity
 
     [SerializeField] private GameObject enemyBarUIPrefab;
     private EnemyBarUI enemyBarUI;
+
+    // ICrowdControlTarget
+    public Vector3 Position => transform.position;
+    public void SetMovementSpeed(float newSpeed)
+    {
+        currentStats.MovementSpeed = newSpeed;
+    }
 
     protected override void Awake()
     {
@@ -793,10 +800,7 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity
         RemoveProjectilePool();
     }
 
-    public void SetMovementSpeed(float newSpeed)
-    {
-        MovementSpeed = newSpeed;
-    }
+
 
     protected void OnDestroy()
     {

@@ -40,16 +40,16 @@ namespace Skills.OperatorSkills
             autoRecover = true;
         }
 
-        protected override void OnSkillStart(Operator op)
+        protected override void PlaySkillEffect(Operator op)
         {
             StoreOriginalStats(op);
             ApplyStatModifiers(op);
         }
-       
+
         protected override void OnSkillEnd(Operator op)
         {
             RestoreOriginalStats(op);
-            SafeDestroySkillEffect(effectInstance);
+            SafeDestroySkillVFX(VfxInstance);
             base.OnSkillEnd(op);
         }
 
@@ -115,7 +115,6 @@ namespace Skills.OperatorSkills
 
             foreach (Vector2Int additionalTile in modifiers.attackRangeModifier)
             {
-
                 Vector2Int rotatedTile = DirectionSystem.RotateGridOffset(
                     additionalTile,
                     op.FacingDirection

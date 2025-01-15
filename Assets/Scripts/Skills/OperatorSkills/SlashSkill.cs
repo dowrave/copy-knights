@@ -30,12 +30,8 @@ namespace Skills.OperatorSkills
             autoRecover = true;
         }
 
-        // 이펙트 구현 및 동작이 주요 매커니즘이므로 별도의 이펙트 생성 동작은 진행하지 않음
-        public override void Activate(Operator op)
+        protected override void PlaySkillEffect(Operator op)
         {
-            if (!op.IsDeployed || !op.CanUseSkill()) return;
-            
-            op.CurrentSP = 0;
             Vector2Int operatorGridPos = MapManager.Instance.ConvertToGridPosition(op.transform.position);
             Vector3 direction = op.FacingDirection;
 

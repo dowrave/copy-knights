@@ -53,9 +53,8 @@ public class ObjectPoolManager : MonoBehaviour
         CreatePool(FLOATING_TEXT_TAG, floatingTextPrefab, floatingTextCounts);
     }
 
-    /// <summary>
-    /// 지정된 태그, 프리팹, 크기로 새로운 오브젝트 풀을 생성합니다.
-    /// </summary>
+
+    // 지정된 태그, 프리팹, 크기로 새로운 오브젝트 풀을 생성합니다.
     public void CreatePool(string tag, GameObject prefab, int size = 5)
     {
         Queue<GameObject> objectPool = new Queue<GameObject>();
@@ -72,9 +71,8 @@ public class ObjectPoolManager : MonoBehaviour
         poolDictionary[tag] = objectPool;
     }
 
-    /// <summary>
-    /// 지정된 태그의 풀에서 오브젝트를 가져와 활성화하고 위치와 회전을 설정합니다.
-    /// </summary>
+
+    // 지정된 태그의 풀에서 오브젝트를 가져와 활성화하고 위치와 회전을 설정합니다.
     public GameObject SpawnFromPool(string tag, Vector3 position, Quaternion rotation)
     {
         if (!poolDictionary.ContainsKey(tag) || !poolInfos.ContainsKey(tag)) return null;
@@ -102,9 +100,8 @@ public class ObjectPoolManager : MonoBehaviour
         return SetupPooledObject(obj, tag, position, rotation);
     }
 
-    /// <summary>
-    /// 풀에서 가져온 오브젝트를 설정합니다. 위치, 회전을 설정하고 IPooledObject 인터페이스를 구현한 경우 OnObjectSpawn을 호출합니다.
-    /// </summary>
+
+    // 풀에서 가져온 오브젝트를 설정합니다.
     private GameObject SetupPooledObject(GameObject obj, string tag, Vector3 position, Quaternion rotation)
     {
         obj.SetActive(true);
@@ -120,9 +117,7 @@ public class ObjectPoolManager : MonoBehaviour
         return obj;
     }
 
-    /// <summary>
-    /// 사용이 끝난 오브젝트를 풀로 반환합니다. 풀이 제거 예정인 경우 오브젝트를 파괴합니다.
-    /// </summary>
+    // 사용이 끝난 오브젝트를 풀로 반환합니다. 풀이 제거 예정인 경우 오브젝트를 파괴합니다.
     public void ReturnToPool(string tag, GameObject obj)
     {
         if (poolDictionary.TryGetValue(tag, out Queue<GameObject> objectPool))
@@ -142,9 +137,8 @@ public class ObjectPoolManager : MonoBehaviour
         }
     }
 
-    /// <summary>
-    /// 지정된 태그의 풀을 완전히 제거합니다. 풀의 모든 오브젝트를 파괴합니다.
-    /// </summary>
+
+    // 지정된 태그의 풀을 완전히 제거합니다. 풀의 모든 오브젝트를 파괴합니다.
     public void RemovePool(string tag)
     {
         if (poolDictionary.TryGetValue(tag, out Queue<GameObject> objectPool))

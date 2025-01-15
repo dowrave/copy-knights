@@ -5,7 +5,7 @@ using UnityEngine.VFX;
 using Skills.Base;
 using static ICombatEntity;
 
-public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
+public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable, ICrowdControlTarget
 {
     public new OperatorData BaseData { get; protected set; } 
     [HideInInspector] public new OperatorStats currentStats; // 일단 public으로 구현
@@ -78,6 +78,11 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
             }
         }
     }
+
+    // ICrowdControlTarget 필드
+    public float MovementSpeed => 0f;
+    public Vector3 Position => transform.position; 
+    public void SetMovementSpeed(float newMovementSpeed) { }
 
     public float AttackCooldown { get; protected set; }
     public float AttackDuration { get; protected set; }
