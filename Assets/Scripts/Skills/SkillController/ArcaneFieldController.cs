@@ -3,11 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
-public class ArcaneFieldController : MonoBehaviour
+public class ArcaneFieldController : MonoBehaviour, IEffectController
 {
     private Operator caster;
     private Vector2Int centerPosition;
-    private List<Vector2Int> affectedPattern;
+    private HashSet<Vector2Int> affectedTiles;
     private float damagePerTick;
     private float slowAmount;
     private float fieldDuration; // 필드 지속 시간
@@ -16,42 +16,26 @@ public class ArcaneFieldController : MonoBehaviour
     private float elapsedTime = 0f;
     private float lastDamageTime = 0f;
 
-    private HashSet<Vector2Int> affectedTiles = new HashSet<Vector2Int>();
     private Dictionary<Enemy, SlowEffect> affectedEnemies = new Dictionary<Enemy, SlowEffect>();
 
-    public void Initialize(Operator op, Vector2Int center, List<Vector2Int> pattern, float damagePerTick, float slow, float fieldDuration, float damageInterval)
+    public void Initialize(Operator op, Vector2Int center, HashSet<Vector2Int> affectedTiles, float damagePerTick, float slow, float fieldDuration, float damageInterval)
     {
         caster = op;
         centerPosition = center;
-        affectedPattern = pattern;
+        this.affectedTiles = affectedTiles;
         this.damagePerTick = damagePerTick;
         slowAmount = slow;
         this.fieldDuration = fieldDuration;
         this.damageInterval = damageInterval;
 
-        CalculateAffectedTiles();
-        CreateFieldEffects();
         CheckForEnemies();
-    }
-
-    private void CalculateAffectedTiles()
-    {
-        foreach (Vector2Int offset in affectedPattern)
-        {
-            Vector2Int tilePos = centerPosition + offset;
-            if (MapManager.Instance.CurrentMap.IsValidGridPosition(tilePos.x, tilePos.y))
-            {
-                affectedTiles.Add(tilePos);
-            }
-        }
     }
 
     private void Update()
     {
         if (elapsedTime >= fieldDuration)
         {
-            Destroy(gameObject);
-            return;
+            StopAndDestroyEffects();
         }
 
         elapsedTime += Time.deltaTime;
@@ -120,7 +104,6 @@ public class ArcaneFieldController : MonoBehaviour
             if (enemy != null)
             {
                 ICombatEntity.AttackSource attackSource = new ICombatEntity.AttackSource(transform.position, true);
-                Debug.Log($"damagePerTick : {damagePerTick}");
                 enemy.TakeDamage(caster, attackSource, damagePerTick);
             }
         }
@@ -128,12 +111,7 @@ public class ArcaneFieldController : MonoBehaviour
         lastDamageTime = Time.time;
     }
 
-    private void CreateFieldEffects()
-    {
-        // 장판 시각 효과 생성 로직
-    }
-
-    private void OnDestroy()
+    private void StopAndDestroyEffects()
     {
         foreach (var pair in affectedEnemies)
         {
@@ -143,5 +121,12 @@ public class ArcaneFieldController : MonoBehaviour
             }
         }
         affectedEnemies.Clear();
+        Destroy(gameObject);
+    }
+
+    public void ForceRemove()
+    {
+        StopAndDestroyEffects();
+
     }
 }

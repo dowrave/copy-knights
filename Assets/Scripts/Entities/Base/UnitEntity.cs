@@ -102,9 +102,7 @@ public abstract class UnitEntity : MonoBehaviour, ITargettable, IFactionMember
         }
     }
 
-    /// <summary>
-    /// 대미지 계산 로직
-    /// </summary>
+    // 대미지 계산 로직
     protected virtual float CalculateActualDamage(AttackType attacktype, float incomingDamage)
     {
         float actualDamage = 0; // 할당해야 return문에서 오류가 안남
@@ -125,9 +123,8 @@ public abstract class UnitEntity : MonoBehaviour, ITargettable, IFactionMember
         return Mathf.Max(actualDamage, 0.05f * incomingDamage); // 들어온 대미지의 5%는 들어가게끔 보장
     }
 
-    /// <summary>
-    /// 현재 위치한 타일 설정
-    /// </summary>
+
+    // 현재 위치한 타일 설정
     protected virtual void UpdateCurrentTile()
     {
         Vector3 position = transform.position;
@@ -147,9 +144,7 @@ public abstract class UnitEntity : MonoBehaviour, ITargettable, IFactionMember
         }
     }
 
-    /// <summary>
-    /// 이 개체를 공격하는 개체 리스트 attackingEntites에서 개체 제거
-    /// </summary>
+    // 이 개체를 공격하는 적을 제거
     public virtual void RemoveAttackingEntity(ICombatEntity attacker)
     {
         attackingEntities.Remove(attacker);

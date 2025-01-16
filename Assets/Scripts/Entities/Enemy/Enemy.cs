@@ -458,9 +458,7 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity, ICrowdControlTarget
         return Vector3.Distance(transform.position, lastNodePosition) < 0.05f;
     }
 
-    /// <summary>
-    /// Data, Stat이 엔티티마다 다르기 때문에 자식 메서드에서 재정의가 항상 필요
-    /// </summary>
+    // Data, Stat이 엔티티마다 다르기 때문에 자식 메서드에서 재정의가 항상 필요
     protected override void InitializeUnitProperties()
     {
         // 현재 체력, 최대 체력 설정
@@ -473,9 +471,8 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity, ICrowdControlTarget
         Prefab = BaseData.prefab;
     }
 
-    /// <summary>
-    /// Enemy가 공격할 대상 지정
-    /// </summary>
+
+    // Enemy가 공격할 대상 지정
     public void SetCurrentTarget()
     {
         // 저지를 당할 때는 자신을 저지하는 객체를 타겟으로 지정

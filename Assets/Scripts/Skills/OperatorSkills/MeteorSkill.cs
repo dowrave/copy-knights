@@ -5,29 +5,30 @@ using UnityEngine;
 namespace Skills.Base
 {
     [CreateAssetMenu(fileName = "New Meteor Skill", menuName = "Skills/Meteor Skill")]
-    public class MeteorSkill : ActiveSkill
+    public class MeteorSkill : AreaEffectSkill, IEffectController
     {
         [Header("Skill Settings")]
         [SerializeField] private float damageMultiplier = 0.5f;
         [SerializeField] private float stunDuration = 2f;
         [SerializeField] private int costRecovery = 10;
+
         [SerializeField] private GameObject meteorEffectPrefab;
 
-        private readonly List<Vector2Int> crossPattern = new List<Vector2Int>
+        protected override GameObject CreateEffectField(Operator op, Vector2Int centerPos)
         {
-            new Vector2Int(-2, 0), new Vector2Int(-1, 1), new Vector2Int(-1, 0), new Vector2Int(-1, -1), new Vector2Int(0, 2),
-            new Vector2Int(0, 1), new Vector2Int(0, 0), new Vector2Int(0, -1), new Vector2Int(0, -2), new Vector2Int(1, 1),
-            new Vector2Int(1, 0), new Vector2Int(1, -1), new Vector2Int(2, 0)
-        };
+            GameObject fieldObj = Instantiate(fieldEffectPrefab);
 
-        protected override void SetDefaults()
-        {
-            autoRecover = true;
-            autoActivate = false;
-            modifiesAttackAction = false;
+            return fieldObj;
+            //ArcaneFieldController controller = fieldObj.GetComponent<ArcaneFieldController>();
+
+            //if (controller != null)
+            //{
+            //    float actualDamagePerTick = op.AttackPower * damagePerTickRatio;
+            //    controller.Initialize(op, centerPos, actualSkillRange, actualDamagePerTick, slowAmount, duration, damageInterval);
+            //}
         }
 
-        protected override void PlaySkillEffect(Operator op)
+        public void ForceRemove()
         {
 
         }

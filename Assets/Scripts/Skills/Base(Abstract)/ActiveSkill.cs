@@ -1,6 +1,5 @@
 
 using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.VFX;
 namespace Skills.Base
@@ -40,7 +39,7 @@ namespace Skills.Base
             }
         }
 
-        // 자식 클래스가 고유한 이펙트를 추가할 수 있는 가상 메서드
+        // 추가 이펙트
         protected virtual void PlayAdditionalVFX(Operator op) { }
 
         protected virtual void OnSkillStart(Operator op) 
@@ -48,8 +47,7 @@ namespace Skills.Base
             op.SetSkillOnState(true);
         }
 
-        // 실질적인 스킬 효과 실행.
-        // 즉발 여부에 관계 없이 OnSkillStart와 OnSkillEnd 사이에 들어감
+        // 실질적인 스킬 효과 실행. 즉발 여부에 관계 없이 OnSkillStart와 OnSkillEnd 사이에 들어감
         protected virtual void PlaySkillEffect(Operator op) { }
 
         protected virtual void OnSkillEnd(Operator op)

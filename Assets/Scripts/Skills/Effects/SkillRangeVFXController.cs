@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 // 스킬 범위의 시각적 효과를 관리
-public class SkillRangeEffect : MonoBehaviour, IPooledObject
+public class SkillRangeVFXController : MonoBehaviour, IPooledObject, IEffectController
 {
     [Header("Effect Reference")]
     [SerializeField] private ParticleSystem topEffect;
@@ -17,6 +17,7 @@ public class SkillRangeEffect : MonoBehaviour, IPooledObject
     [Header("Effect Color")]
     [SerializeField] private Color effectColor;
 
+    private bool isInitialized = false;
     private float fieldDuration;
     private Dictionary<Vector2Int, ParticleSystem> directionEffects;
     private readonly Vector2Int[] directions = new[]
@@ -59,17 +60,22 @@ public class SkillRangeEffect : MonoBehaviour, IPooledObject
     }
     private void Update()
     {
-        if (fieldDuration < 0f)
+        if (isInitialized)
         {
-            StopAllEffects();
-        }
+            if (fieldDuration < 0f)
+            {
+                StopAllVFXs();
+                return;
+            }
 
-        fieldDuration -= Time.deltaTime;
+            fieldDuration -= Time.deltaTime;
+        }
     }
 
     public void Initialize(Vector2Int position, HashSet<Vector2Int> effectRange, Color effectColor, float duration, string tag)
     {
         poolTag = tag;
+        isInitialized = true;
 
         // 이 위치에 타일이 없으면 실행 X
         if (!MapManager.Instance.CurrentMap.IsTileAt(position.x, position.y)) return;
@@ -115,20 +121,19 @@ public class SkillRangeEffect : MonoBehaviour, IPooledObject
         this.fieldDuration = duration;
     }
 
-    public void StopAllEffects()
+    public void StopAllVFXs()
     {
         foreach (var effect in directionEffects.Values)
         {
             effect.Stop();
         }
         floorRenderer.gameObject.SetActive(false);
-        Debug.Log($"SkillRangeEffect.StopAllEfffects - PoolTag : {poolTag}");
         ObjectPoolManager.Instance.ReturnToPool(poolTag, gameObject);
+        isInitialized = false;
     }
 
-
-    private void OnDisable()
+    public void ForceRemove()
     {
-        StopAllEffects();
+        StopAllVFXs();
     }
 }

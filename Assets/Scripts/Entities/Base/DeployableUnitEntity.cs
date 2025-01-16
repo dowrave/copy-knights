@@ -62,9 +62,8 @@ public class DeployableUnitEntity: UnitEntity, IDeployable
         deployableInfo = DeployableManager.Instance.GetDeployableInfoByName(BaseData.entityName);
     }
 
-    /// <summary>
-    /// 자식 오브젝트에 시각화를 담당하는 Model이 있다는 전제
-    /// </summary>
+
+    // 자식 오브젝트에 시각화를 담당하는 Model이 있다는 전제
     protected virtual void InitializeDeployableProperties()
     {
         IsDeployed = false; // 배치 비활성화
@@ -77,9 +76,8 @@ public class DeployableUnitEntity: UnitEntity, IDeployable
         InitialDeploymentCost = currentStats.DeploymentCost; // 초기 배치 코스트 설정
     }
 
-    /// <summary>
-    /// 프리팹에서 필드들의 정보를 초기화. 실제 초기화는 Initialize에서 별도로 이뤄진다.
-    /// </summary>
+
+    // 프리팹에서 필드들의 정보를 초기화. 실제 초기화는 Initialize에서 별도로 이뤄진다.
     public virtual void InitializeFromPrefab()
     {
         if (modelObject == null)
@@ -112,9 +110,8 @@ public class DeployableUnitEntity: UnitEntity, IDeployable
         }
     }
 
-    /// <summary>
-    /// 타일 위에서의 실제 배치 위치 조정
-    /// </summary>
+
+    // 타일 위에서의 실제 배치 위치 조정
     protected void SetPosition(Vector3 worldPosition)
     {
         if (CurrentTile != null)
@@ -174,9 +171,8 @@ public class DeployableUnitEntity: UnitEntity, IDeployable
         }
     }
 
-    /// <summary>
-    /// 반투명화한 미리보기 머티리얼을 준비
-    /// </summary>
+
+    // 반투명화한 미리보기 머티리얼을 준비
     protected void SetupPreviewMaterial()
     {
         originalMaterial = new Material(modelRenderer.sharedMaterial); // 복사해서 저장 (참조에 의한 변형 가능성 때문에)
@@ -245,9 +241,7 @@ public class DeployableUnitEntity: UnitEntity, IDeployable
         }
     }
 
-    /// <summary>
-    /// BaseData, Stat이 엔티티마다 다르기 때문에 자식 메서드에서 재정의가 항상 필요
-    /// </summary>
+    // BaseData, Stat이 엔티티마다 다르기 때문에 자식 메서드에서 재정의가 항상 필요
     protected override void InitializeUnitProperties()
     {
         // 현재 위치를 기반으로 한 타일 설정
@@ -255,9 +249,7 @@ public class DeployableUnitEntity: UnitEntity, IDeployable
         Prefab = BaseData.prefab;
     }
 
-    /// <summary>
-    /// 시각화 요소들을 초기화
-    /// </summary>
+    // 시각화 요소들을 초기화
     protected virtual void InitializeVisual()
     {
         modelObject = transform.Find("Model").gameObject;

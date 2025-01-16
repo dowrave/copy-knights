@@ -1,0 +1,151 @@
+using System.Collections.Generic;
+using UnityEngine;
+
+// 실제 인게임에서 적용되는 효과는 Effect, 시각적 효과는 VFX로 구분함
+namespace Skills.Base
+{
+    // 범위에 영향을 가하는 스킬은 이러한 구현을 따름
+    public abstract class AreaEffectSkill: ActiveSkill
+    {
+        [Header("AreaEffectSkill References")]
+        [SerializeField] protected GameObject fieldEffectPrefab; // 실질적인 효과 프리팹
+        [SerializeField] protected GameObject skillRangeVFXPrefab; // 시각 효과 프리팹
+        [SerializeField] protected Color rangeEffectColor;
+        [SerializeField] protected List<Vector2Int> skillRangeOffset;
+        [SerializeField] protected string EFFECT_TAG;
+
+        protected Enemy mainTarget;
+        protected HashSet<Vector2Int> actualSkillRange = new HashSet<Vector2Int>();
+
+        private Dictionary<Operator, List<GameObject>> activeEffects = new Dictionary<Operator, List<GameObject>>();
+
+        protected override void SetDefaults()
+        {
+            autoRecover = true;
+            autoActivate = false;
+            modifiesAttackAction = true;
+        }
+
+        protected override void PlaySkillEffect(Operator op)
+        {
+            // 스킬 범위 계산
+            Vector2Int centerPos = MapManager.Instance.ConvertToGridPosition(mainTarget.transform.position);
+            CalculateActualSkillRange(centerPos);
+
+            // 유효한 타일에만 VFX 생성
+            foreach (Vector2Int pos in actualSkillRange)
+            {
+                if (MapManager.Instance.CurrentMap.IsValidGridPosition(pos.x, pos.y))
+                {
+                    GameObject vfxObj = ObjectPoolManager.Instance.SpawnFromPool(EFFECT_TAG,
+                        MapManager.Instance.ConvertToWorldPosition(pos),
+                        Quaternion.identity
+                    );
+                    TrackEffect(op, vfxObj);
+
+                    var rangeEffect = vfxObj.GetComponent<SkillRangeVFXController>();
+                    rangeEffect.Initialize(pos, actualSkillRange, rangeEffectColor, duration, EFFECT_TAG);
+                }
+            }
+
+            // 실제 효과 장판 생성
+            GameObject fieldEffect = CreateEffectField(op, centerPos);
+
+            // 필드 효과 추적 및 사망 이벤트 구독
+            if (fieldEffect != null)
+            {
+                if (!activeEffects.ContainsKey(op))
+                {
+                    TrackEffect(op, fieldEffect);
+                    op.OnOperatorDied += HandleOperatorDeath; 
+                }
+            }
+        }
+
+        public override void Activate(Operator op)
+        {
+            mainTarget = op.CurrentTarget as Enemy;
+            if (mainTarget == null) return; // 타겟이 없을 때는 스킬 취소
+
+            base.Activate(op);
+        }
+
+        private void CalculateActualSkillRange(Vector2Int center)
+        {
+            foreach (Vector2Int offset in skillRangeOffset)
+            {
+                actualSkillRange.Add(center + offset);
+            }
+        }
+
+        public override void PerformChangedAttackAction(Operator op)
+        {
+            // 빈 칸 
+        }
+
+        public override void InitializeSkillObjectPool()
+        {
+            ObjectPoolManager.Instance.CreatePool(EFFECT_TAG, skillRangeVFXPrefab, skillRangeOffset.Count);
+        }
+
+        public override void CleanupSkillObjectPool()
+        {
+            // 모든 활성 효과 정리
+            foreach (var pair in activeEffects)
+            {
+                foreach (GameObject effect in pair.Value)
+                {
+                    if (effect != null)
+                    {
+                        var controller = effect.GetComponent<IEffectController>();
+                        if (controller != null)
+                        {
+                            controller.ForceRemove();
+                        }
+                        else
+                        {
+                            Destroy(effect);
+                        }
+                    }
+                }
+            }
+
+            ObjectPoolManager.Instance.RemovePool(EFFECT_TAG);
+        }
+
+        private void TrackEffect(Operator op, GameObject effect)
+        {
+            if (!activeEffects.ContainsKey(op))
+            {
+                activeEffects[op] = new List<GameObject>();
+            }
+            activeEffects[op].Add(effect);
+        }
+
+        private void HandleOperatorDeath(Operator op)
+        {
+            if (activeEffects.TryGetValue(op, out List<GameObject> effects))
+            {
+                foreach (GameObject effect in effects)
+                {
+                    if (effect == null) continue;
+
+                    var controller = effect.GetComponent<IEffectController>();
+                    if (controller != null)
+                    {
+                        controller.ForceRemove();
+                    }
+                    else
+                    {
+                        Destroy(effect);
+                    }
+                }
+            }
+            activeEffects.Remove(op);
+        }
+
+        // 실제 효과 구현 메서드
+        protected abstract GameObject CreateEffectField(Operator op, Vector2Int centerPos);
+    }
+
+}

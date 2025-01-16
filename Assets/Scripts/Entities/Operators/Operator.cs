@@ -143,7 +143,8 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable,
 
     // 이벤트들
     public event System.Action<float, float> OnSPChanged;
-    public event System.Action OnStatsChanged; 
+    public event System.Action OnStatsChanged;
+    public event System.Action<Operator> OnOperatorDied;
 
     // 필드 끝 --------------------------------------------------------------------------------------------
     public virtual void Initialize(OwnedOperator ownedOp)
@@ -405,6 +406,9 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable,
 
         // 하단 UI 활성화
         DeployableManager.Instance.OnDeployableRemoved(this);
+
+        // 오퍼레이터 사망 이벤트 발생
+        OnOperatorDied?.Invoke(this);
 
         base.Die();
     }

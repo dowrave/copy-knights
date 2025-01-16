@@ -1,7 +1,6 @@
 using System.Collections.Generic;
-using System.Linq;
 using UnityEngine;
-using UnityEngine.VFX;
+
 
 /// <summary>
 /// 오브젝트 풀링(=탄알집)을 이용하는 것들을 구현해줍니다
@@ -64,8 +63,8 @@ public class ObjectPoolManager : MonoBehaviour
         for (int i = 0; i < size; i++)
         {
             GameObject obj = Instantiate(prefab);
-            obj.SetActive(false);
             objectPool.Enqueue(obj);
+            obj.SetActive(false);
         }
 
         poolDictionary[tag] = objectPool;
