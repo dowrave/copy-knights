@@ -3,9 +3,9 @@ using UnityEngine;
 
 public interface ICrowdControlTarget
 {
-    public Vector3 Position { get; }
+    Vector3 Position { get; }
 
-    public float MovementSpeed { get; }
+    float MovementSpeed { get; }
 
-    public void SetMovementSpeed(float newMovementSpeed);
+    void SetMovementSpeed(float newMovementSpeed);
 }

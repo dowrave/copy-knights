@@ -13,6 +13,13 @@ namespace Skills.OperatorSkills
         [SerializeField] private float slowAmount = 0.3f; // 이동속도 감소율
         [SerializeField] private float damageInterval = 0.5f; // 대미지 간격
 
+        public override void Activate(Operator op)
+        {
+            mainTarget = op.CurrentTarget as Enemy;
+            if (mainTarget == null) return; // 타겟이 없을 때는 스킬 취소
+            base.Activate(op);
+        }
+
         protected override GameObject CreateEffectField(Operator op, Vector2Int centerPos)
         {
             GameObject fieldObj = Instantiate(fieldEffectPrefab);
@@ -25,6 +32,12 @@ namespace Skills.OperatorSkills
             }
 
             return fieldObj;
+        }
+
+        protected override Vector2Int GetCenterPos(Operator op)
+        {
+            // mainTarget을 중심으로 시전되므로
+            return MapManager.Instance.ConvertToGridPosition(mainTarget.transform.position);
         }
     }
 }

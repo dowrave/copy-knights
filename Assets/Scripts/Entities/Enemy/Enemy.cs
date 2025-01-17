@@ -80,8 +80,26 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity, ICrowdControlTarget
         currentStats = enemyData.stats;
         this.pathData = pathData;
 
-        InitializeUnitProperties();
-        InitializeEnemyProperties();
+        // 현재 체력, 최대 체력 설정
+        MaxHealth = currentStats.Health;
+        CurrentHealth = MaxHealth;
+
+        // 현재 위치를 기반으로 한 타일 설정
+        UpdateCurrentTile();
+        
+        // 프리팹 설정
+        Prefab = enemyData.prefab;
+
+        SetupInitialPosition();
+        CreateEnemyBarUI();
+        UpdateNextNode();
+        InitializeCurrentPath();
+
+        // 최초에 설정한 경로가 막힌 상황일 때 동작
+        if (PathfindingManager.Instance.IsBarricadeDeployed && IsPathBlocked())
+        {
+            FindPathToDestinationOrBarricade();
+        }
 
         CreateObjectPool();
     }
@@ -98,20 +116,6 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity, ICrowdControlTarget
         Barricade.OnBarricadeRemoved -= OnBarricadeRemovedWithDelay;
     }
 
-    private void InitializeEnemyProperties()
-    {
-        SetupInitialPosition();
-        CreateEnemyBarUI();
-        UpdateNextNode();
-        InitializeCurrentPath();
-
-        // 최초에 설정한 경로가 막힌 상황일 때 동작
-        if (PathfindingManager.Instance.IsBarricadeDeployed && IsPathBlocked())
-        {
-            FindPathToDestinationOrBarricade();
-        }
-    }
-
     private void SetupInitialPosition()
     {
         if (pathData != null && pathData.nodes.Count > 0)
@@ -121,20 +125,21 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity, ICrowdControlTarget
         }
     }
 
-    protected override void Update()
+    protected void Update()
     {
         UpdateAttackDuration();
         UpdateAttackCooldown();
+        UpdateCrowdControls();
 
-        // 진행할 경로가 있다
         if (pathData != null && nextNodeIndex < pathData.nodes.Count)
         {
-            if (AttackDuration > 0) { return; } // 공격 모션 중일 때는 이동도 막음
+            if (activeCC.Any(cc => cc is StunEffect)) return; // 스턴
+            if (AttackDuration > 0) return;  // 공격 모션 중
 
             // 공격 범위 내의 적 리스트 & 현재 공격 대상 갱신
             SetCurrentTarget();
 
-            // 1. 저지를 당하는 상태라면 근거리 공격을 함
+            // 저지당함 - 근거리 공격
             if (blockingOperator != null)
             {
                 if (CurrentTarget != null && AttackCooldown <= 0)
@@ -142,8 +147,6 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity, ICrowdControlTarget
                     PerformMeleeAttack(CurrentTarget, AttackPower); 
                 }
             }
-
-            // 2. 저지 중이 아닐 때
             else
             {
                 // 바리케이트가 타겟일 경우
@@ -159,15 +162,14 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity, ICrowdControlTarget
                 }
 
                 // 이동 관련 로직.
-                else if (!isWaiting) // 경로 이동 중 기다리는 상황이 아니라면
+                else if (!isWaiting)
                 {
                     MoveAlongPath(); // 이동
                     CheckAndAddBlockingOperator(); // 같은 타일에 있는 오퍼레이터의 저지 가능 여부 체크
                 }
             }
         }
-
-        base.Update();
+        
     }
 
 
@@ -189,7 +191,7 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity, ICrowdControlTarget
 
             if (tileDeployable is Operator op)
             {
-                // 자신을 저지하는 오퍼레이터가 없음 and 현재 타일에 오퍼레이터가 있음 and 그 오퍼레이터가 저지 가능한 상태
+                // 자신을 저지하는 오퍼레이터가 없음 and 현재 타일에 오퍼레이터가 있음
                 if (op != null && blockingOperator == null)
                 {
                     blockingOperator = op;
@@ -458,17 +460,9 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity, ICrowdControlTarget
         return Vector3.Distance(transform.position, lastNodePosition) < 0.05f;
     }
 
-    // Data, Stat이 엔티티마다 다르기 때문에 자식 메서드에서 재정의가 항상 필요
-    protected override void InitializeUnitProperties()
+    protected void InitializeUnitProperties()
     {
-        // 현재 체력, 최대 체력 설정
-        MaxHealth = currentStats.Health;
-        CurrentHealth = MaxHealth;
 
-        // 현재 위치를 기반으로 한 타일 설정
-        UpdateCurrentTile();
-
-        Prefab = BaseData.prefab;
     }
 
 

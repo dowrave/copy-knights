@@ -9,16 +9,6 @@ public class MedicOperator : Operator
     private UnitEntity currentTargetOperator;
     private List<DeployableUnitEntity> targetsInRange = new List<DeployableUnitEntity>();
 
-    public override void Initialize(OwnedOperator ownedOp)
-    {
-        base.Initialize(ownedOp);
-    }
-
-    protected override void Update()
-    {
-        base.Update(); // 수정된 ValidateCurrentTarget 내용이 반영된다.
-    }
-
     protected override void ValidateCurrentTarget()
     {
        // 오버라이드하지만 비워둔다. SetCurrentTarget에서 그 동작을 다하는 것 같기 때문.
@@ -40,9 +30,8 @@ public class MedicOperator : Operator
         }
     }
 
-    /// <summary>
-    /// 사거리 내의 힐을 받을 대상들을 수집
-    /// </summary>
+
+    // 사거리 내의 힐을 받을 대상들을 수집
     private void GetTargetsInRange()
     {
         targetsInRange.Clear();

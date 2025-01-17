@@ -180,7 +180,6 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable,
         {
             modelRenderer = modelObject.GetComponent<Renderer>();
         }
-
         if (BaseData != null)
         {
             currentStats = BaseData.stats;
@@ -202,13 +201,16 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable,
         }
     }
 
-    protected override void Update()
+    protected void Update()
     {
         if (IsDeployed)
         {
-            UpdateAttackTimings();
+            UpdateAttackDuration();
+            UpdateAttackCooldown();
             RecoverSP();
+            UpdateCrowdControls(); // CC 효과 갱신
 
+            if (activeCC.Any(cc => cc is StunEffect)) return;
             if (AttackDuration > 0) return;
 
             SetCurrentTarget(); // CurrentTarget 설정
@@ -237,7 +239,6 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable,
             }
         }
 
-        base.Update();
     }
 
 
@@ -583,12 +584,6 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable,
 
         CurrentTarget.RemoveAttackingEntity(this);
         CurrentTarget = null;
-    }
-
-    public void UpdateAttackTimings()
-    {
-        UpdateAttackDuration();
-        UpdateAttackCooldown();
     }
 
     // ICombatEntity 메서드들

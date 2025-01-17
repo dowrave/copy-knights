@@ -51,7 +51,10 @@ public class DeployableUnitEntity: UnitEntity, IDeployable
     public void Initialize(DeployableUnitData deployableUnitData)
     {
         InitializeDeployableData(deployableUnitData);
-        InitializeUnitProperties();
+
+        base.UpdateCurrentTile();
+        Prefab = BaseData.prefab;
+
         InitializeDeployableProperties(); 
     }
 
@@ -242,11 +245,10 @@ public class DeployableUnitEntity: UnitEntity, IDeployable
     }
 
     // BaseData, Stat이 엔티티마다 다르기 때문에 자식 메서드에서 재정의가 항상 필요
-    protected override void InitializeUnitProperties()
+    protected void InitializeUnitProperties()
     {
         // 현재 위치를 기반으로 한 타일 설정
-        base.UpdateCurrentTile();
-        Prefab = BaseData.prefab;
+
     }
 
     // 시각화 요소들을 초기화

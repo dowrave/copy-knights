@@ -1,0 +1,49 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 657f0bb4ad51df8489190b8b085a18a8, type: 3}
+  m_Name: MeteorSkill
+  m_EditorClassIdentifier: 
+  skillName: MeteorSkill
+  description: "\uBC94\uC704 \uB0B4\uC758 \uC801\uB4E4\uC5D0\uAC8C \uD22C\uC0AC\uCCB4\uB97C
+    2\uD68C\uC529 \uAF42\uC2B5\uB2C8\uB2E4. \uAC01 \uD22C\uC0AC\uCCB4\uB294 0.5\uCD08\uC758
+    \uAE30\uC808 \uD6A8\uACFC\uC640 \uC77C\uC815 \uB300\uBBF8\uC9C0\uB97C \uAC00\uD569\uB2C8\uB2E4."
+  SPCost: 1
+  skillIcon: {fileID: 0}
+  autoRecover: 1
+  autoActivate: 0
+  modifiesAttackAction: 1
+  duration: 0
+  skillVFXPrefab: {fileID: 0}
+  fieldEffectPrefab: {fileID: 0}
+  skillRangeVFXPrefab: {fileID: 4360018886635934139, guid: fa3175149c04e4e42aec56b55c84b046, type: 3}
+  rangeEffectColor: {r: 0, g: 0, b: 0, a: 1}
+  skillRangeOffset:
+  - {x: -2, y: 0}
+  - {x: -1, y: -1}
+  - {x: -1, y: 0}
+  - {x: -1, y: 1}
+  - {x: 0, y: 2}
+  - {x: 0, y: 1}
+  - {x: 0, y: 0}
+  - {x: 0, y: -1}
+  - {x: 0, y: -2}
+  - {x: 1, y: 1}
+  - {x: 1, y: 0}
+  - {x: 1, y: -1}
+  - {x: 2, y: 0}
+  EFFECT_TAG: MeteorSkill
+  damageMultiplier: 0.5
+  stunDuration: 2
+  costRecovery: 10
+  meteorPrefab: {fileID: 8728847069727111713, guid: 3131cb7015cee294f985bef129b324f8, type: 3}
+  meteorHeights: {x: 1, y: 2}
+  meteorDelay: 0.5

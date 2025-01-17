@@ -10,8 +10,6 @@ using static ICombatEntity;
 /// </summary>
 public abstract class UnitEntity : MonoBehaviour, ITargettable, IFactionMember
 {
-    public UnitData BaseData { get; private set; }
-
     private UnitStats currentStats; // 프로퍼티로 구현하지 않음. 
     public Faction Faction { get; protected set; }
 
@@ -32,6 +30,7 @@ public abstract class UnitEntity : MonoBehaviour, ITargettable, IFactionMember
     }
     public float MaxHealth { get; set; }
 
+    // 인터페이스가 있는 경우에만 쓸 듯
     protected List<CrowdControl> activeCC = new List<CrowdControl>();
 
 
@@ -52,33 +51,6 @@ public abstract class UnitEntity : MonoBehaviour, ITargettable, IFactionMember
         };
     }
 
-    public void Initialize(UnitData unitData)
-    {
-        this.BaseData = unitData;
-        currentStats = unitData.stats;
-
-        InitializeUnitProperties();
-    }
-
-    protected virtual void Update()
-    {
-        UpdateCrowdControls();
-    }
-
-    // Data, Stat이 엔티티마다 다르기 때문에 자식 메서드에서 재정의 고려
-    protected virtual void InitializeUnitProperties()
-    {
-        InitializeHP();
-
-        // 현재 위치를 기반으로 한 타일 설정
-        UpdateCurrentTile();
-
-        Prefab = BaseData.prefab;
-    }
-
-    /// <summary>
-    /// 피격 대미지 계산, 체력 갱신
-    /// </summary>
     public virtual void TakeDamage(UnitEntity attacker, AttackSource attackSource, float damage)
     {
         if (attacker is ICombatEntity iCombatEntity)
@@ -97,7 +69,7 @@ public abstract class UnitEntity : MonoBehaviour, ITargettable, IFactionMember
 
             if (CurrentHealth <= 0)
             {
-                Die(); // 자식 메서드에서 오버라이드했다면 오버라이드한 메서드가 호출
+                Die(); // 오버라이드 메서드
             }
         }
     }
@@ -105,7 +77,7 @@ public abstract class UnitEntity : MonoBehaviour, ITargettable, IFactionMember
     // 대미지 계산 로직
     protected virtual float CalculateActualDamage(AttackType attacktype, float incomingDamage)
     {
-        float actualDamage = 0; // 할당해야 return문에서 오류가 안남
+        float actualDamage = 0; // 할당까지 필수
 
         switch (attacktype)
         {
@@ -221,28 +193,31 @@ public abstract class UnitEntity : MonoBehaviour, ITargettable, IFactionMember
             GameObject hitEffect = ObjectPoolManager.Instance.SpawnFromPool(effectTag, effectPosition, Quaternion.identity);
 
             // VFX 컴포넌트 재생
-            VisualEffect vfx = hitEffect.GetComponent<VisualEffect>();
-            float effectLifetime = 1f;
-            
-            if (vfx != null)
+            if (hitEffect != null)
             {
-                // 방향 프로퍼티가 노출된 이펙트는 방향을 계산
-                if (vfx.HasVector3("AttackDirection"))
+                VisualEffect vfx = hitEffect.GetComponent<VisualEffect>();
+                float effectLifetime = 1f;
+            
+                if (vfx != null)
                 {
-                    Vector3 attackDirection = (transform.position - attackSource.Position).normalized;
-                    vfx.SetVector3("AttackDirection", attackDirection);
+                    // 방향 프로퍼티가 노출된 이펙트는 방향을 계산
+                    if (vfx.HasVector3("AttackDirection"))
+                    {
+                        Vector3 attackDirection = (transform.position - attackSource.Position).normalized;
+                        vfx.SetVector3("AttackDirection", attackDirection);
+                    }
+
+                    if (vfx.HasFloat("LifeTime"))
+                    {
+                        int lifeTimeID = Shader.PropertyToID("Lifetime");
+                        effectLifetime = vfx.GetFloat(lifeTimeID);
+                    }
+
+                    vfx.Play();
                 }
 
-                if (vfx.HasFloat("LifeTime"))
-                {
-                    int lifeTimeID = Shader.PropertyToID("Lifetime");
-                    effectLifetime = vfx.GetFloat(lifeTimeID);
-                }
-
-                vfx.Play();
+                StartCoroutine(ReturnEffectToPool(effectTag, hitEffect, effectLifetime));
             }
-
-            StartCoroutine(ReturnEffectToPool(effectTag, hitEffect, effectLifetime));
         }
     }
 
@@ -260,15 +235,19 @@ public abstract class UnitEntity : MonoBehaviour, ITargettable, IFactionMember
     public void DeactivateShield() => shieldSystem.DeactivateShield();
     public float GetCurrentShield() => shieldSystem.CurrentShield;
 
-    public virtual void AddCrowdControl(CrowdControl cc)
+    public virtual void AddCrowdControl(CrowdControl newCC)
     {
-        // 일단 같은 타입이면 적용 안함
-        if (activeCC.Any(existing => existing.GetType() == cc.GetType())) return;
+        // 같은 타입의 CC 확인
+        CrowdControl existingCC = activeCC.FirstOrDefault(cc => cc.GetType() == newCC.GetType());
+        if (existingCC != null)
+        {
+            RemoveCrowdControl(existingCC);
+        }
 
-        activeCC.Add(cc);
+        activeCC.Add(newCC);
 
         // CC 추가 이벤트 -> UI 업데이트 등에 사용
-        OnCrowdControlChanged?.Invoke(cc, true);
+        OnCrowdControlChanged?.Invoke(newCC, true);
     }
 
     public virtual void RemoveCrowdControl(CrowdControl cc)

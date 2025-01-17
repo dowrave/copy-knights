@@ -26,10 +26,11 @@ namespace Skills.Base
             modifiesAttackAction = true;
         }
 
+        // 장판 이펙트 생성 + 효과 적용
         protected override void PlaySkillEffect(Operator op)
         {
             // 스킬 범위 계산
-            Vector2Int centerPos = MapManager.Instance.ConvertToGridPosition(mainTarget.transform.position);
+            Vector2Int centerPos = GetCenterPos(op);
             CalculateActualSkillRange(centerPos);
 
             // 유효한 타일에만 VFX 생성
@@ -62,13 +63,7 @@ namespace Skills.Base
             }
         }
 
-        public override void Activate(Operator op)
-        {
-            mainTarget = op.CurrentTarget as Enemy;
-            if (mainTarget == null) return; // 타겟이 없을 때는 스킬 취소
-
-            base.Activate(op);
-        }
+        protected abstract Vector2Int GetCenterPos(Operator op);
 
         private void CalculateActualSkillRange(Vector2Int center)
         {
