@@ -41,9 +41,9 @@ MonoBehaviour:
   - {x: 1, y: -1}
   - {x: 2, y: 0}
   EFFECT_TAG: MeteorSkill
-  damageMultiplier: 0.5
+  damageMultiplier: 0.75
   stunDuration: 2
   costRecovery: 10
-  meteorPrefab: {fileID: 8728847069727111713, guid: 3131cb7015cee294f985bef129b324f8, type: 3}
+  meteorPrefab: {fileID: 5367294480834238149, guid: 72548913df2272e41828031cffbc45c0, type: 3}
   meteorHeights: {x: 1, y: 2}
   meteorDelay: 0.5

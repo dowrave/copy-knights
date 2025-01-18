@@ -62,7 +62,8 @@ namespace Skills.Base
         private MeteorController CreateMeteor(Operator op, Enemy target, float height)
         {
             Vector3 spawnPos = target.transform.position + Vector3.up * height;
-            GameObject meteorObj = Instantiate(meteorPrefab, spawnPos, Quaternion.identity, target.transform);
+
+            GameObject meteorObj = Instantiate(meteorPrefab, spawnPos, Quaternion.Euler(90, 0, 0), target.transform);
 
             MeteorController controller = meteorObj.GetComponent<MeteorController>();
             return controller;

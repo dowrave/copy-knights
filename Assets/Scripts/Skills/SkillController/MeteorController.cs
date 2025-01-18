@@ -42,7 +42,7 @@ public class MeteorController : MonoBehaviour
             yield return null;
         };
 
-        Destroy(gameObject, 0.5f);
+        Destroy(gameObject);
     }
 
     private void ApplyDamage()
