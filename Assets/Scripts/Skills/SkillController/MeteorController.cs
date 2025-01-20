@@ -8,14 +8,16 @@ public class MeteorController : MonoBehaviour
     private Enemy target;
     private float damage;
     private float stunDuration;
-    private float fallSpeed = 10f;
+    private float waitTime;
+    private float fallSpeed = 5f;
     private bool hasDamageApplied = false;
 
-    public void Initialize(Operator op, Enemy target, float damage, float stunDuration)
+    public void Initialize(Operator op, Enemy target, float damage, float waitTime, float stunDuration)
     {
         this.caster = op;
         this.target = target;
         this.damage = damage;
+        this.waitTime = waitTime;
         this.stunDuration = stunDuration;
 
         StartCoroutine(FallRoutine());
@@ -23,6 +25,8 @@ public class MeteorController : MonoBehaviour
 
     private IEnumerator FallRoutine()
     {
+        yield return new WaitForSeconds(waitTime + 0.1f);
+
         while (target != null && transform.position.y > target.transform.position.y)
         {
             // 타겟을 계속 추적, y 좌표만 감소
@@ -37,8 +41,9 @@ public class MeteorController : MonoBehaviour
             if (!hasDamageApplied && Vector3.Distance(transform.position, target.transform.position) < 0.5f)
             {
                 ApplyDamage();
+                yield return null; // 현재 프레임의 다른 작업 종료 대기
+                break; // 반복문 탈출
             }
-
             yield return null;
         };
 

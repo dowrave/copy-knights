@@ -1,11 +1,9 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.Serialization;
 using UnityEngine;
 using UnityEngine.VFX;
 using static ICombatEntity;
-using static UnityEngine.GraphicsBuffer;
 
 public class Enemy : UnitEntity, IMovable, ICombatEntity, ICrowdControlTarget
 {
@@ -58,6 +56,10 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity, ICrowdControlTarget
     string meleeAttackEffectTag;
     string hitEffectTag;
 
+    // 이벤트 태그
+    public event System.Action<Enemy> OnEnemyDied;
+
+
     [SerializeField] private GameObject enemyBarUIPrefab;
     private EnemyBarUI enemyBarUI;
 
@@ -80,9 +82,7 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity, ICrowdControlTarget
         currentStats = enemyData.stats;
         this.pathData = pathData;
 
-        // 현재 체력, 최대 체력 설정
-        MaxHealth = currentStats.Health;
-        CurrentHealth = MaxHealth;
+        InitializeHP();
 
         // 현재 위치를 기반으로 한 타일 설정
         UpdateCurrentTile();
@@ -789,6 +789,12 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity, ICrowdControlTarget
         }
 
         RemoveProjectilePool();
+    }
+
+    protected override void InitializeHP()
+    {
+        MaxHealth = currentStats.Health;
+        CurrentHealth = MaxHealth;
     }
 
 

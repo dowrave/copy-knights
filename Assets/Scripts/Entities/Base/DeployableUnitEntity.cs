@@ -26,11 +26,8 @@ public class DeployableUnitEntity: UnitEntity, IDeployable
         protected set
         {
             isPreviewMode = value;
-            UpdateVisuals();
         }
     }
-    protected GameObject modelObject;
-    protected Renderer modelRenderer;
     protected Material originalMaterial;
     protected Material previewMaterial;
 
@@ -43,7 +40,6 @@ public class DeployableUnitEntity: UnitEntity, IDeployable
 
     protected override void Awake()
     {
-        InitializeVisual();
         Faction = Faction.Ally; // 배치 가능한 요소는 모두 아군으로 간주
         base.Awake();
     }
@@ -79,26 +75,6 @@ public class DeployableUnitEntity: UnitEntity, IDeployable
         InitialDeploymentCost = currentStats.DeploymentCost; // 초기 배치 코스트 설정
     }
 
-
-    // 프리팹에서 필드들의 정보를 초기화. 실제 초기화는 Initialize에서 별도로 이뤄진다.
-    public virtual void InitializeFromPrefab()
-    {
-        if (modelObject == null)
-        {
-            modelObject = transform.Find("Model").gameObject;
-        }
-
-        if (modelObject != null)
-        {
-            modelRenderer = modelObject.GetComponent<Renderer>();
-        }
-        // DeployableUnitData 초기화 (만약 SerializeField로 설정되어 있다면 이미 할당되어 있음)
-        if (BaseData != null)
-        {
-            currentStats = BaseData.stats;
-        }
-    }
-
     public virtual void Deploy(Vector3 position)
     {
         if (!IsDeployed)
@@ -112,7 +88,6 @@ public class DeployableUnitEntity: UnitEntity, IDeployable
             lastDeployTime = Time.time;
         }
     }
-
 
     // 타일 위에서의 실제 배치 위치 조정
     protected void SetPosition(Vector3 worldPosition)
@@ -174,32 +149,7 @@ public class DeployableUnitEntity: UnitEntity, IDeployable
         }
     }
 
-
-    // 반투명화한 미리보기 머티리얼을 준비
-    protected void SetupPreviewMaterial()
-    {
-        originalMaterial = new Material(modelRenderer.sharedMaterial); // 복사해서 저장 (참조에 의한 변형 가능성 때문에)
-        modelRenderer.material = originalMaterial;
-
-        // 프리뷰 머티리얼 설정
-        previewMaterial = new Material(originalMaterial);
-        previewMaterial.SetFloat("_Mode", 3); // TransParent 모드로 설정
-        previewMaterial.SetInt("_SrcBlend", (int)UnityEngine.Rendering.BlendMode.SrcAlpha); // 소스 블렌딩 모드 설정. 알파값을 사용해 블렌딩
-        previewMaterial.SetInt("_DstBlend", (int)UnityEngine.Rendering.BlendMode.OneMinusSrcAlpha); // 대상 블렌딩 모드 설정. (1 - 소스 알파값)으로 블렌딩
-        previewMaterial.SetInt("_ZWrite", 0); // Z버퍼 비활성화. 투명 객체는 사용하지 않는다고 함
-        previewMaterial.DisableKeyword("_ALPHATEST_ON"); // 알파 테스트 모드 비활성화
-        previewMaterial.EnableKeyword("_ALPHABLEND_ON"); // 알파 블렌딩 모드 활성화
-        previewMaterial.DisableKeyword("_ALPHAPREMULTIPLY_ON"); //알파 프리멀티플라이 모드 비활성화
-        previewMaterial.renderQueue = 3000; // 렌더 큐 설정. 불투명 객체들 뒤에 그려지게 함
-
-        Color previewColor = previewMaterial.color;
-        previewColor.a = 0.8f;
-        previewMaterial.color = previewColor;
-    }
-
-    /// <summary>
-    /// 배치된 유닛 클릭 시의 동작
-    /// </summary>
+    // 배치된 유닛 클릭 시 동작
     public virtual void OnClick()
     {
         // 배치 직후 클릭 방지
@@ -228,35 +178,6 @@ public class DeployableUnitEntity: UnitEntity, IDeployable
     {
         DeployableManager.Instance.ShowActionUI(this);
         UIManager.Instance.ShowDeployedInfo(this);
-    }
-
-    private void UpdateVisuals()
-    {
-        if (IsPreviewMode)
-        {
-            // 프리뷰 모드일 때의 시각 설정
-            modelRenderer.material = previewMaterial;
-        }
-        else
-        {
-            // 실제 배치 모드일 때의 시각 설정
-            modelRenderer.material = originalMaterial;
-        }
-    }
-
-    // BaseData, Stat이 엔티티마다 다르기 때문에 자식 메서드에서 재정의가 항상 필요
-    protected void InitializeUnitProperties()
-    {
-        // 현재 위치를 기반으로 한 타일 설정
-
-    }
-
-    // 시각화 요소들을 초기화
-    protected virtual void InitializeVisual()
-    {
-        modelObject = transform.Find("Model").gameObject;
-        modelRenderer = modelObject.GetComponent<Renderer>();
-        SetupPreviewMaterial();
     }
 
     protected override void InitializeHP()

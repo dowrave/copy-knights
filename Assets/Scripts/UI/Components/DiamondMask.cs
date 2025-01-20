@@ -45,12 +45,8 @@ public class DiamondMask : Image
         return vertex;
     }
 
-    /// <summary>
-    /// 클릭된 점이 마름모 내부에 있는지 체크
-    /// 마름모의 게임 월드 상 좌표와 오퍼레이터의 위치를 카메라 상의 좌표로 투영한 다음
-    /// 클릭된 거리가 마름모의 화면상 길이 내에 있는지를 검사함
-    /// 마름모이므로 L1 디스턴스를 이용함
-    /// </summary>
+
+    // 클릭된 점이 마름모 내부에 있는지 체크
     public bool IsPointInsideDiamond(Vector2 screenPoint)
     {
         // 마름모의 중심점을 월드 좌표로 변환
@@ -67,15 +63,10 @@ public class DiamondMask : Image
         screenDiamondRadius = Vector2.Distance(screenCenter, screenRight);
         DeployableManager.Instance.SetMinDirectionDistance(screenDiamondRadius);
 
-        //Debug.Log($"Screen Center: {screenCenter}, Click Point: {screenPoint}");
-        //Debug.Log($"Screen Top Right: {screenRight}, Screen Diamond Radius: {screenDiamondRadius}");
-
         // 맨해튼 거리 계산
         float dx = Mathf.Abs(screenPoint.x - screenCenter.x);
         float dy = Mathf.Abs(screenPoint.y - screenCenter.y);
         float manhattanDistance = dx + dy;
-
-        //Debug.Log($"Manhattan Distance: {manhattanDistance}, Threshold: {screenDiamondRadius}");
 
         // 맨해튼 거리가 스크린 상 마름모 "반지름"보다 작거나 같으면 내부로 판단
         return manhattanDistance <= screenDiamondRadius;

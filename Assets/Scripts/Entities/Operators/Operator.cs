@@ -8,7 +8,7 @@ using static ICombatEntity;
 public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable, ICrowdControlTarget
 {
     public new OperatorData BaseData { get; protected set; } 
-    [HideInInspector] public new OperatorStats currentStats; // 일단 public으로 구현
+    public new OperatorStats currentStats; // 일단 public으로 구현
 
     // ICombatEntity 필드
     public AttackType AttackType => BaseData.attackType;
@@ -81,8 +81,7 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable,
 
     // ICrowdControlTarget 필드
     public float MovementSpeed => 0f;
-    public Vector3 Position => transform.position; 
-    public void SetMovementSpeed(float newMovementSpeed) { }
+    public Vector3 Position => transform.position;
 
     public float AttackCooldown { get; protected set; }
     public float AttackDuration { get; protected set; }
@@ -134,8 +133,8 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable,
     protected string projectileTag;
 
     // 이펙트 풀 태그
-    string meleeAttackEffectTag;
-    string hitEffectTag;
+    private string meleeAttackEffectTag;
+    private string hitEffectTag;
 
     // 스킬 관련
     public BaseSkill CurrentSkill { get; private set; }
@@ -146,7 +145,6 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable,
     public event System.Action OnStatsChanged;
     public event System.Action<Operator> OnOperatorDied;
 
-    // 필드 끝 --------------------------------------------------------------------------------------------
     public virtual void Initialize(OwnedOperator ownedOp)
     {
         // 기본 데이터 초기화
@@ -163,27 +161,6 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable,
         MaxSP = CurrentSkill?.SPCost ?? 0f;
 
         IsPreviewMode = true;
-
-        if (modelObject == null)
-        {
-            InitializeVisual();
-        }
-    }
-
-    public override void InitializeFromPrefab()
-    {
-        if (modelObject == null)
-        {
-            modelObject = transform.Find("Model").gameObject;
-        }
-        if (modelObject != null)
-        {
-            modelRenderer = modelObject.GetComponent<Renderer>();
-        }
-        if (BaseData != null)
-        {
-            currentStats = BaseData.stats;
-        }
     }
 
     public void SetDirection(Vector3 direction)
@@ -242,7 +219,7 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable,
     }
 
 
-    // 인터페이스만 계승, 이 안에서는 대미지 팝업 요소만 추가해서 PerformAttack으로 전달
+    // 인터페이스만 계승, PerformAttack으로 전달
     public virtual void Attack(UnitEntity target, float damage)
     {
         bool showDamagePopup = false;
@@ -511,7 +488,6 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable,
             }
         }
 
-        // 이펙트 파괴를 기다리지 않고 동작함
         IsPreviewMode = false;
         SetDeploymentOrder();
         SetDirection(facingDirection);
@@ -525,6 +501,10 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable,
 
     public override void Retreat()
     {
+        // 수동 퇴각 시 최초 배치 코스트의 절반 회복
+        int recoverCost = (int)Mathf.Round(currentStats.DeploymentCost / 2f);
+        StageManager.Instance.RecoverDeploymentCost(recoverCost);
+
         Die();
     }
 
@@ -539,7 +519,6 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable,
         MaxHealth = currentStats.Health;
         CurrentHealth = MaxHealth;
     }
-
 
     // 공격 대상 설정 로직
     public virtual void SetCurrentTarget()
@@ -572,6 +551,7 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable,
             }
             return;
         }
+
         // 저지 중인 적도 없고, 공격 범위 내의 적도 없다면 현재 타겟은 없음
         CurrentTarget = null;
     }
@@ -781,9 +761,10 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable,
         IsSkillOn = skillOnState;
     }
 
-
     protected void OnDestroy()
     {
         RemoveObjectPool();
     }
+    public void SetMovementSpeed(float newMovementSpeed) { }
+
 }

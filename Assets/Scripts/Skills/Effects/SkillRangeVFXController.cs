@@ -1,3 +1,4 @@
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -93,9 +94,7 @@ public class SkillRangeVFXController : MonoBehaviour, IPooledObject, IEffectCont
 
             if (showEffect) 
             {
-                var main = effect.main;
-                main.startColor = effectColor;
-                effect.Play();
+                PrewarmTrailAndPlayVFX(effect); // effect.Play() 포함
             }
             else
             {
@@ -118,7 +117,28 @@ public class SkillRangeVFXController : MonoBehaviour, IPooledObject, IEffectCont
             transform.position += Vector3.up * 0.2f;
         }
 
-        this.fieldDuration = duration;
+        // 즉발 스킬의 경우 duration = 0일 수 있음 -> 디폴트 필드 값을 1초로 지정
+        if (duration == 0f)
+        {
+            fieldDuration = 1f;
+        }
+    }
+
+    // 스킬 범위 즉시 표현을 위한 스크립트
+    private void PrewarmTrailAndPlayVFX(ParticleSystem ps)
+    {
+        ParticleSystem.MainModule main = ps.main;
+        main.startColor = effectColor;
+        ps.Play();
+
+        StartCoroutine(ShowEffectAfterPrewarm(main));
+    }
+
+    private IEnumerator ShowEffectAfterPrewarm(ParticleSystem.MainModule main)
+    {
+        main.simulationSpeed = 100f;
+        yield return new WaitForSeconds(0.01f);
+        main.simulationSpeed = 1f;
     }
 
     public void StopAllVFXs()

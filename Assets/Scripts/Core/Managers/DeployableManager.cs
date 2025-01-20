@@ -9,20 +9,6 @@ public class DeployableManager : MonoBehaviour
 {
     public static DeployableManager Instance { get; private set; }
 
-    [System.Serializable]
-    public class DeployableInfo
-    {
-        public GameObject prefab;
-        public int maxDeployCount;
-        public float redeployTime;
-
-        // 오퍼레이터일 때 할당
-        public OwnedOperator? ownedOperator;
-        public OperatorData? operatorData;
-
-        // 일반 배치 가능한 유닛일 때 할당
-        public DeployableUnitData? deployableUnitData;
-    }
 
     private enum UIState
     {
@@ -39,7 +25,7 @@ public class DeployableManager : MonoBehaviour
     public RectTransform bottomPanel;
 
     // Deployable 관련 변수
-    private List<DeployableInfo> allDeployables = new List<DeployableInfo>(); // 합친 거
+    private List<DeployableInfo> allDeployables = new List<DeployableInfo>(); 
     private Dictionary<DeployableInfo, DeployableBox> deployableUIBoxes = new Dictionary<DeployableInfo, DeployableBox>();
     private DeployableInfo currentDeployableInfo;
     private GameObject currentDeployablePrefab;
@@ -68,7 +54,6 @@ public class DeployableManager : MonoBehaviour
     private Tile currentHoverTile;
 
     private float minDirectionDistance;
-    public float MinDirectionDistance => minDirectionDistance;
     private const float INDICATOR_SIZE = 2.5f;
 
     [SerializeField] private LayerMask tileLayerMask;
@@ -142,9 +127,8 @@ public class DeployableManager : MonoBehaviour
         InitializeDeployableUI();
     }
 
-    /// <summary>
-    /// DeployableBox에 Deployable 요소 프리팹들을 할당하는 과정
-    /// </summary>
+
+    // DeployableBox에 Deployable 요소 프리팹 할당
     private void InitializeDeployableUI()
     {
         // 로비 실행 동작 방지. 스테이지 씬에서는 실행 시점이 Battle이라 괜찮음
@@ -205,9 +189,8 @@ public class DeployableManager : MonoBehaviour
         }
     }
 
-    /// <summary>
-    /// 타일 조건 체크
-    /// </summary>
+
+    // 타일 조건 체크
     private bool CheckTileCondition(Tile tile)
     {
         if (currentDeployableInfo.operatorData != null)
@@ -244,9 +227,7 @@ public class DeployableManager : MonoBehaviour
         }
     }
 
-    /// <summary>
-    /// BottomPanelDeployableBox 마우스버튼 다운 시 동작
-    /// </summary>
+    // 하단 박스 마우스 버튼 다운 시 동작
     public void StartDragging(DeployableInfo deployableInfo)
     {
         if (currentDeployableInfo == deployableInfo)
@@ -258,9 +239,7 @@ public class DeployableManager : MonoBehaviour
         }
     }
 
-    /// <summary>
-    /// BottomPanelDeployableBox 마우스버튼 다운 후 드래그 시 동작
-    /// </summary>
+    // 하단 박스 드래그 시 동작
     public void HandleDragging(DeployableInfo deployableInfo)
     {
         if (IsDraggingDeployable && currentDeployableInfo == deployableInfo)
@@ -269,14 +248,11 @@ public class DeployableManager : MonoBehaviour
         }
     }
 
-    /// <summary>
-    /// 드래그 중 커서를 뗐을 때의 동작
-    /// </summary>
+    // 하단 박스 드래그 중 커서를 뗐을 때의 동작
     public void EndDragging(GameObject deployablePrefab)
     {
         if (IsDraggingDeployable && currentDeployablePrefab == deployablePrefab)
-        {
-            Debug.Log("드래그 종료");
+        {;
             IsDraggingDeployable = false;
             Tile hoveredTile = GetHoveredTile();
 
@@ -296,7 +272,6 @@ public class DeployableManager : MonoBehaviour
             }
             else
             {
-                Debug.Log("배치 과정 취소");
                 CancelDeployableSelection();
                 UIManager.Instance.HideDeployableInfo();
             }
@@ -333,7 +308,7 @@ public class DeployableManager : MonoBehaviour
 
     public void ShowActionUI(DeployableUnitEntity deployable)
     {
-        HideAllUIs();
+        HideUIs();
         // 일관된 위치 구현하기
         Vector3 ActionUIPosition = new Vector3(deployable.transform.position.x, 1f, deployable.transform.position.z);
         currentActionUI = Instantiate(actionUIPrefab, ActionUIPosition, Quaternion.identity);
@@ -343,18 +318,15 @@ public class DeployableManager : MonoBehaviour
 
     public void ShowDeployingUI(Vector3 position)
     {
-        HideAllUIs();
+        HideUIs();
         currentDeployingUI = Instantiate(deployingUIPrefab, position, Quaternion.identity);
         currentDeployingUI.Initialize(currentDeployable);
         currentUIState = UIState.OperatorDeploying;
-
     }
 
-    /// <summary>
-    /// 오퍼레이터 주위에 나타난 ActionUI, DeployingUI 제거
-    /// OperatorInfoPanel을 숨기는 건 별개의 메서드
-    /// </summary>
-    private void HideAllUIs()
+
+    // 오퍼레이터 주위에 나타난 UI 제거
+    private void HideUIs()
     {
         if (currentActionUI != null)
         {
@@ -371,9 +343,7 @@ public class DeployableManager : MonoBehaviour
         currentUIState = UIState.None;
     }
 
-    /// <summary>
-    /// 방향 설정 관련 로직
-    /// </summary>
+    // 방향 설정 관련 로직
     public void HandleDirectionSelection()
     {
         if (IsMousePressed)
@@ -413,7 +383,7 @@ public class DeployableManager : MonoBehaviour
                 }
             }
         }
-        //}
+
     }
 
     private void UpdatePreviewDeployable()
@@ -478,9 +448,8 @@ public class DeployableManager : MonoBehaviour
         return Vector3.back;
     }
 
-    /// <summary>
-    /// Deploy를 쓸 경우 그것 이외의 처리도 함께 겸하는 이 메서드를 사용한다
-    /// </summary>
+
+    // 배치되는 경우 동작하는 메서드
     private void DeployDeployable(Tile tile)
     {
         DeployableUnitState gameState = unitStates[currentDeployableInfo];
@@ -523,9 +492,8 @@ public class DeployableManager : MonoBehaviour
         }
     }
 
-    /// <summary>
-    /// 배치 관련 조작 전으로 상태를 되돌림
-    /// </summary>
+
+    // 배치 조작 전으로 상태를 되돌림
     private void ResetPlacement()
     {
         IsDeployableSelecting = false;
@@ -548,7 +516,7 @@ public class DeployableManager : MonoBehaviour
         StageManager.Instance.UpdateTimeScale(); // 시간 원상복구
         ResetHighlights();
 
-        HideAllUIs();
+        HideUIs();
 
     }
 
@@ -574,18 +542,18 @@ public class DeployableManager : MonoBehaviour
         }
     }
 
-    /// <summary>
-    /// 배치된 요소가 제거되었을 때 동작함
-    /// </summary>
+
+    // 배치된 요소가 제거되었을 때 동작함
     public void OnDeployableRemoved(DeployableUnitEntity deployable)
     {
+        Debug.Log($"{deployable} 제거됨");
         deployedItems.Remove(deployable);
         UIManager.Instance.HideDeployableInfo();
-        HideAllUIs();
+        HideUIs();
         ResetHighlights();
 
         // 박스 재생성. 전투 중일 때에만 동작
-        if (StageManager.Instance != null && StageManager.Instance.currentState != GameState.Battle)
+        if (StageManager.Instance != null && StageManager.Instance.currentState == GameState.Battle)
         {
             DeployableInfo info;
             if (deployable is Operator op)
@@ -636,32 +604,18 @@ public class DeployableManager : MonoBehaviour
         }
     }
 
-    public void ShowDeployableInfoPanel(DeployableInfo deployableInfo)
-    {
-        UIManager.Instance.ShowUndeployedInfo(deployableInfo);
-    }
-
-    public void HideDeployableInfoPanel()
-    {
-        UIManager.Instance.HideDeployableInfo();
-    }
-
-    /// <summary>
-    /// 배치 중이거나, 배치된 오퍼레이터를 클릭한 상태를 취소하는 동작
-    /// </summary>
+    // 배치 중이거나, 배치된 오퍼레이터를 클릭한 상태를 취소하는 동작
     public void CancelCurrentAction()
     {
         if (currentUIState != UIState.None) // Action이거나 Deploying일 때
         {
-            HideAllUIs();
+            HideUIs();
             ResetPlacement();
             ResetHighlights();
         }
     }
 
-    /// <summary>
-    /// 배치 드래그 최소 길이
-    /// </summary>
+    // 배치 드래그 최소 길이
     public void SetMinDirectionDistance(float screenDiamondRadius)
     {
         minDirectionDistance = screenDiamondRadius / 2;
@@ -669,13 +623,11 @@ public class DeployableManager : MonoBehaviour
 
     private bool CanPlaceOnTile(Tile tile)
     {
-        // 타일이 배치 가능한가? + 타일이 하이라이트되었는가? + 현재 선택한 객체를 그 타일에 배치할 수 잇는가?
-        return tile.CanPlaceDeployable() &&
-            highlightedTiles.Contains(tile);
+        return tile.CanPlaceDeployable() && // 배치 가능한 타일인가
+            highlightedTiles.Contains(tile); // 하이라이트된 타일인가
     }
 
-    // 타일 위에 배치되는 배치 가능한 요소의 위치 지정
-    // 바리케이드가 붕 뜨길래 만들었음
+    // 타일 위에 배치되는 배치 가능한 요소의 위치 설정
     public void SetAboveTilePosition(DeployableUnitEntity deployable, Tile tile)
     {
         if (currentDeployable is Barricade barricade)
@@ -696,5 +648,20 @@ public class DeployableManager : MonoBehaviour
     public DeployableInfo GetDeployableInfoByName(string entityName)
     {
         return deployableInfoMap.TryGetValue(entityName, out var info) ? info : null;
+    }
+
+    [System.Serializable]
+    public class DeployableInfo
+    {
+        public GameObject prefab;
+        public int maxDeployCount;
+        public float redeployTime;
+
+        // 오퍼레이터일 때 할당
+        public OwnedOperator? ownedOperator;
+        public OperatorData? operatorData;
+
+        // 일반 배치 가능한 유닛일 때 할당
+        public DeployableUnitData? deployableUnitData;
     }
 }

@@ -12,7 +12,7 @@ namespace Skills.Base
         [SerializeField] private float stunDuration = 2f;
         [SerializeField] private int costRecovery = 10;
         [SerializeField] private GameObject meteorPrefab; // 떨어지는 메쉬 자체
-        [SerializeField] private Vector2 meteorHeights = new Vector2(2f, 3f); // 두 오브젝트의 높이
+        [SerializeField] private Vector2 meteorHeights = new Vector2(4f, 5f); // 두 오브젝트의 높이
         [SerializeField] private float meteorDelay = 0.5f;
 
         protected override GameObject CreateEffectField(Operator op, Vector2Int centerPos)
@@ -24,12 +24,11 @@ namespace Skills.Base
             foreach (Vector2Int pos in actualSkillRange)
             {
                 Tile tile = MapManager.Instance.GetTile(pos.x, pos.y); 
-                if (tile != null)
+                if (tile != null) 
                 {
                     foreach (Enemy enemy in tile.GetEnemiesOnTile())
                     {
-                        // StartCoroutine은 MonoBehaviour에서만 직접 호출이 가능함
-                        op.StartCoroutine(CreateMeteorSequence(op, enemy));
+                        CreateMeteorSequence(op, enemy);
                     }
                 }
             }
@@ -37,36 +36,20 @@ namespace Skills.Base
             return null;
         }
 
-        private IEnumerator CreateMeteorSequence(Operator op, Enemy target)
+        private void CreateMeteorSequence(Operator op, Enemy target)
         {
-            MeteorController firstMeteor = CreateMeteor(op, target, meteorHeights.x);
-            MeteorController secondMeteor = CreateMeteor(op, target, meteorHeights.y);
-
-            yield return new WaitForSeconds(meteorDelay);
-
-            if (firstMeteor != null)
-            {
-                float damage = op.AttackPower * damageMultiplier;
-                firstMeteor.Initialize(op, target, damage, stunDuration);
-            }
-
-            yield return new WaitForSeconds(meteorDelay);
-
-            if (secondMeteor != null)
-            {
-                float damage = op.AttackPower * damageMultiplier;
-                secondMeteor.Initialize(op, target, damage, stunDuration);
-            }
+            CreateMeteor(op, target, meteorHeights.x, 0f);
+            CreateMeteor(op, target, meteorHeights.y, meteorDelay);
         }
 
-        private MeteorController CreateMeteor(Operator op, Enemy target, float height)
+        private void CreateMeteor(Operator op, Enemy target, float height, float delayTime)
         {
             Vector3 spawnPos = target.transform.position + Vector3.up * height;
-
             GameObject meteorObj = Instantiate(meteorPrefab, spawnPos, Quaternion.Euler(90, 0, 0), target.transform);
+            float actualDamage = op.AttackPower * damageMultiplier;
 
             MeteorController controller = meteorObj.GetComponent<MeteorController>();
-            return controller;
+            controller.Initialize(op, target, actualDamage, delayTime, stunDuration);
         }
 
         protected override Vector2Int GetCenterPos(Operator op)

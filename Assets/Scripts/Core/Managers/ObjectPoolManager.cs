@@ -116,7 +116,7 @@ public class ObjectPoolManager : MonoBehaviour
         return obj;
     }
 
-    // 사용이 끝난 오브젝트를 풀로 반환합니다. 풀이 제거 예정인 경우 오브젝트를 파괴합니다.
+    // 사용이 끝난 오브젝트를 풀로 반환합니다. 풀이 제거된 경우 오브젝트를 파괴합니다.
     public void ReturnToPool(string tag, GameObject obj)
     {
         if (poolDictionary.TryGetValue(tag, out Queue<GameObject> objectPool))
@@ -131,6 +131,7 @@ public class ObjectPoolManager : MonoBehaviour
         }
         else
         {
+            Debug.Log("돌아간 풀이 사라진 상태");
             // 풀이 없어진 경우, 활성화된 오브젝트 제거
             Destroy(obj);
         }

@@ -33,21 +33,8 @@ namespace Skills.Base
             Vector2Int centerPos = GetCenterPos(op);
             CalculateActualSkillRange(centerPos);
 
-            // 유효한 타일에만 VFX 생성
-            foreach (Vector2Int pos in actualSkillRange)
-            {
-                if (MapManager.Instance.CurrentMap.IsValidGridPosition(pos.x, pos.y))
-                {
-                    GameObject vfxObj = ObjectPoolManager.Instance.SpawnFromPool(EFFECT_TAG,
-                        MapManager.Instance.ConvertToWorldPosition(pos),
-                        Quaternion.identity
-                    );
-                    TrackEffect(op, vfxObj);
-
-                    var rangeEffect = vfxObj.GetComponent<SkillRangeVFXController>();
-                    rangeEffect.Initialize(pos, actualSkillRange, rangeEffectColor, duration, EFFECT_TAG);
-                }
-            }
+            // 이펙트 시각화
+            VisualizeActualSkillRange(op);
 
             // 실제 효과 장판 생성
             GameObject fieldEffect = CreateEffectField(op, centerPos);
@@ -63,13 +50,32 @@ namespace Skills.Base
             }
         }
 
-        protected abstract Vector2Int GetCenterPos(Operator op);
-
         private void CalculateActualSkillRange(Vector2Int center)
         {
             foreach (Vector2Int offset in skillRangeOffset)
             {
                 actualSkillRange.Add(center + offset);
+            }
+        }
+
+        private void VisualizeActualSkillRange(Operator op)
+        {
+            // 유효한 타일에만 VFX 생성
+            foreach (Vector2Int pos in actualSkillRange)
+            {
+                if (MapManager.Instance.CurrentMap.IsValidGridPosition(pos.x, pos.y))
+                {
+                    GameObject vfxObj = ObjectPoolManager.Instance.SpawnFromPool(
+                        EFFECT_TAG,
+                        MapManager.Instance.ConvertToWorldPosition(pos),
+                        Quaternion.identity
+                    );
+
+                    TrackEffect(op, vfxObj);
+
+                    var rangeEffect = vfxObj.GetComponent<SkillRangeVFXController>();
+                    rangeEffect.Initialize(pos, actualSkillRange, rangeEffectColor, duration, EFFECT_TAG);
+                }
             }
         }
 
@@ -139,8 +145,8 @@ namespace Skills.Base
             activeEffects.Remove(op);
         }
 
-        // 실제 효과 구현 메서드
-        protected abstract GameObject CreateEffectField(Operator op, Vector2Int centerPos);
+        protected abstract GameObject CreateEffectField(Operator op, Vector2Int centerPos); // 스킬의 실제 효과 구현
+        protected abstract Vector2Int GetCenterPos(Operator op);
     }
 
 }

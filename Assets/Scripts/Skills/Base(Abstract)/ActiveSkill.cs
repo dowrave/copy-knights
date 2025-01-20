@@ -47,7 +47,8 @@ namespace Skills.Base
             op.SetSkillOnState(true);
         }
 
-        // 실질적인 스킬 효과 실행. 즉발 여부에 관계 없이 OnSkillStart와 OnSkillEnd 사이에 들어감
+        // 실질적인 스킬 효과 실행.
+        // 무조건 OnSkillStart와 OnSkillEnd 사이에 들어감
         protected virtual void PlaySkillEffect(Operator op) { }
 
         protected virtual void OnSkillEnd(Operator op)

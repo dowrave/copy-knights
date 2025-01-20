@@ -1,20 +1,8 @@
 using UnityEngine;
 using System.Collections; // IEnumerator - 코루틴에서 주로 사용하는 버전
-using UnityEngine.SceneManagement;
-using System.Collections.Generic;
 using DG.Tweening;
 
-
-/*
- StageManager의 역할
-1. 전체 게임 흐름 제어 
-2. 게임 상태 관리
-3. 적 스포너 관리
-4. 플레이어 자원 관리
-5. UI 업데이트 트리거
-6. 승리 / 패배 조건 체크
-7. 아군 캐릭터 배치 로직 관리
- */
+// 스테이지 씬에서 스테이지와 관련된 여러 상태들을 관리합니다.
 public class StageManager : MonoBehaviour
 {
     public static StageManager Instance { get; private set; }
@@ -141,7 +129,6 @@ public class StageManager : MonoBehaviour
 
     public void PrepareStage()
     {
-        Debug.Log("스테이지 준비");
         SetGameState(GameState.Preparation);
 
         // 게임 초기화
@@ -156,7 +143,6 @@ public class StageManager : MonoBehaviour
 
     public void StartStage()
     {
-        Debug.Log("스테이지 시작");
         SetGameState(GameState.Battle);
         lastCostUpdateTime = Time.time;
         StartCoroutine(IncreaseCostOverTime());

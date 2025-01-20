@@ -5,9 +5,8 @@ using UnityEngine;
 using UnityEngine.VFX;
 using static ICombatEntity;
 
-/// <summary>
-/// Operator, Enemy, Barricade 등의 타일 위의 유닛들과 관련된 엔티티
-/// </summary>
+
+// Operator, Enemy, Barricade 등의 타일 위의 유닛들과 관련된 엔티티
 public abstract class UnitEntity : MonoBehaviour, ITargettable, IFactionMember
 {
     private UnitStats currentStats; // 프로퍼티로 구현하지 않음. 
@@ -135,11 +134,7 @@ public abstract class UnitEntity : MonoBehaviour, ITargettable, IFactionMember
         Destroy(gameObject);
     }
 
-    protected virtual void InitializeHP()
-    {
-        MaxHealth = currentStats.Health;
-        CurrentHealth = MaxHealth;
-    }
+    protected abstract void InitializeHP();
 
     public virtual void TakeHeal(UnitEntity healer, AttackSource attackSource, float healAmount)
     {
@@ -191,7 +186,7 @@ public abstract class UnitEntity : MonoBehaviour, ITargettable, IFactionMember
             // 풀에서 이펙트 오브젝트 가져오기
             string effectTag = attackerName + hitEffectPrefab.name;
             GameObject hitEffect = ObjectPoolManager.Instance.SpawnFromPool(effectTag, effectPosition, Quaternion.identity);
-
+             
             // VFX 컴포넌트 재생
             if (hitEffect != null)
             {
@@ -223,17 +218,20 @@ public abstract class UnitEntity : MonoBehaviour, ITargettable, IFactionMember
 
     protected IEnumerator ReturnEffectToPool(string tag, GameObject effect, float lifeTime = 1f)
     {
-        yield return new WaitForSeconds(lifeTime); // 이펙트가 나타날 시간은 줘야 함
+        yield return new WaitForSeconds(lifeTime); // 이펙트가 나타날 시간을 줌
 
         if (effect != null)
         {
+            Debug.Log("effect는 null이 아님");
             ObjectPoolManager.Instance.ReturnToPool(tag, effect);
+        }
+        else
+        {
+            // 일단 억지로 이펙트 뿌수는 로직을 넣어둠
+            Destroy(effect);
         }
     }
 
-    public void ActivateShield(float amount) => shieldSystem.ActivateShield(amount);
-    public void DeactivateShield() => shieldSystem.DeactivateShield();
-    public float GetCurrentShield() => shieldSystem.CurrentShield;
 
     public virtual void AddCrowdControl(CrowdControl newCC)
     {
@@ -282,4 +280,8 @@ public abstract class UnitEntity : MonoBehaviour, ITargettable, IFactionMember
             RemoveCrowdControl(cc);
         }
     }
+
+    public void ActivateShield(float amount) => shieldSystem.ActivateShield(amount);
+    public void DeactivateShield() => shieldSystem.DeactivateShield();
+    public float GetCurrentShield() => shieldSystem.CurrentShield;
 }
