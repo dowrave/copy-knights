@@ -1,6 +1,8 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
+
 
 // 스킬 범위의 시각적 효과를 관리
 public class SkillRangeVFXController : MonoBehaviour, IPooledObject, IEffectController
@@ -10,17 +12,15 @@ public class SkillRangeVFXController : MonoBehaviour, IPooledObject, IEffectCont
     [SerializeField] private ParticleSystem bottomEffect;
     [SerializeField] private ParticleSystem leftEffect;
     [SerializeField] private ParticleSystem rightEffect;
-
-    [Header("Floor")]
-    [SerializeField] private MeshRenderer floorRenderer;
-    [SerializeField] private float baseAlpha;
-
-    [Header("Effect Color")]
-    [SerializeField] private Color effectColor;
+    [SerializeField] private Image topBoundary;
+    [SerializeField] private Image bottomBoundary;
+    [SerializeField] private Image leftBoundary;
+    [SerializeField] private Image rightBoundary;
+    [SerializeField] private Image floorImage;
 
     private bool isInitialized = false;
     private float fieldDuration;
-    private Dictionary<Vector2Int, ParticleSystem> directionEffects;
+    private Dictionary<Vector2Int, (ParticleSystem effect, Image boundary)> directionEffects;
     private readonly Vector2Int[] directions = new[]
     {
         // 그리드 좌표는 좌측 상단이 (0, 0)이므로 Y좌표는 특히 이렇게 정의함
@@ -31,33 +31,29 @@ public class SkillRangeVFXController : MonoBehaviour, IPooledObject, IEffectCont
     };
 
     private string poolTag;
-    private static MaterialPropertyBlock propertyBlock;
-    private static readonly int colorID = Shader.PropertyToID("_BaseColor");
 
     private void Awake()
     {
-        if (propertyBlock == null) propertyBlock = new MaterialPropertyBlock();
-
         // 방향별 파티클 시스템 매핑
-        directionEffects = new Dictionary<Vector2Int, ParticleSystem>
+        directionEffects = new Dictionary<Vector2Int, (ParticleSystem, Image)>
         {
-            { Vector2Int.down, topEffect },
-            { Vector2Int.up, bottomEffect },
-            { Vector2Int.left, leftEffect },
-            { Vector2Int.right, rightEffect }
+            { Vector2Int.down, (topEffect, topBoundary) },
+            { Vector2Int.up, (bottomEffect, bottomBoundary) },
+            { Vector2Int.left, (leftEffect, leftBoundary) },
+            { Vector2Int.right, (rightEffect, rightBoundary) }
         };
     }
 
     public void OnObjectSpawn()
     {
         // 초기에는 모든 이펙트 중지
-        foreach (var effect in directionEffects.Values)
+        foreach (var pair in directionEffects.Values)
         {
-            effect.Stop();
+            pair.effect.Stop();
+            pair.boundary.gameObject.SetActive(false);
         }
 
-        // 바닥도 초기엔 비활성화
-        floorRenderer.gameObject.SetActive(false);
+        floorImage.gameObject.SetActive(false);
     }
     private void Update()
     {
@@ -73,13 +69,18 @@ public class SkillRangeVFXController : MonoBehaviour, IPooledObject, IEffectCont
         }
     }
 
-    public void Initialize(Vector2Int position, HashSet<Vector2Int> effectRange, Color effectColor, float duration, string tag)
+    public void Initialize(Vector2Int position, HashSet<Vector2Int> effectRange, float duration, string tag)
     {
         poolTag = tag;
         isInitialized = true;
 
+        // 즉발 스킬의 경우 duration = 0일 수 있음 -> 디폴트 필드 값을 1초로 지정
+        fieldDuration = duration != 0f ? duration : 1f;
+
         // 이 위치에 타일이 없으면 실행 X
         if (!MapManager.Instance.CurrentMap.IsTileAt(position.x, position.y)) return;
+
+        floorImage.gameObject.SetActive(true);
 
         foreach (var direction in directions)
         {
@@ -90,24 +91,18 @@ public class SkillRangeVFXController : MonoBehaviour, IPooledObject, IEffectCont
             bool showEffect = !effectRange.Contains(neighborPos) || // 스킬 범위 내에 있음
                 !MapManager.Instance.CurrentMap.IsTileAt(neighborPos.x, neighborPos.y); // 실제로 타일이 있음
 
-            var effect = directionEffects[direction];
+            var (effect, boundary) = directionEffects[direction];
 
             if (showEffect) 
             {
                 PrewarmTrailAndPlayVFX(effect); // effect.Play() 포함
+                boundary.gameObject.SetActive(true);
             }
             else
             {
                 effect.Stop();
+                boundary.gameObject.SetActive(false);
             }
-        }
-
-        // 바닥 이펙트 조정
-        floorRenderer.gameObject.SetActive(true);
-        if (floorRenderer != null)
-        {
-            propertyBlock.SetColor(colorID, new Color(effectColor.r, effectColor.g, effectColor.b, baseAlpha));
-            floorRenderer.SetPropertyBlock(propertyBlock);
         }
 
         // 언덕에 이펙트 배치하는 상황
@@ -117,18 +112,12 @@ public class SkillRangeVFXController : MonoBehaviour, IPooledObject, IEffectCont
             transform.position += Vector3.up * 0.2f;
         }
 
-        // 즉발 스킬의 경우 duration = 0일 수 있음 -> 디폴트 필드 값을 1초로 지정
-        if (duration == 0f)
-        {
-            fieldDuration = 1f;
-        }
     }
 
     // 스킬 범위 즉시 표현을 위한 스크립트
     private void PrewarmTrailAndPlayVFX(ParticleSystem ps)
     {
         ParticleSystem.MainModule main = ps.main;
-        main.startColor = effectColor;
         ps.Play();
 
         StartCoroutine(ShowEffectAfterPrewarm(main));
@@ -143,11 +132,13 @@ public class SkillRangeVFXController : MonoBehaviour, IPooledObject, IEffectCont
 
     public void StopAllVFXs()
     {
-        foreach (var effect in directionEffects.Values)
+        foreach (var pair in directionEffects.Values)
         {
-            effect.Stop();
+            pair.effect.Stop();
+            pair.boundary.gameObject.SetActive(false);
         }
-        floorRenderer.gameObject.SetActive(false);
+
+        floorImage.gameObject.SetActive(false);
         ObjectPoolManager.Instance.ReturnToPool(poolTag, gameObject);
         isInitialized = false;
     }

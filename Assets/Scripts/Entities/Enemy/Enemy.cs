@@ -326,7 +326,7 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity, ICrowdControlTarget
         SetAttackTimings(); // 이걸 따로 호출하는 경우가 있어서 여기서 다시 설정
         AttackSource attackSource = new AttackSource(transform.position, false);
 
-        PlayMeleeAttackEffect(target);
+        PlayMeleeAttackEffect(target, attackSource);
 
         target.TakeDamage(this, attackSource, damage);
     }
@@ -730,7 +730,7 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity, ICrowdControlTarget
         InitializeProjectilePool();
     }
 
-    private void PlayMeleeAttackEffect(UnitEntity target)
+    private void PlayMeleeAttackEffect(UnitEntity target, AttackSource attackSource)
     {
         // 이펙트 처리
         if (BaseData.meleeAttackEffectPrefab != null)
@@ -739,21 +739,9 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity, ICrowdControlTarget
                    meleeAttackEffectTag,
                    transform.position,
                    Quaternion.identity
-           );
-            VisualEffect vfx = effectObj.GetComponent<VisualEffect>();
-
-            // 방향이 있다면 방향 계산
-            if (vfx != null && vfx.HasVector3("BaseDirection"))
-            {
-                Vector3 baseDirection = vfx.GetVector3("BaseDirection");
-                Vector3 attackDirection = (target.transform.position - transform.position).normalized;
-                Quaternion rotation = Quaternion.FromToRotation(baseDirection, attackDirection);
-                effectObj.transform.rotation = rotation;
-
-                vfx.Play();
-            }
-
-            StartCoroutine(ReturnEffectToPool(meleeAttackEffectTag, effectObj, 1f));
+            );
+            CombatVFXController combatVFXController = effectObj.GetComponent<CombatVFXController>();
+            combatVFXController.Initialize(attackSource, target, meleeAttackEffectTag);
         }
     }
 

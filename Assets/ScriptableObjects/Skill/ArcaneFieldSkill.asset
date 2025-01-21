@@ -24,8 +24,7 @@ MonoBehaviour:
   duration: 3
   skillVFXPrefab: {fileID: 0}
   fieldEffectPrefab: {fileID: 926762040787327029, guid: bb7f19d33fefe14408ec775a2d8506f8, type: 3}
-  skillRangeVFXPrefab: {fileID: 4360018886635934139, guid: fa3175149c04e4e42aec56b55c84b046, type: 3}
-  rangeEffectColor: {r: 0.46163654, g: 0.0040494935, b: 0.8584906, a: 1}
+  skillRangeVFXPrefab: {fileID: 4360018886635934139, guid: 9ff6fcecb6f1c76469c6c95092aaeb21, type: 3}
   skillRangeOffset:
   - {x: -2, y: 0}
   - {x: -1, y: -1}

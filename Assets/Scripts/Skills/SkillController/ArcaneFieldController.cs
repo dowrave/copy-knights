@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
+// 실제 ArcaneField에 들어오고 나가는 처리를 담당. VFX는 여기서 처리하지 않음.
 public class ArcaneFieldController : MonoBehaviour, IEffectController
 {
     private Operator caster;

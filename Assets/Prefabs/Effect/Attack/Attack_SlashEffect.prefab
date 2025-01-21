@@ -11,6 +11,7 @@ GameObject:
   - component: {fileID: 8359653587410256888}
   - component: {fileID: 8082164910910942525}
   - component: {fileID: 4445296492210126486}
+  - component: {fileID: 2305665913449246801}
   m_Layer: 0
   m_Name: Attack_SlashEffect
   m_TagString: Untagged
@@ -111,3 +112,15 @@ VFXRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
+--- !u!114 &2305665913449246801
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2667795462971242445}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b7d2569bcf045ad4a9b4f6b572e4c677, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 

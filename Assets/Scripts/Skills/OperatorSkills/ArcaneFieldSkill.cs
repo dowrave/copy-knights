@@ -17,6 +17,7 @@ namespace Skills.OperatorSkills
         {
             mainTarget = op.CurrentTarget as Enemy;
             if (mainTarget == null) return; // 타겟이 없을 때는 스킬 취소
+
             base.Activate(op);
         }
 

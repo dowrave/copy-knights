@@ -11,6 +11,7 @@ GameObject:
   - component: {fileID: 1186828191675097276}
   - component: {fileID: 191353841674489992}
   - component: {fileID: 5507385005785891594}
+  - component: {fileID: -4733527752722729918}
   m_Layer: 0
   m_Name: GetHit_EnemyAttackEffect
   m_TagString: Untagged
@@ -146,3 +147,15 @@ VFXRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
+--- !u!114 &-4733527752722729918
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8008928503674968961}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b7d2569bcf045ad4a9b4f6b572e4c677, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 

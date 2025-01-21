@@ -163,6 +163,7 @@
     <Compile Include="Assets\Scripts\UI\Panels\OperatorDetailPanel.cs" />
     <Compile Include="Assets\Scripts\UI\Panels\NotificationPanel.cs" />
     <Compile Include="Assets\Scripts\Data\MapDeployableData.cs" />
+    <Compile Include="Assets\Scripts\Skills\Effects\CombatVFXController.cs" />
     <Compile Include="Assets\Scripts\Core\Managers\StageManager.cs" />
     <Compile Include="Assets\Scripts\Core\Systems\DirectionSystem.cs" />
     <Compile Include="Assets\Scripts\Data\ItemData.cs" />

@@ -10,7 +10,6 @@ namespace Skills.Base
         [Header("AreaEffectSkill References")]
         [SerializeField] protected GameObject fieldEffectPrefab; // 실질적인 효과 프리팹
         [SerializeField] protected GameObject skillRangeVFXPrefab; // 시각 효과 프리팹
-        [SerializeField] protected Color rangeEffectColor;
         [SerializeField] protected List<Vector2Int> skillRangeOffset;
         [SerializeField] protected string EFFECT_TAG;
 
@@ -74,7 +73,7 @@ namespace Skills.Base
                     TrackEffect(op, vfxObj);
 
                     var rangeEffect = vfxObj.GetComponent<SkillRangeVFXController>();
-                    rangeEffect.Initialize(pos, actualSkillRange, rangeEffectColor, duration, EFFECT_TAG);
+                    rangeEffect.Initialize(pos, actualSkillRange, duration, EFFECT_TAG);
                 }
             }
         }

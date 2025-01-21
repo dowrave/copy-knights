@@ -1,10 +1,8 @@
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using UnityEditor.PackageManager;
 using UnityEngine;
-using UnityEngine.VFX;
 using static ICombatEntity;
-
 
 // Operator, Enemy, Barricade 등의 타일 위의 유닛들과 관련된 엔티티
 public abstract class UnitEntity : MonoBehaviour, ITargettable, IFactionMember
@@ -175,7 +173,7 @@ public abstract class UnitEntity : MonoBehaviour, ITargettable, IFactionMember
         }
         else
         {
-            Debug.LogError("이펙트를 발견하지 못함");
+            Debug.LogError("이펙트 없음");
             return;
         }
 
@@ -186,52 +184,10 @@ public abstract class UnitEntity : MonoBehaviour, ITargettable, IFactionMember
             // 풀에서 이펙트 오브젝트 가져오기
             string effectTag = attackerName + hitEffectPrefab.name;
             GameObject hitEffect = ObjectPoolManager.Instance.SpawnFromPool(effectTag, effectPosition, Quaternion.identity);
-             
-            // VFX 컴포넌트 재생
-            if (hitEffect != null)
-            {
-                VisualEffect vfx = hitEffect.GetComponent<VisualEffect>();
-                float effectLifetime = 1f;
-            
-                if (vfx != null)
-                {
-                    // 방향 프로퍼티가 노출된 이펙트는 방향을 계산
-                    if (vfx.HasVector3("AttackDirection"))
-                    {
-                        Vector3 attackDirection = (transform.position - attackSource.Position).normalized;
-                        vfx.SetVector3("AttackDirection", attackDirection);
-                    }
-
-                    if (vfx.HasFloat("LifeTime"))
-                    {
-                        int lifeTimeID = Shader.PropertyToID("Lifetime");
-                        effectLifetime = vfx.GetFloat(lifeTimeID);
-                    }
-
-                    vfx.Play();
-                }
-
-                StartCoroutine(ReturnEffectToPool(effectTag, hitEffect, effectLifetime));
-            }
+            CombatVFXController hitVFXController = hitEffect.GetComponent<CombatVFXController>();
+            hitVFXController.Initialize(attackSource, this, effectTag);
         }
     }
-
-    protected IEnumerator ReturnEffectToPool(string tag, GameObject effect, float lifeTime = 1f)
-    {
-        yield return new WaitForSeconds(lifeTime); // 이펙트가 나타날 시간을 줌
-
-        if (effect != null)
-        {
-            Debug.Log("effect는 null이 아님");
-            ObjectPoolManager.Instance.ReturnToPool(tag, effect);
-        }
-        else
-        {
-            // 일단 억지로 이펙트 뿌수는 로직을 넣어둠
-            Destroy(effect);
-        }
-    }
-
 
     public virtual void AddCrowdControl(CrowdControl newCC)
     {

@@ -248,7 +248,7 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable,
     {
         AttackSource attackSource = new AttackSource(transform.position, false);
 
-        PlayMeleeAttackEffect(target);
+        PlayMeleeAttackEffect(target, attackSource);
 
         target.TakeDamage(this, attackSource, damage);
         if (showDamagePopup)
@@ -690,7 +690,7 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable,
         CurrentSkill.InitializeSkillObjectPool();
     }
 
-    private void PlayMeleeAttackEffect(UnitEntity target)
+    private void PlayMeleeAttackEffect(UnitEntity target, AttackSource attackSource)
     {
         // 이펙트 처리
         if (BaseData.meleeAttackEffectPrefab != null)
@@ -701,19 +701,8 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable,
                    Quaternion.identity
            );
             VisualEffect vfx = effectObj.GetComponent<VisualEffect>();
-
-            // 방향이 있다면 방향 계산
-            if (vfx != null && vfx.HasVector3("BaseDirection"))
-            {
-                Vector3 baseDirection = vfx.GetVector3("BaseDirection");
-                Vector3 attackDirection = (target.transform.position - transform.position).normalized;
-                Quaternion rotation = Quaternion.FromToRotation(baseDirection, attackDirection);
-                effectObj.transform.rotation = rotation;
-
-                vfx.Play();
-            }
-
-            StartCoroutine(ReturnEffectToPool(meleeAttackEffectTag, effectObj, 1f));
+            CombatVFXController combatVFXController = effectObj.GetComponent<CombatVFXController>();
+            combatVFXController.Initialize(attackSource, target, meleeAttackEffectTag);
         }
     }
 

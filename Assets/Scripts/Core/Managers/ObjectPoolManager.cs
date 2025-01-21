@@ -100,7 +100,7 @@ public class ObjectPoolManager : MonoBehaviour
     }
 
 
-    // 풀에서 가져온 오브젝트를 설정합니다.
+    // 오브젝트 활성화 및 생성
     private GameObject SetupPooledObject(GameObject obj, string tag, Vector3 position, Quaternion rotation)
     {
         obj.SetActive(true);
@@ -131,7 +131,6 @@ public class ObjectPoolManager : MonoBehaviour
         }
         else
         {
-            Debug.Log("돌아간 풀이 사라진 상태");
             // 풀이 없어진 경우, 활성화된 오브젝트 제거
             Destroy(obj);
         }
