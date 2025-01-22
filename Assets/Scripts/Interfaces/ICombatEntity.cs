@@ -1,6 +1,7 @@
 // 전투 관련 기능을 가진 엔티티를 위한 인터페이스
 //using System.Numerics;
 using UnityEngine;
+using UnityEngine.UIElements;
 
 public interface ICombatEntity
 {
@@ -28,15 +29,20 @@ public interface ICombatEntity
     {
         public Vector3 Position { get; }
         public bool IsProjectile { get; }
+        public GameObject? HitEffectPrefab { get; } // 공격 적중 시 발생할 이펙트
 
-        public AttackSource(Vector3 position, bool isProjectile)
+        public AttackSource(Vector3 position, bool isProjectile, GameObject? hitEffectPrefab)
         {
             Position = position;
             IsProjectile = isProjectile;
+            HitEffectPrefab = hitEffectPrefab; 
         }
 
-        public static AttackSource FromMelee(Vector3 position) => new AttackSource(position, false);
-        public static AttackSource FromRanged(Vector3 position) => new AttackSource(position, true);
+        public static AttackSource FromMelee(Vector3 position, GameObject? hitEffectPrefab) 
+            => new AttackSource(position, false, hitEffectPrefab);
+
+        public static AttackSource FromRanged(Vector3 position, GameObject? hitEffectPrefab = null)
+            => new AttackSource(position, true, hitEffectPrefab);
     }
 
 }

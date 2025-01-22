@@ -184,8 +184,11 @@ public abstract class UnitEntity : MonoBehaviour, ITargettable, IFactionMember
             // 풀에서 이펙트 오브젝트 가져오기
             string effectTag = attackerName + hitEffectPrefab.name;
             GameObject hitEffect = ObjectPoolManager.Instance.SpawnFromPool(effectTag, effectPosition, Quaternion.identity);
-            CombatVFXController hitVFXController = hitEffect.GetComponent<CombatVFXController>();
-            hitVFXController.Initialize(attackSource, this, effectTag);
+            if (hitEffect != null)
+            {
+                CombatVFXController hitVFXController = hitEffect.GetComponent<CombatVFXController>();
+                hitVFXController.Initialize(attackSource, this, effectTag);
+            }
         }
     }
 

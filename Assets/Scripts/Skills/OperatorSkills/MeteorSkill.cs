@@ -49,7 +49,7 @@ namespace Skills.Base
             float actualDamage = op.AttackPower * damageMultiplier;
 
             MeteorController controller = meteorObj.GetComponent<MeteorController>();
-            controller.Initialize(op, target, actualDamage, delayTime, stunDuration);
+            controller.Initialize(op, target, actualDamage, delayTime, stunDuration, hitEffectPrefab);
         }
 
         protected override Vector2Int GetCenterPos(Operator op)

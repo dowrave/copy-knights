@@ -546,7 +546,6 @@ public class DeployableManager : MonoBehaviour
     // 배치된 요소가 제거되었을 때 동작함
     public void OnDeployableRemoved(DeployableUnitEntity deployable)
     {
-        Debug.Log($"{deployable} 제거됨");
         deployedItems.Remove(deployable);
         UIManager.Instance.HideDeployableInfo();
         HideUIs();

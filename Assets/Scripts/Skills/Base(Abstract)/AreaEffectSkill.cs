@@ -13,12 +13,18 @@ namespace Skills.Base
         [SerializeField] protected List<Vector2Int> skillRangeOffset;
         [SerializeField] protected string EFFECT_TAG;
 
-        protected Enemy mainTarget;
+        protected UnitEntity mainTarget;
         protected HashSet<Vector2Int> actualSkillRange = new HashSet<Vector2Int>();
         protected HashSet<Tile> actualSkillRangeTiles = new HashSet<Tile>();
 
-
+        protected GameObject hitEffectPrefab;
         private Dictionary<Operator, List<GameObject>> activeEffects = new Dictionary<Operator, List<GameObject>>();
+
+        protected override void OnSkillStart(Operator op)
+        {
+            base.OnSkillStart(op);
+            hitEffectPrefab = op.BaseData.HitEffectPrefab ?? null;
+        }
 
         protected override void SetDefaults()
         {

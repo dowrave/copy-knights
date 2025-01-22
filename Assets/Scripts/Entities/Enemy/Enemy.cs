@@ -324,7 +324,7 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity, ICrowdControlTarget
     private void PerformMeleeAttack(UnitEntity target, float damage)
     {
         SetAttackTimings(); // 이걸 따로 호출하는 경우가 있어서 여기서 다시 설정
-        AttackSource attackSource = new AttackSource(transform.position, false);
+        AttackSource attackSource = new AttackSource(transform.position, false, BaseData.HitEffectPrefab);
 
         PlayMeleeAttackEffect(target, attackSource);
 

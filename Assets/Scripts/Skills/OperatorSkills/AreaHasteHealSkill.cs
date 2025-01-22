@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using UnityEngine;
 namespace Skills.Base
 {
+    [CreateAssetMenu(fileName = "New Area Haste Heal Skill", menuName = "Skills/Area Haste Heal Skill")]
+
     public class AreaHasteHealSkill : AreaEffectSkill
     {
         [Header("Skill Settings")]
@@ -17,7 +19,7 @@ namespace Skills.Base
             if (controller != null)
             {
                 float actualHealPerTick = op.AttackPower * healPerTickRatio;
-                controller.Initialize(op, centerPos, actualSkillRange, duration, actualHealPerTick, healInterval);
+                controller.Initialize(op, centerPos, actualSkillRange, duration, actualHealPerTick, healInterval, hitEffectPrefab);
             }
 
             return fieldObj;
@@ -26,8 +28,7 @@ namespace Skills.Base
 
         protected override Vector2Int GetCenterPos(Operator op)
         {
-            // mainTarget을 중심으로 시전되므로
-            return MapManager.Instance.ConvertToGridPosition(mainTarget.transform.position);
+            return MapManager.Instance.ConvertToGridPosition(op.transform.position);
         }
     }
 }

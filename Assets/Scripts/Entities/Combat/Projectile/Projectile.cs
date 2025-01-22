@@ -13,6 +13,7 @@ public class Projectile : MonoBehaviour
     private UnitEntity target;
     private Vector3 lastKnownPosition; // 마지막으로 알려진 적의 위치
     private string poolTag;
+    private GameObject hitEffectPrefab;
     public string PoolTag { get; private set; }
     private bool shouldDestroy;
 
@@ -40,6 +41,7 @@ public class Projectile : MonoBehaviour
         lastKnownPosition = target.transform.position;
         shouldDestroy = false;
 
+        this.hitEffectPrefab = hitEffectPrefab;
         target.OnDestroyed += OnTargetDestroyed;
         attacker.OnDestroyed += OnAttackerDestroyed;
 
@@ -157,7 +159,7 @@ public class Projectile : MonoBehaviour
         // 타겟이 살아있는 경우
         if (target != null)
         {
-            AttackSource attackSource = new AttackSource(transform.position, true);
+            AttackSource attackSource = new AttackSource(transform.position, true, hitEffectPrefab);
 
             if (isHealing)
             {

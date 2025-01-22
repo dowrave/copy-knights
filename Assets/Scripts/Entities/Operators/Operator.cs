@@ -246,7 +246,7 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable,
 
     protected virtual void PerformMeleeAttack(UnitEntity target, float damage, bool showDamagePopup)
     {
-        AttackSource attackSource = new AttackSource(transform.position, false);
+        AttackSource attackSource = new AttackSource(transform.position, false, BaseData.HitEffectPrefab);
 
         PlayMeleeAttackEffect(target, attackSource);
 

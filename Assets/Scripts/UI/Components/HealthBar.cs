@@ -89,7 +89,6 @@ public class HealthBar : MonoBehaviour
         }
 
         // damageOverlay : 서서히 감소하는 체력 구현
-
         // 체력이 회복되거나 보호막이 깎이는 등, 게이지에서 체력의 비율이 올라가는 상황
         if (previousAmount < currentAmount || totalAmount != previousTotalAmount)
         {

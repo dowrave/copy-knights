@@ -8,7 +8,8 @@ public class SlashSkillController : MonoBehaviour
     private float lifetime;
     private Vector3 direction;
     private float damageMultiplier;
-    private List<Vector2Int> baseAttackRange; 
+    private List<Vector2Int> baseAttackRange;
+    private GameObject hitEffectPrefab; 
 
     // 파티클 시스템 관련
     [SerializeField] private ParticleSystem mainEffect;
@@ -22,13 +23,14 @@ public class SlashSkillController : MonoBehaviour
 
     private bool isInitialized = false;
 
-    public void Initialize(Operator op, Vector3 dir, float spd, float life, float dmgMult, List<Vector2Int> attackRange)
+    public void Initialize(Operator op, Vector3 dir, float spd, float life, float dmgMult, List<Vector2Int> attackRange, GameObject hitEffectPrefab)
     {
         attacker = op;
         lifetime = life;
         damageMultiplier = dmgMult;
         direction = dir;
         baseAttackRange = attackRange;
+        this.hitEffectPrefab = hitEffectPrefab;
 
         InitializeParticleSystem();
         SetRotationByDirection();
@@ -111,7 +113,7 @@ public class SlashSkillController : MonoBehaviour
                     damagedEnemies.Add(enemy);
 
                     float damage = attacker.AttackPower * damageMultiplier;
-                    ICombatEntity.AttackSource attackSource = new ICombatEntity.AttackSource(particleWorldPos, true);
+                    ICombatEntity.AttackSource attackSource = new ICombatEntity.AttackSource(particleWorldPos, true, hitEffectPrefab);
 
                     enemy.TakeDamage(attacker, attackSource, damage);
                 }

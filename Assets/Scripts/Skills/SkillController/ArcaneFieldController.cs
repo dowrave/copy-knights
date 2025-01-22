@@ -8,10 +8,6 @@ public class ArcaneFieldController : FieldEffectController
 {
     private float slowAmount;
 
-    private float lastDamageTime = 0f;
-
-    private Dictionary<Enemy, SlowEffect> affectedEnemies = new Dictionary<Enemy, SlowEffect>();
-
     public virtual void Initialize(
         Operator caster,
         Vector2Int centerPosition,
@@ -19,42 +15,30 @@ public class ArcaneFieldController : FieldEffectController
         float fieldDuration,
         float amountPerTick,
         float amountInterval,
+        GameObject hitEffectPrefab,
         float slowAmount
         )
     {
-        base.Initialize(caster, centerPosition, affectedTiles, fieldDuration, amountPerTick, amountInterval);
-
+        base.Initialize(caster, centerPosition, affectedTiles, fieldDuration, amountPerTick, amountInterval, hitEffectPrefab);
         this.slowAmount = slowAmount;
     }
 
-    protected override void Update()
+    protected override void CheckTargetsInField()
     {
-        base.Update();
-
-        CheckForEnemies();
-
-        if (Time.time >= lastDamageTime + interval)
+        // 필드를 벗어난 적 처리
+        foreach (var target in affectedTargets.Keys.ToList())
         {
-            ApplyDamageToEnemies();
-        }
-    }
-
-    private void CheckForEnemies()
-    {
-        // 장판을 벗어난 적 효과 해제 및 제거
-        foreach (Enemy enemy in affectedEnemies.Keys.ToList())
-        {
-            if (enemy == null || !IsEnemyInField(enemy))
+            if (!IsTargetInField(target))
             {
-                if (affectedEnemies.TryGetValue(enemy, out SlowEffect effect))
+                foreach (var effect in affectedTargets[target])
                 {
-                    enemy.RemoveCrowdControl(effect);
-                    affectedEnemies.Remove(enemy);
+                    target.RemoveCrowdControl(effect);
                 }
+                affectedTargets.Remove(target);
             }
         }
 
-        // 새로 장판에 진입한 적 추가
+        // 새로 진입한 적 처리
         foreach (Vector2Int tilePos in affectedTiles)
         {
             Tile tile = MapManager.Instance.GetTile(tilePos.x, tilePos.y);
@@ -62,56 +46,37 @@ public class ArcaneFieldController : FieldEffectController
             {
                 foreach (Enemy enemy in tile.GetEnemiesOnTile())
                 {
-                    if (!affectedEnemies.ContainsKey(enemy))
+                    if (!affectedTargets.ContainsKey(enemy))
                     {
-                        ApplyEffectsToEnemy(enemy);
+                        ApplyInitialEffect(enemy);
                     }
                 }
             }
         }
     }
 
-    private bool IsEnemyInField(Enemy enemy)
+    protected override void ApplyInitialEffect(UnitEntity target)
     {
-        if (enemy == null) return false;
-
-        Vector2Int enemyPos = MapManager.Instance.ConvertToGridPosition(enemy.transform.position);
-        return affectedTiles.Contains(enemyPos);
-    }
-
-    private void ApplyEffectsToEnemy(Enemy enemy)
-    {
-        var slowEffect = new SlowEffect();
-        slowEffect.Initialize(enemy, caster, fieldDuration - elapsedTime, slowAmount);
-        enemy.AddCrowdControl(slowEffect);
-
-        affectedEnemies[enemy] = slowEffect;
-    }
-
-    private void ApplyDamageToEnemies()
-    {
-        foreach (Enemy enemy in affectedEnemies.Keys)
+        if (target is Enemy enemy)
         {
-            if (enemy != null)
+            var slowEffect = new SlowEffect();
+            slowEffect.Initialize(enemy, caster, fieldDuration - elapsedTime, slowAmount);
+            enemy.AddCrowdControl(slowEffect);
+
+            affectedTargets[enemy] = new List<CrowdControl> { slowEffect };
+        }
+    }
+
+    protected override void ApplyPeriodicEffect()
+    {
+        foreach (var target in affectedTargets.Keys)
+        {
+            if (target != null && target is Enemy enemy)
             {
-                ICombatEntity.AttackSource attackSource = new ICombatEntity.AttackSource(transform.position, true);
+                ICombatEntity.AttackSource attackSource =
+                    new ICombatEntity.AttackSource(transform.position, true, hitEffectPrefab);
                 enemy.TakeDamage(caster, attackSource, amountPerTick);
             }
         }
-
-        lastDamageTime = Time.time;
-    }
-
-    protected override void StopAndDestroyEffects()
-    {
-        foreach (var pair in affectedEnemies)
-        {
-            if (pair.Key != null)
-            {
-                pair.Key.RemoveCrowdControl(pair.Value);
-            }
-        }
-        affectedEnemies.Clear();
-        base.StopAndDestroyEffects();
     }
 }
