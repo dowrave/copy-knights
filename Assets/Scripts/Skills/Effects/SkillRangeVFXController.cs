@@ -5,7 +5,7 @@ using UnityEngine.UI;
 
 
 // 스킬 범위의 시각적 효과를 관리
-public class SkillRangeVFXController : MonoBehaviour, IPooledObject, IEffectController
+public class SkillRangeVFXController : MonoBehaviour, IPooledObject
 {
     [Header("Effect Reference")]
     [SerializeField] private ParticleSystem topEffect;

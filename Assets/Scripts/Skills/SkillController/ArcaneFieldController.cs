@@ -4,46 +4,36 @@ using System.Linq;
 using UnityEngine;
 
 // 실제 ArcaneField에 들어오고 나가는 처리를 담당. VFX는 여기서 처리하지 않음.
-public class ArcaneFieldController : MonoBehaviour, IEffectController
+public class ArcaneFieldController : FieldEffectController
 {
-    private Operator caster;
-    private Vector2Int centerPosition;
-    private HashSet<Vector2Int> affectedTiles;
-    private float damagePerTick;
     private float slowAmount;
-    private float fieldDuration; // 필드 지속 시간
-    private float damageInterval; 
 
-    private float elapsedTime = 0f;
     private float lastDamageTime = 0f;
 
     private Dictionary<Enemy, SlowEffect> affectedEnemies = new Dictionary<Enemy, SlowEffect>();
 
-    public void Initialize(Operator op, Vector2Int center, HashSet<Vector2Int> affectedTiles, float damagePerTick, float slow, float fieldDuration, float damageInterval)
+    public virtual void Initialize(
+        Operator caster,
+        Vector2Int centerPosition,
+        HashSet<Vector2Int> affectedTiles,
+        float fieldDuration,
+        float amountPerTick,
+        float amountInterval,
+        float slowAmount
+        )
     {
-        caster = op;
-        centerPosition = center;
-        this.affectedTiles = affectedTiles;
-        this.damagePerTick = damagePerTick;
-        slowAmount = slow;
-        this.fieldDuration = fieldDuration;
-        this.damageInterval = damageInterval;
+        base.Initialize(caster, centerPosition, affectedTiles, fieldDuration, amountPerTick, amountInterval);
 
-        CheckForEnemies();
+        this.slowAmount = slowAmount;
     }
 
-    private void Update()
+    protected override void Update()
     {
-        if (elapsedTime >= fieldDuration)
-        {
-            StopAndDestroyEffects();
-        }
-
-        elapsedTime += Time.deltaTime;
+        base.Update();
 
         CheckForEnemies();
 
-        if (Time.time >= lastDamageTime + damageInterval)
+        if (Time.time >= lastDamageTime + interval)
         {
             ApplyDamageToEnemies();
         }
@@ -105,14 +95,14 @@ public class ArcaneFieldController : MonoBehaviour, IEffectController
             if (enemy != null)
             {
                 ICombatEntity.AttackSource attackSource = new ICombatEntity.AttackSource(transform.position, true);
-                enemy.TakeDamage(caster, attackSource, damagePerTick);
+                enemy.TakeDamage(caster, attackSource, amountPerTick);
             }
         }
 
         lastDamageTime = Time.time;
     }
 
-    private void StopAndDestroyEffects()
+    protected override void StopAndDestroyEffects()
     {
         foreach (var pair in affectedEnemies)
         {
@@ -122,12 +112,6 @@ public class ArcaneFieldController : MonoBehaviour, IEffectController
             }
         }
         affectedEnemies.Clear();
-        Destroy(gameObject);
-    }
-
-    public void ForceRemove()
-    {
-        StopAndDestroyEffects();
-
+        base.StopAndDestroyEffects();
     }
 }

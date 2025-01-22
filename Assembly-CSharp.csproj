@@ -72,10 +72,12 @@
     <Compile Include="Assets\Scripts\Interfaces\IFactionMember.cs" />
     <Compile Include="Assets\Scripts\Core\Managers\PlayerDataManager.cs" />
     <Compile Include="Assets\Scripts\UI\Panels\StageLoadingScreen.cs" />
+    <Compile Include="Assets\Scripts\Skills\OperatorSkills\AreaHasteHealSkill.cs" />
     <Compile Include="Assets\Scripts\Skills\OperatorSkills\ArcaneFieldSkill.cs" />
     <Compile Include="Assets\Scripts\UI\Panels\OperatorPromotionPanel.cs" />
     <Compile Include="Assets\Scripts\Interfaces\ICombatData.cs" />
     <Compile Include="Assets\Scripts\Interfaces\IDeployable.cs" />
+    <Compile Include="Assets\Scripts\Skills\SkillController\FieldEffectController.cs" />
     <Compile Include="Assets\Scripts\UI\Panels\ItemInfoPopup.cs" />
     <Compile Include="Assets\Scripts\Core\Managers\StatisticsManager.cs" />
     <Compile Include="Assets\Scripts\Data\OperatorIconData.cs" />
@@ -151,7 +153,6 @@
     <Compile Include="Assets\Scripts\UI\Components\MaskedDiamondOverlay.cs" />
     <Compile Include="Assets\Scripts\CC\Types\StunEffect.cs" />
     <Compile Include="Assets\Scripts\Data\DeployableUnitData.cs" />
-    <Compile Include="Assets\Scripts\Interfaces\IEffectController.cs" />
     <Compile Include="Assets\Scripts\Interfaces\IRotatable.cs" />
     <Compile Include="Assets\Scripts\Core\Managers\DeployableManager.cs" />
     <Compile Include="Assets\Scripts\Skills\OperatorSkills\CostRecoverySkill.cs" />
@@ -164,6 +165,7 @@
     <Compile Include="Assets\Scripts\UI\Panels\NotificationPanel.cs" />
     <Compile Include="Assets\Scripts\Data\MapDeployableData.cs" />
     <Compile Include="Assets\Scripts\Skills\Effects\CombatVFXController.cs" />
+    <Compile Include="Assets\Scripts\Skills\SkillController\AreaHasteHealController.cs" />
     <Compile Include="Assets\Scripts\Core\Managers\StageManager.cs" />
     <Compile Include="Assets\Scripts\Core\Systems\DirectionSystem.cs" />
     <Compile Include="Assets\Scripts\Data\ItemData.cs" />

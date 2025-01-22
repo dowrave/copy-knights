@@ -15,6 +15,8 @@ namespace Skills.Base
 
         protected Enemy mainTarget;
         protected HashSet<Vector2Int> actualSkillRange = new HashSet<Vector2Int>();
+        protected HashSet<Tile> actualSkillRangeTiles = new HashSet<Tile>();
+
 
         private Dictionary<Operator, List<GameObject>> activeEffects = new Dictionary<Operator, List<GameObject>>();
 
@@ -97,7 +99,7 @@ namespace Skills.Base
                 {
                     if (effect != null)
                     {
-                        var controller = effect.GetComponent<IEffectController>();
+                        var controller = effect.GetComponent<FieldEffectController>();
                         if (controller != null)
                         {
                             controller.ForceRemove();
@@ -130,7 +132,7 @@ namespace Skills.Base
                 {
                     if (effect == null) continue;
 
-                    var controller = effect.GetComponent<IEffectController>();
+                    var controller = effect.GetComponent<FieldEffectController>();
                     if (controller != null)
                     {
                         controller.ForceRemove();
