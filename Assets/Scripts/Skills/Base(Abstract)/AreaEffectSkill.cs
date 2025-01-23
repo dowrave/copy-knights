@@ -61,7 +61,8 @@ namespace Skills.Base
         {
             foreach (Vector2Int offset in skillRangeOffset)
             {
-                actualSkillRange.Add(center + offset);
+                Vector2Int rotatedOffset = DirectionSystem.RotateGridOffset(offset, caster.FacingDirection);
+                actualSkillRange.Add(center + rotatedOffset);
             }
         }
 

@@ -14,7 +14,8 @@ public abstract class FieldEffectController : MonoBehaviour
     protected float elapsedTime = 0f; // 경과 시간
     protected float lastTickTime = 0f; // 마지막 효과 적용 시간
 
-    protected GameObject? hitEffectPrefab; 
+    protected GameObject? hitEffectPrefab;
+    protected SkillRangeVFXController rangeVFXController;
 
     // 영향받은 대상 딕셔너리
     protected Dictionary<UnitEntity, List<CrowdControl>> affectedTargets = new Dictionary<UnitEntity, List<CrowdControl>>();

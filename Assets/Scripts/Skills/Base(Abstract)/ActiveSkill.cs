@@ -18,6 +18,8 @@ namespace Skills.Base
 
         public override void Activate(Operator op)
         {
+            caster = op;
+
             // 스킬 사용 가능 여부 체크
             if (!op.IsDeployed || !op.CanUseSkill()) return;
 

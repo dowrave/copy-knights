@@ -80,11 +80,12 @@
     <Compile Include="Assets\Scripts\Skills\SkillController\FieldEffectController.cs" />
     <Compile Include="Assets\Scripts\UI\Panels\ItemInfoPopup.cs" />
     <Compile Include="Assets\Scripts\Core\Managers\StatisticsManager.cs" />
+    <Compile Include="Assets\Scripts\Skills\VFXController\SkillRangeVFXController.cs" />
     <Compile Include="Assets\Scripts\Data\OperatorIconData.cs" />
     <Compile Include="Assets\Scripts\Utils\OperatorIconHelper.cs" />
+    <Compile Include="Assets\Scripts\Skills\VFXController\CombatVFXController.cs" />
     <Compile Include="Assets\Scripts\UI\Components\DiamondOutline.cs" />
     <Compile Include="Assets\Scripts\UI\Panels\OperatorLevelUpPanel.cs" />
-    <Compile Include="Assets\Scripts\Skills\Effects\CostParticleMotion.cs" />
     <Compile Include="Assets\Scripts\Core\Managers\CameraManager.cs" />
     <Compile Include="Assets\Scripts\Entities\Base\DeployableUnitEntity.cs" />
     <Compile Include="Assets\Scripts\Utils\ClickDetectionSystem.cs" />
@@ -92,7 +93,6 @@
     <Compile Include="Assets\Scripts\Skills\OperatorSkills\StatModifierSkill.cs" />
     <Compile Include="Assets\Scripts\Interfaces\IMovable.cs" />
     <Compile Include="Assets\Scripts\Core\Managers\MainMenuManager.cs" />
-    <Compile Include="Assets\Scripts\Skills\Effects\SkillRangeVFXController.cs" />
     <Compile Include="Assets\Scripts\UI\Panels\StageSelectPanel.cs" />
     <Compile Include="Assets\Scripts\Skills\SkillController\MeteorController.cs" />
     <Compile Include="Assets\Scripts\UI\Panels\InfoPanel.cs" />
@@ -164,9 +164,9 @@
     <Compile Include="Assets\Scripts\UI\Panels\OperatorDetailPanel.cs" />
     <Compile Include="Assets\Scripts\UI\Panels\NotificationPanel.cs" />
     <Compile Include="Assets\Scripts\Data\MapDeployableData.cs" />
-    <Compile Include="Assets\Scripts\Skills\Effects\CombatVFXController.cs" />
     <Compile Include="Assets\Scripts\Skills\SkillController\AreaHasteHealController.cs" />
     <Compile Include="Assets\Scripts\Core\Managers\StageManager.cs" />
+    <Compile Include="Assets\Scripts\Skills\VFXController\CostParticleMotion.cs" />
     <Compile Include="Assets\Scripts\Core\Systems\DirectionSystem.cs" />
     <Compile Include="Assets\Scripts\Data\ItemData.cs" />
     <Compile Include="Assets\Scripts\Core\Managers\PathfindingManager.cs" />

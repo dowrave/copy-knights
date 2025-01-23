@@ -8,20 +8,20 @@ using UnityEngine.UI;
 public class SkillRangeVFXController : MonoBehaviour, IPooledObject
 {
     [Header("Effect Reference")]
-    [SerializeField] private ParticleSystem topEffect;
-    [SerializeField] private ParticleSystem bottomEffect;
-    [SerializeField] private ParticleSystem leftEffect;
-    [SerializeField] private ParticleSystem rightEffect;
-    [SerializeField] private Image topBoundary;
-    [SerializeField] private Image bottomBoundary;
-    [SerializeField] private Image leftBoundary;
-    [SerializeField] private Image rightBoundary;
-    [SerializeField] private Image floorImage;
+    [SerializeField] protected ParticleSystem topEffect;
+    [SerializeField] protected ParticleSystem bottomEffect;
+    [SerializeField] protected ParticleSystem leftEffect;
+    [SerializeField] protected ParticleSystem rightEffect;
+    [SerializeField] protected Image topBoundary;
+    [SerializeField] protected Image bottomBoundary;
+    [SerializeField] protected Image leftBoundary;
+    [SerializeField] protected Image rightBoundary;
+    [SerializeField] protected Image floorImage;
 
-    private bool isInitialized = false;
-    private float fieldDuration;
-    private Dictionary<Vector2Int, (ParticleSystem effect, Image boundary)> directionEffects;
-    private readonly Vector2Int[] directions = new[]
+    protected bool isInitialized = false;
+    protected float fieldDuration;
+    protected Dictionary<Vector2Int, (ParticleSystem effect, Image boundary)> directionEffects;
+    protected readonly Vector2Int[] directions = new[] 
     {
         // 그리드 좌표는 좌측 상단이 (0, 0)이므로 Y좌표는 특히 이렇게 정의함
         Vector2Int.down,
