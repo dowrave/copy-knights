@@ -16,14 +16,15 @@ public class OwnedOperator
     // 런타임에만 존재하는 계산된 필드들
     [System.NonSerialized] private OperatorStats currentStats;
     [System.NonSerialized] private List<Vector2Int> currentAttackableTiles;
-    [System.NonSerialized] private BaseSkill selectedSkill;
+    [System.NonSerialized] private BaseSkill defaultSelectedSkill;
     [System.NonSerialized] private List<BaseSkill> unlockedSkills = new List<BaseSkill>();
     [System.NonSerialized] private OperatorData baseData;
+    [System.NonSerialized] private BaseSkill stageSelectedSkill;
 
     // 읽기 전용 프로퍼티
     public OperatorStats CurrentStats => currentStats;
     public List<BaseSkill> UnlockedSkills => unlockedSkills;
-    public BaseSkill SelectedSkill => selectedSkill;
+    public BaseSkill DefaultSelectedSkill => defaultSelectedSkill;
     public List<Vector2Int> CurrentAttackableTiles => currentAttackableTiles;
     public OperatorData BaseData
     {
@@ -37,6 +38,11 @@ public class OwnedOperator
             }
             return baseData;
         }
+    }
+    public BaseSkill StageSelectedSkill
+    {
+        get => stageSelectedSkill ?? defaultSelectedSkill;
+        set => stageSelectedSkill = value;
     }
 
     public bool CanLevelUp => OperatorGrowthSystem.CanLevelUp(currentPhase, currentLevel);
@@ -64,6 +70,11 @@ public class OwnedOperator
         InitializeSkills();
     }
 
+    public void SetDefaultSelectedSkills(BaseSkill skill)
+    {
+        defaultSelectedSkill = skill;
+    }
+
     private void InitializeAttackRange()
     {
         currentAttackableTiles = new List<Vector2Int>(BaseData.attackableTiles);
@@ -84,7 +95,7 @@ public class OwnedOperator
             unlockedSkills.Add(baseData.elite1Unlocks.unlockedSkill);
         }
 
-        selectedSkill = unlockedSkills[0];
+        defaultSelectedSkill = unlockedSkills[0];
     }
 
     public void LevelUP(int targetLevel, int remainingExp)

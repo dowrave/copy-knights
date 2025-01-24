@@ -156,7 +156,7 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable,
         CurrentAttackbleTiles = new List<Vector2Int>(ownedOp.CurrentAttackableTiles);
 
         // 스킬 설정
-        CurrentSkill = ownedOp.SelectedSkill;
+        CurrentSkill = ownedOp.StageSelectedSkill;
         CurrentSP = ownedOp.CurrentStats.StartSP;
         MaxSP = CurrentSkill?.SPCost ?? 0f;
 

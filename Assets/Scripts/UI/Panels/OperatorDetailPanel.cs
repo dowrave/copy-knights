@@ -42,6 +42,13 @@ public class OperatorDetailPanel : MonoBehaviour
     [SerializeField] private TextMeshProUGUI maxPromotionIndicator;
     [SerializeField] private TextMeshProUGUI canLevelUpIndicator;
 
+    [Header("Skills")]
+    [SerializeField] private Button skill1Button;
+    [SerializeField] private Image skill1SelectedIndicator;
+    [SerializeField] private Button skill2Button;
+    [SerializeField] private Image skill2SelectedIndicator;
+    [SerializeField] private TextMeshProUGUI skillDetailText;
+
     private OperatorData operatorData;
     private OwnedOperator currentOperator;
 
@@ -57,6 +64,9 @@ public class OperatorDetailPanel : MonoBehaviour
 
         levelUpButton.onClick.AddListener(OnLevelUpClicked);
         promoteButton.onClick.AddListener(OnPromoteClicked);
+
+        skill1Button.onClick.AddListener(() => OnSkillButtonClicked(0));
+        skill2Button.onClick.AddListener(() => OnSkillButtonClicked(1));
     }
 
 
@@ -94,6 +104,7 @@ public class OperatorDetailPanel : MonoBehaviour
         UpdateBasicInfo();
         UpdateStats();
         UpdateGrowthInfo();
+        UpdateSkillsUI();
         //UpdateButtonStates();
     }
 
@@ -118,21 +129,6 @@ public class OperatorDetailPanel : MonoBehaviour
 
         // 공격 범위 설정
         attackRangeHelper.ShowBasicRange(currentOperator.CurrentAttackableTiles);
-
-
-        // 스킬 아이콘 - 현재 선택된 스킬을 OperatorData에서 가져옴
-        // if (operatorData.skills.Count > 0)
-        //{ for (int i=0; i < operatorData.skills.Count; )
-        //    if (operatorData.)
-        //    {
-        //        skillIconImage.sprite = operatorData.skills[currentOperator.selectedSkillIndex].SkillIcon;
-        //        skillIconImage.enabled = true;
-        //    }
-        //    else
-        //    {
-        //        skillIconImage.enabled = false;
-        //    }
-        //}
     }
 
     private void UpdateStats()
@@ -149,18 +145,15 @@ public class OperatorDetailPanel : MonoBehaviour
         attackSpeedText.text = currentStats.AttackSpeed.ToString();
     }
 
-    /// <summary>
-    /// 현재 경험치, 현재 레벨, 정예화 상태 업데이트
-    /// </summary>
+    // 현재 경험치, 현재 레벨, 정예화 상태 업데이트
     private void UpdateGrowthInfo()
     {
         UpdateExpInfo();
         UpdatePromotionInfo();
     }
 
-    /// <summary>
-    /// 경험치, 레벨 관련 정보 업데이트
-    /// </summary>
+
+    // 경험치, 레벨 관련 정보 업데이트
     private void UpdateExpInfo()
     {
         int currentLevel = currentOperator.currentLevel;
@@ -240,6 +233,65 @@ public class OperatorDetailPanel : MonoBehaviour
             MainMenuManager.Instance.FadeInAndHide(promotionPanelObject, gameObject);
             OperatorPromotionPanel promotionPanel = promotionPanelObject.GetComponent<OperatorPromotionPanel>();
             promotionPanel.Initialize(currentOperator);
+        }
+    }
+
+    private void UpdateSkillsUI()
+    {
+        var unlockedSkills = currentOperator.UnlockedSkills;
+
+        skill1Button.GetComponent<Image>().sprite = unlockedSkills[0].skillIcon;
+        if (unlockedSkills.Count > 1)
+        {
+            skill2Button.GetComponent<Image>().sprite = unlockedSkills[1].skillIcon;
+        }
+        else
+        {
+            skill2Button.interactable = false;
+        }
+
+        UpdateSkillSelection();
+        UpdateSkillDescription();
+    }
+
+    private void OnSkillButtonClicked(int skillIndex)
+    {
+        if (currentOperator == null) return;
+
+        var skills = currentOperator.UnlockedSkills;
+        if (skillIndex < skills.Count)
+        {
+            // Set as default skill for this operator
+            currentOperator.SetDefaultSelectedSkills(skills[skillIndex]);
+            UpdateSkillSelection();
+            UpdateSkillDescription();
+        }
+    }
+
+    private void UpdateSkillSelection()
+    {
+        if (currentOperator == null) return;
+
+        // Update selection indicators
+        skill1SelectedIndicator.gameObject.SetActive(
+            currentOperator.DefaultSelectedSkill == currentOperator.UnlockedSkills[0]);
+
+        if (currentOperator.UnlockedSkills.Count > 1)
+        {
+            skill2SelectedIndicator.gameObject.SetActive(
+                currentOperator.DefaultSelectedSkill == currentOperator.UnlockedSkills[1]);
+        }
+    }
+
+    private void UpdateSkillDescription()
+    {
+        if (currentOperator?.DefaultSelectedSkill != null)
+        {
+            skillDetailText.text = currentOperator.DefaultSelectedSkill.description;
+        }
+        else
+        {
+            skillDetailText.text = "";
         }
     }
 }

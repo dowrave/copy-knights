@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
+using Skills.Base;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -31,10 +32,19 @@ public class OperatorInventoryPanel : MonoBehaviour
     [SerializeField] private TextMeshProUGUI magicResistanceText;
     [SerializeField] private TextMeshProUGUI attackSpeedText;
 
+    [Header("Skills")]
+    [SerializeField] private Button skill1Button;
+    [SerializeField] private Image skill1SelectedIndicator;
+    [SerializeField] private Button skill2Button;
+    [SerializeField] private Image skill2SelectedIndicator;
+    [SerializeField] private TextMeshProUGUI skillDetailText;
+
     // 화면 오른쪽에 나타나는 사용 가능한 오퍼레이터 리스트 -- 혼동 주의!!
     private List<OperatorSlot> operatorSlots = new List<OperatorSlot>();
     private OperatorSlot selectedSlot;
 
+    private BaseSkill selectedSkill;
+    private Sprite noSkillSprite;
 
     // UserSquadManager에서 현재 편집 중인 인덱스
     private int nowEditingIndex;  
@@ -45,8 +55,16 @@ public class OperatorInventoryPanel : MonoBehaviour
         setEmptyButton.onClick.AddListener(OnSetEmptyButtonClicked);
         detailButton.onClick.AddListener(OnDetailButtonClicked);
 
+        skill1Button.onClick.AddListener(() => OnSkillButtonClicked(0));
+        skill2Button.onClick.AddListener(() => OnSkillButtonClicked(1));
+
         confirmButton.interactable = false;
         detailButton.interactable = false;
+
+        skill1Button.interactable = true;
+        skill2Button.interactable = false;
+
+        noSkillSprite = skill1Button.GetComponent<Image>().sprite;
     }
 
     private void Start()
@@ -109,6 +127,9 @@ public class OperatorInventoryPanel : MonoBehaviour
         // 이전 선택 해제
         if (selectedSlot != null) { selectedSlot.SetSelected(false); }
 
+        // 기존 SideView에 할당된 요소 제거
+        ClearSideView();
+
         // 새로운 선택 처리
         selectedSlot = clickedSlot;
         UpdateSideView(clickedSlot);
@@ -121,6 +142,7 @@ public class OperatorInventoryPanel : MonoBehaviour
     {
         if (selectedSlot != null && selectedSlot.OwnedOperator != null)
         {
+            selectedSlot.OwnedOperator.StageSelectedSkill = selectedSkill;
             GameManagement.Instance.UserSquadManager.ConfirmOperatorSelection(selectedSlot.OwnedOperator);
             // 돌아가기
             ReturnToSquadEditPanel();
@@ -170,7 +192,6 @@ public class OperatorInventoryPanel : MonoBehaviour
     // 왼쪽 패널의 SideView에 나타나는 오퍼레이터와 관련된 정보를 업데이트한다.
     private void UpdateSideView(OperatorSlot slot)
     {
-
         OwnedOperator op = slot.OwnedOperator;
         OperatorStats opStats = op.CurrentStats;
         OperatorData opData = op.BaseData;
@@ -187,6 +208,9 @@ public class OperatorInventoryPanel : MonoBehaviour
 
         // 공격 범위 시각화
         attackRangeHelper.ShowBasicRange(op.CurrentAttackableTiles);
+
+        // 스킬 버튼 초기화 및 설정
+        UpdateSkillButtons(op);
     }
 
     private void ClearSideView()
@@ -205,12 +229,82 @@ public class OperatorInventoryPanel : MonoBehaviour
         magicResistanceText.text = "";
         blockCountText.text = "";
         attackSpeedText.text = "";
+
+        skill1Button.GetComponent<Image>().sprite = noSkillSprite;
+        skill2Button.GetComponent<Image>().sprite = noSkillSprite;
+        skill1SelectedIndicator.gameObject.SetActive(false);
+        skill2SelectedIndicator.gameObject.SetActive(false);
+        skillDetailText.text = "";
+
+        selectedSkill = null;
+    }
+
+    private void UpdateSkillButtons(OwnedOperator op)
+    {
+        var unlockedSkills = op.UnlockedSkills;
+        skill1Button.GetComponent<Image>().sprite = unlockedSkills[0].skillIcon;
+
+        // 디폴트 스킬 설정
+        if (selectedSkill == null)
+        {
+            selectedSkill = op.DefaultSelectedSkill;
+            UpdateSkillSelection();
+            UpdateSkillDescription();
+        }
+
+        // 1정예화라면 스킬이 2개일 것
+        if (unlockedSkills.Count > 1)
+        {
+            skill2Button.GetComponent<Image>().sprite = unlockedSkills[1].skillIcon;
+        }
+        else
+        {
+            skill2Button.interactable = false; 
+        }
+    }
+
+    private void OnSkillButtonClicked(int skillIndex)
+    {
+        if (selectedSlot?.OwnedOperator == null) return;
+
+        var skills = selectedSlot.OwnedOperator.UnlockedSkills;
+        if (skillIndex < skills.Count)
+        {
+            selectedSkill = skills[skillIndex];
+            UpdateSkillSelection();
+            UpdateSkillDescription();
+        }
+    }
+
+    private void UpdateSkillSelection()
+    {
+        if (selectedSlot?.OwnedOperator == null) return;
+
+        skill1SelectedIndicator.gameObject.SetActive(selectedSkill == selectedSlot.OwnedOperator.UnlockedSkills[0]);
+
+        if (selectedSlot.OwnedOperator.UnlockedSkills.Count > 1)
+        {
+            skill2SelectedIndicator.gameObject.SetActive(selectedSkill == selectedSlot.OwnedOperator.UnlockedSkills[1]);
+        }
+    }
+
+    private void UpdateSkillDescription()
+    {
+        if (selectedSkill != null)
+        {
+            skillDetailText.text = selectedSkill.description;
+        }
+        else
+        {
+            skillDetailText.text = "";
+        }
     }
 
     private void ReturnToSquadEditPanel()
     {
         MainMenuManager.Instance.ActivateAndFadeOut(MainMenuManager.Instance.PanelMap[MainMenuManager.MenuPanel.SquadEdit], gameObject);
     }
+    
 
 
     private void OnDisable()
