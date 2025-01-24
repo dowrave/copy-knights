@@ -7,89 +7,106 @@ using Skills.Base;
 [System.Serializable]
 public class OwnedOperator
 {
-    // 직렬화해서 저장하는 부분 - PlayerPrefs에 저장됨
-    public string operatorName; // OperatorData의 entityName과 매칭
-    public int currentLevel = 1;
+    // 저장되는 핵심 데이터 : 진행 상황을 나타내는 최소한의 정보만 저장
+    public string operatorName; // OperatorData.entityName과 동일
+    public int currentLevel = 1; 
     public OperatorGrowthSystem.ElitePhase currentPhase = OperatorGrowthSystem.ElitePhase.Elite0;
     public int currentExp = 0;
-    public OperatorStats currentStats;
-    public List<Vector2Int> currentAttackableTiles;
 
-    public List<BaseSkill> unlockedSkills = new List<BaseSkill>();
-    public BaseSkill selectedSkill;
-    public int selectedSkillIndex = 0;
+    // 런타임에만 존재하는 계산된 필드들
+    [System.NonSerialized] private OperatorStats currentStats;
+    [System.NonSerialized] private List<Vector2Int> currentAttackableTiles;
+    [System.NonSerialized] private BaseSkill selectedSkill;
+    [System.NonSerialized] private List<BaseSkill> unlockedSkills = new List<BaseSkill>();
+    [System.NonSerialized] private OperatorData baseData;
 
-    public bool CanLevelUp => OperatorGrowthSystem.CanLevelUp(currentPhase, currentLevel);
-    public bool CanPromote => OperatorGrowthSystem.CanPromote(currentPhase, currentLevel);
-
-    // 게임 시작 시에 로드해서 직렬화하지 않는 정보
-    [System.NonSerialized]
-    private OperatorData _baseData; 
+    // 읽기 전용 프로퍼티
+    public OperatorStats CurrentStats => currentStats;
+    public List<BaseSkill> UnlockedSkills => unlockedSkills;
+    public BaseSkill SelectedSkill => selectedSkill;
+    public List<Vector2Int> CurrentAttackableTiles => currentAttackableTiles;
     public OperatorData BaseData
     {
         get
         {
             // 최초 접근 시
-            if (_baseData == null) 
+            if (baseData == null) 
             {
                 // Lazy Loading에서 게터임에도 필드를 할당하는 건 잘 확립된 방식임
-                _baseData = GameManagement.Instance.PlayerDataManager.GetOperatorData(operatorName);  // PlayerDataManager에서 operatorID에 해당하는 OperatorData를 가져옴
+                baseData = GameManagement.Instance.PlayerDataManager.GetOperatorData(operatorName);  // PlayerDataManager에서 operatorID에 해당하는 OperatorData를 가져옴
             }
-            return _baseData;
+            return baseData;
         }
     }
 
+    public bool CanLevelUp => OperatorGrowthSystem.CanLevelUp(currentPhase, currentLevel);
+    public bool CanPromote => OperatorGrowthSystem.CanPromote(currentPhase, currentLevel);
+
+
     // 생성자
+    // 중요!) 저장된 데이터를 로드할 때는 생성자가 호출되지 않으므로 Initialize는 별도로 실행해야 한다.
     public OwnedOperator(OperatorData opData)
     {
         operatorName = opData.entityName;
-        currentAttackableTiles = new List<Vector2Int>(opData.attackableTiles);
         currentLevel = 1;
         currentPhase = OperatorGrowthSystem.ElitePhase.Elite0;
         currentExp = 0;
-        
-        _baseData = opData;
-        currentStats = opData.stats;
+        baseData = opData;
 
-        unlockedSkills.Add(opData.elite0Skill);
-        selectedSkill = unlockedSkills[0];
+        Initialize();
     }
 
-    public OperatorStats GetOperatorStats() => currentStats;
-    public List<Vector2Int> GetCurrentAttackableTiles() => currentAttackableTiles;
-
-    // 정예화 처리
-    public bool Promote()
+    // 정예화, 레벨에 따른 사항을 반영함. 게임 실행 / 정예화 시에 실행된다.
+    public void Initialize()
     {
-        if (!OperatorGrowthSystem.CanPromote(this)) return false;
-
-        OperatorStats newStats = OperatorGrowthSystem.CalculateStats(this, 1, OperatorGrowthSystem.ElitePhase.Elite1);
-
-        currentPhase = OperatorGrowthSystem.ElitePhase.Elite1;
-        currentLevel = 1;
-        currentStats = newStats;
-        currentExp = 0;
-
-        ApplyElitePhaseUnlocks();
-
-        return true;
+        currentStats = OperatorGrowthSystem.CalculateStats(this, currentLevel, currentPhase);
+        InitializeAttackRange();
+        InitializeSkills();
     }
 
-
-    // 정예화 시에 해금되는 요소 적용
-    public void ApplyElitePhaseUnlocks()
+    private void InitializeAttackRange()
     {
-        if (currentPhase >= OperatorGrowthSystem.ElitePhase.Elite1)
+        currentAttackableTiles = new List<Vector2Int>(BaseData.attackableTiles);
+
+        if (currentPhase > OperatorGrowthSystem.ElitePhase.Elite0)
         {
-            // 공격 범위 추가
-            currentAttackableTiles.AddRange(BaseData.elite1Unlocks.additionalAttackTiles);
-
-            // 새로운 스킬 추가
-            if (BaseData.elite1Unlocks.unlockedSkill != null && !unlockedSkills.Contains(BaseData.elite1Unlocks.unlockedSkill))
-            {
-                unlockedSkills.Add(BaseData.elite1Unlocks.unlockedSkill);
-            }
+            currentAttackableTiles.AddRange(baseData.elite1Unlocks.additionalAttackTiles);
         }
     }
 
+    private void InitializeSkills()
+    {
+        unlockedSkills = new List<BaseSkill> { baseData.elite0Skill };
+
+        if (currentPhase > OperatorGrowthSystem.ElitePhase.Elite0 && 
+            baseData.elite1Unlocks.unlockedSkill != null)
+        {
+            unlockedSkills.Add(baseData.elite1Unlocks.unlockedSkill);
+        }
+
+        selectedSkill = unlockedSkills[0];
+    }
+
+    public void LevelUP(int targetLevel, int remainingExp)
+    {
+        if (targetLevel <= currentLevel) return;
+        if (targetLevel > OperatorGrowthSystem.GetMaxLevel(currentPhase)) return;
+
+        currentLevel = targetLevel;
+        currentExp = remainingExp;
+
+        Initialize();
+    }
+
+    // 정예화 처리
+    public void Promote()
+    {
+        if (!OperatorGrowthSystem.CanPromote(this)) return;
+
+        currentPhase = OperatorGrowthSystem.ElitePhase.Elite1;
+        currentLevel = 1;
+        currentExp = 0;
+
+        Initialize();
+    }
 }

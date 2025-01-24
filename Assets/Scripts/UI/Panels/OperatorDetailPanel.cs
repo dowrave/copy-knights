@@ -117,7 +117,7 @@ public class OperatorDetailPanel : MonoBehaviour
         OperatorIconHelper.SetClassIcon(classIconImage, operatorData.operatorClass);
 
         // 공격 범위 설정
-        attackRangeHelper.ShowBasicRange(currentOperator.currentAttackableTiles);
+        attackRangeHelper.ShowBasicRange(currentOperator.CurrentAttackableTiles);
 
 
         // 스킬 아이콘 - 현재 선택된 스킬을 OperatorData에서 가져옴
@@ -137,7 +137,7 @@ public class OperatorDetailPanel : MonoBehaviour
 
     private void UpdateStats()
     {
-        OperatorStats currentStats = currentOperator.GetOperatorStats();
+        OperatorStats currentStats = currentOperator.CurrentStats;
 
         healthText.text = currentStats.Health.ToString();
         attackPowerText.text = currentStats.AttackPower.ToString();

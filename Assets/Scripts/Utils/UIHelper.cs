@@ -85,6 +85,7 @@ public class UIHelper : MonoBehaviour
                 }
             }
         }
+
         private void CreateCenterTile()
         {
             CreateTile(Vector2Int.zero, true, false);

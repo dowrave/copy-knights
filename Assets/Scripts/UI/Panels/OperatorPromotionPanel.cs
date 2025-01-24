@@ -81,9 +81,8 @@ public class OperatorPromotionPanel : MonoBehaviour
         ShowAttackRangePreview();
     }
 
-    /// <summary>
-    /// 새로 업데이트되는 스킬 정보 입력
-    /// </summary>
+
+    // 새로 업데이트되는 스킬 정보
     private void ShowNewSkill()
     {
         
@@ -94,7 +93,7 @@ public class OperatorPromotionPanel : MonoBehaviour
         if (attackRangeHelper == null || op == null) return;
 
         // 정예화 이전 기본 공격 범위
-        List<Vector2Int> baseTiles = new List<Vector2Int>(op.currentAttackableTiles);
+        List<Vector2Int> baseTiles = new List<Vector2Int>(op.CurrentAttackableTiles);
 
         // 정예화 후 추가되는 공격 범위
         List<Vector2Int> additionalTiles = op.BaseData.elite1Unlocks.additionalAttackTiles;

@@ -2,10 +2,9 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
-/// <summary>
-/// 사용자의 데이터(보유 오퍼레이터, 스쿼드 등등)를 관리한다.
-/// GameManagement의 하위 오브젝트임에 유의
-/// </summary>
+
+// 사용자의 데이터(보유 오퍼레이터, 스쿼드 등등)를 관리한다.
+// GameManagement의 하위 오브젝트
 public class PlayerDataManager : MonoBehaviour
 {
     // 플레이어가 소유한 데이터 정보
@@ -43,13 +42,12 @@ public class PlayerDataManager : MonoBehaviour
         LoadOrCreatePlayerData();
     }
 
-    /// <summary>
-    /// 현재 게임이 가진 "모든" OperatorData를 불러온다
-    /// </summary>
+
+// 현재 게임이 가진 "모든" OperatorData를 불러온다
     private void LoadOperatorDatabase()
     {
 #if UNITY_EDITOR
-        // guid = globally identified identifier, 유니티에서 각 에셋에 할당하는 고유 식별자
+        // guid : 유니티에서 각 에셋에 할당하는 고유 식별자
         string[] guids = UnityEditor.AssetDatabase.FindAssets("t:OperatorData", 
             new[] { "Assets/ScriptableObjects/Operator" });
 
@@ -78,9 +76,8 @@ public class PlayerDataManager : MonoBehaviour
 #endif
     }
 
-    /// <summary>
-    /// PlayerPrefs를 이용해 저장된 데이터를 불러오거나, 없으면 새로 생성한다.
-    /// </summary>
+
+    // PlayerPrefs를 이용해 저장된 데이터를 불러오거나, 없으면 새로 생성한다.
     private void LoadOrCreatePlayerData()
     {
         // PlayerPrefs에 저장된 PlayerData를 불러오거나 없으면 null(빈 칸)
@@ -112,6 +109,9 @@ public class PlayerDataManager : MonoBehaviour
         {
             playerData = JsonUtility.FromJson<PlayerData>(savedData);
             ValidateSquadSize();
+
+            // 정예화, 레벨에 따른 변경사항 반영
+            InitializeAllOperators();
         }
     }
 
@@ -146,9 +146,8 @@ public class PlayerDataManager : MonoBehaviour
         return new List<OwnedOperator>(playerData.ownedOperators);
     }
     
-    /// <summary>
-    /// 유저가 오퍼레이터를 보유하게 함
-    /// </summary>
+
+    // 유저가 오퍼레이터를 보유하게 함
     public void AddOperator(string operatorName)
     {
         if (!playerData.ownedOperators.Any(op => op.operatorName == operatorName))
@@ -161,10 +160,8 @@ public class PlayerDataManager : MonoBehaviour
         }
     }
 
-    /// <summary>
-    /// PlayerPrefs에 Json으로 PlayerData를 저장한다. 이 때 저장 위치는 플랫폼(윈도우/MAC/안드로이드/iOS 등) 별로 다르다
-    /// 저장되는 데이터는 System.serializable 속성이 붙은 클래스나 구조체인데, 저장할 수 없는 것도 있으니 그건 그 때 찾아보셈.
-    /// </summary>
+
+    // PlayerPrefs에 Json으로 PlayerData를 저장한다.
     public void SavePlayerData()
     {
         string jsonData = JsonUtility.ToJson(playerData);
@@ -192,9 +189,8 @@ public class PlayerDataManager : MonoBehaviour
         PlayerPrefs.Save();
     }
 
-    /// <summary>
-    /// null을 포함하지 않은 실제 배치된 오퍼레이터만 포함된 스쿼드 리스트 반환
-    /// </summary>
+
+    // null을 포함하지 않은 실제 배치된 오퍼레이터만 포함된 스쿼드 리스트 반환
     public List<OwnedOperator> GetCurrentSquad()
     {
         return playerData.currentSquadOperatorNames
@@ -204,9 +200,8 @@ public class PlayerDataManager : MonoBehaviour
             .ToList();
     }
 
-    /// <summary>
-    /// null을 포함한 전체 스쿼드 리스트 반환. MaxSquadSize가 보장된다.
-    /// </summary>
+
+    // null을 포함한 전체 스쿼드 리스트 반환. MaxSquadSize가 보장된다.
     public List<OwnedOperator> GetCurrentSquadWithNull()
     {
         return playerData.currentSquadOperatorNames
@@ -224,9 +219,8 @@ public class PlayerDataManager : MonoBehaviour
     }
 
 
-    /// <summary>
-    /// 스쿼드를 업데이트한다
-    /// </summary>
+
+    // 스쿼드를 업데이트한다
     public bool TryUpdateSquad(int index, string operatorName)
     {
         if (index < 0 || index >= playerData.maxSquadSize) return false;
@@ -249,9 +243,8 @@ public class PlayerDataManager : MonoBehaviour
         return true;
     }
 
-    /// <summary>
-    /// 스쿼드를 초기화한다
-    /// </summary>
+
+    // 스쿼드를 초기화한다
     public void ClearSquad()
     {
         playerData.currentSquadOperatorNames.Clear();
@@ -265,9 +258,8 @@ public class PlayerDataManager : MonoBehaviour
 
     public int GetMaxSquadSize() => playerData.maxSquadSize;
 
-    /// <summary>
-    /// 특정 인덱스 슬롯의 오퍼레이터를 반환한다. 비어 있거나 활성화가 안된 슬롯이면 null을 반환한다. 해도 되나?
-    /// </summary>
+
+    // 특정 인덱스 슬롯의 오퍼레이터를 반환한다. 비어 있거나 활성화가 안된 슬롯이면 null을 반환한다. 해도 되나?
     public OwnedOperator GetSquadOperatorAt(int index)
     {
         if (index < 0 || index >= playerData.currentSquadOperatorNames.Count) return null;
@@ -362,11 +354,17 @@ public class PlayerDataManager : MonoBehaviour
         return itemStack?.count ?? 0;
     }
 
+    private void InitializeAllOperators()
+    {
+        foreach (var ownedOp in playerData.ownedOperators)
+        {
+            ownedOp.Initialize();
+        }
+    }
 
-    /// <summary>
-    /// 아이템 데이터베이스를 이용해 초기 아이템 지급
-    /// 이름은 itemData.name 필드의 그것(LoadItemDatabase 참조)
-    /// </summary>
+
+    // 아이템 데이터베이스를 이용해 초기 아이템 지급
+    // 이름은 itemData.name 필드의 그것(LoadItemDatabase 참조)
     private void AddStartingItems()
     {
         // 여기 들어가는 키값이 ItemData.name 값임 / 생성자

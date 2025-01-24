@@ -4,13 +4,11 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
-/// <summary>
-/// 보유한 오퍼레이터들을 보여주는 패널. 스쿼드를 편집하는 패널은 SquadEditPanel로 혼동에 주의하시오 
-/// </summary>
+
+// 보유한 오퍼레이터들을 보여주는 패널. 스쿼드를 편집하는 패널은 SquadEditPanel로 혼동에 주의하시오 
 public class OperatorInventoryPanel : MonoBehaviour
 {
     [Header("UI References")]
-    //[SerializeField] private ScrollRect operatorSlotContainerscrollRect;
     [SerializeField] private Transform operatorSlotContainer;
     [SerializeField] private TextMeshProUGUI operatorNameText;
     [SerializeField] private OperatorSlot slotButtonPrefab;
@@ -69,9 +67,7 @@ public class OperatorInventoryPanel : MonoBehaviour
     }
 
 
-    /// <summary>
-    /// 보유한 오퍼레이터 리스트를 만들고 오퍼레이터 슬롯들을 초기화합니다.
-    /// </summary>
+    // 보유한 오퍼레이터 리스트를 만들고 오퍼레이터 슬롯들을 초기화합니다.
     private void PopulateOperators()
     {
         // 슬롯 정리
@@ -121,9 +117,6 @@ public class OperatorInventoryPanel : MonoBehaviour
         detailButton.interactable = true;
     }
     
-    /// <summary>
-    /// 확인 버튼 클릭 시 동작
-    /// </summary>
     private void OnConfirmButtonClicked()
     {
         if (selectedSlot != null && selectedSlot.OwnedOperator != null)
@@ -173,14 +166,13 @@ public class OperatorInventoryPanel : MonoBehaviour
         operatorSlots.Clear();
     }
 
-    /// <summary>
-    /// OperatorSelectionPanel의 SideView에 나타나는 오퍼레이터와 관련된 정보를 업데이트한다.
-    /// </summary>
+
+    // 왼쪽 패널의 SideView에 나타나는 오퍼레이터와 관련된 정보를 업데이트한다.
     private void UpdateSideView(OperatorSlot slot)
     {
 
         OwnedOperator op = slot.OwnedOperator;
-        OperatorStats opStats = op.currentStats;
+        OperatorStats opStats = op.CurrentStats;
         OperatorData opData = op.BaseData;
 
         operatorNameText.text = opData.entityName;
@@ -194,7 +186,7 @@ public class OperatorInventoryPanel : MonoBehaviour
         attackSpeedText.text = opStats.AttackSpeed.ToString();
 
         // 공격 범위 시각화
-        attackRangeHelper.ShowBasicRange(op.currentAttackableTiles);
+        attackRangeHelper.ShowBasicRange(op.CurrentAttackableTiles);
     }
 
     private void ClearSideView()

@@ -152,12 +152,12 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable,
         CurrentSP = BaseData.initialSP;
 
         // 현재 상태 반영
-        currentStats = ownedOp.currentStats;
-        CurrentAttackbleTiles = new List<Vector2Int>(ownedOp.currentAttackableTiles);
+        currentStats = ownedOp.CurrentStats;
+        CurrentAttackbleTiles = new List<Vector2Int>(ownedOp.CurrentAttackableTiles);
 
         // 스킬 설정
-        CurrentSkill = ownedOp.selectedSkill;
-        CurrentSP = ownedOp.currentStats.StartSP;
+        CurrentSkill = ownedOp.SelectedSkill;
+        CurrentSP = ownedOp.CurrentStats.StartSP;
         MaxSP = CurrentSkill?.SPCost ?? 0f;
 
         IsPreviewMode = true;

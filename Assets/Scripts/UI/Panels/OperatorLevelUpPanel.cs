@@ -170,7 +170,7 @@ public class OperatorLevelUpPanel : MonoBehaviour
     {
         if (op != null)
         {
-            OperatorStats initialStats = op.currentStats;
+            OperatorStats initialStats = op.CurrentStats;
             healthPreview.currentValue.text = initialStats.Health.ToString();
             attackPreview.currentValue.text = initialStats.AttackPower.ToString();
             defensePreview.currentValue.text = initialStats.Defense.ToString();

@@ -96,7 +96,7 @@ public class InfoPanel : MonoBehaviour
         // 배치되지 않은 경우
         else
         {
-            OperatorStats ownedOperatorStats = currentDeployableInfo.ownedOperator.currentStats;
+            OperatorStats ownedOperatorStats = currentDeployableInfo.ownedOperator.CurrentStats;
 
             // 배치되지 않은 경우 : OwnedOperator의 정보를 가져옴
             float initialHealth = ownedOperatorStats.Health; 

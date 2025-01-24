@@ -1,11 +1,8 @@
 using System.Collections.Generic;
 using System.Linq;
-using System;
 using UnityEngine;
 
-/// <summary>
-/// 성장 시스템을 실행하는 매니저.
-/// </summary>
+// 성장 시스템을 실행하는 매니저.
 public class OperatorGrowthManager: MonoBehaviour
 {
     public static OperatorGrowthManager Instance { get; private set; }
@@ -22,9 +19,8 @@ public class OperatorGrowthManager: MonoBehaviour
         }
     }
 
-    /// <summary>
-    /// 레벨업 진행 메서드
-    /// </summary>
+
+    // 레벨업 시도 메서드
     public bool TryLevelUpOperator(OwnedOperator op, int targetLevel, ExpCalculationSystem.ExpItemUsagePlan usagePlan)
     {
         // 아이템 사용 가능 여부 검증
@@ -34,10 +30,10 @@ public class OperatorGrowthManager: MonoBehaviour
         bool itemUseSuccess = GameManagement.Instance.PlayerDataManager.UseItems(itemsToUse);
         if (!itemUseSuccess) return false;
 
-        // 레벨업, 경험치, 스탯 계산
-        op.currentLevel = targetLevel;
-        op.currentExp = usagePlan.remainingExp;
-        op.currentStats = OperatorGrowthSystem.CalculateStats(op, targetLevel, op.currentPhase);
+        int remainingExp = usagePlan.remainingExp;
+
+        // 레벨업 반영
+        op.LevelUP(targetLevel, remainingExp);
 
         return true;
     }
@@ -54,9 +50,8 @@ public class OperatorGrowthManager: MonoBehaviour
         return true; 
     }
 
-    /// <summary>
-    /// 선택한 레벨까지 필요한 아이템을 계산합니다. UI 프리뷰용.
-    /// </summary>
+
+    // 선택한 레벨까지 필요한 아이템을 계산합니다. UI 프리뷰용.
     public ExpCalculationSystem.ExpItemUsagePlan CalculateRequiredItems (OwnedOperator op, int targetLevel)
     {
         var availableItems = GameManagement.Instance.PlayerDataManager.GetAllItems()
