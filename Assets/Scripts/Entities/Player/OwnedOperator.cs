@@ -42,7 +42,6 @@ public class OwnedOperator
     public BaseSkill StageSelectedSkill
     {
         get => stageSelectedSkill ?? defaultSelectedSkill;
-        set => stageSelectedSkill = value;
     }
 
     public bool CanLevelUp => OperatorGrowthSystem.CanLevelUp(currentPhase, currentLevel);
@@ -119,5 +118,10 @@ public class OwnedOperator
         currentExp = 0;
 
         Initialize();
+    }
+
+    public void SetStageSelectedSkill(BaseSkill newSkill)
+    {
+        defaultSelectedSkill = newSkill;
     }
 }

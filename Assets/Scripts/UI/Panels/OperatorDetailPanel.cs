@@ -261,10 +261,10 @@ public class OperatorDetailPanel : MonoBehaviour
         var skills = currentOperator.UnlockedSkills;
         if (skillIndex < skills.Count)
         {
-            // Set as default skill for this operator
             currentOperator.SetDefaultSelectedSkills(skills[skillIndex]);
             UpdateSkillSelection();
             UpdateSkillDescription();
+            MainMenuManager.Instance.ShowNotification($"기본 설정 스킬이 {skills[skillIndex].skillName}으로 변경되었습니다.");
         }
     }
 

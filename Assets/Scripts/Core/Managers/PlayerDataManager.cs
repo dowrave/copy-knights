@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using static Unity.Burst.Intrinsics.Arm;
 
 
 // 사용자의 데이터(보유 오퍼레이터, 스쿼드 등등)를 관리한다.
@@ -154,6 +155,9 @@ public class PlayerDataManager : MonoBehaviour
         {
             OperatorData opData = GetOperatorData(operatorName);
             OwnedOperator newOp = new OwnedOperator(opData);
+
+            InitializeOperator1stPromotion(newOp);
+
             playerData.ownedOperators.Add(newOp);
             SavePlayerData();
             Debug.Log($"{newOp.operatorName}가 정상적으로 ownedOperator에 등록되었습니다");
@@ -360,6 +364,12 @@ public class PlayerDataManager : MonoBehaviour
         {
             ownedOp.Initialize();
         }
+    }
+
+    private void InitializeOperator1stPromotion(OwnedOperator op)
+    {
+        op.LevelUP(50, 0);
+        op.Promote();
     }
 
 

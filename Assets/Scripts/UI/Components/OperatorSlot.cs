@@ -196,10 +196,15 @@ public class OperatorSlot : MonoBehaviour
         if (OwnedOperator.UnlockedSkills != null && OwnedOperator.UnlockedSkills.Count > 0)
         {
             skillImage.gameObject.SetActive(true);
-            Sprite skillIcon = OwnedOperator.UnlockedSkills[0].skillIcon;
-            if (skillIcon != null)
+
+            // 패널에 따라 슬롯에 표시되는 스킬이 다름
+            if (MainMenuManager.Instance.CurrentPanel == MainMenuManager.MenuPanel.SquadEdit)
             {
-                skillImage.sprite = skillIcon;
+                skillImage.sprite = OwnedOperator.StageSelectedSkill.skillIcon;
+            }
+            else if (MainMenuManager.Instance.CurrentPanel == MainMenuManager.MenuPanel.OperatorInventory)
+            {
+                skillImage.sprite = OwnedOperator.DefaultSelectedSkill.skillIcon;
             }
             else
             {

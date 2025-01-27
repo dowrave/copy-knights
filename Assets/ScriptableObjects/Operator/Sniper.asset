@@ -44,7 +44,7 @@ MonoBehaviour:
   - {x: -3, y: 0}
   - {x: 0, y: -1}
   - {x: 0, y: 1}
-  elite0Skill: {fileID: 11400000, guid: 2729d1dfe731a9046ab2a74823c9ccfc, type: 2}
+  elite0Skill: {fileID: 11400000, guid: a282fb770a3e6a74b91bb698f9ff496e, type: 2}
   initialSP: 0
   deployEffectPrefab: {fileID: 6896400663674567924, guid: a391789893d1b154bb27df310ec61c06, type: 3}
   meleeAttackEffectPrefab: {fileID: 0}
@@ -59,4 +59,4 @@ MonoBehaviour:
     additionalAttackTiles:
     - {x: -3, y: -1}
     - {x: -3, y: 1}
-    unlockedSkill: {fileID: 0}
+    unlockedSkill: {fileID: 11400000, guid: 2729d1dfe731a9046ab2a74823c9ccfc, type: 2}

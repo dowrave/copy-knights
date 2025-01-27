@@ -59,6 +59,7 @@ public class MainMenuManager : MonoBehaviour
     public Dictionary<MenuPanel, GameObject> PanelMap => panelMap;
 
     private MenuPanel currentPanel = MenuPanel.StageSelect;
+    public MenuPanel CurrentPanel => currentPanel;
     public StageData SelectedStage { get; private set; }
 
     public event Action OnSelectedStageChanged;

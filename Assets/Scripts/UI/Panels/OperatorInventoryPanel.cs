@@ -61,7 +61,7 @@ public class OperatorInventoryPanel : MonoBehaviour
         confirmButton.interactable = false;
         detailButton.interactable = false;
 
-        skill1Button.interactable = true;
+        skill1Button.interactable = false;
         skill2Button.interactable = false;
 
         noSkillSprite = skill1Button.GetComponent<Image>().sprite;
@@ -142,7 +142,8 @@ public class OperatorInventoryPanel : MonoBehaviour
     {
         if (selectedSlot != null && selectedSlot.OwnedOperator != null)
         {
-            selectedSlot.OwnedOperator.StageSelectedSkill = selectedSkill;
+            selectedSlot.OwnedOperator.SetStageSelectedSkill(selectedSkill);
+            //selectedSlot.OwnedOperator.StageSelectedSkill = selectedSkill;
             GameManagement.Instance.UserSquadManager.ConfirmOperatorSelection(selectedSlot.OwnedOperator);
             // 돌아가기
             ReturnToSquadEditPanel();
@@ -236,11 +237,16 @@ public class OperatorInventoryPanel : MonoBehaviour
         skill2SelectedIndicator.gameObject.SetActive(false);
         skillDetailText.text = "";
 
+        skill1Button.interactable = false;
+        skill2Button.interactable = false;
+
+
         selectedSkill = null;
     }
 
     private void UpdateSkillButtons(OwnedOperator op)
     {
+        skill1Button.interactable = true;
         var unlockedSkills = op.UnlockedSkills;
         skill1Button.GetComponent<Image>().sprite = unlockedSkills[0].skillIcon;
 
@@ -256,6 +262,7 @@ public class OperatorInventoryPanel : MonoBehaviour
         if (unlockedSkills.Count > 1)
         {
             skill2Button.GetComponent<Image>().sprite = unlockedSkills[1].skillIcon;
+            skill2Button.interactable = true;
         }
         else
         {
