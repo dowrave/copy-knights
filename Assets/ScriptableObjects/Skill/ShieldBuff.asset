@@ -16,7 +16,7 @@ MonoBehaviour:
   description: "\uBC29\uC5B4\uB825\uC744 30% \uC99D\uAC00\uC2DC\uD0A4\uACE0, 1000\uC758
     \uBCF4\uD638\uB9C9\uC744 \uC0DD\uC131\uD569\uB2C8\uB2E4."
   SPCost: 1
-  skillIcon: {fileID: 0}
+  skillIcon: {fileID: 21300000, guid: 63190965cf09d184c8ee9aa0edd539ca, type: 3}
   autoRecover: 1
   autoActivate: 0
   modifiesAttackAction: 0
