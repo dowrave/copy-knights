@@ -9,9 +9,6 @@ public class StageData : ScriptableObject
     public string stageName; // 스테이지 부제
     public string stageDetail; // 스테이지 설명
 
-    [Header("Scene Settings")]
-    public string sceneToLoad = "StageScene";
-
     [Header("Map Settings")]
     public string mapId;
     public GameObject mapPrefab; 

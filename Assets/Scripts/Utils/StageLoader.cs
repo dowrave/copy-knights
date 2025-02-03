@@ -1,15 +1,13 @@
 using System.Collections;
 using System.Collections.Generic;
-using System.Linq.Expressions;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
-/// <summary>
-/// 역할
-/// 1. 스테이지 씬 전환, 로딩 프로세스 관리
-/// 2. 맵 프리팹 생성 및 기본 설정
-/// 3. 매니저들의 초기화 순서 조정
-/// </summary>
+
+// 역할
+// 1. 스테이지 씬 전환, 로딩 프로세스 관리
+// 2. 맵 프리팹 생성 및 기본 설정
+// 3. 매니저들의 초기화 순서 조정
 public class StageLoader : MonoBehaviour
 {
     [Header("References")]
@@ -51,7 +49,7 @@ public class StageLoader : MonoBehaviour
         ShowLoadingScreen();
 
         // 비동기 씬 로드
-        AsyncOperation asyncLoad = SceneManager.LoadSceneAsync(cachedStageData.sceneToLoad);
+        AsyncOperation asyncLoad = SceneManager.LoadSceneAsync(STAGE_SCENE);
         asyncLoad.allowSceneActivation = false;
 
         // 씬 로드 진행 - 로딩이 90% 됐을 때 다음으로 넘어간다.

@@ -264,10 +264,12 @@ public class StageManager : MonoBehaviour
     }
 
     private void GameWin()
-    { 
+    {
         SetGameState(GameState.GameWin);
         Time.timeScale = 0;
-        UIManager.Instance.ShowGameWinUI();
+        int stars = 3 - PassedEnemies;
+        UIManager.Instance.ShowGameWinUI(stars);
+        GameManagement.Instance.PlayerDataManager.RecordStageResult(stageData.stageId, stars);
         StopAllCoroutines();
     }
 

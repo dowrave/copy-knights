@@ -16,6 +16,7 @@ public class PlayerDataManager : MonoBehaviour
         public List<string> currentSquadOperatorNames = new List<string>(); // 직렬화의 용이성, 저장 공간 저장 등의 이유로 string만을 사용
         public int maxSquadSize;
         public UserInventoryData inventory = new UserInventoryData();
+        public StageResultData stageResults = new StageResultData();
     }
 
     private PlayerData playerData;
@@ -34,6 +35,7 @@ public class PlayerDataManager : MonoBehaviour
     {
         ResetPlayerData(); // 디버깅용
         InitializeSystem();
+        InitializeForTest();
     }
 
     private void InitializeSystem()
@@ -99,9 +101,6 @@ public class PlayerDataManager : MonoBehaviour
                 AddOperator(op.entityName);
             }
 
-            // 초기 아이템 지급
-            AddStartingItems();
-
             // 스쿼드 리스트를 초기화함
             InitializeEmptySquad();
             SavePlayerData();
@@ -146,6 +145,23 @@ public class PlayerDataManager : MonoBehaviour
     {
         return new List<OwnedOperator>(playerData.ownedOperators);
     }
+
+    private void InitializeForTest()
+    {
+        // 오퍼레이터들 1정예화
+        foreach (var op in playerData.ownedOperators)
+        {
+            InitializeOperator1stPromotion(op);
+            SavePlayerData();
+        }
+
+        // 아이템 지급
+        AddStartingItems();
+
+        // 스테이지 임의 클리어
+        RecordStageResult("1-1", 3);
+    }
+
     
 
     // 유저가 오퍼레이터를 보유하게 함
@@ -156,7 +172,7 @@ public class PlayerDataManager : MonoBehaviour
             OperatorData opData = GetOperatorData(operatorName);
             OwnedOperator newOp = new OwnedOperator(opData);
 
-            InitializeOperator1stPromotion(newOp);
+            //InitializeOperator1stPromotion(newOp);
 
             playerData.ownedOperators.Add(newOp);
             SavePlayerData();
@@ -370,6 +386,51 @@ public class PlayerDataManager : MonoBehaviour
     {
         op.LevelUP(50, 0);
         op.Promote();
+    }
+
+    public bool IsStageCleared(string stageId)
+    {
+        return playerData.stageResults.clearedStages.Any(info => info.stageId == stageId);
+    }
+
+    // 특정 스테이지의 클리어 정보 가져오기
+    public StageResultData.StageResultInfo GetStageResultInfo(string stageId)
+    {
+        return playerData.stageResults.clearedStages.FirstOrDefault(info => info.stageId == stageId);
+    }
+
+    // 스테이지 클리어 기록하기
+    public void RecordStageResult(string stageId, int stars)
+    {
+        var existingClear = GetStageResultInfo(stageId);
+        if (existingClear != null)
+        {
+            if (existingClear.stars >= stars) return;
+
+            // 더 좋은 기록을 냈을 경우, 기존 기록 제거
+            playerData.stageResults.clearedStages.Remove(existingClear);
+        }
+
+        var newClearInfo = new StageResultData.StageResultInfo(stageId, stars);
+        playerData.stageResults.clearedStages.Add(newClearInfo);
+
+        SavePlayerData();
+    }
+
+    // 언락 상태 확인
+    public bool IsStageUnlocked(string stageId)
+    {
+        if (stageId == "1-1") return true;
+
+        string[] parts = stageId.Split('-');
+        if (parts.Length != 2) return false;
+
+        int chapter = int.Parse(parts[0]);
+        int stage = int.Parse(parts[1]);
+
+        // 이전 스테이지가 클리어됐을 때에만 언락
+        string previousStageId = $"{chapter}-{stage - 1}";
+        return IsStageCleared(previousStageId);
     }
 
 

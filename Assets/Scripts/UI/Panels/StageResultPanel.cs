@@ -49,6 +49,7 @@ public class StageResultPanel : MonoBehaviour
     private List<StatisticItem> statItems = new List<StatisticItem>();
     private List<StatisticsManager.OperatorStats> allOperatorStats;
     private StageResultData resultData;
+    private int stars;
 
     private void Awake()
     {
@@ -82,7 +83,7 @@ public class StageResultPanel : MonoBehaviour
             return;
         }
 
-        bool isPerfectClear = resultData.passedEnemies == 0;
+        bool isPerfectClear = stars == 3;
         StageManager.Instance.ReturnToMainMenu(isPerfectClear);
     }
 
@@ -207,9 +208,9 @@ public class StageResultPanel : MonoBehaviour
     }
 
 
-    public void Initialize(StageResultData data)
+    public void Initialize(int stars)
     {
-        resultData = data;
+        this.stars = stars; 
         allOperatorStats = StatisticsManager.Instance.GetAllOperatorStats();
 
         UpdateStarRating();
@@ -226,7 +227,7 @@ public class StageResultPanel : MonoBehaviour
             SetStarInactive(starImages[i]);
         }
 
-        if (resultData.StarCount > 0)
+        if (stars > 0)
         {
             StartCoroutine(AnimateStars());
         }
@@ -246,7 +247,7 @@ public class StageResultPanel : MonoBehaviour
     /// </summary>
     private System.Collections.IEnumerator AnimateStars()
     {
-        for (int i = 0; i < resultData.StarCount; i++)
+        for (int i = 0; i < stars; i++)
         {
 
             if (starImages[i] == null)
@@ -299,7 +300,7 @@ public class StageResultPanel : MonoBehaviour
         StageData stageData = StageManager.Instance.StageData;
         stageIdText.text = $"{stageData.stageId}";
         stageNameText.text = $"{stageData.stageDetail}";
-        clearOrFailedText.text = resultData.isCleared ? "작전 종료" : "작전 실패";
+        clearOrFailedText.text = stars > 0 ? "작전 종료" : "작전 실패";
     }
 
     private void CreateStatItems()

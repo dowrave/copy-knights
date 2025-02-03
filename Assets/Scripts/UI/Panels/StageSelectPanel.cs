@@ -5,10 +5,17 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
+[System.Serializable]
+public class StageUIData
+{
+    public string stageId;
+    public StageButton stageButton;
+    public Image lineImage; 
+}
 
 public class StageSelectPanel : MonoBehaviour
 {
-    [SerializeField] List<StageButton> stageButtons;
+    [SerializeField] private List<StageUIData> stageUIDataList;
     [SerializeField] private Button cancelArea; // buttonContainer가 이 역할을 함
     [SerializeField] private GameObject stageDetailPanel;
     [SerializeField] private TextMeshProUGUI stageTitleText;
@@ -18,17 +25,41 @@ public class StageSelectPanel : MonoBehaviour
     public StageButton CurrentStageButton { get; private set; }
     private StageData selectedStage => MainMenuManager.Instance.SelectedStage;
 
+    private PlayerDataManager playerDataManager;
+
     private void Start()
     {
+        playerDataManager = GameManagement.Instance.PlayerDataManager;
+
         InitializeStageButtons();
         InitializeDetailPanel();
     }
 
     private void InitializeStageButtons()
     {
-        foreach (StageButton button in stageButtons)
+        
+        foreach (StageUIData stageUIData in stageUIDataList)
         {
-            button.onClick.AddListener(OnStageButtonClicked);
+            // 버튼에 리스너 추가
+            StageButton stageButton = stageUIData.stageButton;
+            stageButton.onClick.AddListener(OnStageButtonClicked);
+
+            bool isUnlocked = playerDataManager.IsStageUnlocked(stageUIData.stageId);
+            stageUIData.stageButton.gameObject.SetActive(isUnlocked);
+
+
+            // 1-1의 경우 라인 이미지가 없음
+            if (stageUIData.lineImage != null)
+            {
+                stageUIData.lineImage.gameObject.SetActive(isUnlocked);
+            }
+
+            // 클리어된 스테이지
+            if (playerDataManager.IsStageCleared(stageUIData.stageId))
+            {
+                var stageResultInfo = playerDataManager.GetStageResultInfo(stageUIData.stageId);
+                stageUIData.stageButton.SetUpStar(stageResultInfo.stars);
+            }
         }
     }
 
@@ -64,12 +95,12 @@ public class StageSelectPanel : MonoBehaviour
         }
     }
 
-    /// <summary>
-    /// stageId에 해당하는 버튼을 클릭 상태로 바꿈
-    /// </summary>
+
+    // stageId에 해당하는 버튼을 클릭 상태로 바꿈
     public void SetStageButtonById(string stageId)
     {
-        StageButton targetButton = stageButtons.FirstOrDefault(btn => btn.StageData.stageId == stageId);
+        StageButton targetButton = stageUIDataList.FirstOrDefault(stageUIData => stageUIData.stageId == stageId).stageButton;
+        //StageButton targetButton = stageButtons.FirstOrDefault(btn => btn.StageData.stageId == stageId);
 
         if (targetButton != null)
         {
@@ -82,9 +113,8 @@ public class StageSelectPanel : MonoBehaviour
         return stageButton.StageData;
     }
 
-    /// <summary>
-    /// 버튼 클릭시의 동작은 상위 오브젝트 Panel에서 관리함
-    /// </summary>
+
+    // 버튼 클릭시의 동작은 상위 오브젝트 Panel에서 관리함
     private void OnStageButtonClicked(StageButton clickedButton)
     {
         if (CurrentStageButton != null)
@@ -138,9 +168,8 @@ public class StageSelectPanel : MonoBehaviour
         }
     }
 
-    /// <summary>
-    /// 패널 비활성화 시 상태 초기화
-    /// </summary>
+
+    // 패널 비활성화 시 상태 초기화
     private void OnDisable()
     {
         if (CurrentStageButton != null)

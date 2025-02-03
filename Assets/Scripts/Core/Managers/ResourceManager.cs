@@ -1,12 +1,17 @@
 
-using UnityEditor.SearchService;
 using UnityEngine;
+using UnityEngine.UI;
 using UnityEngine.SceneManagement;
 
 public class ResourceManager : MonoBehaviour
 {
     [Header("Shared Resources")]
     [SerializeField] private OperatorIconData iconData;
+
+    [Header("Star Images")]
+    public Sprite StageButtonStar1;
+    public Sprite StageButtonStar2;
+    public Sprite StageButtonStar3;
 
     [Header("Update Text Color")]
     public string textUpdateColor = "#179bff"; // 업데이트되는 요소 미리 보여줄 때 사용

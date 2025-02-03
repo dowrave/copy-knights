@@ -10,14 +10,13 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: a5f8246236f87694eaf25235bf3291e5, type: 3}
-  m_Name: 1-1
+  m_Name: StageData_1-2
   m_EditorClassIdentifier: 
-  stageId: 1-1
-  stageName: Hello World
-  stageDetail: "\uC774\uAC83\uC740 \uC2A4\uD14C\uC774\uC9C0 1-1\uC785\uB2C8\uB2E4. "
+  stageId: 1-2
+  stageName: Play With World
+  stageDetail: "\uC774\uAC83\uC740 \uC2A4\uD14C\uC774\uC9C0 1-2\uC785\uB2C8\uB2E4. "
   sceneToLoad: StageScene
-  mapId: 1-1
+  mapId: 1-2
   mapPrefab: {fileID: 4213169588294161417, guid: 2feb843e77db92b45a178a03bb3bb2d9, type: 3}
-  spawnerData: []
   playerHealthMultiplier: 1
   enemyStatMultiplier: 1

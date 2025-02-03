@@ -9,7 +9,7 @@ using UnityEngine.UI;
 public class StageButton : MonoBehaviour
 {
     [SerializeField] private TextMeshProUGUI stageIdText; // 버튼에 표시되는 텍스트
-
+    [SerializeField] private Image stageClearStar;
     [SerializeField] private Color highlightColor;
 
     [SerializeField] private StageData stageData;
@@ -18,6 +18,7 @@ public class StageButton : MonoBehaviour
     private Image image;
     private Color originalColor;
     private Button button;
+    private int star;
 
     // 클릭 이벤트
     // 이 스크립트 자체는 Button이 아니기 때문에 onClick 메서드를 이런 식으로 구현
@@ -31,16 +32,42 @@ public class StageButton : MonoBehaviour
 
         button = GetComponent<Button>();
         button.onClick.AddListener(() => onClick.Invoke(this)); // 이벤트는 Button 컴포넌트의 OnClick으로 연결.
+
+        //stageClearStar.color = new Color(1f, 1f, 1f, 0f);
+        stageClearStar.gameObject.SetActive(false);
     }
 
-    public void SetUp(StageData data)
+    public void SetUpStar(int stars)
     {
-        stageData = data;
-        stageIdText.text = stageData.stageId; 
+        this.star = stars;
+        if (stars > 0f)
+        {
+            stageClearStar.gameObject.SetActive(true);
+            stageClearStar.color = new Color(1f, 1f, 1f, 1f);
+
+            if (stars == 3)
+            {
+                stageClearStar.sprite = GameManagement.Instance.ResourceManager.StageButtonStar3;
+            }
+            else if (stars == 2)
+            {
+                stageClearStar.sprite = GameManagement.Instance.ResourceManager.StageButtonStar2;
+            }
+            else
+            {
+                stageClearStar.sprite = GameManagement.Instance.ResourceManager.StageButtonStar1;
+            }
+        }
+        else
+        {
+            stageClearStar.gameObject.SetActive(false);
+        }
     }
 
     public void SetSelected(bool isSelected)
     {
         image.color = isSelected ? highlightColor : originalColor;
+        if (stageClearStar.enabled == false) return;
+        stageClearStar.color = isSelected  ? new Color(0.3f, 0.3f, 0.3f, 1f) : new Color(1f, 1f, 1f, 1f);
     }
 }

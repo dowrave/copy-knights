@@ -101,15 +101,14 @@ public class UIManager : MonoBehaviour
         var clickHandler = gameOverPanelObject.GetComponent<Button>() ?? gameOverPanelObject.AddComponent<Button>();
         clickHandler.onClick.AddListener(() =>
         {
-            StartCoroutine(ShowResultAfterDelay(true));
+            StartCoroutine(ShowResultAfterDelay(0));
             gameOverPanelObject.SetActive(false);
         });
     }
 
-    /// <summary>
-    /// GameWin 패널을 띄우고 이를 클릭하면 결과로 넘어갑니다.
-    /// </summary>
-    public void ShowGameWinUI()
+
+    // GameWin 패널을 띄우고 이를 클릭하면 결과로 넘어갑니다.
+    public void ShowGameWinUI(int stars)
     {
         gameWinPanelObject.SetActive(true);
         GameWinPanel gameWinPanel = gameWinPanelObject.GetComponent<GameWinPanel>();
@@ -117,27 +116,20 @@ public class UIManager : MonoBehaviour
         // PlayAnimation 함수를 실행 후 종료를 기다린 뒤, ShowResultAfterDelay()를 실행함
         gameWinPanel.PlayAnimation(() =>
         {
-            StartCoroutine(ShowResultAfterDelay(true));
+            StartCoroutine(ShowResultAfterDelay(stars));
         });
     }
 
     /// <summary>
     /// 게임 승리/패배 패널이 나타난 후에 결과 패널 활성화
     /// </summary>
-    private IEnumerator ShowResultAfterDelay(bool isCleared)
+    private IEnumerator ShowResultAfterDelay(int stars)
     {
         yield return new WaitForSecondsRealtime(resultDelay); // Time.timeScale = 0이 되므로 이 메서드를 사용함
 
-        var resultData = new StageResultData
-        {
-            passedEnemies = StageManager.Instance.PassedEnemies,
-            isCleared = isCleared,
-            //operatorStats = StatisticsManager.Instance.GetAllOperatorStats()
-        };
-
         stageResultPanelObject.SetActive(true);
         StageResultPanel stageResultPanel = stageResultPanelObject.GetComponent<StageResultPanel>();
-        stageResultPanel.Initialize(resultData);
+        stageResultPanel.Initialize(stars);
         
     }
 

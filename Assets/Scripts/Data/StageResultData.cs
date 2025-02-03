@@ -1,12 +1,22 @@
 using System.Collections.Generic;
-using UnityEngine;
 
 [System.Serializable]
 public class StageResultData
 {
-    public int passedEnemies;
-    public bool isCleared;
+    [System.Serializable]
+    public class StageResultInfo
+    {
+        public string stageId;
+        public int stars;
+        public bool IsPerfectClear => stars == 3;
 
-    public int StarCount => Mathf.Max(0, 3 - passedEnemies);
+        public StageResultInfo(string id, int stars)
+        {
+            stageId = id;
+            this.stars = stars; 
+        }
+    }
+
+    public List<StageResultInfo> clearedStages = new List<StageResultInfo>();
 }
 
