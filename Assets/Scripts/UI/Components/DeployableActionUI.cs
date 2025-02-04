@@ -1,4 +1,5 @@
 using Unity.VisualScripting;
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -21,6 +22,18 @@ public class DeployableActionUI : MonoBehaviour
     {
         this.deployable = deployable;
 
+        if (deployable is Operator)
+        {
+            currentOperator = deployable as Operator;
+            UpdateSkillButton();
+            currentOperator.OnSPChanged += UpdateSkillButtonState;
+        }
+        else
+        {
+            skillButton.gameObject.SetActive(false);
+        }
+
+
         mainCamera = Camera.main;
         SetUpButtons();
         UpdateSkillIcon();
@@ -35,17 +48,6 @@ public class DeployableActionUI : MonoBehaviour
 
         gameObject.SetActive(true);
 
-        if (IsOperator())
-        {
-            currentOperator = deployable as Operator;
-            UpdateSkillButton();
-            currentOperator.OnSPChanged += UpdateSkillButtonState;
-            Debug.Log("SP 변화 이벤트 UI에 등록 완료");
-        }
-        else
-        {
-            skillButton.gameObject.SetActive(false);
-        }
     }
 
     private void SetUpButtons()
@@ -54,7 +56,7 @@ public class DeployableActionUI : MonoBehaviour
         // 버튼 이벤트 설정
         retreatButton.onClick.AddListener(OnRetreatButtonClicked);
 
-        if (IsOperator()) 
+        if (deployable is Operator) 
         { 
             skillButton.onClick.AddListener(OnSkillButtonClicked);
         }
@@ -62,7 +64,17 @@ public class DeployableActionUI : MonoBehaviour
 
     private void UpdateSkillIcon()
     {
-        // 스킬 아이콘 업데이트 로직
+        skillIconImage = skillButton.GetComponent<Image>();
+
+        // 스킬 아이콘이 있다면 아이콘을 버튼 이미지로
+
+        if (currentOperator.CurrentSkill.skillIcon != null)
+        {
+            skillIconImage.gameObject.SetActive(true);
+            skillIconImage.sprite = currentOperator.CurrentSkill.skillIcon;
+            skillButton.GetComponentInChildren<TextMeshProUGUI>().gameObject.SetActive(false);
+        }
+
     }
 
 
@@ -100,22 +112,9 @@ public class DeployableActionUI : MonoBehaviour
         gameObject.SetActive(false);
     }
 
-    private bool IsOperator()
-    {
-        return deployable is Operator;
-    }
-
     private void UpdateSkillButton()
     {
         if (!currentOperator || !currentOperator.CurrentSkill) return;
-        
-        // 스킬 아이콘이 있다면 아이콘을 버튼 이미지로 설정
-        if (currentOperator.CurrentSkill.skillIcon != null)
-        {
-            skillIconImage.sprite = currentOperator.CurrentSkill.skillIcon;
-            skillIconImage.gameObject.SetActive(true);
-            skillButton.GetComponentInChildren<Text>().gameObject.SetActive(false);
-        }
 
         UpdateSkillButtonState(currentOperator.CurrentSP, currentOperator.MaxSP);
     }

@@ -166,15 +166,17 @@ public class StageLoader : MonoBehaviour
         }
 
         // 맵에서 배치 가능한 요소를 가져옴
-        var mapDeployables = new List<MapDeployableData>(MapManager.Instance.CurrentMap?.GetMapDeployables());
-        if (mapDeployables == null) 
+        var mapDeployables = MapManager.Instance.CurrentMap?.GetMapDeployables();
+
+        if (mapDeployables == null)
         {
-            Debug.LogWarning("리스트가 정상적으로 초기화되지 않았습니다"); 
-            return false;
+            mapDeployables = new List<MapDeployableData>();
         }
 
+        var deployableList = new List<MapDeployableData>(mapDeployables);
+
         // 빈 리스트인 경우도 여기로 내려올 수 있음
-        DeployableManager.Instance.Initialize(cachedSquadData, mapDeployables);
+        DeployableManager.Instance.Initialize(cachedSquadData, deployableList);
 
         return true;
     }

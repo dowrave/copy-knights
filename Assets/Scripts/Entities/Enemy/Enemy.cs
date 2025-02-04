@@ -707,10 +707,13 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity, ICrowdControlTarget
 
     private void CreateObjectPool()
     {
+        // 다른 객체는 다른 태그를 가져야 함
+        string id = GetInstanceID().ToString();
+
         // 근접 공격 이펙트 풀 생성
         if (BaseData.meleeAttackEffectPrefab != null)
         {
-            meleeAttackEffectTag = BaseData.entityName + BaseData.meleeAttackEffectPrefab.name;
+            meleeAttackEffectTag = id + BaseData.entityName + BaseData.meleeAttackEffectPrefab.name;
             ObjectPoolManager.Instance.CreatePool(
                 meleeAttackEffectTag,
                 BaseData.meleeAttackEffectPrefab
@@ -720,7 +723,7 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity, ICrowdControlTarget
         // 피격 이펙트 풀 생성
         if (BaseData.hitEffectPrefab != null)
         {
-            hitEffectTag = BaseData.entityName + BaseData.hitEffectPrefab.name;
+            hitEffectTag = id + BaseData.entityName + BaseData.hitEffectPrefab.name;
             ObjectPoolManager.Instance.CreatePool(
                 hitEffectTag,
                 BaseData.hitEffectPrefab
@@ -740,6 +743,7 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity, ICrowdControlTarget
                    transform.position,
                    Quaternion.identity
             );
+
             CombatVFXController combatVFXController = effectObj.GetComponent<CombatVFXController>();
             combatVFXController.Initialize(attackSource, target, meleeAttackEffectTag);
         }

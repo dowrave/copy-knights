@@ -7,11 +7,9 @@ public class Tile : MonoBehaviour
 {
     public TileData data;
     public DeployableUnitEntity OccupyingDeployable { get; private set; }
-    private bool isOccupied;
     public bool IsOccupied
     {
         get { return OccupyingDeployable != null; }
-        set { isOccupied = value; }
     }
 
     public bool IsWalkable { get; private set; }
@@ -21,7 +19,7 @@ public class Tile : MonoBehaviour
     public Vector2 size2D;
 
     // 타일 위에 있는 적들을 저장하는 리스트, 오퍼레이터의 공격 범위가 타일이므로 유지함
-    public List<Enemy> enemiesOnTile = new List<Enemy>(); 
+    [HideInInspector]public List<Enemy> enemiesOnTile = new List<Enemy>(); 
 
     /* 
      * 중요! 프로퍼티만 설정하면 변수 저장은 불가능하다
@@ -33,7 +31,7 @@ public class Tile : MonoBehaviour
     public Vector2Int GridPosition
     {
         get { return gridPosition; }
-        set { gridPosition = value; }
+        private set { gridPosition = value; }
     }
 
     [SerializeField] private Material baseTileMaterial; // Inspector에서 할당함

@@ -160,9 +160,11 @@ public class PlayerDataManager : MonoBehaviour
 
         // 스테이지 임의 클리어
         RecordStageResult("1-1", 3);
+        RecordStageResult("1-2", 2);
+
     }
 
-    
+
 
     // 유저가 오퍼레이터를 보유하게 함
     public void AddOperator(string operatorName)

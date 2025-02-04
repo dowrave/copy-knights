@@ -227,7 +227,8 @@ public class MapEditorWindow : EditorWindow
         if (!string.IsNullOrEmpty(path))
         {
             path = FileUtil.GetProjectRelativePath(path);
-            PrefabUtility.SaveAsPrefabAsset(currentMap.gameObject, path);
+            //PrefabUtility.SaveAsPrefabAsset(currentMap.gameObject, path); // Map을 단순히 저장만 함(프리팹과 연결 X)
+            PrefabUtility.SaveAsPrefabAssetAndConnect(currentMap.gameObject, path, InteractionMode.UserAction); // 프리팹과 연결까지 수행
             AssetDatabase.Refresh();
         }
         Debug.LogWarning(currentMap.GetTileDataDebugString());

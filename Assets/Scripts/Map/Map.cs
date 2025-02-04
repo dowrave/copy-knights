@@ -1,6 +1,7 @@
 using UnityEngine;
 using System.Collections.Generic;
 using System.Text;
+using UnityEditor;
 
 
 public class Map : MonoBehaviour
@@ -10,10 +11,8 @@ public class Map : MonoBehaviour
     [SerializeField] private string mapId;
     public string Mapid => mapId;
 
-
     [Header("References")]
     [SerializeField] private GameObject tilePrefab;
-    [SerializeField] private GameObject enemySpawnerPrefab;
 
     [Header("Deployable Settings")]
     [SerializeField] private List<MapDeployableData> mapDeployables = new List<MapDeployableData>();
@@ -32,7 +31,7 @@ public class Map : MonoBehaviour
     private TileData[] serializedTileData;
     private TileData[,] tileDataArray;
     private Dictionary<Vector2Int, GameObject> tileObjects; // 좌표에 Tile 오브젝트 할당.
-
+    private GameObject enemySpawnerPrefab;
 
 
     // 스크립트 활성화마다 초기화를 확인한다
@@ -58,6 +57,11 @@ public class Map : MonoBehaviour
         else
         {
             CreateNewMap();
+        }
+
+        if (enemySpawnerPrefab == null)
+        {
+            enemySpawnerPrefab = AssetDatabase.LoadAssetAtPath<GameObject>("Assets/Prefabs/Enemy Spawner.prefab");
         }
     }
 
@@ -98,10 +102,7 @@ public class Map : MonoBehaviour
         SaveTileData(); // 로드 후 serializedTileData 업데이트
     }
 
-    /// <summary>
-    /// 특정 위치의 타일 데이터 업데이트. 
-    /// null/empty라면 제거, 아니라면 데이터 업데이트
-    /// </summary>
+    // 특정 위치의 타일 데이터 업데이트
     public void UpdateTile(int x, int y, TileData newTileData)
     {
         if (!IsValidGridPosition(x, y)) return;
@@ -121,9 +122,8 @@ public class Map : MonoBehaviour
         }
     }
 
-    /// <summary>
-    /// 주어진 위치에 타일 오브젝트를 생성하거나 업데이트함.
-    /// </summary>
+
+    // 주어진 위치에 타일 오브젝트를 생성하거나 업데이트함.
     private void CreateOrUpdateTileObject(int x, int y)
     {
         Vector2Int gridPos = new Vector2Int(x, y);
@@ -174,10 +174,7 @@ public class Map : MonoBehaviour
         tileObjects[gridPos] = tileObj; 
     }
 
-    /// </summary>
-    /// Start 타일에는 EnemySpawner 자식 오브젝트를 배치한다.
-    /// SetTile을 할 때 작동하므로, 맵을 불러오거나 할 때 별도로 작동시킬 필요 없다.
-    /// </summary>
+    // 시작 타일에 스포너 배치. SetTile에서 동작함.
     private void CreateSpawner(int x, int y)
     {
         if (enemySpawnerPrefab == null)
@@ -282,8 +279,6 @@ public class Map : MonoBehaviour
         }
         return Vector3.zero;
     }
-
-
 
     // 월드 y 좌표는 0으로 설정. 
     // 0.5로 설정하고 싶다면 Vector3.Up * 0.5f을 사용하자.
