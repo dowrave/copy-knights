@@ -17,13 +17,13 @@ MonoBehaviour:
   stats:
     _deployableUnitStats:
       _baseStats:
-        _health: 3000
-        _defense: 700
-        _magicResistance: 20
-      _deploymentCost: 10
+        _health: 1475
+        _defense: 245
+        _magicResistance: 0
+      _deploymentCost: 20
       _redeployTime: 70
-    _attackPower: 300
-    _attackSpeed: 1.4
+    _attackPower: 198
+    _attackSpeed: 1.2
     _maxBlockableEnemies: 3
     _startSP: 0
     _spRecoveryRate: 1
@@ -42,9 +42,9 @@ MonoBehaviour:
   hitEffectPrefab: {fileID: 8008928503674968961, guid: 3a7bbca2a850efb4e9ec0752775126f5, type: 3}
   projectilePrefab: {fileID: 0}
   levelStats:
-    healthPerLevel: 18
-    attackPowerPerLevel: 6
-    defensePerLevel: 12
+    healthPerLevel: 9.5
+    attackPowerPerLevel: 0.9
+    defensePerLevel: 2.5
     magicResistancePerLevel: 0
   elite1Unlocks:
     additionalAttackTiles: []

@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using System.Linq;
+using Unity.VisualScripting;
 using UnityEngine;
-using static Unity.Burst.Intrinsics.Arm;
 
 
 // 사용자의 데이터(보유 오퍼레이터, 스쿼드 등등)를 관리한다.
@@ -12,11 +12,11 @@ public class PlayerDataManager : MonoBehaviour
     [System.Serializable] 
     private class PlayerData
     {
-        public List<OwnedOperator> ownedOperators = new List<OwnedOperator>();
-        public List<string> currentSquadOperatorNames = new List<string>(); // 직렬화의 용이성, 저장 공간 저장 등의 이유로 string만을 사용
+        public List<OwnedOperator> ownedOperators = new List<OwnedOperator>(); // 보유 오퍼레이터
+        public List<string> currentSquadOperatorNames = new List<string>(); // 스쿼드, 직렬화를 위해 이름만 저장
         public int maxSquadSize;
-        public UserInventoryData inventory = new UserInventoryData();
-        public StageResultData stageResults = new StageResultData();
+        public UserInventoryData inventory = new UserInventoryData(); // 아이템 인벤토리
+        public StageResultData stageResults = new StageResultData(); // 스테이지 진행 상황
     }
 
     private PlayerData playerData;
@@ -435,6 +435,18 @@ public class PlayerDataManager : MonoBehaviour
         return IsStageCleared(previousStageId);
     }
 
+    // 스쿼드의 해당 슬롯
+    public OwnedOperator GetOperatorInSlot(int index)
+    {
+        if (playerData.currentSquadOperatorNames[index] != null)
+        {
+            return GetOwnedOperator(playerData.currentSquadOperatorNames[index]);
+        }
+        else
+        {
+            return null;
+        }
+    }
 
     // 아이템 데이터베이스를 이용해 초기 아이템 지급
     // 이름은 itemData.name 필드의 그것(LoadItemDatabase 참조)

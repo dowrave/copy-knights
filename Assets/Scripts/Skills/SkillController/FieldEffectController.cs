@@ -105,4 +105,12 @@ public abstract class FieldEffectController : MonoBehaviour
     {
         StopAndDestroyEffects();
     }
+
+    private void OnDisable()
+    {
+        if (caster != null)
+        {
+            caster.OnOperatorDied -= HandleOperatorDied;
+        }
+    }
 }

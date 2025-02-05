@@ -43,6 +43,7 @@ public class EnemySpawner : MonoBehaviour
     {
         if (spawnInfo.enemyPrefab == null) return;
 
+        // 위치는 enemy 초기화에서 다시 진행됨
         GameObject enemyObject = Instantiate(spawnInfo.enemyPrefab, transform.position, Quaternion.identity);
         Enemy enemy = enemyObject.GetComponent<Enemy>();
         

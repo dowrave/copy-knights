@@ -15,6 +15,8 @@ public class EnemyData : ScriptableObject, ICombatData
     public int blockCount = 1;
     public GameObject projectilePrefab;
 
+    public float defaultYPosition = 0.5f;
+
     [Header("VFX Effects")]
     public GameObject meleeAttackEffectPrefab; // 근접 공격 이펙트
     public GameObject hitEffectPrefab; // 공격이 적중했을 때의 이펙트

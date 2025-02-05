@@ -3,9 +3,8 @@ using UnityEngine.UI;
 using TMPro;
 using UnityEngine.Events;
 
-/// <summary>
-/// 스쿼드 편집 패널과 오퍼레이터 선택 패널에서 공통으로 사용되는 오퍼레이터 슬롯 버튼을 구현
-/// </summary>
+
+// 스쿼드 편집 패널과 오퍼레이터 선택 패널에서 공통으로 사용되는 오퍼레이터 슬롯 버튼을 구현
 public class OperatorSlot : MonoBehaviour
 {
     [Header("UI Components")]
@@ -193,27 +192,20 @@ public class OperatorSlot : MonoBehaviour
 
     private void UpdateSkillIcon()
     {
-        if (OwnedOperator.UnlockedSkills != null && OwnedOperator.UnlockedSkills.Count > 0)
-        {
-            skillImage.gameObject.SetActive(true);
+        skillImage.gameObject.SetActive(true);
 
-            // 패널에 따라 슬롯에 표시되는 스킬이 다름
-            if (MainMenuManager.Instance.CurrentPanel == MainMenuManager.MenuPanel.SquadEdit)
-            {
-                skillImage.sprite = OwnedOperator.StageSelectedSkill.skillIcon;
-            }
-            else if (MainMenuManager.Instance.CurrentPanel == MainMenuManager.MenuPanel.OperatorInventory)
-            {
-                skillImage.sprite = OwnedOperator.DefaultSelectedSkill.skillIcon;
-            }
-            else
-            {
-                skillImage.gameObject.SetActive(false);
-            }
-        }
-        else
+        // 스쿼드 편집 패널 : 스테이지에서 사용할 스킬 표시
+        if (OwnedOperator.StageSelectedSkill != null && 
+            MainMenuManager.Instance.CurrentPanel == MainMenuManager.MenuPanel.SquadEdit)
         {
-            skillImage.gameObject.SetActive(false);
+            skillImage.sprite = OwnedOperator.StageSelectedSkill.skillIcon;
+        }
+
+        // 인벤토리 패널 : 기본 선택된 스킬 표시
+        else if (OwnedOperator.DefaultSelectedSkill != null && 
+            MainMenuManager.Instance.CurrentPanel == MainMenuManager.MenuPanel.OperatorInventory)
+        {
+            skillImage.sprite = OwnedOperator.DefaultSelectedSkill.skillIcon;
         }
     }
 

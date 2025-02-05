@@ -12,18 +12,18 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3e9e80fd5f700b74fac5a82924257d05, type: 3}
   m_Name: Vanguard
   m_EditorClassIdentifier: 
-  entityName: BaseVanguard
+  entityName: 1.4
   operatorClass: 0
   stats:
     _deployableUnitStats:
       _baseStats:
-        _health: 1500
-        _defense: 300
-        _magicResistance: 5
-      _deploymentCost: 8
+        _health: 727
+        _defense: 139
+        _magicResistance: 0
+      _deploymentCost: 11
       _redeployTime: 70
-    _attackPower: 350
-    _attackSpeed: 1.2
+    _attackPower: 273
+    _attackSpeed: 1.05
     _maxBlockableEnemies: 2
     _startSP: 0
     _spRecoveryRate: 1
@@ -43,9 +43,9 @@ MonoBehaviour:
   hitEffectPrefab: {fileID: 8008928503674968961, guid: 3a7bbca2a850efb4e9ec0752775126f5, type: 3}
   projectilePrefab: {fileID: 0}
   levelStats:
-    healthPerLevel: 9
-    attackPowerPerLevel: 4
-    defensePerLevel: 0.7
+    healthPerLevel: 5.5
+    attackPowerPerLevel: 2
+    defensePerLevel: 1.4
     magicResistancePerLevel: 0
   elite1Unlocks:
     additionalAttackTiles: []

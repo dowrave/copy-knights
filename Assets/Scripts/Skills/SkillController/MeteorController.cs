@@ -84,4 +84,12 @@ public class MeteorController : MonoBehaviour
 
         Destroy(gameObject);
     }
+
+    private void OnDisable()
+    {
+        if (caster != null)
+        {
+            caster.OnOperatorDied -= HandleCasterDeath;
+        }
+    }
 }

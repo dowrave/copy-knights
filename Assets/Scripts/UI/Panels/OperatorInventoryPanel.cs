@@ -46,6 +46,9 @@ public class OperatorInventoryPanel : MonoBehaviour
     private BaseSkill selectedSkill;
     private Sprite noSkillSprite;
 
+    // 오퍼레이터가 들어가 있는 상태에서 해당 슬롯을 수정할 경우에만 사용
+    private OwnedOperator existingOperator;
+
     // UserSquadManager에서 현재 편집 중인 인덱스
     private int nowEditingIndex;  
 
@@ -78,10 +81,17 @@ public class OperatorInventoryPanel : MonoBehaviour
 
     private void OnEnable()
     {
-        PopulateOperators();
         ResetSelection();
-
         nowEditingIndex = GameManagement.Instance.UserSquadManager.EditingSlotIndex;
+
+        existingOperator = GameManagement.Instance.PlayerDataManager.GetOperatorInSlot(nowEditingIndex);
+        PopulateOperators();
+
+        // 이미 배치된 오퍼레이터가 있다면 해당 오퍼레이터 슬롯을 클릭한 상태로 시작
+        if (existingOperator != null)
+        {
+            HandleSlotClicked(operatorSlots[0]);
+        }
     }
 
 
@@ -98,6 +108,13 @@ public class OperatorInventoryPanel : MonoBehaviour
         List<OwnedOperator> availableOperators = GameManagement.Instance.PlayerDataManager.GetOwnedOperators()
             .Where(op => !currentSquad.Contains(op))
             .ToList();
+
+        // 이미 오퍼레이터가 있는 슬롯을 클릭해서 들어온 경우, 해당 오퍼레이터도 나타남
+        if (existingOperator != null)
+        {
+            // 가장 앞 인덱스에 넣음
+            availableOperators.Insert(0, existingOperator);
+        }
 
         // 그리드 영역의 너비 조절
         RectTransform slotContainerRectTransform = operatorSlotContainer.gameObject.GetComponent<RectTransform>(); 

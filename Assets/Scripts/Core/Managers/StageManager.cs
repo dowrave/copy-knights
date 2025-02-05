@@ -33,7 +33,7 @@ public class StageManager : MonoBehaviour
             if (_killedEnemyCount != value)
             {
                 _killedEnemyCount = value;
-                OnLifePointsChanged?.Invoke(_killedEnemyCount);
+                OnEnemyKilled?.Invoke();
             }
         }
     }

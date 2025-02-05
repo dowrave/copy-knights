@@ -64,15 +64,22 @@ public class DeployableActionUI : MonoBehaviour
 
     private void UpdateSkillIcon()
     {
-        skillIconImage = skillButton.GetComponent<Image>();
-
         // 스킬 아이콘이 있다면 아이콘을 버튼 이미지로
-
-        if (currentOperator.CurrentSkill.skillIcon != null)
+        if (currentOperator != null)
         {
-            skillIconImage.gameObject.SetActive(true);
-            skillIconImage.sprite = currentOperator.CurrentSkill.skillIcon;
-            skillButton.GetComponentInChildren<TextMeshProUGUI>().gameObject.SetActive(false);
+            skillIconImage = skillButton.GetComponent<Image>();
+            if (currentOperator.CurrentSkill.skillIcon != null)
+            {
+                skillIconImage.gameObject.SetActive(true);
+                skillIconImage.sprite = currentOperator.CurrentSkill.skillIcon;
+                skillIconImage.color = new Color(1, 1, 1);
+                skillButton.GetComponentInChildren<TextMeshProUGUI>().gameObject.SetActive(false);
+            }
+            else
+            {
+                skillIconImage.color = new Color(1, 0.7f, 0.7f); // 연한 붉은색
+                skillButton.GetComponentInChildren<TextMeshProUGUI>().gameObject.SetActive(false);
+            }
         }
 
     }

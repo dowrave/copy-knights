@@ -22,6 +22,7 @@ public class SquadEditPanel : MonoBehaviour
     private void Start()
     {
         InitializePanel();
+        UpdateSquadUI();
         UpdateEnterButtonState();
     }
 
@@ -41,15 +42,14 @@ public class SquadEditPanel : MonoBehaviour
                 slot.OnSlotClicked.AddListener((clickedSlot) => HandleSlotClicked(clickedSlot, slotIndex));
             }
         }
-
-        // 스쿼드를 가져와서 UI에 할당
-        UpdateSquadUI();
     }
 
     private void OnEnable()
     {
+        InitializePanel();
         UpdateSquadUI();
     }
+
 
     private void UpdateSquadUI()
     {
@@ -84,9 +84,8 @@ public class SquadEditPanel : MonoBehaviour
         UpdateEnterButtonState();
     }
 
-    /// <summary>
-    /// OperatorSlot 버튼 클릭 시 OpeatorListPanel로 넘어감
-    /// </summary>
+
+    // OperatorSlot 버튼 클릭 시 OpeatorInventoryPanel로 넘어감
     private void HandleSlotClicked(OperatorSlot clickedSlot, int slotIndex)
     {
         // 현재 수정 중인 인덱스 설정

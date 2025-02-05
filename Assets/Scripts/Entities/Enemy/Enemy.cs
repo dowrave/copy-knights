@@ -121,7 +121,10 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity, ICrowdControlTarget
         if (pathData != null && pathData.nodes.Count > 0)
         {
             // 스포너의 위치랑 동일해도 상관없는데 pathData가 또 별도로 있어서 거시기하다.
-            transform.position = MapManager.Instance.ConvertToWorldPosition(pathData.nodes[0].gridPosition) + Vector3.up * 0.5f;
+            transform.position = MapManager.Instance.ConvertToWorldPosition(pathData.nodes[0].gridPosition) +
+                Vector3.up * BaseData.defaultYPosition;
+                //Vector3.up * 0.5f;
+
         }
     }
 
@@ -270,7 +273,8 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity, ICrowdControlTarget
         if (nextNodeIndex < pathData.nodes.Count)
         {
             nextNode = pathData.nodes[nextNodeIndex];
-            nextPosition = MapManager.Instance.ConvertToWorldPosition(nextNode.gridPosition) + Vector3.up * 0.5f;
+            nextPosition = MapManager.Instance.ConvertToWorldPosition(nextNode.gridPosition) + 
+                Vector3.up * BaseData.defaultYPosition;
         }
     }
 
@@ -789,13 +793,9 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity, ICrowdControlTarget
         CurrentHealth = MaxHealth;
     }
 
-
-
     protected void OnDestroy()
     {
-        // 타일에서 제거
-        CurrentTile.EnemyExited(this);
-
+        ExitTile();
         RemoveObjectPool();
     }
 
