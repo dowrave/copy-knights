@@ -61,7 +61,7 @@ namespace Skills.OperatorSkills
             originalDefense = op.currentStats.Defense;
             originalMagicResistance = op.currentStats.MagicResistance;
             originalBlockableEnemies = op.currentStats.MaxBlockableEnemies;
-            originalAttackableTiles = new List<Vector2Int>(op.CurrentAttackbleTiles);
+            originalAttackableTiles = new List<Vector2Int>(op.CurrentAttackableTiles);
         }
 
         private void ApplyStatModifiers(Operator op)
@@ -105,13 +105,13 @@ namespace Skills.OperatorSkills
             op.Defense = originalDefense;
             op.MagicResistance = originalMagicResistance;
             op.MaxBlockableEnemies = originalBlockableEnemies;
-            op.CurrentAttackbleTiles = originalAttackableTiles;
+            op.CurrentAttackableTiles = originalAttackableTiles;
         }
 
         private void UpdateAttackRange(Operator op)
         {
             
-            List<Vector2Int> newRange = new List<Vector2Int>(op.CurrentAttackbleTiles);
+            List<Vector2Int> newRange = new List<Vector2Int>(op.CurrentAttackableTiles);
 
             foreach (Vector2Int additionalTile in modifiers.attackRangeModifier)
             {
@@ -126,7 +126,7 @@ namespace Skills.OperatorSkills
                 }
             }
 
-            op.CurrentAttackbleTiles = newRange;
+            op.CurrentAttackableTiles = newRange;
         }
     }
 }

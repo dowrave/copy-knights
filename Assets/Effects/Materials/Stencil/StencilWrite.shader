@@ -81,7 +81,7 @@ Shader "UI/StencilWrite" {
             fixed4 frag(v2f IN) : SV_Target {
                 half4 color = (tex2D(_MainTex, IN.texcoord) + _TextureSampleAdd) * IN.color;
                 
-                // 알파값이 0.01 미만인 픽셀은 완전히 투명하게 처리하고 스텐실 버퍼에도 쓰지 않음
+                // 알파값이 0.01 이하인 픽셀은 완전히 투명하게 처리하고 스텐실 버퍼에도 쓰지 않음
                 if(color.a < 0.01)
                     discard;
                     

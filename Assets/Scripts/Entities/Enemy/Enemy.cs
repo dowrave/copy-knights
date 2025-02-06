@@ -181,7 +181,7 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity, ICrowdControlTarget
     {
         foreach (var node in pathData.nodes)
         {
-            currentPath.Add(MapManager.Instance.ConvertToWorldPosition(node.gridPosition) + Vector3.up * 0.5f);
+            currentPath.Add(MapManager.Instance.ConvertToWorldPosition(node.gridPosition) + Vector3.up * BaseData.defaultYPosition);
         }
         destinationPosition = currentPath[currentPath.Count - 1]; // 목적지 설정
     }
@@ -222,7 +222,7 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity, ICrowdControlTarget
         if (Vector3.Distance(transform.position, nextPosition) < 0.05f)
         {
             // 목적지 도달
-            if (nextPosition == destinationPosition)
+            if (Vector3.Distance(transform.position, destinationPosition) < 0.05f)
             {
                 ReachDestination();
             }

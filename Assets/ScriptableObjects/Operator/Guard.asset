@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3e9e80fd5f700b74fac5a82924257d05, type: 3}
   m_Name: Guard
   m_EditorClassIdentifier: 
-  entityName: Melee
+  entityName: Guard
   operatorClass: 1
   stats:
     _deployableUnitStats:
@@ -20,7 +20,7 @@ MonoBehaviour:
         _health: 1443
         _defense: 116
         _magicResistance: 0
-      _deploymentCost: 10
+      _deploymentCost: 15
       _redeployTime: 70
     _attackPower: 449
     _attackSpeed: 1.5

@@ -215,14 +215,14 @@ public class OperatorInventoryPanel : MonoBehaviour
         OperatorData opData = op.BaseData;
 
         operatorNameText.text = opData.entityName;
-        healthText.text = opStats.Health.ToString();
-        redeployTimeText.text = opStats.RedeployTime.ToString();
-        attackPowerText.text = opStats.AttackPower.ToString();
-        deploymentCostText.text = opStats.DeploymentCost.ToString();
-        defenseText.text = opStats.Defense.ToString();
-        magicResistanceText.text = opStats.MagicResistance.ToString();
-        blockCountText.text = opStats.MaxBlockableEnemies.ToString();
-        attackSpeedText.text = opStats.AttackSpeed.ToString();
+        healthText.text = Mathf.Floor(opStats.Health).ToString();
+        redeployTimeText.text = Mathf.Floor(opStats.RedeployTime).ToString();
+        attackPowerText.text = Mathf.Floor(opStats.AttackPower).ToString();
+        deploymentCostText.text = Mathf.Floor(opStats.DeploymentCost).ToString();
+        defenseText.text = Mathf.Floor(opStats.Defense).ToString();
+        magicResistanceText.text = Mathf.Floor(opStats.MagicResistance).ToString();
+        blockCountText.text = Mathf.Floor(opStats.MaxBlockableEnemies).ToString();
+        attackSpeedText.text = Mathf.Floor(opStats.AttackSpeed).ToString();
 
         // 공격 범위 시각화
         attackRangeHelper.ShowBasicRange(op.CurrentAttackableTiles);

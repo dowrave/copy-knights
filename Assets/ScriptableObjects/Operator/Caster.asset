@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3e9e80fd5f700b74fac5a82924257d05, type: 3}
   m_Name: Caster
   m_EditorClassIdentifier: 
-  entityName: CasterBasic
+  entityName: Caster
   operatorClass: 3
   stats:
     _deployableUnitStats:

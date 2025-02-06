@@ -1,12 +1,11 @@
 using System.Collections.Generic;
-using System.Runtime.CompilerServices;
 using UnityEngine;
 
 public class SlashSkillController : MonoBehaviour
 {
     private Operator attacker;
     private float lifetime;
-    private Vector3 direction;
+    private Vector3 opDirection;
     private float damageMultiplier;
     private List<Vector2Int> baseAttackRange;
     private GameObject hitEffectPrefab; 
@@ -28,7 +27,7 @@ public class SlashSkillController : MonoBehaviour
         attacker = op;
         lifetime = life;
         damageMultiplier = dmgMult;
-        direction = dir;
+        opDirection = dir;
         baseAttackRange = attackRange;
         this.hitEffectPrefab = hitEffectPrefab;
 
@@ -55,13 +54,14 @@ public class SlashSkillController : MonoBehaviour
         isInitialized = true;
     }
 
+    // 디폴트 방향이 오른쪽 - 오퍼레이터의 방향에 맞춰서 스킬이 나가야 함
     private void SetRotationByDirection()
     {
         float yRotation = 0f;
-        if (direction == Vector3.forward) yRotation = 270f;
-        else if (direction == Vector3.right) yRotation = 0f;
-        else if (direction == Vector3.back) yRotation = 90f;
-        else if (direction == Vector3.left) yRotation = 180f;
+        if (opDirection == Vector3.forward) yRotation = 270f;
+        else if (opDirection == Vector3.right) yRotation = 0f;
+        else if (opDirection == Vector3.back) yRotation = 90f;
+        else if (opDirection == Vector3.left) yRotation = 180f;
 
         // 이펙트 방향 설정
         transform.rotation = Quaternion.Euler(0f, yRotation, 0f);
@@ -77,7 +77,7 @@ public class SlashSkillController : MonoBehaviour
         foreach (Vector2Int baseOffset in baseAttackRange)
         {
             Vector2Int rotatedOffset;
-            rotatedOffset = DirectionSystem.RotateGridOffset(baseOffset, direction);
+            rotatedOffset = DirectionSystem.RotateGridOffset(baseOffset, opDirection);
 
             Vector2Int targetPos = operatorGridPos + rotatedOffset;
             attackableGridPositions.Add(targetPos);

@@ -135,14 +135,14 @@ public class OperatorDetailPanel : MonoBehaviour
     {
         OperatorStats currentStats = currentOperator.CurrentStats;
 
-        healthText.text = currentStats.Health.ToString();
-        attackPowerText.text = currentStats.AttackPower.ToString();
-        defenseText.text = currentStats.Defense.ToString();
-        magicResistanceText.text = currentStats.MagicResistance.ToString();
-        deploymentCostText.text = currentStats.DeploymentCost.ToString();
-        redeployTimeText.text = currentStats.RedeployTime.ToString();
-        blockCountText.text = currentStats.MaxBlockableEnemies.ToString();
-        attackSpeedText.text = currentStats.AttackSpeed.ToString();
+        healthText.text = Mathf.Floor(currentStats.Health).ToString();
+        attackPowerText.text = Mathf.Floor(currentStats.AttackPower).ToString();
+        defenseText.text = Mathf.Floor(currentStats.Defense).ToString();
+        magicResistanceText.text = Mathf.Floor(currentStats.MagicResistance).ToString();
+        deploymentCostText.text = Mathf.Floor(currentStats.DeploymentCost).ToString();
+        redeployTimeText.text = Mathf.Floor(currentStats.RedeployTime).ToString();
+        blockCountText.text = Mathf.Floor(currentStats.MaxBlockableEnemies).ToString();
+        attackSpeedText.text = Mathf.Floor(currentStats.AttackSpeed).ToString();
     }
 
     // 현재 경험치, 현재 레벨, 정예화 상태 업데이트
@@ -181,9 +181,8 @@ public class OperatorDetailPanel : MonoBehaviour
         }
     }
 
-    /// <summary>
-    /// 정예화 관련 정보 업데이트
-    /// </summary>
+
+    // 정예화 정보 업데이트
     private void UpdatePromotionInfo()
     {
         phaseText.text = $"{(int)currentOperator.currentPhase}";

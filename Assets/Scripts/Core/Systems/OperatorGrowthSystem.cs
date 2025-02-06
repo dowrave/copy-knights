@@ -134,7 +134,6 @@ public static class OperatorGrowthSystem
         return Mathf.Min(currentExp + itemExp, requiredExpForMaxLevel); 
     }
 
-
     // 각 정예화 및 레벨에서의 스탯 계산. 기준은 0정예화 1레벨이다.
     public static OperatorStats CalculateStats(OwnedOperator op, int targetLevel, ElitePhase targetPhase)
     {
@@ -152,7 +151,7 @@ public static class OperatorGrowthSystem
         {
             Health = baseStats.Health + (levelUpStats.healthPerLevel * levelDifference),
             AttackPower = baseStats.AttackPower + (levelUpStats.attackPowerPerLevel * levelDifference),
-            Defense = baseStats.AttackPower + (levelUpStats.defensePerLevel * levelDifference),
+            Defense = baseStats.Defense + (levelUpStats.defensePerLevel * levelDifference),
             MagicResistance = baseStats.MagicResistance + (levelUpStats.magicResistancePerLevel * levelDifference),
 
             AttackSpeed = baseStats.AttackSpeed,

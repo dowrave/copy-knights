@@ -38,7 +38,6 @@ public class OperatorData : ScriptableObject, ICombatData
     [Header("Elite Phase Settings")]
     public ElitePhaseUnlocks elite1Unlocks;
 
-
     public GameObject HitEffectPrefab => hitEffectPrefab;
     public AttackType AttackType => attackType;
     public AttackRangeType AttackRangeType => attackRangeType;

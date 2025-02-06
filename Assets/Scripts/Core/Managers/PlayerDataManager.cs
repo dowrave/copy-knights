@@ -149,19 +149,18 @@ public class PlayerDataManager : MonoBehaviour
     private void InitializeForTest()
     {
         // 오퍼레이터들 1정예화
-        foreach (var op in playerData.ownedOperators)
-        {
-            InitializeOperator1stPromotion(op);
-            SavePlayerData();
-        }
+        //foreach (var op in playerData.ownedOperators)
+        //{
+        //    InitializeOperator1stPromotion(op);
+        //    SavePlayerData();
+        //}
 
         // 아이템 지급
         AddStartingItems();
 
         // 스테이지 임의 클리어
-        RecordStageResult("1-1", 3);
-        RecordStageResult("1-2", 2);
-
+        //RecordStageResult("1-1", 3);
+        //RecordStageResult("1-2", 2);
     }
 
 
