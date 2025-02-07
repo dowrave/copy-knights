@@ -225,7 +225,7 @@ public class OperatorInventoryPanel : MonoBehaviour
         attackSpeedText.text = Mathf.Floor(opStats.AttackSpeed).ToString();
 
         // 공격 범위 시각화
-        attackRangeHelper.ShowBasicRange(op.CurrentAttackableTiles);
+        attackRangeHelper.ShowBasicRange(op.CurrentAttackableGridPos);
 
         // 스킬 버튼 초기화 및 설정
         UpdateSkillButtons(op);

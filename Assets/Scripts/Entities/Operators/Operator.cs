@@ -85,23 +85,18 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable,
 
     public float AttackCooldown { get; protected set; }
     public float AttackDuration { get; protected set; }
-   
-    public List<Vector2Int> CurrentAttackableTiles { get; set; }
+
+
+    private Vector2Int operatorGridPos;
+    private List<Vector2Int> baseOffsets; // 기본 오프셋
+    private List<Vector2Int> rotatedOffsets; // 회전 반영 오프셋
+    public List<Vector2Int> CurrentAttacakbleGridPos { get; set; } // 회전 반영 공격 범위(gridPosition), public set은 스킬 때문에
 
     // 공격 범위 내에 있는 적들 
     protected List<Enemy> enemiesInRange = new List<Enemy>();
 
     // IRotatble 필드
-    protected Vector3 facingDirection = Vector3.left;
-    public Vector3 FacingDirection
-    {
-        get => facingDirection;
-        protected set
-        {
-            facingDirection = value.normalized;
-            transform.forward = facingDirection;
-        }
-    }
+    public Vector3 FacingDirection { get; protected set; } = Vector3.left;
 
     // 저지 관련
     protected List<Enemy> blockedEnemies = new List<Enemy>();
@@ -127,7 +122,6 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable,
     [SerializeField] protected GameObject operatorUIPrefab;
     protected GameObject operatorUIInstance;
     protected OperatorUI operatorUIScript;
-    protected SpriteRenderer directionIndicator; // 방향 표시 UI
 
     // 원거리 공격 오브젝트 풀 옵션
     protected string projectileTag;
@@ -153,7 +147,9 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable,
 
         // 현재 상태 반영
         currentStats = ownedOp.CurrentStats;
-        CurrentAttackableTiles = new List<Vector2Int>(ownedOp.CurrentAttackableTiles);
+
+        // 회전 반영
+        baseOffsets = new List<Vector2Int>(ownedOp.CurrentAttackableGridPos); // 왼쪽 방향 기준
 
         // 스킬 설정
         CurrentSkill = ownedOp.StageSelectedSkill;
@@ -276,18 +272,15 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable,
         }
     }
 
-
     protected void GetEnemiesInAttackRange()
     {
         enemiesInRange.Clear();
         Vector2Int operatorGridPos = MapManager.Instance.CurrentMap.WorldToGridPosition(transform.position);
 
         // 공격 범위(타일들)에 있는 적들을 수집합니다
-        foreach (Vector2Int offset in CurrentAttackableTiles)
+        foreach (Vector2Int eachPos in CurrentAttacakbleGridPos)
         {
-            Vector2Int rotatedOffset = DirectionSystem.RotateGridOffset(offset, facingDirection);
-            Vector2Int targetGridPos = operatorGridPos + rotatedOffset;
-            Tile targetTile = MapManager.Instance.CurrentMap.GetTile(targetGridPos.x, targetGridPos.y);
+            Tile targetTile = MapManager.Instance.CurrentMap.GetTile(eachPos.x, eachPos.y);
             if (targetTile != null)
             {
                 List<Enemy> enemiesOnTile = targetTile.GetEnemiesOnTile();
@@ -296,6 +289,11 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable,
         }
 
         enemiesInRange = enemiesInRange.Distinct().ToList();
+    }
+
+    public void SetGridPosition()
+    {
+        operatorGridPos = MapManager.Instance.CurrentMap.WorldToGridPosition(transform.position);
     }
 
     public void SetDeploymentOrder()
@@ -415,14 +413,18 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable,
 
     public void HighlightAttackRange()
     {
-        Vector2Int operatorGridPos = MapManager.Instance.CurrentMap.WorldToGridPosition(transform.position);
         List<Tile> tilesToHighlight = new List<Tile>();
 
-        foreach (Vector2Int offset in CurrentAttackableTiles)
+        if (!isDeployed)
         {
-            Vector2Int rotatedOffset = DirectionSystem.RotateGridOffset(offset, facingDirection);
-            Vector2Int targetGridPos = operatorGridPos + rotatedOffset;
-            Tile targetTile = MapManager.Instance.CurrentMap.GetTile(targetGridPos.x, targetGridPos.y);
+            Vector2Int operatorGridPos = MapManager.Instance.CurrentMap.WorldToGridPosition(transform.position);
+            UpdateAttackableTiles();
+        }
+
+
+        foreach (Vector2Int eachPos in CurrentAttacakbleGridPos)
+        {
+            Tile targetTile = MapManager.Instance.CurrentMap.GetTile(eachPos.x, eachPos.y);
             if (targetTile != null)
             {
                 tilesToHighlight.Add(targetTile);
@@ -454,12 +456,9 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable,
         Vector2Int targetGridPos = MapManager.Instance.CurrentMap.WorldToGridPosition(CurrentTarget.transform.position);
         Vector2Int operatorGridPos = MapManager.Instance.CurrentMap.WorldToGridPosition(transform.position);
 
-        foreach (Vector2Int offset in CurrentAttackableTiles)
+        foreach (Vector2Int eachPos in CurrentAttacakbleGridPos)
         {
-            Vector2Int rotatedOffset = DirectionSystem.RotateGridOffset(offset, facingDirection);
-            Vector2Int inRangeGridPos = operatorGridPos + rotatedOffset;
-
-            if (inRangeGridPos == targetGridPos)
+            if (eachPos == targetGridPos)
             {
                 return true;
             }
@@ -490,8 +489,9 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable,
 
         IsPreviewMode = false;
         SetDeploymentOrder();
-        SetDirection(facingDirection);
-        UpdateAttackbleTiles();
+        operatorGridPos = MapManager.Instance.CurrentMap.WorldToGridPosition(transform.position);
+        SetDirection(FacingDirection);
+        UpdateAttackableTiles();
         CreateOperatorUI();
         CurrentSP = currentStats.StartSP;
 
@@ -627,11 +627,20 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable,
         }
     }
 
-    protected void UpdateAttackbleTiles()
+    // 배치 위치와 회전을 고려한 공격 범위의 gridPos을 설정함
+    protected void UpdateAttackableTiles()
     {
-        CurrentAttackableTiles = CurrentAttackableTiles
+        // 초기화를 baseOffset의 깊은 복사로 했음.
+        rotatedOffsets = new List<Vector2Int>(baseOffsets
             .Select(tile => DirectionSystem.RotateGridOffset(tile, FacingDirection))
-            .ToList();
+            .ToList());
+        CurrentAttacakbleGridPos = new List<Vector2Int>();
+
+        foreach (Vector2Int offset in rotatedOffsets)
+        {
+            Vector2Int inRangeGridPosition = operatorGridPos + offset;
+            CurrentAttacakbleGridPos.Add(inRangeGridPosition);
+        }
     }
 
     // 스킬 사용 시 SP Bar 관련 설정

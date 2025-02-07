@@ -1,6 +1,7 @@
 using UnityEngine;
 using System.Collections; // IEnumerator - 코루틴에서 주로 사용하는 버전
 using DG.Tweening;
+using System.Collections.Generic;
 
 // 스테이지 씬에서 스테이지와 관련된 여러 상태들을 관리합니다.
 public class StageManager : MonoBehaviour
@@ -11,10 +12,9 @@ public class StageManager : MonoBehaviour
     public StageData StageData => stageData;
 
     // 배치 코스트
-    // 편한 수정을 위해 엔진 상에서는 오픈
-    [SerializeField] private float costIncreaseInterval = 1f; // 코스트 회복 속도의 역수
-    [SerializeField] private int maxDeploymentCost = 99;
-    [SerializeField] private int _currentDeploymentCost = 10;
+    private float timeToFillCost; // 코스트 1 회복에 걸리는 시간
+    private int currentDeploymentCost;
+    private int maxDeploymentCost;
     private float currentCostGauge = 0f;
 
     // 게임 상태 변수
@@ -57,13 +57,13 @@ public class StageManager : MonoBehaviour
 
     public int CurrentDeploymentCost
     {
-        get => _currentDeploymentCost;
+        get => currentDeploymentCost;
         private set
         {
             // 불필요한 업데이트 방지 - 값이 변경될 때만 코드가 실행된다
-            if (_currentDeploymentCost != value)
+            if (currentDeploymentCost != value)
             {
-                _currentDeploymentCost = value;
+                currentDeploymentCost = value;
                 OnDeploymentCostChanged?.Invoke(); // 값이 변경될 때 이벤트 발생. 
             }
         }
@@ -73,9 +73,13 @@ public class StageManager : MonoBehaviour
     // 코루틴 멈추는 현상 대비 
     private Coroutine costIncreaseCoroutine;
     private float lastCostUpdateTime;
-    private const float COST_CHECK_INTERVAL = 1f; 
+    private const float COST_CHECK_INTERVAL = 1f;
+
+    // 스크린이 완전히 사라진 다음 게임 시작을 위한 할당
+    StageLoadingScreen stageLoadingScreen;
 
     // 이벤트
+    public event System.Action<Map> OnMapLoaded;
     public event System.Action OnDeploymentCostChanged; // 이벤트 발동 조건은 currentDeploymentCost 값이 변할 때, 여기 등록된 함수들이 동작
     public event System.Action<int> OnLifePointsChanged; // 라이프 포인트 변경 시 발생 이벤트
     public event System.Action OnEnemyKilled; // 적을 잡을 때마다 발생 이벤트
@@ -109,10 +113,6 @@ public class StageManager : MonoBehaviour
             // StageLoader에서 스테이지 시작을 처리함
             return;
         }
-
-        // 직접 실행할 경우 
-        PrepareStage();
-        StartStage();
     }
 
     private void Update()
@@ -127,22 +127,52 @@ public class StageManager : MonoBehaviour
         }
     }
 
-    public void PrepareStage()
+    public void InitializeStage(StageData stageData, List<OwnedOperator> squadData, StageLoadingScreen stageLoadingScreen)
+    {
+        this.stageData = stageData;
+        this.stageLoadingScreen = stageLoadingScreen;
+
+        // 맵 준비
+        InitializeMap();
+        
+        // 맵에서 가져올 게 있어서 맵 초기화 후에 진행해야 함
+        PrepareDeployables(squadData);
+
+        // 스테이지 준비
+        PrepareStage();
+
+        // 로딩 화면이 사라진 후에 StartStage가 동작함
+        stageLoadingScreen.OnHideComplete += StartStageCoroutine;
+    }
+
+    private void PrepareStage()
     {
         SetGameState(GameState.Preparation);
 
         // 게임 초기화
         TotalEnemyCount = CalculateTotalEnemyCount();
         KilledEnemyCount = 0;
+
+        currentDeploymentCost = stageData.startDeploymentCost;
+        maxDeploymentCost = stageData.maxDeploymentCost;
+        timeToFillCost = stageData.timeToFillCost;
+
         CurrentLifePoints = MaxLifePoints;
 
         UIManager.Instance.InitializeUI();
-
+         
         OnPreparationComplete?.Invoke();
     }
 
-    public void StartStage()
+    private void StartStageCoroutine()
     {
+        StartCoroutine(StartStageWithDelay());
+    }
+
+    private IEnumerator StartStageWithDelay()
+    {
+        yield return new WaitForSeconds(0.5f);
+
         SetGameState(GameState.Battle);
         lastCostUpdateTime = Time.time;
         StartCoroutine(IncreaseCostOverTime());
@@ -194,13 +224,13 @@ public class StageManager : MonoBehaviour
             {
                 yield return null; // 매 프레임마다 실행
 
-                currentCostGauge += Time.deltaTime / costIncreaseInterval;
+                currentCostGauge += Time.deltaTime / timeToFillCost;
                 lastCostUpdateTime = Time.time; 
 
                 if (currentCostGauge >= 1f)
                 {
                     currentCostGauge -= 1f;
-                    if (_currentDeploymentCost < maxDeploymentCost)
+                    if (currentDeploymentCost < maxDeploymentCost)
                     {
                         CurrentDeploymentCost++;
                     }
@@ -350,6 +380,70 @@ public class StageManager : MonoBehaviour
         }
         costIncreaseCoroutine = StartCoroutine(IncreaseCostOverTime());
         lastCostUpdateTime = Time.time; // 계속적인 재실행 대비
+    }
+
+    private void InitializeMap()
+    {
+        if (stageData.mapPrefab != null)
+        {
+            MapManager mapManager = MapManager.Instance;
+            if (mapManager != null)
+            {
+                try
+                {
+                    GameObject mapObject = Instantiate(stageData.mapPrefab);
+                    Map map = mapObject.GetComponent<Map>();
+
+                    // MapId는 스테이지 데이터에 있는 맵Id와 일치해야 함
+                    if (map == null || map.Mapid != stageData.mapId)
+                    {
+                        Debug.LogError("맵 ID가 스테이지 설정과 일치하지 않습니다!");
+                        return;
+                    }
+
+                    mapObject.name = "Map";
+                    mapObject.transform.SetParent(mapManager.transform);
+
+                    // 위치 초기화
+                    mapObject.transform.localPosition = Vector3.zero;
+                    mapObject.transform.localRotation = Quaternion.identity;
+
+                    mapManager.InitializeMap(map);
+                    OnMapLoaded?.Invoke(map);
+                }
+                catch (System.Exception e)
+                {
+                    Debug.LogError($"맵 초기화 중 오류 발생 : {e.Message}");
+                    return;
+                }
+            }
+        }
+    }
+
+    // 배치 가능한 유닛 리스트를 준비합니다. 오퍼레이터 + 스테이지에서 사용 가능한 오브젝트
+    private void PrepareDeployables(List<OwnedOperator> squadData)
+    {
+        // 맵에서 배치 가능한 요소를 가져옴
+        var mapDeployables = MapManager.Instance.CurrentMap?.GetMapDeployables();
+
+        foreach (var i in mapDeployables)
+        {
+            Debug.Log($"맵의 배치 가능한 요소들 {mapDeployables}");
+        }
+
+        if (mapDeployables == null)
+        {
+            mapDeployables = new List<MapDeployableData>();
+        }
+        var deployableList = new List<MapDeployableData>(mapDeployables);
+
+        // 스쿼드 + 맵의 배치 가능 요소 초기화
+        DeployableManager.Instance.Initialize(squadData, deployableList);
+    }
+
+    private void OnDestroy()
+    {
+        stageLoadingScreen.OnHideComplete -= StartStageCoroutine;
     }
 }
 

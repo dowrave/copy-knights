@@ -128,7 +128,7 @@ public class OperatorDetailPanel : MonoBehaviour
         OperatorIconHelper.SetClassIcon(classIconImage, operatorData.operatorClass);
 
         // 공격 범위 설정
-        attackRangeHelper.ShowBasicRange(currentOperator.CurrentAttackableTiles);
+        attackRangeHelper.ShowBasicRange(currentOperator.CurrentAttackableGridPos);
     }
 
     private void UpdateStats()

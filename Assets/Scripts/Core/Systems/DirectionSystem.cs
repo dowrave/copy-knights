@@ -1,14 +1,12 @@
 using UnityEngine;
 
-/// <summary>
-/// 그리드 포지션은 좌측 상단이 (0, 0)이며, 
-/// 각각 오른쪽과 아래로 갈때 + 방향입니다.
-/// </summary>
+
+// 그리드 포지션은 좌측 상단이 (0, 0)이며, 
+// 각각 오른쪽과 아래로 갈때 + 방향입니다.
 public static class DirectionSystem
 {
-    /// <summary>
-    /// 기준 방향이 왼쪽일 때, 회전에 따라 변화하는 그리드 포지션 값을 얻습니다.
-    /// </summary>
+
+    // 기준 방향이 왼쪽일 때, 회전에 따라 변화하는 그리드 포지션 값을 얻습니다.
     public static Vector2Int RotateGridOffset(Vector2Int offset, Vector3 direction)
     {
         if (direction == Vector3.left) return offset;

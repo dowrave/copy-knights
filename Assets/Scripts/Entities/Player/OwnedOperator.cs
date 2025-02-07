@@ -15,7 +15,7 @@ public class OwnedOperator
 
     // 런타임에만 존재하는 계산된 필드들
     [System.NonSerialized] private OperatorStats currentStats;
-    [System.NonSerialized] private List<Vector2Int> currentAttackableTiles;
+    [System.NonSerialized] private List<Vector2Int> currentAttackableGridPos;
     [System.NonSerialized] private BaseSkill defaultSelectedSkill;
     [System.NonSerialized] private List<BaseSkill> unlockedSkills = new List<BaseSkill>();
     [System.NonSerialized] private OperatorData baseData;
@@ -25,7 +25,7 @@ public class OwnedOperator
     public OperatorStats CurrentStats => currentStats;
     public List<BaseSkill> UnlockedSkills => unlockedSkills;
     public BaseSkill DefaultSelectedSkill => defaultSelectedSkill;
-    public List<Vector2Int> CurrentAttackableTiles => currentAttackableTiles;
+    public List<Vector2Int> CurrentAttackableGridPos => currentAttackableGridPos;
     public OperatorData BaseData
     {
         get
@@ -76,11 +76,11 @@ public class OwnedOperator
 
     private void InitializeAttackRange()
     {
-        currentAttackableTiles = new List<Vector2Int>(BaseData.attackableTiles);
+        currentAttackableGridPos = new List<Vector2Int>(BaseData.attackableTiles);
 
         if (currentPhase > OperatorGrowthSystem.ElitePhase.Elite0)
         {
-            currentAttackableTiles.AddRange(baseData.elite1Unlocks.additionalAttackTiles);
+            currentAttackableGridPos.AddRange(baseData.elite1Unlocks.additionalAttackTiles);
         }
     }
 

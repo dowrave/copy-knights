@@ -30,7 +30,8 @@ public class StageLoadingScreen : MonoBehaviour
         backgroundPanel.color = loadingColor;
     }
 
-    public void StartLoading(string stageId, string stageName)
+    // 로딩 화면을 띄우고 스테이지 매니저의 로딩 완료를 기다림
+    public void Initialize(string stageId, string stageName)
     {
         gameObject.SetActive(true);
 
@@ -70,13 +71,13 @@ public class StageLoadingScreen : MonoBehaviour
             .OnComplete(() =>
             {
                 // 패널이 완전히 사라진 후
-                OnHideComplete?.Invoke(); // StageLoader
-                Destroy(gameObject);
+                OnHideComplete?.Invoke();
+                gameObject.SetActive(false);
             })
             .WaitForCompletion();
     }
 
-    private void OnDestroy()
+    private void OnDisable()
     {
         if (StageManager.Instance != null)
         {

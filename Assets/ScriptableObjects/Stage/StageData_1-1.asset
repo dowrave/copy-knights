@@ -15,9 +15,10 @@ MonoBehaviour:
   stageId: 1-1
   stageName: Hello World
   stageDetail: "\uC774\uAC83\uC740 \uC2A4\uD14C\uC774\uC9C0 1-1\uC785\uB2C8\uB2E4. "
-  sceneToLoad: StageScene
   mapId: 1-1
   mapPrefab: {fileID: 4213169588294161417, guid: 2feb843e77db92b45a178a03bb3bb2d9, type: 3}
-  spawnerData: []
+  startDeploymentCost: 66
+  maxDeploymentCost: 99
+  timeToFillCost: 1
   playerHealthMultiplier: 1
   enemyStatMultiplier: 1

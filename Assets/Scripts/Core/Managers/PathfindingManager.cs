@@ -31,16 +31,16 @@ public class PathfindingManager : MonoBehaviour
             Destroy(gameObject);
         }
 
-        GameManagement.Instance.StageLoader.OnMapLoaded += OnMapLoaded;
+        StageManager.Instance.OnMapLoaded += OnMapLoaded;
     }
+
     private void OnMapLoaded(Map map)
     {
         currentMap = map;
     }
 
-    /// <summary>
-    /// WorldPosition의 형태로 경로 반환
-    /// </summary>
+
+    // WorldPosition의 형태로 경로 반환
     public List<Vector3> FindPath(Vector3 startPos, Vector3 endPos)
     {
         Vector2Int startGrid = MapManager.Instance.ConvertToGridPosition(startPos);
@@ -57,9 +57,7 @@ public class PathfindingManager : MonoBehaviour
         return null;
     }
 
-    /// <summary>
-    /// 노드의 형태로 경로 반환. 노드의 위치 정보는 gridPos임에 유의!
-    /// </summary>
+    // 노드의 형태로 경로 반환. 노드의 위치 정보는 gridPos임에 유의!
     public List<PathNode> FindPathAsNodes(Vector3 startPos, Vector3 endPos)
     {
         List<Vector3> worldPath = FindPath(startPos, endPos);
@@ -85,12 +83,11 @@ public class PathfindingManager : MonoBehaviour
         return pathNodes;
     }
 
-    /// <summary>
-    /// A* 알고리즘을 구현.
-    /// 가장 낮은 FCost를 가진 타일들을 선택해서 탐색을 진행한다.
-    /// 이웃 타일들을 평가하고, 더 나은 경로를 찾으면 업데이트한다. 목적지에 도달하면 RetracePath 메서드를 호출해 경로를 생성한다.
-    /// 경로를 찾지 못하면 null을 반환한다.
-    /// </summary>
+
+    // A* 알고리즘을 구현.
+    // 가장 낮은 FCost를 가진 타일들을 선택해서 탐색을 진행한다.
+    // 이웃 타일들을 평가하고, 더 나은 경로를 찾으면 업데이트한다. 목적지에 도달하면 RetracePath 메서드를 호출해 경로를 생성한다.
+    // 경로를 찾지 못하면 null을 반환한다.
     private List<Vector2Int> CalculatePath(Vector2Int start, Vector2Int end)
     {
         Tile startTile = currentMap.GetTile(start.x, start.y);

@@ -1,4 +1,5 @@
 using TMPro;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
@@ -22,7 +23,7 @@ public class DeployableBox : MonoBehaviour, IPointerDownHandler, IBeginDragHandl
 
     // 남은 갯수
     private bool isDragging = false;
-     private int currentDeploymentCost;
+    private int currentDeploymentCost;
 
     public void Initialize(DeployableManager.DeployableInfo info)
     {
@@ -46,8 +47,8 @@ public class DeployableBox : MonoBehaviour, IPointerDownHandler, IBeginDragHandl
         }
 
         StageManager.Instance.OnDeploymentCostChanged += UpdateAvailability;
+        StageManager.Instance.OnPreparationComplete += InitializeVisuals;
         InitializeVisuals();
-        Debug.Log($"박스 초기화됨 : {info}");
     }
 
     public void UpdateDisplay(DeployableUnitState unitState)
@@ -79,10 +80,6 @@ public class DeployableBox : MonoBehaviour, IPointerDownHandler, IBeginDragHandl
         }
     }
 
-    private void OnDestroy()
-    {
-        StageManager.Instance.OnDeploymentCostChanged -= UpdateAvailability;
-    }
 
     private void Update()
     {
@@ -93,9 +90,7 @@ public class DeployableBox : MonoBehaviour, IPointerDownHandler, IBeginDragHandl
         }
     }
 
-    /// <summary>
-    /// 일단은 초기화 때만 쓰고 있기는 하다
-    /// </summary>
+    // 일단은 초기화 때만 쓰고 있기는 하다
     private void InitializeVisuals()
     {
         // 일러스트가 있다면 박스 아이콘으로 사용
@@ -116,18 +111,17 @@ public class DeployableBox : MonoBehaviour, IPointerDownHandler, IBeginDragHandl
         }
 
         UpdateDisplay(deployableUnitState);
-        UpdateAvailability();
     }
 
     private void UpdateAvailability()
     {
         if (CanInteract())
         {
-            inActiveImage.gameObject.SetActive(false); // 박스 흐릿하게
+            inActiveImage.gameObject.SetActive(false); // 흐릿한 이미지 제거
         }
         else
         {
-            inActiveImage.gameObject.SetActive(true); // 흐릿한 박스 제거
+            inActiveImage.gameObject.SetActive(true); // 흐릿한 이미지 활성화
         }
     }
 
@@ -175,6 +169,13 @@ public class DeployableBox : MonoBehaviour, IPointerDownHandler, IBeginDragHandl
         return !deployableUnitState.IsOnCooldown && 
             StageManager.Instance.CurrentDeploymentCost >= currentDeploymentCost;
     }
+
+    private void OnDestroy()
+    {
+        StageManager.Instance.OnPreparationComplete -= InitializeVisuals;
+        StageManager.Instance.OnDeploymentCostChanged -= UpdateAvailability;
+    }
+
 }
 
 #nullable enable

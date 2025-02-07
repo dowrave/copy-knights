@@ -93,7 +93,7 @@ public class OperatorPromotionPanel : MonoBehaviour
         if (attackRangeHelper == null || op == null) return;
 
         // 정예화 이전 기본 공격 범위
-        List<Vector2Int> baseTiles = new List<Vector2Int>(op.CurrentAttackableTiles);
+        List<Vector2Int> baseTiles = new List<Vector2Int>(op.CurrentAttackableGridPos);
 
         // 정예화 후 추가되는 공격 범위
         List<Vector2Int> additionalTiles = op.BaseData.elite1Unlocks.additionalAttackTiles;

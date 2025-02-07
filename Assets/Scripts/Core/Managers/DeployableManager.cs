@@ -8,8 +8,6 @@ using System.Linq;
 public class DeployableManager : MonoBehaviour
 {
     public static DeployableManager Instance { get; private set; }
-
-
     private enum UIState
     {
         None,
@@ -113,7 +111,9 @@ public class DeployableManager : MonoBehaviour
             };
 
             allDeployables.Add(info);
-            deployableInfoMap[op.BaseData.entityName] = info; // (오퍼레이터 엔티티 이름 - 배치 정보) 매핑
+
+            // (오퍼레이터 엔티티 이름 - 배치 정보) 매핑
+            deployableInfoMap[op.BaseData.entityName] = info; 
         }
 
         // 스테이지 제공 요소 -> DeployableInfo로 변환
@@ -121,7 +121,9 @@ public class DeployableManager : MonoBehaviour
         {
             var info = deployable.ToDeployableInfo();
             allDeployables.Add(info);
-            deployableInfoMap[deployable.deployableData.entityName] = info; // (배치 요소 이름 - 배치 정보) 매핑
+
+            // (배치 요소 이름 - 배치 정보) 매핑
+            deployableInfoMap[deployable.deployableData.entityName] = info; 
         }
 
         InitializeDeployableUI();
@@ -131,9 +133,6 @@ public class DeployableManager : MonoBehaviour
     // DeployableBox에 Deployable 요소 프리팹 할당
     private void InitializeDeployableUI()
     {
-        // 로비 실행 동작 방지. 스테이지 씬에서는 실행 시점이 Battle이라 괜찮음
-        if (StageManager.Instance.currentState != GameState.Battle) return;
-
         foreach (var deployableInfo in allDeployables)
         {
             // deployableInfo에 대한 각 게임 상태 생성
@@ -629,13 +628,14 @@ public class DeployableManager : MonoBehaviour
     // 타일 위에 배치되는 배치 가능한 요소의 위치 설정
     public void SetAboveTilePosition(DeployableUnitEntity deployable, Tile tile)
     {
-        if (currentDeployable is Barricade barricade)
+        if (currentDeployable is Operator op)
         {
-            barricade.Transform.position = tile.transform.position + Vector3.up * 0.1f;
+            currentDeployable.transform.position = tile.transform.position + Vector3.up * 0.5f;
+            op.SetGridPosition();
         }
         else
         {
-            currentDeployable.transform.position = tile.transform.position + Vector3.up * 0.5f;
+            deployable.transform.position = tile.transform.position + Vector3.up * 0.1f;
         }
     }
 
@@ -647,6 +647,11 @@ public class DeployableManager : MonoBehaviour
     public DeployableInfo GetDeployableInfoByName(string entityName)
     {
         return deployableInfoMap.TryGetValue(entityName, out var info) ? info : null;
+    }
+
+    private void OnDestroy()
+    {
+        OperatorIconHelper.OnIconDataInitialized -= InitializeDeployableUI;
     }
 
     [System.Serializable]
