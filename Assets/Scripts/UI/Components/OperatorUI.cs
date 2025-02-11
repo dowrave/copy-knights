@@ -65,7 +65,11 @@ public class OperatorUI : MonoBehaviour
             deployableBarUIScript.SetSPBarColor(originalSPBarColor);
         }
 
-        SetSkillIconVisibility(op.CurrentSP >= op.MaxSP && !op.IsSkillOn);
+        SetSkillIconVisibility(
+             op.CurrentSP >= op.MaxSP && 
+            !op.IsSkillOn && 
+            !op.CurrentSkill.autoActivate
+        );
 
         SetDirectionIndicator(op.FacingDirection);
     }

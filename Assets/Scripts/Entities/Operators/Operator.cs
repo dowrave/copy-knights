@@ -353,8 +353,12 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable,
             operatorUIScript.UpdateUI();
             OnSPChanged?.Invoke(CurrentSP, MaxSP);
 
-            bool isSkillReady = CurrentSP >= MaxSP;
-            operatorUIScript.SetSkillIconVisibility(isSkillReady);
+            // 수동 발동인 스킬만 스킬 실행 가능 상태를 띄움
+            if (!CurrentSkill.autoActivate)
+            {
+                bool isSkillReady = CurrentSP >= MaxSP;
+                operatorUIScript.SetSkillIconVisibility(isSkillReady);
+            }
         }
     }
 
