@@ -10,22 +10,23 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 277825dab463fe8469435119db921473, type: 3}
-  m_Name: EnemyDefault
+  m_Name: Enemy_EasyWeak
   m_EditorClassIdentifier: 
-  entityName: EnemyDefault
+  entityName: Enemy_WeakAlpha
   stats:
     _baseStats:
-      _health: 2000
-      _defense: 150
-      _magicResistance: 10
-    _movementSpeed: 0.9
-    _attackPower: 400
-    _attackSpeed: 1
+      _health: 1050
+      _defense: 0
+      _magicResistance: 0
+    _movementSpeed: 1
+    _attackPower: 185
+    _attackSpeed: 1.7
     _attackRange: 0
-  prefab: {fileID: 6542749020257112806, guid: b64bfbf4c6a80384295e7286bbcc9d3e, type: 3}
+  prefab: {fileID: 5757678546452218239, guid: 4a8686ea2411bd34eac7f54eb59d7e55, type: 3}
   attackType: 0
   attackRangeType: 0
   blockCount: 1
   projectilePrefab: {fileID: 0}
+  defaultYPosition: 0.3
   meleeAttackEffectPrefab: {fileID: 2667795462971242445, guid: ab921526673becc4dba3450e1f02e066, type: 3}
   hitEffectPrefab: {fileID: 610392011688501501, guid: f7af33fe8ce3ac14ba1eefd6c034cd3a, type: 3}

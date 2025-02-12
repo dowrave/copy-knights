@@ -31,4 +31,9 @@ public class Barricade : DeployableUnitEntity
         OnBarricadeRemoved?.Invoke(this); // 제거 이벤트 발생
         base.Die();
     }
+
+    protected override float CalculateActualDamage(AttackType attacktype, float incomingDamage)
+    {
+        return incomingDamage; 
+    }
 }

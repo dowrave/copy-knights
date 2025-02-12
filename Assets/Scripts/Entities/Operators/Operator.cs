@@ -86,7 +86,7 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable,
     public float AttackCooldown { get; protected set; }
     public float AttackDuration { get; protected set; }
 
-
+    // 위치와 회전
     private Vector2Int operatorGridPos;
     private List<Vector2Int> baseOffsets; // 기본 오프셋
     private List<Vector2Int> rotatedOffsets; // 회전 반영 오프셋
@@ -95,12 +95,11 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable,
     // 공격 범위 내에 있는 적들 
     protected List<Enemy> enemiesInRange = new List<Enemy>();
 
-    // IRotatble 필드
     public Vector3 FacingDirection { get; protected set; } = Vector3.left;
 
     // 저지 관련
     protected List<Enemy> blockedEnemies = new List<Enemy>();
-    protected int nowBlockingCount = 0;
+    public IReadOnlyList<Enemy> BlockedEnemies => blockedEnemies;
 
     public int DeploymentOrder { get; protected set; } // 배치 순서
     protected bool isDeployed = false; // 배치 완료 시 true
@@ -305,7 +304,7 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable,
     // --- 저지 관련 메서드들
     public bool CanBlockEnemy(int enemyBlockCount)
     {
-        return nowBlockingCount + enemyBlockCount <= currentStats.MaxBlockableEnemies;
+        return blockedEnemies.Count + enemyBlockCount <= currentStats.MaxBlockableEnemies;
     }
 
     // 저지 가능하다면 현 저지수 + 1
@@ -315,14 +314,12 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable,
         if (CanBlockEnemy(enemyBlockCount))
         {
             blockedEnemies.Add(enemy);
-            nowBlockingCount += enemyBlockCount;
         }
     }
 
-    public void UnblockEnemy(Enemy enemy)
+    public void UnblockEnemy(Enemy enemy) 
     {
         blockedEnemies.Remove(enemy);
-        nowBlockingCount -= enemy.BaseData.blockCount;
     }
 
     public void UnblockAllEnemies()
@@ -332,8 +329,6 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable,
             enemy.UnblockFrom(this);
         }
         blockedEnemies.Clear();
-        nowBlockingCount = BaseData.stats.MaxBlockableEnemies;
-
     }
 
     // SP 자동회복 로직 추가
@@ -761,6 +756,25 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable,
     public void SetSkillOnState(bool skillOnState)
     {
         IsSkillOn = skillOnState;
+    }
+
+    protected override float CalculateActualDamage(AttackType attacktype, float incomingDamage)
+    {
+        float actualDamage = 0; // 할당까지 필수
+
+        switch (attacktype)
+        {
+            case AttackType.Physical:
+                actualDamage = incomingDamage - currentStats.Defense;
+                break;
+            case AttackType.Magical:
+                actualDamage = incomingDamage * (1 - currentStats.MagicResistance / 100);
+                break;
+            case AttackType.True:
+                actualDamage = incomingDamage;
+                break;
+        }
+        return Mathf.Max(actualDamage, 0.05f * incomingDamage); // 들어온 대미지의 5%는 들어가게끔 보장
     }
 
     protected void OnDestroy()

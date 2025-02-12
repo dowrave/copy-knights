@@ -1,9 +1,7 @@
 #nullable enable
-using JetBrains.Annotations;
 using UnityEngine;
-using UnityEngine.UIElements;
 
-public class DeployableUnitEntity: UnitEntity, IDeployable
+public abstract class DeployableUnitEntity: UnitEntity, IDeployable
 {
     public new DeployableUnitData BaseData { get; private set; }
 

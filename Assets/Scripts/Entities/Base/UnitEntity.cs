@@ -1,13 +1,11 @@
 using System.Collections.Generic;
 using System.Linq;
-using UnityEditor.PackageManager;
 using UnityEngine;
 using static ICombatEntity;
 
 // Operator, Enemy, Barricade 등의 타일 위의 유닛들과 관련된 엔티티
 public abstract class UnitEntity : MonoBehaviour, ITargettable, IFactionMember
 {
-    private UnitStats currentStats; // 프로퍼티로 구현하지 않음. 
     public Faction Faction { get; protected set; }
 
     public Tile CurrentTile { get; protected set; }
@@ -16,16 +14,18 @@ public abstract class UnitEntity : MonoBehaviour, ITargettable, IFactionMember
     public ShieldSystem shieldSystem;
 
     // 스탯 관련
+    private float _currentHealth;
     public float CurrentHealth
     {
-        get => currentStats.Health;
-        set
+        get => _currentHealth;
+        protected set
         {
-            currentStats.Health = Mathf.Clamp(value, 0, MaxHealth); // 0 ~ 최대 체력 사이로 값 유지
-            OnHealthChanged?.Invoke(currentStats.Health, MaxHealth, shieldSystem.CurrentShield);
+            _currentHealth = Mathf.Clamp(value, 0, MaxHealth); // 0 ~ 최대 체력 사이로 값 유지
+            OnHealthChanged?.Invoke(_currentHealth, MaxHealth, shieldSystem.CurrentShield);
         }
     }
-    public float MaxHealth { get; set; }
+
+    public float MaxHealth { get; protected set; }
 
     // 인터페이스가 있는 경우에만 쓸 듯
     protected List<CrowdControl> activeCC = new List<CrowdControl>();
@@ -60,6 +60,8 @@ public abstract class UnitEntity : MonoBehaviour, ITargettable, IFactionMember
 
             // 체력 계산
             CurrentHealth = Mathf.Max(0, CurrentHealth - remainingDamage);
+
+            Debug.Log($"남은 체력 : {CurrentHealth}, 들어온 대미지 : {remainingDamage}");
             OnHealthChanged?.Invoke(CurrentHealth, MaxHealth, shieldSystem.CurrentShield);
 
             PlayGetHitEffect(attacker, attackSource);
@@ -70,28 +72,6 @@ public abstract class UnitEntity : MonoBehaviour, ITargettable, IFactionMember
             }
         }
     }
-
-    // 대미지 계산 로직
-    protected virtual float CalculateActualDamage(AttackType attacktype, float incomingDamage)
-    {
-        float actualDamage = 0; // 할당까지 필수
-
-        switch (attacktype)
-        {
-            case AttackType.Physical:
-                actualDamage = incomingDamage - currentStats.Defense;
-                break;
-            case AttackType.Magical: 
-                actualDamage = incomingDamage * (1 - currentStats.MagicResistance / 100);
-                break;
-            case AttackType.True:
-                actualDamage = incomingDamage;
-                break;
-        }
-
-        return Mathf.Max(actualDamage, 0.05f * incomingDamage); // 들어온 대미지의 5%는 들어가게끔 보장
-    }
-
 
     // 현재 위치한 타일 설정
     protected virtual void UpdateCurrentTile()
@@ -240,7 +220,20 @@ public abstract class UnitEntity : MonoBehaviour, ITargettable, IFactionMember
         }
     }
 
+    // 스킬 등으로 인한 현재 체력 변경 시 이 메서드를 사용
+    public void ChangeCurrentHealth(float newCurrentHealth)
+    {
+        CurrentHealth = newCurrentHealth;
+    }
+    public void ChangeMaxHealth(float newMaxHealth)
+    {
+        MaxHealth = newMaxHealth;
+    }
+
+    protected abstract float CalculateActualDamage(AttackType attacktype, float incomingDamage);
     public void ActivateShield(float amount) => shieldSystem.ActivateShield(amount);
     public void DeactivateShield() => shieldSystem.DeactivateShield();
     public float GetCurrentShield() => shieldSystem.CurrentShield;
+
+
 }

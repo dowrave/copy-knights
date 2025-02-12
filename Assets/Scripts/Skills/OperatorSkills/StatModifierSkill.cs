@@ -68,8 +68,10 @@ namespace Skills.OperatorSkills
         {
             // 현재 체력의 비율을 유지하면서 최대 체력을 수정합니다
             float healthRatio = op.CurrentHealth / op.MaxHealth;
-            op.MaxHealth *= modifiers.healthModifier;
-            op.CurrentHealth = op.MaxHealth * healthRatio;
+            op.ChangeMaxHealth(op.MaxHealth * modifiers.healthModifier);
+
+            // MaxHealth가 맞음 : 현재 체력 = 변한 최대 체력 * 기존 비율
+            op.ChangeCurrentHealth(op.MaxHealth * healthRatio); 
 
             // 다른 스탯들을 수정합니다
             op.AttackPower *= modifiers.attackPowerModifier;
@@ -93,12 +95,7 @@ namespace Skills.OperatorSkills
         // 스탯 복구
         private void RestoreOriginalStats(Operator op)
         {
-            // 현재 체력이 원래 최대 체력보다 높다면, 원래 최대 체력으로 제한합니다
-            op.MaxHealth = originalMaxHealth;
-            if (op.CurrentHealth > originalMaxHealth)
-            {
-                op.CurrentHealth = originalMaxHealth;
-            }
+            RestoreOriginalHealth(op);
 
             op.AttackPower = originalAttackPower;
             op.AttackSpeed = originalAttackSpeed;
@@ -110,7 +107,6 @@ namespace Skills.OperatorSkills
 
         private void UpdateAttackRange(Operator op)
         {
-            
             List<Vector2Int> newRange = new List<Vector2Int>(op.CurrentAttacakbleGridPos);
 
             foreach (Vector2Int additionalTile in modifiers.attackRangeModifier)
@@ -127,6 +123,19 @@ namespace Skills.OperatorSkills
             }
 
             op.CurrentAttacakbleGridPos = newRange;
+        }
+
+        private void RestoreOriginalHealth(Operator op)
+        {
+            op.ChangeMaxHealth(originalMaxHealth);
+
+            // 1. 스탯 상승 시의 현재 체력이 원상 복귀 후 최대 체력보다 높으면 최대 체력 보정
+            if (op.CurrentHealth > originalMaxHealth)
+            {
+                op.ChangeCurrentHealth(originalMaxHealth);
+            }
+
+            // 2. 그렇지 않은 경우는 비율에 맞춰 돌아오는 게 아니라, 버프가 걸린 상태의 현재 체력 유지
         }
     }
 }

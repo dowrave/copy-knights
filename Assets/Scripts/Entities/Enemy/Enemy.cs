@@ -194,12 +194,10 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity, ICrowdControlTarget
 
             if (tileDeployable is Operator op)
             {
-                // 자신을 저지하는 오퍼레이터가 없음 and 현재 타일에 오퍼레이터가 있음
-                if (op != null && blockingOperator == null)
-                {
-                    blockingOperator = op;
-                    blockingOperator.TryBlockEnemy(this); // 오퍼레이터에서도 저지 중인 Enemy를 추가
-                }
+                if (op.BlockedEnemies.Count >= op.currentStats.MaxBlockableEnemies) return; 
+
+                blockingOperator = op;
+                blockingOperator.TryBlockEnemy(this); // 오퍼레이터에서도 저지 중인 Enemy를 추가
             }
         }
     }
@@ -799,5 +797,24 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity, ICrowdControlTarget
         RemoveObjectPool();
     }
 
+    protected override float CalculateActualDamage(AttackType attacktype, float incomingDamage)
+    {
+        float actualDamage = 0; // 할당까지 필수
+
+        switch (attacktype)
+        {
+            case AttackType.Physical:
+                actualDamage = incomingDamage - currentStats.Defense;
+                break;
+            case AttackType.Magical:
+                actualDamage = incomingDamage * (1 - currentStats.MagicResistance / 100);
+                break;
+            case AttackType.True:
+                actualDamage = incomingDamage;
+                break;
+        }
+
+        return Mathf.Max(actualDamage, 0.05f * incomingDamage); // 들어온 대미지의 5%는 들어가게끔 보장
+    }
 }
 
