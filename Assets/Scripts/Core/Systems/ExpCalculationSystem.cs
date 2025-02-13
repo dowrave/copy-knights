@@ -1,16 +1,14 @@
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using UnityEngine;
 
 public static class ExpCalculationSystem
 {
     public struct ExpItemUsagePlan
     {
         public Dictionary<ItemData, int> itemsToUse; // 사용할 아이템, 수량
-        public int totalExp; // 획득할 총 경험치
+        public int totalItemExp; // 아이템으로 획득할 총 경험치
         public int targetLevel;
-        public int remainingExp; // 남는 경험치 <-- 필요한가?
+        public int remainingExp; // 남는 경험치
         public bool isTargetLevelReachable;
     }
 
@@ -26,6 +24,7 @@ public static class ExpCalculationSystem
             int currentExp,
             List<(ItemData item, int count)> availableItems)
     {
+
         // 달성 가능한 최대 레벨 계산
         int maxReachableLevel = CalculateMaxReachableLevel(
             phase,
@@ -40,28 +39,27 @@ public static class ExpCalculationSystem
             return new ExpItemUsagePlan
             {
                 itemsToUse = new Dictionary<ItemData, int>(),
-                totalExp = 0,
+                totalItemExp = 0,
                 targetLevel = maxReachableLevel, // 달성 가능한 최대 레벨만 저장
                 remainingExp = currentExp,
                 isTargetLevelReachable = false
             };
         }
 
-        // 필요한 총 경험치 계산
-        int requiredExp = OperatorGrowthSystem.GetTotalExpRequiredForLevel(phase, currentLevel, targetLevel, currentExp);
-
-        // DP를 위한 캐시 테이블 - key : 경험치 / value : 경험치에 도달하기 위한 아이템 사용 계획 (a 아이템 x개, b 아이템 y개..)
+        // 현재 레벨과 현재 경험치에서, 목표 레벨의 0 경험치에 도달하기 위한 경험치량
+        int requiredExpForExactLevel = OperatorGrowthSystem.GetTotalExpRequiredForLevel(phase, currentLevel, targetLevel, currentExp);
 
         // 재귀적으로 최적의 조합 찾기
         ExpItemUsagePlan optimalPlan = FindOptimalCombination(
-            requiredExp,
+            requiredExpForExactLevel,
             availableItems.OrderBy(x => x.item.expAmount).ToList(),
-            new Dictionary<int, ExpItemUsagePlan>()
+            new Dictionary<int, ExpItemUsagePlan>() // DP를 위한 캐시 테이블 - key : 경험치 / value : 경험치에 도달하기 위한 아이템 사용 계획 (a 아이템 x개, b 아이템 y개..)
         );
 
-        // 경험치 오버플로우 처리 : 플랜 결과 후 남은 현재 경험치량이 최대 경험치량을 초과할 경우
-        int remainingExp = (currentExp + optimalPlan.totalExp) - requiredExp;
+        // 레벨업 후 남는 경험치와 타겟 레벨 계산
+        int remainingExp = optimalPlan.totalItemExp - requiredExpForExactLevel;
         int finalLevel = targetLevel; 
+
         while (true)
         {
             int nextLevelExp = OperatorGrowthSystem.GetMaxExpForNextLevel(phase, finalLevel);
@@ -80,9 +78,8 @@ public static class ExpCalculationSystem
         return optimalPlan;
     }
 
-    /// <summary>
-    /// 최적의 조합을 dp와 재귀식으로 찾습니다
-    /// </summary>
+
+    // 최적의 조합을 dp와 재귀식으로 찾음
     private static ExpItemUsagePlan FindOptimalCombination(
         int targetExp,
         List<(ItemData item, int count)> items,
@@ -95,11 +92,11 @@ public static class ExpCalculationSystem
             return new ExpItemUsagePlan
             {
                 itemsToUse = new Dictionary<ItemData, int>(),
-                totalExp = 0
+                totalItemExp = 0
             };
         }
 
-        // 이미 계산된 결과는 재사용
+        // 계산 결과 재사용
         if (dpTable.ContainsKey(targetExp))
         {
             return dpTable[targetExp];
@@ -108,9 +105,9 @@ public static class ExpCalculationSystem
         ExpItemUsagePlan bestPlan = new ExpItemUsagePlan
         {
             itemsToUse = new Dictionary<ItemData, int>(),
-            totalExp = int.MaxValue,
+            totalItemExp = int.MaxValue,
             isTargetLevelReachable = true
-        }; 
+        };
 
         foreach (var (item, count) in items)
         {
@@ -130,15 +127,16 @@ public static class ExpCalculationSystem
             );
 
             // 현재 아이템을 사용하는 게 더 효율적인지 평가
-            int totalExp = subPlan.totalExp + item.expAmount;
+            int totalExp = subPlan.totalItemExp + item.expAmount;
+
             if (totalExp >= targetExp &&
-                (bestPlan.totalExp == int.MaxValue ||  // 첫 해를 찾았거나
-                totalExp - targetExp < bestPlan.totalExp - targetExp)) // 더 적은 낭비가 발생하면
+                (bestPlan.totalItemExp == int.MaxValue ||  // 첫 해를 찾았거나
+                totalExp - targetExp < bestPlan.totalItemExp - targetExp)) // 더 적은 낭비가 발생하면
             {
                 var newPlan = new ExpItemUsagePlan
                 {
                     itemsToUse = new Dictionary<ItemData, int>(subPlan.itemsToUse),
-                    totalExp = totalExp
+                    totalItemExp = totalExp
                 };
 
                 if (!newPlan.itemsToUse.ContainsKey(item))
@@ -152,12 +150,11 @@ public static class ExpCalculationSystem
         }
 
         dpTable[targetExp] = bestPlan;
-        return bestPlan; 
+        return bestPlan;
     }
 
-    /// <summary>
-    /// 현재 보유한 아이템으로 도달할 수 있는 최대 레벨 계산
-    /// </summary>
+
+    // 현재 보유한 아이템으로 도달할 수 있는 최대 레벨 계산
     public static (int level, ExpItemUsagePlan usagePlan) CalculateMaxLevel(
         OwnedOperator op, 
         List<(ItemData item, int count)> availableItems)

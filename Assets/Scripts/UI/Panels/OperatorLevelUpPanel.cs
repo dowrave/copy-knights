@@ -120,9 +120,7 @@ public class OperatorLevelUpPanel : MonoBehaviour
         isInitialized = true; 
     }
 
-    /// <summary>
-    /// 각 레벨 오브젝트를 스크롤 상에 배치함
-    /// </summary>
+    // 각 레벨 오브젝트를 스크롤 상에 배치함
     private void InitializeLevelStrip()
     {
         // 기존 레벨 텍스트 제거
@@ -183,9 +181,7 @@ public class OperatorLevelUpPanel : MonoBehaviour
         }
     }
 
-    /// <summary>
-    /// 초기 스크롤의 위치 설정
-    /// </summary>
+    // 초기 스크롤의 위치 설정
     private void SetInitialScrollPositon()
     {
         // 스크롤 위치 즉시 설정
@@ -204,10 +200,9 @@ public class OperatorLevelUpPanel : MonoBehaviour
     }
 
 
-    /// <summary>
-    /// 각 레벨 오브젝트와 스크롤 높이를 매핑하는 dict를 만듦
-    /// 스크롤이 끝나는 양쪽 끝에 currentLevel과 maxLevel이 와야 함
-    /// </summary>
+    // <summary>
+    // 각 레벨 오브젝트와 스크롤 높이를 매핑하는 dict를 만듦
+    // 스크롤이 끝나는 양쪽 끝에 currentLevel과 maxLevel이 와야 함
     private void CalculateScrollPositions()
     { 
         levelToScrollPosition.Clear();
@@ -221,7 +216,7 @@ public class OperatorLevelUpPanel : MonoBehaviour
         contentHeight = paddingHeight * 2 + // 상하 패딩
             (spacing * (totalLevels + 1));  // 각 요소 사이의 간격. 2개의 패딩까지 추가해서 spacing이 2개 더 생김
 
-        // 스크롤 가능 영역 높이 : 패딩 영역 제외
+        // 스크롤 가능 영역 높이 (패딩 영역 제외)
         // 스크롤이 0일 때 currentLevel이 중앙에, 1일 때 maxLevel이 중앙에 온다
         float totalScrollHeight = contentHeight - viewportHeight; 
 
@@ -487,7 +482,7 @@ public class OperatorLevelUpPanel : MonoBehaviour
             }
 
             // 해당 레벨에서의 경험치 게이지 표시
-            if (currentUsagePlan.totalExp > 0)
+            if (currentUsagePlan.totalItemExp > 0)
             {
                 float maxExpForLevel = OperatorGrowthSystem.GetMaxExpForNextLevel(
                     op.currentPhase,

@@ -14,7 +14,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   type: 0
   itemName: ExpMiddle
-  description: "\uACBD\uD5D8\uCE58 \uC911\uC9DC"
+  description: "\uC624\uD37C\uB808\uC774\uD130\uC758 \uACBD\uD5D8\uCE58 <color=#00bfff>500</color>\uC744
+    \uC0C1\uC2B9\uC2DC\uD0B5\uB2C8\uB2E4."
   icon: {fileID: 21300000, guid: f652d3307144d9f4289899765de195df, type: 3}
   expAmount: 500
   canPromote: 0

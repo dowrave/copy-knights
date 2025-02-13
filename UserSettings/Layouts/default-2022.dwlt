@@ -19,7 +19,7 @@ MonoBehaviour:
     width: 1920
     height: 997
   m_ShowMode: 4
-  m_Title: Game
+  m_Title: Inspector
   m_RootView: {fileID: 2}
   m_MinSize: {x: 875, y: 300}
   m_MaxSize: {x: 10000, y: 10000}
@@ -303,7 +303,7 @@ MonoBehaviour:
   m_MinSize: {x: 100, y: 100}
   m_MaxSize: {x: 8096, y: 16192}
   vertical: 1
-  controlID: 127
+  controlID: 121
   draggingID: 0
 --- !u!114 &13
 MonoBehaviour:
@@ -1088,9 +1088,9 @@ MonoBehaviour:
   m_SceneHierarchy:
     m_TreeViewState:
       scrollPos: {x: 0, y: 0}
-      m_SelectedIDs: 08740000
+      m_SelectedIDs: 
       m_LastClickedID: 0
-      m_ExpandedIDs: 66a6ffffa0abffff1efbffff
+      m_ExpandedIDs: 6023ffff1485ffffc2abffff1efbffffa276000002770000287800009078000088790000f6790000607c0000107d00001e7d0000267d0000d4e90000
       m_RenameOverlay:
         m_UserAcceptedRename: 0
         m_Name: 
@@ -1159,7 +1159,7 @@ MonoBehaviour:
     m_SkipHidden: 1
     m_SearchArea: 1
     m_Folders:
-    - Assets/ScriptableObjects/Skill
+    - Assets/Scripts/UI/Panels
     m_Globs: []
     m_OriginalText: 
     m_ImportLogFlags: 0
@@ -1167,15 +1167,15 @@ MonoBehaviour:
   m_ViewMode: 1
   m_StartGridSize: 16
   m_LastFolders:
-  - Assets/ScriptableObjects/Skill
+  - Assets/Scripts/UI/Panels
   m_LastFoldersGridSize: 16
   m_LastProjectPath: C:\Users\HyeonTae Lee\CopycatKnights
   m_LockTracker:
     m_IsLocked: 0
   m_FolderTreeState:
-    scrollPos: {x: 0, y: 558}
-    m_SelectedIDs: 068f0000
-    m_LastClickedID: 36614
+    scrollPos: {x: 0, y: 818}
+    m_SelectedIDs: 328f0000
+    m_LastClickedID: 36658
     m_ExpandedIDs: 00000000888e00008a8e00008c8e00008e8e0000908e0000928e0000948e0000968e0000988e00009a8e00009c8e00009e8e0000a08e0000a28e0000a48e0000a68e0000a88e0000aa8e0000ac8e0000ae8e0000b08e0000b28e0000b48e0000b68e0000b88e0000ba8e0000bc8e0000be8e0000c08e000000ca9a3b
     m_RenameOverlay:
       m_UserAcceptedRename: 0
