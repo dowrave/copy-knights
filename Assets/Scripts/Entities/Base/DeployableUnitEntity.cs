@@ -35,6 +35,7 @@ public abstract class DeployableUnitEntity: UnitEntity, IDeployable
     // 배치 완료 후 커서를 뗀 위치가 오퍼레이터 위치일 때 ActionUI가 나타남을 방지하기 위한 변수들
     private float preventInteractingTime = 0.1f; 
     private float lastDeployTime;
+    public Tile CurrentTile { get; protected set; }
 
     protected override void Awake()
     {
@@ -46,7 +47,7 @@ public abstract class DeployableUnitEntity: UnitEntity, IDeployable
     {
         InitializeDeployableData(deployableUnitData);
 
-        base.UpdateCurrentTile();
+        UpdateCurrentTile();
         Prefab = BaseData.prefab;
 
         InitializeDeployableProperties(); 
@@ -79,7 +80,7 @@ public abstract class DeployableUnitEntity: UnitEntity, IDeployable
         {
             IsDeployed = true;
             IsPreviewMode = false;
-            base.UpdateCurrentTile();
+            UpdateCurrentTile();
             CurrentTile.SetOccupied(this);
             SetPosition(position);
             InitializeHP();
@@ -183,6 +184,20 @@ public abstract class DeployableUnitEntity: UnitEntity, IDeployable
         MaxHealth = currentStats.Health;
         CurrentHealth = MaxHealth;
     }
+
+
+    // 현재 위치한 타일 설정
+    protected virtual void UpdateCurrentTile()
+    {
+        Vector3 position = transform.position;
+        Tile newTile = MapManager.Instance.GetTileAtWorldPosition(position);
+
+        if (newTile != CurrentTile)
+        {
+            CurrentTile = newTile;
+        }
+    }
+
 }
 
 #nullable restore

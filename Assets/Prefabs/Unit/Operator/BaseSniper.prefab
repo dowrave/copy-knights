@@ -118,6 +118,7 @@ GameObject:
   - component: {fileID: 2886673081674858546}
   - component: {fileID: 517033730910062632}
   - component: {fileID: -1203292292963304122}
+  - component: {fileID: -8974212629013193790}
   m_Layer: 6
   m_Name: BaseSniper
   m_TagString: Untagged
@@ -153,8 +154,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6d95cb21862f15047b25fc339c35a4ec, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  unitData: {fileID: 0}
-  deployableUnitData: {fileID: 0}
   currentStats:
     _baseStats:
       _health: 0
@@ -162,20 +161,19 @@ MonoBehaviour:
       _magicResistance: 0
     _deploymentCost: 0
     _redeployTime: 0
-  operatorData: {fileID: 11400000, guid: 5741ce8ccb3daaf4b9f24148fa1675c3, type: 2}
   currentStats:
     _deployableUnitStats:
       _baseStats:
-        _health: 2000
-        _defense: 300
-        _magicResistance: 5
-      _deploymentCost: 7
-      _redeployTime: 70
-    _attackPower: 200
-    _attackSpeed: 2
-    _maxBlockableEnemies: 1
+        _health: 0
+        _defense: 0
+        _magicResistance: 0
+      _deploymentCost: 0
+      _redeployTime: 0
+    _attackPower: 0
+    _attackSpeed: 0
+    _maxBlockableEnemies: 0
     _startSP: 0
-    _spRecoveryRate: 1
+    _spRecoveryRate: 0
   operatorUIPrefab: {fileID: 6495183925303149127, guid: c20d98f4d39f9d645a85f029e0911050, type: 3}
 --- !u!65 &-1203292292963304122
 BoxCollider:
@@ -196,5 +194,32 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 1, y: 1, z: 1}
+  m_Size: {x: 0.8, y: 1, z: 0.8}
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!54 &-8974212629013193790
+Rigidbody:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4844663318455565301}
+  serializedVersion: 4
+  m_Mass: 1
+  m_Drag: 0
+  m_AngularDrag: 0
+  m_CenterOfMass: {x: 0, y: 0, z: 0}
+  m_InertiaTensor: {x: 1, y: 1, z: 1}
+  m_InertiaRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ImplicitCom: 0
+  m_ImplicitTensor: 0
+  m_UseGravity: 0
+  m_IsKinematic: 0
+  m_Interpolate: 0
+  m_Constraints: 126
+  m_CollisionDetection: 1

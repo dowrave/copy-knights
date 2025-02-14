@@ -190,7 +190,7 @@ public class Projectile : MonoBehaviour
         }
     }
 
-    private void OnTargetDestroyed()
+    private void OnTargetDestroyed(UnitEntity unit)
     {
         if (target != null)
         {
@@ -200,7 +200,7 @@ public class Projectile : MonoBehaviour
         }
     }
 
-    private void OnAttackerDestroyed()
+    private void OnAttackerDestroyed(UnitEntity unit)
     {
         if (attacker != null)
         {

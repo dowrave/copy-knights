@@ -51,16 +51,16 @@ public class MapManager : MonoBehaviour
     }
 
     // 월드 좌표에 있는 타일을 반환
-    public Tile GetTileAtPosition(Vector3 worldPosition)
+    public Tile GetTileAtWorldPosition(Vector3 worldPosition)
     {
         Vector2Int gridPosition = currentMap.WorldToGridPosition(worldPosition);
         return currentMap.GetTile(gridPosition.x, gridPosition.y);
     }
 
 
-    public Tile GetTile(int worldX, int worldZ)
+    public Tile GetTile(int gridX, int gridY)
     {
-        return currentMap.GetTile(worldX, worldZ);
+        return currentMap.GetTile(gridX, gridY);
     }
 
     public IEnumerable<Tile> GetAllTiles()

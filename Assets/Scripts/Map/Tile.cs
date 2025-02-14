@@ -19,7 +19,8 @@ public class Tile : MonoBehaviour
     public Vector2 size2D;
 
     // 타일 위에 있는 적들을 저장하는 리스트, 오퍼레이터의 공격 범위가 타일이므로 유지함
-    [HideInInspector]public List<Enemy> enemiesOnTile = new List<Enemy>(); 
+    private List<Enemy> enemiesOnTile = new List<Enemy>();
+    public IReadOnlyList<Enemy> EnemiesOnTile => enemiesOnTile;
 
     /* 
      * 중요! 프로퍼티만 설정하면 변수 저장은 불가능하다
@@ -226,6 +227,24 @@ public class Tile : MonoBehaviour
     {
         return enemiesOnTile;
     }
+
+    //private void OnTriggerEnter(Collider other)
+    //{
+    //    Enemy enemy = other.GetComponent<Enemy>();
+    //    if (enemy != null)
+    //    {
+    //        EnemyEntered(enemy);
+    //    }
+    //}
+
+    //private void OnTriggerExit(Collider other)
+    //{
+    //    Enemy enemy = other.GetComponent<Enemy>();
+    //    if (enemy != null)
+    //    {
+    //        EnemyExited(enemy);
+    //    }
+    //}
 
     // 적이 타일에 진입
     public void EnemyEntered(Enemy enemy)

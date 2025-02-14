@@ -118,6 +118,7 @@ GameObject:
   - component: {fileID: 2122139728292691929}
   - component: {fileID: 8846747372839674758}
   - component: {fileID: 4163448615492591506}
+  - component: {fileID: 6773057061778364063}
   m_Layer: 6
   m_Name: BaseVanguard
   m_TagString: Untagged
@@ -133,7 +134,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 5185628148525671535}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: -0.7071068, z: -0, w: 0.7071068}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 8, y: 0.5, z: 1}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
@@ -153,8 +154,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6d95cb21862f15047b25fc339c35a4ec, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  unitData: {fileID: 0}
-  deployableUnitData: {fileID: 0}
   currentStats:
     _baseStats:
       _health: 0
@@ -162,20 +161,19 @@ MonoBehaviour:
       _magicResistance: 0
     _deploymentCost: 0
     _redeployTime: 0
-  operatorData: {fileID: 11400000, guid: 63da6f9593ceb004a9d47e09da76144c, type: 2}
   currentStats:
     _deployableUnitStats:
       _baseStats:
-        _health: 1500
-        _defense: 300
-        _magicResistance: 20
-      _deploymentCost: 10
-      _redeployTime: 70
-    _attackPower: 1000
-    _attackSpeed: 1.2
-    _maxBlockableEnemies: 1
+        _health: 0
+        _defense: 0
+        _magicResistance: 0
+      _deploymentCost: 0
+      _redeployTime: 0
+    _attackPower: 0
+    _attackSpeed: 0
+    _maxBlockableEnemies: 0
     _startSP: 0
-    _spRecoveryRate: 1
+    _spRecoveryRate: 0
   operatorUIPrefab: {fileID: 6495183925303149127, guid: c20d98f4d39f9d645a85f029e0911050, type: 3}
 --- !u!65 &4163448615492591506
 BoxCollider:
@@ -196,5 +194,32 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 1, y: 1, z: 1}
+  m_Size: {x: 0.8, y: 1, z: 0.8}
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!54 &6773057061778364063
+Rigidbody:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5185628148525671535}
+  serializedVersion: 4
+  m_Mass: 1
+  m_Drag: 0
+  m_AngularDrag: 0
+  m_CenterOfMass: {x: 0, y: 0, z: 0}
+  m_InertiaTensor: {x: 1, y: 1, z: 1}
+  m_InertiaRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ImplicitCom: 0
+  m_ImplicitTensor: 0
+  m_UseGravity: 0
+  m_IsKinematic: 0
+  m_Interpolate: 0
+  m_Constraints: 126
+  m_CollisionDetection: 1

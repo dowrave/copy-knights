@@ -187,8 +187,6 @@ public class MapEditorWindow : EditorWindow
         RemoveExistingMaps();
 
         // Stage 오브젝트 아래에 Map 오브젝트 할당
-        //GameObject stageObject = GetStageObject();
-        //mapObject.transform.SetParent(stageObject.transform);
         GameObject mapObject = new GameObject(MAP_OBJECT_NAME);
         currentMap = mapObject.AddComponent<Map>();
 
@@ -375,6 +373,4 @@ public class MapEditorWindow : EditorWindow
             Debug.LogError("Default tile prefab not found");
         }
     }
-
-
 }

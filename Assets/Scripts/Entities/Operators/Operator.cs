@@ -103,6 +103,7 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable,
 
     public int DeploymentOrder { get; protected set; } // 배치 순서
     protected bool isDeployed = false; // 배치 완료 시 true
+
     public UnitEntity CurrentTarget { get; protected set; }
 
     protected float currentSP;
@@ -175,7 +176,7 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable,
 
     protected void Update()
     {
-        if (IsDeployed)
+        if (IsDeployed && StageManager.Instance.currentState == GameState.Battle)
         {
             UpdateAttackDuration();
             UpdateAttackCooldown();
@@ -186,7 +187,7 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable,
             if (AttackDuration > 0) return;
 
             SetCurrentTarget(); // CurrentTarget 설정
-            ValidateCurrentTarget(); 
+            ValidateCurrentTarget();
 
             if (CanAttack())
             {
@@ -301,36 +302,6 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable,
         DeployableManager.Instance.UpdateDeploymentOrder();
     }
 
-    // --- 저지 관련 메서드들
-    public bool CanBlockEnemy(int enemyBlockCount)
-    {
-        return blockedEnemies.Count + enemyBlockCount <= currentStats.MaxBlockableEnemies;
-    }
-
-    // 저지 가능하다면 현 저지수 + 1
-    public void TryBlockEnemy(Enemy enemy)
-    {
-        int enemyBlockCount = enemy.BaseData.blockCount;
-        if (CanBlockEnemy(enemyBlockCount))
-        {
-            blockedEnemies.Add(enemy);
-        }
-    }
-
-    public void UnblockEnemy(Enemy enemy) 
-    {
-        blockedEnemies.Remove(enemy);
-    }
-
-    public void UnblockAllEnemies()
-    {
-        foreach (Enemy enemy in blockedEnemies)
-        {
-            enemy.UnblockFrom(this);
-        }
-        blockedEnemies.Clear();
-    }
-
     // SP 자동회복 로직 추가
     protected void RecoverSP()
     {
@@ -355,6 +326,58 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable,
                 operatorUIScript.SetSkillIconVisibility(isSkillReady);
             }
         }
+    }
+
+    private void OnTriggerEnter(Collider other)
+    {
+        // 오퍼레이터와의 충돌
+        Enemy collidedEnemy = other.GetComponent<Enemy>();
+
+        if (collidedEnemy != null && 
+            CanBlockEnemy(collidedEnemy.BlockCount) && // 이 오퍼레이터가 이 적을 저지할 수 있을 때 
+            collidedEnemy.BlockingOperator == null) // 해당 적을 저지 중인 아군 오퍼레이터가 없을 때 
+        {
+            BlockEnemy(collidedEnemy); // 적을 저지
+            collidedEnemy.SetBlockingOperator(this);
+        }
+    }
+
+    private void OnTriggerExit(Collider other)
+    {
+        Enemy collidedEnemy = other.GetComponent<Enemy>();
+
+        if (collidedEnemy != null && collidedEnemy.BlockingOperator == this)
+        {
+            UnblockEnemy(collidedEnemy);
+            collidedEnemy.SetBlockingOperator(null);
+        }
+    }
+
+    // --- 저지 관련 메서드들
+    // 지금 들어오는 Enemy가 차지하는 저지 수를 점검해야 해서 이렇게 구현함 (단일 개체 3저지인 적도 있을 거니까)
+    public bool CanBlockEnemy(int enemyBlockCount)
+    {
+        return blockedEnemies.Count + enemyBlockCount <= currentStats.MaxBlockableEnemies;
+    }
+
+    public void BlockEnemy(Enemy enemy)
+    {
+        blockedEnemies.Add(enemy);
+        Debug.Log($"{blockedEnemies}을 저지한 적에 추가");
+    }
+
+    public void UnblockEnemy(Enemy enemy)
+    {
+        blockedEnemies.Remove(enemy);
+    }
+
+    public void UnblockAllEnemies()
+    {
+        foreach (Enemy enemy in blockedEnemies)
+        {
+            enemy.UnblockFrom(this);
+        }
+        blockedEnemies.Clear();
     }
 
     public override void TakeDamage(UnitEntity attacker, AttackSource attackSource, float damage)
@@ -398,16 +421,21 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable,
     }
 
     // 공격 대상인 적이 죽었을 때 작동함. 저지 해제와 별개로 구현
-    public void OnTargetLost(Enemy enemy)
+    public void OnTargetLost(UnitEntity unit)
     {
         // 공격 대상에서 제거
-        if (CurrentTarget == enemy)
+        if (CurrentTarget == unit)
         {
+            // 범위 내 적 리스트에서 제거
+            if (unit is Enemy enemy)
+            {
+                enemiesInRange.Remove(enemy); // 안하면 리스트에 파괴된 오브젝트가 남아서 0번 인덱스를 캐치하지 못함
+                Debug.LogWarning($"{enemy}가 제거되면서 enemiesInRange에서 제외됨");
+                Debug.Log($"{BaseData.entityName}의 enemiesInRange의 길이  : {enemiesInRange.Count}");
+            }
+
             CurrentTarget = null;
         }
-
-        // 범위 내 적 리스트에서 제거
-        enemiesInRange.Remove(enemy); // 안하면 리스트에 파괴된 오브젝트가 남아서 0번 인덱스를 캐치하지 못함
     }
 
     public void HighlightAttackRange()
@@ -436,11 +464,9 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable,
     /// 현재 타겟의 유효성 검사
     protected virtual void ValidateCurrentTarget()
     {
-        if (CurrentTarget == null)
-        {
-            return;
-        }
-           
+        if (CurrentTarget == null) return;
+        if (blockedEnemies.Contains(CurrentTarget)) return;
+
         // 범위에서 벗어난 경우
         if (!IsCurrentTargetInRange())
         {
@@ -448,16 +474,14 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable,
             CurrentTarget = null;
         }
     }
-
-    /// CurrentTarget이 이동했을 때, 공격범위 내에 있는지 체크
+    
+    // Target이 공격 범위 내의 타일에 있는지 체크
     protected bool IsCurrentTargetInRange()
     {
-        Vector2Int targetGridPos = MapManager.Instance.CurrentMap.WorldToGridPosition(CurrentTarget.transform.position);
-        Vector2Int operatorGridPos = MapManager.Instance.CurrentMap.WorldToGridPosition(transform.position);
-
         foreach (Vector2Int eachPos in CurrentAttacakbleGridPos)
         {
-            if (eachPos == targetGridPos)
+            Tile eachTile = MapManager.Instance.GetTile(eachPos.x, eachPos.y);
+            if (eachTile.EnemiesOnTile.Contains(CurrentTarget))
             {
                 return true;
             }
@@ -533,7 +557,6 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable,
                     break;
                 }
             }
-
             NotifyTarget();
             return;
         }
@@ -544,6 +567,7 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable,
         if (enemiesInRange.Count > 0)
         {
             CurrentTarget = enemiesInRange.OrderBy(E => E.GetRemainingPathDistance()).FirstOrDefault();
+
             if (CurrentTarget != null)
             {
                 NotifyTarget();
@@ -559,16 +583,20 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable,
     // 공격 대상 제거 로직
     public void RemoveCurrentTarget()
     {
-        if (CurrentTarget == null) return;
-
-        CurrentTarget.RemoveAttackingEntity(this);
-        CurrentTarget = null;
+        if (CurrentTarget != null)
+        {
+            CurrentTarget.RemoveAttackingEntity(this);
+            CurrentTarget = null;
+        }
     }
 
     // ICombatEntity 메서드들
     public void NotifyTarget()
     {
-        CurrentTarget.AddAttackingEntity(this);
+        if (CurrentTarget != null)
+        {
+            CurrentTarget.AddAttackingEntity(this);
+        }
     }
 
     // 공격 모션 
@@ -613,8 +641,7 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable,
         return IsDeployed &&
             CurrentTarget != null &&
             AttackCooldown <= 0 &&
-            AttackDuration <= 0 && 
-            IsCurrentTargetInRange(); // 공격 범위 내에 있음
+            AttackDuration <= 0;
     }
 
     public void UseSkill()

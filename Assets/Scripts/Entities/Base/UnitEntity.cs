@@ -8,9 +8,7 @@ public abstract class UnitEntity : MonoBehaviour, ITargettable, IFactionMember
 {
     public Faction Faction { get; protected set; }
 
-    public Tile CurrentTile { get; protected set; }
     public GameObject Prefab { get; protected set; }
-
     public ShieldSystem shieldSystem;
 
     // 스탯 관련
@@ -36,7 +34,7 @@ public abstract class UnitEntity : MonoBehaviour, ITargettable, IFactionMember
 
     // 이벤트
     public event System.Action<float, float, float> OnHealthChanged;
-    public event System.Action OnDestroyed;
+    public event System.Action<UnitEntity> OnDestroyed;
     public event System.Action<CrowdControl, bool> OnCrowdControlChanged;
 
     protected virtual void Awake()
@@ -73,18 +71,6 @@ public abstract class UnitEntity : MonoBehaviour, ITargettable, IFactionMember
         }
     }
 
-    // 현재 위치한 타일 설정
-    protected virtual void UpdateCurrentTile()
-    {
-        Vector3 position = transform.position;
-        Tile newTile = MapManager.Instance.GetTileAtPosition(position);
-
-        if (newTile != CurrentTile)
-        {
-            CurrentTile = newTile;
-        }
-    }
-
     public virtual void AddAttackingEntity(ICombatEntity attacker)
     {
         if (!attackingEntities.Contains(attacker))
@@ -103,11 +89,12 @@ public abstract class UnitEntity : MonoBehaviour, ITargettable, IFactionMember
     protected virtual void Die()
     {
         // 공격중인 적들의 타겟 제거
-        foreach (ICombatEntity entity in attackingEntities)
-        {
-            entity.RemoveCurrentTarget();
-        }
-        OnDestroyed?.Invoke();
+        //foreach (ICombatEntity entity in attackingEntities)
+        //{
+        //    entity.RemoveCurrentTarget();
+        //}
+
+        OnDestroyed?.Invoke(this);
         RemoveAllCrowdControls();
         Destroy(gameObject);
     }

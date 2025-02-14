@@ -46,7 +46,7 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity, ICrowdControlTarget
     private Barricade targetBarricade;
 
     private Operator blockingOperator; // 자신을 저지 중인 오퍼레이터
-    public bool IsBlocked { get { return blockingOperator != null; } }
+    public Operator BlockingOperator => blockingOperator;
     public UnitEntity CurrentTarget { get; private set; } // 공격 대상
 
     protected int initialPoolSize = 5;
@@ -56,19 +56,15 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity, ICrowdControlTarget
     string meleeAttackEffectTag;
     string hitEffectTag;
 
-    // 이벤트 태그
-    public event System.Action<Enemy> OnEnemyDied;
-
-
     [SerializeField] private GameObject enemyBarUIPrefab;
     private EnemyBarUI enemyBarUI;
 
+    // 접촉 중인 타일 관리
+    private List<Tile> contactedTiles = new List<Tile>();
+
     // ICrowdControlTarget
     public Vector3 Position => transform.position;
-    public void SetMovementSpeed(float newSpeed)
-    {
-        currentStats.MovementSpeed = newSpeed;
-    }
+
 
     protected override void Awake()
     {
@@ -85,7 +81,7 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity, ICrowdControlTarget
         InitializeHP();
 
         // 현재 위치를 기반으로 한 타일 설정
-        UpdateCurrentTile();
+        //UpdateCurrentTile();
         
         // 프리팹 설정
         Prefab = enemyData.prefab;
@@ -130,45 +126,48 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity, ICrowdControlTarget
 
     protected void Update()
     {
-        UpdateAttackDuration();
-        UpdateAttackCooldown();
-        UpdateCrowdControls();
 
-        if (pathData != null && nextNodeIndex < pathData.nodes.Count)
+        if (StageManager.Instance.currentState == GameState.Battle)
         {
-            if (activeCC.Any(cc => cc is StunEffect)) return; // 스턴
-            if (AttackDuration > 0) return;  // 공격 모션 중
+            UpdateAttackDuration();
+            UpdateAttackCooldown();
+            UpdateCrowdControls();
 
-            // 공격 범위 내의 적 리스트 & 현재 공격 대상 갱신
-            SetCurrentTarget();
-
-            // 저지당함 - 근거리 공격
-            if (blockingOperator != null)
+            if (pathData != null && nextNodeIndex < pathData.nodes.Count)
             {
-                if (CurrentTarget != null && AttackCooldown <= 0)
-                {
-                    PerformMeleeAttack(CurrentTarget, AttackPower); 
-                }
-            }
-            else
-            {
-                // 바리케이트가 타겟일 경우
-                if (targetBarricade != null && Vector3.Distance(transform.position, targetBarricade.transform.position) < 0.5f)
-                {
-                    PerformMeleeAttack(targetBarricade, AttackPower);
-                }
+                if (activeCC.Any(cc => cc is StunEffect)) return; // 스턴
+                if (AttackDuration > 0) return;  // 공격 모션 중
 
-                // 타겟이 있고, 공격이 가능한 상태
-                if (CanAttack())
-                {
-                    Attack(CurrentTarget, AttackPower);
-                }
+                // 공격 범위 내의 적 리스트 & 현재 공격 대상 갱신
+                SetCurrentTarget();
 
-                // 이동 관련 로직.
-                else if (!isWaiting)
+                // 저지당함 - 근거리 공격
+                if (blockingOperator != null)
                 {
-                    MoveAlongPath(); // 이동
-                    CheckAndAddBlockingOperator(); // 같은 타일에 있는 오퍼레이터의 저지 가능 여부 체크
+                    if (CurrentTarget != null && AttackCooldown <= 0)
+                    {
+                        PerformMeleeAttack(CurrentTarget, AttackPower); 
+                    }
+                }
+                else
+                {
+                    // 바리케이트가 타겟일 경우
+                    if (targetBarricade != null && Vector3.Distance(transform.position, targetBarricade.transform.position) < 0.5f)
+                    {
+                        PerformMeleeAttack(targetBarricade, AttackPower);
+                    }
+
+                    // 타겟이 있고, 공격이 가능한 상태
+                    if (CanAttack())
+                    {
+                        Attack(CurrentTarget, AttackPower);
+                    }
+
+                    // 이동 관련 로직.
+                    else if (!isWaiting)
+                    {
+                        MoveAlongPath(); // 이동
+                    }
                 }
             }
         }
@@ -186,22 +185,6 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity, ICrowdControlTarget
         destinationPosition = currentPath[currentPath.Count - 1]; // 목적지 설정
     }
 
-    private void CheckAndAddBlockingOperator()
-    {
-        if (CurrentTile != null)
-        {
-            IDeployable tileDeployable = CurrentTile.OccupyingDeployable;
-
-            if (tileDeployable is Operator op)
-            {
-                if (op.BlockedEnemies.Count >= op.currentStats.MaxBlockableEnemies) return; 
-
-                blockingOperator = op;
-                blockingOperator.TryBlockEnemy(this); // 오퍼레이터에서도 저지 중인 Enemy를 추가
-            }
-        }
-    }
-
     // 경로를 따라 이동
     private void MoveAlongPath()
     {
@@ -214,7 +197,7 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity, ICrowdControlTarget
         Move(nextPosition);
 
         // 타일 갱신
-        UpdateCurrentTile();
+        //UpdateCurrentTile();
 
         // 노드 도달 확인
         if (Vector3.Distance(transform.position, nextPosition) < 0.05f)
@@ -240,18 +223,6 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity, ICrowdControlTarget
     public void Move(Vector3 destination)
     {
         transform.position = Vector3.MoveTowards(transform.position, destination, MovementSpeed * Time.deltaTime);
-    }
-
-    protected override void UpdateCurrentTile()
-    {
-        Vector3 position = transform.position;
-        Tile newTile = MapManager.Instance.GetTileAtPosition(position);
-
-        if (newTile != CurrentTile)
-        {
-            ExitTile();
-            EnterNewTile(newTile);
-        }
     }
 
     // 대기 중일 때 실행
@@ -372,6 +343,12 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity, ICrowdControlTarget
             op.OnTargetLost(this);
         }
 
+        // 접촉 중인 타일들에서 이 개체 제거
+        foreach (Tile tile in contactedTiles)
+        {
+            tile.EnemyExited(this);
+        }
+
         StageManager.Instance.OnEnemyDefeated(); // 사망한 적 수 +1
 
         // 공격 이펙트 프리팹 제거
@@ -427,28 +404,12 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity, ICrowdControlTarget
         }
     }
 
-    private void ExitTile()
-    {
-        if (CurrentTile != null)
-        {
-            CurrentTile.EnemyExited(this);
-            CurrentTile = null;
-        }
-    }
-
     public void UnblockFrom(Operator op)
     {
         if (blockingOperator == op)
         {
             blockingOperator = null;
         }
-    }
-
-    private void EnterNewTile(Tile newTile)
-    {
-        CurrentTile = newTile;
-        CurrentTile.EnemyEntered(this);
-        CheckAndAddBlockingOperator();
     }
 
     // 마지막 타일의 월드 좌표 기준
@@ -461,12 +422,6 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity, ICrowdControlTarget
 
         return Vector3.Distance(transform.position, lastNodePosition) < 0.05f;
     }
-
-    protected void InitializeUnitProperties()
-    {
-
-    }
-
 
     // Enemy가 공격할 대상 지정
     public void SetCurrentTarget()
@@ -552,7 +507,7 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity, ICrowdControlTarget
     private void OnBarricadePlaced(Barricade barricade)
     {
         // 내 타일과 같은 타일에 바리케이드가 배치된 경우
-        if (barricade.CurrentTile.enemiesOnTile.Contains(this))
+        if (barricade.CurrentTile.EnemiesOnTile.Contains(this))
         {
             targetBarricade = barricade;
         }
@@ -791,12 +746,13 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity, ICrowdControlTarget
         CurrentHealth = MaxHealth;
     }
 
-    protected void OnDestroy()
+    public void SetBlockingOperator(Operator op)
     {
-        ExitTile();
-        RemoveObjectPool();
+        if (blockingOperator == null)
+        {
+            blockingOperator = op;
+        }
     }
-
     protected override float CalculateActualDamage(AttackType attacktype, float incomingDamage)
     {
         float actualDamage = 0; // 할당까지 필수
@@ -816,5 +772,36 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity, ICrowdControlTarget
 
         return Mathf.Max(actualDamage, 0.05f * incomingDamage); // 들어온 대미지의 5%는 들어가게끔 보장
     }
+
+    private void OnTriggerEnter(Collider other)
+    {
+        Tile tile = other.GetComponent<Tile>();
+        if (tile != null)
+        {
+            contactedTiles.Add(tile);
+            tile.EnemyEntered(this);
+        }
+    }
+
+    private void OnTriggerExit(Collider other)
+    {
+        Tile tile = other.GetComponent<Tile>();
+        if (tile != null && contactedTiles.Contains(tile))
+        {
+            tile.EnemyExited(this);
+            contactedTiles.Remove(tile);
+        }
+    }
+
+    public void SetMovementSpeed(float newSpeed)
+    {
+        currentStats.MovementSpeed = newSpeed;
+    }
+
+    protected void OnDestroy()
+    {
+        RemoveObjectPool();
+    }
+
 }
 

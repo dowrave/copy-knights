@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 public class SlashSkillController : MonoBehaviour
@@ -108,7 +109,7 @@ public class SlashSkillController : MonoBehaviour
             {
                 Enemy enemy = col.GetComponent<Enemy>();
 
-                if (enemy != null && !damagedEnemies.Contains(enemy) && EnemyInRangeTile(enemy))
+                if (enemy != null && !damagedEnemies.Contains(enemy) && IsEnemyInRangeTile(enemy))
                 {
                     damagedEnemies.Add(enemy);
 
@@ -122,9 +123,14 @@ public class SlashSkillController : MonoBehaviour
     }
 
     // 타일 조건을 체크
-    private bool EnemyInRangeTile(Enemy enemy)
+    private bool IsEnemyInRangeTile(Enemy enemy)
     {
-        return attackableGridPositions.Contains(enemy.CurrentTile.GridPosition);
+        foreach (Vector2Int gridPos in attackableGridPositions)
+        {
+            Tile eachTile = MapManager.Instance.GetTile(gridPos.x, gridPos.y);
+            if (eachTile.EnemiesOnTile.Contains(enemy)) return true;
+        }
+        return false;
     }
 
     private void OnDestroy()
