@@ -95,7 +95,6 @@
     <Compile Include="Assets\Scripts\Core\Managers\MainMenuManager.cs" />
     <Compile Include="Assets\Scripts\UI\Panels\StageSelectPanel.cs" />
     <Compile Include="Assets\Scripts\Skills\SkillController\MeteorController.cs" />
-    <Compile Include="Assets\Scripts\UI\Panels\InfoPanel.cs" />
     <Compile Include="Assets\Scripts\Data\TileData.cs" />
     <Compile Include="Assets\Scripts\Core\Managers\SpawnerManager.cs" />
     <Compile Include="Assets\Scripts\Core\Managers\CCEffectManager.cs" />
@@ -112,6 +111,7 @@
     <Compile Include="Assets\Scripts\Data\CCEffectDatabase.cs" />
     <Compile Include="Assets\Scripts\UI\Components\DiamondMask.cs" />
     <Compile Include="Assets\Scripts\Skills\Base(Abstract)\PassiveSkill.cs" />
+    <Compile Include="Assets\Scripts\UI\Panels\InStageInfoPanel.cs" />
     <Compile Include="Assets\Scripts\UI\Components\DeployableDeployingUI.cs" />
     <Compile Include="Assets\Scripts\Interfaces\ITargettable.cs" />
     <Compile Include="Assets\Scripts\Skills\Base(Abstract)\BaseSkill.cs" />

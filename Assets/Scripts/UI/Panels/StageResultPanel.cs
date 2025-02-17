@@ -289,8 +289,6 @@ public class StageResultPanel : MonoBehaviour
             yield return new WaitForSecondsRealtime(starActivationInterval); // 주의 : WaitForSeconds는 Time.timeScale의 영향을 받는다.
 
         }
-
-        Debug.Log("All star animations completed");
     }
     /// <summary>
     /// 결과 창의 스테이지 숫자, 이름, 클리어 텍스트를 변경합니다.

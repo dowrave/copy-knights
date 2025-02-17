@@ -71,13 +71,13 @@ public class SquadEditPanel : MonoBehaviour
                 else
                 {
                     // ºó ½½·Ô
-                    slot.SetEmptyOrDisabled(true);
+                    slot.InitializeEmptyOrDisabled(true);
                 }
             }
             else
             {
                 // »ç¿ë ºÒ°¡´É ½½·Ô
-                slot.SetEmptyOrDisabled(false);
+                slot.InitializeEmptyOrDisabled(false);
             }
         }
 

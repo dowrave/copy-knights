@@ -160,9 +160,7 @@ public class OperatorInventoryPanel : MonoBehaviour
         if (selectedSlot != null && selectedSlot.OwnedOperator != null)
         {
             selectedSlot.OwnedOperator.SetStageSelectedSkill(selectedSkill);
-            //selectedSlot.OwnedOperator.StageSelectedSkill = selectedSkill;
             GameManagement.Instance.UserSquadManager.ConfirmOperatorSelection(selectedSlot.OwnedOperator);
-            // 돌아가기
             ReturnToSquadEditPanel();
         }
     }
@@ -228,7 +226,7 @@ public class OperatorInventoryPanel : MonoBehaviour
         attackRangeHelper.ShowBasicRange(op.CurrentAttackableGridPos);
 
         // 스킬 버튼 초기화 및 설정
-        UpdateSkillButtons(op);
+        UpdateSkillButtons(slot);
     }
 
     private void ClearSideView()
@@ -257,12 +255,12 @@ public class OperatorInventoryPanel : MonoBehaviour
         skill1Button.interactable = false;
         skill2Button.interactable = false;
 
-
         selectedSkill = null;
     }
 
-    private void UpdateSkillButtons(OwnedOperator op)
+    private void UpdateSkillButtons(OperatorSlot slot)
     {
+        OwnedOperator op = slot.OwnedOperator;
         skill1Button.interactable = true;
         var unlockedSkills = op.UnlockedSkills;
         skill1Button.GetComponent<Image>().sprite = unlockedSkills[0].skillIcon;
@@ -270,8 +268,8 @@ public class OperatorInventoryPanel : MonoBehaviour
         // 디폴트 스킬 설정
         if (selectedSkill == null)
         {
-            selectedSkill = op.DefaultSelectedSkill;
-            UpdateSkillSelection();
+            selectedSkill = slot.SelectedSkill;
+            UpdateSkillSelectionIndicator();
             UpdateSkillDescription();
         }
 
@@ -295,12 +293,13 @@ public class OperatorInventoryPanel : MonoBehaviour
         if (skillIndex < skills.Count)
         {
             selectedSkill = skills[skillIndex];
-            UpdateSkillSelection();
+            selectedSlot.UpdateSelectedSkill(selectedSkill);
+            UpdateSkillSelectionIndicator();
             UpdateSkillDescription();
         }
     }
 
-    private void UpdateSkillSelection()
+    private void UpdateSkillSelectionIndicator()
     {
         if (selectedSlot?.OwnedOperator == null) return;
 

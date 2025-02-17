@@ -1,12 +1,22 @@
 using TMPro;
 using UnityEngine;
+using UnityEngine.UI;
+
 
 /// <summary>
 /// 스테이지에서 사용되는, 오퍼레이터의 정보를 표시하는 패널입니다.
 /// </summary>
-public class InfoPanel : MonoBehaviour
+public class InStageInfoPanel : MonoBehaviour
 {
+
+    [Header("Base Info Fields")]
+    [SerializeField] private Image classIconImage;
+    [SerializeField] private GameObject operatorLevelTextBox;
+    [SerializeField] private Image promotionIconImage;
     [SerializeField] private TextMeshProUGUI nameText;
+    [SerializeField] private TextMeshProUGUI levelText;
+
+    [Header("Stat Fields")]
     [SerializeField] private TextMeshProUGUI healthText;
     [SerializeField] private TextMeshProUGUI attackText;
     [SerializeField] private TextMeshProUGUI defenseText;
@@ -24,6 +34,7 @@ public class InfoPanel : MonoBehaviour
         statsContainer.SetActive(false);
     }
 
+    // 배치되지 않은 유닛 클릭 시 패널 정보 갱신
     public void UpdateUnDeployedInfo(DeployableManager.DeployableInfo deployableInfo)
     {
         currentDeployableInfo = deployableInfo;
@@ -34,11 +45,13 @@ public class InfoPanel : MonoBehaviour
             currentOperator = currentDeployableInfo.prefab.GetComponent<Operator>();
             currentDeployable = null;
             nameText.text = currentDeployableInfo.operatorData.entityName;
-            statsContainer.SetActive(true);
             UpdateOperatorInfo();
         }
         else // deployableUnitEntity 정보 업데이트
         {
+            classIconImage.gameObject.SetActive(false);
+            operatorLevelTextBox.gameObject.SetActive(false);
+
             currentDeployable = currentDeployableInfo.prefab.GetComponent<DeployableUnitEntity>();
             currentOperator = null;
             nameText.text = currentDeployableInfo.deployableUnitData.entityName;
@@ -46,12 +59,10 @@ public class InfoPanel : MonoBehaviour
         }
     }
 
-    /// <summary>
-    /// 배치된 유닛을 클릭했을 때의 패널 정보 갱신
-    /// </summary>
+    // 배치된 유닛 클릭 시 패널 정보 갱신
     public void UpdateDeployedInfo(DeployableUnitEntity deployableUnitEntity)
-    {
-        // 기존에 currentOperator가 있었다면 이벤트 해제
+    { 
+        // 기존 이벤트 해제
         if (currentOperator != null)
         {
             currentOperator.OnHealthChanged -= UpdateHealthText;
@@ -63,14 +74,16 @@ public class InfoPanel : MonoBehaviour
             currentOperator = op;
             currentDeployable = null;
             nameText.text = currentDeployableInfo.operatorData.entityName;
-            statsContainer.SetActive(true);
             UpdateOperatorInfo();
         }
         else
         {
+            // 클래스 아이콘, 레벨 정보 가림
+            classIconImage.gameObject.SetActive(false);
+            operatorLevelTextBox.gameObject.SetActive(false);
+
             currentDeployable = deployableUnitEntity;
             currentOperator = null;
-
             nameText.text = currentDeployableInfo.deployableUnitData.entityName;
             statsContainer.SetActive(false);
         }
@@ -80,26 +93,48 @@ public class InfoPanel : MonoBehaviour
     {
         if (currentOperator == null) return;
 
-        // 오퍼레이터가 배치되었는지 확인
+        OwnedOperator ownedOperator = currentDeployableInfo.ownedOperator;
+
+        // 아이콘 이미지 패널 활성화 및 할당
+        classIconImage.gameObject.SetActive(true);
+        operatorLevelTextBox.gameObject.SetActive(true);
+        OperatorIconHelper.SetClassIcon(classIconImage, ownedOperator.BaseData.operatorClass);
+        OperatorIconHelper.SetElitePhaseIcon(promotionIconImage, ownedOperator.currentPhase);
+
+        // 스탯 정보 보이게 하기
+        statsContainer.SetActive(true);
+
+        levelText.text = $"{ownedOperator.currentLevel}";
+
         if (currentOperator.IsDeployed)
         {
             currentOperator.OnHealthChanged += UpdateHealthText;
             currentOperator.OnStatsChanged += UpdateOperatorInfo;
+        }
 
+        var currentUnitStates = DeployableManager.Instance.UnitStates[currentDeployableInfo];
+
+        UpdateStatText();
+    }
+
+    private void UpdateStatText()
+    {
+        // 배치된 경우 - 실시간 정보를 가져옴
+        if (currentOperator.IsDeployed)
+        {
             UpdateHealthText(currentOperator.CurrentHealth, currentOperator.MaxHealth);
             attackText.text = $"공격력: {Mathf.Ceil(currentOperator.currentStats.AttackPower)}";
             defenseText.text = $"방어력: {Mathf.Ceil(currentOperator.currentStats.Defense)}";
             magicResistanceText.text = $"마법저항력: {Mathf.Ceil(currentOperator.currentStats.MagicResistance)}";
             blockCountText.text = $"저지수: {Mathf.Ceil(currentOperator.currentStats.MaxBlockableEnemies)}";
         }
-
-        // 배치되지 않은 경우
+        // 배치되지 않은 경우 - ownedOperator의 정보를 가져옴
         else
         {
             OperatorStats ownedOperatorStats = currentDeployableInfo.ownedOperator.CurrentStats;
 
             // 배치되지 않은 경우 : OwnedOperator의 정보를 가져옴
-            float initialHealth = ownedOperatorStats.Health; 
+            float initialHealth = ownedOperatorStats.Health;
             UpdateHealthText(initialHealth, initialHealth);
             attackText.text = $"공격력: {Mathf.Ceil(ownedOperatorStats.AttackPower)}";
             defenseText.text = $"방어력: {Mathf.Ceil(ownedOperatorStats.Defense)}";
@@ -110,7 +145,7 @@ public class InfoPanel : MonoBehaviour
 
     private void UpdateHealthText(float currentHealth, float maxHealth, float currentShield = 0)
     {
-        healthText.text = $"체력 : {Mathf.Ceil(currentHealth)} / {Mathf.Ceil(maxHealth)}";
+        healthText.text = $"체력 <color=#ff6666>{Mathf.Ceil(currentHealth)} / {Mathf.Ceil(maxHealth)}</color>";
     }
 
     private void OnDisable()

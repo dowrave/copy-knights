@@ -203,9 +203,10 @@ public class MainMenuManager : MonoBehaviour
     {
         if (reversePanelMap.TryGetValue(panelToShow, out MenuPanel newPanel))
         {
+            currentPanel = newPanel;
+
             // 새 패널 활성화
             panelToShow.SetActive(true);
-            currentPanel = newPanel;
             UpdateTopAreaButtons();
 
             // 새 패널 페이드 인
@@ -225,12 +226,13 @@ public class MainMenuManager : MonoBehaviour
     {
         if (reversePanelMap.TryGetValue(panelToShow, out MenuPanel newPanel))
         {
+            currentPanel = newPanel;
+
             // 새 패널 활성화 
             panelToShow.SetActive(true);
             CanvasGroup showGroup = panelToShow.GetComponent<CanvasGroup>();
             showGroup.alpha = 1f; // 어떤 패널은 알파가 0을 유지하는 경우가 있어서 일부러 넣음
 
-            currentPanel = newPanel;
             UpdateTopAreaButtons();
 
             // 현재 패널 페이드 아웃
@@ -258,9 +260,7 @@ public class MainMenuManager : MonoBehaviour
         }
     }
 
-    /// <summary>
-    /// 현재 스테이지 정보를 저장
-    /// </summary>
+    // 현재 스테이지 정보를 저장
     public void SetSelectedStage(StageData stageData)
     {
         SelectedStage = stageData;

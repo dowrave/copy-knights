@@ -29,6 +29,8 @@ public class DeployableManager : MonoBehaviour
     private GameObject currentDeployablePrefab;
     private DeployableUnitEntity currentDeployable;
 
+    public DeployableInfo CurrentDeployableInfo => currentDeployableInfo;
+
     // 각 DeployableInfo에 대한 게임 상태를 관리
     private Dictionary<DeployableInfo, DeployableUnitState> unitStates = new Dictionary<DeployableInfo, DeployableUnitState>();
     public Dictionary<DeployableInfo, DeployableUnitState> UnitStates => unitStates;
@@ -455,7 +457,7 @@ public class DeployableManager : MonoBehaviour
         int cost = gameState.CurrentDeploymentCost;
 
         // 코스트 지불 가능 & 배치 가능 상태
-        if (StageManager.Instance.TryUseDeploymentCost(cost) && gameState.OnDeploy())
+        if (StageManager.Instance.TryUseDeploymentCost(cost) && gameState.OnDeploy(currentDeployable))
         {
             if (currentDeployable is Operator op)
             {

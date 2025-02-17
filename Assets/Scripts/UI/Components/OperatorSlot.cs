@@ -2,6 +2,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 using UnityEngine.Events;
+using Skills.Base;
 
 
 // 스쿼드 편집 패널과 오퍼레이터 선택 패널에서 공통으로 사용되는 오퍼레이터 슬롯 버튼을 구현
@@ -34,6 +35,7 @@ public class OperatorSlot : MonoBehaviour
     public OperatorData opData => OwnedOperator?.BaseData;
 
     public bool IsSelected { get; private set; } = false;
+    public BaseSkill SelectedSkill { get; private set; } = null; // 초기화 때에만 null
 
     // OperatorSlotButton 타입의 파라미터를 받는 이벤트 정의
     public UnityEvent<OperatorSlot> OnSlotClicked = new UnityEvent<OperatorSlot>();
@@ -59,33 +61,31 @@ public class OperatorSlot : MonoBehaviour
         }
         else
         {
-            SetEmptyOrDisabled(isActive);
+            InitializeEmptyOrDisabled(isActive);
         }
     }
-
-    // Initialize를 수정, 기존 타입을 받는 구조도 수정된 Initialize로 보내게끔 이렇게 구성함
-    public void Initialize(bool isActive, OperatorData operatorData)
-    {
-        if (operatorData != null)
-        {
-            var ownedOp = GameManagement.Instance.PlayerDataManager.GetOwnedOperator(operatorData.entityName);
-            Initialize(isActive, ownedOp);
-        }
-        else
-        {
-            Initialize(isActive, (OwnedOperator)null);
-        }
-    }
-
 
     // 1. Empty와 Disabled의 구현 차이가 거의 없어서 함께 이용
     // 2. OperatorSelectionPanel에서 SquadEditPanel의 Slot을 비울 때에도 쓸 수 있음
-    public void SetEmptyOrDisabled(bool isActive)
+    public void InitializeEmptyOrDisabled(bool isActive)
     { 
         OwnedOperator = null;
         activeComponent.SetActive(false);
         slotText.gameObject.SetActive(true);
-        UpdateVisuals();
+
+        // 비활성 슬롯 표시
+        if (!isThisActiveButton)
+        {
+            InitializeInactiveSlotVisuals();
+            return;
+        }
+
+        // 빈 슬롯 표시
+        if (OwnedOperator == null)
+        {
+            InitializeEmptySlotVisuals();
+            return;
+        }
     }
 
 
@@ -94,41 +94,13 @@ public class OperatorSlot : MonoBehaviour
     public void AssignOperator(OwnedOperator newOwnedOperator)
     {
         OwnedOperator = newOwnedOperator;
-        UpdateVisuals();
-    }
-
-
-    // 상태 변화에 따른 버튼의 모든 시각적인 요소를 처리함
-    private void UpdateVisuals()
-    {
-        if (!isThisActiveButton)
-        {
-            // 비활성 슬롯 표시
-            SetInactiveSlotVisuals();
-            return;
-        }
-
-        if (OwnedOperator == null)
-        {
-            // 빈 슬롯 표시
-            SetEmptySlotVisuals();
-            return;
-        }
-
-        // 오퍼레이터가 할당된 슬롯 표시
-        SetOperatorSlotVisuals();
-
-        // 선택 상태 표시
-        UpdateSelectionIndicator();
-
-        // 버튼 색상 업데이트
-        UpdateButtonColor();
+        InitializeActiveSlotVisuals();
     }
     
     public void SetSelected(bool selected)
     {
         IsSelected = selected;
-        UpdateVisuals();
+        UpdateSelectionIndicator();
         OnSlotClicked.Invoke(this);
     }
 
@@ -137,7 +109,7 @@ public class OperatorSlot : MonoBehaviour
         return opData == null;
     }
 
-    private void SetInactiveSlotVisuals()
+    private void InitializeInactiveSlotVisuals()
     {
         activeComponent.SetActive(false);
         slotText.gameObject.SetActive(true);
@@ -146,7 +118,7 @@ public class OperatorSlot : MonoBehaviour
         UpdateButtonColor();
     }
 
-    private void SetEmptySlotVisuals()
+    private void InitializeEmptySlotVisuals()
     {
         activeComponent.SetActive(false);
         slotText.gameObject.SetActive(true);
@@ -155,7 +127,7 @@ public class OperatorSlot : MonoBehaviour
         UpdateButtonColor();
     }
 
-    private void SetOperatorSlotVisuals()
+    private void InitializeActiveSlotVisuals()
     {
         // 기본 UI 상태 설정
         activeComponent.SetActive(true);
@@ -183,30 +155,41 @@ public class OperatorSlot : MonoBehaviour
         OperatorIconHelper.SetClassIcon(classIconImage, opData.operatorClass);
 
         // 스킬 아이콘 설정
-        UpdateSkillIcon();
+        InitializeSkillIcon();
 
         // 오퍼레이터 이름 설정
         operatorNameText.gameObject.SetActive(true);
         operatorNameText.text = opData.entityName;
+
+        UpdateButtonColor();
+        UpdateSelectionIndicator();
     }
 
-    private void UpdateSkillIcon()
+    private void InitializeSkillIcon()
     {
         skillImage.gameObject.SetActive(true);
 
         // 스쿼드 편집 패널 : 스테이지에서 사용할 스킬 표시
-        if (OwnedOperator.StageSelectedSkill != null && 
+        if (OwnedOperator.StageSelectedSkill != null &&
             MainMenuManager.Instance.CurrentPanel == MainMenuManager.MenuPanel.SquadEdit)
         {
-            skillImage.sprite = OwnedOperator.StageSelectedSkill.skillIcon;
+            SelectedSkill = OwnedOperator.StageSelectedSkill;
+            skillImage.sprite = SelectedSkill.skillIcon;
         }
 
         // 인벤토리 패널 : 기본 선택된 스킬 표시
-        else if (OwnedOperator.DefaultSelectedSkill != null && 
+        if (OwnedOperator.DefaultSelectedSkill != null &&
             MainMenuManager.Instance.CurrentPanel == MainMenuManager.MenuPanel.OperatorInventory)
         {
+            SelectedSkill = OwnedOperator.DefaultSelectedSkill;
             skillImage.sprite = OwnedOperator.DefaultSelectedSkill.skillIcon;
         }
+    }
+
+    public void UpdateSelectedSkill(BaseSkill skill)
+    {
+        SelectedSkill = skill;
+        skillImage.sprite = SelectedSkill.skillIcon;
     }
 
     private void UpdateSelectionIndicator()

@@ -17,7 +17,7 @@ public class UIManager : MonoBehaviour
     [SerializeField] private GameObject infoPanelObject; // 선택된 오퍼레이터 정보 패널
     [SerializeField] private GameObject stageResultPanelObject; 
 
-    private InfoPanel infoPanelScript;
+    private InStageInfoPanel inStageInfoPanelScript;
 
     [Header("Top Panel Elements")]
     [SerializeField] private TextMeshProUGUI enemyCountText;
@@ -57,7 +57,7 @@ public class UIManager : MonoBehaviour
         }
 
         // 비활성화 전에 참조를 넣어두는 게 좋다
-        infoPanelScript = infoPanelObject.GetComponent<InfoPanel>();
+        inStageInfoPanelScript = infoPanelObject.GetComponent<InStageInfoPanel>();
 
         // 패널 비활성화
         gameOverPanelObject.SetActive(false);
@@ -120,9 +120,8 @@ public class UIManager : MonoBehaviour
         });
     }
 
-    /// <summary>
-    /// 게임 승리/패배 패널이 나타난 후에 결과 패널 활성화
-    /// </summary>
+
+    // 게임 승리/패배 패널이 나타난 후에 결과 패널 활성화
     private IEnumerator ShowResultAfterDelay(int stars)
     {
         yield return new WaitForSecondsRealtime(resultDelay); // Time.timeScale = 0이 되므로 이 메서드를 사용함
@@ -133,31 +132,29 @@ public class UIManager : MonoBehaviour
         
     }
 
-    /// <summary>
-    /// 배치되지 않은 유닛의 미리보기 동작
-    /// </summary>
+
+    // 배치되지 않은 유닛의 정보 보기 동작
     public void ShowUndeployedInfo(DeployableManager.DeployableInfo deployableInfo)
     {
-        if (infoPanelScript != null)
+        if (inStageInfoPanelScript != null)
         {
             infoPanelObject.SetActive(true);
 
-            infoPanelScript.UpdateUnDeployedInfo(deployableInfo);
+            inStageInfoPanelScript.UpdateUnDeployedInfo(deployableInfo);
 
             DeployableUnitEntity deployable = deployableInfo.prefab.GetComponent<DeployableUnitEntity>();
             CameraManager.Instance.AdjustForDeployableInfo(true, deployable);
         }
     }
 
-    /// <summary>
-    /// 배치된 유닛의 미리보기 동작
-    /// </summary>
+
+    // 배치된 유닛의 정보 보기 동작
     public void ShowDeployedInfo(DeployableUnitEntity deployableUnitEntity)
     {
-        if (infoPanelScript != null)
+        if (inStageInfoPanelScript != null)
         {
             infoPanelObject.SetActive(true);
-            infoPanelScript.UpdateDeployedInfo(deployableUnitEntity);
+            inStageInfoPanelScript.UpdateDeployedInfo(deployableUnitEntity);
             CameraManager.Instance.AdjustForDeployableInfo(true, deployableUnitEntity);
         }
     }

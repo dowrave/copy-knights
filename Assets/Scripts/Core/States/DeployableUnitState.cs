@@ -1,9 +1,8 @@
 using static DeployableManager;
 using UnityEngine;
 
-/// <summary>
-/// 배치 가능한 유닛의 현재 세션에서의 상태를 관리합니다.
-/// </summary>
+
+// 배치 가능한 유닛의 현재 세션에서의 상태를 관리합니다.
 public class DeployableUnitState
 {
     private readonly DeployableInfo deployableInfo;
@@ -12,6 +11,10 @@ public class DeployableUnitState
     public int RemainingDeployCount { get; private set; }
     public bool IsOnCooldown { get; private set; }
     public float CooldownTimer { get; private set; }
+    public bool IsDeployed { get; private set; }
+
+    public DeployableUnitEntity currentDeployable;
+    public Operator currentOperator;
 
     private const int MAX_COST_INCREASE_COUNT = 2;
     private const float COST_INCREASE_RATE = 0.5f;
@@ -29,14 +32,26 @@ public class DeployableUnitState
 
         RemainingDeployCount = info.maxDeployCount;
         IsOnCooldown = false;
+        IsDeployed = false;
         CooldownTimer = 0f;
     }
 
-    public bool OnDeploy()
+    public bool OnDeploy(DeployableUnitEntity deployableUnitEntity)
     {
         DeploymentCount++;
         RemainingDeployCount--;
-        
+        IsDeployed = true;
+
+        // 배치된 유닛을 추적
+        if (deployableUnitEntity is Operator op)
+        {
+            currentOperator = op;
+        }
+        else
+        {
+            currentDeployable = deployableUnitEntity;
+        }
+
         if (!IsOperator)
         {
             StartCooldown(deployableInfo.redeployTime);
@@ -56,6 +71,7 @@ public class DeployableUnitState
             RemainingDeployCount++;
             StartCooldown(deployableInfo.redeployTime);
             UpdateDeploymentCost();
+            IsDeployed = false;
         }
     }
 
