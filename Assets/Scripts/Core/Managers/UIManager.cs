@@ -23,6 +23,9 @@ public class UIManager : MonoBehaviour
     [SerializeField] private TextMeshProUGUI enemyCountText;
     [SerializeField] private TextMeshProUGUI lifePointsText;
 
+    [Header("Top Left Button")]
+    [SerializeField] private Button toLobbyButton;
+
     [Header("Top Right Panel Elements")]
     [SerializeField] private Button currentSpeedButton;
     [SerializeField] private Button pauseButton;

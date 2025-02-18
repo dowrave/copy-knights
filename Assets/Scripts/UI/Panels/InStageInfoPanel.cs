@@ -1,11 +1,10 @@
+using Skills.Base;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
 
-/// <summary>
-/// 스테이지에서 사용되는, 오퍼레이터의 정보를 표시하는 패널입니다.
-/// </summary>
+// 스테이지에서 사용되는, 오퍼레이터의 정보를 표시하는 패널.
 public class InStageInfoPanel : MonoBehaviour
 {
 
@@ -17,16 +16,29 @@ public class InStageInfoPanel : MonoBehaviour
     [SerializeField] private TextMeshProUGUI levelText;
 
     [Header("Stat Fields")]
+    [SerializeField] private GameObject statsContainer;
     [SerializeField] private TextMeshProUGUI healthText;
     [SerializeField] private TextMeshProUGUI attackText;
     [SerializeField] private TextMeshProUGUI defenseText;
     [SerializeField] private TextMeshProUGUI magicResistanceText;
     [SerializeField] private TextMeshProUGUI blockCountText;
 
-    private Operator currentOperator;
+    [Header("Tabs")]
+    [SerializeField] private Button SkillTab; // 아마 이것만 쓸 것 같긴 한데
+
+    [Header("Ability Panel")]
+    [SerializeField] private GameObject abilityContainer; 
+    [SerializeField] private Image skillIconImage;
+    [SerializeField] private TextMeshProUGUI skillNameText;
+    [SerializeField] private TextMeshProUGUI skillDetailText;
+
+    // 배치 요소 정보
     private DeployableUnitEntity currentDeployable;
-    private GameObject statsContainer;
     private DeployableManager.DeployableInfo currentDeployableInfo;
+
+    // 오퍼레이터에서만 사용
+    private Operator currentOperator;
+    private BaseSkill operatorSkill;
 
     private void Awake() 
     {
@@ -49,13 +61,11 @@ public class InStageInfoPanel : MonoBehaviour
         }
         else // deployableUnitEntity 정보 업데이트
         {
-            classIconImage.gameObject.SetActive(false);
-            operatorLevelTextBox.gameObject.SetActive(false);
 
             currentDeployable = currentDeployableInfo.prefab.GetComponent<DeployableUnitEntity>();
             currentOperator = null;
             nameText.text = currentDeployableInfo.deployableUnitData.entityName;
-            statsContainer.SetActive(false);
+            HideOperatorPanels();
         }
     }
 
@@ -78,14 +88,11 @@ public class InStageInfoPanel : MonoBehaviour
         }
         else
         {
-            // 클래스 아이콘, 레벨 정보 가림
-            classIconImage.gameObject.SetActive(false);
-            operatorLevelTextBox.gameObject.SetActive(false);
+            HideOperatorPanels();
 
             currentDeployable = deployableUnitEntity;
             currentOperator = null;
             nameText.text = currentDeployableInfo.deployableUnitData.entityName;
-            statsContainer.SetActive(false);
         }
     }
 
@@ -94,10 +101,10 @@ public class InStageInfoPanel : MonoBehaviour
         if (currentOperator == null) return;
 
         OwnedOperator ownedOperator = currentDeployableInfo.ownedOperator;
+        operatorSkill = ownedOperator.StageSelectedSkill;
 
         // 아이콘 이미지 패널 활성화 및 할당
-        classIconImage.gameObject.SetActive(true);
-        operatorLevelTextBox.gameObject.SetActive(true);
+        ShowOperatorPanels();
         OperatorIconHelper.SetClassIcon(classIconImage, ownedOperator.BaseData.operatorClass);
         OperatorIconHelper.SetElitePhaseIcon(promotionIconImage, ownedOperator.currentPhase);
 
@@ -115,6 +122,7 @@ public class InStageInfoPanel : MonoBehaviour
         var currentUnitStates = DeployableManager.Instance.UnitStates[currentDeployableInfo];
 
         UpdateStatText();
+        UpdateSkillInfo();
     }
 
     private void UpdateStatText()
@@ -146,6 +154,32 @@ public class InStageInfoPanel : MonoBehaviour
     private void UpdateHealthText(float currentHealth, float maxHealth, float currentShield = 0)
     {
         healthText.text = $"체력 <color=#ff6666>{Mathf.Ceil(currentHealth)} / {Mathf.Ceil(maxHealth)}</color>";
+    }
+
+    private void ShowOperatorPanels()
+    {
+        classIconImage.gameObject.SetActive(true);
+        operatorLevelTextBox.gameObject.SetActive(true);
+        statsContainer.SetActive(true);
+        abilityContainer.SetActive(true);
+    }
+
+    private void HideOperatorPanels()
+    {
+        classIconImage.gameObject.SetActive(false);
+        operatorLevelTextBox.gameObject.SetActive(false);
+        statsContainer.SetActive(false);
+        abilityContainer.SetActive(false);
+    }
+
+    private void UpdateSkillInfo()
+    {
+        if (operatorSkill != null)
+        {
+            skillIconImage.sprite = operatorSkill.skillIcon;
+            skillNameText.text = operatorSkill.skillName;
+            skillDetailText.text = operatorSkill.description;
+        }
     }
 
     private void OnDisable()
