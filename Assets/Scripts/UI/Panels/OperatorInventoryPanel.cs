@@ -327,7 +327,6 @@ public class OperatorInventoryPanel : MonoBehaviour
     {
         MainMenuManager.Instance.ActivateAndFadeOut(MainMenuManager.Instance.PanelMap[MainMenuManager.MenuPanel.SquadEdit], gameObject);
     }
-    
 
 
     private void OnDisable()
