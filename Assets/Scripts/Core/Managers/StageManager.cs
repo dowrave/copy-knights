@@ -198,16 +198,13 @@ public class StageManager : MonoBehaviour
         {
             case GameState.Battle:
                 Time.timeScale = IsSpeedUp ? speedUpScale : originalTimeScale;
-                UIManager.Instance.HidePauseOverlay();
                 break;
             case GameState.Paused:
                 Time.timeScale = 0f;
-                UIManager.Instance.ShowPauseOverlay();
                 break;
             case GameState.GameOver:
             case GameState.GameWin:
                 Time.timeScale = 0f;
-                UIManager.Instance.HidePauseOverlay();
                 break;
         }
 
@@ -298,6 +295,7 @@ public class StageManager : MonoBehaviour
         SetGameState(GameState.GameWin);
         Time.timeScale = 0;
         int stars = 3 - PassedEnemies;
+        UIManager.Instance.HidePauseOverlay();
         UIManager.Instance.ShowGameWinUI(stars);
         GameManagement.Instance.PlayerDataManager.RecordStageResult(stageData.stageId, stars);
         StopAllCoroutines();
@@ -309,6 +307,15 @@ public class StageManager : MonoBehaviour
         Time.timeScale = 0; // 게임 일시 정지
         UIManager.Instance.ShowGameOverUI();
         StopAllCoroutines();
+    }
+
+    // 유저가 스테이지에서 빠져나가는 버튼을 눌렀을 때 동작
+    public void RequestExit()
+    {
+        SetGameState(GameState.GameOver);
+        Time.timeScale = 0;
+        StopAllCoroutines();
+        StartCoroutine(UIManager.Instance.ShowResultAfterDelay(0));
     }
 
     public void ReturnToMainMenu(bool isPerfectClear = false)
@@ -354,10 +361,12 @@ public class StageManager : MonoBehaviour
         if (currentState == GameState.Paused)
         {
             SetGameState(GameState.Battle);
+            UIManager.Instance.HidePauseOverlay();
         }
         else if (currentState == GameState.Battle)
         {
             SetGameState(GameState.Paused);
+            UIManager.Instance.ShowPauseOverlay();
         }
         UIManager.Instance.UpdatePauseButtonVisual();
     }
@@ -440,6 +449,8 @@ public class StageManager : MonoBehaviour
         // 스쿼드 + 맵의 배치 가능 요소 초기화
         DeployableManager.Instance.Initialize(squadData, deployableList);
     }
+
+
 
     private void OnDestroy()
     {

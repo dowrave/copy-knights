@@ -212,9 +212,10 @@ public class MainMenuManager : MonoBehaviour
             // 새 패널 페이드 인
             CanvasGroup showGroup = panelToShow.GetComponent<CanvasGroup>();
             showGroup.alpha = 0f;
-            showGroup.DOKill(); 
+            showGroup.DOKill();
             showGroup.DOFade(1f, panelTransitionSpeed)
-                .OnComplete(() => {
+                .OnComplete(() =>
+                {
                     panelToHide.SetActive(false);
                 });
 

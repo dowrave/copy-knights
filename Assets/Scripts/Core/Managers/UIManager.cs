@@ -15,7 +15,8 @@ public class UIManager : MonoBehaviour
     [SerializeField] private GameObject topCenterPanelObject; // 남은 적 수, 라이프 수
     [SerializeField] private GameObject bottomPanelObject;
     [SerializeField] private GameObject infoPanelObject; // 선택된 오퍼레이터 정보 패널
-    [SerializeField] private GameObject stageResultPanelObject; 
+    [SerializeField] private GameObject stageResultPanelObject;
+    [SerializeField] private ConfirmationReturnToLobbyPanel confirmationReturnToLobbyPanel;
 
     private InStageInfoPanel inStageInfoPanelScript;
 
@@ -27,6 +28,7 @@ public class UIManager : MonoBehaviour
     [SerializeField] private Button toLobbyButton;
 
     [Header("Top Right Panel Elements")]
+    [SerializeField] private Button ReturnToLobbyButton;
     [SerializeField] private Button currentSpeedButton;
     [SerializeField] private Button pauseButton;
     [SerializeField] private Image pauseOverlay;
@@ -83,9 +85,11 @@ public class UIManager : MonoBehaviour
     {
         currentSpeedButton.onClick.RemoveAllListeners(); // 기존 리스너 제거
         pauseButton.onClick.RemoveAllListeners(); // 기존 리스너 제거
+        ReturnToLobbyButton.onClick.RemoveAllListeners();
 
         currentSpeedButton.onClick.AddListener(StageManager.Instance.ToggleSpeedUp);
         pauseButton.onClick.AddListener(StageManager.Instance.TogglePause);
+        ReturnToLobbyButton.onClick.AddListener(OnReturnToLobbyButtonClicked);
 
         StageManager.Instance.OnLifePointsChanged += UpdateLifePointsText;
         StageManager.Instance.OnEnemyKilled += UpdateEnemyKillCountText;
@@ -124,15 +128,14 @@ public class UIManager : MonoBehaviour
     }
 
 
-    // 게임 승리/패배 패널이 나타난 후에 결과 패널 활성화
-    private IEnumerator ShowResultAfterDelay(int stars)
+    // 스테이지 종료 후 결과 패널 활성화 
+    public IEnumerator ShowResultAfterDelay(int stars)
     {
         yield return new WaitForSecondsRealtime(resultDelay); // Time.timeScale = 0이 되므로 이 메서드를 사용함
 
         stageResultPanelObject.SetActive(true);
         StageResultPanel stageResultPanel = stageResultPanelObject.GetComponent<StageResultPanel>();
         stageResultPanel.Initialize(stars);
-        
     }
 
 
@@ -200,6 +203,12 @@ public class UIManager : MonoBehaviour
     public void HidePauseOverlay()
     {
         pauseOverlay.gameObject.SetActive(false);
+    }
+
+    private void OnReturnToLobbyButtonClicked()
+    {
+        StageManager.Instance.SetGameState(GameState.Paused);
+        confirmationReturnToLobbyPanel.Initialize();
     }
 
 
