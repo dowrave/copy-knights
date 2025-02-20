@@ -55,6 +55,8 @@ public class StageManager : MonoBehaviour
     private const float originalTimeScale = 1f;
     private const float placementTimeScale = 0.2f;
 
+    private float gameEndDelay = 0.2f; // 게임 종료 조건 달성 후 기다리는 시간
+
     public int CurrentDeploymentCost
     {
         get => currentDeploymentCost;
@@ -85,6 +87,7 @@ public class StageManager : MonoBehaviour
     public event System.Action OnEnemyKilled; // 적을 잡을 때마다 발생 이벤트
     public event System.Action OnPreparationComplete; // 스테이지 준비 완료 이벤트 
     public event System.Action<GameState> OnGameStateChanged;
+    public event System.Action OnGameEnded; // 게임 종료 시에 동작
 
     private void Awake()
     {
@@ -171,7 +174,7 @@ public class StageManager : MonoBehaviour
 
     private IEnumerator StartStageWithDelay()
     {
-        yield return new WaitForSeconds(0.5f);
+        yield return new WaitForSecondsRealtime(0.5f); // Time.timeScale에 영향을 받지 않게 구성
 
         SetGameState(GameState.Battle);
         lastCostUpdateTime = Time.time;
@@ -258,19 +261,30 @@ public class StageManager : MonoBehaviour
         return false; 
     }
 
-    // 적 사망 시 호출
+    // Enemy가 잡혔을 때마다 호출
     public void OnEnemyDefeated()
     {
-        if (currentState == GameState.GameOver) return;
-
         KilledEnemyCount++;
         UIManager.Instance.UpdateEnemyKillCountText();
 
         // 사실 "생성된" 적을 포함하면 조건을 조금 더 다르게 줘야 함
         if (KilledEnemyCount + PassedEnemies >= TotalEnemyCount)
         {
-            GameWin();
+            StartCoroutine(GameWinAfterDelay());
+            
         }
+    }
+
+    private IEnumerator GameWinAfterDelay()
+    {
+        yield return new WaitForSeconds(0.2f);
+        GameWin();
+    }
+
+    private IEnumerator GameOverAfterDelay()
+    {
+        yield return new WaitForSeconds(0.2f);
+        GameOver();
     }
 
     public void OnEnemyReachDestination()
@@ -282,11 +296,11 @@ public class StageManager : MonoBehaviour
 
         if (CurrentLifePoints <= 0)
         {
-            GameOver();
+            GameOverAfterDelay();
         }
         else if (KilledEnemyCount + PassedEnemies >= TotalEnemyCount)
         {
-            GameWin();
+            GameWinAfterDelay();
         }
     }
 
@@ -298,6 +312,7 @@ public class StageManager : MonoBehaviour
         UIManager.Instance.HidePauseOverlay();
         UIManager.Instance.ShowGameWinUI(stars);
         GameManagement.Instance.PlayerDataManager.RecordStageResult(stageData.stageId, stars);
+        OnGameEnded?.Invoke();
         StopAllCoroutines();
     }
 
@@ -306,6 +321,7 @@ public class StageManager : MonoBehaviour
         SetGameState(GameState.GameOver);
         Time.timeScale = 0; // 게임 일시 정지
         UIManager.Instance.ShowGameOverUI();
+        OnGameEnded?.Invoke();
         StopAllCoroutines();
     }
 

@@ -27,7 +27,7 @@ namespace Skills.Base
 
         // 오브젝트 풀링을 사용할 경우
         public virtual void InitializeSkillObjectPool() { } // 오브젝트 풀 구현
-        public virtual void CleanupSkillObjectPool() { } // 오브젝트 풀 제거
+        public virtual void CleanupSkill() { } // 스킬에 관련된 리소스 제거
 
         protected void Reset()
         {

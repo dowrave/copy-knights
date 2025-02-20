@@ -28,6 +28,8 @@ public class MeteorController : MonoBehaviour
         {
             caster.OnOperatorDied += HandleCasterDeath;
         }
+
+        StageManager.Instance.OnGameEnded += EndSkill;
     }
 
     private IEnumerator FallRoutine()
@@ -55,7 +57,7 @@ public class MeteorController : MonoBehaviour
             yield return null;
         };
 
-        Destroy(gameObject);
+        EndSkill();
     }
 
     private void ApplyDamage()
@@ -82,14 +84,21 @@ public class MeteorController : MonoBehaviour
             caster.OnOperatorDied -= HandleCasterDeath;
         }
 
+        EndSkill();
+    }
+
+    private void EndSkill()
+    {
         Destroy(gameObject);
     }
 
-    private void OnDisable()
+    private void OnDestroy()
     {
         if (caster != null)
         {
             caster.OnOperatorDied -= HandleCasterDeath;
         }
+
+        StageManager.Instance.OnGameEnded -= EndSkill;
     }
 }

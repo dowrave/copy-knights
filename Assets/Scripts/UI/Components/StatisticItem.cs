@@ -14,7 +14,8 @@ public class StatisticItem : MonoBehaviour
     [SerializeField] private Color healingDoneColor;
     private bool showPercentage;
 
-    public Operator Operator { get; private set; }
+    //public Operator Operator { get; private set; }
+    public OperatorData OpData { get; private set; }
     private StatisticsManager.OperatorStats opStats; 
     private StatisticsManager.StatType currentStatType;
     private Image fillImage; // 게이지 길이를 나타내는 이미지
@@ -22,15 +23,15 @@ public class StatisticItem : MonoBehaviour
     /// <summary>
     /// StatItem을 초기화하고 필요한 이벤트를 구독합니다.
     /// </summary>
-    public void Initialize(Operator op, StatisticsManager.StatType statType, bool showPercentage)
+    public void Initialize(OperatorData opData, StatisticsManager.StatType statType, bool showPercentage)
     {
-        Operator = op;
+        OpData = opData;
         currentStatType = statType;
 
-        opStats = StatisticsManager.Instance.GetAllOperatorStats().Find(s => s.op == op);
+        opStats = StatisticsManager.Instance.GetAllOperatorStats().Find(s => s.opData == opData);
         fillImage = percentageBar.fillRect.GetComponent<Image>();
 
-        SetOperatorIcon(op);
+        SetOperatorIcon(opData);
         SetBarColor(statType);
         SetDisplayMode(showPercentage); // 절대 수치 / 백분율 전환
 
@@ -38,17 +39,17 @@ public class StatisticItem : MonoBehaviour
         StartCoroutine(DelayedUpdate(statType, showPercentage));
     }
 
-    private void SetOperatorIcon(Operator op)
+    private void SetOperatorIcon(OperatorData opData)
     {
         // 아이콘이 있다면 아이콘 할당
-        if (op.BaseData.Icon != null)
+        if (opData.Icon != null)
         {
-            operatorIcon.sprite = op.BaseData.Icon;
+            operatorIcon.sprite = opData.Icon;
         }
         // 없다면 머티리얼 색을 가져옴
         else
         {
-            operatorIcon.color = op.BaseData.prefab.GetComponentInChildren<Renderer>().sharedMaterial.color;
+            operatorIcon.color = opData.prefab.GetComponentInChildren<Renderer>().sharedMaterial.color;
         }
     }
 
@@ -89,9 +90,9 @@ public class StatisticItem : MonoBehaviour
     /// <summary>
     /// 통계 업데이트 이벤트에 대응하여 디스플레이를 업데이트합니다.
     /// </summary>
-    private void OnStatUpdated(Operator op, StatisticsManager.StatType statType)
+    private void OnStatUpdated(OperatorData opData, StatisticsManager.StatType statType)
     {
-        if (this.Operator == op && statType == currentStatType)
+        if (this.OpData == opData && statType == currentStatType)
         {
             UpdateDisplay(statType, showPercentage);
         }

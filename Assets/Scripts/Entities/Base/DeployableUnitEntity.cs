@@ -64,8 +64,7 @@ public abstract class DeployableUnitEntity: UnitEntity, IDeployable
     // 자식 오브젝트에 시각화를 담당하는 Model이 있다는 전제
     protected virtual void InitializeDeployableProperties()
     {
-        IsDeployed = false; // 배치 비활성화
-        IsPreviewMode = true; // 미리보기 활성화
+        SetDeployState(false);
 
         // A ?? B : A가 null일 경우 B를 사용
         CanDeployGround = BaseData?.canDeployOnGround ?? false; 
@@ -78,8 +77,7 @@ public abstract class DeployableUnitEntity: UnitEntity, IDeployable
     {
         if (!IsDeployed)
         {
-            IsDeployed = true;
-            IsPreviewMode = false;
+            SetDeployState(true);
             UpdateCurrentTile();
             CurrentTile.SetOccupied(this);
             SetPosition(position);
@@ -185,6 +183,11 @@ public abstract class DeployableUnitEntity: UnitEntity, IDeployable
         CurrentHealth = MaxHealth;
     }
 
+    protected void SetDeployState(bool isDeployed)
+    {
+        IsDeployed = isDeployed;
+        IsPreviewMode = !isDeployed;
+    }
 
     // 현재 위치한 타일 설정
     protected virtual void UpdateCurrentTile()

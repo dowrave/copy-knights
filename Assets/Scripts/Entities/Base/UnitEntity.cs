@@ -117,7 +117,7 @@ public abstract class UnitEntity : MonoBehaviour, ITargettable, IFactionMember
 
         if (healer is Operator healerOperator)
         {
-            StatisticsManager.Instance.UpdateHealingDone(healerOperator, actualHealAmount);
+            StatisticsManager.Instance.UpdateHealingDone(healerOperator.BaseData, actualHealAmount);
         }
     }
 

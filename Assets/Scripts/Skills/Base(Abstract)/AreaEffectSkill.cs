@@ -15,7 +15,6 @@ namespace Skills.Base
 
         protected UnitEntity mainTarget;
         protected HashSet<Vector2Int> actualSkillRange = new HashSet<Vector2Int>();
-        protected HashSet<Tile> actualSkillRangeTiles = new HashSet<Tile>();
 
         protected GameObject hitEffectPrefab;
         private Dictionary<Operator, List<GameObject>> activeEffects = new Dictionary<Operator, List<GameObject>>();
@@ -97,7 +96,14 @@ namespace Skills.Base
             ObjectPoolManager.Instance.CreatePool(EFFECT_TAG, skillRangeVFXPrefab, skillRangeOffset.Count);
         }
 
-        public override void CleanupSkillObjectPool()
+        public override void CleanupSkill()
+        {
+            // 서순 중요
+            CleanupSkillObjectPool();
+            actualSkillRange.Clear();
+        }
+
+        public void CleanupSkillObjectPool()
         {
             // 모든 활성 효과 정리
             foreach (var pair in activeEffects)

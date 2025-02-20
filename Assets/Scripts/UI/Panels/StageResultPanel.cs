@@ -177,13 +177,13 @@ public class StageResultPanel : MonoBehaviour
         // StatItems 재정렬
         for (int i = 0; i < statItems.Count; i++)
         {
-            var (op, value) = sortedStats[i];
+            var (opData, value) = sortedStats[i];
 
             // 현재 위치의 StatItem이 올바른 오퍼레이터를 표시하고 있는지 확인
-            if (statItems[i].Operator != op)
+            if (statItems[i].OpData != opData)
             {
                 // 올바른 위치의 StatItem 찾기
-                var correctItem = statItems.Find(item => item.Operator == op);
+                var correctItem = statItems.Find(item => item.OpData == opData);
                 if (correctItem != null)
                 {
                     // Transform 순서 변경

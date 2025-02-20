@@ -112,6 +112,8 @@ public class SkillRangeVFXController : MonoBehaviour, IPooledObject
             transform.position += Vector3.up * 0.2f;
         }
 
+        // 스테이지 종료 시 파괴를 위한 이벤트 구독
+        
     }
 
     // 스킬 범위 즉시 표현을 위한 스크립트

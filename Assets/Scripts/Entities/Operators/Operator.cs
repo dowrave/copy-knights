@@ -102,7 +102,7 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable,
     public IReadOnlyList<Enemy> BlockedEnemies => blockedEnemies;
 
     public int DeploymentOrder { get; protected set; } // 배치 순서
-    protected bool isDeployed = false; // 배치 완료 시 true
+    //protected bool isDeployed = false; // 배치 완료 시 true
 
     public UnitEntity CurrentTarget { get; protected set; }
 
@@ -156,7 +156,7 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable,
         CurrentSP = ownedOp.CurrentStats.StartSP;
         MaxSP = CurrentSkill?.SPCost ?? 0f;
 
-        IsPreviewMode = true;
+        SetDeployState(false);
     }
 
     public void SetDirection(Vector3 direction)
@@ -357,13 +357,13 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable,
     // 지금 들어오는 Enemy가 차지하는 저지 수를 점검해야 해서 이렇게 구현함 (단일 개체 3저지인 적도 있을 거니까)
     public bool CanBlockEnemy(int enemyBlockCount)
     {
-        return blockedEnemies.Count + enemyBlockCount <= currentStats.MaxBlockableEnemies;
+        return IsDeployed &&
+            blockedEnemies.Count + enemyBlockCount <= currentStats.MaxBlockableEnemies;
     }
 
     public void BlockEnemy(Enemy enemy)
     {
         blockedEnemies.Add(enemy);
-        Debug.Log($"{blockedEnemies}을 저지한 적에 추가");
     }
 
     public void UnblockEnemy(Enemy enemy)
@@ -383,11 +383,14 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable,
     public override void TakeDamage(UnitEntity attacker, AttackSource attackSource, float damage)
     {
         base.TakeDamage(attacker, attackSource, damage);
-        StatisticsManager.Instance.UpdateDamageTaken(this, damage);
+        StatisticsManager.Instance.UpdateDamageTaken(BaseData, damage);
     }
 
     protected override void Die()
     {
+        // 배치되어야 Die가 가능
+        if (!IsDeployed) return;
+
         // 사망 후 동작 로직
         UnblockAllEnemies();
 
@@ -430,8 +433,7 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable,
             if (unit is Enemy enemy)
             {
                 enemiesInRange.Remove(enemy); // 안하면 리스트에 파괴된 오브젝트가 남아서 0번 인덱스를 캐치하지 못함
-                Debug.LogWarning($"{enemy}가 제거되면서 enemiesInRange에서 제외됨");
-                Debug.Log($"{BaseData.entityName}의 enemiesInRange의 길이  : {enemiesInRange.Count}");
+                Debug.Log($"{enemy} 사망, {BaseData.entityName}의 enemiesInRange의 길이  : {enemiesInRange.Count}");
             }
 
             CurrentTarget = null;
@@ -442,7 +444,7 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable,
     {
         List<Tile> tilesToHighlight = new List<Tile>();
 
-        if (!isDeployed)
+        if (!IsDeployed)
         {
             Vector2Int operatorGridPos = MapManager.Instance.CurrentMap.WorldToGridPosition(transform.position);
             UpdateAttackableTiles();
@@ -754,7 +756,7 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable,
         }
 
         RemoveProjectilePool();
-        CurrentSkill.CleanupSkillObjectPool();
+        CurrentSkill.CleanupSkill();
     }
 
     public void InitializeProjectilePool()
@@ -784,6 +786,8 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable,
     {
         IsSkillOn = skillOnState;
     }
+
+
 
     protected override float CalculateActualDamage(AttackType attacktype, float incomingDamage)
     {
