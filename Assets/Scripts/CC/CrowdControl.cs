@@ -102,3 +102,5 @@ public abstract class CrowdControl
     protected abstract void ApplyEffect();
     protected abstract void RemoveEffect();
 }
+
+

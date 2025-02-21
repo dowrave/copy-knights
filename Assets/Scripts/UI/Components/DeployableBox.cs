@@ -47,7 +47,7 @@ public class DeployableBox : MonoBehaviour, IPointerDownHandler, IBeginDragHandl
         }
 
         StageManager.Instance.OnDeploymentCostChanged += UpdateAvailability;
-        StageManager.Instance.OnPreparationComplete += InitializeVisuals;
+        StageManager.Instance.OnPreparationCompleted += InitializeVisuals;
         InitializeVisuals();
     }
 
@@ -172,7 +172,7 @@ public class DeployableBox : MonoBehaviour, IPointerDownHandler, IBeginDragHandl
 
     private void OnDestroy()
     {
-        StageManager.Instance.OnPreparationComplete -= InitializeVisuals;
+        StageManager.Instance.OnPreparationCompleted -= InitializeVisuals;
         StageManager.Instance.OnDeploymentCostChanged -= UpdateAvailability;
     }
 

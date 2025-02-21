@@ -122,6 +122,7 @@
     <Compile Include="Assets\Scripts\Interfaces\ICombatEntity.cs" />
     <Compile Include="Assets\Scripts\UI\Panels\ConfirmationReturnToLobbyPanel.cs" />
     <Compile Include="Assets\Scripts\Map\EnemySpawner.cs" />
+    <Compile Include="Assets\Scripts\UI\Components\InGameTopButtonContainer.cs" />
     <Compile Include="Assets\Scripts\Entities\Enemy\Enemy.cs" />
     <Compile Include="Assets\Scripts\UI\Components\OperatorUI.cs" />
     <Compile Include="Assets\Scripts\UI\Panels\StageLoadingScreen.cs" />

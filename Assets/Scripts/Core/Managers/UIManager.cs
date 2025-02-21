@@ -20,6 +20,9 @@ public class UIManager : MonoBehaviour
 
     private InStageInfoPanel inStageInfoPanelScript;
 
+    [Header("Button Container")]
+    [SerializeField] private InGameTopButtonContainer inGameTopButtonContainer;
+
     [Header("Top Panel Elements")]
     [SerializeField] private TextMeshProUGUI enemyCountText;
     [SerializeField] private TextMeshProUGUI lifePointsText;
@@ -27,14 +30,8 @@ public class UIManager : MonoBehaviour
     [Header("Top Left Button")]
     [SerializeField] private Button toLobbyButton;
 
-    [Header("Top Right Panel Elements")]
-    [SerializeField] private Button ReturnToLobbyButton;
-    [SerializeField] private Button currentSpeedButton;
-    [SerializeField] private Button pauseButton;
+    [Header("Overlays")]
     [SerializeField] private Image pauseOverlay;
-    [SerializeField] private TextMeshProUGUI currentSpeedText;
-    [SerializeField] private TextMeshProUGUI currentSpeedIcon;
-    [SerializeField] private TextMeshProUGUI pauseButtonText;
 
     [Header("Cost Panel Elements")]
     [SerializeField] private GameObject costIcon;
@@ -71,32 +68,21 @@ public class UIManager : MonoBehaviour
         stageResultPanelObject.SetActive(false);
     }
 
-    private void Start()
-    {
-        InitializeListeners();
-
-
-        // 최초 카메라에서 코스트 아이콘의 월드 포지션을 잡아줌
-        RectTransform costIconComponent = costIcon.GetComponent<RectTransform>();
-        CostIconWorldPosition = GetUIElementWorldProjection(costIconComponent);
-    }
-
     private void InitializeListeners()
     {
-        currentSpeedButton.onClick.RemoveAllListeners(); // 기존 리스너 제거
-        pauseButton.onClick.RemoveAllListeners(); // 기존 리스너 제거
-        ReturnToLobbyButton.onClick.RemoveAllListeners();
-
-        currentSpeedButton.onClick.AddListener(StageManager.Instance.ToggleSpeedUp);
-        pauseButton.onClick.AddListener(StageManager.Instance.TogglePause);
-        ReturnToLobbyButton.onClick.AddListener(OnReturnToLobbyButtonClicked);
-
         StageManager.Instance.OnLifePointsChanged += UpdateLifePointsText;
         StageManager.Instance.OnEnemyKilled += UpdateEnemyKillCountText;
     }
 
-    public void InitializeUI()
+    public void Initialize()
     {
+        InitializeListeners();
+        inGameTopButtonContainer.Initialize();
+
+        // 최초 카메라에서 코스트 아이콘의 월드 포지션을 잡아줌
+        RectTransform costIconComponent = costIcon.GetComponent<RectTransform>();
+        CostIconWorldPosition = GetUIElementWorldProjection(costIconComponent);
+
         UpdateEnemyKillCountText();
         UpdateLifePointsText(StageManager.Instance.CurrentLifePoints);
     }
@@ -186,28 +172,32 @@ public class UIManager : MonoBehaviour
 
     public void UpdateSpeedUpButtonVisual()
     {
-        currentSpeedText.text = StageManager.Instance.IsSpeedUp ? "2X" : "1X";
-        currentSpeedIcon.text = StageManager.Instance.IsSpeedUp ? "▶▶" : "▶";
+        inGameTopButtonContainer.UpdateSpeedUpButtonVisual();
     }
 
     public void UpdatePauseButtonVisual()
     {
-        pauseButtonText.text = (StageManager.Instance.currentState == GameState.Paused) ? "▶" : "||";
+        inGameTopButtonContainer.UpdatePauseButtonVisual();
     }
 
     public void ShowPauseOverlay()
     {
-        pauseOverlay.gameObject.SetActive(true);
+        if (pauseOverlay.gameObject.activeSelf == false)
+        {
+            pauseOverlay.gameObject.SetActive(true);
+        }
     }
 
     public void HidePauseOverlay()
     {
-        pauseOverlay.gameObject.SetActive(false);
+        if (pauseOverlay.gameObject.activeSelf == true)
+        {
+            pauseOverlay.gameObject.SetActive(false);
+        }
     }
 
-    private void OnReturnToLobbyButtonClicked()
+    public void InitializeReturnToLobbyPanel()
     {
-        StageManager.Instance.SetGameState(GameState.Paused);
         confirmationReturnToLobbyPanel.Initialize();
     }
 

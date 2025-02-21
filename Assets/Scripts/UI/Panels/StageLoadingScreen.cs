@@ -54,7 +54,7 @@ public class StageLoadingScreen : MonoBehaviour
     private IEnumerator WaitForStageManagerAndSubscribe()
     {
         yield return new WaitUntil(() => StageManager.Instance != null);
-        StageManager.Instance.OnPreparationComplete += HandlePreparationComplete;
+        StageManager.Instance.OnPreparationCompleted += HandlePreparationComplete;
     }
 
     private void HandlePreparationComplete()
@@ -81,7 +81,7 @@ public class StageLoadingScreen : MonoBehaviour
     {
         if (StageManager.Instance != null)
         {
-            StageManager.Instance.OnPreparationComplete -= HandlePreparationComplete;
+            StageManager.Instance.OnPreparationCompleted -= HandlePreparationComplete;
         }
         currentSequence?.Kill();
     }

@@ -85,7 +85,7 @@ public class StageManager : MonoBehaviour
     public event System.Action OnDeploymentCostChanged; // 이벤트 발동 조건은 currentDeploymentCost 값이 변할 때, 여기 등록된 함수들이 동작
     public event System.Action<int> OnLifePointsChanged; // 라이프 포인트 변경 시 발생 이벤트
     public event System.Action OnEnemyKilled; // 적을 잡을 때마다 발생 이벤트
-    public event System.Action OnPreparationComplete; // 스테이지 준비 완료 이벤트 
+    public event System.Action OnPreparationCompleted; // 스테이지 준비 완료 이벤트 
     public event System.Action<GameState> OnGameStateChanged;
     public event System.Action OnGameEnded; // 게임 종료 시에 동작
 
@@ -162,9 +162,9 @@ public class StageManager : MonoBehaviour
 
         CurrentLifePoints = MaxLifePoints;
 
-        UIManager.Instance.InitializeUI();
+        UIManager.Instance.Initialize();
          
-        OnPreparationComplete?.Invoke();
+        OnPreparationCompleted?.Invoke();
     }
 
     private void StartStageCoroutine()
