@@ -7,6 +7,7 @@ using static ICombatEntity;
 
 public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable, ICrowdControlTarget
 {
+    //public DeployableManager.DeployableInfo DeployableInfo { get; private set; }
     public new OperatorData BaseData { get; protected set; } 
     public new OperatorStats currentStats; // 일단 public으로 구현
 
@@ -134,29 +135,46 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable,
     public BaseSkill CurrentSkill { get; private set; }
     public bool IsSkillOn { get; private set; }
 
+    // 현재 오퍼레이터의 육성 상태 - Current를 별도로 붙이지는 않겠음
+    public OperatorGrowthSystem.ElitePhase ElitePhase { get; private set; }
+    public int Level { get; private set; }
+
     // 이벤트들
     public event System.Action<float, float> OnSPChanged;
     public event System.Action OnStatsChanged;
     public event System.Action<Operator> OnOperatorDied;
 
-    public virtual void Initialize(OwnedOperator ownedOp)
+    public new virtual void Initialize(DeployableManager.DeployableInfo opInfo)
     {
-        // 기본 데이터 초기화
-        BaseData = ownedOp.BaseData;
-        CurrentSP = BaseData.initialSP;
+        DeployableInfo = opInfo;
+        if (opInfo.ownedOperator != null)
+        {
+            OwnedOperator ownedOp = opInfo.ownedOperator;
 
-        // 현재 상태 반영
-        currentStats = ownedOp.CurrentStats;
+            // 기본 데이터 초기화
+            BaseData = ownedOp.BaseData;
+            CurrentSP = BaseData.initialSP;
 
-        // 회전 반영
-        baseOffsets = new List<Vector2Int>(ownedOp.CurrentAttackableGridPos); // 왼쪽 방향 기준
+            // 현재 상태 반영
+            currentStats = ownedOp.CurrentStats;
 
-        // 스킬 설정
-        CurrentSkill = ownedOp.StageSelectedSkill;
-        CurrentSP = ownedOp.CurrentStats.StartSP;
-        MaxSP = CurrentSkill?.SPCost ?? 0f;
+            // 회전 반영
+            baseOffsets = new List<Vector2Int>(ownedOp.CurrentAttackableGridPos); // 왼쪽 방향 기준
 
-        SetDeployState(false);
+            // 스킬 설정
+            CurrentSkill = ownedOp.StageSelectedSkill;
+            CurrentSP = ownedOp.CurrentStats.StartSP;
+            MaxSP = CurrentSkill?.SPCost ?? 0f;
+
+            ElitePhase = ownedOp.currentPhase;
+            Level = ownedOp.currentLevel;
+
+            SetDeployState(false);
+        }
+        else
+        {
+            Debug.LogError("오퍼레이터의 ownedOperator 정보가 없음!");
+        }
     }
 
     public void SetDirection(Vector3 direction)
@@ -403,7 +421,10 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable,
         if (BaseData.hitEffectPrefab != null)
         {
             ObjectPoolManager.Instance.RemovePool("Effect_" + BaseData.entityName);
-        } 
+        }
+
+        // 배치된 요소에서 제거
+        DeployableInfo.deployedOperator = null;
 
         // 하단 UI 활성화
         DeployableManager.Instance.OnDeployableRemoved(this);
@@ -491,7 +512,6 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable,
         return false; 
     }
 
-
     public override void Deploy(Vector3 position)
     {
         base.Deploy(position);
@@ -519,6 +539,9 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable,
         UpdateAttackableTiles();
         CreateOperatorUI();
         CurrentSP = currentStats.StartSP;
+
+        // deployableInfo의 배치된 오퍼레이터를 이것으로 지정
+        DeployableInfo.deployedOperator = this;
 
         // 이펙트 오브젝트 풀 생성
         CreateObjectPool();

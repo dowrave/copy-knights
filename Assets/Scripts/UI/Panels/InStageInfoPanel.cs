@@ -33,115 +33,88 @@ public class InStageInfoPanel : MonoBehaviour
     [SerializeField] private TextMeshProUGUI skillDetailText;
 
     // 배치 요소 정보
-    private DeployableUnitEntity currentDeployable;
     private DeployableManager.DeployableInfo currentDeployableInfo;
+    private DeployableUnitState currentDeployableUnitState;
 
     // 오퍼레이터에서만 사용
     private Operator currentOperator;
     private BaseSkill operatorSkill;
 
-    private void Awake() 
-    {
-        statsContainer = transform.Find("OperatorInfoContent/StatsContainer").gameObject;
-        statsContainer.SetActive(false);
-    }
-
-    // 배치되지 않은 유닛 클릭 시 패널 정보 갱신
-    public void UpdateUnDeployedInfo(DeployableManager.DeployableInfo deployableInfo)
+    public void UpdateInfo(DeployableManager.DeployableInfo deployableInfo)
     {
         currentDeployableInfo = deployableInfo;
+        currentDeployableUnitState = DeployableManager.Instance.UnitStates[currentDeployableInfo];
 
-        // Operator 정보 업데이트
-        if (currentDeployableInfo.ownedOperator != null)
+        if (currentDeployableUnitState == null)
         {
-            currentOperator = currentDeployableInfo.prefab.GetComponent<Operator>();
-            currentDeployable = null;
-            nameText.text = currentDeployableInfo.operatorData.entityName;
+            Debug.LogError("현재 배치 요소의 정보가 없음");
+            return;
+        }
+
+        if (currentDeployableUnitState.IsOperator)
+        {
             UpdateOperatorInfo();
         }
-        else // deployableUnitEntity 정보 업데이트
+        else
         {
-
-            currentDeployable = currentDeployableInfo.prefab.GetComponent<DeployableUnitEntity>();
-            currentOperator = null;
-            nameText.text = currentDeployableInfo.deployableUnitData.entityName;
-            HideOperatorPanels();
+            UpdateDeployableInfo();
         }
     }
 
-    // 배치된 유닛 클릭 시 패널 정보 갱신
-    public void UpdateDeployedInfo(DeployableUnitEntity deployableUnitEntity)
-    { 
-        // 기존 이벤트 해제
+    private void UpdateOperatorInfo()
+    {
+        ShowOperatorPanels();
+
+        // 이름
+        nameText.text = currentDeployableInfo.operatorData.entityName;
+
+        // 레벨
+        levelText.text = $"{currentDeployableInfo.ownedOperator.currentLevel}";
+
+        // 스킬
+        UpdateSkillInfo();
+
+        // 스탯
+        UpdateStatInfo();
+    }
+
+    private void UpdateDeployableInfo()
+    {
+        HideOperatorPanels();
+
+        nameText.text = currentDeployableInfo.deployableUnitData.entityName;
+    }
+
+    private void UpdateStatInfo()
+    {
+        // 기존 오퍼레이터가 있었다면 구독 해제
         if (currentOperator != null)
         {
             currentOperator.OnHealthChanged -= UpdateHealthText;
             currentOperator.OnStatsChanged -= UpdateOperatorInfo;
         }
 
-        if (deployableUnitEntity is Operator op)
+        if (currentDeployableUnitState.IsDeployed)
         {
-            currentOperator = op;
-            currentDeployable = null;
-            nameText.text = currentDeployableInfo.operatorData.entityName;
-            UpdateOperatorInfo();
-        }
-        else
-        {
-            HideOperatorPanels();
+            Debug.Log("배치된 오퍼레이터 클릭됨");
+            // 배치된 경우 실시간 정보를 가져옴
+            currentOperator = currentDeployableInfo.deployedOperator;
 
-            currentDeployable = deployableUnitEntity;
-            currentOperator = null;
-            nameText.text = currentDeployableInfo.deployableUnitData.entityName;
-        }
-    }
-
-    private void UpdateOperatorInfo()
-    {
-        if (currentOperator == null) return;
-
-        OwnedOperator ownedOperator = currentDeployableInfo.ownedOperator;
-        operatorSkill = ownedOperator.StageSelectedSkill;
-
-        // 아이콘 이미지 패널 활성화 및 할당
-        ShowOperatorPanels();
-        OperatorIconHelper.SetClassIcon(classIconImage, ownedOperator.BaseData.operatorClass);
-        OperatorIconHelper.SetElitePhaseIcon(promotionIconImage, ownedOperator.currentPhase);
-
-        // 스탯 정보 보이게 하기
-        statsContainer.SetActive(true);
-
-        levelText.text = $"{ownedOperator.currentLevel}";
-
-        if (currentOperator.IsDeployed)
-        {
-            currentOperator.OnHealthChanged += UpdateHealthText;
-            currentOperator.OnStatsChanged += UpdateOperatorInfo;
-        }
-
-        var currentUnitStates = DeployableManager.Instance.UnitStates[currentDeployableInfo];
-
-        UpdateStatText();
-        UpdateSkillInfo();
-    }
-
-    private void UpdateStatText()
-    {
-        // 배치된 경우 - 실시간 정보를 가져옴
-        if (currentOperator.IsDeployed)
-        {
             UpdateHealthText(currentOperator.CurrentHealth, currentOperator.MaxHealth);
             attackText.text = $"공격력: {Mathf.Ceil(currentOperator.currentStats.AttackPower)}";
             defenseText.text = $"방어력: {Mathf.Ceil(currentOperator.currentStats.Defense)}";
             magicResistanceText.text = $"마법저항력: {Mathf.Ceil(currentOperator.currentStats.MagicResistance)}";
             blockCountText.text = $"저지수: {Mathf.Ceil(currentOperator.currentStats.MaxBlockableEnemies)}";
+
+            // 이벤트 구독
+            currentOperator.OnHealthChanged += UpdateHealthText;
+            currentOperator.OnStatsChanged += UpdateOperatorInfo;
         }
-        // 배치되지 않은 경우 - ownedOperator의 정보를 가져옴
         else
         {
+            Debug.Log("배치되지 않은 오퍼레이터 클릭됨");
             OperatorStats ownedOperatorStats = currentDeployableInfo.ownedOperator.CurrentStats;
 
-            // 배치되지 않은 경우 : OwnedOperator의 정보를 가져옴
             float initialHealth = ownedOperatorStats.Health;
             UpdateHealthText(initialHealth, initialHealth);
             attackText.text = $"공격력: {Mathf.Ceil(ownedOperatorStats.AttackPower)}";
@@ -174,8 +147,14 @@ public class InStageInfoPanel : MonoBehaviour
 
     private void UpdateSkillInfo()
     {
+        operatorSkill = currentDeployableInfo.ownedOperator.StageSelectedSkill;
+
         if (operatorSkill != null)
         {
+            ShowOperatorPanels();
+            OperatorIconHelper.SetClassIcon(classIconImage, currentDeployableInfo.operatorData.operatorClass);
+            OperatorIconHelper.SetElitePhaseIcon(promotionIconImage, currentDeployableInfo.ownedOperator.currentPhase);
+
             skillIconImage.sprite = operatorSkill.skillIcon;
             skillNameText.text = operatorSkill.skillName;
             skillDetailText.text = operatorSkill.description;

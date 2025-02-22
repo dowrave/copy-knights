@@ -12,7 +12,7 @@ public abstract class DeployableUnitEntity: UnitEntity, IDeployable
     public bool IsDeployed { get; protected set; }
     public int InitialDeploymentCost { get; protected set; } // 최초 배치 코스트 - DeploymentCost는 게임 중 증가할 수 있음
 
-    private DeployableManager.DeployableInfo? deployableInfo;
+    public DeployableManager.DeployableInfo? DeployableInfo { get; protected set; }
 
     public Sprite? Icon => BaseData.Icon;
 
@@ -43,22 +43,27 @@ public abstract class DeployableUnitEntity: UnitEntity, IDeployable
         base.Awake();
     }
 
-    public void Initialize(DeployableUnitData deployableUnitData)
+    public void Initialize(DeployableManager.DeployableInfo deployableInfo)
     {
-        InitializeDeployableData(deployableUnitData);
+        DeployableInfo = deployableInfo;
+        if (deployableInfo.deployableUnitData != null)
+        {
+            BaseData = deployableInfo.deployableUnitData;
+        }
+        else
+        {
+            Debug.LogError("BaseData에 할당된 값이 없음!");
+            return;
+        }
 
-        UpdateCurrentTile();
+        currentStats = BaseData.stats;
         Prefab = BaseData.prefab;
 
-        InitializeDeployableProperties(); 
+        InitializeDeployableProperties();
+
+        UpdateCurrentTile();
     }
 
-    private void InitializeDeployableData(DeployableUnitData deployableData)
-    {
-        BaseData = deployableData;
-        currentStats = BaseData.stats;
-        deployableInfo = DeployableManager.Instance.GetDeployableInfoByName(BaseData.entityName);
-    }
 
 
     // 자식 오브젝트에 시각화를 담당하는 Model이 있다는 전제
@@ -113,6 +118,7 @@ public abstract class DeployableUnitEntity: UnitEntity, IDeployable
         if (IsDeployed)
         {
             IsDeployed = false;
+            DeployableInfo.deployedDeployable = null;
             DeployableManager.Instance.OnDeployableRemoved(this);
             if (CurrentTile != null)
             {
@@ -164,11 +170,17 @@ public abstract class DeployableUnitEntity: UnitEntity, IDeployable
             // 미리보기 상태에선 동작 X
             if (IsPreviewMode == false)
             {
+                DebugDeployableInfo();
                 UIManager.Instance.ShowDeployedInfo(this);
             }
 
             ShowActionUI();
         }
+    }
+
+    protected virtual void DebugDeployableInfo()
+    {
+        Debug.Log($"배치 요소 클릭, deployableInfo : {DeployableInfo}");
     }
 
     protected virtual void ShowActionUI()
@@ -200,6 +212,16 @@ public abstract class DeployableUnitEntity: UnitEntity, IDeployable
             CurrentTile = newTile;
         }
     }
+
+    //protected virtual void SetDeployedEntity()
+    //{
+    //    DeployableInfo.deployedDeployable = this;
+    //}
+
+    //protected virtual void DeleteDeployedEntity()
+    //{
+    //    DeployableInfo.deployedDeployable = null;
+    //}
 
 }
 

@@ -132,7 +132,7 @@ public class UIManager : MonoBehaviour
         {
             infoPanelObject.SetActive(true);
 
-            inStageInfoPanelScript.UpdateUnDeployedInfo(deployableInfo);
+            inStageInfoPanelScript.UpdateInfo(deployableInfo);
 
             DeployableUnitEntity deployable = deployableInfo.prefab.GetComponent<DeployableUnitEntity>();
             CameraManager.Instance.AdjustForDeployableInfo(true, deployable);
@@ -146,7 +146,11 @@ public class UIManager : MonoBehaviour
         if (inStageInfoPanelScript != null)
         {
             infoPanelObject.SetActive(true);
-            inStageInfoPanelScript.UpdateDeployedInfo(deployableUnitEntity);
+
+            Debug.Log($"{deployableUnitEntity.DeployableInfo}");
+
+            inStageInfoPanelScript.UpdateInfo(deployableUnitEntity.DeployableInfo);
+
             CameraManager.Instance.AdjustForDeployableInfo(true, deployableUnitEntity);
         }
     }

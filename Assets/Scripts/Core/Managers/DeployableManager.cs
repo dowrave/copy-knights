@@ -267,7 +267,7 @@ public class DeployableManager : MonoBehaviour
                 // 방향 설정이 필요 없다면 바로 배치
                 else
                 {
-                    currentDeployable.Initialize(currentDeployable.BaseData);
+                    currentDeployable.Initialize(currentDeployableInfo);
                     DeployDeployable(hoveredTile);
                 }
             }
@@ -288,11 +288,11 @@ public class DeployableManager : MonoBehaviour
 
             if (currentDeployable is Operator op)
             {
-                op.Initialize(currentDeployableInfo.ownedOperator);
+                op.Initialize(currentDeployableInfo);
             }
             else
             {
-                currentDeployable.Initialize(currentDeployableInfo.deployableUnitData);
+                currentDeployable.Initialize(currentDeployableInfo);
             }
         }
     }
@@ -664,10 +664,12 @@ public class DeployableManager : MonoBehaviour
         public float redeployTime;
 
         // 오퍼레이터일 때 할당
+        public Operator? deployedOperator;
         public OwnedOperator? ownedOperator;
         public OperatorData? operatorData;
 
         // 일반 배치 가능한 유닛일 때 할당
+        public DeployableUnitEntity? deployedDeployable;
         public DeployableUnitData? deployableUnitData;
     }
 }
