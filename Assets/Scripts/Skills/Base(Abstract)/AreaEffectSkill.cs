@@ -17,7 +17,11 @@ namespace Skills.Base
         protected HashSet<Vector2Int> actualSkillRange = new HashSet<Vector2Int>();
 
         protected GameObject hitEffectPrefab;
-        private Dictionary<Operator, List<GameObject>> activeEffects = new Dictionary<Operator, List<GameObject>>();
+        protected Dictionary<Operator, List<GameObject>> activeEffects = new Dictionary<Operator, List<GameObject>>();
+
+        // 타겟 중복 가능성을 제거하기 위한 해쉬셋
+        protected HashSet<int> enemyIdSet = new HashSet<int>();
+
 
         protected override void OnSkillStart(Operator op)
         {

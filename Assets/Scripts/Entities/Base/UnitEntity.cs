@@ -48,7 +48,7 @@ public abstract class UnitEntity : MonoBehaviour, ITargettable, IFactionMember
 
     public virtual void TakeDamage(UnitEntity attacker, AttackSource attackSource, float damage)
     {
-        if (attacker is ICombatEntity iCombatEntity)
+        if (attacker is ICombatEntity iCombatEntity && CurrentHealth > 0)
         {
             // 방어 / 마법 저항력이 고려된 실제 들어오는 대미지
             float actualDamage = CalculateActualDamage(iCombatEntity.AttackType, damage);
@@ -63,11 +63,12 @@ public abstract class UnitEntity : MonoBehaviour, ITargettable, IFactionMember
             OnHealthChanged?.Invoke(CurrentHealth, MaxHealth, shieldSystem.CurrentShield);
 
             PlayGetHitEffect(attacker, attackSource);
+        }
 
-            if (CurrentHealth <= 0)
-            {
-                Die(); // 오버라이드 메서드
-            }
+
+        if (CurrentHealth <= 0)
+        {
+            Die(); // 오버라이드 메서드
         }
     }
 

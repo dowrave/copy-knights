@@ -70,7 +70,7 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 1, y: 1, z: 1}
+  m_Size: {x: 0.98, y: 0.1, z: 0.98}
   m_Center: {x: 0, y: 0, z: 0}
 --- !u!54 &2137088678265995957
 Rigidbody:
@@ -493,7 +493,7 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 1, y: 1, z: 1}
+  m_Size: {x: 0.98, y: 0.5, z: 0.98}
   m_Center: {x: 0, y: 0, z: 0}
 --- !u!54 &1278247794852559627
 Rigidbody:
@@ -592,7 +592,7 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 1, y: 1, z: 1}
+  m_Size: {x: 0.98, y: 0.5, z: 0.98}
   m_Center: {x: 0, y: 0, z: 0}
 --- !u!54 &1604260370248477915
 Rigidbody:
@@ -691,7 +691,7 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 1, y: 1, z: 1}
+  m_Size: {x: 0.98, y: 0.1, z: 0.98}
   m_Center: {x: 0, y: 0, z: 0}
 --- !u!54 &2942722866409883339
 Rigidbody:
@@ -790,7 +790,7 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 1, y: 1, z: 1}
+  m_Size: {x: 0.98, y: 0.1, z: 0.98}
   m_Center: {x: 0, y: 0, z: 0}
 --- !u!54 &5265000417400826195
 Rigidbody:
@@ -1105,7 +1105,7 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 1, y: 1, z: 1}
+  m_Size: {x: 0.98, y: 0.1, z: 0.98}
   m_Center: {x: 0, y: 0, z: 0}
 --- !u!54 &2939858443746956400
 Rigidbody:
@@ -1312,7 +1312,7 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 1, y: 1, z: 1}
+  m_Size: {x: 0.98, y: 0.1, z: 0.98}
   m_Center: {x: 0, y: 0, z: 0}
 --- !u!54 &2190372326050250287
 Rigidbody:
@@ -1411,7 +1411,7 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 1, y: 1, z: 1}
+  m_Size: {x: 0.98, y: 0.5, z: 0.98}
   m_Center: {x: 0, y: 0, z: 0}
 --- !u!54 &1539228430190253337
 Rigidbody:
@@ -1510,7 +1510,7 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 1, y: 1, z: 1}
+  m_Size: {x: 0.98, y: 0.1, z: 0.98}
   m_Center: {x: 0, y: 0, z: 0}
 --- !u!54 &2203890837785385105
 Rigidbody:
@@ -1662,7 +1662,7 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 1, y: 1, z: 1}
+  m_Size: {x: 0.98, y: 0.1, z: 0.98}
   m_Center: {x: 0, y: 0, z: 0}
 --- !u!54 &7253983753705262177
 Rigidbody:
@@ -1869,7 +1869,7 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 1, y: 1, z: 1}
+  m_Size: {x: 0.98, y: 0.1, z: 0.98}
   m_Center: {x: 0, y: 0, z: 0}
 --- !u!54 &6769409765505369043
 Rigidbody:
@@ -2076,7 +2076,7 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 1, y: 1, z: 1}
+  m_Size: {x: 0.98, y: 0.1, z: 0.98}
   m_Center: {x: 0, y: 0, z: 0}
 --- !u!54 &7700812628287506642
 Rigidbody:
@@ -2311,7 +2311,7 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 1, y: 1, z: 1}
+  m_Size: {x: 0.98, y: 0.1, z: 0.98}
   m_Center: {x: 0, y: 0, z: 0}
 --- !u!1 &2650474255251391716
 GameObject:
@@ -2383,7 +2383,7 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 1, y: 1, z: 1}
+  m_Size: {x: 0.98, y: 0.1, z: 0.98}
   m_Center: {x: 0, y: 0, z: 0}
 --- !u!54 &4049978439944694176
 Rigidbody:
@@ -2590,7 +2590,7 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 1, y: 1, z: 1}
+  m_Size: {x: 0.98, y: 0.1, z: 0.98}
   m_Center: {x: 0, y: 0, z: 0}
 --- !u!54 &2603738225502420014
 Rigidbody:
@@ -2905,7 +2905,7 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 1, y: 1, z: 1}
+  m_Size: {x: 0.98, y: 0.1, z: 0.98}
   m_Center: {x: 0, y: 0, z: 0}
 --- !u!54 &7860062822860240001
 Rigidbody:
@@ -3004,7 +3004,7 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 1, y: 1, z: 1}
+  m_Size: {x: 0.98, y: 0.5, z: 0.98}
   m_Center: {x: 0, y: 0, z: 0}
 --- !u!54 &5809608191375799767
 Rigidbody:
@@ -3535,7 +3535,7 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 1, y: 1, z: 1}
+  m_Size: {x: 0.98, y: 0.5, z: 0.98}
   m_Center: {x: 0, y: 0, z: 0}
 --- !u!54 &2197947033001435482
 Rigidbody:
@@ -3742,7 +3742,7 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 1, y: 1, z: 1}
+  m_Size: {x: 0.98, y: 0.1, z: 0.98}
   m_Center: {x: 0, y: 0, z: 0}
 --- !u!54 &3695417120592067794
 Rigidbody:
@@ -4057,7 +4057,7 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 1, y: 1, z: 1}
+  m_Size: {x: 0.98, y: 0.5, z: 0.98}
   m_Center: {x: 0, y: 0, z: 0}
 --- !u!54 &2080138632897849632
 Rigidbody:
@@ -4156,7 +4156,7 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 1, y: 1, z: 1}
+  m_Size: {x: 0.98, y: 0.1, z: 0.98}
   m_Center: {x: 0, y: 0, z: 0}
 --- !u!54 &9001226076547787311
 Rigidbody:
@@ -4494,7 +4494,7 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 1.0204082, y: 10, z: 1.0204082}
+  m_Size: {x: 0.98, y: 0.1, z: 0.98}
   m_Center: {x: 0, y: 0, z: 0}
 --- !u!1 &4662136373674932000
 GameObject:
@@ -4566,7 +4566,7 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 1, y: 1, z: 1}
+  m_Size: {x: 0.98, y: 0.5, z: 0.98}
   m_Center: {x: 0, y: 0, z: 0}
 --- !u!54 &3422264371205096317
 Rigidbody:
@@ -4773,7 +4773,7 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 1, y: 1, z: 1}
+  m_Size: {x: 0.98, y: 0.1, z: 0.98}
   m_Center: {x: 0, y: 0, z: 0}
 --- !u!54 &6920415067294833909
 Rigidbody:
@@ -5304,7 +5304,7 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 1, y: 1, z: 1}
+  m_Size: {x: 0.98, y: 0.1, z: 0.98}
   m_Center: {x: 0, y: 0, z: 0}
 --- !u!54 &5354031230908767034
 Rigidbody:
@@ -5403,7 +5403,7 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 1, y: 1, z: 1}
+  m_Size: {x: 0.98, y: 0.5, z: 0.98}
   m_Center: {x: 0, y: 0, z: 0}
 --- !u!54 &256442196285959425
 Rigidbody:
@@ -5502,7 +5502,7 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 1, y: 1, z: 1}
+  m_Size: {x: 0.98, y: 0.5, z: 0.98}
   m_Center: {x: 0, y: 0, z: 0}
 --- !u!54 &6417875378785387438
 Rigidbody:
@@ -5709,7 +5709,7 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 1, y: 1, z: 1}
+  m_Size: {x: 0.98, y: 0.5, z: 0.98}
   m_Center: {x: 0, y: 0, z: 0}
 --- !u!54 &7281505898605366892
 Rigidbody:
@@ -5808,7 +5808,7 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 1, y: 1, z: 1}
+  m_Size: {x: 0.98, y: 0.5, z: 0.98}
   m_Center: {x: 0, y: 0, z: 0}
 --- !u!54 &8836480828476609473
 Rigidbody:
@@ -6015,7 +6015,7 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 1, y: 1, z: 1}
+  m_Size: {x: 0.98, y: 0.5, z: 0.98}
   m_Center: {x: 0, y: 0, z: 0}
 --- !u!54 &758720284250788190
 Rigidbody:
@@ -6222,7 +6222,7 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 1, y: 1, z: 1}
+  m_Size: {x: 0.98, y: 0.5, z: 0.98}
   m_Center: {x: 0, y: 0, z: 0}
 --- !u!54 &8878364984494414832
 Rigidbody:
@@ -6321,7 +6321,7 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 1, y: 1, z: 1}
+  m_Size: {x: 0.98, y: 0.5, z: 0.98}
   m_Center: {x: 0, y: 0, z: 0}
 --- !u!54 &8813222952602736020
 Rigidbody:
@@ -6420,7 +6420,7 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 1, y: 1, z: 1}
+  m_Size: {x: 0.98, y: 0.1, z: 0.98}
   m_Center: {x: 0, y: 0, z: 0}
 --- !u!54 &1484617605405754058
 Rigidbody:
@@ -6735,7 +6735,7 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 1, y: 1, z: 1}
+  m_Size: {x: 0.98, y: 0.5, z: 0.98}
   m_Center: {x: 0, y: 0, z: 0}
 --- !u!54 &3866368687272491212
 Rigidbody:
@@ -7158,7 +7158,7 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 1, y: 1, z: 1}
+  m_Size: {x: 0.98, y: 0.5, z: 0.98}
   m_Center: {x: 0, y: 0, z: 0}
 --- !u!54 &4796746599736992520
 Rigidbody:
@@ -7581,7 +7581,7 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 1, y: 1, z: 1}
+  m_Size: {x: 0.98, y: 0.1, z: 0.98}
   m_Center: {x: 0, y: 0, z: 0}
 --- !u!54 &7760293873750149410
 Rigidbody:
@@ -7896,7 +7896,7 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 1, y: 1, z: 1}
+  m_Size: {x: 0.98, y: 0.1, z: 0.98}
   m_Center: {x: 0, y: 0, z: 0}
 --- !u!54 &1555625176499943122
 Rigidbody:
@@ -7995,7 +7995,7 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 1, y: 1, z: 1}
+  m_Size: {x: 0.98, y: 0.1, z: 0.98}
   m_Center: {x: 0, y: 0, z: 0}
 --- !u!54 &9051898099712143202
 Rigidbody:
@@ -8094,7 +8094,7 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 1, y: 1, z: 1}
+  m_Size: {x: 0.98, y: 0.1, z: 0.98}
   m_Center: {x: 0, y: 0, z: 0}
 --- !u!54 &932287151878908357
 Rigidbody:
@@ -8301,7 +8301,7 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 1, y: 1, z: 1}
+  m_Size: {x: 0.98, y: 0.1, z: 0.98}
   m_Center: {x: 0, y: 0, z: 0}
 --- !u!54 &4755668126591676828
 Rigidbody:
@@ -8616,7 +8616,7 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 1, y: 1, z: 1}
+  m_Size: {x: 0.98, y: 0.5, z: 0.98}
   m_Center: {x: 0, y: 0, z: 0}
 --- !u!54 &8285266157675132715
 Rigidbody:
@@ -8715,7 +8715,7 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 1, y: 1, z: 1}
+  m_Size: {x: 0.98, y: 0.5, z: 0.98}
   m_Center: {x: 0, y: 0, z: 0}
 --- !u!54 &7681014096125211544
 Rigidbody:
@@ -8814,7 +8814,7 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 1, y: 1, z: 1}
+  m_Size: {x: 0.98, y: 0.1, z: 0.98}
   m_Center: {x: 0, y: 0, z: 0}
 --- !u!54 &4888890188478971563
 Rigidbody:

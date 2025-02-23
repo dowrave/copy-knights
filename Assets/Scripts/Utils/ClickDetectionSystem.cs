@@ -3,6 +3,7 @@ using System.Linq;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.EventSystems;
+using Unity.Burst.CompilerServices;
 
 public class ClickDetectionSystem : MonoBehaviour
 {
@@ -85,13 +86,46 @@ public class ClickDetectionSystem : MonoBehaviour
     private void HandleClick()
     {
         List<RaycastResult> results = PerformScreenRaycast();
-        List<RaycastResult> uiResults = results.Where(r => r.module is GraphicRaycaster).ToList();
 
+        foreach (var result in results)
+        {
+            // 다이아몬드와 DeployableUnitentity가 겹치면 deployable의 동작이 우선되어야 함
+            // 임시)
+            Debug.Log($"Raycast hit: {result.gameObject.name}");
+            Tile clickedTile = result.gameObject.GetComponent<Tile>();
+            if (clickedTile != null)
+            {
+                DeployableUnitEntity clickedDeployable = clickedTile.OccupyingDeployable;
+                if (clickedDeployable != null)
+                {
+                    if (clickedDeployable is Operator op)
+                    {
+                        op.OnClick();
+                    }
+
+                    else
+                    {
+                        clickedDeployable.OnClick();
+                    }
+
+                    return;
+                    // Operator가 아닐 때에도 퇴각 버튼은 나타나야 함 
+                }
+            }
+        }
+
+        ProcessClickPriority(results);
+    }
+
+    private void ProcessClickPriority(List<RaycastResult> results)
+    {
+        List<RaycastResult> uiResults = results.Where(r => r.module is GraphicRaycaster).ToList();
         // UI 요소가 클릭되었다면 해당 UI 요소 실행
         if (uiResults.Count > 0)
-        {            
-            HandleUIClick(uiResults);
-            return;
+        {
+            bool handleUI = HandleUIClick(uiResults);
+            // UI 처리가 된 경우에는 더 이상의 처리를 하지 않음
+            if (handleUI) return;
         }
 
         // 방향 선택 중이거나 드래깅 중일 때는 DeployableManager에서 처리함
@@ -112,7 +146,7 @@ public class ClickDetectionSystem : MonoBehaviour
         }
     }
 
-    private void HandleUIClick(List<RaycastResult> uiResults)
+    private bool HandleUIClick(List<RaycastResult> uiResults)
     {
         foreach (var result in uiResults)
         {
@@ -128,7 +162,7 @@ public class ClickDetectionSystem : MonoBehaviour
 
                     // 마름모 외부 클릭 처리
                     DeployableManager.Instance.CancelCurrentAction();
-                    return;
+                    return true;
                 }
             }
 
@@ -137,9 +171,11 @@ public class ClickDetectionSystem : MonoBehaviour
             if (associatedDeployable != null )
             {
                 associatedDeployable.OnClick();
-                return;
+                return true;
             }
         }
+
+        return false;
     }
 
     private void HandleDiamondInteriorClick(RaycastResult result)

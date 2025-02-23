@@ -46,6 +46,7 @@ public class ArcaneFieldController : FieldEffectController
             {
                 foreach (Enemy enemy in tile.GetEnemiesOnTile())
                 {
+                    // 여기서 중복이 이미 방지되고 있음
                     if (!affectedTargets.ContainsKey(enemy))
                     {
                         ApplyInitialEffect(enemy);

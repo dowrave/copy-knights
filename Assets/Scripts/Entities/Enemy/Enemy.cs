@@ -350,7 +350,7 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity, ICrowdControlTarget
         }
 
         StageManager.Instance.OnEnemyDefeated(); // 사망한 적 수 +1
-        Debug.Log($"Enemy 사망, 사망 카운트 + 1");
+        Debug.Log($"{BaseData.entityName} 사망, 사망 카운트 + 1");
 
         // 공격 이펙트 프리팹 제거
         if (BaseData.hitEffectPrefab != null)
@@ -369,7 +369,7 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity, ICrowdControlTarget
 
     public override void TakeDamage(UnitEntity attacker, AttackSource attackSource, float damage)
     {
-        if (attacker is ICombatEntity iCombatEntity)
+        if (attacker is ICombatEntity iCombatEntity && CurrentHealth > 0) 
         {
             // 방어 / 마법 저항력이 고려된 실제 들어오는 대미지
             float actualDamage = CalculateActualDamage(iCombatEntity.AttackType, damage);

@@ -1,5 +1,4 @@
-using System;
-using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace Skills.Base
@@ -17,6 +16,8 @@ namespace Skills.Base
 
         protected override GameObject CreateEffectField(Operator op, Vector2Int centerPos)
         {
+            enemyIdSet.Clear();
+
             // 코스트 회복
             StageManager.Instance.RecoverDeploymentCost(costRecovery);
 
@@ -28,7 +29,11 @@ namespace Skills.Base
                 {
                     foreach (Enemy enemy in tile.GetEnemiesOnTile())
                     {
-                        CreateMeteorSequence(op, enemy);
+                        int enemyId = enemy.GetInstanceID();
+                        if (enemyIdSet.Add(enemyId)) // 중복된 enemy가 아니어서 해쉬셋에 추가를 성공하면
+                        {
+                            CreateMeteorSequence(op, enemy);
+                        }
                     }
                 }
             }

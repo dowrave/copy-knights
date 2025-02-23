@@ -22,21 +22,28 @@ public class MeteorController : MonoBehaviour
         this.stunDuration = stunDuration;
         this.hitEffectPrefab = hitEffectPrefab;
 
-        StartCoroutine(FallRoutine());
-
+        // 공격자나 타겟이 제거된다면 이것도 제거시키기 위한 이벤트 등록
         if (caster != null)
         {
             caster.OnOperatorDied += HandleCasterDeath;
         }
+        if (target != null)
+        {
+            target.OnDestroyed += HandleTargetDeath;
+        }
 
-        StageManager.Instance.OnGameEnded += EndSkill;
+        StageManager.Instance.OnGameEnded += DestroySelf;
+        Debug.Log($"{GetInstanceID()} 초기화됨");
+        StartCoroutine(FallRoutine());
     }
 
     private IEnumerator FallRoutine()
     {
         yield return new WaitForSeconds(waitTime + 0.1f);
 
-        while (target != null && transform.position.y > target.transform.position.y)
+        while (target != null && 
+            !hasDamageApplied &&
+            transform.position.y > target.transform.position.y)
         {
             // 타겟을 계속 추적, y 좌표만 감소
             Vector3 targetPos = target.transform.position;
@@ -57,21 +64,21 @@ public class MeteorController : MonoBehaviour
             yield return null;
         };
 
-        EndSkill();
+        DestroySelf();
     }
 
     private void ApplyDamage()
     {
         if (target != null)
         {
-            // 대미지 적용
-            ICombatEntity.AttackSource attackSource = new ICombatEntity.AttackSource(transform.position, false, hitEffectPrefab);
-            target.TakeDamage(caster, attackSource, damage);
-
             // 기절 효과 적용
             StunEffect stunEffect = new StunEffect();
             stunEffect.Initialize(target, caster, stunDuration);
             target.AddCrowdControl(stunEffect);
+
+            // 대미지 적용
+            ICombatEntity.AttackSource attackSource = new ICombatEntity.AttackSource(transform.position, false, hitEffectPrefab);
+            target.TakeDamage(caster, attackSource, damage);
 
             hasDamageApplied = true;
         }
@@ -79,26 +86,37 @@ public class MeteorController : MonoBehaviour
 
     private void HandleCasterDeath(Operator op)
     {
-        if (caster != null)
-        {
-            caster.OnOperatorDied -= HandleCasterDeath;
-        }
-
-        EndSkill();
+        DestroySelf();
     }
 
-    private void EndSkill()
+    private void HandleTargetDeath(UnitEntity enemy)
+    {
+        DestroySelf();
+    }
+
+    private void DestroySelf()
     {
         Destroy(gameObject);
     }
 
-    private void OnDestroy()
+    private void UnSubscribeEvents()
     {
         if (caster != null)
         {
             caster.OnOperatorDied -= HandleCasterDeath;
         }
+        if (target != null)
+        {
+            target.OnDestroyed -= HandleTargetDeath;
+        }
 
-        StageManager.Instance.OnGameEnded -= EndSkill;
+        StageManager.Instance.OnGameEnded -= DestroySelf;
+    }
+
+
+    private void OnDestroy()
+    {
+        UnSubscribeEvents();
+        Debug.Log($"{GetInstanceID()} 파괴됨");
     }
 }

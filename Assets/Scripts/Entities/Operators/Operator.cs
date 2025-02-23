@@ -454,7 +454,6 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable,
             if (unit is Enemy enemy)
             {
                 enemiesInRange.Remove(enemy); // 안하면 리스트에 파괴된 오브젝트가 남아서 0번 인덱스를 캐치하지 못함
-                Debug.Log($"{enemy} 사망, {BaseData.entityName}의 enemiesInRange의 길이  : {enemiesInRange.Count}");
             }
 
             CurrentTarget = null;
