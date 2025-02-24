@@ -32,6 +32,10 @@ public class InStageInfoPanel : MonoBehaviour
     [SerializeField] private TextMeshProUGUI skillNameText;
     [SerializeField] private TextMeshProUGUI skillDetailText;
 
+    [Header("Cancel Panel")]
+    [SerializeField] private Button cancelPanel;
+
+
     // 배치 요소 정보
     private DeployableManager.DeployableInfo currentDeployableInfo;
     private DeployableUnitState currentDeployableUnitState;
@@ -39,6 +43,11 @@ public class InStageInfoPanel : MonoBehaviour
     // 오퍼레이터에서만 사용
     private Operator currentOperator;
     private BaseSkill operatorSkill;
+
+    private void Awake()
+    {
+        cancelPanel.gameObject.SetActive(false);
+    }
 
     public void UpdateInfo(DeployableManager.DeployableInfo deployableInfo)
     {
@@ -49,6 +58,13 @@ public class InStageInfoPanel : MonoBehaviour
         {
             Debug.LogError("현재 배치 요소의 정보가 없음");
             return;
+        }
+
+        // 배치된 요소가 아닐 때에만 CancelPanel이 나타남 (배치된 요소는 다이아몬드가 나타나므로 필요 x)
+        if (!currentDeployableUnitState.IsDeployed)
+        {
+            cancelPanel.gameObject.SetActive(true);
+            cancelPanel.onClick.AddListener(OnCancelPanelClicked);
         }
 
         if (currentDeployableUnitState.IsOperator)
@@ -96,7 +112,6 @@ public class InStageInfoPanel : MonoBehaviour
 
         if (currentDeployableUnitState.IsDeployed)
         {
-            Debug.Log("배치된 오퍼레이터 클릭됨");
             // 배치된 경우 실시간 정보를 가져옴
             currentOperator = currentDeployableInfo.deployedOperator;
 
@@ -112,7 +127,6 @@ public class InStageInfoPanel : MonoBehaviour
         }
         else
         {
-            Debug.Log("배치되지 않은 오퍼레이터 클릭됨");
             OperatorStats ownedOperatorStats = currentDeployableInfo.ownedOperator.CurrentStats;
 
             float initialHealth = ownedOperatorStats.Health;
@@ -161,6 +175,14 @@ public class InStageInfoPanel : MonoBehaviour
         }
     }
 
+    private void OnCancelPanelClicked()
+    {
+        if (DeployableManager.Instance.IsDeployableSelecting)
+        {
+            DeployableManager.Instance.CancelDeployableSelection();
+        }
+    }
+
     private void OnDisable()
     {
         if (currentOperator != null)
@@ -169,5 +191,8 @@ public class InStageInfoPanel : MonoBehaviour
             currentOperator.OnStatsChanged -= UpdateOperatorInfo;
             currentOperator = null;
         }
+
+        cancelPanel.onClick.RemoveAllListeners();
+        cancelPanel.gameObject.SetActive(false);
     }
 }

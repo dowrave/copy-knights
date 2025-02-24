@@ -18,6 +18,9 @@ public class StageData : ScriptableObject
     public int maxDeploymentCost = 99;
     public float timeToFillCost = 1f; // 코스트 1을 올리는 데에 걸리는 시간
 
+    [Tooltip("최대로 배치할 수 있는 오퍼레이터의 수")]
+    public int operatorMaxDeploymentCount = 5; // 오퍼레이터 최대 배치 수
+
     [Header("Stage Functional Elements")]
     public float playerHealthMultiplier = 1f;
     public float enemyStatMultiplier = 1f;

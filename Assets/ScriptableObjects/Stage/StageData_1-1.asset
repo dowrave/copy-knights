@@ -20,5 +20,6 @@ MonoBehaviour:
   startDeploymentCost: 66
   maxDeploymentCost: 99
   timeToFillCost: 1
+  operatorMaxDeploymentCount: 2
   playerHealthMultiplier: 1
   enemyStatMultiplier: 1

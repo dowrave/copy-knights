@@ -1,5 +1,5 @@
+using DG.Tweening;
 using TMPro;
-using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
@@ -20,6 +20,15 @@ public class DeployableBox : MonoBehaviour, IPointerDownHandler, IBeginDragHandl
     private DeployableUnitEntity deployableComponent;
     private DeployableManager.DeployableInfo deployableInfo;
     private DeployableUnitState deployableUnitState;
+
+    // 애니메이션 관련
+    private Vector3 originalPosition;
+    public float animationDuration = 0.2f;
+    public float animationHeight = 20f;
+    private Tween currentTween;
+    private bool isOriginalPositionSet;
+
+    public bool IsSelected { get; private set; } = false;
 
     // 남은 갯수
     private bool isDragging = false;
@@ -46,9 +55,12 @@ public class DeployableBox : MonoBehaviour, IPointerDownHandler, IBeginDragHandl
             boxIcon = deployableInfo.deployableUnitData.Icon;
         }
 
-        StageManager.Instance.OnDeploymentCostChanged += UpdateAvailability;
-        StageManager.Instance.OnPreparationCompleted += InitializeVisuals;
         InitializeVisuals();
+
+        StageManager.Instance.OnDeploymentCostChanged += UpdateAvailability;
+
+        StageManager.Instance.OnPreparationCompleted += InitializeVisuals;
+        DeployableManager.Instance.OnCurrentOperatorDeploymentCountChanged += UpdateAvailability;
     }
 
     public void UpdateDisplay(DeployableUnitState unitState)
@@ -125,6 +137,18 @@ public class DeployableBox : MonoBehaviour, IPointerDownHandler, IBeginDragHandl
         }
     }
 
+    public void Select()
+    {
+        IsSelected = true;
+        AnimateSelection();
+    }
+
+    public void Deselect()
+    {
+        IsSelected = false;
+        ResetAnimation();
+    }
+
     // 마우스 동작 관련 : 동작하지 않는다면 상속을 확인하라
     // 마우스 버튼을 눌렀다가 같은 위치에서 뗐을 때 발생
     public void OnPointerDown(PointerEventData eventData)
@@ -132,6 +156,7 @@ public class DeployableBox : MonoBehaviour, IPointerDownHandler, IBeginDragHandl
         if (CanInteract())
         {
             DeployableManager.Instance.StartDeployableSelection(deployableInfo);
+            Select();
         }
     }
 
@@ -142,6 +167,37 @@ public class DeployableBox : MonoBehaviour, IPointerDownHandler, IBeginDragHandl
         {
             isDragging = true;
             DeployableManager.Instance.StartDragging(deployableInfo);
+        }
+    }
+    
+    // 박스가 선택됐을 때의 애니메이션 구현
+    private void AnimateSelection()
+    {
+        // 애니메이션을 위한 기존 위치 저장
+        originalPosition = GetComponent<RectTransform>().anchoredPosition;
+        isOriginalPositionSet = true;
+
+        currentTween?.Kill();
+
+        Sequence sequence = DOTween.Sequence();
+
+        RectTransform rectTransform = GetComponent<RectTransform>();
+
+        sequence.Append(rectTransform.DOAnchorPosY(originalPosition.y + animationHeight, animationDuration / 2)
+            .SetEase(Ease.OutQuad));
+        //sequence.Append(rectTransform.DOAnchorPosY(originalPosition.y, animationDuration / 2)
+        //    .SetEase(Ease.InQuad));
+
+        currentTween = sequence;
+    }
+
+    public void ResetAnimation()
+    {
+        currentTween?.Kill();
+        if (isOriginalPositionSet)
+        {
+            GetComponent<RectTransform>().anchoredPosition = originalPosition;
+            isOriginalPositionSet = false;
         }
     }
 
@@ -166,8 +222,19 @@ public class DeployableBox : MonoBehaviour, IPointerDownHandler, IBeginDragHandl
 
     private bool CanInteract()
     {
-        return !deployableUnitState.IsOnCooldown && 
-            StageManager.Instance.CurrentDeploymentCost >= currentDeploymentCost;
+        if (deployableComponent is Operator op)
+        {
+            return !deployableUnitState.IsOnCooldown && 
+                StageManager.Instance.CurrentDeploymentCost >= currentDeploymentCost &&
+                DeployableManager.Instance.CurrentOperatorDeploymentCount < DeployableManager.Instance.MaxOperatorDeploymentCount;
+        }
+        else
+        {
+            return !deployableUnitState.IsOnCooldown &&
+                    StageManager.Instance.CurrentDeploymentCost >= currentDeploymentCost;
+        }
+
+
     }
 
     private void OnDestroy()

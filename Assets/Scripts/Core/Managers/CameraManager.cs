@@ -69,7 +69,7 @@ public class CameraManager : MonoBehaviour
     }
 
     // UI를 클릭하거나 배치된 오퍼레이터 클릭 시 카메라 이동 / 회전 변경
-    public void AdjustForDeployableInfo(bool show, DeployableUnitEntity deployable = null)
+    public void AdjustForDeployableInfo(bool show, DeployableUnitEntity? deployable = null)
     {
         // ShowDeployableInfo
         if (show)

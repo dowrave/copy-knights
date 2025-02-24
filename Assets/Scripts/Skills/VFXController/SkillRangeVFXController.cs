@@ -8,15 +8,15 @@ using UnityEngine.UI;
 public class SkillRangeVFXController : MonoBehaviour, IPooledObject
 {
     [Header("Effect Reference")]
-    [SerializeField] protected ParticleSystem topEffect;
-    [SerializeField] protected ParticleSystem bottomEffect;
-    [SerializeField] protected ParticleSystem leftEffect;
-    [SerializeField] protected ParticleSystem rightEffect;
-    [SerializeField] protected Image topBoundary;
-    [SerializeField] protected Image bottomBoundary;
-    [SerializeField] protected Image leftBoundary;
-    [SerializeField] protected Image rightBoundary;
-    [SerializeField] protected Image floorImage;
+    [SerializeField] protected ParticleSystem? topEffect;
+    [SerializeField] protected ParticleSystem? bottomEffect;
+    [SerializeField] protected ParticleSystem? leftEffect;
+    [SerializeField] protected ParticleSystem? rightEffect;
+    [SerializeField] protected Image? topBoundary;
+    [SerializeField] protected Image? bottomBoundary;
+    [SerializeField] protected Image? leftBoundary;
+    [SerializeField] protected Image? rightBoundary;
+    [SerializeField] protected Image? floorImage;
 
     protected bool isInitialized = false;
     protected float fieldDuration;

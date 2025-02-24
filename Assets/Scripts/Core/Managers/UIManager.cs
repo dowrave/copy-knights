@@ -11,7 +11,7 @@ public class UIManager : MonoBehaviour
     [SerializeField] private GameObject statsPanelObject; // 통계 패널
     [SerializeField] private GameObject gameOverPanelObject;
     [SerializeField] private GameObject gameWinPanelObject; // 여기는 애니메이션이 들어가니까 일단 냅두기만 합니다
-    [SerializeField] private GameObject deploymentCostPanelObject;
+    [SerializeField] private GameObject deploymentPanelObject;
     [SerializeField] private GameObject topCenterPanelObject; // 남은 적 수, 라이프 수
     [SerializeField] private GameObject bottomPanelObject;
     [SerializeField] private GameObject infoPanelObject; // 선택된 오퍼레이터 정보 패널
@@ -35,6 +35,9 @@ public class UIManager : MonoBehaviour
 
     [Header("Cost Panel Elements")]
     [SerializeField] private GameObject costIcon;
+
+    [Header("Left Deployment Count Text")]
+    [SerializeField] private TextMeshProUGUI leftDeploymentCountText;
 
     [SerializeField] private float resultDelay = 0.5f;
 
@@ -72,11 +75,11 @@ public class UIManager : MonoBehaviour
     {
         StageManager.Instance.OnLifePointsChanged += UpdateLifePointsText;
         StageManager.Instance.OnEnemyKilled += UpdateEnemyKillCountText;
+        DeployableManager.Instance.OnCurrentOperatorDeploymentCountChanged += UpdateLeftDeploymentCountText;
     }
 
     public void Initialize()
     {
-        InitializeListeners();
         inGameTopButtonContainer.Initialize();
 
         // 최초 카메라에서 코스트 아이콘의 월드 포지션을 잡아줌
@@ -85,6 +88,9 @@ public class UIManager : MonoBehaviour
 
         UpdateEnemyKillCountText();
         UpdateLifePointsText(StageManager.Instance.CurrentLifePoints);
+        UpdateLeftDeploymentCountText();
+
+        InitializeListeners();
     }
 
     public void ShowGameOverUI()
@@ -205,6 +211,12 @@ public class UIManager : MonoBehaviour
         confirmationReturnToLobbyPanel.Initialize();
     }
 
+    public void UpdateLeftDeploymentCountText()
+    {
+        int leftDeploymentCount = DeployableManager.Instance.MaxOperatorDeploymentCount - DeployableManager.Instance.CurrentOperatorDeploymentCount;
+        leftDeploymentCountText.text = $"남은 배치 수 : {leftDeploymentCount}";
+    }
+
 
     // UI 요소의 게임 화면상의 위치 위치
     public Vector2 GetUIElementScreenPosition(RectTransform rectTransform)
@@ -250,5 +262,9 @@ public class UIManager : MonoBehaviour
         Debug.LogWarning("Could not project UI element to world space - ray is parallel to XZ plane");
         return Vector3.zero;
     }
-    
+
+    private void OnDisable()
+    {
+        DeployableManager.Instance.OnCurrentOperatorDeploymentCountChanged -= UpdateLeftDeploymentCountText;
+    }
 }

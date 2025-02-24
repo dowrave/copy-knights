@@ -47,7 +47,7 @@ public class Tile : MonoBehaviour
 
     private void Awake()
     {
-        cubeTransform = transform.Find("Cube");
+        
         InitializeGridPosition();
         size2D = new Vector2(tileScale, tileScale);
     }
@@ -68,16 +68,15 @@ public class Tile : MonoBehaviour
 
     private void Initialize()
     {
+        cubeTransform = transform.Find("Cube");
+
         // 자식 오브젝트 Cube의 Renderer를 가져온다.
         if (tileRenderer == null)
         {
-            tileRenderer = GetComponentInChildren<Renderer>();
+            tileRenderer = cubeTransform.GetComponentInChildren<Renderer>();
         }
 
-        else
-        {
-            tileRenderer.sharedMaterial = baseTileMaterial;
-        }
+        tileRenderer.sharedMaterial = baseTileMaterial;
 
         propBlock = new MaterialPropertyBlock();
         UpdateVisuals();
@@ -89,25 +88,14 @@ public class Tile : MonoBehaviour
         GridPosition = gridPosition;
         IsWalkable = data.isWalkable;
 
-        AdjustCubeScale();
+        AdjustScale();
         UpdateVisuals();
     }
 
-    public void AdjustCubeScale()
+    public void AdjustScale()
     {
-        if (cubeTransform != null)
-        {
-
-            cubeTransform.localScale = new Vector3(tileScale, GetHeightScale(), tileScale);
-
-            // BoxCollider 크기 조정
-            BoxCollider boxCollider = cubeTransform.GetComponent<BoxCollider>();
-            if (boxCollider != null)
-            {
-                boxCollider.size = new Vector3(1f / tileScale, 1f / GetHeightScale(), 1f / tileScale); // 부모 오브젝트의 스케일 변경을 대비
-            }
-
-        }
+        Vector3 targetScale = new Vector3(tileScale, GetHeightScale(), tileScale);
+        transform.localScale = targetScale;
     }
 
     // 배치될 요소는 이 값의 절반보다 위에 놔야 함
@@ -227,24 +215,6 @@ public class Tile : MonoBehaviour
     {
         return enemiesOnTile;
     }
-
-    //private void OnTriggerEnter(Collider other)
-    //{
-    //    Enemy enemy = other.GetComponent<Enemy>();
-    //    if (enemy != null)
-    //    {
-    //        EnemyEntered(enemy);
-    //    }
-    //}
-
-    //private void OnTriggerExit(Collider other)
-    //{
-    //    Enemy enemy = other.GetComponent<Enemy>();
-    //    if (enemy != null)
-    //    {
-    //        EnemyExited(enemy);
-    //    }
-    //}
 
     // 적이 타일에 진입
     public void EnemyEntered(Enemy enemy)

@@ -152,16 +152,21 @@ public class StageManager : MonoBehaviour
     {
         SetGameState(GameState.Preparation);
 
-        // 게임 초기화
+        // 게임 설정
+
+        // 적의 숫자 초기화
         TotalEnemyCount = CalculateTotalEnemyCount();
         KilledEnemyCount = 0;
 
+        // 코스트 관련 초기화
         currentDeploymentCost = stageData.startDeploymentCost;
         maxDeploymentCost = stageData.maxDeploymentCost;
         timeToFillCost = stageData.timeToFillCost;
 
+        // 체력 포인트 초기화
         CurrentLifePoints = MaxLifePoints;
 
+        // UI 초기화
         UIManager.Instance.Initialize();
          
         OnPreparationCompleted?.Invoke();
@@ -271,7 +276,6 @@ public class StageManager : MonoBehaviour
         if (KilledEnemyCount + PassedEnemies >= TotalEnemyCount)
         {
             StartCoroutine(GameWinAfterDelay());
-            
         }
     }
 
@@ -289,19 +293,21 @@ public class StageManager : MonoBehaviour
 
     public void OnEnemyReachDestination()
     {
-        if (currentState == GameState.GameOver || currentState == GameState.GameWin) return; 
-
-        CurrentLifePoints--; // OnLifePointsChanged : 생명력이 깎이면 자동으로 UI 업데이트 발생
-        PassedEnemies++;
-
-        if (CurrentLifePoints <= 0)
+        if (currentState == GameState.Battle)
         {
-            GameOverAfterDelay();
+            CurrentLifePoints--; // OnLifePointsChanged : 생명력이 깎이면 자동으로 UI 업데이트 발생
+            PassedEnemies++;
+
+            if (CurrentLifePoints <= 0)
+            {
+                StartCoroutine(GameOverAfterDelay());
+            }
+            else if (KilledEnemyCount + PassedEnemies >= TotalEnemyCount)
+            {
+                StartCoroutine(GameWinAfterDelay());
+            }
         }
-        else if (KilledEnemyCount + PassedEnemies >= TotalEnemyCount)
-        {
-            GameWinAfterDelay();
-        }
+
     }
 
     private void GameWin()
@@ -392,11 +398,6 @@ public class StageManager : MonoBehaviour
         CurrentDeploymentCost = Mathf.Min(CurrentDeploymentCost + amount, maxDeploymentCost);
     }
 
-    public void SetStageData(StageData data)
-    {
-        stageData = data;
-    }
-
     private void RestartCostIncrease()
     {
         if (costIncreaseCoroutine != null)
@@ -463,7 +464,7 @@ public class StageManager : MonoBehaviour
         var deployableList = new List<MapDeployableData>(mapDeployables);
 
         // 스쿼드 + 맵의 배치 가능 요소 초기화
-        DeployableManager.Instance.Initialize(squadData, deployableList);
+        DeployableManager.Instance.Initialize(squadData, deployableList, stageData.operatorMaxDeploymentCount);
     }
 
 

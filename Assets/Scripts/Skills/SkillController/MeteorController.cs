@@ -33,7 +33,6 @@ public class MeteorController : MonoBehaviour
         }
 
         StageManager.Instance.OnGameEnded += DestroySelf;
-        Debug.Log($"{GetInstanceID()} ÃÊ±âÈ­µÊ");
         StartCoroutine(FallRoutine());
     }
 
@@ -117,6 +116,5 @@ public class MeteorController : MonoBehaviour
     private void OnDestroy()
     {
         UnSubscribeEvents();
-        Debug.Log($"{GetInstanceID()} ÆÄ±«µÊ");
     }
 }
