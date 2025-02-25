@@ -28,9 +28,11 @@ public abstract class UnitEntity : MonoBehaviour, ITargettable, IFactionMember
     // 인터페이스가 있는 경우에만 쓸 듯
     protected List<CrowdControl> activeCC = new List<CrowdControl>();
 
-
     // 이 개체를 공격하는 엔티티 목록
     protected List<ICombatEntity> attackingEntities = new List<ICombatEntity>();
+
+    // 박스 콜라이더
+    protected BoxCollider boxCollider;
 
     // 이벤트
     public event System.Action<float, float, float> OnHealthChanged;
@@ -39,6 +41,15 @@ public abstract class UnitEntity : MonoBehaviour, ITargettable, IFactionMember
 
     protected virtual void Awake()
     {
+        boxCollider = GetComponent<BoxCollider>();
+        
+        if (boxCollider == null)
+        {
+            Debug.LogError($"{gameObject.name}에 BoxCollider가 없음!");
+        }
+
+        SetColliderState();
+
         shieldSystem = new ShieldSystem();
         shieldSystem.OnShieldChanged += (shield, onShieldDepleted) =>
         {
@@ -46,31 +57,6 @@ public abstract class UnitEntity : MonoBehaviour, ITargettable, IFactionMember
         };
     }
 
-    public virtual void TakeDamage(UnitEntity attacker, AttackSource attackSource, float damage)
-    {
-        if (attacker is ICombatEntity iCombatEntity && CurrentHealth > 0)
-        {
-            // 방어 / 마법 저항력이 고려된 실제 들어오는 대미지
-            float actualDamage = CalculateActualDamage(iCombatEntity.AttackType, damage);
-
-            // 쉴드를 깎고 남은 대미지
-            float remainingDamage = shieldSystem.AbsorbDamage(actualDamage);
-
-            // 체력 계산
-            CurrentHealth = Mathf.Max(0, CurrentHealth - remainingDamage);
-
-            Debug.Log($"남은 체력 : {CurrentHealth}, 들어온 대미지 : {remainingDamage}");
-            OnHealthChanged?.Invoke(CurrentHealth, MaxHealth, shieldSystem.CurrentShield);
-
-            PlayGetHitEffect(attacker, attackSource);
-        }
-
-
-        if (CurrentHealth <= 0)
-        {
-            Die(); // 오버라이드 메서드
-        }
-    }
 
     public virtual void AddAttackingEntity(ICombatEntity attacker)
     {
@@ -89,11 +75,6 @@ public abstract class UnitEntity : MonoBehaviour, ITargettable, IFactionMember
 
     protected virtual void Die()
     {
-        // 공격중인 적들의 타겟 제거
-        //foreach (ICombatEntity entity in attackingEntities)
-        //{
-        //    entity.RemoveCurrentTarget();
-        //}
 
         OnDestroyed?.Invoke(this);
         RemoveAllCrowdControls();
@@ -217,6 +198,36 @@ public abstract class UnitEntity : MonoBehaviour, ITargettable, IFactionMember
     {
         MaxHealth = newMaxHealth;
     }
+
+
+    public virtual void TakeDamage(UnitEntity attacker, AttackSource attackSource, float damage)
+    {
+        if (attacker is ICombatEntity iCombatEntity && CurrentHealth > 0)
+        {
+            // 방어 / 마법 저항력이 고려된 실제 들어오는 대미지
+            float actualDamage = CalculateActualDamage(iCombatEntity.AttackType, damage);
+
+            // 쉴드를 깎고 남은 대미지
+            float remainingDamage = shieldSystem.AbsorbDamage(actualDamage);
+
+            // 체력 계산
+            CurrentHealth = Mathf.Max(0, CurrentHealth - remainingDamage);
+
+            Debug.Log($"남은 체력 : {CurrentHealth}, 들어온 대미지 : {remainingDamage}");
+            OnHealthChanged?.Invoke(CurrentHealth, MaxHealth, shieldSystem.CurrentShield);
+
+            PlayGetHitEffect(attacker, attackSource);
+        }
+
+
+        if (CurrentHealth <= 0)
+        {
+            Die(); // 오버라이드 메서드
+        }
+    }
+
+    // 콜라이더의 활성화 여부 결정
+    protected virtual void SetColliderState() { } // Enemy, DeployableUnitEntity에서 상세 구현(abstract으로 하면 반드시 말단에서 구현해야 함)
 
     protected abstract float CalculateActualDamage(AttackType attacktype, float incomingDamage);
     public void ActivateShield(float amount) => shieldSystem.ActivateShield(amount);

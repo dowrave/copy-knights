@@ -1,12 +1,9 @@
 using UnityEngine;
 using System.Collections.Generic;
 
-/// <summary>
-/// 코스트 획득 시 파티클이 코스트 아이콘으로 날아가는 처리
-/// </summary>
+// 코스트 획득 시 파티클이 코스트 아이콘으로 날아가는 처리
 public class CostParticleMotion : MonoBehaviour
 {
-    [SerializeField] private RectTransform deploymentCostIconTransform;
     private new ParticleSystem particleSystem;
     private ParticleSystem.Particle[] particles;
     private float elapsed = 0f;
@@ -20,12 +17,7 @@ public class CostParticleMotion : MonoBehaviour
     [SerializeField] private float turnSpeed = 5f;
     [SerializeField] private float arrivalThreshold = 2f;
 
-    [Header("Debug Settings")]
-    [SerializeField] private bool showDebugMarker = true;
-    [SerializeField] private float markerSize = 20f;
-    [SerializeField] private Color targetMarkerColor = Color.yellow;
-    [SerializeField] private Color particleMarkerColor = Color.green;
-
+    private RectTransform deploymentCostIconTransform;
     private Dictionary<uint, Vector3> particleVelocities = new Dictionary<uint, Vector3>();
    
 
@@ -36,7 +28,8 @@ public class CostParticleMotion : MonoBehaviour
 
         if (deploymentCostIconTransform == null)
         {
-            deploymentCostIconTransform = GameObject.Find("MainCanvas/DeploymentCostPanel/DeploymentCostIcon").GetComponent<RectTransform>();
+            GameObject DeploymentCostIconObject = GameObject.Find("MainCanvas/DeploymentPanel/DeploymentCostIcon");
+            deploymentCostIconTransform = DeploymentCostIconObject.GetComponent<RectTransform>();
         }
     }
 

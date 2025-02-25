@@ -11,12 +11,6 @@ public class Map : MonoBehaviour
     [SerializeField] private string mapId;
     public string Mapid => mapId;
 
-    [Header("References")]
-    [SerializeField] private GameObject tilePrefab;
-
-    [Header("Deployable Settings")]
-    [SerializeField] private List<MapDeployableData> mapDeployables = new List<MapDeployableData>();
-
     [SerializeField] private int width;
     [SerializeField] private int height;
     public int Width => width;
@@ -152,10 +146,11 @@ public class Map : MonoBehaviour
 
     private void CreateNewTile(int x, int y, TileData tileData)
     {
-        if (tilePrefab == null) return;
-
         Vector2Int gridPos = new Vector2Int(x, y);
         Vector3 worldPos = GridToWorldPosition(gridPos);
+
+        GameObject tilePrefab = tileData.tilePrefab;
+        if (tilePrefab == null) return;
         GameObject tileObj = Instantiate(tilePrefab, transform);
 
         tileObj.name = GenerateTileName(x, y, tileData);
@@ -338,10 +333,5 @@ public class Map : MonoBehaviour
                 RemoveTile(x, y);
             }
         }
-    }
-
-    public IReadOnlyList<MapDeployableData> GetMapDeployables()
-    {
-        return mapDeployables.AsReadOnly();
     }
 }

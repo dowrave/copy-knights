@@ -420,8 +420,7 @@ public class StageManager : MonoBehaviour
                     GameObject mapObject = Instantiate(stageData.mapPrefab);
                     Map map = mapObject.GetComponent<Map>();
 
-                    // MapId는 스테이지 데이터에 있는 맵Id와 일치해야 함
-                    if (map == null || map.Mapid != stageData.mapId)
+                    if (map == null || map.Mapid != stageData.stageId)
                     {
                         Debug.LogError("맵 ID가 스테이지 설정과 일치하지 않습니다!");
                         return;
@@ -450,7 +449,8 @@ public class StageManager : MonoBehaviour
     private void PrepareDeployables(List<OwnedOperator> squadData)
     {
         // 맵에서 배치 가능한 요소를 가져옴
-        var mapDeployables = MapManager.Instance.CurrentMap?.GetMapDeployables();
+        //var mapDeployables = MapManager.Instance.CurrentMap?.GetMapDeployables();
+        var mapDeployables = StageData.mapDeployables;
 
         foreach (var i in mapDeployables)
         {

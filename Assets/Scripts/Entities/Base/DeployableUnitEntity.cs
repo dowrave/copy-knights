@@ -3,7 +3,7 @@ using UnityEngine;
 
 public abstract class DeployableUnitEntity: UnitEntity, IDeployable
 {
-    public new DeployableUnitData BaseData { get; private set; }
+    public DeployableUnitData BaseData { get; private set; }
 
     [HideInInspector]
     public DeployableUnitStats currentStats;
@@ -35,6 +35,7 @@ public abstract class DeployableUnitEntity: UnitEntity, IDeployable
     // 배치 완료 후 커서를 뗀 위치가 오퍼레이터 위치일 때 ActionUI가 나타남을 방지하기 위한 변수들
     private float preventInteractingTime = 0.1f; 
     private float lastDeployTime;
+
     public Tile CurrentTile { get; protected set; }
 
     protected override void Awake()
@@ -70,6 +71,7 @@ public abstract class DeployableUnitEntity: UnitEntity, IDeployable
     protected virtual void InitializeDeployableProperties()
     {
         SetDeployState(false);
+
 
         // A ?? B : A가 null일 경우 B를 사용
         CanDeployGround = BaseData?.canDeployOnGround ?? false; 
@@ -199,6 +201,9 @@ public abstract class DeployableUnitEntity: UnitEntity, IDeployable
     {
         IsDeployed = isDeployed;
         IsPreviewMode = !isDeployed;
+
+        // 콜라이더는 IsDeployed를 따라감
+        SetColliderState();
     }
 
     // 현재 위치한 타일 설정
@@ -213,16 +218,10 @@ public abstract class DeployableUnitEntity: UnitEntity, IDeployable
         }
     }
 
-    //protected virtual void SetDeployedEntity()
-    //{
-    //    DeployableInfo.deployedDeployable = this;
-    //}
-
-    //protected virtual void DeleteDeployedEntity()
-    //{
-    //    DeployableInfo.deployedDeployable = null;
-    //}
-
+    protected override void SetColliderState()
+    {
+        boxCollider.enabled = IsDeployed;
+    }
 }
 
 #nullable restore

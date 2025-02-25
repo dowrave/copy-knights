@@ -10,19 +10,16 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: a5f8246236f87694eaf25235bf3291e5, type: 3}
-  m_Name: StageData_1-1
+  m_Name: StageData_1-0
   m_EditorClassIdentifier: 
   stageId: 1-0
-  stageName: Hello World
-  stageDetail: "\uC774\uAC83\uC740 \uC2A4\uD14C\uC774\uC9C0 1-1\uC785\uB2C8\uB2E4. "
+  stageName: Tutorial
+  stageDetail: "\uD29C\uD1A0\uB9AC\uC5BC \uC2A4\uD14C\uC774\uC9C0\uC785\uB2C8\uB2E4."
   mapPrefab: {fileID: 8686630383873738881, guid: edb172ee44ccd75489fd7b8f9e1476e5, type: 3}
-  startDeploymentCost: 66
+  startDeploymentCost: 10
   maxDeploymentCost: 99
   timeToFillCost: 1
-  operatorMaxDeploymentCount: 2
+  operatorMaxDeploymentCount: 5
   playerHealthMultiplier: 1
   enemyStatMultiplier: 1
-  mapDeployables:
-  - deployablePrefab: {fileID: 8875430263191699086, guid: 445bdcb62b7e4c84b9ac1f5d640cb325, type: 3}
-    deployableData: {fileID: 11400000, guid: 137922d0524493444ba9997d212523d8, type: 2}
-    maxDeployCount: 3
+  mapDeployables: []

@@ -1566,8 +1566,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   mapId: 1-3
-  tilePrefab: {fileID: 4667640908928492419, guid: 4b0f68de89c80ab419cdfffd87622bbc, type: 3}
-  mapDeployables: []
   width: 8
   height: 7
   cameraPosition: {x: 3.5, y: 5, z: 0.5}

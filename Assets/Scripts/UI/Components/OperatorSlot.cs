@@ -44,9 +44,8 @@ public class OperatorSlot : MonoBehaviour
     {
         if (button == null) button = GetComponent<Button>();
 
-        // 람다 함수를 온클릭 이벤트에 등록함. 람다 함수는 이벤트를 발생시킴.
-        // 최종적으로 클릭 시 OnSlotClicked이라는 이벤트가 발생하는 원리
-        button.onClick.AddListener(() => OnSlotClicked.Invoke(this)); 
+        // 리스너에는 함수가 들어가야 하므로 람다 함수로 넣음
+        button.onClick.AddListener(() => OnSlotClicked?.Invoke(this)); 
     }
 
 

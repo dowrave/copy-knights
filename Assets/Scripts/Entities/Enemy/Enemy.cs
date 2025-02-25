@@ -80,9 +80,6 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity, ICrowdControlTarget
 
         InitializeHP();
 
-        // 현재 위치를 기반으로 한 타일 설정
-        //UpdateCurrentTile();
-        
         // 프리팹 설정
         Prefab = enemyData.prefab;
 
@@ -193,11 +190,7 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity, ICrowdControlTarget
             ReachDestination();
             return;
         }
-
         Move(nextPosition);
-
-        // 타일 갱신
-        //UpdateCurrentTile();
 
         // 노드 도달 확인
         if (Vector3.Distance(transform.position, nextPosition) < 0.05f)
@@ -784,6 +777,7 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity, ICrowdControlTarget
         }
     }
 
+
     private void OnTriggerExit(Collider other)
     {
         Tile tile = other.GetComponent<Tile>();
@@ -792,6 +786,12 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity, ICrowdControlTarget
             tile.EnemyExited(this);
             contactedTiles.Remove(tile);
         }
+    }
+
+    // enemy는 콜라이더를 끌 상황이 없는 듯 하다
+    protected override void SetColliderState()
+    {
+        boxCollider.enabled = true;
     }
 
     public void SetMovementSpeed(float newSpeed)

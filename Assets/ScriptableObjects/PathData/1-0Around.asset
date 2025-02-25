@@ -1,0 +1,67 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 32caf8c2ad64314458d7c044db6f0c72, type: 3}
+  m_Name: 1-0Around
+  m_EditorClassIdentifier: 
+  targetMapId: 1-0
+  nodes:
+  - tileName: Tile_0_1_start
+    gridPosition: {x: 0, y: 1}
+    waitTime: 0
+  - tileName: Tile_2_1
+    gridPosition: {x: 2, y: 1}
+    waitTime: 0
+  - tileName: Tile_2_2
+    gridPosition: {x: 2, y: 2}
+    waitTime: 0
+  - tileName: Tile_1_2
+    gridPosition: {x: 1, y: 2}
+    waitTime: 0
+  - tileName: Tile_1_1
+    gridPosition: {x: 1, y: 1}
+    waitTime: 0
+  - tileName: Tile_2_1
+    gridPosition: {x: 2, y: 1}
+    waitTime: 0
+  - tileName: Tile_2_2
+    gridPosition: {x: 2, y: 2}
+    waitTime: 0
+  - tileName: Tile_5_2
+    gridPosition: {x: 5, y: 2}
+    waitTime: 0
+  - tileName: Tile_5_1
+    gridPosition: {x: 5, y: 1}
+    waitTime: 0
+  - tileName: Tile_4_1
+    gridPosition: {x: 4, y: 1}
+    waitTime: 0
+  - tileName: Tile_4_2
+    gridPosition: {x: 4, y: 2}
+    waitTime: 0
+  - tileName: Tile_5_2
+    gridPosition: {x: 5, y: 2}
+    waitTime: 0
+  - tileName: Tile_5_1
+    gridPosition: {x: 5, y: 1}
+    waitTime: 0
+  - tileName: Tile_8_1
+    gridPosition: {x: 8, y: 1}
+    waitTime: 0
+  - tileName: Tile_7_2
+    gridPosition: {x: 7, y: 2}
+    waitTime: 0
+  - tileName: Tile_8_2
+    gridPosition: {x: 8, y: 2}
+    waitTime: 0
+  - tileName: Tile_9_2_end
+    gridPosition: {x: 9, y: 2}
+    waitTime: 0

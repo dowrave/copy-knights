@@ -7,7 +7,6 @@ using static ICombatEntity;
 
 public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable, ICrowdControlTarget
 {
-    //public DeployableManager.DeployableInfo DeployableInfo { get; private set; }
     public new OperatorData BaseData { get; protected set; } 
     public new OperatorStats currentStats; // 일단 public으로 구현
 
@@ -103,7 +102,6 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable,
     public IReadOnlyList<Enemy> BlockedEnemies => blockedEnemies;
 
     public int DeploymentOrder { get; protected set; } // 배치 순서
-    //protected bool isDeployed = false; // 배치 완료 시 true
 
     public UnitEntity CurrentTarget { get; protected set; }
 
@@ -138,6 +136,9 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable,
     // 현재 오퍼레이터의 육성 상태 - Current를 별도로 붙이지는 않겠음
     public OperatorGrowthSystem.ElitePhase ElitePhase { get; private set; }
     public int Level { get; private set; }
+
+    // 콜라이더
+    private BoxCollider boxCollider;
 
     // 이벤트들
     public event System.Action<float, float> OnSPChanged;
@@ -348,15 +349,20 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable,
 
     private void OnTriggerEnter(Collider other)
     {
-        // 오퍼레이터와의 충돌
-        Enemy collidedEnemy = other.GetComponent<Enemy>();
-
-        if (collidedEnemy != null && 
-            CanBlockEnemy(collidedEnemy.BlockCount) && // 이 오퍼레이터가 이 적을 저지할 수 있을 때 
-            collidedEnemy.BlockingOperator == null) // 해당 적을 저지 중인 아군 오퍼레이터가 없을 때 
+        if (IsDeployed)
         {
-            BlockEnemy(collidedEnemy); // 적을 저지
-            collidedEnemy.SetBlockingOperator(this);
+            // 오퍼레이터와의 충돌
+            Enemy collidedEnemy = other.GetComponent<Enemy>();
+            Debug.Log("오퍼레이터와 충돌한 Enemy 존재");
+
+            if (collidedEnemy != null && 
+                CanBlockEnemy(collidedEnemy.BlockCount) && // 이 오퍼레이터가 이 적을 저지할 수 있을 때 
+                collidedEnemy.BlockingOperator == null) // 해당 적을 저지 중인 아군 오퍼레이터가 없을 때 
+            {
+                Debug.Log($"저지 시작 : {collidedEnemy.BaseData.entityName}");
+                BlockEnemy(collidedEnemy); // 적을 저지
+                collidedEnemy.SetBlockingOperator(this);
+            }
         }
     }
 

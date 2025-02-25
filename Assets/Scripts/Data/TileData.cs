@@ -20,6 +20,9 @@ public class TileData : ScriptableObject
     public bool isEndPoint = false;
     public Color tileColor = Color.gray;
 
+    [Header("Tile Prefab")]
+    public GameObject tilePrefab;
+
     public bool hasPit = false; 
 
 }

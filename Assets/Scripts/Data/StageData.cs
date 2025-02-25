@@ -10,7 +10,6 @@ public class StageData : ScriptableObject
     public string stageDetail; // 스테이지 설명
 
     [Header("Map Settings")]
-    public string mapId;
     public GameObject mapPrefab;
 
     [Header("Stage Configs")]
@@ -25,4 +24,7 @@ public class StageData : ScriptableObject
     public float playerHealthMultiplier = 1f;
     public float enemyStatMultiplier = 1f;
 
+    [Header("Deployable Settings")]
+    [Tooltip("이 맵에서만 사용할 수 있는 요소들")]
+    public List<MapDeployableData> mapDeployables = new List<MapDeployableData>();
 }
