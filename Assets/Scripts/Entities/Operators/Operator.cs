@@ -137,9 +137,6 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable,
     public OperatorGrowthSystem.ElitePhase ElitePhase { get; private set; }
     public int Level { get; private set; }
 
-    // 콜라이더
-    private BoxCollider boxCollider;
-
     // 이벤트들
     public event System.Action<float, float> OnSPChanged;
     public event System.Action OnStatsChanged;

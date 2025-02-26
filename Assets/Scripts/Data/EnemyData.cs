@@ -21,6 +21,7 @@ public class EnemyData : ScriptableObject, ICombatData
     public GameObject meleeAttackEffectPrefab; // 근접 공격 이펙트
     public GameObject hitEffectPrefab; // 공격이 적중했을 때의 이펙트
 
+
     public GameObject HitEffectPrefab => hitEffectPrefab;
     public AttackType AttackType => attackType;
     public AttackRangeType AttackRangeType => attackRangeType;

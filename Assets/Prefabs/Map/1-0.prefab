@@ -5614,6 +5614,10 @@ MonoBehaviour:
     spawnTime: 0
     pathData: {fileID: 11400000, guid: 501d45a5536aba54d992b20c384b0c59, type: 2}
   - enemyType: 0
+    enemyPrefab: {fileID: 6542749020257112806, guid: a25e00875a1545645b0cd199aef220b0, type: 3}
+    spawnTime: 2
+    pathData: {fileID: 11400000, guid: f8a73130100f0864d8197ff02694ca67, type: 2}
+  - enemyType: 0
     enemyPrefab: {fileID: 6542749020257112806, guid: b64bfbf4c6a80384295e7286bbcc9d3e, type: 3}
     spawnTime: 3
     pathData: {fileID: 11400000, guid: f8a73130100f0864d8197ff02694ca67, type: 2}

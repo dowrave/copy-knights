@@ -421,7 +421,7 @@ public class PlayerDataManager : MonoBehaviour
     // 언락 상태 확인
     public bool IsStageUnlocked(string stageId)
     {
-        if (stageId == "1-1") return true;
+        if (stageId == "1-0") return true;
 
         string[] parts = stageId.Split('-');
         if (parts.Length != 2) return false;

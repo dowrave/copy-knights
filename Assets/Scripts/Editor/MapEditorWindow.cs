@@ -31,7 +31,6 @@ public class MapEditorWindow : EditorWindow
 
     private void OnEnable()
     {
-
         LoadAvailableTileData(); // 사용 가능한 타일 정보 준비
         LoadSpawnerPrefab(); // 스포너 준비
         LoadTilePrefab(); // 타일 정보 준비
@@ -154,20 +153,6 @@ public class MapEditorWindow : EditorWindow
         }
     }
 
-    // 루트 오브젝트에 있는 스테이지 오브젝트를 찾는다
-    private GameObject GetStageObject()
-    {
-        GameObject[] rootObjects = SceneManager.GetActiveScene().GetRootGameObjects();
-        foreach (GameObject go in rootObjects)
-        {
-            if (go.name.StartsWith("Stage"))
-            {
-                return go;
-            }
-        }
-        return null;
-    }
-
     // 현재 하이어라키에 있는 Map 컴포넌트를 찾음
     private void FindExistingMap()
     {
@@ -249,9 +234,8 @@ public class MapEditorWindow : EditorWindow
         // 현재 씬에 존재하는 맵 제거 
         RemoveExistingMaps();
 
-        // 스테이지 오브젝트 아래에 맵 오브젝트 설정
-        GameObject stageObject = GetStageObject();
-        GameObject mapInstance = PrefabUtility.InstantiatePrefab(loadedMapPrefab, stageObject.transform) as GameObject;
+        // 맵에 관한 설정
+        GameObject mapInstance = PrefabUtility.InstantiatePrefab(loadedMapPrefab) as GameObject;
         mapInstance.name = MAP_OBJECT_NAME;
         currentMap = mapInstance.GetComponent<Map>();
         if (currentMap == null)
@@ -261,17 +245,7 @@ public class MapEditorWindow : EditorWindow
             return;
         }
 
-        // Map 컴포넌트의 tilePrefab 속성을 에디터 스크립트에서 설정, 맵 생성 시 올바른 타일 프리팹이 사용되도록 한다.
-        SerializedObject serializedMap = new SerializedObject(currentMap);
-        SerializedProperty tilePrefabProperty = serializedMap.FindProperty("tilePrefab");
-        if (tilePrefabProperty.objectReferenceValue == null)
-        {
-            tilePrefabProperty.objectReferenceValue = tilePrefab;
-            serializedMap.ApplyModifiedProperties();
-        }
-
         currentMap.Initialize(currentMap.Width, currentMap.Height, true);
-
         currentMapWidth = currentMap.Width;
         currentMapHeight = currentMap.Height;
 
@@ -357,7 +331,7 @@ public class MapEditorWindow : EditorWindow
 
     private void LoadSpawnerPrefab()
     {
-        spawnerPrefab = AssetDatabase.LoadAssetAtPath<GameObject>("Assets/Prefabs/Stage/Enemy Spawner.prefab");
+        spawnerPrefab = AssetDatabase.LoadAssetAtPath<GameObject>("Assets/Prefabs/EnemySpawner.prefab");
         if (spawnerPrefab == null)
         {
             Debug.LogWarning("Enemy spawner prefab not found");

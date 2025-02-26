@@ -47,8 +47,7 @@ public class StageSelectPanel : MonoBehaviour
             bool isUnlocked = playerDataManager.IsStageUnlocked(stageUIData.stageId);
             stageUIData.stageButton.gameObject.SetActive(isUnlocked);
 
-
-            // 1-1의 경우 라인 이미지가 없음
+            // 라인 이미지는 이전 스테이지가 있는 오브젝트들에만 할당
             if (stageUIData.lineImage != null)
             {
                 stageUIData.lineImage.gameObject.SetActive(isUnlocked);
@@ -100,7 +99,6 @@ public class StageSelectPanel : MonoBehaviour
     public void SetStageButtonById(string stageId)
     {
         StageButton targetButton = stageUIDataList.FirstOrDefault(stageUIData => stageUIData.stageId == stageId).stageButton;
-        //StageButton targetButton = stageButtons.FirstOrDefault(btn => btn.StageData.stageId == stageId);
 
         if (targetButton != null)
         {

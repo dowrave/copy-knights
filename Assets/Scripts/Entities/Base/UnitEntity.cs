@@ -41,20 +41,21 @@ public abstract class UnitEntity : MonoBehaviour, ITargettable, IFactionMember
 
     protected virtual void Awake()
     {
+        // 콜라이더 할당
         boxCollider = GetComponent<BoxCollider>();
-        
         if (boxCollider == null)
         {
             Debug.LogError($"{gameObject.name}에 BoxCollider가 없음!");
         }
-
         SetColliderState();
 
+        // 쉴드 시스템 설정
         shieldSystem = new ShieldSystem();
         shieldSystem.OnShieldChanged += (shield, onShieldDepleted) =>
         {
             OnHealthChanged?.Invoke(CurrentHealth, MaxHealth, shield);
         };
+
     }
 
 

@@ -2,7 +2,6 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
-using UnityEngine.VFX;
 using static ICombatEntity;
 
 public class Enemy : UnitEntity, IMovable, ICombatEntity, ICrowdControlTarget
@@ -62,6 +61,11 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity, ICrowdControlTarget
     // 접촉 중인 타일 관리
     private List<Tile> contactedTiles = new List<Tile>();
 
+    // 메쉬의 회전 관련해서 모델 관리
+    [Header("Model Components")]
+    //[SerializeField] protected GameObject model;
+    [SerializeField] protected GameObject modelContainer;
+
     // ICrowdControlTarget
     public Vector3 Position => transform.position;
 
@@ -69,7 +73,24 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity, ICrowdControlTarget
     protected override void Awake()
     {
         Faction = Faction.Enemy;
+
+        InitializeModelComponents();
+
         base.Awake();
+    }
+
+    // 모델 회전 관련 로직을 쓸 일이 Enemy 뿐이라 여기에 구현해놓음.
+    protected void InitializeModelComponents()
+    {
+        if (modelContainer == null)
+        {
+            modelContainer = transform.Find("ModelContainer").gameObject;
+        }
+
+        //if (model == null)
+        //{
+        //    model = transform.Find("Model")?.gameObject;
+        //}
     }
 
     public void Initialize(EnemyData enemyData, PathData pathData)
@@ -190,7 +211,9 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity, ICrowdControlTarget
             ReachDestination();
             return;
         }
+
         Move(nextPosition);
+        RotateModelTowardsMovementDirection();
 
         // 노드 도달 확인
         if (Vector3.Distance(transform.position, nextPosition) < 0.05f)
@@ -798,6 +821,35 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity, ICrowdControlTarget
     {
         currentStats.MovementSpeed = newSpeed;
     }
+
+    private void RotateModelTowardsMovementDirection()
+    {
+        if (modelContainer == null) return;
+
+        Vector3 direction = nextPosition - transform.position;
+        direction.y = 0f; 
+        if (direction != Vector3.zero)
+        {
+            
+            // 핵심 : LookRoation은 +z 방향을 바라보게 만든다
+            // forward : 바라볼 방향 / up : 윗 방향
+            Quaternion targetRotation = Quaternion.LookRotation(direction, Vector3.up);
+            modelContainer.transform.rotation = targetRotation;
+
+            // 다른 방법
+            //direction.Normalize();
+            //float angle = Vector3.SignedAngle(modelContainer.transform.forward, direction, Vector3.up);
+            //modelContainer.transform.eulerAngles = new Vector3(0, angle, 0);
+
+            // 만약 부드러운 회전을 원한다면
+            //model.transform.rotation = Quaternion.Slerp(
+            //    model.transform.rotation, 
+            //    targetRotation, 
+            //    rotationSpeed * Time.deltaTime
+            //    );
+        }
+    }
+
 
     protected void OnDestroy()
     {

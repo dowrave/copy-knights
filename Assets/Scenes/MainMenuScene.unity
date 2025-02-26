@@ -23807,9 +23807,12 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   stageUIDataList:
+  - stageId: 1-0
+    stageButton: {fileID: 692286279}
+    lineImage: {fileID: 0}
   - stageId: 1-1
     stageButton: {fileID: 714341248}
-    lineImage: {fileID: 0}
+    lineImage: {fileID: 1775221501}
   - stageId: 1-2
     stageButton: {fileID: 1450480314}
     lineImage: {fileID: 2078283808}
