@@ -27,6 +27,9 @@ public class Map : MonoBehaviour
     private Dictionary<Vector2Int, GameObject> tileObjects; // 좌표에 Tile 오브젝트 할당.
     private GameObject enemySpawnerPrefab;
 
+    [SerializeField] private List<EnemySpawner> enemySpawners = new List<EnemySpawner>();
+    public IReadOnlyList<EnemySpawner> EnemySpawners => enemySpawners;
+
 
     // 스크립트 활성화마다 초기화를 확인한다
     private void OnEnable()
@@ -55,7 +58,18 @@ public class Map : MonoBehaviour
 
         if (enemySpawnerPrefab == null)
         {
-            enemySpawnerPrefab = AssetDatabase.LoadAssetAtPath<GameObject>("Assets/Prefabs/Enemy Spawner.prefab");
+            enemySpawnerPrefab = AssetDatabase.LoadAssetAtPath<GameObject>("Assets/Prefabs/EnemySpawner.prefab");
+        }
+
+        // 불러오는 상황, enemySpawners에 정보가 없는 상황일 때
+        if (load && enemySpawners.Count == 0)
+        {
+            // 스포너가 아예 없다면 
+            EnemySpawner[] spawners = FindObjectsOfType<EnemySpawner>();
+            foreach (EnemySpawner spawner in spawners)
+            {
+                enemySpawners.Add(spawner);
+            }
         }
     }
 
@@ -181,9 +195,16 @@ public class Map : MonoBehaviour
         Vector2Int gridPos = new Vector2Int(x, y);
         if (tileObjects.TryGetValue(gridPos, out GameObject tileObj))
         {
+            // 이 내부에 EnemySpawner라는 컴포넌트가 들어가 있음
             GameObject spawnerObj = Instantiate(enemySpawnerPrefab, tileObj.transform);
             spawnerObj.transform.localPosition = new Vector3(0, 0.5f, 0);
-            spawnerObj.name = "EnemySpawner";
+            spawnerObj.name = $"EnemySpawner({x}-{y})";
+
+            EnemySpawner spawner = spawnerObj.GetComponent<EnemySpawner>();
+            if (spawner != null)
+            {
+                enemySpawners.Add(spawner);
+            }
         }
         else
         {
@@ -209,6 +230,16 @@ public class Map : MonoBehaviour
         Vector2Int gridPos = new Vector2Int(x, y);
         if (tileObjects.TryGetValue(gridPos, out GameObject tileObj))
         {
+            // 제거될 오브젝트의 자식에 EnemySpawner가 있다면 리스트에서 먼저 제거
+            EnemySpawner spawner = tileObj.GetComponentInChildren<EnemySpawner>();
+            if (spawner != null)
+            {
+                if (enemySpawners != null && enemySpawners.Contains(spawner))
+                {
+                    enemySpawners.Remove(spawner);
+                }
+            }
+            
             DestroyImmediate(tileObj);
             tileObjects.Remove(gridPos);
         }

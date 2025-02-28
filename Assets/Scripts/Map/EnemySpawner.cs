@@ -4,57 +4,59 @@ using UnityEngine;
 
 public class EnemySpawner : MonoBehaviour
 {
-    public List<EnemySpawnInfo> enemySpawnList = new List<EnemySpawnInfo>(); // 생성되는 적, 시간이 적혀 있음
+    public List<EnemySpawnInfo> spawnList = new List<EnemySpawnInfo>(); // 생성되는 적, 시간이 적혀 있음
     private bool isInitialized = false;
 
     public void Initialize()
     {
-        
         isInitialized = true;
     }
 
 
     public void StartSpawning()
     {
-        Debug.Log("EnemySpawner : StartSpawning 메서드 동작");
-
         if (isInitialized)
         {
-            Debug.Log("EnemySpawner : 스폰 시작");
-            StartCoroutine(SpawnEnemies());
+            StartCoroutine(SpawnEntities());
         }
     }
 
-    private IEnumerator SpawnEnemies()
+    private IEnumerator SpawnEntities()
     {
-        if (enemySpawnList.Count == 0)
+        if (spawnList.Count == 0)
         {
             yield break;
         }
         float startTime = Time.time;
-        foreach (var spawnInfo in enemySpawnList)
+
+
+        foreach (var spawnInfo in spawnList)
         {
             yield return new WaitForSeconds(spawnInfo.spawnTime - (Time.time - startTime));
-            SpawnEnemy(spawnInfo);
+
+            Spawn(spawnInfo);
         }
     }
-    
-    private void SpawnEnemy(EnemySpawnInfo spawnInfo)
-    {
-        if (spawnInfo.enemyPrefab == null) return;
 
-        // 위치는 enemy 초기화에서 다시 진행됨
-        GameObject enemyObject = Instantiate(spawnInfo.enemyPrefab, transform.position, Quaternion.identity);
-        Enemy enemy = enemyObject.GetComponent<Enemy>();
-        
-        if (enemy != null)
+    private void Spawn(EnemySpawnInfo spawnInfo)
+    {
+        if (spawnInfo.prefab == null) return;
+
+        GameObject spawnedObject = Instantiate(spawnInfo.prefab, transform.position, Quaternion.identity);
+
+        if (spawnedObject.TryGetComponent(out Enemy enemy))
         {
             EnemyData enemyData = enemy.BaseData;
             enemy.Initialize(enemyData, spawnInfo.pathData);
         }
+        else if (spawnedObject.TryGetComponent(out PathIndicator pathIndicator))
+        {
+            pathIndicator.Initialize(spawnInfo.pathData);
+        }
         else
         {
-            Destroy(enemyObject);
+            Debug.LogError("프리팹에 Enemy나 PathIndicator 컴포넌트가 없음");
+            Destroy(gameObject);
         }
     }
 }

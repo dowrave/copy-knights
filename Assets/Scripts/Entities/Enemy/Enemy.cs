@@ -63,7 +63,6 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity, ICrowdControlTarget
 
     // 메쉬의 회전 관련해서 모델 관리
     [Header("Model Components")]
-    //[SerializeField] protected GameObject model;
     [SerializeField] protected GameObject modelContainer;
 
     // ICrowdControlTarget
@@ -86,11 +85,6 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity, ICrowdControlTarget
         {
             modelContainer = transform.Find("ModelContainer").gameObject;
         }
-
-        //if (model == null)
-        //{
-        //    model = transform.Find("Model")?.gameObject;
-        //}
     }
 
     public void Initialize(EnemyData enemyData, PathData pathData)

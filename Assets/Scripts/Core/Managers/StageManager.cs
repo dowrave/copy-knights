@@ -2,6 +2,7 @@ using UnityEngine;
 using System.Collections; // IEnumerator - 코루틴에서 주로 사용하는 버전
 using DG.Tweening;
 using System.Collections.Generic;
+using System.Linq;
 
 // 스테이지 씬에서 스테이지와 관련된 여러 상태들을 관리합니다.
 public class StageManager : MonoBehaviour
@@ -10,6 +11,8 @@ public class StageManager : MonoBehaviour
     public GameState currentState;
     private StageData stageData;
     public StageData StageData => stageData;
+
+    private Map currentMap;
 
     // 배치 코스트
     private float timeToFillCost; // 코스트 1 회복에 걸리는 시간
@@ -190,10 +193,13 @@ public class StageManager : MonoBehaviour
     private int CalculateTotalEnemyCount()
     {
         int count = 0;
-        EnemySpawner[] spawners = FindObjectsOfType<EnemySpawner>(); // 수정 필요) Map 프리팹에서 스포너들 정보 가져오는 식으로
+        //EnemySpawner[] spawners = FindObjectsOfType<EnemySpawner>(); // 수정 필요) Map 프리팹에서 스포너들 정보 가져오는 식으로
+        IReadOnlyList<EnemySpawner> spawners = currentMap.EnemySpawners;
         foreach (var spawner in spawners)
         {
-            count += spawner.enemySpawnList.Count;
+            // Enemy만 전체 수량에 계산
+            count += spawner.spawnList
+                .Count(spawnInfo => spawnInfo.spawnType is SpawnType.Enemy);
         }
         return count;
     }
@@ -418,9 +424,9 @@ public class StageManager : MonoBehaviour
                 try
                 {
                     GameObject mapObject = Instantiate(stageData.mapPrefab);
-                    Map map = mapObject.GetComponent<Map>();
+                    currentMap = mapObject.GetComponent<Map>();
 
-                    if (map == null || map.Mapid != stageData.stageId)
+                    if (currentMap == null || currentMap.Mapid != stageData.stageId)
                     {
                         Debug.LogError("맵 ID가 스테이지 설정과 일치하지 않습니다!");
                         return;
@@ -433,8 +439,8 @@ public class StageManager : MonoBehaviour
                     mapObject.transform.localPosition = Vector3.zero;
                     mapObject.transform.localRotation = Quaternion.identity;
 
-                    mapManager.InitializeMap(map);
-                    OnMapLoaded?.Invoke(map);
+                    mapManager.InitializeMap(currentMap);
+                    OnMapLoaded?.Invoke(currentMap);
                 }
                 catch (System.Exception e)
                 {

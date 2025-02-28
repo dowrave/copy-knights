@@ -89,6 +89,7 @@
     <Compile Include="Assets\Scripts\Data\CCEffectDatabase.cs" />
     <Compile Include="Assets\Scripts\UI\Components\DiamondMask.cs" />
     <Compile Include="Assets\Scripts\Skills\Base(Abstract)\PassiveSkill.cs" />
+    <Compile Include="Assets\Scripts\Entities\PathIndicator.cs" />
     <Compile Include="Assets\Scripts\Interfaces\ITargettable.cs" />
     <Compile Include="Assets\Scripts\Skills\Base(Abstract)\BaseSkill.cs" />
     <Compile Include="Assets\Scripts\Core\Managers\ResourceManager.cs" />

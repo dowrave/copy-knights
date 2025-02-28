@@ -548,6 +548,10 @@ MonoBehaviour:
   width: 10
   height: 5
   cameraPosition: {x: 4.5, y: 5.5, z: -0.75}
+  enemySpawners:
+  - {fileID: 5017475160660512055}
+  - {fileID: 106858255175696472}
+  - {fileID: 6500061444938282506}
 --- !u!1 &809415200912943120
 GameObject:
   m_ObjectHideFlags: 0
@@ -2443,11 +2447,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c034ddc81e3f5b34fa37814b1d51156f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  enemySpawnList:
-  - enemyType: 0
-    enemyPrefab: {fileID: 6542749020257112806, guid: b64bfbf4c6a80384295e7286bbcc9d3e, type: 3}
-    spawnTime: 2
-    pathData: {fileID: 11400000, guid: 268b0fce345c8414298a88aabd85551f, type: 2}
+  spawnList: []
 --- !u!1 &3551375100020204324
 GameObject:
   m_ObjectHideFlags: 0
@@ -4257,11 +4257,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c034ddc81e3f5b34fa37814b1d51156f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  enemySpawnList:
-  - enemyType: 0
-    enemyPrefab: {fileID: 6542749020257112806, guid: b64bfbf4c6a80384295e7286bbcc9d3e, type: 3}
-    spawnTime: 0
-    pathData: {fileID: 11400000, guid: 806c780ee505f8f4eacd355f9336c6f2, type: 2}
+  spawnList: []
 --- !u!1 &5470584685841564455
 GameObject:
   m_ObjectHideFlags: 0
@@ -4505,11 +4501,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c034ddc81e3f5b34fa37814b1d51156f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  enemySpawnList:
-  - enemyType: 0
-    enemyPrefab: {fileID: 6542749020257112806, guid: b64bfbf4c6a80384295e7286bbcc9d3e, type: 3}
-    spawnTime: 0
-    pathData: {fileID: 11400000, guid: 0e179a4cb20c0974988240922f3ba317, type: 2}
+  spawnList: []
 --- !u!1 &5927042979179322577
 GameObject:
   m_ObjectHideFlags: 0
