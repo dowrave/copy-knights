@@ -200,7 +200,7 @@ public class OperatorLevelUpPanel : MonoBehaviour
     }
 
 
-    // <summary>
+
     // 각 레벨 오브젝트와 스크롤 높이를 매핑하는 dict를 만듦
     // 스크롤이 끝나는 양쪽 끝에 currentLevel과 maxLevel이 와야 함
     private void CalculateScrollPositions()
@@ -436,9 +436,8 @@ public class OperatorLevelUpPanel : MonoBehaviour
         }
     }
 
-    /// <summary>
-    /// 레벨업 완료 후, 스크롤 부분 업데이트
-    /// </summary>
+
+    // 레벨업 완료 후, 스크롤 부분 업데이트
     private void UpdateLevelStrip(int newLevel)
     {
         currentLevel = newLevel; 
@@ -447,9 +446,8 @@ public class OperatorLevelUpPanel : MonoBehaviour
         SetScrollToLevel(currentLevel);
     }
 
-    /// <summary>
-    /// 레벨업에 필요한 아이템 미리보기, 경험치 게이지 표시 등
-    /// </summary>
+
+    // 레벨업에 필요한 아이템 미리보기, 경험치 게이지 표시 등
     private void UpdateLevelUpPreviewDisplay()
     {
         ClearItemDisplay();
@@ -470,7 +468,7 @@ public class OperatorLevelUpPanel : MonoBehaviour
             foreach (var itemPair in currentUsagePlan.itemsToUse)
             {
                 ItemUIElement itemElement = Instantiate(itemUIPrefab, itemUsageContainer);
-                itemElement.Initialize(itemPair.Key, itemPair.Value);
+                itemElement.Initialize(itemPair.Key, itemPair.Value, false);
 
                 // 사용 예정 아이템의 배경색 변경
                 if (itemElement.itemCountBackground != null)
@@ -531,9 +529,8 @@ public class OperatorLevelUpPanel : MonoBehaviour
         }
     }
 
-    /// <summary>
-    /// 스크롤 상태에 따른 버튼 표시 설정
-    /// </summary>
+
+    // 스크롤 상태에 따른 버튼 표시 설정
     private void SetMaxLevelButtonVisible(bool visible)
     {
         maxLevelButton.transform.DOKill(); // 진행 중인 애니메이션 중단

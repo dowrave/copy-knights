@@ -149,14 +149,14 @@ public class PlayerDataManager : MonoBehaviour
     private void InitializeForTest()
     {
         // 오퍼레이터들 1정예화
-        foreach (var op in playerData.ownedOperators)
-        {
-            InitializeOperator1stPromotion(op);
-            SavePlayerData();
-        }
+        //foreach (var op in playerData.ownedOperators)
+        //{
+        //    InitializeOperator1stPromotion(op);
+        //    SavePlayerData();
+        //}
 
         // 아이템 지급
-        AddStartingItems();
+        //AddStartingItems();
 
         // 스테이지 임의 클리어
         //RecordStageResult("1-1", 3);
@@ -444,6 +444,64 @@ public class PlayerDataManager : MonoBehaviour
         else
         {
             return null;
+        }
+    }
+
+    public void GrantStageRewards(List<ItemWithCount> rewardItems)
+    {
+        if (rewardItems == null) 
+        {
+            Debug.LogWarning("지급받을 아이템 목록이 비어있습니다.");
+            return;
+        }
+
+        bool errorOccurred = false;
+
+        foreach (ItemWithCount itemWithCount in rewardItems)
+        {
+            if (itemWithCount.itemData != null)
+            {
+                AddItems(itemWithCount.itemData.itemName, itemWithCount.count);
+                Debug.Log($"{itemWithCount.itemData.itemName} x {itemWithCount.count} 지급 완료");
+            }
+            else
+            {
+                Debug.LogError("ItemData가 null이거나, 로드되지 않았습니다.");
+                errorOccurred = true;
+            }
+        }
+
+        // 정상적으로 아이템이 추가되었다면 저장
+        SavePlayerData();
+
+        if (errorOccurred)
+        {
+            Debug.LogWarning("일부 아이템을 획득하지 못했습니다");
+        }
+    }
+
+    // 아이템을 지급하고 저장하는 메서드
+    public void AddItems(string itemName, int itemCount)
+    {
+        if (itemDatabase.TryGetValue(itemName, out ItemData itemData))
+        {
+            var existingItemStack = playerData.inventory.items
+                .FirstOrDefault(itemStack => itemStack.itemName == itemName);
+
+            if (existingItemStack != null)
+            {
+                // 이미 있는 아이템이라면 갯수를 늘림
+                existingItemStack.count += itemCount;
+            }
+            else
+            {
+                // 인벤토리에 아이템이 없으면 새로 생성
+                playerData.inventory.items.Add(new UserInventoryData.ItemStack(itemData.itemName, itemCount));
+            }
+        }
+        else
+        {
+            Debug.LogError($"{itemName}은 아이템 데이터베이스에 존재하지 않는 이름임");
         }
     }
 

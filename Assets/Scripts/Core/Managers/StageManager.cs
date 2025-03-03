@@ -323,7 +323,10 @@ public class StageManager : MonoBehaviour
         int stars = 3 - PassedEnemies;
         UIManager.Instance.HidePauseOverlay();
         UIManager.Instance.ShowGameWinUI(stars);
+        
         GameManagement.Instance.PlayerDataManager.RecordStageResult(stageData.stageId, stars);
+        GameManagement.Instance.PlayerDataManager.GrantStageRewards(stageData.rewardItems);
+
         OnGameEnded?.Invoke();
         StopAllCoroutines();
     }
@@ -472,8 +475,6 @@ public class StageManager : MonoBehaviour
         // 스쿼드 + 맵의 배치 가능 요소 초기화
         DeployableManager.Instance.Initialize(squadData, deployableList, stageData.operatorMaxDeploymentCount);
     }
-
-
 
     private void OnDestroy()
     {

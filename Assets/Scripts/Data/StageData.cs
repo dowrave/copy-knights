@@ -27,4 +27,21 @@ public class StageData : ScriptableObject
     [Header("Deployable Settings")]
     [Tooltip("이 맵에서만 사용할 수 있는 요소들")]
     public List<MapDeployableData> mapDeployables = new List<MapDeployableData>();
+
+    [Header("Item List")]
+    [Tooltip("스테이지 클리어 시에 지급되는 아이템들")]
+    public List<ItemWithCount> rewardItems = new List<ItemWithCount>(); // List<Dictionary<ItemData, int>>로 쓰는 것보다 별도의 클래스 or 구조체를 정의해서 사용하는 것이 좋은 방법
+}
+
+[System.Serializable]
+public struct ItemWithCount
+{
+    public ItemData itemData;
+    public int count;
+
+    public ItemWithCount(ItemData item, int c)
+    {
+        itemData = item;
+        count = c;
+    }
 }

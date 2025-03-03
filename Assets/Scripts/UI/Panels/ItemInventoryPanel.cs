@@ -26,7 +26,7 @@ public class ItemInventoryPanel : MonoBehaviour
     private void CreateItemElement(ItemData itemData, int count)
     {
         ItemUIElement element = Instantiate(itemUIPrefab, itemContainer);
-        element.Initialize(itemData, count);
+        element.Initialize(itemData, count, false);
         itemElements.Add(element);
     }
 
@@ -34,7 +34,7 @@ public class ItemInventoryPanel : MonoBehaviour
     private void UpdateItemCount(ItemData itemData, int count)
     {
         ItemUIElement element = Instantiate(itemUIPrefab, itemContainer);
-        element.Initialize(itemData, count);
+        element.Initialize(itemData, count, false);
         itemElements.Add(element);
     }
 }

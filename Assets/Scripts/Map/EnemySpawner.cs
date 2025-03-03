@@ -46,11 +46,21 @@ public class EnemySpawner : MonoBehaviour
 
         if (spawnedObject.TryGetComponent(out Enemy enemy))
         {
+            if (spawnInfo.spawnType != SpawnType.Enemy)
+            {
+                Debug.LogError("spawnType이 Enemy로 지정되어 있지 않음");
+                return;
+            }
             EnemyData enemyData = enemy.BaseData;
             enemy.Initialize(enemyData, spawnInfo.pathData);
         }
         else if (spawnedObject.TryGetComponent(out PathIndicator pathIndicator))
         {
+            if (spawnInfo.spawnType != SpawnType.PathIndicator)
+            {
+                Debug.LogError("spawnType이 pathIndicator로 지정되어 있지 않음");
+                return;
+            }
             pathIndicator.Initialize(spawnInfo.pathData);
         }
         else

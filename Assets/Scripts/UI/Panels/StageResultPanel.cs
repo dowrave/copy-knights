@@ -22,7 +22,6 @@ public class StageResultPanel : MonoBehaviour
     [SerializeField] private Color inActiveStarColor = new Color(0.4f, 0.4f, 0.4f);
     [SerializeField] private Color activeStarColor = Color.cyan;
 
-
     [Header("Result Text")]
     [SerializeField] private TextMeshProUGUI stageIdText;
     [SerializeField] private TextMeshProUGUI stageNameText;
@@ -37,11 +36,17 @@ public class StageResultPanel : MonoBehaviour
     [SerializeField] private Button damageTakenTab; // 받은 대미지량 버튼
     [SerializeField] private Button healingDoneTab; // 회복량 버튼
 
+    [Header("About Reward Item")]
+    [SerializeField] private Transform rewardItemContainer;
+    [SerializeField] private ItemUIElement itemUIPrefab;
+
     [Header("Button Colors")]
     [SerializeField] private Color hoveredColor;
     [SerializeField] private Color selectedColor;
     private Color normalColor = Color.black;
 
+    [Header("Return To Lobby Button")]
+    [SerializeField] private Button returnToLobbyButton;
 
     private bool showingPercentage = false;
     private StatisticsManager.StatType currentStatType = StatisticsManager.StatType.DamageDealt;
@@ -51,15 +56,12 @@ public class StageResultPanel : MonoBehaviour
     private StageResultData resultData;
     private int stars;
 
+    private List<ItemUIElement> activeItemElements = new List<ItemUIElement>();
+
     private void Awake()
     {
         InitializeButtonList();
-
-        // 패널 영역 클릭 이벤트 설정
-        var panelClickHandler = gameObject.GetComponent<Button>();
-        panelClickHandler.transition = Selectable.Transition.None; // 시각적인 클릭 효과 제거
-        panelClickHandler.onClick.AddListener(OnPanelClicked);
-
+        returnToLobbyButton.onClick.AddListener(OnReturnButtonClicked);
         SetupButtons();
     }
 
@@ -74,15 +76,8 @@ public class StageResultPanel : MonoBehaviour
         };
     }
 
-    private void OnPanelClicked()
+    private void OnReturnButtonClicked()
     {
-        // 클릭된 UI 요소가 통계 패널이나 그 자식인지 확인
-        if (IsClickableElement(resultStatisticPanelObject))
-        {
-            Debug.Log("통계 패널 클릭");
-            return;
-        }
-
         bool isPerfectClear = stars == 3;
         StageManager.Instance.ReturnToMainMenu(isPerfectClear);
     }
@@ -217,6 +212,7 @@ public class StageResultPanel : MonoBehaviour
         UpdateHeaders();
         CreateStatItems();
         UpdateButtonVisuals(); // 버튼이 눌린 상태로 보이도록 초기화
+        ShowRewardItemsUI();
     }
 
     private void UpdateStarRating()
@@ -242,9 +238,7 @@ public class StageResultPanel : MonoBehaviour
     }
 
     // 제네릭을 쓰는 상황이라 타입을 아래처럼 지정 / 평소에는 IEnumerator로 충분
-    /// <summary>
-    /// Star들의 애니메이션
-    /// </summary>
+    // Star들의 애니메이션
     private System.Collections.IEnumerator AnimateStars()
     {
         for (int i = 0; i < stars; i++)
@@ -329,7 +323,7 @@ public class StageResultPanel : MonoBehaviour
         {
             var colors = button.colors;
 
-            // 퍼센테지 버튼
+            // 퍼센티지 버튼
             if (button == showPercentageTab)
             {
                 colors.normalColor = showingPercentage ? selectedColor : normalColor;
@@ -346,6 +340,39 @@ public class StageResultPanel : MonoBehaviour
         }
     }
 
+    // 스테이지 클리어로 받는 아이템들을 보여줌
+    private void ShowRewardItemsUI()
+    {
+        if (activeItemElements.Count > 0)
+        {
+            RemoveRewardItemsUI();
+        }
+
+        // UI에 사용될 아이템 표시
+        foreach (var itemPair in StageManager.Instance.StageData.rewardItems)
+        {
+            ItemUIElement itemElement = Instantiate(itemUIPrefab, rewardItemContainer);
+            itemElement.Initialize(itemPair.itemData, itemPair.count, true);
+
+            // 사용 예정 아이템의 배경색 변경
+            //if (itemElement.itemCountBackground != null)
+            //{
+            //    itemElement.itemCountBackground.color = usageItemBackgroundColor;
+            //}
+
+            activeItemElements.Add(itemElement);
+        }
+    }
+
+    private void RemoveRewardItemsUI()
+    {
+        foreach (ItemUIElement itemUIElement in activeItemElements)
+        {
+            Destroy(itemUIElement.gameObject);
+        }
+        activeItemElements.Clear();
+    }
+
     private StatisticsManager.StatType GetButtonStatType(Button button)
     {
         if (button == damageDealtTab) return StatisticsManager.StatType.DamageDealt;
@@ -354,9 +381,8 @@ public class StageResultPanel : MonoBehaviour
         return StatisticsManager.StatType.DamageDealt; // default
     }
 
-    /// <summary>
-    /// 스쿼드 크기에 따라 Grid Layout Group의 셀 크기를 조정합니다.
-    /// </summary>
+
+    // 스쿼드 크기에 따라 Grid Layout Group의 셀 크기를 조정합니다.
     private void AdjustGridCellSize(int squadCount)
     {
         var gridLayout = statisticItemContainer.GetComponent<GridLayoutGroup>();
@@ -378,5 +404,8 @@ public class StageResultPanel : MonoBehaviour
         {
             button.onClick.RemoveAllListeners();
         }
+
+        returnToLobbyButton.onClick.RemoveAllListeners();
+        RemoveRewardItemsUI();
     }
 }

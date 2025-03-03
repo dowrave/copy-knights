@@ -26,7 +26,6 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable,
             }
         }
     }
-
     public float AttackSpeed
     {
         get => currentStats.AttackSpeed;
@@ -39,6 +38,7 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable,
             }
         }
     }
+
 
     public float Defense
     {
@@ -346,19 +346,27 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable,
 
     private void OnTriggerEnter(Collider other)
     {
-        if (IsDeployed)
-        {
-            // 오퍼레이터와의 충돌
-            Enemy collidedEnemy = other.GetComponent<Enemy>();
-            Debug.Log("오퍼레이터와 충돌한 Enemy 존재");
+        ProcessEnemyCollision(other);
+    }
 
-            if (collidedEnemy != null && 
+    private void OnTriggerStay(Collider other)
+    {
+        ProcessEnemyCollision(other);
+    }
+
+    private void ProcessEnemyCollision(Collider other)
+    {
+        if (IsDeployed && blockedEnemies.Count < currentStats.MaxBlockableEnemies)
+        { 
+            Enemy collidedEnemy = other.GetComponent<Enemy>();
+
+            if (collidedEnemy != null &&
                 CanBlockEnemy(collidedEnemy.BlockCount) && // 이 오퍼레이터가 이 적을 저지할 수 있을 때 
                 collidedEnemy.BlockingOperator == null) // 해당 적을 저지 중인 아군 오퍼레이터가 없을 때 
             {
-                Debug.Log($"저지 시작 : {collidedEnemy.BaseData.entityName}");
                 BlockEnemy(collidedEnemy); // 적을 저지
                 collidedEnemy.SetBlockingOperator(this);
+                Debug.Log($"{BaseData.entityName}이 {collidedEnemy}을 저지하기 시작함, 현재 저지 수 : {blockedEnemies.Count}");
             }
         }
     }
@@ -371,6 +379,7 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable,
         {
             UnblockEnemy(collidedEnemy);
             collidedEnemy.SetBlockingOperator(null);
+            Debug.Log($"{BaseData.entityName}이 {collidedEnemy}을 저지 해제, 현재 저지 수 : {blockedEnemies.Count}");
         }
     }
 
@@ -505,8 +514,8 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable,
     {
         foreach (Vector2Int eachPos in CurrentAttacakbleGridPos)
         {
-            Tile eachTile = MapManager.Instance.GetTile(eachPos.x, eachPos.y);
-            if (eachTile.EnemiesOnTile.Contains(CurrentTarget))
+            Tile? eachTile = MapManager.Instance.GetTile(eachPos.x, eachPos.y);
+            if (eachTile != null && eachTile.EnemiesOnTile.Contains(CurrentTarget))
             {
                 return true;
             }
