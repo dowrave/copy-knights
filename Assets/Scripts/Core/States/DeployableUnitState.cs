@@ -6,12 +6,12 @@ using UnityEngine;
 public class DeployableUnitState
 {
     private readonly DeployableInfo deployableInfo;
-    public int DeploymentCount { get; private set; }
+    public int DeploymentCount { get; private set; } // 총 배치된 횟수, 0에서 시작
     public int CurrentDeploymentCost { get; private set; }
-    public int RemainingDeployCount { get; private set; }
+    public int RemainingDeployCount { get; private set; } // 남은 배치 수, 오퍼레이터라면 1
     public bool IsOnCooldown { get; private set; }
     public float CooldownTimer { get; private set; }
-    public bool IsDeployed { get; private set; }
+    public bool IsDeployed { get; private set; } // 오퍼레이터인 경우에만 추적
 
     public DeployableUnitEntity currentDeployable;
     public Operator currentOperator;
@@ -40,12 +40,13 @@ public class DeployableUnitState
     {
         DeploymentCount++;
         RemainingDeployCount--;
-        IsDeployed = true;
 
         // 배치된 유닛을 추적
         if (deployableUnitEntity is Operator op)
         {
             currentOperator = op;
+            IsDeployed = true;
+            Debug.Log($"DeployableUnitState.OnDeploy : {op} 배치됨");
         }
         else
         {
@@ -68,6 +69,8 @@ public class DeployableUnitState
     {
         if (IsOperator)
         {
+            Debug.Log($"DeployableUnitState.OnDeploy : {deployableInfo.operatorData.entityName} 제거됨");
+
             RemainingDeployCount++;
             StartCooldown(deployableInfo.redeployTime);
             UpdateDeploymentCost();

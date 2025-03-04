@@ -165,7 +165,7 @@ public class DeployableManager : MonoBehaviour
             {
                 box.Initialize(deployableInfo);
                 deployableUIBoxes[deployableInfo] = box;
-                box.UpdateDisplay(unitStates[deployableInfo]);
+                box.UpdateVisuals(unitStates[deployableInfo]);
             }
         }
     }
@@ -173,6 +173,8 @@ public class DeployableManager : MonoBehaviour
     private void Update()
     {
         if (StageManager.Instance.currentState != GameState.Battle) { return; }
+
+        UpdateDeployableStateCooldown();
 
         // 1. 하단 UI의 오퍼레이터 클릭 시 배치 가능한 타일들 하이라이트
         if (IsDeployableSelecting)
@@ -188,6 +190,14 @@ public class DeployableManager : MonoBehaviour
         else if (IsSelectingDirection)
         {
             HandleDirectionSelection();
+        }
+    }
+
+    private void UpdateDeployableStateCooldown()
+    {
+        foreach (DeployableUnitState unitState in unitStates.Values)
+        {
+            unitState.UpdateCooldown();
         }
     }
 
@@ -509,13 +519,7 @@ public class DeployableManager : MonoBehaviour
         if (deployableUIBoxes.TryGetValue(info, out DeployableBox box))
         {
             var gameState = unitStates[info];
-            box.UpdateDisplay(gameState);
-
-            // 더 이상 배치할 수 없다면 박스 비활성화
-            if (gameState.RemainingDeployCount <= 0)
-            {
-                box.gameObject.SetActive(false);
-            }
+            box.UpdateVisuals(gameState); // 박스의 활성화 여부까지 포함
         }
     }
 
@@ -551,7 +555,6 @@ public class DeployableManager : MonoBehaviour
         ResetHighlights();
 
         HideUIs();
-
     }
 
     public void CancelPlacement()
@@ -605,7 +608,7 @@ public class DeployableManager : MonoBehaviour
             
                 if (deployableUIBoxes.TryGetValue(info, out DeployableBox box))
                 {
-                    box.UpdateDisplay(unitState);
+                    box.UpdateVisuals(unitState);
                     box.gameObject.SetActive(true);
                 }
             }
@@ -690,6 +693,7 @@ public class DeployableManager : MonoBehaviour
     {
         return deployableInfoMap.TryGetValue(entityName, out var info) ? info : null;
     }
+
 
     private void OnDestroy()
     {

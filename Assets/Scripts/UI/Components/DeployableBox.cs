@@ -1,5 +1,6 @@
 using DG.Tweening;
 using TMPro;
+using UnityEditor;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
@@ -12,6 +13,7 @@ public class DeployableBox : MonoBehaviour, IPointerDownHandler, IBeginDragHandl
     [SerializeField] private Image operatorClassIconImage; // 아이콘 자체 할당
     [SerializeField] private Image inActiveImage;
     [SerializeField] private TextMeshProUGUI costText;
+    [SerializeField] private Image cooldownGauge;
     [SerializeField] private TextMeshProUGUI cooldownText;
     [SerializeField] private TextMeshProUGUI countText;
 
@@ -28,6 +30,8 @@ public class DeployableBox : MonoBehaviour, IPointerDownHandler, IBeginDragHandl
     private Tween currentTween;
     private bool isOriginalPositionSet;
 
+    // box의 상태 관련
+    private bool wasOnCooldown = false;
     public bool IsSelected { get; private set; } = false;
 
     // 남은 갯수
@@ -63,11 +67,27 @@ public class DeployableBox : MonoBehaviour, IPointerDownHandler, IBeginDragHandl
         DeployableManager.Instance.OnCurrentOperatorDeploymentCountChanged += UpdateAvailability;
     }
 
-    public void UpdateDisplay(DeployableUnitState unitState)
+    public void UpdateVisuals(DeployableUnitState unitState)
     {
         costText.text = unitState.CurrentDeploymentCost.ToString();
 
-        // 오퍼레이터가 아니라면 배치 가능 횟수 표시
+        // 배치 가능 수 관련
+        UpdateCountText(unitState);
+
+        // 표시된 박스가 사용 가능한지에 대한 패널
+        UpdateAvailability();
+
+        // 재배치 쿨타임 표기
+        UpdateCooldownContainer(unitState);
+
+        // Box 자체의 활성화 여부 결정
+        SetBoxActivation(unitState);
+
+    }
+
+    // 배치 가능 수 UI 업데이트
+    private void UpdateCountText(DeployableUnitState unitState)
+    {
         if (!unitState.IsOperator)
         {
             countText.gameObject.SetActive(true);
@@ -77,29 +97,57 @@ public class DeployableBox : MonoBehaviour, IPointerDownHandler, IBeginDragHandl
         {
             countText.gameObject.SetActive(false);
         }
+    }
 
-        UpdateAvailability();
-
-        // 쿨타임 상태 표시
+    private void UpdateCooldownContainer(DeployableUnitState unitState)
+    {
         if (unitState.IsOnCooldown)
         {
-            cooldownText.gameObject.SetActive(true);
-            cooldownText.text = Mathf.Ceil(unitState.CooldownTimer).ToString();
+            if (wasOnCooldown == false)
+            {
+                cooldownText.gameObject.SetActive(true);
+                cooldownGauge.gameObject.SetActive(true);
+                wasOnCooldown = true;
+            }
+
+            // 오퍼레이터가 아닌 경우에도 배치 후에 쿨이 돌기 때문에 동작함(unitState 참고)
+            float currentCooldown = unitState.CooldownTimer; // max -> 0으로 가는 방향
+            float maxCooldown = deployableInfo.redeployTime; 
+
+            cooldownText.text = currentCooldown.ToString("F1"); // 소수 1자리까지 표기
+            cooldownGauge.fillAmount = (maxCooldown - currentCooldown) / maxCooldown;
         }
         else
         {
+            cooldownGauge.gameObject.SetActive(false);
             cooldownText.gameObject.SetActive(false);
+            wasOnCooldown = false;
+        }
+    }
+
+    private void SetBoxActivation(DeployableUnitState unitState)
+    {
+        // 오퍼레이터 : 배치가 되어 있는 상태일 때 box 비활성화
+        if (unitState.IsOperator && unitState.IsDeployed)
+        {
+            gameObject.SetActive(false);
+        }
+        // 배치 가능 요소 : 남은 횟수가 0 이하면 비활성화
+        else if (!unitState.IsOperator && unitState.RemainingDeployCount <= 0)
+        {
+            gameObject.SetActive(false);
+        }
+        // 나머지는 활성화
+        else
+        {
+            gameObject.SetActive(true);
         }
     }
 
 
     private void Update()
     {
-        if (deployableUnitState.IsOnCooldown)
-        {
-            deployableUnitState.UpdateCooldown();
-            UpdateDisplay(deployableUnitState);
-        }
+        UpdateVisuals(deployableUnitState);
     }
 
     // 일단은 초기화 때만 쓰고 있기는 하다
@@ -122,7 +170,7 @@ public class DeployableBox : MonoBehaviour, IPointerDownHandler, IBeginDragHandl
             }
         }
 
-        UpdateDisplay(deployableUnitState);
+        UpdateVisuals(deployableUnitState);
     }
 
     private void UpdateAvailability()
