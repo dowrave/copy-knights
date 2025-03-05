@@ -34,7 +34,7 @@ public class OperatorPromotionPanel : MonoBehaviour
     private void Awake()
     {
         confirmButton.onClick.AddListener(OnConfirmButtonClicked);
-        updateColor = GameManagement.Instance.ResourceManager.textUpdateColor;
+        updateColor = GameManagement.Instance.ResourceManager.TextUpdateColor;
     }
 
     private void Start()

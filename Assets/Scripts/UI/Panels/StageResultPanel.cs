@@ -397,8 +397,7 @@ public class StageResultPanel : MonoBehaviour
             Debug.LogWarning("Grid Layout Group component not found on statisticItemContainer");
         }
     }
-
-    private void OnDestroy()
+    private void OnDisable()
     {
         foreach (Button button in statButtons)
         {
@@ -407,5 +406,10 @@ public class StageResultPanel : MonoBehaviour
 
         returnToLobbyButton.onClick.RemoveAllListeners();
         RemoveRewardItemsUI();
+    }
+
+    private void OnDestroy()
+    {
+
     }
 }

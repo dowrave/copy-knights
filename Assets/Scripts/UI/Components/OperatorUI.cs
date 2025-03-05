@@ -11,8 +11,6 @@ public class OperatorUI : MonoBehaviour
     private DeployableBarUI deployableBarUIScript;
 
     private Operator op;
-    private Color originalSPBarColor;
-    [SerializeField] private Color onSkillSPBarColor;
 
     private Canvas canvas;
     private Camera mainCamera;
@@ -40,7 +38,6 @@ public class OperatorUI : MonoBehaviour
         deployableBarUIScript.Initialize(op);
      
         this.op = op;
-        originalSPBarColor = deployableBarUIScript.GetSPBarColor();
 
         SetSkillIconVisibility(op.CurrentSP >= op.MaxSP);
     }
@@ -58,11 +55,11 @@ public class OperatorUI : MonoBehaviour
     {
         if (op.IsSkillOn)
         {
-            deployableBarUIScript.SetSPBarColor(onSkillSPBarColor);
+            deployableBarUIScript.SetSPBarColor(GameManagement.Instance.ResourceManager.OnSkillColor);
         }
         else
         {
-            deployableBarUIScript.SetSPBarColor(originalSPBarColor);
+            deployableBarUIScript.SetSPBarColor(GameManagement.Instance.ResourceManager.OffSkillColor);
         }
 
         SetSkillIconVisibility(

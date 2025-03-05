@@ -165,14 +165,17 @@ public abstract class DeployableUnitEntity: UnitEntity, IDeployable
         }
 
         // 배치된 오퍼레이터 클릭 동작
-        if (IsDeployed && !IsPreviewMode && StageManager.Instance.currentState == GameState.Battle)
+        if (IsDeployed && 
+            !IsPreviewMode &&
+            StageManager.Instance.currentState == GameState.Battle // 테스트 중)
+            )
         {
             DeployableManager.Instance.CancelPlacement();
 
             // 미리보기 상태에선 동작 X
             if (IsPreviewMode == false)
             {
-                DebugDeployableInfo();
+                //DebugDeployableInfo();
                 UIManager.Instance.ShowDeployedInfo(this);
             }
 

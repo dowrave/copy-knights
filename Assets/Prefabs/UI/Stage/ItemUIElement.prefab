@@ -336,6 +336,7 @@ MonoBehaviour:
   detailBackArea: {fileID: 5106771086179148335}
   detailPanelItemNameText: {fileID: 615378475516283068}
   detailPanelItemDetailText: {fileID: 6096048808074874627}
+  detailPanelItemNameBackground: {fileID: 2718099203665005191}
   commonColor: {r: 0.7, g: 0.7, b: 0.7, a: 1}
   rareColor: {r: 0.2, g: 0.5, b: 1, a: 1}
   epicColor: {r: 0.8, g: 0.3, b: 1, a: 1}
@@ -428,7 +429,7 @@ GameObject:
   m_Layer: 5
   m_Name: ItemDetailPanel
   m_TagString: Untagged
-  m_Icon: {fileID: 0}
+  m_Icon: {fileID: 3936346786652291628, guid: 0000000000000000d000000000000000, type: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
@@ -449,11 +450,11 @@ RectTransform:
   - {fileID: 8770208646447228028}
   m_Father: {fileID: 1565186605425163012}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0.5, y: 0.5}
-  m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 430, y: -200}
-  m_SizeDelta: {x: 700, y: 600}
-  m_Pivot: {x: 0.5, y: 0.5}
+  m_AnchorMin: {x: 0.5, y: 1}
+  m_AnchorMax: {x: 0.5, y: 1}
+  m_AnchoredPosition: {x: 440, y: 0}
+  m_SizeDelta: {x: 700, y: 410}
+  m_Pivot: {x: 0.5, y: 1}
 --- !u!222 &8183372089731683773
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -1040,7 +1041,7 @@ GameObject:
   - component: {fileID: 4584237737474128020}
   - component: {fileID: 8458197748813406762}
   m_Layer: 5
-  m_Name: ItemDetailPanel
+  m_Name: ItemDetailArea
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1061,11 +1062,11 @@ RectTransform:
   - {fileID: 544298463855750514}
   m_Father: {fileID: 7710694778165942185}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0.5, y: 0.5}
-  m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 5, y: -40}
-  m_SizeDelta: {x: 650, y: 490}
-  m_Pivot: {x: 0.5, y: 0.5}
+  m_AnchorMin: {x: 0.5, y: 1}
+  m_AnchorMax: {x: 0.5, y: 1}
+  m_AnchoredPosition: {x: 0, y: -100}
+  m_SizeDelta: {x: 650, y: 300}
+  m_Pivot: {x: 0.5, y: 1}
 --- !u!222 &545517692779588767
 CanvasRenderer:
   m_ObjectHideFlags: 0

@@ -3,30 +3,41 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 using NUnit.Framework.Constraints;
+using System;
 
 
 public class DeployableActionUI : MonoBehaviour
 {
-    [Header("UI References")]
-    [SerializeField] private MaskedDiamondOverlay maskedOverlay;
+    [Header("Skill Button")]
     [SerializeField] private Button skillButton;
     [SerializeField] private Image skillImage;
-    [SerializeField] private Button retreatButton;
-    [SerializeField] private GameObject inactivePanel;
-    [SerializeField] private Image spIndicatorImage;
+    [SerializeField] private GameObject inactiveImage;
+    [SerializeField] private Image skillSPImage; // 스킬 아이콘 위에 나타남
+
+    [Header("spIndicator")]
+    [SerializeField] private Image spIndicatorImage; // 스킬 버튼 하단의 직사각형인 SP 표시 / Activate 이미지
     [SerializeField] private TextMeshProUGUI spIndicatorText;
-    [SerializeField] private Image skillDurationImage;
+
+    [Header("Retreat Button")]
+    [SerializeField] private Button retreatButton;
 
     [Header("Skill Indicator Image Color")]
-    [SerializeField] private Color canActivateColor = new Color(119, 233, 100, 255);
     [SerializeField] private Color normalColor = new Color(119, 233, 100, 255);
+    private Color canActivateColor; // 초록
+
+    [Header("Diamond Mask")]
+    [SerializeField] private MaskedDiamondOverlay maskedOverlay;
+
+    private Canvas canvas;
 
     private float darkPanelAlpha = 0f;
-
-    private Camera mainCamera;
     private IDeployable deployable;
     private Operator currentOperator;
-    private bool isDurationImageActive = false;
+    private bool isSPImageActive;
+
+    private float SPImageColorAlpha = 0.3f;
+    private Color skillOnColorWithAlpha;
+    private Color skillOffColorWithAlpha;
 
     public void Initialize(IDeployable deployable)
     {
@@ -36,50 +47,31 @@ public class DeployableActionUI : MonoBehaviour
         {
             currentOperator = deployable as Operator;
             UpdateSkillButton();
-            currentOperator.OnSPChanged += UpdateInactivePanel;
+            currentOperator.OnSPChanged += HandleSPChange;
         }
         else
         {
             skillButton.gameObject.SetActive(false);
         }
 
+        // 레이캐스트 감지를 위한 이벤트 카메라 할당
+        canvas = GetComponent<Canvas>();
+        canvas.worldCamera = Camera.main;
 
-        mainCamera = Camera.main;
         SetUpButtons();
-        UpdateSkillIcon();
+        InitializeSkillIcon();
+        InitializeColors();
 
-        // UI가 보는 방향 설정
-        if (mainCamera != null)
-        {
-            transform.rotation = Quaternion.Euler(90, 0, 0); // 카메라가 70도, 의도적으로 맵과 평행하게 구현
-        }
+        transform.rotation = Quaternion.Euler(90, 0, 0); // 카메라가 70도, 의도적으로 맵과 평행하게 구현
 
         maskedOverlay.Initialize(darkPanelAlpha); // 알파 0으로 조정
 
+        isSPImageActive = currentOperator.CanUseSkill();
+
         gameObject.SetActive(true);
-
-    }
-    private void Update()
-    {
-        if (currentOperator != null)
-        {
-            UpdateSkillButton();
-        }
     }
 
-    private void SetUpButtons()
-    {
-        // 버튼 위치는 인스펙터에서 설정
-        // 버튼 이벤트 설정
-        retreatButton.onClick.AddListener(OnRetreatButtonClicked);
-
-        if (deployable is Operator) 
-        { 
-            skillButton.onClick.AddListener(OnSkillButtonClicked);
-        }
-    }
-
-    private void UpdateSkillIcon()
+    private void InitializeSkillIcon()
     {
         // 스킬 아이콘이 있다면 아이콘을 버튼 이미지로
         if (currentOperator.CurrentSkill.skillIcon != null)
@@ -92,6 +84,30 @@ public class DeployableActionUI : MonoBehaviour
         }
     }
 
+    // ResourceManager에서 가져온 색상들을 다듬거나 할당함
+    private void InitializeColors()
+    {
+        Color tempOnColor = GameManagement.Instance.ResourceManager.OnSkillColor;
+        Color tempOffColor = GameManagement.Instance.ResourceManager.OffSkillColor;
+
+        skillOnColorWithAlpha = new Color(tempOnColor.r, tempOnColor.g, tempOnColor.b, SPImageColorAlpha);
+        skillOffColorWithAlpha = new Color(tempOffColor.r, tempOffColor.g, tempOffColor.b, SPImageColorAlpha);
+
+        canActivateColor = GameManagement.Instance.ResourceManager.OffSkillColor;
+    }
+
+
+    private void SetUpButtons()
+    {
+        // 버튼 위치는 인스펙터에서 설정
+        // 버튼 이벤트 설정
+        retreatButton.onClick.AddListener(OnRetreatButtonClicked);
+
+        if (deployable is Operator)
+        {
+            skillButton.onClick.AddListener(OnSkillButtonClicked);
+        }
+    }
 
     private void OnSkillButtonClicked()
     {
@@ -102,14 +118,32 @@ public class DeployableActionUI : MonoBehaviour
                 op.UseSkill();
                 UpdateSkillButton();
             }
+            ClickDetectionSystem.Instance.OnButtonClicked();
             Hide();
         }
     }
 
+    private void Update()
+    {
+        if (currentOperator != null)
+        {
+            UpdateSkillButton();
+        }
+    }
+
+    private void UpdateSkillButton()
+    {
+        if (!currentOperator || !currentOperator.CurrentSkill) return;
+
+        UpdateInactivePanel();
+        UpdateSPIndicator();
+        UpdateSkillSPImage();
+    }
 
     private void OnRetreatButtonClicked()
     {
         deployable.Retreat();
+        ClickDetectionSystem.Instance.OnButtonClicked();
         Hide();
     }
 
@@ -125,17 +159,9 @@ public class DeployableActionUI : MonoBehaviour
 
     public void Hide()
     {
-        maskedOverlay.Hide();
-        gameObject.SetActive(false);
-    }
-
-    private void UpdateSkillButton()
-    {
-        if (!currentOperator || !currentOperator.CurrentSkill) return;
-
-        UpdateInactivePanel(currentOperator.CurrentSP, currentOperator.MaxSP);
-        UpdateSPIndicator();
-        UpdateSkillDurationImage();
+        //maskedOverlay.Hide();
+        DeployableManager.Instance.CancelCurrentAction();
+        //gameObject.SetActive(false);
     }
 
     private void UpdateSPIndicator()
@@ -175,43 +201,58 @@ public class DeployableActionUI : MonoBehaviour
         }
     }
 
-    private void UpdateInactivePanel(float currentSP, float maxSP)
+
+    // 스킬 사용 버튼의 활성 가능 여부를 표시하는 패널의 동작
+    private void UpdateInactivePanel()
     {
-        // 오퍼레이터의 스킬이 자동 발동이라면 활성화될 필요 없음
-        if (deployable is Operator op && op.CurrentSkill.autoActivate)
+        // 버튼을 누를 수 있는 상황에는 비활성화
+        if (!currentOperator.CurrentSkill.autoActivate &&
+            currentOperator.CanUseSkill())
         {
-            inactivePanel.SetActive(true);
-            return;
-        }
-
-        bool canUseSkill = currentSP >= maxSP;
-
-        skillButton.interactable = canUseSkill;
-        if (inactivePanel != null)
-        {
-            inactivePanel.SetActive(!canUseSkill);
+            inactiveImage.SetActive(false);
         }
         else
         {
-            Debug.LogWarning("inactivePanel is null");
+            inactiveImage.SetActive(true);
         }
     }
 
-    private void UpdateSkillDurationImage()
+    // SP 변화 이벤트를 받을 경우
+    private void HandleSPChange(float currentSP, float maxSP)
     {
+        UpdateInactivePanel();
+    }
+
+    private void UpdateSkillSPImage()
+    {
+        // 지속시간이 있는 액티브 스킬이 켜진 상태
         if (currentOperator.IsSkillOn)
         {
-            if (!isDurationImageActive)
-            {
-                skillDurationImage.gameObject.SetActive(true);
-                isDurationImageActive = true;
-            }
-            skillDurationImage.fillAmount = currentOperator.CurrentSP / currentOperator.MaxSP;
+            SetSPImageActive(true);
+            skillSPImage.color = skillOnColorWithAlpha;
+            skillSPImage.fillAmount = currentOperator.CurrentSP / currentOperator.MaxSP;
         }
+        // 스킬이 켜지지 않았고, 스킬 사용 가능한 상태
+        else if (currentOperator.CanUseSkill())
+        {
+            SetSPImageActive(false);
+        }
+        // 스킬이 켜지지 않았고, SP가 차오르는 상태
         else
         {
-            skillDurationImage.gameObject.SetActive(false);
-            isDurationImageActive = false;
+            SetSPImageActive(true);
+            skillSPImage.color = skillOffColorWithAlpha;
+            skillSPImage.fillAmount = currentOperator.CurrentSP / currentOperator.MaxSP;
+        }
+    }
+
+    // 스킬 버튼 위의 SP를 나타내는 게이지 이미지를 표시할지 여부를 결정합니다.
+    private void SetSPImageActive(bool activate)
+    {
+        if (isSPImageActive == !activate)
+        {
+            skillSPImage.gameObject.SetActive(activate);
+            isSPImageActive = activate;
         }
     }
 
@@ -219,7 +260,7 @@ public class DeployableActionUI : MonoBehaviour
     {
         if (currentOperator != null)
         {
-            currentOperator.OnSPChanged -= UpdateInactivePanel;
+            currentOperator.OnSPChanged -= HandleSPChange;
         }
     }
 }

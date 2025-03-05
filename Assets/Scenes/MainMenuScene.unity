@@ -14224,10 +14224,12 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   iconData: {fileID: 11400000, guid: 7aa35ae3650dc1145b898d2b951ff2da, type: 2}
-  StageButtonStar1: {fileID: 21300000, guid: 96cde0e965bf85d4fbd12b7800b7be6f, type: 3}
-  StageButtonStar2: {fileID: 21300000, guid: f2740fb1c8b930a4e935646eb5db4aef, type: 3}
-  StageButtonStar3: {fileID: 21300000, guid: f98468cc187a7c7428b3f7befe390af3, type: 3}
+  stageButtonStar1: {fileID: 21300000, guid: 96cde0e965bf85d4fbd12b7800b7be6f, type: 3}
+  stageButtonStar2: {fileID: 21300000, guid: f2740fb1c8b930a4e935646eb5db4aef, type: 3}
+  stageButtonStar3: {fileID: 21300000, guid: f98468cc187a7c7428b3f7befe390af3, type: 3}
   textUpdateColor: '#179bff'
+  onSkillColor: {r: 1, g: 0.5254902, b: 0, a: 255}
+  offSkillColor: {r: 0.4509804, g: 0.85882354, b: 0.40392157, a: 255}
 --- !u!4 &1259888923
 Transform:
   m_ObjectHideFlags: 0

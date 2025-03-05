@@ -94,7 +94,7 @@ public class OperatorLevelUpPanel : MonoBehaviour
         }
 
         maxButtonOriginalPosition = maxLevelButton.GetComponent<RectTransform>().anchoredPosition;
-        updateColor = GameManagement.Instance.ResourceManager.textUpdateColor;
+        updateColor = GameManagement.Instance.ResourceManager.TextUpdateColor;
         cantReachLevelText.gameObject.SetActive(false);
         SetMaxLevelButtonVisible(true);
     }

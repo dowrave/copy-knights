@@ -152,9 +152,6 @@ public class UIManager : MonoBehaviour
         if (inStageInfoPanelScript != null)
         {
             infoPanelObject.SetActive(true);
-
-            Debug.Log($"{deployableUnitEntity.DeployableInfo}");
-
             inStageInfoPanelScript.UpdateInfo(deployableUnitEntity.DeployableInfo);
 
             CameraManager.Instance.AdjustForDeployableInfo(true, deployableUnitEntity);
