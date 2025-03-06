@@ -7434,6 +7434,7 @@ MonoBehaviour:
   clickableLayerMask:
     serializedVersion: 2
     m_Bits: 832
+  buttonClickedThisFrame: 0
 --- !u!4 &1975916149
 Transform:
   m_ObjectHideFlags: 0

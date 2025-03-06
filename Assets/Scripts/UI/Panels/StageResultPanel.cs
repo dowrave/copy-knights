@@ -212,7 +212,7 @@ public class StageResultPanel : MonoBehaviour
         UpdateHeaders();
         CreateStatItems();
         UpdateButtonVisuals(); // 버튼이 눌린 상태로 보이도록 초기화
-        ShowRewardItemsUI();
+        ShowRewardItemsUI(); // stars > 0 일 때에만 동작
     }
 
     private void UpdateStarRating()
@@ -343,10 +343,10 @@ public class StageResultPanel : MonoBehaviour
     // 스테이지 클리어로 받는 아이템들을 보여줌
     private void ShowRewardItemsUI()
     {
-        if (activeItemElements.Count > 0)
-        {
-            RemoveRewardItemsUI();
-        }
+        // 스테이지를 클리어하지 못했으면 동작 안 함
+        if (stars == 0) return;
+
+        RemoveRewardItemsUI();
 
         // UI에 사용될 아이템 표시
         foreach (var itemPair in StageManager.Instance.StageData.rewardItems)

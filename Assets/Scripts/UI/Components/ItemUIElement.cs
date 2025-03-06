@@ -11,11 +11,11 @@ public class ItemUIElement : MonoBehaviour, IPointerClickHandler
     [SerializeField] private Image backgroundImage;
     [SerializeField] private Image itemIconImage;
     [SerializeField] private TextMeshProUGUI countText;
+    [SerializeField] private Button backArea;
     public Image itemCountBackground;
 
     [Header("OnClick Detail Panel")]
     [SerializeField] private Image detailPanel;
-    [SerializeField] private Button detailBackArea;
     [SerializeField] private TextMeshProUGUI detailPanelItemNameText;
     [SerializeField] private TextMeshProUGUI detailPanelItemDetailText;
     [SerializeField] private RectTransform detailPanelItemNameBackground;
@@ -29,6 +29,18 @@ public class ItemUIElement : MonoBehaviour, IPointerClickHandler
     private int itemCount;
     private bool isOnStageScene;
 
+    private Canvas canvas;
+    private RectTransform canvasRectTransform;
+    private RectTransform detailPanelRectTransform;
+
+
+    private void Awake()
+    {
+        // GetComponent 계열은 Awake에서 수행한다. 많이 쓰는 건 좋지 않지만.
+        canvas = GetComponentInParent<Canvas>();
+        canvasRectTransform = canvas.GetComponent<RectTransform>();
+        detailPanelRectTransform = detailPanel.GetComponent<RectTransform>();
+    }
 
     // 아이템 클릭 시 호출 이벤트 
     //public System.Action<ItemData> OnItemClicked;
@@ -61,7 +73,7 @@ public class ItemUIElement : MonoBehaviour, IPointerClickHandler
 
         UpdateCount(count);
 
-        detailPanel.gameObject.SetActive(false);
+        HideDetailPanel();
 
         // detailPanel 설정
         if (isOnStageScene)
@@ -80,68 +92,106 @@ public class ItemUIElement : MonoBehaviour, IPointerClickHandler
     private void OnBackAreaClicked()
     {
         Debug.Log("ItemUIElement의 뒷배경이 클릭되었음");
-        detailPanel.gameObject.SetActive(false);
-        detailBackArea.onClick.RemoveAllListeners();
+        HideDetailPanel();
     }
 
-    // 디테일 패널이 화면에서 잘리는 경우 대비
-    //private void AdjustDetailPanel()
-    //{
-    //    Canvas canvas = GetComponentInParent<Canvas>();
-    //    RectTransform canvasRectTransform = canvas.GetComponent<RectTransform>();
-    //    RectTransform detailPanelRectTransform = detailPanel.GetComponent<RectTransform>();
+    // 디테일 패널이 화면에서 잘리는 경우 패널을 왼쪽으로 띄우는 메서드
+    private void AdjustDetailPanel()
+    {
+        // 월드 좌표를 쓰는 이유 : 캔버스 내의 절대적인 위치 개념임. 스크린 좌표는 해상도에 따라 값이 달라질 수 있다.
 
-    //    // 1. ItemUIElement의 월드 좌표를 RectTransformUtility.WorldToScreenPoint를 사용해 스크린 좌표로 변환.
-    //    Vector2 screenPoint = RectTransformUtility.WorldToScreenPoint(canvas.worldCamera, transform.position);
+        // detailPanel의 월드 좌표의 우측 가장자리 계산
+        Vector3[] detailPanelCorners = new Vector3[4];
+        detailPanelRectTransform.GetWorldCorners(detailPanelCorners);
+        float detailPanelRightEdgeWorldX = detailPanelCorners[2].x; // 우측 상단 코너의 x좌표
 
-    //    // 2. 스크린 좌표를 Canvas 내의 로컬 좌표로 변환.
-    //    RectTransformUtility.ScreenPointToLocalPointInRectangle(canvasRectTransform, screenPoint, canvas.worldCamera, out Vector2 localPoint);
+        // 캔버스의 월드 좌표에서의 우측 가장자리 계산
+        Vector3[] canvasCorners = new Vector3[4];
+        canvasRectTransform.GetWorldCorners(canvasCorners);
+        float canvasRightEdgeWorldX = canvasCorners[2].x; // 캔버스 우측 상단의 x좌표
 
-    //    Debug.Log($"localPoint : {localPoint}");
+        // 디테일 패널의 오른쪽 변이 화면에서 벗어나는 경우, 왼쪽으로 디테일 패널을 옮김
+        if (detailPanelRightEdgeWorldX > canvasRightEdgeWorldX)
+        {
+            Debug.Log("detailPanelRightEdge가 canvasWidth보다 크다");
+            SetDetailPanelLeft();
+        }
+        else // 좌측으로 넘어가지 않더라도 detailPanel의 위치를 잡아준다
+        {
+            SetDetailPanelRight();
+        }
 
-    //    float canvasWidth = canvasRectTransform.rect.width;
-    //    float canvasHeight = canvasRectTransform.rect.height;
+        // 실시간으로 위치를 변화시킬 게 아니라서 이 정도로만 구현함
+    }
 
-    //    // UIElement 기준 로컬 x 포지션 설정 - 주의) rectTransform.position은 월드 포지션
-    //    float detailPanelPosX = detailPanelRectTransform.anchoredPosition.x;
+    private void SetDetailPanelLeft()
+    {
+        // 디테일 패널의 앵커, 피벗 변경
+        detailPanelRectTransform.anchorMin = new Vector2(1, 1);
+        detailPanelRectTransform.anchorMax = new Vector2(1, 1);
+        detailPanelRectTransform.pivot = new Vector2(1, 1);
 
-    //    // 피벗이 중앙이라서 너비를 2로 나눔
-    //    float detailPanelRightEdge = localPoint.x + detailPanelPosX + detailPanelRectTransform.rect.width / 2;
+        // 디테일 패널의 위치 변경
+        Vector2 defaultDetailPanelLocalPosition = detailPanelRectTransform.anchoredPosition;
+        detailPanelRectTransform.anchoredPosition = new Vector2(-defaultDetailPanelLocalPosition.x, defaultDetailPanelLocalPosition.y);
 
-    //    Debug.Log($"화면 오른쪽 변 위치 : {detailPanelRightEdge}");
-    //    Debug.Log($"캔버스 너비 : {canvasWidth}");
+        // 아이템 이름 오브젝트의 앵커, 피벗 변경
+        detailPanelItemNameBackground.pivot = new Vector2(1, 0.5f);
+        detailPanelItemNameBackground.anchorMin = new Vector2(1, 0.5f);
+        detailPanelItemNameBackground.anchorMax = new Vector2(1, 0.5f);
 
+        // 아이템 이름 오브젝트의 위치 변경
+        detailPanelItemNameBackground.anchoredPosition = new Vector2(-detailPanelItemNameBackground.anchoredPosition.x, 
+            detailPanelItemNameBackground.anchoredPosition.y);
+    }
 
-    //    // 3. 디테일 패널의 오른쪽 변이 화면에서 벗어나는 경우, 왼쪽으로 디테일 패널을 옮김
-    //    if (detailPanelRightEdge > canvasWidth)
-    //    {
-    //        Debug.Log("detailPanelRightEdge가 canvasWidth보다 크다");
-    //        Debug.Log($"초기 detailPanelPosX : {detailPanelPosX}");
-    //        Debug.Log($"초기 아이템 이름 위치 값 : {detailPanelItemNameBackground.anchoredPosition}");
+    // DetailPanel과 BackArea는 함께 동작해야 함
 
+    private void ShowDetailPanel()
+    {
+        // DetailPanel 위치 설정
+        AdjustDetailPanel();
 
-    //        // detailPanel 위치 왼쪽으로 변경
-    //        detailPanelPosX = -detailPanelPosX;
+        // backArea의 크기를 Canvas에 맞춤
+        Rect canvasRect = canvasRectTransform.rect;
+        RectTransform backAreaRectTransform = backArea.GetComponent<RectTransform>();
+        backAreaRectTransform.position = -canvasRect.position; // canvasRect.position이 -960, -540으로 잡히는 원인 모를 문제가 있어서 일단 이렇게 설정
+        backAreaRectTransform.sizeDelta = new Vector2(canvasRect.width, canvasRect.height);
 
-    //        // 패널 내의 아이템 이름을 오른쪽으로 옮김
-    //        detailPanelItemNameBackground.pivot = new Vector2(1, 0.5f);
-    //        detailPanelItemNameBackground.anchorMin = new Vector2(1, 0.5f);
-    //        detailPanelItemNameBackground.anchorMax = new Vector2(1, 0.5f);
+        detailPanel.gameObject.SetActive(true);
+        backArea.gameObject.SetActive(true);
 
-    //        Vector2 defaultItemNameBackgroundPosition = detailPanelItemNameBackground.anchoredPosition;
-    //        detailPanelItemNameBackground.anchoredPosition = new Vector2(-defaultItemNameBackgroundPosition.x, -defaultItemNameBackgroundPosition.y);
-    //    }
-    //    // 실시간으로 위치를 변화시킬 게 아니라서 이 정도로만 구현함
-    //}
+        // BackArea 클릭 시 detailPanel을 닫는 리스너 추가
+        backArea.onClick.AddListener(OnBackAreaClicked);
+    }
+
+    private void HideDetailPanel()
+    {
+        detailPanel.gameObject.SetActive(false);
+
+        backArea.onClick.RemoveAllListeners();
+        backArea.gameObject.SetActive(false);
+    }
+
+    private void SetDetailPanelRight()
+    {
+        // 프리팹의 기본 설정과 동일해서 사실 만지진 않아도 됨
+
+        detailPanelRectTransform.anchorMin = new Vector2(0, 1);
+        detailPanelRectTransform.anchorMax = new Vector2(0, 1);
+        detailPanelRectTransform.pivot = new Vector2(0, 1);
+
+        detailPanelItemNameBackground.pivot = new Vector2(0, 0.5f);
+        detailPanelItemNameBackground.anchorMin = new Vector2(0, 0.5f);
+        detailPanelItemNameBackground.anchorMax = new Vector2(0, 0.5f);
+    }
 
     public void OnPointerClick(PointerEventData eventData)
     {
         //OnItemClicked?.Invoke(itemData);
         if (isOnStageScene)
         {
-            //AdjustDetailPanel();
-            detailPanel.gameObject.SetActive(true);
-            detailBackArea.onClick.AddListener(OnBackAreaClicked);
+            ShowDetailPanel();
         }
         else
         {

@@ -191,7 +191,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   enemyData: {fileID: 11400000, guid: 673037e1dec1a8445b3797044c9c07e2, type: 2}
   enemyBarUIPrefab: {fileID: 4850112300594543659, guid: f855a11e7f642eb4481495480ef1a6e8, type: 3}
-  model: {fileID: 84273692363843163}
   modelContainer: {fileID: 879292670743782935}
 --- !u!65 &5344802847794872972
 BoxCollider:
@@ -212,7 +211,7 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 0.8, y: 1, z: 0.8}
+  m_Size: {x: 0.25, y: 1, z: 0.25}
   m_Center: {x: 0, y: 0, z: 0}
 --- !u!54 &7065728635563423566
 Rigidbody:
