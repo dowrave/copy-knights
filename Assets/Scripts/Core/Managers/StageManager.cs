@@ -3,6 +3,7 @@ using System.Collections; // IEnumerator - 코루틴에서 주로 사용하는 버전
 using DG.Tweening;
 using System.Collections.Generic;
 using System.Linq;
+using System;
 
 // 스테이지 씬에서 스테이지와 관련된 여러 상태들을 관리합니다.
 public class StageManager : MonoBehaviour
@@ -113,8 +114,7 @@ public class StageManager : MonoBehaviour
         UIManager.Instance.UpdateSpeedUpButtonVisual();
         UIManager.Instance.UpdatePauseButtonVisual();
 
-        if (GameManagement.Instance == null && 
-            GameManagement.Instance.StageLoader != null)
+        if (GameManagement.Instance != null)
         {
             // StageLoader에서 스테이지 시작을 처리함
             return;
@@ -183,6 +183,9 @@ public class StageManager : MonoBehaviour
     private IEnumerator StartStageWithDelay()
     {
         yield return new WaitForSecondsRealtime(0.5f); // Time.timeScale에 영향을 받지 않게 구성
+
+        if (SpawnerManager.Instance == null) throw new InvalidOperationException("스포너 매니저 인스턴스가 없음");
+
 
         SetGameState(GameState.Battle);
         lastCostUpdateTime = Time.time;
@@ -318,6 +321,8 @@ public class StageManager : MonoBehaviour
 
     private void GameWin()
     {
+        if (GameManagement.Instance == null) throw new InvalidOperationException("GameManagement가 초기화되지 않았음");
+
         SetGameState(GameState.GameWin);
         Time.timeScale = 0;
         int stars = 3 - PassedEnemies;
@@ -351,6 +356,8 @@ public class StageManager : MonoBehaviour
 
     public void ReturnToMainMenu(bool isPerfectClear = false)
     {
+        if (GameManagement.Instance == null) throw new InvalidOperationException("GameManagement 초기화 안됨");
+
         if (isPerfectClear)
         {
             GameManagement.Instance.StageLoader.ReturnToMainMenu();

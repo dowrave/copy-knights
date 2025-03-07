@@ -10,7 +10,7 @@ using UnityEngine.UI;
 /// </summary>
 public class MainMenuManager : MonoBehaviour
 {
-    public static MainMenuManager Instance { get; private set; }
+    public static MainMenuManager? Instance { get; private set; }
 
     // 여러 패널들을 열거형으로 관리
     public enum MenuPanel
@@ -30,27 +30,27 @@ public class MainMenuManager : MonoBehaviour
     private class PanelInfo
     {
         public MenuPanel type;
-        public GameObject panel;
+        public GameObject? panel;
         public MenuPanel parentPanel = MenuPanel.None; // "뒤로 가기" 버튼을 눌렀을 때 이동할 부모 패널 
     }
 
     [Header("Canvas")]
-    [SerializeField] private Canvas mainCanvas;
+    [SerializeField] private Canvas? mainCanvas;
 
     // 여러 패널에서 공통으로 사용할 뒤로 가기 버튼과 홈 버튼
     [Header("Navigation")]
-    [SerializeField] private GameObject navButtonContainer;
-    [SerializeField] private Button backButton;
-    [SerializeField] private Button homeButton;
-    [SerializeField] private Button inventoryButton;
+    [SerializeField] private GameObject? navButtonContainer;
+    [SerializeField] private Button? backButton;
+    [SerializeField] private Button? homeButton;
+    [SerializeField] private Button? inventoryButton;
 
     [Header("Panel References")]
-    [SerializeField] private List<PanelInfo> panels;
+    [SerializeField] private List<PanelInfo>? panels;
 
     [SerializeField] private float panelTransitionSpeed;
 
     [Header("Notification")]
-    [SerializeField] private GameObject notificationPanelPrefab;
+    [SerializeField] private GameObject? notificationPanelPrefab;
 
     // 패널 간의 연결을 쉽게 하기 위한 Dict들
     private Dictionary<MenuPanel, GameObject> panelMap = new Dictionary<MenuPanel, GameObject>();
@@ -60,9 +60,9 @@ public class MainMenuManager : MonoBehaviour
 
     private MenuPanel currentPanel = MenuPanel.StageSelect;
     public MenuPanel CurrentPanel => currentPanel;
-    public StageData SelectedStage { get; private set; }
+    public StageData? SelectedStage { get; private set; }
 
-    public event Action OnSelectedStageChanged;
+    public event Action? OnSelectedStageChanged;
     //public event Action OnPanelChanged;
 
     private void Awake()
@@ -76,10 +76,18 @@ public class MainMenuManager : MonoBehaviour
             Destroy(gameObject);
         }
 
-        // Dict 초기화
-        foreach (PanelInfo panelInfo in panels)
+        if (panels != null)
         {
-            panelMap[panelInfo.type] = panelInfo.panel;
+            // Dict 초기화
+            foreach (PanelInfo panelInfo in panels)
+            {
+                if (panelInfo.panel == null)
+                {
+                    Debug.LogError("panelInfo.panel 값이 null");
+                    continue;
+                }
+                panelMap[panelInfo.type] = panelInfo.panel;
+            }
         }
 
         InitializeNavigation();
@@ -87,12 +95,18 @@ public class MainMenuManager : MonoBehaviour
 
     private void InitializeNavigation()
     {
-        // Dict 초기화
-        foreach (PanelInfo panelInfo in panels)
+        if (panels != null)
         {
-            panelMap[panelInfo.type] = panelInfo.panel;
-            parentMap[panelInfo.type] = panelInfo.parentPanel;
-            reversePanelMap[panelInfo.panel] = panelInfo.type; 
+            // Dict 초기화
+            foreach (PanelInfo panelInfo in panels)
+            {
+                if (panelInfo.panel != null)
+                {
+                    panelMap[panelInfo.type] = panelInfo.panel;
+                    parentMap[panelInfo.type] = panelInfo.parentPanel;
+                    reversePanelMap[panelInfo.panel] = panelInfo.type; 
+                }
+            }
         }
 
         if (backButton != null) backButton.onClick.AddListener(NavigateBack);
@@ -130,6 +144,11 @@ public class MainMenuManager : MonoBehaviour
 
     private void UpdateTopAreaButtons()
     {
+        if (navButtonContainer == null || inventoryButton == null)
+        {
+            Debug.LogError("navButtonContainer가 null이거나 inventoryButton이 null");
+            return;
+        }
 
         if (currentPanel == MenuPanel.StageSelect)
         {
@@ -148,20 +167,28 @@ public class MainMenuManager : MonoBehaviour
     /// </summary>
     private void Start()
     {
+
+        if (panels == null) return;
+
         // StageSelectPanel만 활성화
         foreach (PanelInfo panel in panels)
         {
             if (panel.type == MenuPanel.StageSelect)
             {
-                panel.panel.SetActive(true);
+                panel.panel?.SetActive(true);
             }
             else
             {
-                panel.panel.SetActive(false);
+                panel.panel?.SetActive(false);
             }
         }
 
         SetLastPlayedStage();
+
+        if (GameManagement.Instance == null)
+        {
+            throw new InvalidOperationException("게임 매니지먼트 인스턴스가 초기화되지 않았음");
+        }
 
         GameManagement.Instance.UserSquadManager.OnSquadUpdated += OnSquadUpdated;
     }
@@ -249,11 +276,19 @@ public class MainMenuManager : MonoBehaviour
     // 스테이지 시작
     public void StartStage()
     {
+        if (GameManagement.Instance == null)
+        {
+            throw new InvalidOperationException("게임 매니지먼트 인스턴스가 초기화되지 않았음");
+        }
+
         List<OwnedOperator> currentSquad = GameManagement.Instance.UserSquadManager.GetCurrentSquad();
 
         if (currentSquad.Count > 0) // null을 값으로 갖는다면 포함해서 세므로 GetActiveOperators()을 써야 한다.
         {
-            GameManagement.Instance.StageLoader.LoadStage(SelectedStage);
+            if (SelectedStage != null)
+            {
+                GameManagement.Instance.StageLoader.LoadStage(SelectedStage);
+            }
         }
         else
         {
@@ -275,7 +310,10 @@ public class MainMenuManager : MonoBehaviour
 
     private void UpdateSquadUI()
     {
-        List<OwnedOperator> currentSquad = GameManagement.Instance.UserSquadManager.GetCurrentSquadWithNull();
+        if (GameManagement.Instance != null)
+        {
+            List<OwnedOperator> currentSquad = GameManagement.Instance.UserSquadManager.GetCurrentSquadWithNull();
+        }
 
         // UI 업데이트
     }
@@ -283,22 +321,28 @@ public class MainMenuManager : MonoBehaviour
     // SquadEditPanel의 슬롯에 OperatorListPanel에서 오퍼레이터를 결정하고 할당할 때 사용
     public void OnOperatorSelected(int slotIndex, OwnedOperator newOperator)
     {
-        GameManagement.Instance.UserSquadManager.TryReplaceOperator(slotIndex, newOperator);
+        if (GameManagement.Instance != null)
+        {
+            GameManagement.Instance.UserSquadManager.TryReplaceOperator(slotIndex, newOperator);
+        }
     }
 
     public void ShowNotification(string message)
     {
-        if (notificationPanelPrefab != null)
+        if (notificationPanelPrefab != null && mainCanvas != null)
         {
             GameObject notificationObj = Instantiate(notificationPanelPrefab, mainCanvas.transform);
             NotificationPanel notificationPanel = notificationObj.GetComponent<NotificationPanel>();
-            notificationPanel.Initialize(message);
+            notificationPanel?.Initialize(message);
         }
     }
 
     private void OnDestroy()
     {
-        GameManagement.Instance.UserSquadManager.OnSquadUpdated -= OnSquadUpdated;
+        if (GameManagement.Instance != null)
+        {
+            GameManagement.Instance.UserSquadManager.OnSquadUpdated -= OnSquadUpdated;
+        }
     }
 }
  

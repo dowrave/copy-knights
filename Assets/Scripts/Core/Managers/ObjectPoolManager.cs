@@ -8,13 +8,13 @@ using UnityEngine;
 /// </summary>
 public class ObjectPoolManager : MonoBehaviour
 {
-    public static ObjectPoolManager Instance;
+    public static ObjectPoolManager? Instance;
 
     [System.Serializable] 
     public class Pool
     {
-        public string tag;
-        public GameObject prefab;
+        public string? tag;
+        public GameObject? prefab;
         public int size;
     }
 
@@ -31,11 +31,11 @@ public class ObjectPoolManager : MonoBehaviour
     }
 
     private Dictionary<string, Pool> poolInfos = new Dictionary<string, Pool>();
-    public Dictionary<string, Queue<GameObject>> poolDictionary;
-    private Dictionary<string, HashSet<GameObject>> activeObjects; // 현재 활성화된 오브젝트들 추적
+    public Dictionary<string, Queue<GameObject>> poolDictionary = new Dictionary<string, Queue<GameObject>>();
+    private Dictionary<string, HashSet<GameObject>> activeObjects = new Dictionary<string, HashSet<GameObject>>(); // 현재 활성화된 오브젝트들 추적
 
     [Header("텍스트 관련")]
-    [SerializeField] private GameObject floatingTextPrefab;
+    [SerializeField] private GameObject? floatingTextPrefab;
     [SerializeField] private int floatingTextCounts = 2;
     public string FLOATING_TEXT_TAG { get; private set; } = "FloatingText";
 
@@ -45,11 +45,11 @@ public class ObjectPoolManager : MonoBehaviour
 
     private void Start()
     {
-        poolDictionary = new Dictionary<string, Queue<GameObject>>();
-        activeObjects = new Dictionary<string, HashSet<GameObject>>();
-
-        // 팝업 텍스트 풀 생성
-        CreatePool(FLOATING_TEXT_TAG, floatingTextPrefab, floatingTextCounts);
+        if (floatingTextPrefab != null)
+        {
+            // 팝업 텍스트 풀 생성
+            CreatePool(FLOATING_TEXT_TAG, floatingTextPrefab, floatingTextCounts);
+        }
     }
 
 
@@ -87,8 +87,16 @@ public class ObjectPoolManager : MonoBehaviour
         // (if) 풀을 모두 사용했다면 새로 생성 / (else) 풀의 내용 사용
         if (objectPool.Count == 0)
         {
-            Pool poolInfo = poolInfos[tag];
+            Pool? poolInfo = poolInfos[tag];
+
+            if (poolInfo == null || poolInfo.prefab == null)
+            {
+                Debug.LogError($"poolInfo.prefab이 null임!!");
+                return null;
+            }
+            
             obj = Instantiate(poolInfo.prefab);
+            
         }
         else
         {

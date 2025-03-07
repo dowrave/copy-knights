@@ -6,19 +6,19 @@ using UnityEngine.SceneManagement;
 public class ResourceManager : MonoBehaviour
 {
     [Header("Shared Resources")]
-    [SerializeField] private OperatorIconData iconData;
+    [SerializeField] private OperatorIconData? iconData;
 
     [Header("Star Images")]
-    [SerializeField] private Sprite stageButtonStar1;
-    [SerializeField] private Sprite stageButtonStar2;
-    [SerializeField] private Sprite stageButtonStar3;
+    [SerializeField] private Sprite? stageButtonStar1;
+    [SerializeField] private Sprite? stageButtonStar2;
+    [SerializeField] private Sprite? stageButtonStar3;
 
     [Header("Update Text Color")]
     [SerializeField] private string textUpdateColor = "#179bff"; // 업데이트되는 요소 미리 보여줄 때 사용
 
     [Header("Color Palette")]
-    [SerializeField] private Color onSkillColor = new Color(255, 134, 0, 255);
-    [SerializeField] private Color offSkillColor = new Color(115, 219, 103, 255);
+    [SerializeField] private Color? onSkillColor = new Color(255, 134, 0, 255);
+    [SerializeField] private Color? offSkillColor = new Color(115, 219, 103, 255);
 
 
     private void Awake()
@@ -60,11 +60,11 @@ public class ResourceManager : MonoBehaviour
     }
 
     // 읽기 전용 프로퍼티
-    public OperatorIconData IconData { get { return iconData; } }
-    public Sprite StageButtonStar1 { get { return stageButtonStar1; } }
-    public Sprite StageButtonStar2 { get { return stageButtonStar2; } }
-    public Sprite StageButtonStar3 { get { return stageButtonStar3; } }
+    public OperatorIconData? IconData { get { return iconData; } }
+    public Sprite? StageButtonStar1 { get { return stageButtonStar1; } }
+    public Sprite? StageButtonStar2 { get { return stageButtonStar2; } }
+    public Sprite? StageButtonStar3 { get { return stageButtonStar3; } }
     public string TextUpdateColor { get { return textUpdateColor; } }
-    public Color OnSkillColor { get { return onSkillColor; } }
-    public Color OffSkillColor { get { return offSkillColor; } }
+    public Color? OnSkillColor { get { return onSkillColor; } }
+    public Color? OffSkillColor { get { return offSkillColor; } }
 }

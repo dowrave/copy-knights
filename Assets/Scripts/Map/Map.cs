@@ -256,7 +256,7 @@ public class Map : MonoBehaviour
     }
 
     // 해당 그리드 좌표에 대한 타일을 반환합니다
-    public Tile GetTile(int gridX, int gridY)
+    public Tile? GetTile(int gridX, int gridY)
     {
         if (!IsValidGridPosition(gridX, gridY)) return null;
 

@@ -37,7 +37,7 @@ public class CameraManager : MonoBehaviour
         }
     }
 
-    public void SetupForMap(Map map)
+    public void SetupForMap(Map? map)
     {
         // map의 카메라 position, rotation을 이용해 카메라 위치 설정
         // 카메라 위치 설정 자체는 개발자가 직접 보면서 실험하고 있음
@@ -74,6 +74,11 @@ public class CameraManager : MonoBehaviour
         if (show)
         {
             Vector3 newPosition;
+            if (MapManager.Instance == null)
+            {
+                Debug.LogError("맵 매니저 인스턴스가 초기화되지 않았음");
+                return;
+            }
             float mapWidth = MapManager.Instance.GetCurrentMapWidth();
 
             // 배치된 Deployable 클릭

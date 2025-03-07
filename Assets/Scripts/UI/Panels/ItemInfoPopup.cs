@@ -99,7 +99,10 @@ public class ItemInfoPopup : MonoBehaviour
 
         hideSequence.OnComplete(() =>
         {
-            PopupManager.Instance.OnPopupClosed(this);
+            if (PopupManager.Instance != null)
+            {
+                PopupManager.Instance.OnPopupClosed(this);
+            }
 
             ClearData();
         });

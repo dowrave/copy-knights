@@ -13,7 +13,7 @@ public class PlayerDataManager : MonoBehaviour
     private class PlayerData
     {
         public List<OwnedOperator> ownedOperators = new List<OwnedOperator>(); // 보유 오퍼레이터
-        public List<string> currentSquadOperatorNames = new List<string>(); // 스쿼드, 직렬화를 위해 이름만 저장
+        public List<string?> currentSquadOperatorNames = new List<string?>(); // 스쿼드, 직렬화를 위해 이름만 저장
         public int maxSquadSize;
         public UserInventoryData inventory = new UserInventoryData(); // 아이템 인벤토리
         public StageResultData stageResults = new StageResultData(); // 스테이지 진행 상황
@@ -64,7 +64,7 @@ public class PlayerDataManager : MonoBehaviour
             }
             else
             {
-                Debug.LogError($"{path}에서 OperatorData 로드 실패, 혹은 {opData.entityName}이라는 엔티티 이름이 비어 있음");
+                Debug.LogError($"{path}에서 OperatorData 로드 실패");
             }
         }
 
@@ -92,7 +92,7 @@ public class PlayerDataManager : MonoBehaviour
             playerData = new PlayerData
             {
                 maxSquadSize = defaultMaxSquadSize,
-                currentSquadOperatorNames = new List<string>()
+                currentSquadOperatorNames = new List<string?>()
             };
 
             // 초기 오퍼레이터를 ownedOperators에 추가
@@ -136,9 +136,9 @@ public class PlayerDataManager : MonoBehaviour
         SavePlayerData();
     }
 
-    public OwnedOperator GetOwnedOperator(string operatorName)
+    public OwnedOperator? GetOwnedOperator(string? operatorName)
     {
-        return playerData.ownedOperators.Find(op => op.operatorName == operatorName);
+        return playerData.ownedOperators.Find(op => op.operatorName == operatorName) ?? null;
     }
 
     public List<OwnedOperator> GetOwnedOperators()
@@ -216,14 +216,14 @@ public class PlayerDataManager : MonoBehaviour
     {
         return playerData.currentSquadOperatorNames
             .Where(name => !string.IsNullOrEmpty(name))
-            .Select(opName => GetOwnedOperator(opName))
+            .Select(opName => GetOwnedOperator(opName!)) // 'opName'이 null이 아님을 명시적으로 표시
             .Where(op => op != null)
             .ToList();
     }
 
 
     // null을 포함한 전체 스쿼드 리스트 반환. MaxSquadSize가 보장된다.
-    public List<OwnedOperator> GetCurrentSquadWithNull()
+    public List<OwnedOperator?> GetCurrentSquadWithNull()
     {
         return playerData.currentSquadOperatorNames
             .Select(opName => string.IsNullOrEmpty(opName) ? null : GetOwnedOperator(opName))
@@ -281,17 +281,17 @@ public class PlayerDataManager : MonoBehaviour
 
 
     // 특정 인덱스 슬롯의 오퍼레이터를 반환한다. 비어 있거나 활성화가 안된 슬롯이면 null을 반환한다. 해도 되나?
-    public OwnedOperator GetSquadOperatorAt(int index)
+    public OwnedOperator? GetSquadOperatorAt(int index)
     {
         if (index < 0 || index >= playerData.currentSquadOperatorNames.Count) return null;
 
-        string opName = playerData.currentSquadOperatorNames[index];
+        string? opName = playerData.currentSquadOperatorNames[index];
         return string.IsNullOrEmpty(opName) ? null : GetOwnedOperator(opName);
     }
 
-    public List<string> GetCurrentSquadOperatorNames()
+    public List<string?> GetCurrentSquadOperatorNames()
     {
-        return new List<string>(playerData.currentSquadOperatorNames); 
+        return new List<string?>(playerData.currentSquadOperatorNames); 
     }
 
     private void LoadItemDatabase()

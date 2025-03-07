@@ -22,7 +22,7 @@ public class StatisticsManager : MonoBehaviour
 
     private List<OperatorStats> allOperatorStats = new List<OperatorStats>();
 
-    [SerializeField] private StatsPanel statsPanel;
+    [SerializeField] private StatsPanel? statsPanel;
 
     public event System.Action<StatType> OnStatUpdated; // 일단 시각화할지 여부만 결정할 것이므로 StatType만 넣음
 

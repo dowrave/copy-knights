@@ -193,7 +193,7 @@ public class ItemUIElement : MonoBehaviour, IPointerClickHandler
         {
             ShowDetailPanel();
         }
-        else
+        else if (PopupManager.Instance != null)
         {
             PopupManager.Instance.ShowItemInfoPopup(itemData);
         }

@@ -13,7 +13,7 @@ public class UserSquadManager : MonoBehaviour
     public int EditingSlotIndex => editingSlotIndex;
     public bool IsEditingSquad => editingSlotIndex != -1;
 
-    public int MaxSquadSize => GameManagement.Instance.PlayerDataManager.GetMaxSquadSize();
+    public int? MaxSquadSize => GameManagement.Instance?.PlayerDataManager.GetMaxSquadSize();
 
     // ¿Ã∫•∆Æ
     public event System.Action OnSquadUpdated;

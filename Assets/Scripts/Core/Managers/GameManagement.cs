@@ -9,10 +9,10 @@ public class GameManagement : MonoBehaviour
 {
     public static GameManagement? Instance;
 
-    [SerializeField] private StageLoader? stageLoader;
-    [SerializeField] private UserSquadManager? userSquadManager;
-    [SerializeField] private ResourceManager? resourceManager;
-    [SerializeField] private PlayerDataManager? playerDataManager;
+    [SerializeField] private StageLoader? stageLoader = null!;
+    [SerializeField] private UserSquadManager? userSquadManager = null!;
+    [SerializeField] private ResourceManager? resourceManager = null!;
+    [SerializeField] private PlayerDataManager? playerDataManager = null!;
 
     [Header("System Data")]
     [SerializeField] private OperatorLevelData? operatorLevelData; // 인스펙터에서 설정
