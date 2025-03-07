@@ -424,7 +424,7 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable,
         // 사망 후 동작 로직
         UnblockAllEnemies();
 
-        // 오브젝트 파괴
+        // UI 파괴
         Destroy(operatorUIInstance.gameObject);
         
         OnSPChanged = null;
@@ -439,7 +439,7 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable,
         DeployableInfo.deployedOperator = null;
 
         // 하단 UI 활성화
-        DeployableManager.Instance.OnDeployableRemoved(this);
+        //DeployableManager.Instance.OnDeployableRemoved(this);
 
         // 오퍼레이터 사망 이벤트 발생
         OnOperatorDied?.Invoke(this);
@@ -560,11 +560,19 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable,
 
     public override void Retreat()
     {
-        // 수동 퇴각 시 최초 배치 코스트의 절반 회복
+        RecoverInitialCost();
+        Die();
+    }
+
+    // 수동 퇴각 시 최초 배치 코스트의 절반 회복
+    private void RecoverInitialCost()
+    {
+        Debug.Log("deploymentCost 비교하기");
+        Debug.Log($"currentStats.DeploymentCost : {currentStats.DeploymentCost}");
+        Debug.Log($"BaseData.DeploymentCost : {BaseData.stats.DeploymentCost}");
+
         int recoverCost = (int)Mathf.Round(currentStats.DeploymentCost / 2f);
         StageManager.Instance.RecoverDeploymentCost(recoverCost);
-
-        Die();
     }
 
     // ISkill 메서드

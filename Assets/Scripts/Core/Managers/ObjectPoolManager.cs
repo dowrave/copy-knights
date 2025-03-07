@@ -72,7 +72,7 @@ public class ObjectPoolManager : MonoBehaviour
 
 
     // 지정된 태그의 풀에서 오브젝트를 가져와 활성화하고 위치와 회전을 설정합니다.
-    public GameObject SpawnFromPool(string tag, Vector3 position, Quaternion rotation)
+    public GameObject? SpawnFromPool(string tag, Vector3 position, Quaternion rotation)
     {
         if (!poolDictionary.ContainsKey(tag) || !poolInfos.ContainsKey(tag)) return null;
 
@@ -156,7 +156,7 @@ public class ObjectPoolManager : MonoBehaviour
     // 대미지 팝업 관련 구현
     public void ShowFloatingText(Vector3 position, float value, bool isHealing)
     {
-        GameObject floatingTextObj = SpawnFromPool(FLOATING_TEXT_TAG, position, Quaternion.identity);
+        GameObject? floatingTextObj = SpawnFromPool(FLOATING_TEXT_TAG, position, Quaternion.identity);
         if (floatingTextObj != null)
         {
             FloatingText floatingText = floatingTextObj.GetComponent<FloatingText>();

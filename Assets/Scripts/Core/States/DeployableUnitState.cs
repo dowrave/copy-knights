@@ -16,7 +16,6 @@ public class DeployableUnitState
     public DeployableUnitEntity currentDeployable;
     public Operator currentOperator;
 
-    private const int MAX_COST_INCREASE_COUNT = 2;
     private const float COST_INCREASE_RATE = 0.5f;
 
     public bool IsOperator { get; private set; }
@@ -46,7 +45,6 @@ public class DeployableUnitState
         {
             currentOperator = op;
             IsDeployed = true;
-            Debug.Log($"DeployableUnitState.OnDeploy : {op} 배치됨");
         }
         else
         {
@@ -69,8 +67,6 @@ public class DeployableUnitState
     {
         if (IsOperator)
         {
-            Debug.Log($"DeployableUnitState.OnDeploy : {deployableInfo.operatorData.entityName} 제거됨");
-
             RemainingDeployCount++;
             StartCooldown(deployableInfo.redeployTime);
             UpdateDeploymentCost();
@@ -96,12 +92,19 @@ public class DeployableUnitState
         }
     }
 
+    // 오퍼레이터일 경우에만 수행되는 배치 코스트 갱신
     private void UpdateDeploymentCost()
     {
         if (deployableInfo.ownedOperator == null) return;
 
+        // 기본 코스트
         int baseCost = deployableInfo.ownedOperator.BaseData.stats.DeploymentCost;
-        float multiplier = 1f + (Mathf.Min(DeploymentCount - 1, MAX_COST_INCREASE_COUNT - 1) * COST_INCREASE_RATE);
+
+        // 1, 1.5, 2만 가질 수 있다.
+        // 상세) 재배치마다 50%식 배치 코스트가 증가, 최대 2회(즉 2회 이후부터는 최초의 2배 코스트가 듦)까지만.
+        float multiplier = 1f + (Mathf.Min(DeploymentCount, 2) * COST_INCREASE_RATE);
+
+        // 현재 배치 비용 갱신
         CurrentDeploymentCost = Mathf.RoundToInt(baseCost * multiplier);
     }
 }

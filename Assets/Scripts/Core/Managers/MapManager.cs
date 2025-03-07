@@ -5,8 +5,8 @@ public class MapManager : MonoBehaviour
 { 
     public static MapManager Instance { get; private set; }
     
-    private Map currentMap;
-    public Map CurrentMap => currentMap;
+    private Map? currentMap = null!; // null인 상황에서도 경고문 발생 X
+    public Map CurrentMap => currentMap!;
 
     private void Awake()
     {
@@ -28,7 +28,6 @@ public class MapManager : MonoBehaviour
         }
 
         currentMap = map;
-
         currentMap.Initialize(currentMap.Width, currentMap.Height, true);
 
         // 다른 매니저에 맵 설정 알림
@@ -51,10 +50,15 @@ public class MapManager : MonoBehaviour
     }
 
     // 월드 좌표에 있는 타일을 반환
-    public Tile GetTileAtWorldPosition(Vector3 worldPosition)
+    public Tile? GetTileAtWorldPosition(Vector3 worldPosition)
     {
-        Vector2Int gridPosition = currentMap.WorldToGridPosition(worldPosition);
-        return currentMap.GetTile(gridPosition.x, gridPosition.y);
+        if (worldPosition != null)
+        {
+            Vector2Int gridPosition = currentMap.WorldToGridPosition(worldPosition);
+            return currentMap.GetTile(gridPosition.x, gridPosition.y);
+        }
+
+        return null;
     }
 
 

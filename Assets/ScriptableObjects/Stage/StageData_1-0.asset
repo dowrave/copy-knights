@@ -16,7 +16,7 @@ MonoBehaviour:
   stageName: Tutorial
   stageDetail: "\uD29C\uD1A0\uB9AC\uC5BC \uC2A4\uD14C\uC774\uC9C0\uC785\uB2C8\uB2E4."
   mapPrefab: {fileID: 8686630383873738881, guid: edb172ee44ccd75489fd7b8f9e1476e5, type: 3}
-  startDeploymentCost: 10
+  startDeploymentCost: 70
   maxDeploymentCost: 99
   timeToFillCost: 1
   operatorMaxDeploymentCount: 5

@@ -8,7 +8,7 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity, ICrowdControlTarget
 {
     [SerializeField]
     private EnemyData enemyData;
-    public new EnemyData BaseData => enemyData;
+    public EnemyData BaseData => enemyData;
 
     private EnemyStats currentStats;
 

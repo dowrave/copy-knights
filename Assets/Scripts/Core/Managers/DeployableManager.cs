@@ -2,9 +2,7 @@ using UnityEngine;
 using System.Collections.Generic;
 using System.Linq;
 
-/// <summary>
-/// 배치 가능한 요소들의 배치 로직을 담당함
-/// </summary>
+// 배치 가능한 요소들의 배치 로직을 담당함
 public class DeployableManager : MonoBehaviour
 {
     public static DeployableManager Instance { get; private set; }
@@ -43,6 +41,7 @@ public class DeployableManager : MonoBehaviour
             if (_currentOperatorDeploymentCount != value) // 값이 변경될 때에만
             {
                 _currentOperatorDeploymentCount = value;
+                Debug.Log(_currentOperatorDeploymentCount);
                 OnCurrentOperatorDeploymentCountChanged?.Invoke();
             }
         }
@@ -165,7 +164,7 @@ public class DeployableManager : MonoBehaviour
             {
                 box.Initialize(deployableInfo);
                 deployableUIBoxes[deployableInfo] = box;
-                box.UpdateVisuals(unitStates[deployableInfo]);
+                box.UpdateVisuals();
             }
         }
     }
@@ -518,8 +517,7 @@ public class DeployableManager : MonoBehaviour
     {
         if (deployableUIBoxes.TryGetValue(info, out DeployableBox box))
         {
-            var gameState = unitStates[info];
-            box.UpdateVisuals(gameState); // 박스의 활성화 여부까지 포함
+            box.UpdateVisuals();
         }
     }
 
@@ -608,7 +606,7 @@ public class DeployableManager : MonoBehaviour
             
                 if (deployableUIBoxes.TryGetValue(info, out DeployableBox box))
                 {
-                    box.UpdateVisuals(unitState);
+                    box.UpdateVisuals();
                     box.gameObject.SetActive(true);
                 }
             }

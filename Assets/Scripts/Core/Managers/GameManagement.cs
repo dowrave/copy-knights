@@ -1,7 +1,4 @@
-using System.Collections;
-using System.Collections.Generic;
-using System.Resources;
-using UnityEditor.SearchService;
+using System;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -10,20 +7,22 @@ using UnityEngine.SceneManagement;
 /// </summary>
 public class GameManagement : MonoBehaviour
 {
-    public static GameManagement Instance;
+    public static GameManagement? Instance;
 
-    [SerializeField] private StageLoader stageLoader;
-    [SerializeField] private UserSquadManager userSquadManager;
-    [SerializeField] private ResourceManager resourceManager;
-    [SerializeField] private PlayerDataManager playerDataManager;
+    [SerializeField] private StageLoader? stageLoader;
+    [SerializeField] private UserSquadManager? userSquadManager;
+    [SerializeField] private ResourceManager? resourceManager;
+    [SerializeField] private PlayerDataManager? playerDataManager;
 
     [Header("System Data")]
-    [SerializeField] private OperatorLevelData operatorLevelData; // 인스펙터에서 설정
+    [SerializeField] private OperatorLevelData? operatorLevelData; // 인스펙터에서 설정
 
-    public StageLoader StageLoader => stageLoader;
-    public UserSquadManager UserSquadManager => userSquadManager;
-    public ResourceManager ResourceManager => resourceManager;
-    public PlayerDataManager PlayerDataManager => playerDataManager;
+    // 프로퍼티를 사용하는 시점은 null이 아님이 보장된 시점이므로
+    // null에 대한 경고를 띄우지 않게 하기 위해 `!`(= null-forgiveness 연산자)을 추가한다.
+    public StageLoader StageLoader => stageLoader!;
+    public UserSquadManager UserSquadManager => userSquadManager!;
+    public ResourceManager ResourceManager => resourceManager!;
+    public PlayerDataManager PlayerDataManager => playerDataManager!;
 
 
 
@@ -45,26 +44,38 @@ public class GameManagement : MonoBehaviour
         SceneManager.sceneLoaded += OnSceneLoaded; 
     }
 
-    private void ValidateComponents()
+    private void InitializeSystems()
     {
-        if (stageLoader == null || userSquadManager == null || resourceManager == null)
+        if (operatorLevelData != null)
         {
-            Debug.LogError("GameManagement : SerializeField를 확인해볼 것");
+            OperatorGrowthSystem.Initalize(operatorLevelData);
         }
     }
 
-    private void InitializeSystems()
-    {
-        OperatorGrowthSystem.Initalize(operatorLevelData);
-    }
-
-    public void OnSceneLoaded(UnityEngine.SceneManagement.Scene scene, LoadSceneMode mode)
+    public void OnSceneLoaded(Scene scene, LoadSceneMode mode)
     {
         Time.timeScale = 1f;
     }
 
+    private void ValidateComponents()
+    {
+        if (stageLoader == null)
+            throw new NullReferenceException($"{nameof(stageLoader)}가 인스펙터에서 할당되지 않았습니다.");
+        if (userSquadManager == null)
+            throw new NullReferenceException($"{nameof(userSquadManager)}가 인스펙터에서 할당되지 않았습니다.");
+        if (resourceManager == null)
+            throw new NullReferenceException($"{nameof(resourceManager)}가 인스펙터에서 할당되지 않았습니다.");
+        if (playerDataManager == null)
+            throw new NullReferenceException($"{nameof(playerDataManager)}가 인스펙터에서 할당되지 않았습니다.");
+        if (operatorLevelData == null)
+            throw new NullReferenceException($"{nameof(operatorLevelData)}가 인스펙터에서 할당되지 않았습니다.");
+    }
+
     private void OnApplicationQuit()
     {
-        stageLoader.OnGameQuit();
+        if (stageLoader != null)
+        {
+            stageLoader.OnGameQuit();
+        }
     }
 }

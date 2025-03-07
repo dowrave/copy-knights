@@ -457,19 +457,10 @@ public class StageManager : MonoBehaviour
     // 배치 가능한 유닛 리스트를 준비합니다. 오퍼레이터 + 스테이지에서 사용 가능한 오브젝트
     private void PrepareDeployables(List<OwnedOperator> squadData)
     {
-        // 맵에서 배치 가능한 요소를 가져옴
-        //var mapDeployables = MapManager.Instance.CurrentMap?.GetMapDeployables();
-        var mapDeployables = StageData.mapDeployables;
+        // 맵에서 배치 가능한 요소를 가져옴. 없으면 빈 리스트
+        var mapDeployables = StageData.mapDeployables ?? new List<MapDeployableData>();
 
-        foreach (var i in mapDeployables)
-        {
-            Debug.Log($"맵의 배치 가능한 요소들 {mapDeployables}");
-        }
-
-        if (mapDeployables == null)
-        {
-            mapDeployables = new List<MapDeployableData>();
-        }
+        // 복사해서 사용
         var deployableList = new List<MapDeployableData>(mapDeployables);
 
         // 스쿼드 + 맵의 배치 가능 요소 초기화

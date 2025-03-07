@@ -13,7 +13,7 @@ public class NotificationPanel : MonoBehaviour
 
     private Sequence currentSequence;
 
-    public void Initialize(string message, System.Action onClosedCallback = null)
+    public void Initialize(string message, System.Action? onClosedCallback = null)
     {
         messageText.text = message;
         PlayShowAnimation();

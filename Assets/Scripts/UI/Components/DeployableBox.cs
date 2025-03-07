@@ -48,13 +48,11 @@ public class DeployableBox : MonoBehaviour, IPointerDownHandler, IBeginDragHandl
         if (deployableComponent is Operator)
         {
             OwnedOperator op = deployableInfo.ownedOperator;
-            currentDeploymentCost = op.BaseData.stats.DeploymentCost; // 초기 배치 코스트 설정
             OperatorIconHelper.SetClassIcon(operatorClassIconImage, op.BaseData.operatorClass); // 클래스 아이콘 설정
             boxIcon = op.BaseData.Icon;
         }
         else
         {
-            currentDeploymentCost = deployableInfo.deployableUnitData.stats.DeploymentCost;
             operatorClassIconBox.gameObject.SetActive(false);
             boxIcon = deployableInfo.deployableUnitData.Icon;
         }
@@ -62,36 +60,42 @@ public class DeployableBox : MonoBehaviour, IPointerDownHandler, IBeginDragHandl
         InitializeVisuals();
 
         StageManager.Instance.OnDeploymentCostChanged += UpdateAvailability;
-
         StageManager.Instance.OnPreparationCompleted += InitializeVisuals;
         DeployableManager.Instance.OnCurrentOperatorDeploymentCountChanged += UpdateAvailability;
     }
 
-    public void UpdateVisuals(DeployableUnitState unitState)
+    public void UpdateVisuals()
     {
-        costText.text = unitState.CurrentDeploymentCost.ToString();
+        // 표시할 배치 코스트 
+        UpdateDeploymentCost();
 
-        // 배치 가능 수 관련
-        UpdateCountText(unitState);
+        // 배치 가능 수
+        UpdateCountText();
 
         // 표시된 박스가 사용 가능한지에 대한 패널
         UpdateAvailability();
 
         // 재배치 쿨타임 표기
-        UpdateCooldownContainer(unitState);
+        UpdateCooldownContainer();
 
         // Box 자체의 활성화 여부 결정
-        SetBoxActivation(unitState);
+        SetBoxActivation();
 
     }
 
-    // 배치 가능 수 UI 업데이트
-    private void UpdateCountText(DeployableUnitState unitState)
+    private void UpdateDeploymentCost()
     {
-        if (!unitState.IsOperator)
+        currentDeploymentCost = deployableUnitState.CurrentDeploymentCost;
+        costText.text = currentDeploymentCost.ToString();
+    }
+
+    // 배치 가능 수 UI 업데이트
+    private void UpdateCountText()
+    {
+        if (!deployableUnitState.IsOperator)
         {
             countText.gameObject.SetActive(true);
-            countText.text = $"x{unitState.RemainingDeployCount}";
+            countText.text = $"x{deployableUnitState.RemainingDeployCount}";
         }
         else
         {
@@ -99,9 +103,9 @@ public class DeployableBox : MonoBehaviour, IPointerDownHandler, IBeginDragHandl
         }
     }
 
-    private void UpdateCooldownContainer(DeployableUnitState unitState)
+    private void UpdateCooldownContainer()
     {
-        if (unitState.IsOnCooldown)
+        if (deployableUnitState.IsOnCooldown)
         {
             if (wasOnCooldown == false)
             {
@@ -111,7 +115,7 @@ public class DeployableBox : MonoBehaviour, IPointerDownHandler, IBeginDragHandl
             }
 
             // 오퍼레이터가 아닌 경우에도 배치 후에 쿨이 돌기 때문에 동작함(unitState 참고)
-            float currentCooldown = unitState.CooldownTimer; // max -> 0으로 가는 방향
+            float currentCooldown = deployableUnitState.CooldownTimer; // max -> 0으로 가는 방향
             float maxCooldown = deployableInfo.redeployTime; 
 
             cooldownText.text = currentCooldown.ToString("F1"); // 소수 1자리까지 표기
@@ -125,15 +129,15 @@ public class DeployableBox : MonoBehaviour, IPointerDownHandler, IBeginDragHandl
         }
     }
 
-    private void SetBoxActivation(DeployableUnitState unitState)
+    private void SetBoxActivation()
     {
         // 오퍼레이터 : 배치가 되어 있는 상태일 때 box 비활성화
-        if (unitState.IsOperator && unitState.IsDeployed)
+        if (deployableUnitState.IsOperator && deployableUnitState.IsDeployed)
         {
             gameObject.SetActive(false);
         }
         // 배치 가능 요소 : 남은 횟수가 0 이하면 비활성화
-        else if (!unitState.IsOperator && unitState.RemainingDeployCount <= 0)
+        else if (!deployableUnitState.IsOperator && deployableUnitState.RemainingDeployCount <= 0)
         {
             gameObject.SetActive(false);
         }
@@ -147,7 +151,7 @@ public class DeployableBox : MonoBehaviour, IPointerDownHandler, IBeginDragHandl
 
     private void Update()
     {
-        UpdateVisuals(deployableUnitState);
+        UpdateVisuals();
     }
 
     // 일단은 초기화 때만 쓰고 있기는 하다
@@ -170,7 +174,7 @@ public class DeployableBox : MonoBehaviour, IPointerDownHandler, IBeginDragHandl
             }
         }
 
-        UpdateVisuals(deployableUnitState);
+        UpdateVisuals();
     }
 
     private void UpdateAvailability()
@@ -281,8 +285,6 @@ public class DeployableBox : MonoBehaviour, IPointerDownHandler, IBeginDragHandl
             return !deployableUnitState.IsOnCooldown &&
                     StageManager.Instance.CurrentDeploymentCost >= currentDeploymentCost;
         }
-
-
     }
 
     private void OnDestroy()

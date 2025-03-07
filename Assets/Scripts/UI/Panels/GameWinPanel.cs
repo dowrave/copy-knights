@@ -27,7 +27,7 @@ public class GameWinPanel : MonoBehaviour
         ResetElements();
     }
 
-    public void PlayAnimation(System.Action onComplete = null)
+    public void PlayAnimation(System.Action? onComplete = null)
     {
         onAnimationComplete = onComplete; // 콜백 함수 저장(실행될 함수는 참조를 참조하시오)
 

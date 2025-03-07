@@ -49,7 +49,7 @@ public class OperatorSlot : MonoBehaviour
     }
 
 
-    public void Initialize(bool isActive, OwnedOperator ownedOp = null)
+    public void Initialize(bool isActive, OwnedOperator? ownedOp = null)
     {
         isThisActiveButton = isActive;
         button.interactable = isThisActiveButton;

@@ -65,7 +65,8 @@ public class CostParticleMotion : MonoBehaviour
         // 목표 지점 근처 도달 시 파티클 제거
         if (distanceToTarget < arrivalThreshold)
         {
-            particle.remainingLifetime = 0f;
+            //particle.remainingLifetime = 0f; // 이걸로 쓰면 파티클이 다시 생김
+            Destroy(particleSystem.gameObject, 0.1f);
             return;
         }
 

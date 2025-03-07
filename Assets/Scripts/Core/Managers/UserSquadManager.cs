@@ -55,7 +55,7 @@ public class UserSquadManager : MonoBehaviour
     /// <summary>
     /// Squad의 Index에 오퍼레이터를 배치/대체 하려고 할 때 사용
     /// </summary>
-    public bool TryReplaceOperator(int index, OwnedOperator newOp = null)
+    public bool TryReplaceOperator(int index, OwnedOperator? newOp = null)
     {
         return GameManagement.Instance.PlayerDataManager.TryUpdateSquad(index, newOp?.operatorName);
     }
