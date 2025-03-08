@@ -62,7 +62,7 @@ public class MainMenuManager : MonoBehaviour
     public MenuPanel CurrentPanel => currentPanel;
     public StageData? SelectedStage { get; private set; }
 
-    public event Action? OnSelectedStageChanged;
+    //public event Action? OnSelectedStageChanged;
     //public event Action OnPanelChanged;
 
     private void Awake()
@@ -211,11 +211,15 @@ public class MainMenuManager : MonoBehaviour
                     // UI 상 CurrentStageButton 변경
                     stageSelectPanel.SetStageButtonById(lastPlayedStage); 
                     // 현재 선택된 스테이지 지정
-                    StageData targetStageData = stageSelectPanel.GetStageDataFromStageButton(stageSelectPanel.CurrentStageButton);
 
-                    if (targetStageData != null)
+                    StageButton? currentStageButton = stageSelectPanel.CurrentStageButton;
+                    if (currentStageButton != null)
                     {
-                        SetSelectedStage(targetStageData);
+                        StageData targetStageData = stageSelectPanel.GetStageDataFromStageButton(currentStageButton);
+                        if (targetStageData != null)
+                        {
+                            SetSelectedStage(targetStageData);
+                        }
                     }
                 }
             }
@@ -310,11 +314,7 @@ public class MainMenuManager : MonoBehaviour
 
     private void UpdateSquadUI()
     {
-        if (GameManagement.Instance != null)
-        {
-            List<OwnedOperator> currentSquad = GameManagement.Instance.UserSquadManager.GetCurrentSquadWithNull();
-        }
-
+        List<OwnedOperator?> currentSquad = GameManagement.Instance!.UserSquadManager.GetCurrentSquadWithNull();
         // UI 업데이트
     }
 

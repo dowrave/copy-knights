@@ -126,6 +126,7 @@
     <Compile Include="Assets\Scripts\UI\Components\InGameTopButtonContainer.cs" />
     <Compile Include="Assets\Scripts\Entities\Enemy\Enemy.cs" />
     <Compile Include="Assets\Scripts\UI\Components\OperatorUI.cs" />
+    <Compile Include="Assets\Scripts\Utils\InstanceValidator.cs" />
     <Compile Include="Assets\Scripts\UI\Panels\StageLoadingScreen.cs" />
     <Compile Include="Assets\Scripts\Skills\OperatorSkills\AreaHasteHealSkill.cs" />
     <Compile Include="Assets\Scripts\UI\Panels\OperatorPromotionPanel.cs" />

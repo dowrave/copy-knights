@@ -10,11 +10,11 @@ namespace Skills.Base
         public float duration = 0f;
 
         [Header("Skill Duration Effects")]
-        [SerializeField] protected GameObject skillVFXPrefab;
+        [SerializeField] protected GameObject skillVFXPrefab = default!;
 
-        protected GameObject VfxInstance;
-        protected VisualEffect VfxComponent;
-        protected ParticleSystem VfxPs;
+        protected GameObject? VfxInstance;
+        protected VisualEffect? VfxComponent;
+        protected ParticleSystem? VfxPs;
 
         public override void Activate(Operator op)
         {
@@ -55,7 +55,11 @@ namespace Skills.Base
 
         protected virtual void OnSkillEnd(Operator op)
         {
-            SafeDestroySkillVFX(VfxInstance);
+            if (VfxInstance != null)
+            {
+                SafeDestroySkillVFX(VfxInstance);
+            }
+
             op.CurrentSP = 0;
             op.SetSkillOnState(false);
         }
@@ -74,18 +78,22 @@ namespace Skills.Base
                 op.transform    // 오퍼레이터의 자식으로 생성
             );
 
-            // VFX 또는 파티클 시스템 컴포넌트 검색 및 재생
-            VfxComponent = VfxInstance.GetComponent<VisualEffect>();
-            if (VfxComponent != null)
+            if (VfxInstance != null)
             {
-                VfxComponent.Play();
+                // VFX 또는 파티클 시스템 컴포넌트 검색 및 재생
+                VfxComponent = VfxInstance.GetComponent<VisualEffect>();
+                if (VfxComponent != null)
+                {
+                    VfxComponent.Play();
+                }
+
+                VfxPs = VfxInstance.GetComponent<ParticleSystem>();
+                if (VfxPs != null)
+                {
+                    VfxPs.Play();
+                }
             }
 
-            VfxPs = VfxInstance.GetComponent<ParticleSystem>();
-            if (VfxPs != null)
-            {
-                VfxPs.Play();
-            }
         }
 
         // 스킬 지속시간 처리

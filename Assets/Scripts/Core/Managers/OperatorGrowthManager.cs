@@ -25,7 +25,7 @@ public class OperatorGrowthManager: MonoBehaviour
     public bool TryLevelUpOperator(OwnedOperator op, int targetLevel, ExpCalculationSystem.ExpItemUsagePlan usagePlan)
     {
         // 아이템 사용 가능 여부 검증
-        Dictionary<string, int> itemsToUse = usagePlan.itemsToUse.ToDictionary(pair => pair.Key.itemName, pair => pair.Value);
+        Dictionary<string, int> itemsToUse = usagePlan.itemsToUse.ToDictionary(pair => pair.Key.itemName!, pair => pair.Value);
 
         // 아이템 소비 시도
         if (GameManagement.Instance == null)
@@ -33,7 +33,7 @@ public class OperatorGrowthManager: MonoBehaviour
             throw new InvalidOperationException("게임 매니지먼트 인스턴스가 초기화되지 않았음");
         }
 
-        bool itemUseSuccess = GameManagement.Instance.PlayerDataManager.UseItems(itemsToUse);
+        bool itemUseSuccess = GameManagement.Instance!.PlayerDataManager.UseItems(itemsToUse);
         if (!itemUseSuccess) return false;
 
         int remainingExp = usagePlan.remainingExp;

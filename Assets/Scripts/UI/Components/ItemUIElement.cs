@@ -8,35 +8,35 @@ using UnityEngine.UI;
 public class ItemUIElement : MonoBehaviour, IPointerClickHandler
 {
     [Header("UI Components")]
-    [SerializeField] private Image backgroundImage;
-    [SerializeField] private Image itemIconImage;
-    [SerializeField] private TextMeshProUGUI countText;
-    [SerializeField] private Button backArea;
-    public Image itemCountBackground;
+    [SerializeField] private Image backgroundImage = default!;
+    [SerializeField] private Image itemIconImage = default!;
+    [SerializeField] private TextMeshProUGUI countText = default!;
+    [SerializeField] private Button backArea = default!;
+    public Image itemCountBackground = default!; // 다른 스크립트에서 사용함
 
     [Header("OnClick Detail Panel")]
-    [SerializeField] private Image detailPanel;
-    [SerializeField] private TextMeshProUGUI detailPanelItemNameText;
-    [SerializeField] private TextMeshProUGUI detailPanelItemDetailText;
-    [SerializeField] private RectTransform detailPanelItemNameBackground;
+    [SerializeField] private Image detailPanel = default!;
+    [SerializeField] private TextMeshProUGUI detailPanelItemNameText = default!;
+    [SerializeField] private TextMeshProUGUI detailPanelItemDetailText = default!;
+    [SerializeField] private RectTransform detailPanelItemNameBackground = default!;
 
     [Header("Visual Settings")]
     [SerializeField] private Color commonColor = new Color(0.7f, 0.7f, 0.7f);
     [SerializeField] private Color rareColor = new Color(0.2f, 0.5f, 1f);
     [SerializeField] private Color epicColor = new Color(0.8f, 0.3f, 1f);
 
-    private ItemData itemData;
+    private ItemData itemData = default!;
     private int itemCount;
     private bool isOnStageScene;
 
-    private Canvas canvas;
-    private RectTransform canvasRectTransform;
-    private RectTransform detailPanelRectTransform;
+    private Canvas canvas = default!;
+    private RectTransform canvasRectTransform = default!;
+    private RectTransform detailPanelRectTransform = default!;
 
 
     private void Awake()
     {
-        // GetComponent 계열은 Awake에서 수행한다. 많이 쓰는 건 좋지 않지만.
+        // GetComponent 계열은 Awake에서 수행한다.
         canvas = GetComponentInParent<Canvas>();
         canvasRectTransform = canvas.GetComponent<RectTransform>();
         detailPanelRectTransform = detailPanel.GetComponent<RectTransform>();

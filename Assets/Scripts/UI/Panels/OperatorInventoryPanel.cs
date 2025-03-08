@@ -10,44 +10,44 @@ using UnityEngine.UI;
 public class OperatorInventoryPanel : MonoBehaviour
 {
     [Header("UI References")]
-    [SerializeField] private Transform operatorSlotContainer;
-    [SerializeField] private TextMeshProUGUI operatorNameText;
-    [SerializeField] private OperatorSlot slotButtonPrefab;
-    [SerializeField] private Button confirmButton;
-    [SerializeField] private Button setEmptyButton; // 현재 슬롯을 비우는 버튼
-    [SerializeField] private Button detailButton; // OperatorDetailPanel로 가는 버튼
+    [SerializeField] private Transform operatorSlotContainer = default!;
+    [SerializeField] private TextMeshProUGUI operatorNameText = default!;
+    [SerializeField] private OperatorSlot slotButtonPrefab = default!;
+    [SerializeField] private Button confirmButton = default!;
+    [SerializeField] private Button setEmptyButton = default!; // 현재 슬롯을 비우는 버튼
+    [SerializeField] private Button detailButton = default!; // OperatorDetailPanel로 가는 버튼
 
     [Header("Attack Range Visualization")]
-    [SerializeField] private RectTransform attackRangeContainer;
-    [SerializeField] private float centerPositionOffset; // 타일 시각화 위치를 위한 중심 이동
-    private UIHelper.AttackRangeHelper attackRangeHelper;
+    [SerializeField] private RectTransform attackRangeContainer = default!;
+    [SerializeField] private float centerPositionOffset = default!; // 타일 시각화 위치를 위한 중심 이동
+    private UIHelper.AttackRangeHelper attackRangeHelper = default!;
 
     [Header("Operator Stat Boxes")]
-    [SerializeField] private TextMeshProUGUI healthText;
-    [SerializeField] private TextMeshProUGUI redeployTimeText;
-    [SerializeField] private TextMeshProUGUI attackPowerText;
-    [SerializeField] private TextMeshProUGUI deploymentCostText;
-    [SerializeField] private TextMeshProUGUI defenseText;
-    [SerializeField] private TextMeshProUGUI blockCountText;
-    [SerializeField] private TextMeshProUGUI magicResistanceText;
-    [SerializeField] private TextMeshProUGUI attackSpeedText;
+    [SerializeField] private TextMeshProUGUI healthText = default!;
+    [SerializeField] private TextMeshProUGUI redeployTimeText = default!;
+    [SerializeField] private TextMeshProUGUI attackPowerText = default!;
+    [SerializeField] private TextMeshProUGUI deploymentCostText = default!;
+    [SerializeField] private TextMeshProUGUI defenseText = default!;
+    [SerializeField] private TextMeshProUGUI blockCountText = default!;
+    [SerializeField] private TextMeshProUGUI magicResistanceText = default!;
+    [SerializeField] private TextMeshProUGUI attackSpeedText = default!;
 
     [Header("Skills")]
-    [SerializeField] private Button skill1Button;
-    [SerializeField] private Image skill1SelectedIndicator;
-    [SerializeField] private Button skill2Button;
-    [SerializeField] private Image skill2SelectedIndicator;
-    [SerializeField] private TextMeshProUGUI skillDetailText;
+    [SerializeField] private Button skill1Button = default!;
+    [SerializeField] private Image skill1SelectedIndicator = default!;
+    [SerializeField] private Button skill2Button = default!;
+    [SerializeField] private Image skill2SelectedIndicator = default!;
+    [SerializeField] private TextMeshProUGUI skillDetailText = default!;
 
     // 화면 오른쪽에 나타나는 사용 가능한 오퍼레이터 리스트 -- 혼동 주의!!
     private List<OperatorSlot> operatorSlots = new List<OperatorSlot>();
-    private OperatorSlot selectedSlot;
+    private OperatorSlot? selectedSlot;
 
-    private BaseSkill selectedSkill;
-    private Sprite noSkillSprite;
+    private BaseSkill? selectedSkill;
+    private Sprite noSkillSprite = default!;
 
     // 오퍼레이터가 들어가 있는 상태에서 해당 슬롯을 수정할 경우에만 사용
-    private OwnedOperator existingOperator;
+    private OwnedOperator? existingOperator;
 
     // UserSquadManager에서 현재 편집 중인 인덱스
     private int nowEditingIndex;  
@@ -73,7 +73,7 @@ public class OperatorInventoryPanel : MonoBehaviour
     private void Start()
     {
         // AttackRangeHelper 초기화
-        attackRangeHelper = UIHelper.Instance.CreateAttackRangeHelper(
+        attackRangeHelper = UIHelper.Instance!.CreateAttackRangeHelper(
             attackRangeContainer,
             centerPositionOffset
         );
@@ -82,9 +82,9 @@ public class OperatorInventoryPanel : MonoBehaviour
     private void OnEnable()
     {
         ResetSelection();
-        nowEditingIndex = GameManagement.Instance.UserSquadManager.EditingSlotIndex;
+        nowEditingIndex = GameManagement.Instance!.UserSquadManager.EditingSlotIndex;
 
-        existingOperator = GameManagement.Instance.PlayerDataManager.GetOperatorInSlot(nowEditingIndex);
+        existingOperator = GameManagement.Instance!.PlayerDataManager.GetOperatorInSlot(nowEditingIndex);
         PopulateOperators();
 
         // 이미 배치된 오퍼레이터가 있다면 해당 오퍼레이터 슬롯을 클릭한 상태로 시작
@@ -102,10 +102,10 @@ public class OperatorInventoryPanel : MonoBehaviour
         ClearSlots();
 
         // 현재 스쿼드 가져오기
-        List<OwnedOperator> currentSquad = GameManagement.Instance.UserSquadManager.GetCurrentSquad();
+        List<OwnedOperator> currentSquad = GameManagement.Instance!.UserSquadManager.GetCurrentSquad();
 
         // 보유 중인 오퍼레이터 중, 현재 스쿼드에 없는 오퍼레이터만 가져옴
-        List<OwnedOperator> availableOperators = GameManagement.Instance.PlayerDataManager.GetOwnedOperators()
+        List<OwnedOperator> availableOperators = GameManagement.Instance!.PlayerDataManager.GetOwnedOperators()
             .Where(op => !currentSquad.Contains(op))
             .ToList();
 
@@ -157,18 +157,20 @@ public class OperatorInventoryPanel : MonoBehaviour
     
     private void OnConfirmButtonClicked()
     {
-        if (selectedSlot != null && selectedSlot.OwnedOperator != null)
+        if (selectedSlot != null && 
+            selectedSlot.OwnedOperator != null && 
+            selectedSkill != null)
         {
             selectedSlot.OwnedOperator.SetStageSelectedSkill(selectedSkill);
-            GameManagement.Instance.UserSquadManager.ConfirmOperatorSelection(selectedSlot.OwnedOperator);
+            GameManagement.Instance!.UserSquadManager.ConfirmOperatorSelection(selectedSlot.OwnedOperator);
             ReturnToSquadEditPanel();
         }
     }
 
     private void OnSetEmptyButtonClicked()
     {
-        GameManagement.Instance.UserSquadManager.TryReplaceOperator(nowEditingIndex, null);
-        GameManagement.Instance.UserSquadManager.CancelOperatorSelection(); // 현재 스쿼드의 배치 중인 인덱스를 없앰
+        GameManagement.Instance!.UserSquadManager.TryReplaceOperator(nowEditingIndex, null);
+        GameManagement.Instance!.UserSquadManager.CancelOperatorSelection(); // 현재 스쿼드의 배치 중인 인덱스를 없앰
         ReturnToSquadEditPanel();
     }
 
@@ -176,11 +178,11 @@ public class OperatorInventoryPanel : MonoBehaviour
     {
         if (selectedSlot != null && selectedSlot.OwnedOperator != null)
         {
-            GameObject detailPanel = MainMenuManager.Instance.PanelMap[MainMenuManager.MenuPanel.OperatorDetail];
+            GameObject detailPanel = MainMenuManager.Instance!.PanelMap[MainMenuManager.MenuPanel.OperatorDetail];
             detailPanel.GetComponent<OperatorDetailPanel>().Initialize(selectedSlot.OwnedOperator);
-            MainMenuManager.Instance.ActivateAndFadeOut(detailPanel, gameObject);
+            MainMenuManager.Instance!.ActivateAndFadeOut(detailPanel, gameObject);
         }
-        MainMenuManager.Instance.ActivateAndFadeOut(MainMenuManager.Instance.PanelMap[MainMenuManager.MenuPanel.OperatorDetail], gameObject);
+        MainMenuManager.Instance!.ActivateAndFadeOut(MainMenuManager.Instance!.PanelMap[MainMenuManager.MenuPanel.OperatorDetail], gameObject);
     }
 
 
@@ -208,25 +210,28 @@ public class OperatorInventoryPanel : MonoBehaviour
     // 왼쪽 패널의 SideView에 나타나는 오퍼레이터와 관련된 정보를 업데이트한다.
     private void UpdateSideView(OperatorSlot slot)
     {
-        OwnedOperator op = slot.OwnedOperator;
-        OperatorStats opStats = op.CurrentStats;
-        OperatorData opData = op.BaseData;
+        OwnedOperator? op = slot.OwnedOperator;
+        if (op != null)
+        {
+            OperatorStats opStats = op.CurrentStats;
+            OperatorData opData = op.OperatorProgressData;
 
-        operatorNameText.text = opData.entityName;
-        healthText.text = Mathf.Floor(opStats.Health).ToString();
-        redeployTimeText.text = Mathf.Floor(opStats.RedeployTime).ToString();
-        attackPowerText.text = Mathf.Floor(opStats.AttackPower).ToString();
-        deploymentCostText.text = Mathf.Floor(opStats.DeploymentCost).ToString();
-        defenseText.text = Mathf.Floor(opStats.Defense).ToString();
-        magicResistanceText.text = Mathf.Floor(opStats.MagicResistance).ToString();
-        blockCountText.text = Mathf.Floor(opStats.MaxBlockableEnemies).ToString();
-        attackSpeedText.text = Mathf.Floor(opStats.AttackSpeed).ToString();
+            operatorNameText.text = opData.entityName;
+            healthText.text = Mathf.Floor(opStats.Health).ToString();
+            redeployTimeText.text = Mathf.Floor(opStats.RedeployTime).ToString();
+            attackPowerText.text = Mathf.Floor(opStats.AttackPower).ToString();
+            deploymentCostText.text = Mathf.Floor(opStats.DeploymentCost).ToString();
+            defenseText.text = Mathf.Floor(opStats.Defense).ToString();
+            magicResistanceText.text = Mathf.Floor(opStats.MagicResistance).ToString();
+            blockCountText.text = Mathf.Floor(opStats.MaxBlockableEnemies).ToString();
+            attackSpeedText.text = Mathf.Floor(opStats.AttackSpeed).ToString();
 
-        // 공격 범위 시각화
-        attackRangeHelper.ShowBasicRange(op.CurrentAttackableGridPos);
+            // 공격 범위 시각화
+            attackRangeHelper.ShowBasicRange(op.CurrentAttackableGridPos);
 
-        // 스킬 버튼 초기화 및 설정
-        UpdateSkillButtons(slot);
+            // 스킬 버튼 초기화 및 설정
+            UpdateSkillButtons(slot);
+        }
     }
 
     private void ClearSideView()
@@ -260,28 +265,32 @@ public class OperatorInventoryPanel : MonoBehaviour
 
     private void UpdateSkillButtons(OperatorSlot slot)
     {
-        OwnedOperator op = slot.OwnedOperator;
-        skill1Button.interactable = true;
-        var unlockedSkills = op.UnlockedSkills;
-        skill1Button.GetComponent<Image>().sprite = unlockedSkills[0].skillIcon;
+        if (slot.OwnedOperator != null)
+        {
+            OwnedOperator op = slot.OwnedOperator;
 
-        // 디폴트 스킬 설정
-        if (selectedSkill == null)
-        {
-            selectedSkill = slot.SelectedSkill;
-            UpdateSkillSelectionIndicator();
-            UpdateSkillDescription();
-        }
+            skill1Button.interactable = true;
+            var unlockedSkills = op.UnlockedSkills;
+            skill1Button.GetComponent<Image>().sprite = unlockedSkills[0].skillIcon;
 
-        // 1정예화라면 스킬이 2개일 것
-        if (unlockedSkills.Count > 1)
-        {
-            skill2Button.GetComponent<Image>().sprite = unlockedSkills[1].skillIcon;
-            skill2Button.interactable = true;
-        }
-        else
-        {
-            skill2Button.interactable = false; 
+            // 디폴트 스킬 설정
+            if (selectedSkill == null)
+            {
+                selectedSkill = slot.SelectedSkill;
+                UpdateSkillSelectionIndicator();
+                UpdateSkillDescription();
+            }
+
+            // 1정예화라면 스킬이 2개일 것
+            if (unlockedSkills.Count > 1)
+            {
+                skill2Button.GetComponent<Image>().sprite = unlockedSkills[1].skillIcon;
+                skill2Button.interactable = true;
+            }
+            else
+            {
+                skill2Button.interactable = false; 
+            }
         }
     }
 
@@ -325,7 +334,7 @@ public class OperatorInventoryPanel : MonoBehaviour
 
     private void ReturnToSquadEditPanel()
     {
-        MainMenuManager.Instance.ActivateAndFadeOut(MainMenuManager.Instance.PanelMap[MainMenuManager.MenuPanel.SquadEdit], gameObject);
+        MainMenuManager.Instance!.ActivateAndFadeOut(MainMenuManager.Instance!.PanelMap[MainMenuManager.MenuPanel.SquadEdit], gameObject);
     }
 
 

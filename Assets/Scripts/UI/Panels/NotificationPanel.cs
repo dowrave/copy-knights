@@ -8,10 +8,10 @@ using UnityEngine;
 /// </summary>
 public class NotificationPanel : MonoBehaviour
 {
-    [SerializeField] private RectTransform panelRect;
-    [SerializeField] private TextMeshProUGUI messageText;
+    [SerializeField] private RectTransform panelRect = default!;
+    [SerializeField] private TextMeshProUGUI messageText = default!;
 
-    private Sequence currentSequence;
+    private Sequence? currentSequence;
 
     public void Initialize(string message, System.Action? onClosedCallback = null)
     {

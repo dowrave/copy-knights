@@ -5,52 +5,52 @@ using TMPro;
 public class OperatorDetailPanel : MonoBehaviour
 {
     [Header("Basic Info")]
-    [SerializeField] private Image operatorIconImage;
-    [SerializeField] private Image classIconImage;
-    [SerializeField] private TextMeshProUGUI operatorNameText;
-    [SerializeField] private TextMeshProUGUI levelText;
-    [SerializeField] private TextMeshProUGUI maxLevelText;
-    [SerializeField] private TextMeshProUGUI phaseText;
-    [SerializeField] private Image[] skillIconImages;
+    [SerializeField] private Image operatorIconImage = default!;
+    [SerializeField] private Image classIconImage = default!;
+    [SerializeField] private TextMeshProUGUI operatorNameText = default!;
+    [SerializeField] private TextMeshProUGUI levelText = default!;
+    [SerializeField] private TextMeshProUGUI maxLevelText = default!;
+    [SerializeField] private TextMeshProUGUI phaseText = default!;
+    //[SerializeField] private Image[] skillIconImages = default!;
 
     [Header("Attack Range Visualization")]
-    [SerializeField] private RectTransform attackRangeContainer;
+    [SerializeField] private RectTransform attackRangeContainer = default!;
     [SerializeField] private float centerPositionOffset; // 타일 시각화 위치를 위한 중심 이동
     [SerializeField] private float tileSize = 25f;
 
-    private UIHelper.AttackRangeHelper attackRangeHelper;
+    private UIHelper.AttackRangeHelper attackRangeHelper = default!;
 
     [Header("Stats")]
-    [SerializeField] private TextMeshProUGUI healthText;
-    [SerializeField] private TextMeshProUGUI attackPowerText;
-    [SerializeField] private TextMeshProUGUI defenseText;
-    [SerializeField] private TextMeshProUGUI magicResistanceText;
-    [SerializeField] private TextMeshProUGUI deploymentCostText;
-    [SerializeField] private TextMeshProUGUI redeployTimeText;
-    [SerializeField] private TextMeshProUGUI blockCountText;
-    [SerializeField] private TextMeshProUGUI attackSpeedText;
+    [SerializeField] private TextMeshProUGUI healthText = default!;
+    [SerializeField] private TextMeshProUGUI attackPowerText = default!;
+    [SerializeField] private TextMeshProUGUI defenseText = default!;
+    [SerializeField] private TextMeshProUGUI magicResistanceText = default!;
+    [SerializeField] private TextMeshProUGUI deploymentCostText = default!;
+    [SerializeField] private TextMeshProUGUI redeployTimeText = default!;
+    [SerializeField] private TextMeshProUGUI blockCountText = default!;
+    [SerializeField] private TextMeshProUGUI attackSpeedText = default!;
 
     [Header("Growth")]
-    [SerializeField] private TextMeshProUGUI expText;
-    [SerializeField] private Slider expGauge;
-    [SerializeField] private Image promotionImage;
-    [SerializeField] private Button levelUpButton;
-    [SerializeField] private Button promoteButton;
+    [SerializeField] private TextMeshProUGUI expText = default!;
+    [SerializeField] private Slider expGauge = default!;
+    [SerializeField] private Image promotionImage = default!;
+    [SerializeField] private Button levelUpButton = default!;
+    [SerializeField] private Button promoteButton = default!;
 
     [Header("Indicator")]
-    [SerializeField] private TextMeshProUGUI maxLevelIndicator;
-    [SerializeField] private TextMeshProUGUI maxPromotionIndicator;
-    [SerializeField] private TextMeshProUGUI canLevelUpIndicator;
+    [SerializeField] private TextMeshProUGUI maxLevelIndicator = default!;
+    [SerializeField] private TextMeshProUGUI maxPromotionIndicator = default!;
+    [SerializeField] private TextMeshProUGUI canLevelUpIndicator = default!;
 
     [Header("Skills")]
-    [SerializeField] private Button skill1Button;
-    [SerializeField] private Image skill1SelectedIndicator;
-    [SerializeField] private Button skill2Button;
-    [SerializeField] private Image skill2SelectedIndicator;
-    [SerializeField] private TextMeshProUGUI skillDetailText;
+    [SerializeField] private Button skill1Button = default!;
+    [SerializeField] private Image skill1SelectedIndicator = default!;
+    [SerializeField] private Button skill2Button = default!;
+    [SerializeField] private Image skill2SelectedIndicator = default!;
+    [SerializeField] private TextMeshProUGUI skillDetailText = default!;
 
-    private OperatorData operatorData;
-    private OwnedOperator currentOperator;
+    private OperatorData operatorData = default!;
+    private OwnedOperator? currentOperator;
 
     private void Awake()
     {
@@ -77,10 +77,10 @@ public class OperatorDetailPanel : MonoBehaviour
             ClearAttackRange();
 
             currentOperator = ownedOp;
-            operatorData = ownedOp.BaseData;
+            operatorData = ownedOp.OperatorProgressData;
 
             // AttackRangeHelper 초기화
-            attackRangeHelper = UIHelper.Instance.CreateAttackRangeHelper(
+            attackRangeHelper = UIHelper.Instance!.CreateAttackRangeHelper(
                 attackRangeContainer,
                 centerPositionOffset,
                 tileSize
@@ -128,21 +128,28 @@ public class OperatorDetailPanel : MonoBehaviour
         OperatorIconHelper.SetClassIcon(classIconImage, operatorData.operatorClass);
 
         // 공격 범위 설정
-        attackRangeHelper.ShowBasicRange(currentOperator.CurrentAttackableGridPos);
+        if (currentOperator != null)
+        {
+            attackRangeHelper.ShowBasicRange(currentOperator.CurrentAttackableGridPos);
+
+        }
     }
 
     private void UpdateStats()
     {
-        OperatorStats currentStats = currentOperator.CurrentStats;
+        if (currentOperator != null)
+        {
+            OperatorStats currentStats = currentOperator.CurrentStats;
 
-        healthText.text = Mathf.Floor(currentStats.Health).ToString();
-        attackPowerText.text = Mathf.Floor(currentStats.AttackPower).ToString();
-        defenseText.text = Mathf.Floor(currentStats.Defense).ToString();
-        magicResistanceText.text = Mathf.Floor(currentStats.MagicResistance).ToString();
-        deploymentCostText.text = Mathf.Floor(currentStats.DeploymentCost).ToString();
-        redeployTimeText.text = Mathf.Floor(currentStats.RedeployTime).ToString();
-        blockCountText.text = Mathf.Floor(currentStats.MaxBlockableEnemies).ToString();
-        attackSpeedText.text = Mathf.Floor(currentStats.AttackSpeed).ToString();
+            healthText.text = Mathf.Floor(currentStats.Health).ToString();
+            attackPowerText.text = Mathf.Floor(currentStats.AttackPower).ToString();
+            defenseText.text = Mathf.Floor(currentStats.Defense).ToString();
+            magicResistanceText.text = Mathf.Floor(currentStats.MagicResistance).ToString();
+            deploymentCostText.text = Mathf.Floor(currentStats.DeploymentCost).ToString();
+            redeployTimeText.text = Mathf.Floor(currentStats.RedeployTime).ToString();
+            blockCountText.text = Mathf.Floor(currentStats.MaxBlockableEnemies).ToString();
+            attackSpeedText.text = Mathf.Floor(currentStats.AttackSpeed).ToString();
+        }
     }
 
     // 현재 경험치, 현재 레벨, 정예화 상태 업데이트
@@ -156,28 +163,31 @@ public class OperatorDetailPanel : MonoBehaviour
     // 경험치, 레벨 관련 정보 업데이트
     private void UpdateExpInfo()
     {
-        int currentLevel = currentOperator.currentLevel;
-        int maxLevel = OperatorGrowthSystem.GetMaxLevel(currentOperator.currentPhase);
-        int currentExp = currentOperator.currentExp;
-        float maxExp = OperatorGrowthSystem.GetMaxExpForNextLevel(
-            currentOperator.currentPhase,
-            currentLevel
-        );
-
-        expText.text = $"EXP\n<size=44><color=#FFE61A>{currentExp.ToString()}</color>/{maxExp.ToString()}</size>";
-        levelText.text = $"LV\n<size=100><b>{currentLevel.ToString()}</b></size=100>";
-        maxLevelText.text = $"/{maxLevel.ToString()}";
-        expGauge.value = currentExp / maxExp;
-
-        if (currentLevel < maxLevel)
+        if (currentOperator != null)
         {
-            maxLevelIndicator.gameObject.SetActive(false);
-            canLevelUpIndicator.gameObject.SetActive(true);
-        }
-        else
-        {
-            maxLevelIndicator.gameObject.SetActive(true);
-            canLevelUpIndicator.gameObject.SetActive(false);
+            int currentLevel = currentOperator.currentLevel;
+            int maxLevel = OperatorGrowthSystem.GetMaxLevel(currentOperator.currentPhase);
+            int currentExp = currentOperator.currentExp;
+            float maxExp = OperatorGrowthSystem.GetMaxExpForNextLevel(
+                currentOperator.currentPhase,
+                currentLevel
+            );
+
+            expText.text = $"EXP\n<size=44><color=#FFE61A>{currentExp.ToString()}</color>/{maxExp.ToString()}</size>";
+            levelText.text = $"LV\n<size=100><b>{currentLevel.ToString()}</b></size=100>";
+            maxLevelText.text = $"/{maxLevel.ToString()}";
+            expGauge.value = currentExp / maxExp;
+
+            if (currentLevel < maxLevel)
+            {
+                maxLevelIndicator.gameObject.SetActive(false);
+                canLevelUpIndicator.gameObject.SetActive(true);
+            }
+            else
+            {
+                maxLevelIndicator.gameObject.SetActive(true);
+                canLevelUpIndicator.gameObject.SetActive(false);
+            }
         }
     }
 
@@ -185,16 +195,19 @@ public class OperatorDetailPanel : MonoBehaviour
     // 정예화 정보 업데이트
     private void UpdatePromotionInfo()
     {
-        phaseText.text = $"{(int)currentOperator.currentPhase}";
-        OperatorIconHelper.SetElitePhaseIcon(promotionImage, currentOperator.currentPhase);
+        if (currentOperator != null)
+        {
+            phaseText.text = $"{(int)currentOperator.currentPhase}";
+            OperatorIconHelper.SetElitePhaseIcon(promotionImage, currentOperator.currentPhase);
 
-        if (currentOperator.currentPhase == OperatorGrowthSystem.ElitePhase.Elite0)
-        {
-            maxPromotionIndicator.gameObject.SetActive(false);
-        }
-        else
-        {
-            maxPromotionIndicator.gameObject.SetActive(true);
+            if (currentOperator.currentPhase == OperatorGrowthSystem.ElitePhase.Elite0)
+            {
+                maxPromotionIndicator.gameObject.SetActive(false);
+            }
+            else
+            {
+                maxPromotionIndicator.gameObject.SetActive(true);
+            }
         }
 
     }
@@ -210,26 +223,30 @@ public class OperatorDetailPanel : MonoBehaviour
 
     private void OnLevelUpClicked()
     {
-        if (currentOperator.CanLevelUp)
+        if (currentOperator != null)
         {
-            GameObject levelUpPanelObject = MainMenuManager.Instance.PanelMap[MainMenuManager.MenuPanel.OperatorLevelUp];
-            OperatorLevelUpPanel levelUpPanel = levelUpPanelObject.GetComponent<OperatorLevelUpPanel>();
-            MainMenuManager.Instance.FadeInAndHide(levelUpPanelObject, gameObject);
-            levelUpPanel.Initialize(currentOperator);
-        }
-        else if (currentOperator.currentLevel == OperatorGrowthSystem.GetMaxLevel(currentOperator.currentPhase))
-        {
-            MainMenuManager.Instance.ShowNotification("현재 정예화에서의 최대 레벨입니다.");
+            if (currentOperator.CanLevelUp)
+            {
+                GameObject levelUpPanelObject = MainMenuManager.Instance!.PanelMap[MainMenuManager.MenuPanel.OperatorLevelUp];
+                OperatorLevelUpPanel levelUpPanel = levelUpPanelObject.GetComponent<OperatorLevelUpPanel>();
+                MainMenuManager.Instance!.FadeInAndHide(levelUpPanelObject, gameObject);
+                levelUpPanel.Initialize(currentOperator);
+            }
+            else if (currentOperator.currentLevel == OperatorGrowthSystem.GetMaxLevel(currentOperator.currentPhase))
+            {
+                MainMenuManager.Instance!.ShowNotification("현재 정예화에서의 최대 레벨입니다.");
+            }
         }
     }
 
     private void OnPromoteClicked()
     {
         // 0정예화일 때에만 진입 가능
-        if (currentOperator.currentPhase == OperatorGrowthSystem.ElitePhase.Elite0)
+        if (currentOperator != null && 
+            currentOperator.currentPhase == OperatorGrowthSystem.ElitePhase.Elite0)
         {
-            GameObject promotionPanelObject = MainMenuManager.Instance.PanelMap[MainMenuManager.MenuPanel.OperatorPromotion];
-            MainMenuManager.Instance.FadeInAndHide(promotionPanelObject, gameObject);
+            GameObject promotionPanelObject = MainMenuManager.Instance!.PanelMap[MainMenuManager.MenuPanel.OperatorPromotion];
+            MainMenuManager.Instance!.FadeInAndHide(promotionPanelObject, gameObject);
             OperatorPromotionPanel promotionPanel = promotionPanelObject.GetComponent<OperatorPromotionPanel>();
             promotionPanel.Initialize(currentOperator);
         }
@@ -237,20 +254,24 @@ public class OperatorDetailPanel : MonoBehaviour
 
     private void UpdateSkillsUI()
     {
-        var unlockedSkills = currentOperator.UnlockedSkills;
+        if (currentOperator != null)
+        { 
+            var unlockedSkills = currentOperator.UnlockedSkills;
 
-        skill1Button.GetComponent<Image>().sprite = unlockedSkills[0].skillIcon;
-        if (unlockedSkills.Count > 1)
-        {
-            skill2Button.GetComponent<Image>().sprite = unlockedSkills[1].skillIcon;
-        }
-        else
-        {
-            skill2Button.interactable = false;
-        }
+            skill1Button.GetComponent<Image>().sprite = unlockedSkills[0].skillIcon;
+            if (unlockedSkills.Count > 1)
+            {
+                skill2Button.GetComponent<Image>().sprite = unlockedSkills[1].skillIcon;
+            }
+            else
+            {
+                skill2Button.interactable = false;
+            }
 
-        UpdateSkillSelection();
-        UpdateSkillDescription();
+            UpdateSkillSelection();
+            UpdateSkillDescription();
+
+        }
     }
 
     private void OnSkillButtonClicked(int skillIndex)
@@ -263,7 +284,7 @@ public class OperatorDetailPanel : MonoBehaviour
             currentOperator.SetDefaultSelectedSkills(skills[skillIndex]);
             UpdateSkillSelection();
             UpdateSkillDescription();
-            MainMenuManager.Instance.ShowNotification($"기본 설정 스킬이 {skills[skillIndex].skillName}으로 변경되었습니다.");
+            MainMenuManager.Instance!.ShowNotification($"기본 설정 스킬이 {skills[skillIndex].skillName}으로 변경되었습니다.");
         }
     }
 
@@ -284,7 +305,9 @@ public class OperatorDetailPanel : MonoBehaviour
 
     private void UpdateSkillDescription()
     {
-        if (currentOperator?.DefaultSelectedSkill != null)
+        if (currentOperator == null) return;
+
+        if (currentOperator.DefaultSelectedSkill != null)
         {
             skillDetailText.text = currentOperator.DefaultSelectedSkill.description;
         }

@@ -8,7 +8,7 @@ namespace SKills.OperatorSkills
     {
         [Header("Cost Recovery Settings")]
         [SerializeField] private int costRecoveryAmount = 8;
-        [SerializeField] private GameObject skillEffectPrefab;
+        [SerializeField] private GameObject skillEffectPrefab = default!;
 
         protected override void SetDefaults()
         {

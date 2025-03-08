@@ -13,8 +13,8 @@ public class DeployableUnitState
     public float CooldownTimer { get; private set; }
     public bool IsDeployed { get; private set; } // 오퍼레이터인 경우에만 추적
 
-    public DeployableUnitEntity currentDeployable;
-    public Operator currentOperator;
+    public DeployableUnitEntity? currentDeployable;
+    public Operator? currentOperator;
 
     private const float COST_INCREASE_RATE = 0.5f;
 
@@ -25,9 +25,9 @@ public class DeployableUnitState
         deployableInfo = info;
         IsOperator = deployableInfo.ownedOperator != null;
 
-        CurrentDeploymentCost = IsOperator ? 
-                info.ownedOperator.BaseData.stats.DeploymentCost : 
-                info.deployableUnitData.stats.DeploymentCost;
+        CurrentDeploymentCost = IsOperator && info.ownedOperator != null ?
+            info.ownedOperator.OperatorProgressData.stats.DeploymentCost :
+            info.deployableUnitData?.stats.DeploymentCost ?? 0;
 
         RemainingDeployCount = info.maxDeployCount;
         IsOnCooldown = false;
@@ -98,7 +98,7 @@ public class DeployableUnitState
         if (deployableInfo.ownedOperator == null) return;
 
         // 기본 코스트
-        int baseCost = deployableInfo.ownedOperator.BaseData.stats.DeploymentCost;
+        int baseCost = deployableInfo.ownedOperator.OperatorProgressData.stats.DeploymentCost;
 
         // 1, 1.5, 2만 가질 수 있다.
         // 상세) 재배치마다 50%식 배치 코스트가 증가, 최대 2회(즉 2회 이후부터는 최초의 2배 코스트가 듦)까지만.

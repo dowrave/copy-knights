@@ -8,26 +8,26 @@ using UnityEngine.UI;
 public class DeployableBox : MonoBehaviour, IPointerDownHandler, IBeginDragHandler, IDragHandler, IEndDragHandler
 {
     [Header("UI References")]
-    [SerializeField] private Image operatorIllustImage;
-    [SerializeField] private GameObject operatorClassIconBox; // 클래스 아이콘의 부모 오브젝트
-    [SerializeField] private Image operatorClassIconImage; // 아이콘 자체 할당
-    [SerializeField] private Image inActiveImage;
-    [SerializeField] private TextMeshProUGUI costText;
-    [SerializeField] private Image cooldownGauge;
-    [SerializeField] private TextMeshProUGUI cooldownText;
-    [SerializeField] private TextMeshProUGUI countText;
+    [SerializeField] private Image operatorIllustImage = default!;
+    [SerializeField] private GameObject operatorClassIconBox = default!; // 클래스 아이콘의 부모 오브젝트
+    [SerializeField] private Image operatorClassIconImage = default!; // 아이콘 자체 할당
+    [SerializeField] private Image inActiveImage = default!;
+    [SerializeField] private TextMeshProUGUI costText = default!;
+    [SerializeField] private Image cooldownGauge = default!;
+    [SerializeField] private TextMeshProUGUI cooldownText = default!;
+    [SerializeField] private TextMeshProUGUI countText = default!;
 
-    private Sprite boxIcon;
-    private GameObject deployablePrefab;
-    private DeployableUnitEntity deployableComponent;
-    private DeployableManager.DeployableInfo deployableInfo;
-    private DeployableUnitState deployableUnitState;
+    private Sprite? boxIcon;
+    private GameObject deployablePrefab = default!;
+    private DeployableUnitEntity deployableComponent = default!;
+    private DeployableManager.DeployableInfo deployableInfo = default!;
+    private DeployableUnitState deployableUnitState = default!;
 
     // 애니메이션 관련
     private Vector3 originalPosition;
     public float animationDuration = 0.2f;
     public float animationHeight = 20f;
-    private Tween currentTween;
+    private Tween currentTween = default!;
     private bool isOriginalPositionSet;
 
     // box의 상태 관련
@@ -43,25 +43,25 @@ public class DeployableBox : MonoBehaviour, IPointerDownHandler, IBeginDragHandl
         deployableInfo = info;
         deployablePrefab = info.prefab;
         deployableComponent = deployablePrefab.GetComponent<DeployableUnitEntity>(); // 다형성 활용
-        deployableUnitState = DeployableManager.Instance.UnitStates[deployableInfo];
+        deployableUnitState = DeployableManager.Instance!.UnitStates[deployableInfo];
 
         if (deployableComponent is Operator)
         {
-            OwnedOperator op = deployableInfo.ownedOperator;
-            OperatorIconHelper.SetClassIcon(operatorClassIconImage, op.BaseData.operatorClass); // 클래스 아이콘 설정
-            boxIcon = op.BaseData.Icon;
+            OwnedOperator op = deployableInfo.ownedOperator!;
+            OperatorIconHelper.SetClassIcon(operatorClassIconImage, op.OperatorProgressData.operatorClass); // 클래스 아이콘 설정
+            boxIcon = op.OperatorProgressData?.Icon;
         }
         else
         {
             operatorClassIconBox.gameObject.SetActive(false);
-            boxIcon = deployableInfo.deployableUnitData.Icon;
+            boxIcon = deployableInfo.deployableUnitData?.Icon;
         }
 
         InitializeVisuals();
 
-        StageManager.Instance.OnDeploymentCostChanged += UpdateAvailability;
-        StageManager.Instance.OnPreparationCompleted += InitializeVisuals;
-        DeployableManager.Instance.OnCurrentOperatorDeploymentCountChanged += UpdateAvailability;
+        StageManager.Instance!.OnDeploymentCostChanged += UpdateAvailability;
+        StageManager.Instance!.OnPreparationCompleted += InitializeVisuals;
+        DeployableManager.Instance!.OnCurrentOperatorDeploymentCountChanged += UpdateAvailability;
     }
 
     public void UpdateVisuals()
@@ -207,7 +207,7 @@ public class DeployableBox : MonoBehaviour, IPointerDownHandler, IBeginDragHandl
     {
         if (CanInteract())
         {
-            DeployableManager.Instance.StartDeployableSelection(deployableInfo);
+            DeployableManager.Instance!.StartDeployableSelection(deployableInfo);
             Select();
         }
     }
@@ -218,7 +218,7 @@ public class DeployableBox : MonoBehaviour, IPointerDownHandler, IBeginDragHandl
         if (CanInteract())
         {
             isDragging = true;
-            DeployableManager.Instance.StartDragging(deployableInfo);
+            DeployableManager.Instance!.StartDragging(deployableInfo);
         }
     }
     
@@ -258,7 +258,7 @@ public class DeployableBox : MonoBehaviour, IPointerDownHandler, IBeginDragHandl
     {
         if (isDragging && CanInteract())
         {
-            DeployableManager.Instance.HandleDragging(deployableInfo);
+            DeployableManager.Instance!.HandleDragging(deployableInfo);
         }
     }
 
@@ -267,7 +267,7 @@ public class DeployableBox : MonoBehaviour, IPointerDownHandler, IBeginDragHandl
     {
         if (isDragging)
         {
-            DeployableManager.Instance.EndDragging(deployablePrefab);
+            DeployableManager.Instance!.EndDragging(deployablePrefab);
             isDragging = false;
         }
     }
@@ -277,20 +277,20 @@ public class DeployableBox : MonoBehaviour, IPointerDownHandler, IBeginDragHandl
         if (deployableComponent is Operator op)
         {
             return !deployableUnitState.IsOnCooldown && 
-                StageManager.Instance.CurrentDeploymentCost >= currentDeploymentCost &&
-                DeployableManager.Instance.CurrentOperatorDeploymentCount < DeployableManager.Instance.MaxOperatorDeploymentCount;
+                StageManager.Instance!.CurrentDeploymentCost >= currentDeploymentCost &&
+                DeployableManager.Instance!.CurrentOperatorDeploymentCount < DeployableManager.Instance!.MaxOperatorDeploymentCount;
         }
         else
         {
             return !deployableUnitState.IsOnCooldown &&
-                    StageManager.Instance.CurrentDeploymentCost >= currentDeploymentCost;
+                    StageManager.Instance!.CurrentDeploymentCost >= currentDeploymentCost;
         }
     }
 
     private void OnDestroy()
     {
-        StageManager.Instance.OnPreparationCompleted -= InitializeVisuals;
-        StageManager.Instance.OnDeploymentCostChanged -= UpdateAvailability;
+        StageManager.Instance!.OnPreparationCompleted -= InitializeVisuals;
+        StageManager.Instance!.OnDeploymentCostChanged -= UpdateAvailability;
     }
 
 }

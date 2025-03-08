@@ -8,12 +8,12 @@ using UnityEngine.UI;
 public class UIHelper : MonoBehaviour
 {
     [Header("Attack Range Tile Prefabs")]
-    [SerializeField] private Image filledTilePrefab;
-    [SerializeField] private Image outlineTilePrefab;
-    [SerializeField] private Image highlightTilePrefab;
+    [SerializeField] private Image filledTilePrefab = default!;
+    [SerializeField] private Image outlineTilePrefab = default!;
+    [SerializeField] private Image highlightTilePrefab = default!;
 
     // 싱글톤 구현
-    public static UIHelper Instance { get; private set; }
+    public static UIHelper? Instance { get; private set; }
 
     private void Awake()
     {
@@ -41,15 +41,15 @@ public class UIHelper : MonoBehaviour
             centerOffset = offset;
 
             // 타일 크기는 지정할 수 있으며, 없다면 기본 프리팹의 사이즈 이용
-            this.tileSize = tileSize ?? Instance.filledTilePrefab.rectTransform.rect.width;
+            this.tileSize = tileSize ?? Instance!.filledTilePrefab.rectTransform.rect.width;
         }
 
         private Image CreateTile(Vector2Int gridPos, bool isCenter, bool isHighlight)
         {
             // 프리팹은 이제 Instance에서 가져옴
-            Image tilePrefab = isCenter ? Instance.filledTilePrefab :
-                             isHighlight ? Instance.highlightTilePrefab :
-                             Instance.outlineTilePrefab;
+            Image tilePrefab = isCenter ? Instance!.filledTilePrefab :
+                             isHighlight ? Instance!.highlightTilePrefab :
+                             Instance!.outlineTilePrefab;
             Image tile = Instantiate(tilePrefab, containerRect);
 
             // 타일 크기 지정

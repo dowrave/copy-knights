@@ -8,12 +8,12 @@ using System;
 // 스테이지 씬에서 스테이지와 관련된 여러 상태들을 관리합니다.
 public class StageManager : MonoBehaviour
 {
-    public static StageManager Instance { get; private set; }
+    public static StageManager? Instance { get; private set; }
     public GameState currentState;
-    private StageData stageData;
-    public StageData StageData => stageData;
+    private StageData? stageData;
+    public StageData? StageData => stageData;
 
-    private Map currentMap;
+    private Map? currentMap;
 
     // 배치 코스트
     private float timeToFillCost; // 코스트 1 회복에 걸리는 시간
@@ -59,8 +59,6 @@ public class StageManager : MonoBehaviour
     private const float originalTimeScale = 1f;
     private const float placementTimeScale = 0.2f;
 
-    private float gameEndDelay = 0.2f; // 게임 종료 조건 달성 후 기다리는 시간
-
     public int CurrentDeploymentCost
     {
         get => currentDeploymentCost;
@@ -77,26 +75,26 @@ public class StageManager : MonoBehaviour
     public float CurrentCostGauge => currentCostGauge;
 
     // 코루틴 멈추는 현상 대비 
-    private Coroutine costIncreaseCoroutine;
+    private Coroutine? costIncreaseCoroutine;
     private float lastCostUpdateTime;
     private const float COST_CHECK_INTERVAL = 1f;
 
     // 스크린이 완전히 사라진 다음 게임 시작을 위한 할당
-    StageLoadingScreen stageLoadingScreen;
+    private StageLoadingScreen? stageLoadingScreen;
 
     // 이벤트
-    public event System.Action<Map> OnMapLoaded;
-    public event System.Action OnDeploymentCostChanged; // 이벤트 발동 조건은 currentDeploymentCost 값이 변할 때, 여기 등록된 함수들이 동작
-    public event System.Action<int> OnLifePointsChanged; // 라이프 포인트 변경 시 발생 이벤트
-    public event System.Action OnEnemyKilled; // 적을 잡을 때마다 발생 이벤트
-    public event System.Action OnPreparationCompleted; // 스테이지 준비 완료 이벤트 
-    public event System.Action<GameState> OnGameStateChanged;
-    public event System.Action OnGameEnded; // 게임 종료 시에 동작
+    public event System.Action<Map>? OnMapLoaded;
+    public event System.Action? OnDeploymentCostChanged; // 이벤트 발동 조건은 currentDeploymentCost 값이 변할 때, 여기 등록된 함수들이 동작
+    public event System.Action<int>? OnLifePointsChanged; // 라이프 포인트 변경 시 발생 이벤트
+    public event System.Action? OnEnemyKilled; // 적을 잡을 때마다 발생 이벤트
+    public event System.Action? OnPreparationCompleted; // 스테이지 준비 완료 이벤트 
+    public event System.Action<GameState>? OnGameStateChanged;
+    public event System.Action? OnGameEnded; // 게임 종료 시에 동작
 
     private void Awake()
     {
         // 싱글톤 보장
-       if (Instance == null)
+       if (Instance! == null)
         {
             Instance = this; 
         }
@@ -111,8 +109,8 @@ public class StageManager : MonoBehaviour
     private void Start()
     {
         // Awake에서 UIManager null 에러가 갑자기 떠서 Start로 옮겨놨음
-        UIManager.Instance.UpdateSpeedUpButtonVisual();
-        UIManager.Instance.UpdatePauseButtonVisual();
+        UIManager.Instance!.UpdateSpeedUpButtonVisual();
+        UIManager.Instance!.UpdatePauseButtonVisual();
 
         if (GameManagement.Instance != null)
         {
@@ -153,6 +151,8 @@ public class StageManager : MonoBehaviour
 
     private void PrepareStage()
     {
+        InstanceValidator.ValidateInstance(stageData);
+
         SetGameState(GameState.Preparation);
 
         // 게임 설정
@@ -162,15 +162,15 @@ public class StageManager : MonoBehaviour
         KilledEnemyCount = 0;
 
         // 코스트 관련 초기화
-        currentDeploymentCost = stageData.startDeploymentCost;
-        maxDeploymentCost = stageData.maxDeploymentCost;
-        timeToFillCost = stageData.timeToFillCost;
+        currentDeploymentCost = stageData!.startDeploymentCost;
+        maxDeploymentCost = stageData!.maxDeploymentCost;
+        timeToFillCost = stageData!.timeToFillCost;
 
         // 체력 포인트 초기화
         CurrentLifePoints = MaxLifePoints;
 
         // UI 초기화
-        UIManager.Instance.Initialize();
+        UIManager.Instance!.Initialize();
          
         OnPreparationCompleted?.Invoke();
     }
@@ -184,21 +184,24 @@ public class StageManager : MonoBehaviour
     {
         yield return new WaitForSecondsRealtime(0.5f); // Time.timeScale에 영향을 받지 않게 구성
 
-        if (SpawnerManager.Instance == null) throw new InvalidOperationException("스포너 매니저 인스턴스가 없음");
+        if (SpawnerManager.Instance! == null) throw new InvalidOperationException("스포너 매니저 인스턴스가 없음");
 
 
         SetGameState(GameState.Battle);
         lastCostUpdateTime = Time.time;
         StartCoroutine(IncreaseCostOverTime());
-        SpawnerManager.Instance.StartSpawning();
+        SpawnerManager.Instance!.StartSpawning();
     }
 
     private int CalculateTotalEnemyCount()
     {
+        InstanceValidator.ValidateInstance(currentMap);
+
         int count = 0;
-        //EnemySpawner[] spawners = FindObjectsOfType<EnemySpawner>(); // 수정 필요) Map 프리팹에서 스포너들 정보 가져오는 식으로
-        IReadOnlyList<EnemySpawner> spawners = currentMap.EnemySpawners;
-        foreach (var spawner in spawners)
+        IReadOnlyList<EnemySpawner> spawners = currentMap!.EnemySpawners;
+        //InstanceValidator.ValidateInstance(spawners);
+
+        foreach (var spawner in spawners!)
         {
             // Enemy만 전체 수량에 계산
             count += spawner.spawnList
@@ -225,7 +228,7 @@ public class StageManager : MonoBehaviour
                 break;
         }
 
-        UIManager.Instance.UpdatePauseButtonVisual();
+        UIManager.Instance!.UpdatePauseButtonVisual();
         OnGameStateChanged?.Invoke(gameState);
         // 다른 필요한 상태 관련 로직...
     }
@@ -279,7 +282,7 @@ public class StageManager : MonoBehaviour
     public void OnEnemyDefeated()
     {
         KilledEnemyCount++;
-        UIManager.Instance.UpdateEnemyKillCountText();
+        UIManager.Instance!.UpdateEnemyKillCountText();
 
         // 사실 "생성된" 적을 포함하면 조건을 조금 더 다르게 줘야 함
         if (KilledEnemyCount + PassedEnemies >= TotalEnemyCount)
@@ -321,16 +324,20 @@ public class StageManager : MonoBehaviour
 
     private void GameWin()
     {
-        if (GameManagement.Instance == null) throw new InvalidOperationException("GameManagement가 초기화되지 않았음");
+        InstanceValidator.ValidateInstance(GameManagement.Instance!);
+        InstanceValidator.ValidateInstance(UIManager.Instance!);
+        InstanceValidator.ValidateInstance(StageData);
+
 
         SetGameState(GameState.GameWin);
         Time.timeScale = 0;
         int stars = 3 - PassedEnemies;
-        UIManager.Instance.HidePauseOverlay();
-        UIManager.Instance.ShowGameWinUI(stars);
-        
-        GameManagement.Instance.PlayerDataManager.RecordStageResult(stageData.stageId, stars);
-        GameManagement.Instance.PlayerDataManager.GrantStageRewards(stageData.rewardItems);
+        UIManager.Instance!.HidePauseOverlay();
+        UIManager.Instance!.ShowGameWinUI(stars);
+
+
+        GameManagement.Instance!.PlayerDataManager.RecordStageResult(stageData!.stageId, stars);
+        GameManagement.Instance!.PlayerDataManager.GrantStageRewards(stageData!.rewardItems);
 
         OnGameEnded?.Invoke();
         StopAllCoroutines();
@@ -340,7 +347,7 @@ public class StageManager : MonoBehaviour
     { 
         SetGameState(GameState.GameOver);
         Time.timeScale = 0; // 게임 일시 정지
-        UIManager.Instance.ShowGameOverUI();
+        UIManager.Instance!.ShowGameOverUI();
         OnGameEnded?.Invoke();
         StopAllCoroutines();
     }
@@ -351,20 +358,20 @@ public class StageManager : MonoBehaviour
         SetGameState(GameState.GameOver);
         Time.timeScale = 0;
         StopAllCoroutines();
-        StartCoroutine(UIManager.Instance.ShowResultAfterDelay(0));
+        StartCoroutine(UIManager.Instance!.ShowResultAfterDelay(0));
     }
 
     public void ReturnToMainMenu(bool isPerfectClear = false)
     {
-        if (GameManagement.Instance == null) throw new InvalidOperationException("GameManagement 초기화 안됨");
+        if (GameManagement.Instance! == null) throw new InvalidOperationException("GameManagement 초기화 안됨");
 
         if (isPerfectClear)
         {
-            GameManagement.Instance.StageLoader.ReturnToMainMenu();
+            GameManagement.Instance!.StageLoader.ReturnToMainMenu();
         }
         else
         {
-            GameManagement.Instance.StageLoader.ReturnToMainMenuWithStageSelected();
+            GameManagement.Instance!.StageLoader.ReturnToMainMenuWithStageSelected();
         }
     }
 
@@ -387,7 +394,7 @@ public class StageManager : MonoBehaviour
 
         IsSpeedUp = !IsSpeedUp;
         UpdateTimeScale();
-        UIManager.Instance.UpdateSpeedUpButtonVisual();
+        UIManager.Instance!.UpdateSpeedUpButtonVisual();
     }
 
     public void TogglePause()
@@ -399,14 +406,14 @@ public class StageManager : MonoBehaviour
         if (currentState == GameState.Paused)
         {
             SetGameState(GameState.Battle);
-            UIManager.Instance.HidePauseOverlay();
+            UIManager.Instance!.HidePauseOverlay();
         }
         else if (currentState == GameState.Battle)
         {
             SetGameState(GameState.Paused);
-            UIManager.Instance.ShowPauseOverlay();
+            UIManager.Instance!.ShowPauseOverlay();
         }
-        UIManager.Instance.UpdatePauseButtonVisual();
+        UIManager.Instance!.UpdatePauseButtonVisual();
     }
 
     public void RecoverDeploymentCost(int amount)
@@ -426,57 +433,58 @@ public class StageManager : MonoBehaviour
 
     private void InitializeMap()
     {
-        if (stageData.mapPrefab != null)
+        InstanceValidator.ValidateInstance(stageData);
+
+        if (stageData!.mapPrefab != null)
         {
-            MapManager mapManager = MapManager.Instance;
-            if (mapManager != null)
+            try
             {
-                try
+                GameObject mapObject = Instantiate(stageData!.mapPrefab);
+                currentMap = mapObject.GetComponent<Map>();
+
+                if (currentMap == null || currentMap.Mapid != stageData!.stageId)
                 {
-                    GameObject mapObject = Instantiate(stageData.mapPrefab);
-                    currentMap = mapObject.GetComponent<Map>();
-
-                    if (currentMap == null || currentMap.Mapid != stageData.stageId)
-                    {
-                        Debug.LogError("맵 ID가 스테이지 설정과 일치하지 않습니다!");
-                        return;
-                    }
-
-                    mapObject.name = "Map";
-                    mapObject.transform.SetParent(mapManager.transform);
-
-                    // 위치 초기화
-                    mapObject.transform.localPosition = Vector3.zero;
-                    mapObject.transform.localRotation = Quaternion.identity;
-
-                    mapManager.InitializeMap(currentMap);
-                    OnMapLoaded?.Invoke(currentMap);
-                }
-                catch (System.Exception e)
-                {
-                    Debug.LogError($"맵 초기화 중 오류 발생 : {e.Message}");
+                    Debug.LogError("맵 ID가 스테이지 설정과 일치하지 않습니다!");
                     return;
                 }
+
+                mapObject.name = "Map";
+                mapObject.transform.SetParent(MapManager.Instance!.transform);
+
+                // 위치 초기화
+                mapObject.transform.localPosition = Vector3.zero;
+                mapObject.transform.localRotation = Quaternion.identity;
+
+                MapManager.Instance!.InitializeMap(currentMap);
+                OnMapLoaded?.Invoke(currentMap);
             }
+            catch (System.Exception e)
+            {
+                Debug.LogError($"맵 초기화 중 오류 발생 : {e.Message}");
+                return;
+            }
+            
         }
     }
 
     // 배치 가능한 유닛 리스트를 준비합니다. 오퍼레이터 + 스테이지에서 사용 가능한 오브젝트
     private void PrepareDeployables(List<OwnedOperator> squadData)
     {
+        InstanceValidator.ValidateInstance(StageData);
+
         // 맵에서 배치 가능한 요소를 가져옴. 없으면 빈 리스트
-        var mapDeployables = StageData.mapDeployables ?? new List<MapDeployableData>();
+        var mapDeployables = StageData!.mapDeployables ?? new List<MapDeployableData>();
 
         // 복사해서 사용
         var deployableList = new List<MapDeployableData>(mapDeployables);
 
         // 스쿼드 + 맵의 배치 가능 요소 초기화
-        DeployableManager.Instance.Initialize(squadData, deployableList, stageData.operatorMaxDeploymentCount);
+        DeployableManager.Instance!.Initialize(squadData, deployableList, stageData!.operatorMaxDeploymentCount);
     }
 
     private void OnDestroy()
     {
-        stageLoadingScreen.OnHideComplete -= StartStageCoroutine;
+        stageLoadingScreen!.OnHideComplete -= StartStageCoroutine;
     }
 }
 

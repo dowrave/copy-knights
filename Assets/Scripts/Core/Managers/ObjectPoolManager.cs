@@ -39,8 +39,8 @@ public class ObjectPoolManager : MonoBehaviour
     [SerializeField] private int floatingTextCounts = 2;
     public string FLOATING_TEXT_TAG { get; private set; } = "FloatingText";
 
-    [Header("이펙트 관련")]
-    [SerializeField] private int effectPoolSize = 3;
+    //[Header("이펙트 관련")]
+    //[SerializeField] private int effectPoolSize = 3;
 
 
     private void Start()

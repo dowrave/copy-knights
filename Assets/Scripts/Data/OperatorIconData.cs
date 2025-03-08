@@ -7,29 +7,28 @@ public class OperatorIconData: ScriptableObject
     public List<ClassIconData> classIcons = new List<ClassIconData>();
     public List<ElitePhaseIconData> elitePhaseIcons = new List<ElitePhaseIconData>();
 
-    public Dictionary<OperatorData.OperatorClass, Sprite> iconDictionary;
+    public Dictionary<OperatorData.OperatorClass, Sprite> iconDictionary = new Dictionary<OperatorData.OperatorClass, Sprite>();
 
     public void Initialize()
     {
-        iconDictionary = new Dictionary<OperatorData.OperatorClass, Sprite>();
-
         foreach (var iconData in classIcons)
         {
             iconDictionary[iconData.operatorClass] = iconData.icon;
         }
     }
 
-    public Sprite GetClassIcon(OperatorData.OperatorClass operatorClass)
+    public Sprite? GetClassIcon(OperatorData.OperatorClass operatorClass)
     {
         if (iconDictionary == null)
         {
             Initialize();
         }
 
-        if (iconDictionary.TryGetValue(operatorClass, out Sprite icon))
+        if (iconDictionary!.TryGetValue(operatorClass, out Sprite icon))
         {
             return icon;
         }
+
         return null;
     }
 
@@ -37,13 +36,13 @@ public class OperatorIconData: ScriptableObject
     public class ClassIconData
     {
         public OperatorData.OperatorClass operatorClass;
-        public Sprite icon;
+        public Sprite icon = default!;
     }
 
     [System.Serializable] 
     public class ElitePhaseIconData
     {
         public OperatorGrowthSystem.ElitePhase phase;
-        public Sprite icon; 
+        public Sprite icon = default!; 
     }
 }

@@ -8,19 +8,19 @@ using UnityEngine.UI;
 public class SkillRangeVFXController : MonoBehaviour, IPooledObject
 {
     [Header("Effect Reference")]
-    [SerializeField] protected ParticleSystem? topEffect;
-    [SerializeField] protected ParticleSystem? bottomEffect;
-    [SerializeField] protected ParticleSystem? leftEffect;
-    [SerializeField] protected ParticleSystem? rightEffect;
-    [SerializeField] protected Image? topBoundary;
-    [SerializeField] protected Image? bottomBoundary;
-    [SerializeField] protected Image? leftBoundary;
-    [SerializeField] protected Image? rightBoundary;
-    [SerializeField] protected Image? floorImage;
+    [SerializeField] protected ParticleSystem topEffect = default!;
+    [SerializeField] protected ParticleSystem bottomEffect = default!;
+    [SerializeField] protected ParticleSystem leftEffect = default!;
+    [SerializeField] protected ParticleSystem rightEffect = default!;
+    [SerializeField] protected Image topBoundary = default!;
+    [SerializeField] protected Image bottomBoundary = default!;
+    [SerializeField] protected Image leftBoundary = default!;
+    [SerializeField] protected Image rightBoundary = default!;
+    [SerializeField] protected Image floorImage = default!;
 
     protected bool isInitialized = false;
     protected float fieldDuration;
-    protected Dictionary<Vector2Int, (ParticleSystem effect, Image boundary)> directionEffects;
+    protected Dictionary<Vector2Int, (ParticleSystem effect, Image boundary)> directionEffects = new Dictionary<Vector2Int, (ParticleSystem effect, Image boundary)>();
     protected readonly Vector2Int[] directions = new[] 
     {
         // 그리드 좌표는 좌측 상단이 (0, 0)이므로 Y좌표는 특히 이렇게 정의함
@@ -30,7 +30,7 @@ public class SkillRangeVFXController : MonoBehaviour, IPooledObject
         Vector2Int.right
     };
 
-    private string poolTag;
+    private string poolTag = string.Empty;
 
     private void Awake()
     {
@@ -78,7 +78,8 @@ public class SkillRangeVFXController : MonoBehaviour, IPooledObject
         fieldDuration = duration != 0f ? duration : 1f;
 
         // 이 위치에 타일이 없으면 실행 X
-        if (!MapManager.Instance.CurrentMap.IsTileAt(position.x, position.y)) return;
+        if (MapManager.Instance!.CurrentMap == null) return;
+        if (!MapManager.Instance!.CurrentMap.IsTileAt(position.x, position.y)) return;
 
         floorImage.gameObject.SetActive(true);
 
@@ -89,7 +90,7 @@ public class SkillRangeVFXController : MonoBehaviour, IPooledObject
 
             // 방향에 대한 이펙트 표시 여부
             bool showEffect = !effectRange.Contains(neighborPos) || // 스킬 범위 내에 있음
-                !MapManager.Instance.CurrentMap.IsTileAt(neighborPos.x, neighborPos.y); // 실제로 타일이 있음
+                !MapManager.Instance!.CurrentMap.IsTileAt(neighborPos.x, neighborPos.y); // 실제로 타일이 있음
 
             var (effect, boundary) = directionEffects[direction];
 
@@ -106,7 +107,7 @@ public class SkillRangeVFXController : MonoBehaviour, IPooledObject
         }
 
         // 언덕에 이펙트 배치하는 상황
-        Tile currentTile = MapManager.Instance.GetTile(position.x, position.y);
+        Tile? currentTile = MapManager.Instance!.GetTile(position.x, position.y);
         if (currentTile != null && currentTile.data.terrain == TileData.TerrainType.Hill)
         {
             transform.position += Vector3.up * 0.2f;
@@ -141,7 +142,7 @@ public class SkillRangeVFXController : MonoBehaviour, IPooledObject
         }
 
         floorImage.gameObject.SetActive(false);
-        ObjectPoolManager.Instance.ReturnToPool(poolTag, gameObject);
+        ObjectPoolManager.Instance!.ReturnToPool(poolTag, gameObject);
         isInitialized = false;
     }
 

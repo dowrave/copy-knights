@@ -9,40 +9,40 @@ public class InStageInfoPanel : MonoBehaviour
 {
 
     [Header("Base Info Fields")]
-    [SerializeField] private Image classIconImage;
-    [SerializeField] private GameObject operatorLevelTextBox;
-    [SerializeField] private Image promotionIconImage;
-    [SerializeField] private TextMeshProUGUI nameText;
-    [SerializeField] private TextMeshProUGUI levelText;
+    [SerializeField] private Image classIconImage = default!;
+    [SerializeField] private GameObject operatorLevelTextBox = default!;
+    [SerializeField] private Image promotionIconImage = default!;
+    [SerializeField] private TextMeshProUGUI nameText = default!;
+    [SerializeField] private TextMeshProUGUI levelText = default!;
 
     [Header("Stat Fields")]
-    [SerializeField] private GameObject statsContainer;
-    [SerializeField] private TextMeshProUGUI healthText;
-    [SerializeField] private TextMeshProUGUI attackText;
-    [SerializeField] private TextMeshProUGUI defenseText;
-    [SerializeField] private TextMeshProUGUI magicResistanceText;
-    [SerializeField] private TextMeshProUGUI blockCountText;
+    [SerializeField] private GameObject statsContainer = default!;
+    [SerializeField] private TextMeshProUGUI healthText = default!;
+    [SerializeField] private TextMeshProUGUI attackText = default!;
+    [SerializeField] private TextMeshProUGUI defenseText = default!;
+    [SerializeField] private TextMeshProUGUI magicResistanceText = default!;
+    [SerializeField] private TextMeshProUGUI blockCountText = default!;
 
     [Header("Tabs")]
-    [SerializeField] private Button SkillTab; // 아마 이것만 쓸 것 같긴 한데
+    //[SerializeField] private Button SkillTab = default!; // 아마 이것만 쓸 것 같긴 한데
 
     [Header("Ability Panel")]
-    [SerializeField] private GameObject abilityContainer; 
-    [SerializeField] private Image skillIconImage;
-    [SerializeField] private TextMeshProUGUI skillNameText;
-    [SerializeField] private TextMeshProUGUI skillDetailText;
+    [SerializeField] private GameObject abilityContainer = default!; 
+    [SerializeField] private Image skillIconImage = default!;
+    [SerializeField] private TextMeshProUGUI skillNameText = default!;
+    [SerializeField] private TextMeshProUGUI skillDetailText = default!;
 
     [Header("Cancel Panel")]
-    [SerializeField] private Button cancelPanel;
+    [SerializeField] private Button cancelPanel = default!;
 
 
     // 배치 요소 정보
-    private DeployableManager.DeployableInfo currentDeployableInfo;
-    private DeployableUnitState currentDeployableUnitState;
+    private DeployableManager.DeployableInfo currentDeployableInfo = default!;
+    private DeployableUnitState? currentDeployableUnitState;
 
     // 오퍼레이터에서만 사용
-    private Operator currentOperator;
-    private BaseSkill operatorSkill;
+    private Operator? currentOperator;
+    private BaseSkill operatorSkill = default!;
 
     private void Awake()
     {
@@ -52,7 +52,7 @@ public class InStageInfoPanel : MonoBehaviour
     public void UpdateInfo(DeployableManager.DeployableInfo deployableInfo)
     {
         currentDeployableInfo = deployableInfo;
-        currentDeployableUnitState = DeployableManager.Instance.UnitStates[currentDeployableInfo];
+        currentDeployableUnitState = DeployableManager.Instance!.UnitStates[currentDeployableInfo];
 
         if (currentDeployableUnitState == null)
         {
@@ -82,10 +82,10 @@ public class InStageInfoPanel : MonoBehaviour
         ShowOperatorPanels();
 
         // 이름
-        nameText.text = currentDeployableInfo.operatorData.entityName;
+        nameText.text = currentDeployableInfo.operatorData?.entityName ?? string.Empty;
 
         // 레벨
-        levelText.text = $"{currentDeployableInfo.ownedOperator.currentLevel}";
+        levelText.text = $"{currentDeployableInfo.ownedOperator?.currentLevel}";
 
         // 스킬
         UpdateSkillInfo();
@@ -98,7 +98,7 @@ public class InStageInfoPanel : MonoBehaviour
     {
         HideOperatorPanels();
 
-        nameText.text = currentDeployableInfo.deployableUnitData.entityName;
+        nameText.text = currentDeployableInfo.deployableUnitData?.entityName ?? string.Empty;
     }
 
     private void UpdateStatInfo()
@@ -110,24 +110,26 @@ public class InStageInfoPanel : MonoBehaviour
             currentOperator.OnStatsChanged -= UpdateOperatorInfo;
         }
 
-        if (currentDeployableUnitState.IsDeployed)
+        if (currentDeployableUnitState != null && currentDeployableUnitState.IsDeployed)
         {
             // 배치된 경우 실시간 정보를 가져옴
             currentOperator = currentDeployableInfo.deployedOperator;
+            if (currentOperator != null)
+            {
+                UpdateHealthText(currentOperator.CurrentHealth, currentOperator.MaxHealth);
+                attackText.text = $"공격력: {Mathf.Ceil(currentOperator.currentOperatorStats.AttackPower)}";
+                defenseText.text = $"방어력: {Mathf.Ceil(currentOperator.currentOperatorStats.Defense)}";
+                magicResistanceText.text = $"마법저항력: {Mathf.Ceil(currentOperator.currentOperatorStats.MagicResistance)}";
+                blockCountText.text = $"저지수: {Mathf.Ceil(currentOperator.currentOperatorStats.MaxBlockableEnemies)}";
 
-            UpdateHealthText(currentOperator.CurrentHealth, currentOperator.MaxHealth);
-            attackText.text = $"공격력: {Mathf.Ceil(currentOperator.currentStats.AttackPower)}";
-            defenseText.text = $"방어력: {Mathf.Ceil(currentOperator.currentStats.Defense)}";
-            magicResistanceText.text = $"마법저항력: {Mathf.Ceil(currentOperator.currentStats.MagicResistance)}";
-            blockCountText.text = $"저지수: {Mathf.Ceil(currentOperator.currentStats.MaxBlockableEnemies)}";
-
-            // 이벤트 구독
-            currentOperator.OnHealthChanged += UpdateHealthText;
-            currentOperator.OnStatsChanged += UpdateOperatorInfo;
+                // 이벤트 구독
+                currentOperator.OnHealthChanged += UpdateHealthText;
+                currentOperator.OnStatsChanged += UpdateOperatorInfo;
+            }
         }
         else
         {
-            OperatorStats ownedOperatorStats = currentDeployableInfo.ownedOperator.CurrentStats;
+            OperatorStats ownedOperatorStats = currentDeployableInfo.ownedOperator!.CurrentStats;
 
             float initialHealth = ownedOperatorStats.Health;
             UpdateHealthText(initialHealth, initialHealth);
@@ -161,6 +163,12 @@ public class InStageInfoPanel : MonoBehaviour
 
     private void UpdateSkillInfo()
     {
+        // operatorData와 ownedOperator가 null이 아닐 때만 진행
+        if (currentDeployableInfo.operatorData == null || currentDeployableInfo.ownedOperator == null)
+        {
+            return;
+        }
+
         operatorSkill = currentDeployableInfo.ownedOperator.StageSelectedSkill;
 
         if (operatorSkill != null)
@@ -177,9 +185,9 @@ public class InStageInfoPanel : MonoBehaviour
 
     private void OnCancelPanelClicked()
     {
-        if (DeployableManager.Instance.IsDeployableSelecting)
+        if (DeployableManager.Instance!.IsDeployableSelecting)
         {
-            DeployableManager.Instance.CancelDeployableSelection();
+            DeployableManager.Instance!.CancelDeployableSelection();
         }
     }
 

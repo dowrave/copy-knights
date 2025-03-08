@@ -13,22 +13,21 @@ public class PlayerDataManager : MonoBehaviour
     private class PlayerData
     {
         public List<OwnedOperator> ownedOperators = new List<OwnedOperator>(); // 보유 오퍼레이터
-        public List<string?> currentSquadOperatorNames = new List<string?>(); // 스쿼드, 직렬화를 위해 이름만 저장
+        public List<string> currentSquadOperatorNames = new List<string>(); // 스쿼드, 직렬화를 위해 이름만 저장
         public int maxSquadSize;
         public UserInventoryData inventory = new UserInventoryData(); // 아이템 인벤토리
         public StageResultData stageResults = new StageResultData(); // 스테이지 진행 상황
     }
 
-    private PlayerData playerData;
+    private PlayerData? playerData;
     private Dictionary<string, OperatorData> operatorDatabase = new Dictionary<string, OperatorData>();
 
-    [Header("초기 지급 오퍼레이터")]
-    [SerializeField] private List<OperatorData> startingOperators; // 초기 지급 오퍼레이터
+    [SerializeField] private List<OperatorData> startingOperators = new List<OperatorData>(); //  nullable 경고문 회피: 할당이 없으면 빈 리스트
     [SerializeField] private int defaultMaxSquadSize = 6;
 
     private Dictionary<string, ItemData> itemDatabase = new Dictionary<string, ItemData>();
 
-    public event System.Action OnSquadUpdated;
+    public event System.Action OnSquadUpdated = delegate { }; // nullable 경고문 회피
 
 
     private void Awake()
@@ -49,6 +48,9 @@ public class PlayerDataManager : MonoBehaviour
 // 현재 게임이 가진 "모든" OperatorData를 불러온다
     private void LoadOperatorDatabase()
     {
+        InstanceValidator.ValidateInstance(startingOperators);
+
+
 #if UNITY_EDITOR
         // guid : 유니티에서 각 에셋에 할당하는 고유 식별자
         string[] guids = UnityEditor.AssetDatabase.FindAssets("t:OperatorData", 
@@ -69,11 +71,13 @@ public class PlayerDataManager : MonoBehaviour
         }
 
         // Validate starting operators are in database
-        foreach (var op in startingOperators)
+        foreach (var op in startingOperators!)
         {
-            if (op != null && !operatorDatabase.ContainsKey(op.entityName))
+            InstanceValidator.ValidateInstance(op.entityName);
+
+            if (op != null && !operatorDatabase.ContainsKey(op.entityName!))
             {
-                Debug.LogError($"Starting operator {op.entityName} not found in database!");
+                Debug.LogError($"Starting operator {op.entityName!} not found in database!");
             }
         }
 #endif
@@ -92,13 +96,16 @@ public class PlayerDataManager : MonoBehaviour
             playerData = new PlayerData
             {
                 maxSquadSize = defaultMaxSquadSize,
-                currentSquadOperatorNames = new List<string?>()
+                currentSquadOperatorNames = new List<string>()
             };
 
             // 초기 오퍼레이터를 ownedOperators에 추가
-            foreach (var op in startingOperators)
+            if (startingOperators != null)
             {
-                AddOperator(op.entityName);
+                foreach (var op in startingOperators)
+                {
+                    AddOperator(op.entityName!);
+                }
             }
 
             // 스쿼드 리스트를 초기화함
@@ -117,33 +124,45 @@ public class PlayerDataManager : MonoBehaviour
 
     private void InitializeEmptySquad()
     {
-        playerData.currentSquadOperatorNames.Clear();
-        for (int i = 0; i < playerData.maxSquadSize; i++)
+        InstanceValidator.ValidateInstance(playerData);
+        var safePlayerData = playerData!;  
+
+        safePlayerData.currentSquadOperatorNames.Clear();
+        for (int i = 0; i < safePlayerData.maxSquadSize; i++)
         {
-            playerData.currentSquadOperatorNames.Add(null);
+            safePlayerData.currentSquadOperatorNames.Add(string.Empty); // null 대신 빈 문자열 추가
         }
     }
 
     private void ValidateSquadSize()
     {
-        if (playerData.currentSquadOperatorNames.Count > playerData.maxSquadSize)
+        InstanceValidator.ValidateInstance(playerData);
+        var safePlayerData = playerData!;
+
+        if (safePlayerData.currentSquadOperatorNames?.Count > safePlayerData.maxSquadSize)
         {
-            playerData.currentSquadOperatorNames = playerData.currentSquadOperatorNames
-                .Take(playerData.maxSquadSize) // 처음부터 지정된 수만큼 가져오는 메서드
-                .ToList();
+            safePlayerData.currentSquadOperatorNames = safePlayerData.currentSquadOperatorNames?
+                .Take(safePlayerData.maxSquadSize) // 처음부터 지정된 수만큼 가져오는 메서드
+                .ToList() ?? new List<string>();
         }
 
         SavePlayerData();
     }
 
-    public OwnedOperator? GetOwnedOperator(string? operatorName)
+    public OwnedOperator? GetOwnedOperator(string operatorName)
     {
-        return playerData.ownedOperators.Find(op => op.operatorName == operatorName) ?? null;
+        InstanceValidator.ValidateInstance(playerData);
+        var safePlayerData = playerData!;
+
+        return safePlayerData.ownedOperators.Find(op => op.operatorName == operatorName) ?? null;
     }
 
     public List<OwnedOperator> GetOwnedOperators()
     {
-        return new List<OwnedOperator>(playerData.ownedOperators);
+        InstanceValidator.ValidateInstance(playerData);
+        var safePlayerData = playerData!;
+
+        return new List<OwnedOperator>(safePlayerData.ownedOperators);
     }
 
     private void InitializeForTest()
@@ -168,14 +187,17 @@ public class PlayerDataManager : MonoBehaviour
     // 유저가 오퍼레이터를 보유하게 함
     public void AddOperator(string operatorName)
     {
-        if (!playerData.ownedOperators.Any(op => op.operatorName == operatorName))
+        InstanceValidator.ValidateInstance(playerData);
+        var safePlayerData = playerData!;
+
+        if (!safePlayerData.ownedOperators.Any(op => op.operatorName == operatorName))
         {
             OperatorData opData = GetOperatorData(operatorName);
             OwnedOperator newOp = new OwnedOperator(opData);
 
             //InitializeOperator1stPromotion(newOp);
 
-            playerData.ownedOperators.Add(newOp);
+            safePlayerData.ownedOperators.Add(newOp);
             SavePlayerData();
             Debug.Log($"{newOp.operatorName}가 정상적으로 ownedOperator에 등록되었습니다");
         }
@@ -185,7 +207,10 @@ public class PlayerDataManager : MonoBehaviour
     // PlayerPrefs에 Json으로 PlayerData를 저장한다.
     public void SavePlayerData()
     {
-        string jsonData = JsonUtility.ToJson(playerData);
+        InstanceValidator.ValidateInstance(playerData);
+        var safePlayerData = playerData!;
+
+        string jsonData = JsonUtility.ToJson(safePlayerData);
         PlayerPrefs.SetString("PlayerData", jsonData);
         PlayerPrefs.Save();
     }
@@ -197,7 +222,10 @@ public class PlayerDataManager : MonoBehaviour
 
     public List<OperatorData> GetOwnedOperatorDatas()
     {
-        return playerData.ownedOperators
+        InstanceValidator.ValidateInstance(playerData);
+        var safePlayerData = playerData!;
+
+        return safePlayerData.ownedOperators
             .Select(owned => GetOperatorData(owned.operatorName))
             .Where(data => data != null)
             .ToList();
@@ -214,18 +242,25 @@ public class PlayerDataManager : MonoBehaviour
     // null을 포함하지 않은 실제 배치된 오퍼레이터만 포함된 스쿼드 리스트 반환
     public List<OwnedOperator> GetCurrentSquad()
     {
-        return playerData.currentSquadOperatorNames
+        InstanceValidator.ValidateInstance(playerData);
+        var safePlayerData = playerData!;
+
+        return safePlayerData.currentSquadOperatorNames
             .Where(name => !string.IsNullOrEmpty(name))
-            .Select(opName => GetOwnedOperator(opName!)) // 'opName'이 null이 아님을 명시적으로 표시
+            .Select(opName => GetOwnedOperator(opName!)) // 'opName'이 null이 아님을 명시적으로 표시  
             .Where(op => op != null)
-            .ToList();
+            .Cast<OwnedOperator>() // null이 아닌 OwnedOperator로 캐스팅  
+            .ToList() ?? new List<OwnedOperator>();
     }
 
 
     // null을 포함한 전체 스쿼드 리스트 반환. MaxSquadSize가 보장된다.
     public List<OwnedOperator?> GetCurrentSquadWithNull()
     {
-        return playerData.currentSquadOperatorNames
+        InstanceValidator.ValidateInstance(playerData);
+        var safePlayerData = playerData!;
+
+        return safePlayerData.currentSquadOperatorNames
             .Select(opName => string.IsNullOrEmpty(opName) ? null : GetOwnedOperator(opName))
             .ToList();
     }
@@ -234,7 +269,7 @@ public class PlayerDataManager : MonoBehaviour
     public List<OperatorData> GetCurrentSquadData()
     {
         return GetCurrentSquad()
-            .Select(ownedOp => ownedOp.BaseData)
+            .Select(ownedOp => ownedOp.OperatorProgressData)
             .Where(op => op != null)
             .ToList();
     }
@@ -244,21 +279,25 @@ public class PlayerDataManager : MonoBehaviour
     // 스쿼드를 업데이트한다
     public bool TryUpdateSquad(int index, string operatorName)
     {
-        if (index < 0 || index >= playerData.maxSquadSize) return false;
+        InstanceValidator.ValidateInstance(playerData);
+        var safePlayerData = playerData!;
+
+        if (index < 0 || index >= safePlayerData.maxSquadSize) return false;
+
 
         // 스쿼드 크기 확보
-        while (playerData.currentSquadOperatorNames.Count <= index)
+        while (safePlayerData.currentSquadOperatorNames.Count <= index)
         {
-            playerData.currentSquadOperatorNames.Add(null);
+            safePlayerData.currentSquadOperatorNames.Add(string.Empty);
         }
 
         // 오퍼레이터 소유 확인
-        if (!string.IsNullOrEmpty(operatorName) && !playerData.ownedOperators.Any(op => op.operatorName == operatorName)) return false;
+        if (!string.IsNullOrEmpty(operatorName) && !safePlayerData.ownedOperators.Any(op => op.operatorName == operatorName)) return false;
 
         // 중복 체크
-        if (!string.IsNullOrEmpty(operatorName) && playerData.currentSquadOperatorNames.Contains(operatorName)) return false;
+        if (!string.IsNullOrEmpty(operatorName) && safePlayerData.currentSquadOperatorNames.Contains(operatorName)) return false;
 
-        playerData.currentSquadOperatorNames[index] = operatorName;
+        safePlayerData.currentSquadOperatorNames[index] = operatorName;
         SavePlayerData();
         OnSquadUpdated?.Invoke();
         return true;
@@ -268,30 +307,39 @@ public class PlayerDataManager : MonoBehaviour
     // 스쿼드를 초기화한다
     public void ClearSquad()
     {
-        playerData.currentSquadOperatorNames.Clear();
-        for (int i = 0; i < playerData.maxSquadSize; i++)
+        InstanceValidator.ValidateInstance(playerData);
+        var safePlayerData = playerData!;
+
+        safePlayerData.currentSquadOperatorNames.Clear();
+        for (int i = 0; i < safePlayerData.maxSquadSize; i++)
         {
-            playerData.currentSquadOperatorNames.Add(null);
+            safePlayerData.currentSquadOperatorNames.Add(string.Empty);
         }
         SavePlayerData();
         OnSquadUpdated?.Invoke();
     }
 
-    public int GetMaxSquadSize() => playerData.maxSquadSize;
+    public int GetMaxSquadSize() => playerData!.maxSquadSize;
 
 
     // 특정 인덱스 슬롯의 오퍼레이터를 반환한다. 비어 있거나 활성화가 안된 슬롯이면 null을 반환한다. 해도 되나?
     public OwnedOperator? GetSquadOperatorAt(int index)
     {
-        if (index < 0 || index >= playerData.currentSquadOperatorNames.Count) return null;
+        InstanceValidator.ValidateInstance(playerData);
+        var safePlayerData = playerData!;
 
-        string? opName = playerData.currentSquadOperatorNames[index];
+        if (index < 0 || index >= safePlayerData.currentSquadOperatorNames.Count) return null;
+
+        string? opName = safePlayerData.currentSquadOperatorNames[index];
         return string.IsNullOrEmpty(opName) ? null : GetOwnedOperator(opName);
     }
 
     public List<string?> GetCurrentSquadOperatorNames()
     {
-        return new List<string?>(playerData.currentSquadOperatorNames); 
+        InstanceValidator.ValidateInstance(playerData);
+        var safePlayerData = playerData!;
+
+        return new List<string?>(safePlayerData.currentSquadOperatorNames); 
     }
 
     private void LoadItemDatabase()
@@ -313,7 +361,10 @@ public class PlayerDataManager : MonoBehaviour
 
     public bool AddItem(string itemName, int count = 1)
     {
-        UserInventoryData.ItemStack existingItem = playerData.inventory.items.Find(i => i.itemName == itemName);
+        InstanceValidator.ValidateInstance(playerData);
+        var safePlayerData = playerData!;
+
+        UserInventoryData.ItemStack existingItem = safePlayerData.inventory.items.Find(i => i.itemName == itemName);
 
         // dict를 이용, 아이템이 있으면 값만 더하고 없으면 새로 만듦
         if (existingItem != null)
@@ -322,7 +373,7 @@ public class PlayerDataManager : MonoBehaviour
         }
         else
         {
-            playerData.inventory.items.Add(new UserInventoryData.ItemStack(itemName, count));
+            safePlayerData.inventory.items.Add(new UserInventoryData.ItemStack(itemName, count));
         }
 
         SavePlayerData();
@@ -331,10 +382,13 @@ public class PlayerDataManager : MonoBehaviour
 
     public bool UseItems(Dictionary<string, int> itemsToUse)
     {
-       // 모든 아이템 수량 검증
-       foreach (var (itemName, count) in itemsToUse)
+        InstanceValidator.ValidateInstance(playerData);
+        var safePlayerData = playerData!;
+
+        // 모든 아이템 수량 검증
+        foreach (var (itemName, count) in itemsToUse)
         {
-            var itemStack = playerData.inventory.items.Find(i => i.itemName == itemName);
+            var itemStack = safePlayerData.inventory.items.Find(i => i.itemName == itemName);
             if (itemStack == null || itemStack.count < count)
             {
                 return false;
@@ -343,11 +397,11 @@ public class PlayerDataManager : MonoBehaviour
 
        foreach (var (itemName, count) in itemsToUse)
         {
-            var itemStack = playerData.inventory.items.Find(i => i.itemName == itemName);
+            var itemStack = safePlayerData.inventory.items.Find(i => i.itemName == itemName);
             itemStack.count -= count;
             if (itemStack.count <= 0)
             {
-                playerData.inventory.items.Remove(itemStack);
+                safePlayerData.inventory.items.Remove(itemStack);
             }
         }
 
@@ -357,8 +411,11 @@ public class PlayerDataManager : MonoBehaviour
 
     public List<(ItemData itemData, int count)> GetAllItems()
     {
+        InstanceValidator.ValidateInstance(playerData);
+        var safePlayerData = playerData!;
+
         List<(ItemData, int)> result = new List<(ItemData data, int count)>();
-        foreach (var itemStack in playerData.inventory.items)
+        foreach (var itemStack in safePlayerData.inventory.items)
         {
             if (itemDatabase.TryGetValue(itemStack.itemName, out ItemData itemData))
             {
@@ -371,13 +428,19 @@ public class PlayerDataManager : MonoBehaviour
 
     public int GetItemCount(string itemName)
     {
-        UserInventoryData.ItemStack itemStack = playerData.inventory.items.Find(i => i.itemName == itemName);
+        InstanceValidator.ValidateInstance(playerData);
+        var safePlayerData = playerData!;
+
+        UserInventoryData.ItemStack itemStack = safePlayerData.inventory.items.Find(i => i.itemName == itemName);
         return itemStack?.count ?? 0;
     }
 
     private void InitializeAllOperators()
     {
-        foreach (var ownedOp in playerData.ownedOperators)
+        InstanceValidator.ValidateInstance(playerData);
+        var safePlayerData = playerData!;
+
+        foreach (var ownedOp in safePlayerData.ownedOperators)
         {
             ownedOp.Initialize();
         }
@@ -391,29 +454,38 @@ public class PlayerDataManager : MonoBehaviour
 
     public bool IsStageCleared(string stageId)
     {
-        return playerData.stageResults.clearedStages.Any(info => info.stageId == stageId);
+        InstanceValidator.ValidateInstance(playerData);
+        var safePlayerData = playerData!;
+
+        return safePlayerData.stageResults.clearedStages.Any(info => info.stageId == stageId);
     }
 
     // 특정 스테이지의 클리어 정보 가져오기
     public StageResultData.StageResultInfo GetStageResultInfo(string stageId)
     {
-        return playerData.stageResults.clearedStages.FirstOrDefault(info => info.stageId == stageId);
+        InstanceValidator.ValidateInstance(playerData);
+        var safePlayerData = playerData!;
+
+        return safePlayerData.stageResults.clearedStages.FirstOrDefault(info => info.stageId == stageId);
     }
 
     // 스테이지 클리어 기록하기
     public void RecordStageResult(string stageId, int stars)
     {
+        InstanceValidator.ValidateInstance(playerData);
+        var safePlayerData = playerData!;
+
         var existingClear = GetStageResultInfo(stageId);
         if (existingClear != null)
         {
             if (existingClear.stars >= stars) return;
 
             // 더 좋은 기록을 냈을 경우, 기존 기록 제거
-            playerData.stageResults.clearedStages.Remove(existingClear);
+            safePlayerData.stageResults.clearedStages.Remove(existingClear);
         }
 
         var newClearInfo = new StageResultData.StageResultInfo(stageId, stars);
-        playerData.stageResults.clearedStages.Add(newClearInfo);
+        safePlayerData.stageResults.clearedStages.Add(newClearInfo);
 
         SavePlayerData();
     }
@@ -435,11 +507,14 @@ public class PlayerDataManager : MonoBehaviour
     }
 
     // 스쿼드의 해당 슬롯
-    public OwnedOperator GetOperatorInSlot(int index)
+    public OwnedOperator? GetOperatorInSlot(int index)
     {
-        if (playerData.currentSquadOperatorNames[index] != null)
+        InstanceValidator.ValidateInstance(playerData);
+        var safePlayerData = playerData!;
+
+        if (safePlayerData.currentSquadOperatorNames[index] != null)
         {
-            return GetOwnedOperator(playerData.currentSquadOperatorNames[index]);
+            return GetOwnedOperator(safePlayerData.currentSquadOperatorNames[index]);
         }
         else
         {
@@ -461,7 +536,7 @@ public class PlayerDataManager : MonoBehaviour
         {
             if (itemWithCount.itemData != null)
             {
-                AddItems(itemWithCount.itemData.itemName, itemWithCount.count);
+                AddItems(itemWithCount.itemData.itemName!, itemWithCount.count);
                 Debug.Log($"{itemWithCount.itemData.itemName} x {itemWithCount.count} 지급 완료");
             }
             else
@@ -483,9 +558,12 @@ public class PlayerDataManager : MonoBehaviour
     // 아이템을 지급하고 저장하는 메서드
     public void AddItems(string itemName, int itemCount)
     {
+        InstanceValidator.ValidateInstance(playerData);
+        var safePlayerData = playerData!;
+
         if (itemDatabase.TryGetValue(itemName, out ItemData itemData))
         {
-            var existingItemStack = playerData.inventory.items
+            var existingItemStack = safePlayerData.inventory.items
                 .FirstOrDefault(itemStack => itemStack.itemName == itemName);
 
             if (existingItemStack != null)
@@ -496,7 +574,7 @@ public class PlayerDataManager : MonoBehaviour
             else
             {
                 // 인벤토리에 아이템이 없으면 새로 생성
-                playerData.inventory.items.Add(new UserInventoryData.ItemStack(itemData.itemName, itemCount));
+                safePlayerData.inventory.items.Add(new UserInventoryData.ItemStack(itemData.itemName, itemCount));
             }
         }
         else
@@ -509,20 +587,23 @@ public class PlayerDataManager : MonoBehaviour
     // 이름은 itemData.name 필드의 그것(LoadItemDatabase 참조)
     private void AddStartingItems()
     {
+        InstanceValidator.ValidateInstance(playerData);
+        var safePlayerData = playerData!;
+
         // 여기 들어가는 키값이 ItemData.name 값임 / 생성자
         if (itemDatabase.TryGetValue("ExpSmall", out ItemData expSmall))
         {
-            playerData.inventory.items.Add(new UserInventoryData.ItemStack(expSmall.itemName, 5));
+            safePlayerData.inventory.items.Add(new UserInventoryData.ItemStack(expSmall.itemName, 5));
         }
 
         if (itemDatabase.TryGetValue("ExpMiddle", out ItemData expMiddle))
         {
-            playerData.inventory.items.Add(new UserInventoryData.ItemStack("ExpMiddle", 1));
+            safePlayerData.inventory.items.Add(new UserInventoryData.ItemStack("ExpMiddle", 1));
         }
 
         if (itemDatabase.TryGetValue("ItemPromotion", out ItemData promotion))
         {
-            playerData.inventory.items.Add(new UserInventoryData.ItemStack("ItemPromotion", 1));
+            safePlayerData.inventory.items.Add(new UserInventoryData.ItemStack("ItemPromotion", 1));
         }
     }
 }

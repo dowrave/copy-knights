@@ -1,7 +1,7 @@
 
 using UnityEngine;
 using Skills.Base;
-using System.Collections.Generic;
+using System;
 
 namespace Skills.OperatorSkills
 {
@@ -24,12 +24,12 @@ namespace Skills.OperatorSkills
         protected override GameObject CreateEffectField(Operator op, Vector2Int centerPos)
         {
             GameObject fieldObj = Instantiate(fieldEffectPrefab);
-            ArcaneFieldController controller = fieldObj.GetComponent<ArcaneFieldController>(); 
+            ArcaneFieldController? controller = fieldObj.GetComponent<ArcaneFieldController>(); 
 
-            if (controller != null)
+            if (controller != null && hitEffectPrefab != null)
             {
                 float actualDamagePerTick = op.AttackPower * damagePerTickRatio;
-                controller.Initialize(op, centerPos, actualSkillRange, duration,  actualDamagePerTick, damageInterval, hitEffectPrefab, slowAmount);
+                controller.Initialize(op, centerPos, actualSkillRange, duration, actualDamagePerTick, damageInterval, hitEffectPrefab, slowAmount);
             }
 
             return fieldObj;
@@ -37,8 +37,9 @@ namespace Skills.OperatorSkills
 
         protected override Vector2Int GetCenterPos(Operator op)
         {
+            if (mainTarget == null) throw new InvalidOperationException("mainTarget이 null임");
             // mainTarget을 중심으로 시전되므로
-            return MapManager.Instance.ConvertToGridPosition(mainTarget.transform.position);
+            return MapManager.Instance!.ConvertToGridPosition(mainTarget.transform.position);
         }
     }
 }

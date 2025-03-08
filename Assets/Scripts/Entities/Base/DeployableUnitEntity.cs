@@ -3,18 +3,17 @@ using UnityEngine;
 
 public abstract class DeployableUnitEntity: UnitEntity, IDeployable
 {
-    public DeployableUnitData BaseData { get; private set; }
+    public DeployableManager.DeployableInfo DeployableInfo { get; protected set; } = default!;
+    public DeployableUnitData DeployableUnitData { get; private set; } = default!;
 
     [HideInInspector]
-    public DeployableUnitStats currentStats;
+    public DeployableUnitStats currentDeployableStats;
 
     // IDeployable 인터페이스 관련
     public bool IsDeployed { get; protected set; }
     public int InitialDeploymentCost { get; protected set; } // 최초 배치 코스트 - DeploymentCost는 게임 중 증가할 수 있음
 
-    public DeployableManager.DeployableInfo? DeployableInfo { get; protected set; }
 
-    public Sprite? Icon => BaseData.Icon;
 
     // 미리보기 관련
     protected bool isPreviewMode = false;
@@ -26,17 +25,14 @@ public abstract class DeployableUnitEntity: UnitEntity, IDeployable
             isPreviewMode = value;
         }
     }
-    protected Material originalMaterial;
-    protected Material previewMaterial;
-
-    public virtual bool CanDeployGround { get; set; }
-    public virtual bool CanDeployHill { get; set; }
+    protected Material originalMaterial = default!;
+    protected Material previewMaterial = default!;
 
     // 배치 완료 후 커서를 뗀 위치가 오퍼레이터 위치일 때 ActionUI가 나타남을 방지하기 위한 변수들
     private float preventInteractingTime = 0.1f; 
     private float lastDeployTime;
 
-    public Tile CurrentTile { get; protected set; }
+    public Tile? CurrentTile { get; protected set; } // "배치 중"이라는 과정이 있기 떄문에 nullable
 
     protected override void Awake()
     {
@@ -49,20 +45,19 @@ public abstract class DeployableUnitEntity: UnitEntity, IDeployable
         DeployableInfo = deployableInfo;
         if (deployableInfo.deployableUnitData != null)
         {
-            BaseData = deployableInfo.deployableUnitData;
+            DeployableUnitData = deployableInfo.deployableUnitData!;
+
+            currentDeployableStats = DeployableUnitData.stats;
+            Prefab = DeployableUnitData.prefab;
+
+            InitializeDeployableProperties();
+            UpdateCurrentTile();
         }
         else
         {
             Debug.LogError("BaseData에 할당된 값이 없음!");
             return;
         }
-
-        currentStats = BaseData.stats;
-        Prefab = BaseData.prefab;
-
-        InitializeDeployableProperties();
-
-        UpdateCurrentTile();
     }
 
 
@@ -71,13 +66,7 @@ public abstract class DeployableUnitEntity: UnitEntity, IDeployable
     protected virtual void InitializeDeployableProperties()
     {
         SetDeployState(false);
-
-
-        // A ?? B : A가 null일 경우 B를 사용
-        CanDeployGround = BaseData?.canDeployOnGround ?? false; 
-        CanDeployHill = BaseData?.canDeployOnHill ?? false;
-
-        InitialDeploymentCost = currentStats.DeploymentCost; // 초기 배치 코스트 설정
+        InitialDeploymentCost = currentDeployableStats.DeploymentCost; // 초기 배치 코스트 설정
     }
 
     public virtual void Deploy(Vector3 position)
@@ -86,7 +75,10 @@ public abstract class DeployableUnitEntity: UnitEntity, IDeployable
         {
             SetDeployState(true);
             UpdateCurrentTile();
-            CurrentTile.SetOccupied(this);
+            if (CurrentTile != null)
+            {
+                CurrentTile.SetOccupied(this);
+            }
             SetPosition(position);
             InitializeHP();
             lastDeployTime = Time.time;
@@ -121,7 +113,7 @@ public abstract class DeployableUnitEntity: UnitEntity, IDeployable
         {
             IsDeployed = false;
             DeployableInfo.deployedDeployable = null;
-            DeployableManager.Instance.OnDeployableRemoved(this);
+            DeployableManager.Instance!.OnDeployableRemoved(this);
             if (CurrentTile != null)
             {
                 CurrentTile.ClearOccupied(); // 타일에 배치된 요소 제거
@@ -135,8 +127,8 @@ public abstract class DeployableUnitEntity: UnitEntity, IDeployable
     {
         if (IsInvalidTile(tile)) return false;
 
-        if (tile.data.terrain == TileData.TerrainType.Ground && BaseData.canDeployOnGround) return true;
-        if (tile.data.terrain == TileData.TerrainType.Hill && BaseData.canDeployOnHill) return true;
+        if (tile.data.terrain == TileData.TerrainType.Ground && DeployableUnitData.canDeployOnGround) return true;
+        if (tile.data.terrain == TileData.TerrainType.Hill && DeployableUnitData.canDeployOnHill) return true;
 
         return false;
     }
@@ -160,23 +152,23 @@ public abstract class DeployableUnitEntity: UnitEntity, IDeployable
         // 배치 직후 클릭 방지
         if (Time.time - lastDeployTime < preventInteractingTime)
         {
-            DeployableManager.Instance.CancelPlacement();
+            DeployableManager.Instance!.CancelPlacement();
             return;
         }
 
         // 배치된 오퍼레이터 클릭 동작
         if (IsDeployed && 
             !IsPreviewMode &&
-            StageManager.Instance.currentState == GameState.Battle // 테스트 중)
+            StageManager.Instance!.currentState == GameState.Battle // 테스트 중)
             )
         {
-            DeployableManager.Instance.CancelPlacement();
+            DeployableManager.Instance!.CancelPlacement();
 
             // 미리보기 상태에선 동작 X
             if (IsPreviewMode == false)
             {
                 //DebugDeployableInfo();
-                UIManager.Instance.ShowDeployedInfo(this);
+                UIManager.Instance!.ShowDeployedInfo(this);
             }
 
             ShowActionUI();
@@ -190,13 +182,13 @@ public abstract class DeployableUnitEntity: UnitEntity, IDeployable
 
     protected virtual void ShowActionUI()
     {
-        DeployableManager.Instance.ShowActionUI(this);
-        UIManager.Instance.ShowDeployedInfo(this);
+        DeployableManager.Instance!.ShowActionUI(this);
+        UIManager.Instance!.ShowDeployedInfo(this);
     }
 
     protected override void InitializeHP()
     {
-        MaxHealth = currentStats.Health;
+        MaxHealth = currentDeployableStats.Health;
         CurrentHealth = MaxHealth;
     }
 
@@ -213,9 +205,9 @@ public abstract class DeployableUnitEntity: UnitEntity, IDeployable
     protected virtual void UpdateCurrentTile()
     {
         Vector3 position = transform.position;
-        Tile newTile = MapManager.Instance.GetTileAtWorldPosition(position);
+        Tile? newTile = MapManager.Instance!.GetTileAtWorldPosition(position);
 
-        if (newTile != CurrentTile)
+        if (newTile != null && newTile != CurrentTile)
         {
             CurrentTile = newTile;
         }

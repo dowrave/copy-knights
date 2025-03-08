@@ -6,22 +6,22 @@ using UnityEngine.UI;
 public class InGameTopButtonContainer : MonoBehaviour
 {
     [Header("References")]
-    [SerializeField] private Button returnToLobbyButton;
-    [SerializeField] private Button currentSpeedButton;
-    [SerializeField] private Button pauseButton;
+    [SerializeField] private Button returnToLobbyButton = default!;
+    [SerializeField] private Button currentSpeedButton = default!;
+    [SerializeField] private Button pauseButton = default!;
 
     [Header("Text References")]
-    [SerializeField] private TextMeshProUGUI currentSpeedText;
+    [SerializeField] private TextMeshProUGUI currentSpeedText = default!;
 
     [Header("Image References")]
-    [SerializeField] private Image exitImage;
-    [SerializeField] private Image currentSpeedImage;
-    [SerializeField] private Image pauseImage;
+    //[SerializeField] private Image exitImage = default!;
+    [SerializeField] private Image currentSpeedImage = default!;
+    [SerializeField] private Image pauseImage = default!;
 
     [Header("Sprite From Resources")]
-    [SerializeField] private Sprite x1SpeedSprite; // 재생에도 사용됨
-    [SerializeField] private Sprite x2SpeedSprite;
-    [SerializeField] private Sprite pauseSprite;
+    [SerializeField] private Sprite x1SpeedSprite = default!; // 재생에도 사용됨
+    [SerializeField] private Sprite x2SpeedSprite = default!;
+    [SerializeField] private Sprite pauseSprite = default!;
 
     private void Awake()
     {
@@ -36,11 +36,11 @@ public class InGameTopButtonContainer : MonoBehaviour
         pauseButton.onClick.RemoveAllListeners(); // 기존 리스너 제거
         returnToLobbyButton.onClick.RemoveAllListeners();
 
-        currentSpeedButton.onClick.AddListener(StageManager.Instance.ToggleSpeedUp);
-        pauseButton.onClick.AddListener(StageManager.Instance.TogglePause);
+        currentSpeedButton.onClick.AddListener(StageManager.Instance!.ToggleSpeedUp);
+        pauseButton.onClick.AddListener(StageManager.Instance!.TogglePause);
         returnToLobbyButton.onClick.AddListener(OnReturnToLobbyButtonClicked);
 
-        StageManager.Instance.OnPreparationCompleted += ActivateButtons;
+        StageManager.Instance!.OnPreparationCompleted += ActivateButtons;
     }
 
     public void ActivateButtons()
@@ -54,29 +54,29 @@ public class InGameTopButtonContainer : MonoBehaviour
     public void UpdateSpeedUpButtonVisual()
     {
         // 현재 배속인 상태를 띄움
-        currentSpeedText.text = StageManager.Instance.IsSpeedUp ? "x2" : "x1";
-        currentSpeedImage.sprite = StageManager.Instance.IsSpeedUp ? x2SpeedSprite : x1SpeedSprite;
+        currentSpeedText.text = StageManager.Instance!.IsSpeedUp ? "x2" : "x1";
+        currentSpeedImage.sprite = StageManager.Instance!.IsSpeedUp ? x2SpeedSprite : x1SpeedSprite;
     }
 
     public void UpdatePauseButtonVisual()
     {
         // 눌러서 바뀌는 상태를 띄움(정지 중일 때 재생, 재생 중일 때 정지)
-        pauseImage.sprite = StageManager.Instance.currentState == GameState.Paused ? x1SpeedSprite : pauseSprite;
+        pauseImage.sprite = StageManager.Instance!.currentState == GameState.Paused ? x1SpeedSprite : pauseSprite;
     }
 
     private void OnReturnToLobbyButtonClicked()
     {
         // Pause패널이 나타났을 때에도 클릭될 수 있음
-        if (StageManager.Instance.currentState == GameState.Battle)
+        if (StageManager.Instance!.currentState == GameState.Battle)
         {
-            StageManager.Instance.SetGameState(GameState.Paused);
+            StageManager.Instance!.SetGameState(GameState.Paused);
         }
 
-        UIManager.Instance.InitializeReturnToLobbyPanel();
+        UIManager.Instance!.InitializeReturnToLobbyPanel();
     }
 
     private void OnDisable()
     {
-        StageManager.Instance.OnPreparationCompleted -= ActivateButtons;
+        StageManager.Instance!.OnPreparationCompleted -= ActivateButtons;
     }
 }

@@ -4,8 +4,8 @@ using System.Collections.Generic;
 // 코스트 획득 시 파티클이 코스트 아이콘으로 날아가는 처리
 public class CostParticleMotion : MonoBehaviour
 {
-    private new ParticleSystem particleSystem;
-    private ParticleSystem.Particle[] particles;
+    private new ParticleSystem particleSystem = default!;
+    private ParticleSystem.Particle[] particles = System.Array.Empty<ParticleSystem.Particle>();
     private float elapsed = 0f;
 
     private Vector2 iconScreenPosition;
@@ -17,7 +17,7 @@ public class CostParticleMotion : MonoBehaviour
     [SerializeField] private float turnSpeed = 5f;
     [SerializeField] private float arrivalThreshold = 2f;
 
-    private RectTransform deploymentCostIconTransform;
+    private RectTransform deploymentCostIconTransform = default!;
     private Dictionary<uint, Vector3> particleVelocities = new Dictionary<uint, Vector3>();
    
 
@@ -35,7 +35,7 @@ public class CostParticleMotion : MonoBehaviour
 
     private void Start()
     {
-        iconWorldPosition = UIManager.Instance.CostIconWorldPosition;
+        iconWorldPosition = UIManager.Instance!.CostIconWorldPosition;
     }
 
     private void LateUpdate()

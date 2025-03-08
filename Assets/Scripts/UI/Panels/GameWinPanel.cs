@@ -9,8 +9,8 @@ using UnityEngine.UI;
 public class GameWinPanel : MonoBehaviour
 {
     [Header("Main Components")]
-    [SerializeField] private Image backgroundStrip;
-    [SerializeField] private RectTransform movingContainer;
+    [SerializeField] private Image backgroundStrip = default!;
+    [SerializeField] private RectTransform movingContainer = default!;
 
     [Header("Animation Settings")]
     [SerializeField] private float stripFadeInDuration = 0.1f;
@@ -19,8 +19,8 @@ public class GameWinPanel : MonoBehaviour
     [SerializeField] private float textPauseDuration = 0.5f;
     [SerializeField] private float textOffset = 1500f; // 화면 밖까지의 거리
 
-    private Sequence animationSequence;
-    private System.Action onAnimationComplete;
+    private Sequence? animationSequence;
+    private System.Action? onAnimationComplete;
 
     private void Awake()
     {

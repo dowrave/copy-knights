@@ -10,21 +10,21 @@ namespace Skills.Base
         [SerializeField] private float damageMultiplier = 0.5f;
         [SerializeField] private float stunDuration = 2f;
         [SerializeField] private int costRecovery = 10;
-        [SerializeField] private GameObject meteorPrefab; // 떨어지는 메쉬 자체
+        [SerializeField] private GameObject meteorPrefab = default!; // 떨어지는 메쉬 자체
         [SerializeField] private Vector2 meteorHeights = new Vector2(4f, 5f); // 두 오브젝트의 높이
         [SerializeField] private float meteorDelay = 0.5f;
 
-        protected override GameObject CreateEffectField(Operator op, Vector2Int centerPos)
+        protected override GameObject? CreateEffectField(Operator op, Vector2Int centerPos)
         {
             enemyIdSet.Clear();
 
             // 코스트 회복
-            StageManager.Instance.RecoverDeploymentCost(costRecovery);
+            StageManager.Instance!.RecoverDeploymentCost(costRecovery);
 
             // 범위 내의 적들에게 메테오 생성
             foreach (Vector2Int pos in actualSkillRange)
             {
-                Tile tile = MapManager.Instance.GetTile(pos.x, pos.y); 
+                Tile? tile = MapManager.Instance!.GetTile(pos.x, pos.y); 
                 if (tile != null) 
                 {
                     foreach (Enemy enemy in tile.GetEnemiesOnTile())
@@ -53,14 +53,17 @@ namespace Skills.Base
             GameObject meteorObj = Instantiate(meteorPrefab, spawnPos, Quaternion.Euler(90, 0, 0), target.transform);
             float actualDamage = op.AttackPower * damageMultiplier;
 
-            MeteorController controller = meteorObj.GetComponent<MeteorController>();
-            controller.Initialize(op, target, actualDamage, delayTime, stunDuration, hitEffectPrefab);
+            MeteorController? controller = meteorObj.GetComponent<MeteorController>();
+            if (controller != null && hitEffectPrefab != null)
+            {
+                controller.Initialize(op, target, actualDamage, delayTime, stunDuration, hitEffectPrefab);
+            }
         }
 
         protected override Vector2Int GetCenterPos(Operator op)
         {
             // mainTarget을 중심으로 시전되므로
-            return MapManager.Instance.ConvertToGridPosition(op.transform.position);
+            return MapManager.Instance!.ConvertToGridPosition(op.transform.position);
         }
     }
 }

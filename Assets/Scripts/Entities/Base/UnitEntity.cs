@@ -8,8 +8,8 @@ public abstract class UnitEntity : MonoBehaviour, ITargettable, IFactionMember
 {
     public Faction Faction { get; protected set; }
 
-    public GameObject Prefab { get; protected set; }
-    public ShieldSystem shieldSystem;
+    public GameObject Prefab { get; protected set; } = default!;
+    public ShieldSystem shieldSystem = default!;
 
     // 스탯 관련
     private float _currentHealth;
@@ -32,12 +32,12 @@ public abstract class UnitEntity : MonoBehaviour, ITargettable, IFactionMember
     protected List<ICombatEntity> attackingEntities = new List<ICombatEntity>();
 
     // 박스 콜라이더
-    protected BoxCollider boxCollider;
+    protected BoxCollider boxCollider = default!;
 
     // 이벤트
-    public event System.Action<float, float, float> OnHealthChanged;
-    public event System.Action<UnitEntity> OnDestroyed;
-    public event System.Action<CrowdControl, bool> OnCrowdControlChanged;
+    public event System.Action<float, float, float> OnHealthChanged = delegate { };
+    public event System.Action<UnitEntity> OnDestroyed = delegate { };
+    public event System.Action<CrowdControl, bool> OnCrowdControlChanged = delegate { };
 
     protected virtual void Awake()
     {
@@ -90,17 +90,17 @@ public abstract class UnitEntity : MonoBehaviour, ITargettable, IFactionMember
         CurrentHealth += healAmount; 
         float actualHealAmount = CurrentHealth - oldHealth; // 실제 힐량
 
-        if (healer is MedicOperator medic && medic.BaseData.hitEffectPrefab != null)
+        if (healer is MedicOperator medic && medic.OperatorData.hitEffectPrefab != null)
         {
             PlayGetHitEffect(medic, attackSource);
         }
         
-        ObjectPoolManager.Instance.ShowFloatingText(transform.position, actualHealAmount, true);
+        ObjectPoolManager.Instance!.ShowFloatingText(transform.position, actualHealAmount, true);
 
 
         if (healer is Operator healerOperator)
         {
-            StatisticsManager.Instance.UpdateHealingDone(healerOperator.BaseData, actualHealAmount);
+            StatisticsManager.Instance!.UpdateHealingDone(healerOperator.OperatorData, actualHealAmount);
         }
     }
 
@@ -111,7 +111,7 @@ public abstract class UnitEntity : MonoBehaviour, ITargettable, IFactionMember
 
         if (attacker is Operator op)
         {
-            OperatorData opData = op.BaseData;
+            OperatorData opData = op.OperatorData;
             hitEffectPrefab = opData.hitEffectPrefab;
             attackerName = opData.entityName;
         }
@@ -133,7 +133,7 @@ public abstract class UnitEntity : MonoBehaviour, ITargettable, IFactionMember
 
             // 풀에서 이펙트 오브젝트 가져오기
             string effectTag = attackerName + hitEffectPrefab.name;
-            GameObject? hitEffect = ObjectPoolManager.Instance.SpawnFromPool(effectTag, effectPosition, Quaternion.identity);
+            GameObject? hitEffect = ObjectPoolManager.Instance!.SpawnFromPool(effectTag, effectPosition, Quaternion.identity);
             if (hitEffect != null)
             {
                 CombatVFXController hitVFXController = hitEffect.GetComponent<CombatVFXController>();

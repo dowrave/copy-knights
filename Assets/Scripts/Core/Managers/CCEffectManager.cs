@@ -27,7 +27,7 @@ public class CCEffectManager : MonoBehaviour
     {
         if (effectDatabase == null) return null;
 
-        GameObject prefab = effectDatabase.GetEffectPrefab(cc.GetType());
+        GameObject? prefab = effectDatabase.GetEffectPrefab(cc.GetType());
         if (prefab != null)
         {
             GameObject effectObj = Instantiate(prefab, target.position, Quaternion.identity, target);

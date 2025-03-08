@@ -6,35 +6,35 @@ using UnityEngine.UI;
 public class OperatorPromotionPanel : MonoBehaviour
 {
     [Header("Attack Range Preview")]
-    [SerializeField] private RectTransform attackRangeContainer;
+    [SerializeField] private RectTransform attackRangeContainer = default!;
     [SerializeField] private float centerPositionOffset;
     [SerializeField] private float tileSize = 25f;
 
     [Header("Current/Target Promotion UI")]
-    [SerializeField] private TextMeshProUGUI currentPromotionText;
-    [SerializeField] private TextMeshProUGUI newPromotionText;
-    [SerializeField] private Image currentPromotionImage;
-    [SerializeField] private Image newPromotionImage;
+    [SerializeField] private TextMeshProUGUI currentPromotionText = default!;
+    [SerializeField] private TextMeshProUGUI newPromotionText = default!;
+    [SerializeField] private Image currentPromotionImage = default!;
+    [SerializeField] private Image newPromotionImage = default!;
 
 
-    private UIHelper.AttackRangeHelper attackRangeHelper;
+    private UIHelper.AttackRangeHelper attackRangeHelper = default!;
 
     [Header("Controls")]
-    [SerializeField] private Button confirmButton;
+    [SerializeField] private Button confirmButton = default!;
 
     [Header("UnlockContents")]
-    [SerializeField] private TextMeshProUGUI skillUnlockText;
-    [SerializeField] private Image attackRangePrefab;
+    //[SerializeField] private TextMeshProUGUI skillUnlockText = default!;
+    //[SerializeField] private Image attackRangePrefab = default!;
 
-    [SerializeField] private TextMeshProUGUI cannotConditionText;
+    [SerializeField] private TextMeshProUGUI cannotConditionText = default!;
 
-    private OwnedOperator op;
-    private string updateColor; // 사용 중임.
+    private OwnedOperator op = default!;
+    private string updateColor = string.Empty; // 사용 중임.
 
     private void Awake()
     {
         confirmButton.onClick.AddListener(OnConfirmButtonClicked);
-        updateColor = GameManagement.Instance.ResourceManager.TextUpdateColor;
+        updateColor = GameManagement.Instance!.ResourceManager.TextUpdateColor;
     }
 
     private void Start()
@@ -42,7 +42,7 @@ public class OperatorPromotionPanel : MonoBehaviour
         // 공격 범위 시각화 도우미 초기화
         if (attackRangeContainer != null)
         {
-            attackRangeHelper = UIHelper.Instance.CreateAttackRangeHelper(
+            attackRangeHelper = UIHelper.Instance!.CreateAttackRangeHelper(
                 attackRangeContainer,
                 centerPositionOffset,
                 tileSize
@@ -90,16 +90,19 @@ public class OperatorPromotionPanel : MonoBehaviour
 
     private void ShowAttackRangePreview()
     {
-        if (attackRangeHelper == null || op == null) return;
+        if (attackRangeHelper == null) return;
 
         // 정예화 이전 기본 공격 범위
         List<Vector2Int> baseTiles = new List<Vector2Int>(op.CurrentAttackableGridPos);
 
         // 정예화 후 추가되는 공격 범위
-        List<Vector2Int> additionalTiles = op.BaseData.elite1Unlocks.additionalAttackTiles;
+        List<Vector2Int>? additionalTiles = op.OperatorProgressData.elite1Unlocks.additionalAttackTiles;
 
         // 기본 범위와 추가 범위를 다른 색상으로 표시
-        attackRangeHelper.ShowRangeWithUnlocks(baseTiles, additionalTiles);
+        if (additionalTiles != null)
+        {
+            attackRangeHelper.ShowRangeWithUnlocks(baseTiles, additionalTiles);
+        }
     }
 
     private void OnDisable()
@@ -115,13 +118,13 @@ public class OperatorPromotionPanel : MonoBehaviour
     {
         if (op.CanPromote)
         {
-            bool success = OperatorGrowthManager.Instance.TryPromoteOperator(op);
+            bool success = OperatorGrowthManager.Instance!.TryPromoteOperator(op);
             if (success)
             {
-                MainMenuManager.Instance.ShowNotification($"{op.operatorName} 정예화 완료");
+                MainMenuManager.Instance!.ShowNotification($"{op.operatorName} 정예화 완료");
                 // 디테일 패널로 돌아가기
-                MainMenuManager.Instance.ActivateAndFadeOut(
-                    MainMenuManager.Instance.PanelMap[MainMenuManager.MenuPanel.OperatorDetail],
+                MainMenuManager.Instance!.ActivateAndFadeOut(
+                    MainMenuManager.Instance!.PanelMap[MainMenuManager.MenuPanel.OperatorDetail],
                     gameObject
                 );
             }

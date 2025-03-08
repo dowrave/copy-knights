@@ -5,12 +5,12 @@ using System.Collections.Generic;
 public class StageData : ScriptableObject
 {
     [Header("Stage Description")]
-    public string stageId; // 1-1, 1-2, 1-3 등등
-    public string stageName; // 스테이지 부제
-    public string stageDetail; // 스테이지 설명
+    public string stageId = string.Empty; // 1-1, 1-2, 1-3 등등
+    public string stageName = string.Empty; // 스테이지 부제
+    public string stageDetail = string.Empty; // 스테이지 설명
 
     [Header("Map Settings")]
-    public GameObject mapPrefab;
+    public GameObject mapPrefab = default!;
 
     [Header("Stage Configs")]
     public int startDeploymentCost = 10;

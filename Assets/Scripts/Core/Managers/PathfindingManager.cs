@@ -23,6 +23,8 @@ public class PathfindingManager : MonoBehaviour
 
     private void Awake()
     {
+        if (StageManager.Instance == null) throw new InvalidOperationException("StageManager.Instance∞° null¿”");
+
         if (instance == null)
         {
             instance = this;

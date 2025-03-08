@@ -13,7 +13,7 @@ public static class OperatorGrowthSystem
         Elite1 = 1   // 1차 정예화
     }
 
-    private static OperatorLevelData levelData;
+    private static OperatorLevelData? levelData;
     public static readonly int Elite0MaxLevel = 50;
     public static readonly int Elite1MaxLevel = 60;
 
@@ -37,7 +37,9 @@ public static class OperatorGrowthSystem
     // 다음 레벨로 넘어가기 위해 필요한 경험치량. 현재 경험치량에 관계 없다.
     public static int GetMaxExpForNextLevel(ElitePhase phase, int currentLevel)
     {
-        return levelData.GetExpRequirement(phase, currentLevel);
+        InstanceValidator.ValidateInstance(levelData);
+
+        return levelData!.GetExpRequirement(phase, currentLevel);
     }
 
 
@@ -86,6 +88,8 @@ public static class OperatorGrowthSystem
         int currentLevel, 
         int totalExp)
     {
+        InstanceValidator.ValidateInstance(levelData);
+
         int remainingExp = totalExp;
         int level = currentLevel;
         int maxLevel = (phase == ElitePhase.Elite0) ? 50 : 60;
@@ -93,7 +97,7 @@ public static class OperatorGrowthSystem
         // 경험치를 소모하면서 도달 가능한 최대 레벨 계산
         while (level < maxLevel)
         {
-            int requiredExp = levelData.GetExpRequirement(phase, level);
+            int requiredExp = levelData!.GetExpRequirement(phase, level);
             if (requiredExp == 0 || remainingExp < requiredExp) break;
 
             remainingExp -= requiredExp;
@@ -138,8 +142,8 @@ public static class OperatorGrowthSystem
     public static OperatorStats CalculateStats(OwnedOperator op, int targetLevel, ElitePhase targetPhase)
     {
         // 기반 스탯
-        OperatorStats baseStats = op.BaseData.stats; 
-        OperatorData.OperatorLevelStats levelUpStats = op.BaseData.levelStats;
+        OperatorStats baseStats = op.OperatorProgressData!.stats; 
+        OperatorData.OperatorLevelStats levelUpStats = op.OperatorProgressData!.levelStats!;
 
         // (사실상) 레벨 차이 계산하기
         int actualTargetLevel = CalculateActualLevel(targetPhase, targetLevel);

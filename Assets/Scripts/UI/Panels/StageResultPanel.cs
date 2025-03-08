@@ -12,9 +12,9 @@ using UnityEngine.UI;
 public class StageResultPanel : MonoBehaviour
 {
     [Header("Star Rating")]
-    [SerializeField] private Image[] starImages; // star1, star2, star3 오브젝트들
-    [SerializeField] private Sprite inactiveStarSprite;
-    [SerializeField] private Sprite activeStarSprite;
+    [SerializeField] private Image[] starImages = default!; // star1, star2, star3 오브젝트들
+    [SerializeField] private Sprite inactiveStarSprite = default!;
+    [SerializeField] private Sprite activeStarSprite = default!;
 
     [Header("Star Aniamtion")]
     [SerializeField] private float starActivationInterval = 0.5f; // 다음 애니메이션 시작까지 인터벌
@@ -23,37 +23,36 @@ public class StageResultPanel : MonoBehaviour
     [SerializeField] private Color activeStarColor = Color.cyan;
 
     [Header("Result Text")]
-    [SerializeField] private TextMeshProUGUI stageIdText;
-    [SerializeField] private TextMeshProUGUI stageNameText;
-    [SerializeField] private TextMeshProUGUI clearOrFailedText;
+    [SerializeField] private TextMeshProUGUI stageIdText = default!;
+    [SerializeField] private TextMeshProUGUI stageNameText = default!;
+    [SerializeField] private TextMeshProUGUI clearOrFailedText = default!;
 
     [Header("Statistics")]
-    [SerializeField] private GameObject resultStatisticPanelObject; // 통계 패널 전체
-    [SerializeField] private StatisticItem statisticItemPrefab;
-    [SerializeField] private Transform statisticItemContainer;
-    [SerializeField] private Button showPercentageTab; // 절대 수치 <-> % 변환 버튼
-    [SerializeField] private Button damageDealtTab; // 가한 대미지량 버튼 
-    [SerializeField] private Button damageTakenTab; // 받은 대미지량 버튼
-    [SerializeField] private Button healingDoneTab; // 회복량 버튼
+    //[SerializeField] private GameObject resultStatisticPanelObject = default!; // 통계 패널 전체
+    [SerializeField] private StatisticItem statisticItemPrefab = default!;
+    [SerializeField] private Transform statisticItemContainer = default!;
+    [SerializeField] private Button showPercentageTab = default!; // 절대 수치 <-> % 변환 버튼
+    [SerializeField] private Button damageDealtTab = default!; // 가한 대미지량 버튼 
+    [SerializeField] private Button damageTakenTab = default!; // 받은 대미지량 버튼
+    [SerializeField] private Button healingDoneTab = default!; // 회복량 버튼
 
     [Header("About Reward Item")]
-    [SerializeField] private Transform rewardItemContainer;
-    [SerializeField] private ItemUIElement itemUIPrefab;
+    [SerializeField] private Transform rewardItemContainer = default!;
+    [SerializeField] private ItemUIElement itemUIPrefab = default!;
 
     [Header("Button Colors")]
-    [SerializeField] private Color hoveredColor;
-    [SerializeField] private Color selectedColor;
+    [SerializeField] private Color hoveredColor = default!;
+    [SerializeField] private Color selectedColor = default!;
     private Color normalColor = Color.black;
 
     [Header("Return To Lobby Button")]
-    [SerializeField] private Button returnToLobbyButton;
+    [SerializeField] private Button returnToLobbyButton = default!;
 
     private bool showingPercentage = false;
     private StatisticsManager.StatType currentStatType = StatisticsManager.StatType.DamageDealt;
-    private List<Button> statButtons; // 표시(%, 타입) 전환 버튼
+    private List<Button> statButtons = new List<Button>(); // 표시(%, 타입) 전환 버튼
     private List<StatisticItem> statItems = new List<StatisticItem>();
-    private List<StatisticsManager.OperatorStats> allOperatorStats;
-    private StageResultData resultData;
+    private List<StatisticsManager.OperatorStats> allOperatorStats = new List<StatisticsManager.OperatorStats>();
     private int stars;
 
     private List<ItemUIElement> activeItemElements = new List<ItemUIElement>();
@@ -79,7 +78,7 @@ public class StageResultPanel : MonoBehaviour
     private void OnReturnButtonClicked()
     {
         bool isPerfectClear = stars == 3;
-        StageManager.Instance.ReturnToMainMenu(isPerfectClear);
+        StageManager.Instance!.ReturnToMainMenu(isPerfectClear);
     }
 
 
@@ -167,7 +166,7 @@ public class StageResultPanel : MonoBehaviour
     /// </summary>
     private void UpdateStats()
     {
-        var sortedStats = StatisticsManager.Instance.GetSortedOperatorStats(currentStatType);
+        var sortedStats = StatisticsManager.Instance!.GetSortedOperatorStats(currentStatType);
 
         // StatItems 재정렬
         for (int i = 0; i < statItems.Count; i++)
@@ -199,14 +198,14 @@ public class StageResultPanel : MonoBehaviour
     private void StopEventPropagation()
     {
         // 버튼 클릭 이벤트가 패널로 전파되는 걸 방지함
-        UnityEngine.EventSystems.EventSystem.current.SetSelectedGameObject(null);
+        EventSystem.current.SetSelectedGameObject(null!);
     }
 
 
     public void Initialize(int stars)
     {
         this.stars = stars; 
-        allOperatorStats = StatisticsManager.Instance.GetAllOperatorStats();
+        allOperatorStats = StatisticsManager.Instance!.GetAllOperatorStats();
 
         UpdateStarRating();
         UpdateHeaders();
@@ -289,10 +288,13 @@ public class StageResultPanel : MonoBehaviour
     /// </summary>
     private void UpdateHeaders()
     {
-        StageData stageData = StageManager.Instance.StageData;
-        stageIdText.text = $"{stageData.stageId}";
-        stageNameText.text = $"{stageData.stageDetail}";
-        clearOrFailedText.text = stars > 0 ? "작전 종료" : "작전 실패";
+        StageData? stageData = StageManager.Instance!.StageData;
+        if (stageData != null)
+        {
+            stageIdText.text = $"{stageData.stageId}";
+            stageNameText.text = $"{stageData.stageDetail}";
+            clearOrFailedText.text = stars > 0 ? "작전 종료" : "작전 실패";
+        }
     }
 
     private void CreateStatItems()
@@ -303,7 +305,7 @@ public class StageResultPanel : MonoBehaviour
         }
         statItems.Clear();
 
-        var sortedStats = StatisticsManager.Instance.GetSortedOperatorStats(currentStatType);
+        var sortedStats = StatisticsManager.Instance!.GetSortedOperatorStats(currentStatType);
 
         // Grid Layout Group 셀 크기 조정
         AdjustGridCellSize(sortedStats.Count);
@@ -349,7 +351,7 @@ public class StageResultPanel : MonoBehaviour
         RemoveRewardItemsUI();
 
         // UI에 사용될 아이템 표시
-        foreach (var itemPair in StageManager.Instance.StageData.rewardItems)
+        foreach (var itemPair in StageManager.Instance!.StageData!.rewardItems)
         {
             ItemUIElement itemElement = Instantiate(itemUIPrefab, rewardItemContainer);
             itemElement.Initialize(itemPair.itemData, itemPair.count, true);

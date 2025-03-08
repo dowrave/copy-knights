@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class StatisticsManager : MonoBehaviour
 {
-    public static StatisticsManager Instance { get; private set; }
+    public static StatisticsManager? Instance { get; private set; }
 
 
     /// <summary>
@@ -24,7 +24,7 @@ public class StatisticsManager : MonoBehaviour
 
     [SerializeField] private StatsPanel? statsPanel;
 
-    public event System.Action<StatType> OnStatUpdated; // 일단 시각화할지 여부만 결정할 것이므로 StatType만 넣음
+    public event System.Action<StatType>? OnStatUpdated; // 일단 시각화할지 여부만 결정할 것이므로 StatType만 넣음
 
     private void Awake()
     {

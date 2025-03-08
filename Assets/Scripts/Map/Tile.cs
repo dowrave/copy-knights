@@ -5,8 +5,8 @@ using UnityEngine.UIElements;
 [ExecuteAlways] // 에디터, 런타임 모두에서 스크립트 실행
 public class Tile : MonoBehaviour
 {
-    public TileData data;
-    public DeployableUnitEntity OccupyingDeployable { get; private set; }
+    public TileData data = default!;
+    public DeployableUnitEntity? OccupyingDeployable { get; private set; }
     public bool IsOccupied
     {
         get { return OccupyingDeployable != null; }
@@ -14,7 +14,7 @@ public class Tile : MonoBehaviour
 
     public bool IsWalkable { get; private set; }
 
-    private Transform cubeTransform;
+    private Transform cubeTransform = default!;
     private float tileScale = 0.98f;
     public Vector2 size2D;
 
@@ -35,15 +35,15 @@ public class Tile : MonoBehaviour
         private set { gridPosition = value; }
     }
 
-    [SerializeField] private Material baseTileMaterial; // Inspector에서 할당함
-    private Renderer tileRenderer;
-    private MaterialPropertyBlock propBlock; // 머티리얼 속성을 오버라이드하는 경량 객체. 모든 타일이 동일한 머티리얼을 공유하되 색을 개별적으로 설정할 수 있다.
+    [SerializeField] private Material baseTileMaterial = default!; // Inspector에서 할당함
+    private Renderer tileRenderer = default!;
+    private MaterialPropertyBlock propBlock = default!; // 머티리얼 속성을 오버라이드하는 경량 객체. 모든 타일이 동일한 머티리얼을 공유하되 색을 개별적으로 설정할 수 있다.
 
     // 길찾기 알고리즘을 위한 속성들
     public int GCost { get; set; }
     public int HCost { get; set; }
     public int FCost => GCost + HCost;
-    public Tile Parent { get; set; }
+    public Tile Parent { get; set; } = default!;
 
     private void Awake()
     {

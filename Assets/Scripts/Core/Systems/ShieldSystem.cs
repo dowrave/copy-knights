@@ -13,7 +13,7 @@ public class ShieldSystem
     public float CurrentShield => currentShield;
     public float MaxShield => maxShield;
 
-    public event System.Action<float, bool> OnShieldChanged;
+    public event System.Action<float, bool>? OnShieldChanged;
 
     public void ActivateShield(float amount)
     {

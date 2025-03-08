@@ -10,12 +10,12 @@ public class PathIndicator : MonoBehaviour
 
     private List<Vector3> currentPath = new List<Vector3>();
 
-    private PathData pathData;
-    private PathNode nextNode;
+    private PathData? pathData;
+    private PathNode? nextNode;
     private int nextNodeIndex = 0; // 시작하자마자 1이 됨
     private Vector3 nextPosition;
-    private bool isWaiting = false;
     private Vector3 destinationPosition; // 목적지
+    private bool isWaiting = false; // 쓰고 있음
 
     public void Initialize(PathData pathData)
     {
@@ -29,9 +29,11 @@ public class PathIndicator : MonoBehaviour
 
     private void InitializeCurrentPath()
     {
-        foreach (var node in pathData.nodes)
+        InstanceValidator.ValidateInstance(pathData);
+
+        foreach (var node in pathData!.nodes)
         {
-            currentPath.Add(MapManager.Instance.ConvertToWorldPosition(node.gridPosition) + Vector3.up * height);
+            currentPath.Add(MapManager.Instance!.ConvertToWorldPosition(node.gridPosition) + Vector3.up * height);
         }
 
         destinationPosition = currentPath[currentPath.Count - 1]; // 목적지 설정
@@ -39,23 +41,37 @@ public class PathIndicator : MonoBehaviour
 
     private void SetupInitialPosition()
     {
-        if (pathData != null && pathData.nodes.Count > 0)
+        InstanceValidator.ValidateInstance(pathData);
+
+        if (pathData!.nodes.Count > 0)
         {
-            transform.position = MapManager.Instance.ConvertToWorldPosition(pathData.nodes[0].gridPosition) +
+            transform.position = MapManager.Instance!.ConvertToWorldPosition(pathData!.nodes[0].gridPosition) +
                 Vector3.up * height;
         }
     }
 
     private void Update()
     {
-        if (StageManager.Instance.currentState == GameState.Battle)
+        if (StageManager.Instance!.currentState == GameState.Battle)
         {
             MoveAlongPath();
         }
     }
 
+    // 경고 발생 이유:
+    // isWaiting 필드는 WaitAtNode() 코루틴에서 값이 할당되지만, 실제로 읽히지 않아 경고 CS0414가 발생합니다.
+    // 해결 방법은 두 가지입니다.
+
+    // 1. 대기 상태를 참조하도록 코드를 수정하여 isWaiting을 사용하게 할 수 있습니다.
+    // 예를 들어, MoveAlongPath()에서 isWaiting 상태일 때 이동 로직을 건너뛰도록 처리해보세요.
     private void MoveAlongPath()
     {
+        // 대기 중일 때는 이동하지 않음
+        if (isWaiting)
+        {
+            return;
+        }
+
         if (CheckIfReachedDestination())
         {
             ReachDestination();
@@ -63,22 +79,17 @@ public class PathIndicator : MonoBehaviour
         }
 
         Move(nextPosition);
-        //RotateModelTowardsMovementDirection();
 
-        // 노드 도달 확인
         if (Vector3.Distance(transform.position, nextPosition) < 0.05f)
         {
-            // 목적지 도달
             if (Vector3.Distance(transform.position, destinationPosition) < 0.05f)
             {
                 ReachDestination();
             }
-            // 기다려야 하는 경우
-            else if (nextNode.waitTime > 0)
+            else if (nextNode != null && nextNode.waitTime > 0)
             {
                 StartCoroutine(WaitAtNode(nextNode.waitTime));
             }
-            // 노드 업데이트
             else
             {
                 UpdateNextNode();
@@ -89,10 +100,12 @@ public class PathIndicator : MonoBehaviour
     // 마지막 타일의 월드 좌표 기준
     private bool CheckIfReachedDestination()
     {
-        if (pathData.nodes.Count == 0) return false;
+        InstanceValidator.ValidateInstance(pathData);
 
-        Vector2Int lastNodeGridPos = pathData.nodes[pathData.nodes.Count - 1].gridPosition;
-        Vector3 lastNodePosition = MapManager.Instance.ConvertToWorldPosition(lastNodeGridPos) + Vector3.up * height;
+        if (pathData!.nodes.Count == 0) return false;
+
+        Vector2Int lastNodeGridPos = pathData!.nodes[pathData!.nodes.Count - 1].gridPosition;
+        Vector3 lastNodePosition = MapManager.Instance!.ConvertToWorldPosition(lastNodeGridPos) + Vector3.up * height;
 
         return Vector3.Distance(transform.position, lastNodePosition) < 0.05f;
     }
@@ -110,10 +123,10 @@ public class PathIndicator : MonoBehaviour
     private void UpdateNextNode()
     {
         nextNodeIndex++;
-        if (nextNodeIndex < pathData.nodes.Count)
+        if (pathData != null && nextNodeIndex < pathData.nodes.Count)
         {
             nextNode = pathData.nodes[nextNodeIndex];
-            nextPosition = MapManager.Instance.ConvertToWorldPosition(nextNode.gridPosition) +
+            nextPosition = MapManager.Instance!.ConvertToWorldPosition(nextNode.gridPosition) +
                 Vector3.up * height;
         }
     }

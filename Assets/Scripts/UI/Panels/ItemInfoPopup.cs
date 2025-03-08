@@ -11,14 +11,14 @@ using UnityEngine.UI;
 public class ItemInfoPopup : MonoBehaviour
 {
     [Header("Panel Components")]
-    [SerializeField] private RectTransform panelRect;
-    [SerializeField] private CanvasGroup panelCanvasGroup;
-    [SerializeField] private Image backgroundDim; // 뒷배경 딤 처리용 이미지
+    //[SerializeField] private RectTransform panelRect = default!;
+    [SerializeField] private CanvasGroup panelCanvasGroup = default!;
+    [SerializeField] private Image backgroundDim = default!; // 뒷배경 딤 처리용 이미지
 
-    [SerializeField] private Image itemIconImage;
-    [SerializeField] private TextMeshProUGUI itemNameText;
-    [SerializeField] private TextMeshProUGUI itemDescriptionText;
-    [SerializeField] private TextMeshProUGUI itemCountText;
+    [SerializeField] private Image itemIconImage = default!;
+    [SerializeField] private TextMeshProUGUI itemNameText = default!;
+    [SerializeField] private TextMeshProUGUI itemDescriptionText = default!;
+    [SerializeField] private TextMeshProUGUI itemCountText = default!;
     //[SerializeField] private RectTransform contentContainer; // 실제 컨텐츠 컨테이너
 
     [Header("Panel Settings")]
@@ -26,10 +26,10 @@ public class ItemInfoPopup : MonoBehaviour
 
     [Header("Animation Settings")]
     [SerializeField] private float fadeInDuration = 0.1f;
-    [SerializeField] private float scaleUpDuration = 0.1f;
+    //[SerializeField] private float scaleUpDuration = 0.1f;
 
-    private CanvasGroup backgroundUICanvasGroup; // 흐리게 할 요소들의 CanvasGroup
-    private ItemData currentItem;
+    private CanvasGroup? backgroundUICanvasGroup; // 흐리게 할 요소들의 CanvasGroup
+    private ItemData? currentItem;
 
     private void Awake()
     {
@@ -64,7 +64,7 @@ public class ItemInfoPopup : MonoBehaviour
         itemIconImage.enabled = currentItem.icon != null;
 
         // 보유 수량
-        int count = GameManagement.Instance.PlayerDataManager.GetItemCount(currentItem.itemName);
+        int count = GameManagement.Instance!.PlayerDataManager.GetItemCount(currentItem.itemName);
         itemCountText.text = count.ToString();
 
     }
@@ -99,9 +99,9 @@ public class ItemInfoPopup : MonoBehaviour
 
         hideSequence.OnComplete(() =>
         {
-            if (PopupManager.Instance != null)
+            if (PopupManager.Instance! != null)
             {
-                PopupManager.Instance.OnPopupClosed(this);
+                PopupManager.Instance!.OnPopupClosed(this);
             }
 
             ClearData();

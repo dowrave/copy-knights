@@ -8,28 +8,28 @@ using UnityEngine.UI;
 [System.Serializable]
 public class StageUIData
 {
-    public string stageId;
-    public StageButton stageButton;
-    public Image lineImage; 
+    public string stageId = string.Empty;
+    public StageButton stageButton = default!;
+    public Image lineImage = default!; 
 }
 
 public class StageSelectPanel : MonoBehaviour
 {
-    [SerializeField] private List<StageUIData> stageUIDataList;
-    [SerializeField] private Button cancelArea; // buttonContainer가 이 역할을 함
-    [SerializeField] private GameObject stageDetailPanel;
-    [SerializeField] private TextMeshProUGUI stageTitleText;
-    [SerializeField] private TextMeshProUGUI stageDetailText;
-    [SerializeField] private Button confirmButton;
+    [SerializeField] private List<StageUIData> stageUIDataList = new List<StageUIData>();
+    [SerializeField] private Button cancelArea = default!; // buttonContainer가 이 역할을 함
+    [SerializeField] private GameObject stageDetailPanel = default!;
+    [SerializeField] private TextMeshProUGUI stageTitleText = default!;
+    [SerializeField] private TextMeshProUGUI stageDetailText = default!;
+    [SerializeField] private Button confirmButton = default!;
 
-    public StageButton CurrentStageButton { get; private set; }
-    private StageData selectedStage => MainMenuManager.Instance.SelectedStage;
+    public StageButton? CurrentStageButton { get; private set; }
+    private StageData? selectedStage => MainMenuManager.Instance!.SelectedStage;
 
-    private PlayerDataManager playerDataManager;
+    private PlayerDataManager playerDataManager = default!;
 
     private void Start()
     {
-        playerDataManager = GameManagement.Instance.PlayerDataManager;
+        playerDataManager = GameManagement.Instance!.PlayerDataManager;
 
         InitializeStageButtons();
         InitializeDetailPanel();
@@ -156,13 +156,13 @@ public class StageSelectPanel : MonoBehaviour
     {
         if (CurrentStageButton != null)
         {
-            MainMenuManager.Instance.SetSelectedStage(CurrentStageButton.StageData);
+            MainMenuManager.Instance!.SetSelectedStage(CurrentStageButton.StageData);
 
-            GameObject squadEditPanel = MainMenuManager.Instance.PanelMap[MainMenuManager.MenuPanel.SquadEdit];
-            GameObject stageSelectPanel = MainMenuManager.Instance.PanelMap[MainMenuManager.MenuPanel.StageSelect];
+            GameObject squadEditPanel = MainMenuManager.Instance!.PanelMap[MainMenuManager.MenuPanel.SquadEdit];
+            GameObject stageSelectPanel = MainMenuManager.Instance!.PanelMap[MainMenuManager.MenuPanel.StageSelect];
 
             // squadEditPanel을 보여주고 stageSelectPanel을 숨김
-            MainMenuManager.Instance.FadeInAndHide(squadEditPanel, stageSelectPanel);
+            MainMenuManager.Instance!.FadeInAndHide(squadEditPanel, stageSelectPanel);
         }
     }
 

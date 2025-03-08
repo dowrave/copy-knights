@@ -5,27 +5,27 @@ using DG.Tweening;
 public class ConfirmationReturnToLobbyPanel : MonoBehaviour
 {
     [Header("UI References")]
-    [SerializeField] Button blurArea; // 빈 영역 클릭 시 로비로 돌아감
-    [SerializeField] Button ConfirmButton;
-    [SerializeField] Button CancelButton;
+    [SerializeField] Button blurArea = default!; // 빈 영역 클릭 시 로비로 돌아감
+    [SerializeField] Button ConfirmButton = default!;
+    [SerializeField] Button CancelButton = default!;
 
-    CanvasGroup canvasGroup;
+    private CanvasGroup canvasGroup = default!;
     private float animationSpeed = 0.01f; // DOFade의 실제 알파값에 영향을 준다. 왜 그런지는 모르겠음.
 
     private void Awake()
     {
-        if (canvasGroup == null) canvasGroup = GetComponent<CanvasGroup>();
+        canvasGroup = GetComponent<CanvasGroup>();
     }
 
     public void Initialize()
     {
-        if (StageManager.Instance.currentState == GameState.Battle)
+        if (StageManager.Instance!.currentState == GameState.Battle)
         {
-            StageManager.Instance.SetGameState(GameState.Paused);
+            StageManager.Instance!.SetGameState(GameState.Paused);
         }
 
         // 멈춤 오버레이가 활성화된 경우 비활성화
-        UIManager.Instance.HidePauseOverlay();
+        UIManager.Instance!.HidePauseOverlay();
         gameObject.SetActive(true);
 
         if (canvasGroup != null)
@@ -39,7 +39,7 @@ public class ConfirmationReturnToLobbyPanel : MonoBehaviour
 
     private void OnConfirmButtonClicked()
     {
-        StageManager.Instance.RequestExit();
+        StageManager.Instance!.RequestExit();
     }
 
     private void OnCancelButtonClicked()
@@ -60,7 +60,7 @@ public class ConfirmationReturnToLobbyPanel : MonoBehaviour
         }
 
         //UIManager.Instance.HidePauseOverlay();
-        StageManager.Instance.SetGameState(GameState.Battle);
+        StageManager.Instance!.SetGameState(GameState.Battle);
     }
 
     private void AddOnClickEventListeners()

@@ -9,29 +9,29 @@ using DG.Tweening;
 public class OperatorLevelUpPanel : MonoBehaviour
 {
     [Header("Level Strip Components")]
-    [SerializeField] private ScrollRect levelScrollRect;
-    [SerializeField] private RectTransform contentRect;
-    [SerializeField] private GameObject levelTextPrefab;
+    [SerializeField] private ScrollRect levelScrollRect = default!;
+    [SerializeField] private RectTransform contentRect = default!;
+    [SerializeField] private GameObject levelTextPrefab = default!;
 
     [Header("Info Display")]
-    [SerializeField] private Button confirmButton;
-    [SerializeField] private Slider expGauge;
-    [SerializeField] private Button maxLevelButton; 
+    [SerializeField] private Button confirmButton = default!;
+    [SerializeField] private Slider expGauge = default!;
+    [SerializeField] private Button maxLevelButton = default!; 
 
     [Header("Info Settings")]
     [SerializeField] private float snapSpeed = 10f; // 스냅 애니메이션 속도
 
     [Header("Item Usage Display")]
-    [SerializeField] private Transform itemUsageContainer; // 아이템 표시 컨테이너
-    [SerializeField] private ItemUIElement itemUIPrefab; // 아이템 UI 프리팹
+    [SerializeField] private Transform itemUsageContainer = default!; // 아이템 표시 컨테이너
+    [SerializeField] private ItemUIElement itemUIPrefab = default!; // 아이템 UI 프리팹
     [SerializeField] private Color usageItemBackgroundColor = new Color(0.8f, 0.4f, 0.2f, 1f); // 사용되는 아이템 갯수 색깔
-    [SerializeField] private TextMeshProUGUI cantReachLevelText; // 해당 레벨에 도달이 불가능할 때 아이템 대신 등장
+    [SerializeField] private TextMeshProUGUI cantReachLevelText = default!; // 해당 레벨에 도달이 불가능할 때 아이템 대신 등장
     private List<ItemUIElement> activeItemElements = new List<ItemUIElement>(); // 현재 표시중인 아이템 요소들
 
     [SerializeField] private float velocityThreshold = 0.5f; // 스크롤이 멈췄다고 판단하는 속도 임계값
 
     private float snapThreshold; // 스냅 거리 임계값. 지우지 않도록 주의.
-    private string updateColor;
+    private string updateColor = string.Empty;
 
     private ExpCalculationSystem.ExpItemUsagePlan currentUsagePlan;
     int maxReachableLevel;
@@ -39,19 +39,19 @@ public class OperatorLevelUpPanel : MonoBehaviour
     [System.Serializable]
     public class StatPreviewLine
     {
-        public TextMeshProUGUI labelText;
-        public TextMeshProUGUI currentValue;
-        public TextMeshProUGUI arrowText;
-        public TextMeshProUGUI newValue;
+        public TextMeshProUGUI labelText = default!;
+        public TextMeshProUGUI currentValue = default!;
+        public TextMeshProUGUI arrowText = default!;
+        public TextMeshProUGUI newValue = default!;
     }
 
     [Header("Stat Previews")]
-    [SerializeField] private StatPreviewLine healthPreview;
-    [SerializeField] private StatPreviewLine attackPreview;
-    [SerializeField] private StatPreviewLine defensePreview;
-    [SerializeField] private StatPreviewLine magicResistancePreview;
+    [SerializeField] private StatPreviewLine healthPreview = default!;
+    [SerializeField] private StatPreviewLine attackPreview = default!;
+    [SerializeField] private StatPreviewLine defensePreview = default!;
+    [SerializeField] private StatPreviewLine magicResistancePreview = default!;
 
-    private OwnedOperator op;
+    private OwnedOperator op = default!;
     private int currentLevel;
     private int maxLevel;
     private int selectedLevel;
@@ -91,12 +91,17 @@ public class OperatorLevelUpPanel : MonoBehaviour
         if (maxLevelButton != null)
         {
             maxLevelButton.onClick.AddListener(OnMaxLevelButtonClicked);
+
+            RectTransform? maxButtonRect = maxLevelButton.GetComponent<RectTransform>();
+            if (maxButtonRect != null)
+            {
+                maxButtonOriginalPosition = maxButtonRect.anchoredPosition;
+                updateColor = GameManagement.Instance!.ResourceManager.TextUpdateColor;
+                cantReachLevelText.gameObject.SetActive(false);
+                SetMaxLevelButtonVisible(true);
+            }
         }
 
-        maxButtonOriginalPosition = maxLevelButton.GetComponent<RectTransform>().anchoredPosition;
-        updateColor = GameManagement.Instance.ResourceManager.TextUpdateColor;
-        cantReachLevelText.gameObject.SetActive(false);
-        SetMaxLevelButtonVisible(true);
     }
 
     public void Initialize(OwnedOperator op)
@@ -130,7 +135,7 @@ public class OperatorLevelUpPanel : MonoBehaviour
         }
 
         // 달성 가능 최대 레벨
-        maxLevelPlan = OperatorGrowthManager.Instance.CalculateRequiredItems(op, maxLevel);
+        maxLevelPlan = OperatorGrowthManager.Instance!.CalculateRequiredItems(op, maxLevel);
         maxReachableLevel = maxLevelPlan.targetLevel; 
 
         VerticalLayoutGroup layoutGroup = contentRect.GetComponent<VerticalLayoutGroup>();
@@ -414,7 +419,7 @@ public class OperatorLevelUpPanel : MonoBehaviour
         if (!confirmButton.interactable || selectedLevel <= currentLevel) return;
 
         // 레벨업 진행 요청
-        bool success = OperatorGrowthManager.Instance.TryLevelUpOperator(
+        bool success = OperatorGrowthManager.Instance!.TryLevelUpOperator(
             op,
             selectedLevel,
             currentUsagePlan
@@ -428,11 +433,11 @@ public class OperatorLevelUpPanel : MonoBehaviour
             ClearItemDisplay();
             UpdateExpGauge();
             UpdateConfirmButton();
-            MainMenuManager.Instance.ShowNotification("레벨업 완료");
+            MainMenuManager.Instance!.ShowNotification("레벨업 완료");
         }
         else
         {
-            MainMenuManager.Instance.ShowNotification("레벨업에 실패했습니다");
+            MainMenuManager.Instance!.ShowNotification("레벨업에 실패했습니다");
         }
     }
 
@@ -462,7 +467,7 @@ public class OperatorLevelUpPanel : MonoBehaviour
             cantReachLevelText.gameObject.SetActive(false);
 
             // 매니저에서 아이템 사용 계획 가져오기
-            currentUsagePlan = OperatorGrowthManager.Instance.CalculateRequiredItems(op, selectedLevel);
+            currentUsagePlan = OperatorGrowthManager.Instance!.CalculateRequiredItems(op, selectedLevel);
 
             // UI에 사용될 아이템 표시
             foreach (var itemPair in currentUsagePlan.itemsToUse)
@@ -513,7 +518,7 @@ public class OperatorLevelUpPanel : MonoBehaviour
 
     private void OnMaxLevelButtonClicked()
     {
-        List<(ItemData, int)> availableItems = GameManagement.Instance.PlayerDataManager.GetAllItems()
+        List<(ItemData, int)> availableItems = GameManagement.Instance!.PlayerDataManager.GetAllItems()
             .Where(x => x.itemData.type == ItemData.ItemType.Exp)
             .ToList();
 

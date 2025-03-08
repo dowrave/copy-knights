@@ -12,14 +12,14 @@ public class ItemData : ScriptableObject
 
     [Header("Item Identity")]
     public ItemType type;
-    public string itemName;
+    public string itemName = string.Empty; // 초기화
     [TextArea(3, 10)]
-    public string description; // 설명
-    public Sprite icon;
-
+    public string description = string.Empty; // 설명
+    public Sprite icon = default!;
+ 
     [Header("Item Effects")]
-    public int expAmount; // 경험치 아이템일 때 제공하는 경험치량
-    public bool canPromote; // 정예화 가능 여부
+    public int expAmount = 0; // 경험치 아이템일 때 제공하는 경험치량
+    public bool canPromote = false; // 정예화 가능 여부
 
     // 아이템 효과 오퍼레이터에게 적용하기
     public bool UseOn(OwnedOperator target)

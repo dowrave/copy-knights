@@ -4,14 +4,14 @@ using UnityEngine;
 // 각 Mateor에 적용되는 요소
 public class MeteorController : MonoBehaviour
 {
-    private Operator caster;
-    private Enemy target;
+    private Operator? caster;
+    private Enemy? target;
     private float damage;
     private float stunDuration;
     private float waitTime;
     private float fallSpeed = 5f;
     private bool hasDamageApplied = false;
-    private GameObject hitEffectPrefab; 
+    private GameObject hitEffectPrefab = default!; 
 
     public void Initialize(Operator op, Enemy target, float damage, float waitTime, float stunDuration, GameObject hitEffectPrefab)
     {
@@ -32,7 +32,7 @@ public class MeteorController : MonoBehaviour
             target.OnDestroyed += HandleTargetDeath;
         }
 
-        StageManager.Instance.OnGameEnded += DestroySelf;
+        StageManager.Instance!.OnGameEnded += DestroySelf;
         StartCoroutine(FallRoutine());
     }
 
@@ -68,7 +68,7 @@ public class MeteorController : MonoBehaviour
 
     private void ApplyDamage()
     {
-        if (target != null)
+        if (target != null && caster != null)
         {
             // 기절 효과 적용
             StunEffect stunEffect = new StunEffect();
@@ -109,7 +109,7 @@ public class MeteorController : MonoBehaviour
             target.OnDestroyed -= HandleTargetDeath;
         }
 
-        StageManager.Instance.OnGameEnded -= DestroySelf;
+        StageManager.Instance!.OnGameEnded -= DestroySelf;
     }
 
 

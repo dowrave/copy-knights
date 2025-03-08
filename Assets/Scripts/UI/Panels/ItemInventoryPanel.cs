@@ -3,8 +3,8 @@ using UnityEngine;
 
 public class ItemInventoryPanel : MonoBehaviour
 {
-    [SerializeField] private Transform itemContainer; // gridLayOutGroup
-    [SerializeField] private ItemUIElement itemUIPrefab;
+    [SerializeField] private Transform itemContainer = default!; // gridLayOutGroup
+    [SerializeField] private ItemUIElement itemUIPrefab = default!;
 
     private List<ItemUIElement> itemElements = new List<ItemUIElement>();
 
@@ -15,7 +15,7 @@ public class ItemInventoryPanel : MonoBehaviour
 
     private void InitializeInventory()
     {
-        var items = GameManagement.Instance.PlayerDataManager.GetAllItems();
+        var items = GameManagement.Instance!.PlayerDataManager.GetAllItems();
 
         foreach (var (itemData, count) in items)
         {

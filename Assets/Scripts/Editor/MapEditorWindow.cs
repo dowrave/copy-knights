@@ -7,18 +7,18 @@ using System.Linq;
 public class MapEditorWindow : EditorWindow
 {
 
-    private GameObject spawnerPrefab;
+    private GameObject? spawnerPrefab;
 
     public int currentMapWidth = 5;
     public int currentMapHeight = 5;
     private int newMapWidth;
     private int newMapHeight;
-    private Map currentMap;
-    private TileData selectedTileData;
+    private Map? currentMap;
+    private TileData? selectedTileData;
     private Vector2 scrollPosition;
     private List<TileData> availableTileData = new List<TileData>();
 
-    private GameObject tilePrefab;
+    private GameObject? tilePrefab;
 
     private const string MAP_OBJECT_NAME = "Map";
     private const string MAP_PREFAB_PATH = "Assets/Prefabs/Map";
@@ -129,11 +129,14 @@ public class MapEditorWindow : EditorWindow
             EditorGUILayout.BeginHorizontal();
             for (int x = 0; x < width; x++)
             {
-                TileData tileData = currentMap.GetTileData(x, y);
-                string tileSymbol = GetTileSymbol(tileData);
-                if (GUILayout.Button(tileSymbol, GUILayout.Width(30), GUILayout.Height(30)))
+                TileData? tileData = currentMap.GetTileData(x, y);
+                if (tileData != null)
                 {
-                    HandleTileClick(x, y);
+                    string tileSymbol = GetTileSymbol(tileData);
+                    if (GUILayout.Button(tileSymbol, GUILayout.Width(30), GUILayout.Height(30)))
+                    {
+                        HandleTileClick(x, y);
+                    }
                 }
             }
             EditorGUILayout.EndHorizontal();
@@ -145,7 +148,7 @@ public class MapEditorWindow : EditorWindow
     /// </summary>
     private void HandleTileClick(int x, int y)
     {
-        if (selectedTileData != null)
+        if (selectedTileData != null && currentMap != null)
         {
             currentMap.UpdateTile(x, y, selectedTileData);
             SceneView.RepaintAll();
@@ -156,7 +159,7 @@ public class MapEditorWindow : EditorWindow
     // 현재 하이어라키에 있는 Map 컴포넌트를 찾음
     private void FindExistingMap()
     {
-        currentMap = FindObjectOfType<Map>(); // 큰 씬일수록 연산량이 많지만 에디터니까 ㄱㅊ
+        currentMap = FindFirstObjectByType<Map>();
         if (currentMap != null)
         {
             currentMapWidth = currentMap.Width;
@@ -235,28 +238,31 @@ public class MapEditorWindow : EditorWindow
         RemoveExistingMaps();
 
         // 맵에 관한 설정
-        GameObject mapInstance = PrefabUtility.InstantiatePrefab(loadedMapPrefab) as GameObject;
-        mapInstance.name = MAP_OBJECT_NAME;
-        currentMap = mapInstance.GetComponent<Map>();
-        if (currentMap == null)
+        GameObject? mapInstance = PrefabUtility.InstantiatePrefab(loadedMapPrefab) as GameObject;
+        if (mapInstance != null)
         {
-            Debug.LogError("Loaded prefab does not have a Map component.");
-            DestroyImmediate(mapInstance);
-            return;
+            mapInstance.name = MAP_OBJECT_NAME;
+            currentMap = mapInstance.GetComponent<Map>();
+            if (currentMap == null)
+            {
+                Debug.LogError("Loaded prefab does not have a Map component.");
+                DestroyImmediate(mapInstance);
+                return;
+            }
+
+            currentMap.Initialize(currentMap.Width, currentMap.Height, true);
+            currentMapWidth = currentMap.Width;
+            currentMapHeight = currentMap.Height;
+
+            SceneView.RepaintAll(); // 씬을 리페인트
+            Repaint(); // 윈도우를 리페인트
         }
-
-        currentMap.Initialize(currentMap.Width, currentMap.Height, true);
-        currentMapWidth = currentMap.Width;
-        currentMapHeight = currentMap.Height;
-
-        SceneView.RepaintAll(); // 씬을 리페인트
-        Repaint(); // 윈도우를 리페인트
     }
 
 
     private void RemoveExistingMaps()
     {
-        Map[] existingMaps = FindObjectsOfType<Map>();
+        Map[] existingMaps = FindObjectsByType<Map>(FindObjectsSortMode.None);
         foreach (Map map in existingMaps)
         {
             DestroyImmediate(map.gameObject);
@@ -276,7 +282,11 @@ public class MapEditorWindow : EditorWindow
         {
             for (int y = 0; y < currentMapHeight; y++)
             {
-                oldTileData[x, y] = currentMap.GetTileData(x, y);
+                TileData? tileData = currentMap.GetTileData(x, y);
+                if (tileData != null)
+                {
+                    oldTileData[x, y] = tileData;
+                }
             }
         }
 

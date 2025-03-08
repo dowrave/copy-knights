@@ -6,7 +6,6 @@ using static ICombatEntity;
 
 public class MedicOperator : Operator
 {
-    private UnitEntity currentTargetOperator;
     private List<DeployableUnitEntity> targetsInRange = new List<DeployableUnitEntity>();
 
     protected override void ValidateCurrentTarget()
@@ -36,28 +35,30 @@ public class MedicOperator : Operator
     {
         targetsInRange.Clear();
 
-        Vector2Int operatorGridPos = MapManager.Instance.CurrentMap.WorldToGridPosition(transform.position);
+        Map? CurrentMap = MapManager.Instance!.CurrentMap;
 
-        foreach (Vector2Int offset in BaseData.attackableTiles)
+        if (CurrentMap != null)
         {
-            Vector2Int rotatedOffset = DirectionSystem.RotateGridOffset(offset, FacingDirection);
-            Vector2Int targetGridPos = operatorGridPos + rotatedOffset;
+            Vector2Int operatorGridPos = CurrentMap.WorldToGridPosition(transform.position);
 
-            Tile targetTile = MapManager.Instance.CurrentMap.GetTile(targetGridPos.x, targetGridPos.y);
-            if (targetTile != null)
+            foreach (Vector2Int offset in OperatorData.attackableTiles)
             {
-                // 타일에 있는 CurrentDeployable & 아군일 때 가져옴
-                if (targetTile.OccupyingDeployable != null)
-                {
-                    DeployableUnitEntity deployable = targetTile.OccupyingDeployable;
+                Vector2Int rotatedOffset = DirectionSystem.RotateGridOffset(offset, FacingDirection);
+                Vector2Int targetGridPos = operatorGridPos + rotatedOffset;
 
-                    if (deployable.Faction == this.Faction && // 같은 소속이고
-                        deployable.CurrentHealth < deployable.MaxHealth) // 체력이 닳아 있을 때 
+                Tile? targetTile = CurrentMap.GetTile(targetGridPos.x, targetGridPos.y);
+                if (targetTile != null)
+                {
+                    DeployableUnitEntity? deployable = targetTile.OccupyingDeployable;
+                    if (deployable != null && 
+                        deployable.Faction == this.Faction && 
+                        deployable.CurrentHealth < deployable.MaxHealth)
                     {
-                        targetsInRange.Add(targetTile.OccupyingDeployable);
+                        targetsInRange.Add(deployable);
                     }
                 }
             }
+
         }
     }
 
@@ -70,13 +71,13 @@ public class MedicOperator : Operator
     {
         // 여기서 Ranged 여부가 결정하는 건 투사체의 유무임
         // 즉 Melee여도 원거리를 가질 수 있음 -- 사정거리랑 공격 타입을 별도로 구현했기 때문에 이런 현상이 발생했다.
-        if (BaseData.attackRangeType == AttackRangeType.Ranged)
+        if (OperatorData.attackRangeType == AttackRangeType.Ranged)
         {
             base.PerformRangedAttack(target, healValue, true);
         }
         else
         {
-            AttackSource attackSource = new AttackSource(transform.position, false, BaseData.HitEffectPrefab);
+            AttackSource attackSource = new AttackSource(transform.position, false, OperatorData.HitEffectPrefab);
             target.TakeHeal(this, attackSource, healValue);
         }
     }

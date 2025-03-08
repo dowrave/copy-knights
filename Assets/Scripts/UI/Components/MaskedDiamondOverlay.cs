@@ -5,9 +5,9 @@ using UnityEngine.UI;
 
 public class MaskedDiamondOverlay : MonoBehaviour
 {
-    [SerializeField] private Image darkPanel;
-    [SerializeField] private DiamondMask diamondMask;
-    private Canvas canvas;
+    [SerializeField] private Image darkPanel = default!;
+    [SerializeField] private DiamondMask diamondMask = default!;
+    private Canvas canvas = default!;
 
     private void Awake()
     {

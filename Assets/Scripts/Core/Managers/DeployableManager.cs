@@ -18,8 +18,8 @@ public class DeployableManager : MonoBehaviour
     private UIState currentUIState = UIState.None;
 
     // UI 관련 변수
-    public GameObject? DeployableBoxPrefab;
-    public RectTransform? bottomPanel;
+    public GameObject DeployableBoxPrefab = default!;
+    public RectTransform bottomPanel = default!;
 
     // Deployable 관련 변수
     private List<DeployableInfo> allDeployables = new List<DeployableInfo>(); 
@@ -53,9 +53,9 @@ public class DeployableManager : MonoBehaviour
     private Dictionary<DeployableInfo, DeployableUnitState> unitStates = new Dictionary<DeployableInfo, DeployableUnitState>();
     public Dictionary<DeployableInfo, DeployableUnitState> UnitStates => unitStates;
 
-    [SerializeField] private LayerMask? tileLayerMask;
-    [SerializeField] private DeployableDeployingUI? deployingUIPrefab;
-    [SerializeField] private DeployableActionUI? actionUIPrefab;
+    [SerializeField] private LayerMask tileLayerMask = default!;
+    [SerializeField] private DeployableDeployingUI deployingUIPrefab = default!;
+    [SerializeField] private DeployableActionUI actionUIPrefab = default!;
 
     [Header("Highlight Color")]
     // 하이라이트 관련 변수 - 인스펙터에서 설정
@@ -89,8 +89,8 @@ public class DeployableManager : MonoBehaviour
 
     public bool IsClickingPrevented => Time.time - lastPlacementTime < preventClickingTime;
 
-    public event System.Action? OnDeployableUIInitialized;
-    public event System.Action? OnCurrentOperatorDeploymentCountChanged;
+    //public event System.Action? OnDeployableUIInitialized;
+    public event System.Action OnCurrentOperatorDeploymentCountChanged = delegate { };
 
 
      
@@ -122,17 +122,18 @@ public class DeployableManager : MonoBehaviour
         {
             var info = new DeployableInfo
             {
-                prefab = op.BaseData.prefab,
+                prefab = op.OperatorProgressData.prefab,
                 maxDeployCount = 1,
-                redeployTime = op.BaseData.stats.RedeployTime,
+                redeployTime = op.OperatorProgressData.stats.RedeployTime,
                 ownedOperator = op,
-                operatorData = op.BaseData
+                operatorData = op.OperatorProgressData
             };
 
             allDeployables.Add(info);
 
+            InstanceValidator.ValidateInstance(op.OperatorProgressData);
             // (오퍼레이터 엔티티 이름 - 배치 정보) 매핑
-            deployableInfoMap[op.BaseData.entityName] = info; 
+            deployableInfoMap[op.OperatorProgressData!.entityName!] = info;
         }
 
         // 스테이지 제공 요소 -> DeployableInfo로 변환
@@ -141,8 +142,10 @@ public class DeployableManager : MonoBehaviour
             var info = deployable.ToDeployableInfo();
             allDeployables.Add(info);
 
+            InstanceValidator.ValidateInstance(deployable.deployableData);
+
             // (배치 요소 이름 - 배치 정보) 매핑
-            deployableInfoMap[deployable.deployableData.entityName] = info; 
+            deployableInfoMap[deployable.deployableData!.entityName!] = info; 
         }
 
         MaxOperatorDeploymentCount = maxOperatorDeploymentCount;
@@ -174,6 +177,8 @@ public class DeployableManager : MonoBehaviour
 
     private void Update()
     {
+        if (StageManager.Instance == null) throw new InvalidOperationException("StageManager.Instance가 null임");
+
         if (StageManager.Instance.currentState != GameState.Battle) { return; }
 
         UpdateDeployableStateCooldown();
@@ -254,11 +259,16 @@ public class DeployableManager : MonoBehaviour
             currentDeployableInfo = deployableInfo;
             currentDeployableBox = deployableUIBoxes[currentDeployableInfo];
             currentDeployablePrefab = currentDeployableInfo.prefab;
+
+            if (currentDeployableBox == null) throw new InvalidOperationException("currentDeployableBox가 null임");
+            if (currentDeployablePrefab == null) throw new InvalidOperationException("currentDeployablePrefab가 null임");
+
             currentDeployable = currentDeployablePrefab.GetComponent<DeployableUnitEntity>();
+            if (currentDeployable == null) throw new InvalidOperationException("currentDeployable이 null임");
 
             IsDeployableSelecting = true;
             
-            UIManager.Instance.ShowUndeployedInfo(currentDeployableInfo);
+            UIManager.Instance!.ShowUndeployedInfo(currentDeployableInfo);
 
             // 박스 선택 상태
             currentDeployableBox.Select();
@@ -276,7 +286,7 @@ public class DeployableManager : MonoBehaviour
             IsDeployableSelecting = false;
             IsDraggingDeployable = true;
             CreatePreviewDeployable();
-            StageManager.Instance.SlowDownTime();
+            StageManager.Instance!.SlowDownTime();
         }
     }
 
@@ -317,66 +327,64 @@ public class DeployableManager : MonoBehaviour
             else
             {
                 CancelDeployableSelection();
-                UIManager.Instance.HideDeployableInfo();
+                UIManager.Instance!.HideDeployableInfo();
             }
         }
     }
 
     private void CreatePreviewDeployable()
     {
-        if (currentDeployable == null) throw new InvalidOperationException("currentDeployable이 null임");
-        if (currentDeployablePrefab == null) throw new InvalidOperationException("currentDeployablePrefab이 null임");
-        if (currentDeployableInfo == null) throw new InvalidOperationException("currentDeployableInfo이 null임");
+        InstanceValidator.ValidateInstance(currentDeployable);
+        InstanceValidator.ValidateInstance(currentDeployablePrefab);
+        InstanceValidator.ValidateInstance(currentDeployableInfo);
 
-        if (currentDeployablePrefab != null && currentDeployable != null && currentDeployableInfo != null)
+
+        GameObject deployableObject = Instantiate(currentDeployablePrefab!);
+        currentDeployable = deployableObject.GetComponent<DeployableUnitEntity>();
+
+        if (currentDeployable is Operator op)
         {
-            GameObject deployableObject = Instantiate(currentDeployablePrefab);
-            currentDeployable = deployableObject.GetComponent<DeployableUnitEntity>();
-
-            if (currentDeployable is Operator op)
-            {
-                op.Initialize(currentDeployableInfo);
-            }
-            else
-            {
-                currentDeployable.Initialize(currentDeployableInfo);
-            }
+            op.Initialize(currentDeployableInfo!);
         }
+        else
+        {
+            currentDeployable!.Initialize(currentDeployableInfo!);
+        }
+        
     }
 
     private void StartDirectionSelection(Tile tile)
     {
-        if (currentDeployable == null) throw new InvalidOperationException("currentDeployable이 null임");
+        InstanceValidator.ValidateInstance(currentDeployable);
 
         IsSelectingDirection = true;
         ResetHighlights();
         currentHoverTile = tile;
-        SetAboveTilePosition(currentDeployable, tile);
+        SetAboveTilePosition(currentDeployable!, tile);
         ShowDeployingUI(tile.transform.position + Vector3.up * 0.5f);
         UpdatePreviewRotation();
     }
 
     public void ShowActionUI(DeployableUnitEntity deployable)
     {
-        if (actionUIPrefab == null) throw new InvalidOperationException("actionUIPrefab이 null임");
+        InstanceValidator.ValidateInstance(actionUIPrefab);
 
         HideUIs();
         // 일관된 위치 구현하기
         Vector3 ActionUIPosition = new Vector3(deployable.transform.position.x, 1f, deployable.transform.position.z);
-        currentActionUI = Instantiate(actionUIPrefab, ActionUIPosition, Quaternion.identity);
+        currentActionUI = Instantiate(actionUIPrefab!, ActionUIPosition, Quaternion.identity);
         currentActionUI.Initialize(deployable);
         currentUIState = UIState.OperatorAction;
     }
 
     public void ShowDeployingUI(Vector3 position)
     {
-        if (currentDeployable == null) throw new InvalidOperationException("currentDeployable이 null임");
-        if (deployingUIPrefab == null) throw new InvalidOperationException("deployingUIPrefab이 null임");
-
+        InstanceValidator.ValidateInstance(currentDeployable);
+        InstanceValidator.ValidateInstance(deployingUIPrefab);
 
         HideUIs();
-        currentDeployingUI = Instantiate(deployingUIPrefab, position, Quaternion.identity);
-        currentDeployingUI.Initialize(currentDeployable);
+        currentDeployingUI = Instantiate(deployingUIPrefab!, position, Quaternion.identity);
+        currentDeployingUI.Initialize(currentDeployable!);
         currentUIState = UIState.OperatorDeploying;
     }
 
@@ -384,6 +392,8 @@ public class DeployableManager : MonoBehaviour
     // 오퍼레이터 주위에 나타난 UI 제거
     private void HideUIs()
     {
+        // null이어도 상관 없음
+
         if (currentActionUI != null)
         {
             Destroy(currentActionUI.gameObject);
@@ -513,14 +523,15 @@ public class DeployableManager : MonoBehaviour
     // 배치되는 경우 동작하는 메서드
     private void DeployDeployable(Tile tile)
     {
-        if (currentDeployable == null) throw new InvalidOperationException("currentDeployable이 null임");
-        if (currentDeployableInfo == null) throw new InvalidOperationException("currentDeployableInfo가 null임");
+        InstanceValidator.ValidateInstance(currentDeployable);
+        InstanceValidator.ValidateInstance(currentDeployableInfo);
+        InstanceValidator.ValidateInstance(StageManager.Instance);
 
-        DeployableUnitState gameState = unitStates[currentDeployableInfo];
+        DeployableUnitState gameState = unitStates[currentDeployableInfo!];
         int cost = gameState.CurrentDeploymentCost;
 
         // 코스트 지불 가능 & 배치 가능 상태
-        if (StageManager.Instance.TryUseDeploymentCost(cost) && gameState.OnDeploy(currentDeployable))
+        if (StageManager.Instance!.TryUseDeploymentCost(cost) && gameState.OnDeploy(currentDeployable!))
         {
             if (currentDeployable is Operator op)
             {
@@ -537,13 +548,13 @@ public class DeployableManager : MonoBehaviour
             }
             else
             {
-                currentDeployable.Deploy(tile.transform.position);
+                currentDeployable!.Deploy(tile.transform.position);
             }
         }
 
         // 배치된 유닛 목록에 추가
-        deployedItems.Add(currentDeployable);
-        UpdateDeployableUI(currentDeployableInfo);
+        deployedItems.Add(currentDeployable!);
+        UpdateDeployableUI(currentDeployableInfo!);
         ResetPlacement();
         StageManager.Instance.UpdateTimeScale();
     }
@@ -560,6 +571,9 @@ public class DeployableManager : MonoBehaviour
     // 배치 조작 전으로 상태를 되돌림
     private void ResetPlacement()
     {
+        InstanceValidator.ValidateInstance(StageManager.Instance);
+        InstanceValidator.ValidateInstance(UIManager.Instance);
+
         IsDeployableSelecting = false;
         IsDraggingDeployable = false;
         IsSelectingDirection = false;
@@ -583,8 +597,8 @@ public class DeployableManager : MonoBehaviour
         currentDeployablePrefab = null;
         currentDeployableInfo = null;
 
-        UIManager.Instance.HideDeployableInfo();
-        StageManager.Instance.UpdateTimeScale(); // 시간 원상복구
+        UIManager.Instance!.HideDeployableInfo();
+        StageManager.Instance!.UpdateTimeScale(); // 시간 원상복구
         ResetHighlights();
 
         HideUIs();
@@ -617,7 +631,7 @@ public class DeployableManager : MonoBehaviour
     public void OnDeployableRemoved(DeployableUnitEntity deployable)
     {
         deployedItems.Remove(deployable);
-        UIManager.Instance.HideDeployableInfo();
+        UIManager.Instance!.HideDeployableInfo();
         HideUIs();
         ResetHighlights();
 
@@ -628,11 +642,13 @@ public class DeployableManager : MonoBehaviour
             if (deployable is Operator op)
             {
                 CurrentOperatorDeploymentCount--;
-                info = GetDeployableInfoByName(op.BaseData.entityName);
+                InstanceValidator.ValidateInstance(op.OperatorData);
+                info = GetDeployableInfoByName(op.OperatorData?.entityName!);
             }
             else
             {
-                info = GetDeployableInfoByName(deployable.BaseData.entityName);
+                InstanceValidator.ValidateInstance(deployable.DeployableUnitData);
+                info = GetDeployableInfoByName(deployable.DeployableUnitData.entityName!);
             }
 
             if (info != null && unitStates.TryGetValue(info, out var unitState))
@@ -736,9 +752,9 @@ public class DeployableManager : MonoBehaviour
     [System.Serializable]
     public class DeployableInfo
     {
-        public GameObject prefab;
-        public int maxDeployCount;
-        public float redeployTime;
+        public GameObject prefab = default!;
+        public int maxDeployCount = 0;
+        public float redeployTime = 0f;
 
         // 오퍼레이터일 때 할당
         public Operator? deployedOperator;

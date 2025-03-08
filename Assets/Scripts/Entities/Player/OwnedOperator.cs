@@ -15,18 +15,18 @@ public class OwnedOperator
 
     // 런타임에만 존재하는 계산된 필드들
     [System.NonSerialized] private OperatorStats currentStats;
-    [System.NonSerialized] private List<Vector2Int> currentAttackableGridPos;
-    [System.NonSerialized] private BaseSkill defaultSelectedSkill;
+    [System.NonSerialized] private List<Vector2Int> currentAttackableGridPos = new List<Vector2Int>();
+    [System.NonSerialized] private BaseSkill defaultSelectedSkill = default!;
     [System.NonSerialized] private List<BaseSkill> unlockedSkills = new List<BaseSkill>();
-    [System.NonSerialized] private OperatorData baseData;
-    [System.NonSerialized] private BaseSkill stageSelectedSkill;
+    [System.NonSerialized] private OperatorData baseData = default!;
+    [System.NonSerialized] private BaseSkill stageSelectedSkill = default!;
 
     // 읽기 전용 프로퍼티
     public OperatorStats CurrentStats => currentStats;
     public List<BaseSkill> UnlockedSkills => unlockedSkills;
     public BaseSkill DefaultSelectedSkill => defaultSelectedSkill;
     public List<Vector2Int> CurrentAttackableGridPos => currentAttackableGridPos;
-    public OperatorData BaseData
+    public OperatorData OperatorProgressData
     {
         get
         {
@@ -34,7 +34,7 @@ public class OwnedOperator
             if (baseData == null) 
             {
                 // Lazy Loading에서 게터임에도 필드를 할당하는 건 잘 확립된 방식임
-                baseData = GameManagement.Instance.PlayerDataManager.GetOperatorData(operatorName);  // PlayerDataManager에서 operatorID에 해당하는 OperatorData를 가져옴
+                baseData = GameManagement.Instance!.PlayerDataManager.GetOperatorData(operatorName);  // PlayerDataManager에서 operatorID에 해당하는 OperatorData를 가져옴
             }
             return baseData;
         }
@@ -76,7 +76,7 @@ public class OwnedOperator
 
     private void InitializeAttackRange()
     {
-        currentAttackableGridPos = new List<Vector2Int>(BaseData.attackableTiles);
+        currentAttackableGridPos = new List<Vector2Int>(OperatorProgressData.attackableTiles);
 
         if (currentPhase > OperatorGrowthSystem.ElitePhase.Elite0)
         {

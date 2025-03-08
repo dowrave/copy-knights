@@ -7,21 +7,21 @@ using UnityEngine.UI;
 public class StageLoadingScreen : MonoBehaviour
 {
     [Header("Screen Fade")]
-    [SerializeField] private CanvasGroup screenFader;
+    [SerializeField] private CanvasGroup screenFader = default!;
     [SerializeField] private float fadeInDuration = 1f;
 
     [Header("Stage Info")]
-    [SerializeField] private CanvasGroup infoPanel;
-    [SerializeField] private TextMeshProUGUI stageIdText;
-    [SerializeField] private TextMeshProUGUI stageNameText;
+    [SerializeField] private CanvasGroup infoPanel = default!;
+    [SerializeField] private TextMeshProUGUI stageIdText = default!;
+    [SerializeField] private TextMeshProUGUI stageNameText = default!;
 
     [Header("Background")]
-    [SerializeField] private Image backgroundPanel;
+    [SerializeField] private Image backgroundPanel = default!;
     [SerializeField] private Color loadingColor = new Color(0.1f, 0.1f, 0.1f, 1f);
     [SerializeField] private Color completedColor = new Color(0.2f, 0.2f, 0.3f, 1f);
 
-    private Sequence currentSequence;
-    public event System.Action OnHideComplete;
+    private Sequence? currentSequence;
+    public event System.Action OnHideComplete = delegate { };
 
     private void Awake()
     {
@@ -54,7 +54,7 @@ public class StageLoadingScreen : MonoBehaviour
     private IEnumerator WaitForStageManagerAndSubscribe()
     {
         yield return new WaitUntil(() => StageManager.Instance != null);
-        StageManager.Instance.OnPreparationCompleted += HandlePreparationComplete;
+        StageManager.Instance!.OnPreparationCompleted += HandlePreparationComplete;
     }
 
     private void HandlePreparationComplete()
@@ -79,10 +79,7 @@ public class StageLoadingScreen : MonoBehaviour
 
     private void OnDisable()
     {
-        if (StageManager.Instance != null)
-        {
-            StageManager.Instance.OnPreparationCompleted -= HandlePreparationComplete;
-        }
+        StageManager.Instance!.OnPreparationCompleted -= HandlePreparationComplete;
         currentSequence?.Kill();
     }
 }

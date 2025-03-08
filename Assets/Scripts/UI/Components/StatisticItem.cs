@@ -5,20 +5,20 @@ using UnityEngine.UI;
 
 public class StatisticItem : MonoBehaviour
 {
-    [SerializeField] private Image operatorIcon;
-    [SerializeField] private TextMeshProUGUI valueText;
-    [SerializeField] private Slider percentageBar; // 하위 오브젝트에 Fill 이 있음
-    [SerializeField] private TextMeshProUGUI percentageText;
+    [SerializeField] private Image operatorIcon = default!;
+    [SerializeField] private TextMeshProUGUI valueText = default!;
+    [SerializeField] private Slider percentageBar = default!; // 하위 오브젝트에 Fill 이 있음
+    [SerializeField] private TextMeshProUGUI percentageText = default!;
     [SerializeField] private Color damageDealtColor;
     [SerializeField] private Color damageTakenColor;
     [SerializeField] private Color healingDoneColor;
     private bool showPercentage;
 
     //public Operator Operator { get; private set; }
-    public OperatorData OpData { get; private set; }
+    public OperatorData OpData { get; private set; } = default!;
     private StatisticsManager.OperatorStats opStats; 
     private StatisticsManager.StatType currentStatType;
-    private Image fillImage; // 게이지 길이를 나타내는 이미지
+    private Image fillImage = default!; // 게이지 길이를 나타내는 이미지
 
     /// <summary>
     /// StatItem을 초기화하고 필요한 이벤트를 구독합니다.
@@ -28,7 +28,7 @@ public class StatisticItem : MonoBehaviour
         OpData = opData;
         currentStatType = statType;
 
-        opStats = StatisticsManager.Instance.GetAllOperatorStats().Find(s => s.opData == opData);
+        opStats = StatisticsManager.Instance!.GetAllOperatorStats().Find(s => s.opData == opData);
         fillImage = percentageBar.fillRect.GetComponent<Image>();
 
         SetOperatorIcon(opData);
@@ -103,8 +103,8 @@ public class StatisticItem : MonoBehaviour
     /// </summary>
     public void UpdateDisplay(StatisticsManager.StatType statType, bool showPercentage)
     {
-        float value = StatisticsManager.Instance.GetOperatorValueForStatType(opStats, statType);
-        float totalValue = StatisticsManager.Instance.GetTotalValueForStatType(statType);
+        float value = StatisticsManager.Instance!.GetOperatorValueForStatType(opStats, statType);
+        float totalValue = StatisticsManager.Instance!.GetTotalValueForStatType(statType);
         float percentage = (totalValue > 0) ? (value / totalValue) : 0; // 전체 값 중 해당 오퍼레이터가 기여한 값
 
         fillImage.fillAmount = percentage;

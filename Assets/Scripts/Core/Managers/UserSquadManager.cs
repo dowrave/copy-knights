@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -13,20 +14,20 @@ public class UserSquadManager : MonoBehaviour
     public int EditingSlotIndex => editingSlotIndex;
     public bool IsEditingSquad => editingSlotIndex != -1;
 
-    public int? MaxSquadSize => GameManagement.Instance?.PlayerDataManager.GetMaxSquadSize();
+    public int? MaxSquadSize => GameManagement.Instance!.PlayerDataManager.GetMaxSquadSize();
 
     // 이벤트
-    public event System.Action OnSquadUpdated;
+    public event System.Action? OnSquadUpdated;
 
 
     private void OnEnable()
     {
-        GameManagement.Instance.PlayerDataManager.OnSquadUpdated += HandleSquadUpdated;
+        GameManagement.Instance!.PlayerDataManager.OnSquadUpdated += HandleSquadUpdated;
     }
 
     private void OnDisable()
     {
-        GameManagement.Instance.PlayerDataManager.OnSquadUpdated -= HandleSquadUpdated; 
+        GameManagement.Instance!.PlayerDataManager.OnSquadUpdated -= HandleSquadUpdated;
     }
 
     private void HandleSquadUpdated()
@@ -52,36 +53,34 @@ public class UserSquadManager : MonoBehaviour
         }
     }
 
-    /// <summary>
     /// Squad의 Index에 오퍼레이터를 배치/대체 하려고 할 때 사용
-    /// </summary>
     public bool TryReplaceOperator(int index, OwnedOperator? newOp = null)
     {
-        return GameManagement.Instance.PlayerDataManager.TryUpdateSquad(index, newOp?.operatorName);
+        return GameManagement.Instance!.PlayerDataManager.TryUpdateSquad(index, newOp?.operatorName ?? string.Empty); // operatorName이 null일 경우의 처리 추가
     }
 
     public void CancelOperatorSelection()
     {
         editingSlotIndex = -1;
     }
-    
+
 
     public List<OwnedOperator> GetCurrentSquad()
     {
-        return GameManagement.Instance.PlayerDataManager.GetCurrentSquad(); 
+        return GameManagement.Instance!.PlayerDataManager.GetCurrentSquad();
     }
 
     /// <summary>
     /// null이 포함된 currentSquad 리스트를 반환합니다.
     /// </summary>
-    public List<OwnedOperator> GetCurrentSquadWithNull()
+    public List<OwnedOperator?> GetCurrentSquadWithNull()
     {
-        return GameManagement.Instance.PlayerDataManager.GetCurrentSquadWithNull();
+        return GameManagement.Instance!.PlayerDataManager.GetCurrentSquadWithNull();
     }
-    
+
     // OperatorData를 사용한 리스트가 필요할 경우
     public List<OperatorData> GetCurrentSquadData()
     {
-        return GameManagement.Instance.PlayerDataManager.GetCurrentSquadData();
+        return GameManagement.Instance!.PlayerDataManager.GetCurrentSquadData();
     }
 }
