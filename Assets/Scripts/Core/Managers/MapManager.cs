@@ -29,13 +29,11 @@ public class MapManager : MonoBehaviour
         }
 
         currentMap = map;
-        currentMap.Initialize(currentMap.Width, currentMap.Height, true);
+        currentMap.InitializeOnStage(currentMap.Width, currentMap.Height);
 
         // 다른 매니저에 맵 설정 알림
-        if (SpawnerManager.Instance != null)
-        {
-            SpawnerManager.Instance.Initialize(currentMap);
-        }
+        SpawnerManager.Instance!.Initialize(currentMap);
+        
 
         // 카메라 설정
         InitializeCameraManager();
@@ -43,14 +41,7 @@ public class MapManager : MonoBehaviour
 
     private void InitializeCameraManager()
     {
-        if (CameraManager.Instance != null)
-        {
-            CameraManager.Instance.SetupForMap(currentMap);
-        }
-        else
-        {
-            Debug.LogError("카메라 매니저 인스턴스를 찾을 수 없음");
-        }
+        CameraManager.Instance!.SetupForMap(currentMap);
     }
 
     // 월드 좌표에 있는 타일을 반환
@@ -73,6 +64,7 @@ public class MapManager : MonoBehaviour
             Debug.LogError("현재 맵이 초기화되지 않았습니다.");
             return null;
         }
+
         return currentMap.GetTile(gridX, gridY);
         
     }

@@ -1049,7 +1049,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: bffcf0a9bf3becd4bac91f34e1b3df97, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  stageIdText: {fileID: 1226585224}
   stageClearStar: {fileID: 339354806}
   highlightColor: {r: 0.29799998, g: 0.29799998, b: 0.29799998, a: 1}
   stageData: {fileID: 11400000, guid: 6c355bce9fe8d2343839ab11629345fd, type: 2}
@@ -7488,7 +7487,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: bffcf0a9bf3becd4bac91f34e1b3df97, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  stageIdText: {fileID: 949078907}
   stageClearStar: {fileID: 1769550808}
   highlightColor: {r: 0.29799998, g: 0.29799998, b: 0.29799998, a: 1}
   stageData: {fileID: 11400000, guid: 43feee14292a7784aa6dc44457ec395a, type: 2}
@@ -8061,7 +8059,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: bffcf0a9bf3becd4bac91f34e1b3df97, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  stageIdText: {fileID: 112886669}
   stageClearStar: {fileID: 1788422832}
   highlightColor: {r: 0.29799998, g: 0.29799998, b: 0.29799998, a: 1}
   stageData: {fileID: 11400000, guid: c7dc4aff73481e74fa4327a54507f8cf, type: 2}
@@ -13747,7 +13744,6 @@ MonoBehaviour:
   levelText: {fileID: 1958612801}
   maxLevelText: {fileID: 1604219671}
   phaseText: {fileID: 77763917}
-  skillIconImages: []
   attackRangeContainer: {fileID: 2088335600}
   centerPositionOffset: 50
   tileSize: 25
@@ -16289,7 +16285,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 95a5d0cfd4ca5ba42bff7498732d2c84, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  panelRect: {fileID: 1433253612}
   panelCanvasGroup: {fileID: 1433253616}
   backgroundDim: {fileID: 1469540027}
   itemIconImage: {fileID: 4358929786434784495}
@@ -16298,7 +16293,6 @@ MonoBehaviour:
   itemCountText: {fileID: 3671656520345221681}
   dimAlpha: 0.8
   fadeInDuration: 0.2
-  scaleUpDuration: 0.2
 --- !u!1 &1442478351
 GameObject:
   m_ObjectHideFlags: 0
@@ -16616,7 +16610,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: bffcf0a9bf3becd4bac91f34e1b3df97, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  stageIdText: {fileID: 1619182158}
   stageClearStar: {fileID: 376857627}
   highlightColor: {r: 0.29799998, g: 0.29799998, b: 0.29799998, a: 1}
   stageData: {fileID: 11400000, guid: 128205e04b6b1ea46a782647f49dcccb, type: 2}
@@ -19942,8 +19935,6 @@ MonoBehaviour:
   currentPromotionImage: {fileID: 849799372}
   newPromotionImage: {fileID: 1701360302}
   confirmButton: {fileID: 40492339}
-  skillUnlockText: {fileID: 0}
-  attackRangePrefab: {fileID: 0}
   cannotConditionText: {fileID: 263679198}
 --- !u!1 &1732788139
 GameObject:
@@ -20457,7 +20448,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: f98468cc187a7c7428b3f7befe390af3, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 96cde0e965bf85d4fbd12b7800b7be6f, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -24945,7 +24936,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 522bf77349ea7b94695c472882748b93, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  operatorSlotsContainer: {fileID: 1686302781}
   operatorSlots:
   - {fileID: 860914875}
   - {fileID: 1205127168}

@@ -153,7 +153,7 @@ public class ClickDetectionSystem : MonoBehaviour
             {
                 if (!diamondMask.IsPointInsideDiamond(Input.mousePosition))
                 {
-                    Debug.LogWarning("HandleUIClick : 다이아몬드 외부 클릭");
+                    Debug.Log("HandleUIClick : 다이아몬드 외부 클릭");
 
                     // 마름모 외부 클릭 처리
                     DeployableManager.Instance!.CancelCurrentAction();

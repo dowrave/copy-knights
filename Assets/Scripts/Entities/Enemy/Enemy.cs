@@ -38,7 +38,7 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity, ICrowdControlTarget
 
     // 경로 관련
     private PathData? pathData;
-    private List<Vector3>? currentPath;
+    private List<Vector3> currentPath = new List<Vector3>();
     private List<UnitEntity> targetsInRange = new List<UnitEntity>();
     private PathNode nextNode = default!;
     private int nextNodeIndex = 0; // 시작하자마자 1이 됨
@@ -193,12 +193,13 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity, ICrowdControlTarget
     // pathData.nodes를 이용해 currentPath 초기화
     private void InitializeCurrentPath()
     {
-        if (pathData == null || pathData.nodes == null || currentPath == null) throw new InvalidOperationException("null인 변수가 존재");
+        if (pathData == null || pathData.nodes == null) throw new InvalidOperationException("null인 변수가 존재");
 
         foreach (var node in pathData.nodes)
         {
             currentPath.Add(MapManager.Instance!.ConvertToWorldPosition(node.gridPosition) + Vector3.up * BaseData.defaultYPosition);
         }
+
         destinationPosition = currentPath[currentPath.Count - 1]; // 목적지 설정
     }
 
@@ -503,7 +504,7 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity, ICrowdControlTarget
     // 현재 경로상에서 목적지까지 남은 거리 계산
     public float GetRemainingPathDistance()
     {
-        if (currentPath == null || nextNodeIndex > +currentPath.Count)
+        if (currentPath.Count == 0 || nextNodeIndex > +currentPath.Count)
         {
             return float.MaxValue;
         }
@@ -572,15 +573,16 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity, ICrowdControlTarget
     // 현재 pathData를 사용하는 경로가 막혔는지를 점검한다
     private bool IsPathBlocked()
     {
-        if (currentPath == null) throw new InvalidOperationException("currentPath가 null임");
+        if (currentPath.Count == 0) throw new InvalidOperationException("currentPath가 비어 있음");
         
         for (int i = nextNodeIndex; i <= currentPath.Count - 1; i++)
         {
+            // 경로가 막힌 상황 : 기존 경로 데이터들을 정리한다
             if ((i == nextNodeIndex && PathfindingManager.Instance!.IsPathSegmentValid(transform.position, currentPath[i]) == false) ||
                 PathfindingManager.Instance!.IsPathSegmentValid(currentPath[i], currentPath[i + 1]) == false)
             {
                 pathData = null;
-                currentPath = null;
+                currentPath.Clear();
                 Debug.Log("현재 경로가 막힘");
                 return true;
             }

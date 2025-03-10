@@ -817,7 +817,6 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable,
     public void InitializeProjectilePool()
     {
         if (AttackRangeType == AttackRangeType.Ranged && 
-            projectileTag != null && 
             OperatorData.projectilePrefab != null)
         {
             projectileTag = $"{OperatorData.entityName}_Projectile";

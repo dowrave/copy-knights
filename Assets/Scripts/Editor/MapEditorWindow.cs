@@ -165,7 +165,7 @@ public class MapEditorWindow : EditorWindow
             currentMapWidth = currentMap.Width;
             currentMapHeight = currentMap.Height;
             // 맵 다시 초기화 - 컴파일이 다시 된 다음에 MapEditorWindow에 참조를 유실하는 문제가 있음
-            currentMap.Initialize(currentMapWidth, currentMapHeight, true);
+            currentMap.InitializeOnEditor(currentMapWidth, currentMapHeight, true);
         }
     }
 
@@ -179,7 +179,7 @@ public class MapEditorWindow : EditorWindow
         currentMap = mapObject.AddComponent<Map>();
 
         // Map 오브젝트 초기화(load = false)
-        currentMap.Initialize(currentMapWidth, currentMapHeight, false);
+        currentMap.InitializeOnEditor(currentMapWidth, currentMapHeight, false);
 
         // Map 컴포넌트의 tilePrefab 속성을 에디터 스크립트에서 설정, 맵 생성 시 올바른 타일 프리팹이 사용되도록 한다.
         SerializedObject serializedMap = new SerializedObject(currentMap);
@@ -250,7 +250,7 @@ public class MapEditorWindow : EditorWindow
                 return;
             }
 
-            currentMap.Initialize(currentMap.Width, currentMap.Height, true);
+            currentMap.InitializeOnEditor(currentMap.Width, currentMap.Height, true);
             currentMapWidth = currentMap.Width;
             currentMapHeight = currentMap.Height;
 
@@ -293,7 +293,7 @@ public class MapEditorWindow : EditorWindow
         currentMap.RemoveAllTiles();
 
         // 맵 크기 조정
-        currentMap.Initialize(newWidth, newHeight, false);
+        currentMap.InitializeOnEditor(newWidth, newHeight, false);
 
         // 기존 데이터 복원
         for (int x = 0; x < Mathf.Min(currentMapWidth, newWidth); x++)
