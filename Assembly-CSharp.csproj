@@ -86,6 +86,7 @@
     <Compile Include="Assets\Scripts\CC\CrowdControl.cs" />
     <Compile Include="Assets\Scripts\Interfaces\ISkill.cs" />
     <Compile Include="Assets\Scripts\Core\Managers\GameManagement.cs" />
+    <Compile Include="Assets\Scripts\UI\Panels\ConfirmationPanel.cs" />
     <Compile Include="Assets\Scripts\Data\CCEffectDatabase.cs" />
     <Compile Include="Assets\Scripts\UI\Components\DiamondMask.cs" />
     <Compile Include="Assets\Scripts\Skills\Base(Abstract)\PassiveSkill.cs" />
@@ -127,6 +128,7 @@
     <Compile Include="Assets\Scripts\Entities\Enemy\Enemy.cs" />
     <Compile Include="Assets\Scripts\Utils\InstanceValidator.cs" />
     <Compile Include="Assets\Scripts\UI\Components\OperatorUI.cs" />
+    <Compile Include="Assets\Scripts\Core\Managers\TutorialManager.cs" />
     <Compile Include="Assets\Scripts\UI\Panels\StageLoadingScreen.cs" />
     <Compile Include="Assets\Scripts\Skills\OperatorSkills\AreaHasteHealSkill.cs" />
     <Compile Include="Assets\Scripts\UI\Panels\OperatorPromotionPanel.cs" />

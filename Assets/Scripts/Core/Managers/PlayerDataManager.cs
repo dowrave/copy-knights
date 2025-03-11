@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
-using Unity.VisualScripting;
+using System;
 using UnityEngine;
 
 
@@ -9,7 +9,7 @@ using UnityEngine;
 public class PlayerDataManager : MonoBehaviour
 {
     // 플레이어가 소유한 데이터 정보
-    [System.Serializable] 
+    [Serializable] 
     private class PlayerData
     {
         public List<OwnedOperator> ownedOperators = new List<OwnedOperator>(); // 보유 오퍼레이터
@@ -17,6 +17,13 @@ public class PlayerDataManager : MonoBehaviour
         public int maxSquadSize;
         public UserInventoryData inventory = new UserInventoryData(); // 아이템 인벤토리
         public StageResultData stageResults = new StageResultData(); // 스테이지 진행 상황
+        public TutorialData tutorialData = new TutorialData();
+    }
+
+    [Serializable] 
+    public class TutorialData
+    {
+        public bool hasDoneTutorial = false;
     }
 
     private PlayerData? playerData;
@@ -581,6 +588,11 @@ public class PlayerDataManager : MonoBehaviour
         {
             Debug.LogError($"{itemName}은 아이템 데이터베이스에 존재하지 않는 이름임");
         }
+    }
+
+    public TutorialData? GetTutorialData()
+    {
+        return playerData?.tutorialData;
     }
 
     // 아이템 데이터베이스를 이용해 초기 아이템 지급

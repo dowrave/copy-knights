@@ -1,13 +1,17 @@
 using UnityEngine;
 using UnityEngine.UI;
 using DG.Tweening;
+using TMPro;
 
 public class ConfirmationReturnToLobbyPanel : MonoBehaviour
 {
     [Header("UI References")]
+    [SerializeField] TextMeshProUGUI textContent = default!;
     [SerializeField] Button blurArea = default!; // 빈 영역 클릭 시 로비로 돌아감
     [SerializeField] Button ConfirmButton = default!;
     [SerializeField] Button CancelButton = default!;
+
+
 
     private CanvasGroup canvasGroup = default!;
     private float animationSpeed = 0.01f; // DOFade의 실제 알파값에 영향을 준다. 왜 그런지는 모르겠음.
