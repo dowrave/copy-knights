@@ -17,13 +17,7 @@ public class PlayerDataManager : MonoBehaviour
         public int maxSquadSize;
         public UserInventoryData inventory = new UserInventoryData(); // 아이템 인벤토리
         public StageResultData stageResults = new StageResultData(); // 스테이지 진행 상황
-        public TutorialData tutorialData = new TutorialData();
-    }
-
-    [Serializable] 
-    public class TutorialData
-    {
-        public bool hasDoneTutorial = false;
+        public bool isTutorialFinished = false;
     }
 
     private PlayerData? playerData;
@@ -590,9 +584,9 @@ public class PlayerDataManager : MonoBehaviour
         }
     }
 
-    public TutorialData? GetTutorialData()
+    public bool IsTutorialFinished()
     {
-        return playerData?.tutorialData;
+        return playerData!.isTutorialFinished;
     }
 
     // 아이템 데이터베이스를 이용해 초기 아이템 지급

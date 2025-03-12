@@ -11495,6 +11495,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   confirmPanelPrefab: {fileID: 69893379082690581, guid: 48808be8d01ae534eb8fedae769885a1, type: 3}
+  dialogueBoxPrefab: {fileID: 5178293709350505806, guid: 7e6c71f3096035c4aad1f50431483657, type: 3}
+  tutorialData: {fileID: 11400000, guid: 259fde182c3d87f46aa02bf7e91ab6b4, type: 2}
 --- !u!1 &1032098792
 GameObject:
   m_ObjectHideFlags: 0
@@ -15067,6 +15069,7 @@ MonoBehaviour:
   userSquadManager: {fileID: 1856081711}
   resourceManager: {fileID: 1259888922}
   playerDataManager: {fileID: 920941511}
+  tutorialManager: {fileID: 1016527943}
   operatorLevelData: {fileID: 11400000, guid: a4a5783763a81e64cac65822c54f7e1f, type: 2}
 --- !u!4 &1332142873
 Transform:

@@ -13,6 +13,8 @@ public class GameManagement : MonoBehaviour
     [SerializeField] private UserSquadManager? userSquadManager = null!;
     [SerializeField] private ResourceManager? resourceManager = null!;
     [SerializeField] private PlayerDataManager? playerDataManager = null!;
+    [SerializeField] private TutorialManager? tutorialManager = null!;
+
 
     [Header("System Data")]
     [SerializeField] private OperatorLevelData? operatorLevelData; // 인스펙터에서 설정
@@ -23,6 +25,7 @@ public class GameManagement : MonoBehaviour
     public UserSquadManager UserSquadManager => userSquadManager!;
     public ResourceManager ResourceManager => resourceManager!;
     public PlayerDataManager PlayerDataManager => playerDataManager!;
+    public TutorialManager TutorialManager => TutorialManager!;
 
 
 

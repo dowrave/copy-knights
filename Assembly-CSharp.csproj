@@ -128,6 +128,7 @@
     <Compile Include="Assets\Scripts\Entities\Enemy\Enemy.cs" />
     <Compile Include="Assets\Scripts\Utils\InstanceValidator.cs" />
     <Compile Include="Assets\Scripts\UI\Components\OperatorUI.cs" />
+    <Compile Include="Assets\Scripts\Data\TutorialData.cs" />
     <Compile Include="Assets\Scripts\Core\Managers\TutorialManager.cs" />
     <Compile Include="Assets\Scripts\UI\Panels\StageLoadingScreen.cs" />
     <Compile Include="Assets\Scripts\Skills\OperatorSkills\AreaHasteHealSkill.cs" />
@@ -135,6 +136,7 @@
     <Compile Include="Assets\Scripts\Core\Managers\StatisticsManager.cs" />
     <Compile Include="Assets\Scripts\Skills\VFXController\SkillRangeVFXController.cs" />
     <Compile Include="Assets\Scripts\Skills\VFXController\CombatVFXController.cs" />
+    <Compile Include="Assets\Scripts\UI\Components\DialogueBox.cs" />
     <Compile Include="Assets\Scripts\UI\Panels\OperatorLevelUpPanel.cs" />
     <Compile Include="Assets\Scripts\Core\Managers\CameraManager.cs" />
     <Compile Include="Assets\Scripts\Entities\Base\UnitEntity.cs" />
