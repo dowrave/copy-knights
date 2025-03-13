@@ -114,6 +114,7 @@
     <Compile Include="Assets\Scripts\Skills\OperatorSkills\CostRecoverySkill.cs" />
     <Compile Include="Assets\Scripts\Entities\Combat\Projectile\Projectile.cs" />
     <Compile Include="Assets\Scripts\UI\Components\EnemyBarUI.cs" />
+    <Compile Include="Assets\Scripts\UI\Components\TutorialPanel.cs" />
     <Compile Include="Assets\Scripts\Skills\OperatorSkills\SmashSkill.cs" />
     <Compile Include="Assets\Scripts\Data\MapDeployableData.cs" />
     <Compile Include="Assets\Scripts\Skills\SkillController\AreaHasteHealController.cs" />
@@ -136,7 +137,6 @@
     <Compile Include="Assets\Scripts\Core\Managers\StatisticsManager.cs" />
     <Compile Include="Assets\Scripts\Skills\VFXController\SkillRangeVFXController.cs" />
     <Compile Include="Assets\Scripts\Skills\VFXController\CombatVFXController.cs" />
-    <Compile Include="Assets\Scripts\UI\Components\DialogueBox.cs" />
     <Compile Include="Assets\Scripts\UI\Panels\OperatorLevelUpPanel.cs" />
     <Compile Include="Assets\Scripts\Core\Managers\CameraManager.cs" />
     <Compile Include="Assets\Scripts\Entities\Base\UnitEntity.cs" />

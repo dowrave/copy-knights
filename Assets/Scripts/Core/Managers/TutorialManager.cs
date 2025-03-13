@@ -1,26 +1,28 @@
 using System.Collections;
 using UnityEngine;
-using UnityEngine.Events;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 public class TutorialManager : MonoBehaviour
 {
-    // DontDestroyOnLoad에 들어가므로 프리팹으로 저장하는 게 제일 안전하다
-    [Header("UI References")]
+    // 여러 씬에서 쓰이기 때문에 프리팹 형태로 넣음
+    [Header("References")]
     [SerializeField] private ConfirmationPanel confirmPanelPrefab = default!;
-    [SerializeField] private GameObject dialogueBoxPrefab = default!;
+    [SerializeField] private GameObject tutorialPanelPrefab = default!;
     [SerializeField] private TutorialData tutorialData;
 
     private int currentStepIndex = -1;
     private bool isTutorialActive = false;
-    private DialogueBox? dialogueBox;
-
+    private TutorialPanel? currentTutorialPanel;
+    private Button? currentOverlay; // 현재 Step의 목표 버튼 위에 나타나는 투명한 버튼
 
     private ConfirmationPanel confirmPanelInstance;
 
+    private Canvas? canvas;
+
     private void Awake()
     {
-        
+        SceneManager.sceneLoaded += OnSceneLoaded;
     }
 
     private void Start()
@@ -35,6 +37,8 @@ public class TutorialManager : MonoBehaviour
             Debug.LogError("PlayerData, 혹은 TutorialData가 정상적으로 초기화되지 않았음");
         }
     }
+
+
 
     // 튜토리얼 진행 여부를 검사
     private bool CheckTutorialFinished()
@@ -88,21 +92,28 @@ public class TutorialManager : MonoBehaviour
         confirmPanelInstance.OnConfirm -= StartTutorial;
 
         isTutorialActive = true;
-        currentStepIndex = -1;
+        currentStepIndex = 0;
 
-        AdvanceToNextStep();
+        PlayCurrentStep();
     }
 
     public void StopTutorial()
     {
         isTutorialActive = false;
-        dialogueBoxPrefab.SetActive(false);
+        currentTutorialPanel.gameObject.SetActive(false);
     }
 
     public void CurrentStepFinish()
     {
-        // 스텝마다 끝나고 나서 진행될 게 다를 것 같음. 그런 요소가 추가돼야 할 듯.
+        // 스텝마다 끝나고 진행되어야 할 요소
+        if (currentOverlay != null)
+        {
+            // 입력 후 동작
+            currentOverlay.onClick.RemoveAllListeners();
 
+            Destroy(currentOverlay.gameObject);
+            currentOverlay = null;
+        }
         
         // 마지막 스텝이었다면 튜토리얼 종료
         if (currentStepIndex == tutorialData.steps.Count)
@@ -115,29 +126,18 @@ public class TutorialManager : MonoBehaviour
         AdvanceToNextStep();
     }
 
-    private void AdvanceToNextStep()
+    private void PlayCurrentStep()
     {
-        // 마지막 스텝이었다면 튜토리얼 종료
-        if (currentStepIndex >= tutorialData.steps.Count)
-        {
-            StopTutorial();
-            return;
-        }
-
-        // 새로운 스텝 시작
-        currentStepIndex++;
-
-
         TutorialData.TutorialStep currentStep = tutorialData.steps[currentStepIndex];
 
-        if (dialogueBox == null)
+        if (currentTutorialPanel == null)
         {
             Canvas canvas = FindObjectsByType<Canvas>(FindObjectsSortMode.None)[0];
-            dialogueBox = Instantiate(dialogueBoxPrefab, canvas.transform).GetComponent<DialogueBox>();
+            currentTutorialPanel = Instantiate(tutorialPanelPrefab, canvas.transform).GetComponent<TutorialPanel>();
         }
 
         // 텍스트 출력 완료 이벤트에 사용자 동작 대기에 대한 코루틴 추가
-        dialogueBox.OnDialogueCompleted = () =>
+        currentTutorialPanel.OnDialogueCompleted = () =>
         {
             // 사용자 액션이 필요한 경우, 해당 액션을 기다림
             if (currentStep.requireUserAction)
@@ -150,16 +150,27 @@ public class TutorialManager : MonoBehaviour
             }
         };
 
-        dialogueBox.Initialize(currentStep);
+        currentTutorialPanel.Initialize(currentStep);
+    }
 
+    private void AdvanceToNextStep()
+    {
+        // 마지막 스텝이었다면 튜토리얼 종료
+        if (currentStepIndex >= tutorialData.steps.Count - 1)
+        {
+            StopTutorial();
+            return;
+        }
+
+        // 다음 스텝으로 인덱스 이동
+        currentStepIndex++;
+
+        // 스텝 실행
+        PlayCurrentStep();
     }
 
     private IEnumerator WaitForUserAction(string expectedButtonName)
     {
-        // 다른 동작을 방지하기 위한 패널 추가
-        //Canvas canvas = FindObjectOfType<Canvas>();
-        //GameObject blockPanel = Instantiate(blockPanelPrefab, canvas.transform);
-
         bool actionReceived = false;
         Button expectedButton = GameObject.Find(expectedButtonName)?.GetComponent<Button>();
         if (expectedButton == null)
@@ -172,16 +183,88 @@ public class TutorialManager : MonoBehaviour
             Debug.Log("요청된 버튼을 찾았습니다 : " + expectedButton.name);
         }
 
-        // 버튼에 리스너 추가
-        expectedButton.onClick.AddListener(() => actionReceived = true);
-       
-        // 버튼 입력 대기
-        while (!actionReceived) yield return null;
+        // expectedButton과 transparent 패널 위에 오는 투명한 버튼을 만듦
+        CreateCurrentOverlay(expectedButton);
 
-        // RemoveAllListeners가 맞나?
-        expectedButton.onClick.RemoveAllListeners();
-        //Destroy(blockPanel);
+        if (currentOverlay != null)
+        {
+            // 버튼에 리스너 추가
+            currentOverlay.onClick.AddListener(() => actionReceived = true);
 
-        AdvanceToNextStep();
+            // 버튼 입력 대기
+            while (!actionReceived) yield return null;
+
+            CurrentStepFinish();
+        }
+        else
+        {
+            Debug.LogError("currentOverlay에 잡힌 요소 없음");
+        }
+    }
+
+    // 목표로 하는 버튼과 동일한 기능을 하는 투명한 버튼을 만듦
+    // TutorialPanel의 뒷배경 패널보다 위에 요소가 오도록 하기 위함
+    private void CreateCurrentOverlay(Button targetButton)
+    {
+        RectTransform buttonRect = targetButton.GetComponent<RectTransform>();
+
+        // 투명한 오버레이 생성
+        GameObject overlay = new GameObject("ButtonOverlay");
+        overlay.transform.SetParent(canvas.transform);
+
+        // 기존 버튼과 동일한 위치, 크기로 생성
+        RectTransform overlayRect = overlay.AddComponent<RectTransform>();
+        overlayRect.anchorMin = buttonRect.anchorMin;
+        overlayRect.anchorMax = buttonRect.anchorMax;
+        overlayRect.pivot = buttonRect.pivot;
+        overlayRect.position = buttonRect.position;
+        overlayRect.sizeDelta = buttonRect.sizeDelta;
+
+        // 투명한 이미지
+        Image overlayImage = overlay.AddComponent<Image>();
+        overlayImage.color = new Color(0, 0, 0, 0); 
+
+        // 클릭 이벤트 추가
+        Button overlayButton = overlay.AddComponent<Button>();
+        overlayButton.onClick.AddListener(() =>
+        { 
+            targetButton.GetComponent<Button>().onClick.Invoke();
+        });
+
+        Debug.Log("overlayButton에 리스너가 등록됨");
+
+        // 제거를 위한 현재 오버레이 등록
+        currentOverlay = overlayButton;
+    }
+
+
+    private void InitializeOverlay()
+    {
+
+    }
+
+
+    private Canvas? FindRootCanvas()
+    {
+        GameObject[] rootObjects = SceneManager.GetActiveScene().GetRootGameObjects();
+
+        // 루트 오브젝트 중, Canvas 컴포넌트를 가진 오브젝트 찾기
+        foreach (GameObject obj in rootObjects)
+        {
+            Canvas? canvas = obj.GetComponent<Canvas>();
+            if (canvas != null) return canvas;
+        }
+        return null;
+    }
+
+    private void OnDestroy()
+    {
+        SceneManager.sceneLoaded -= OnSceneLoaded;
+    }
+
+    private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
+    {
+        canvas = FindRootCanvas();
+        if (canvas == null) Debug.LogError("TutorialManager에 canvas가 정상적으로 할당되지 않음");
     }
 }

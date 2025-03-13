@@ -14,6 +14,9 @@ public class ClickDetectionSystem : MonoBehaviour
     //private bool isDraggingDiamond = false;
     //private DiamondMask currentDiamondMask;
 
+    private bool isTutorialMode = false;
+    private string expectedButtonName = string.Empty;
+
     // 이미 실행된 UI가 있는 경우, 이 스크립트가 동작하지 않아도 되게 함
     public bool buttonClickedThisFrame = false;
     private bool shouldSkipHandleClick = false;
@@ -255,5 +258,4 @@ public class ClickDetectionSystem : MonoBehaviour
 
         return null;
     }
-
 }

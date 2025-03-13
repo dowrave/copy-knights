@@ -17,6 +17,8 @@ MonoBehaviour:
   - stepName: 1.Click Stage 1-0 Button
     dialogues:
     - "\uC2A4\uD14C\uC774\uC9C0 1-0 \uBC84\uD2BC\uC744 \uD074\uB9AD\uD574\uC8FC\uC138\uC694."
+    - "\uD14C\uC2A4\uD2B8\uD14C\uC2A4\uD2B8"
+    - "\uD14C\uC2A4\uD2B8\uD14C\uC2A4\uD2B8"
     dialogueBoxPosition: {x: 0, y: 125}
     requireUserAction: 1
     expectedButtonName: Stage1-0Button

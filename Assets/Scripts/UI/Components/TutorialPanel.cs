@@ -1,15 +1,19 @@
 using UnityEngine;
+using UnityEngine.UI;
 using TMPro;
 using System.Collections;
 
 
 // 
-public class DialogueBox : MonoBehaviour
+public class TutorialPanel : MonoBehaviour
 {
+    [Header("UI References")]
     [SerializeField] private TextMeshProUGUI textComponent = default!;
     [SerializeField] private int maxCharactersPerPage;
+    [SerializeField] private Image dialogueBox;
+    [SerializeField] private Button transparentPanel;
 
-    private RectTransform rect;
+    private RectTransform boxRect;
 
     private bool CanMoveToNextPage { get { return currentPageIndex < maxPageIndex && !isTyping; } }
 
@@ -41,19 +45,23 @@ public class DialogueBox : MonoBehaviour
 
     public void Initialize(TutorialData.TutorialStep step)
     {
-        Debug.Log("dialogueBox 실행됨");
-        
         this.step = step;
 
+        // 초기화
         textComponent.text = string.Empty;
-        rect = GetComponent<RectTransform>();
+        boxRect = dialogueBox.GetComponent<RectTransform>();
 
-        // 대화 시작
+        // 배경 패널 이벤트 초기화 및 등록
+        transparentPanel.onClick.RemoveAllListeners();
+        transparentPanel.onClick.AddListener(OnClick);
+        Debug.Log("transParentPanel에 OnClick 메서드 등록");
+
         SetActive(true);
         SetPosition(step.dialogueBoxPosition.x, step.dialogueBoxPosition.y);
 
+        // 인덱스 설정
         currentPageIndex = 0;
-        maxPageIndex = step.dialogues.Count;
+        maxPageIndex = step.dialogues.Count - 1;
 
         // 기존 코루틴 중단
         if (typingCoroutine != null)
@@ -67,22 +75,23 @@ public class DialogueBox : MonoBehaviour
 
     private void SetPosition(float xPos, float yPos)
     {
-        rect.anchoredPosition = new Vector2(xPos, yPos);
+        boxRect.anchoredPosition = new Vector2(xPos, yPos);
     }
 
     // 1글자씩 대화를 띄운다
     private IEnumerator TypeText()
     {
         if (currentPageIndex > maxPageIndex) yield break;
-        if (currentPageIndex == maxPageIndex)
-        {
-            OnDialogueCompleted?.Invoke();
-        }
+
         fullText = step.dialogues[currentPageIndex];
         currentText = string.Empty;
         isTyping = true;
 
-        //string pageText = textPages[currentPageIndex];
+        // 마지막 페이지에 진입하면 곧바로 알림
+        if (currentPageIndex == maxPageIndex)
+        {
+            OnDialogueCompleted?.Invoke();
+        }
 
         foreach (char c in fullText)
         {
@@ -101,6 +110,14 @@ public class DialogueBox : MonoBehaviour
     // 이번 페이지의 글자가 모두 나타났을 때
     private void OnCurrentPageFinish()
     {
+        // 코루틴 제거
+        if (typingCoroutine != null)
+        {
+            StopCoroutine(typingCoroutine);
+            typingCoroutine = null;
+        }
+
+        // 다음 페이지 인디케이터 표시
         if (CanMoveToNextPage)
         {
             ShowPageContinueHint(true);
@@ -110,18 +127,10 @@ public class DialogueBox : MonoBehaviour
     // 클릭 시 동작
     public void OnClick()
     {
-        // 타이핑 중일 때 : 클릭하면 모든 텍스트가 즉시 표시됨
-        if (typingCoroutine != null)
-        {
-            StopCoroutine(typingCoroutine);
-            typingCoroutine = null;
-        }
-
         if (isTyping)
         {
             textComponent.text = fullText;
             isTyping = false;
-
             OnCurrentPageFinish();
             return; // 타이핑 중일 때 클릭해도 다음 대화로 넘어가지 않게끔 함
         }
