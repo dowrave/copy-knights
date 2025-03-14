@@ -139,15 +139,7 @@ public class TutorialManager : MonoBehaviour
         // 텍스트 출력 완료 이벤트에 사용자 동작 대기에 대한 코루틴 추가
         currentTutorialPanel.OnDialogueCompleted = () =>
         {
-            // 사용자 액션이 필요한 경우, 해당 액션을 기다림
-            if (currentStep.requireUserAction)
-            {
-                StartCoroutine(WaitForUserAction(currentStep.expectedButtonName));
-            }
-            else
-            {
-                AdvanceToNextStep();
-            }
+            StartCoroutine(WaitForUserAction(currentStep.expectedButtonName));
         };
 
         currentTutorialPanel.Initialize(currentStep);
@@ -169,37 +161,66 @@ public class TutorialManager : MonoBehaviour
         PlayCurrentStep();
     }
 
+    // 현재 스텝이 끝난 상태에서 다음 스텝으로 이동하기 전, 사용자의 동작을 기다리는 메서드
     private IEnumerator WaitForUserAction(string expectedButtonName)
     {
         bool actionReceived = false;
-        Button expectedButton = GameObject.Find(expectedButtonName)?.GetComponent<Button>();
-        if (expectedButton == null)
-        {
-            Debug.LogError("요청된 버튼을 찾을 수 없습니다 : " + expectedButtonName);
-            yield break;
-        }
-        else
-        {
-            Debug.Log("요청된 버튼을 찾았습니다 : " + expectedButton.name);
-        }
 
-        // expectedButton과 transparent 패널 위에 오는 투명한 버튼을 만듦
-        CreateCurrentOverlay(expectedButton);
-
-        if (currentOverlay != null)
+        // 특정 버튼을 클릭해도 되지 않는 경우
+        if (expectedButtonName == string.Empty)
         {
-            // 버튼에 리스너 추가
-            currentOverlay.onClick.AddListener(() => actionReceived = true);
+            // tutorialPanel의 가장 위에 오는 transparentPanel에 리스너를 추가함
+            currentTutorialPanel.AddClickListener(() => actionReceived = true);
 
             // 버튼 입력 대기
             while (!actionReceived) yield return null;
-
             CurrentStepFinish();
         }
+
+        // 특정 버튼을 클릭해야만 하는 경우
         else
         {
-            Debug.LogError("currentOverlay에 잡힌 요소 없음");
+            Button expectedButton = GameObject.Find(expectedButtonName)?.GetComponent<Button>();
+            if (expectedButton == null)
+            {
+                Debug.LogError("요청된 버튼을 찾을 수 없습니다 : " + expectedButtonName);
+                yield break;
+            }
+
+            Debug.Log("요청된 버튼을 찾았습니다 : " + expectedButton.name);
+
+            float waitSeconds = 0.1f;
+
+            // expectedButton과 transparent 패널 위에 오는 투명한 버튼을 만듦
+            StartCoroutine(CreateCurrentOverlayAfterDelay(expectedButton, waitSeconds));
+
+            // 위 코루틴의 실행을 기다림
+            yield return new WaitForSeconds(waitSeconds + 0.01f);
+
+            if (currentOverlay != null)
+            {
+                // 버튼에 리스너 추가
+                currentOverlay.onClick.AddListener(() => actionReceived = true);
+
+                // 버튼 입력 대기
+                while (!actionReceived) yield return null;
+
+                CurrentStepFinish();
+            }
+            else
+            {
+                Debug.LogError("currentOverlay에 잡힌 요소 없음");
+            }
         }
+
+    }
+
+    // 고정된 위치의 UI가 아니라면 이런 식으로 해봄 
+    private IEnumerator CreateCurrentOverlayAfterDelay(Button targetButton, float waitSeconds)
+    {
+        yield return new WaitForSeconds(waitSeconds);
+
+        CreateCurrentOverlay(targetButton);
     }
 
     // 목표로 하는 버튼과 동일한 기능을 하는 투명한 버튼을 만듦

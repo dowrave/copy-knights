@@ -10,12 +10,15 @@ public class TutorialPanel : MonoBehaviour
     [Header("UI References")]
     [SerializeField] private TextMeshProUGUI textComponent = default!;
     [SerializeField] private int maxCharactersPerPage;
-    [SerializeField] private Image dialogueBox;
-    [SerializeField] private Button transparentPanel;
+    [SerializeField] private Image dialogueBox = default!;
+    [SerializeField] private Image boxRightBottomImage = default!;
+    [SerializeField] private Button transparentPanel = default!;
 
     private RectTransform boxRect;
 
     private bool CanMoveToNextPage { get { return currentPageIndex < maxPageIndex && !isTyping; } }
+    private bool DialogueFinished { get { return currentPageIndex == maxPageIndex && !isTyping; } }
+
 
     private string currentText = string.Empty; // 1글자씩 나타남. 현재 나타난 글자
     private string fullText = string.Empty; // 이번 dialogue에서 나타나야 할 전체 글자
@@ -86,12 +89,7 @@ public class TutorialPanel : MonoBehaviour
         fullText = step.dialogues[currentPageIndex];
         currentText = string.Empty;
         isTyping = true;
-
-        // 마지막 페이지에 진입하면 곧바로 알림
-        if (currentPageIndex == maxPageIndex)
-        {
-            OnDialogueCompleted?.Invoke();
-        }
+        SetPageIndicator(false);
 
         foreach (char c in fullText)
         {
@@ -117,16 +115,17 @@ public class TutorialPanel : MonoBehaviour
             typingCoroutine = null;
         }
 
-        // 다음 페이지 인디케이터 표시
-        if (CanMoveToNextPage)
-        {
-            ShowPageContinueHint(true);
-        }
+        SetPageIndicator(true);
+
+        // 마지막 페이지라면 끝났음을 알림
+        if (DialogueFinished) OnDialogueCompleted?.Invoke();
+
     }
 
     // 클릭 시 동작
     public void OnClick()
     {
+        // 글자가 나타나는 중 : 현재 페이지의 글자를 모두 보여준다
         if (isTyping)
         {
             textComponent.text = fullText;
@@ -135,16 +134,23 @@ public class TutorialPanel : MonoBehaviour
             return; // 타이핑 중일 때 클릭해도 다음 대화로 넘어가지 않게끔 함
         }
 
+        // 다음 페이지로 넘어갈 수 있음 : 다음 페이지로 넘어간다
         if (CanMoveToNextPage)
         {
             currentPageIndex++;
             StartCoroutine(TypeText());
+            return;
         }
     }
 
-    private void ShowPageContinueHint(bool show)
+    // transparentPanel.onClick에 리스너를 추가하는 메서드
+    public void AddClickListener(UnityEngine.Events.UnityAction action)
     {
-        // 페이지 계속 표시를 보여줌
-        // 우측 하단에 화살표 아이콘을 띄우는 식으로 구현해보자
+        transparentPanel.onClick.AddListener(action);
+    }
+
+    private void SetPageIndicator(bool show)
+    {
+        boxRightBottomImage.gameObject.SetActive(show);
     }
 }

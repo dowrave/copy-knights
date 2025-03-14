@@ -130,6 +130,10 @@ public class OperatorInventoryPanel : MonoBehaviour
         foreach (OwnedOperator op in availableOperators)
         {
             OperatorSlot slot = Instantiate(slotButtonPrefab, operatorSlotContainer);
+
+            // 이름 변경 - 튜토리얼에서 버튼 이름 추적할 때 필요함
+            slot.gameObject.name = $"OperatorSlot({op.operatorName})";
+
             slot.Initialize(true, op);
             operatorSlots.Add(slot);
             slot.OnSlotClicked.AddListener(HandleSlotClicked);

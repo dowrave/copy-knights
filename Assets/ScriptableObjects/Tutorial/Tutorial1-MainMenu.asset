@@ -17,8 +17,6 @@ MonoBehaviour:
   - stepName: 1.Click Stage 1-0 Button
     dialogues:
     - "\uC2A4\uD14C\uC774\uC9C0 1-0 \uBC84\uD2BC\uC744 \uD074\uB9AD\uD574\uC8FC\uC138\uC694."
-    - "\uD14C\uC2A4\uD2B8\uD14C\uC2A4\uD2B8"
-    - "\uD14C\uC2A4\uD2B8\uD14C\uC2A4\uD2B8"
     dialogueBoxPosition: {x: 0, y: 125}
     requireUserAction: 1
     expectedButtonName: Stage1-0Button
@@ -28,3 +26,71 @@ MonoBehaviour:
     dialogueBoxPosition: {x: 400, y: -250}
     requireUserAction: 1
     expectedButtonName: ConfirmButton
+  - stepName: 3. Click Empty Slot
+    dialogues:
+    - "\uBE48 \uC2AC\uB86F\uC744 \uD074\uB9AD\uD574\uC8FC\uC138\uC694."
+    dialogueBoxPosition: {x: -250, y: 150}
+    requireUserAction: 1
+    expectedButtonName: OperatorSlotButton
+  - stepName: 4. Click Vanguard
+    dialogues:
+    - "\uBC45\uAC00\uB4DC\uB97C \uD074\uB9AD\uD574\uC8FC\uC138\uC694."
+    dialogueBoxPosition: {x: 60, y: 150}
+    requireUserAction: 1
+    expectedButtonName: OperatorSlot(Vanguard)
+  - stepName: 5. Click Confirm
+    dialogues:
+    - "\uD655\uC778 \uBC84\uD2BC\uC744 \uD074\uB9AD\uD574\uC8FC\uC138\uC694."
+    dialogueBoxPosition: {x: 500, y: -285}
+    requireUserAction: 1
+    expectedButtonName: ConfirmButton
+  - stepName: 6. Return To Squad Edit Panel
+    dialogues:
+    - "Vanguard\uAC00 \uC131\uACF5\uC801\uC73C\uB85C \uD3B8\uC131\uB418\uC5C8\uC2B5\uB2C8\uB2E4."
+    - "Sniper\uC640 Guard\uB3C4 \uD3B8\uC131\uD558\uACE0 \uC2A4\uD14C\uC774\uC9C0\uB97C
+      \uC9C4\uD589\uD558\uACA0\uC2B5\uB2C8\uB2E4."
+    dialogueBoxPosition: {x: -250, y: 150}
+    requireUserAction: 0
+    expectedButtonName: 
+  - stepName: 7. Click Empty Slot
+    dialogues:
+    - "\uBE48 \uC2AC\uB86F\uC744 \uC120\uD0DD\uD574\uC8FC\uC138\uC694."
+    dialogueBoxPosition: {x: -250, y: -200}
+    requireUserAction: 1
+    expectedButtonName: OperatorSlotButton (1)
+  - stepName: 8. Click Sniper
+    dialogues:
+    - "Sniper\uB97C \uD074\uB9AD\uD574\uC8FC\uC138\uC694."
+    dialogueBoxPosition: {x: 60, y: 150}
+    requireUserAction: 1
+    expectedButtonName: OperatorSlot(Sniper)
+  - stepName: 9. Click Confirm Button
+    dialogues:
+    - "\uD655\uC778 \uBC84\uD2BC\uC744 \uD074\uB9AD\uD574\uC8FC\uC138\uC694."
+    dialogueBoxPosition: {x: 500, y: -285}
+    requireUserAction: 1
+    expectedButtonName: ConfirmButton
+  - stepName: 10. Click Empty Slot
+    dialogues:
+    - "\uBE48 \uC2AC\uB86F\uC744 \uD074\uB9AD\uD574\uC8FC\uC138\uC694."
+    dialogueBoxPosition: {x: -25, y: 200}
+    requireUserAction: 1
+    expectedButtonName: OperatorSlotButton (2)
+  - stepName: 11. Click Guard
+    dialogues:
+    - "Guard\uB97C \uD074\uB9AD\uD574\uC8FC\uC138\uC694."
+    dialogueBoxPosition: {x: 60, y: 150}
+    requireUserAction: 1
+    expectedButtonName: OperatorSlot(Guard)
+  - stepName: 12. Click Confirm Button
+    dialogues:
+    - "\uD655\uC778 \uBC84\uD2BC\uC744 \uD074\uB9AD\uD574\uC8FC\uC138\uC694."
+    dialogueBoxPosition: {x: 500, y: -285}
+    requireUserAction: 1
+    expectedButtonName: ConfirmButton
+  - stepName: 13. Start Stage
+    dialogues:
+    - "\uC2A4\uD14C\uC774\uC9C0 \uC9C4\uC785 \uBC84\uD2BC\uC744 \uD074\uB9AD\uD574\uC8FC\uC138\uC694."
+    dialogueBoxPosition: {x: 250, y: -250}
+    requireUserAction: 1
+    expectedButtonName: StartButton
