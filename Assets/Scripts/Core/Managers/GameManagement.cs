@@ -25,7 +25,7 @@ public class GameManagement : MonoBehaviour
     public UserSquadManager UserSquadManager => userSquadManager!;
     public ResourceManager ResourceManager => resourceManager!;
     public PlayerDataManager PlayerDataManager => playerDataManager!;
-    public TutorialManager TutorialManager => TutorialManager!;
+    public TutorialManager TutorialManager => tutorialManager!;
 
 
 

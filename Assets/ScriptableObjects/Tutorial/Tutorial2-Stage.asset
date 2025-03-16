@@ -12,6 +12,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b06c5e2c39898174a844cb701edc1ec3, type: 3}
   m_Name: Tutorial2-Stage
   m_EditorClassIdentifier: 
-  tutorialName: 
-  isTutorialFinished: 0
-  steps: []
+  tutorialName: Tutorial_2_Stage
+  steps:
+  - stepName: 0. Check Tutorial Work
+    dialogues:
+    - "\uD29C\uD1A0\uB9AC\uC5BC \uC2E4\uD589 \uCCB4\uD06C"
+    dialogueBoxPosition: {x: 0, y: 0}
+    requireUserAction: 0
+    expectedButtonName: 

@@ -84,6 +84,7 @@ public class StageManager : MonoBehaviour
 
     // 이벤트
     public event System.Action<Map>? OnMapLoaded;
+    public event System.Action OnStageStarted; // GameState.Battle이 최초로 실행됐을 때
     public event System.Action? OnDeploymentCostChanged; // 이벤트 발동 조건은 currentDeploymentCost 값이 변할 때, 여기 등록된 함수들이 동작
     public event System.Action<int>? OnLifePointsChanged; // 라이프 포인트 변경 시 발생 이벤트
     public event System.Action? OnEnemyKilled; // 적을 잡을 때마다 발생 이벤트
@@ -186,12 +187,21 @@ public class StageManager : MonoBehaviour
 
         if (SpawnerManager.Instance! == null) throw new InvalidOperationException("스포너 매니저 인스턴스가 없음");
 
-
         SetGameState(GameState.Battle);
         lastCostUpdateTime = Time.time;
+        CheckTutorial();
         StartCoroutine(IncreaseCostOverTime());
         SpawnerManager.Instance!.StartSpawning();
     }
+
+    private void CheckTutorial()
+    {
+        if (stageData.stageId == "1-0")
+        {
+            GameManagement.Instance!.TutorialManager.CheckBattleStart(stageData.stageId);
+        }
+    }
+
 
     private int CalculateTotalEnemyCount()
     {
@@ -324,11 +334,6 @@ public class StageManager : MonoBehaviour
 
     private void GameWin()
     {
-        InstanceValidator.ValidateInstance(GameManagement.Instance!);
-        InstanceValidator.ValidateInstance(UIManager.Instance!);
-        InstanceValidator.ValidateInstance(StageData);
-
-
         SetGameState(GameState.GameWin);
         Time.timeScale = 0;
         int stars = 3 - PassedEnemies;

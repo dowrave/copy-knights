@@ -18,18 +18,5 @@ public class TutorialData : ScriptableObject
         public bool requireUserAction;
         [Tooltip("requireUserAction이 true일 때만 사용. 활성화 시 해당 버튼의 입력을 기다립니다.")]
         public string expectedButtonName; 
-
-        //public TutorialAction actionAfterDialogue; // 대화 이후 수행할 액션 유형
-
-        //public enum TutorialAction
-        //{
-        //    None,
-        //    ContinueToNextStep,
-        //    ActivateGameObject,
-        //    WaitForPlayerAction,
-        //    EndTutorial
-        //}
-
-        //public string targetObjectName; // 활성할 게임 오브젝트 이름
     }
 }

@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System;
 using UnityEngine;
+using UnityEditor.Overlays;
 
 
 // 사용자의 데이터(보유 오퍼레이터, 스쿼드 등등)를 관리한다.
@@ -18,6 +19,7 @@ public class PlayerDataManager : MonoBehaviour
         public UserInventoryData inventory = new UserInventoryData(); // 아이템 인벤토리
         public StageResultData stageResults = new StageResultData(); // 스테이지 진행 상황
         public bool isTutorialFinished = false;
+        public int tutorialProgressStage = -1; // 튜토리얼 진행 중일 때만 관리
     }
 
     private PlayerData? playerData;
@@ -584,10 +586,41 @@ public class PlayerDataManager : MonoBehaviour
         }
     }
 
+    // 튜토리얼 완료 상태 확인
     public bool IsTutorialFinished()
     {
         return playerData!.isTutorialFinished;
     }
+
+    // 튜토리얼 진행 단계 가져오기
+    public int GetTutorialProgress()
+    {
+        return playerData.tutorialProgressStage;
+    }
+
+    // 튜토리얼 진행 단계 설정하기
+    public void SetTutorialProgress(int stage)
+    {
+        playerData.tutorialProgressStage = stage;
+        SavePlayerData();
+    }
+
+    // 튜토리얼 완료 설정
+    public void CompleteTutorial()
+    {
+        playerData.isTutorialFinished = true;
+        playerData.tutorialProgressStage = -1;
+        SavePlayerData();
+    }
+
+    // 튜토리얼 스킵
+    public void SkipTutorial()
+    {
+        playerData.isTutorialFinished = true;
+        playerData.tutorialProgressStage = -1;
+        SavePlayerData();
+    }
+
 
     // 아이템 데이터베이스를 이용해 초기 아이템 지급
     // 이름은 itemData.name 필드의 그것(LoadItemDatabase 참조)

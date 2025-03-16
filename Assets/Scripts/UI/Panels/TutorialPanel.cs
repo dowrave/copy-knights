@@ -16,13 +16,12 @@ public class TutorialPanel : MonoBehaviour
 
     private RectTransform boxRect;
 
-    private bool CanMoveToNextPage { get { return currentPageIndex < maxPageIndex && !isTyping; } }
-    private bool DialogueFinished { get { return currentPageIndex == maxPageIndex && !isTyping; } }
-
+    private bool CanMoveToNextPage { get { return currentPageIndex < maxPageIndex && !isTyping && typingCoroutine == null;  } }
+    private bool DialogueFinished { get { return currentPageIndex == maxPageIndex && !isTyping && typingCoroutine == null; } }
 
     private string currentText = string.Empty; // 1글자씩 나타남. 현재 나타난 글자
     private string fullText = string.Empty; // 이번 dialogue에서 나타나야 할 전체 글자
-    private float typingSpeed = 0.05f;
+    private float typingSpeed = 1f;
     private bool isTyping = false;
     private Coroutine typingCoroutine;
 
@@ -57,7 +56,6 @@ public class TutorialPanel : MonoBehaviour
         // 배경 패널 이벤트 초기화 및 등록
         transparentPanel.onClick.RemoveAllListeners();
         transparentPanel.onClick.AddListener(OnClick);
-        Debug.Log("transParentPanel에 OnClick 메서드 등록");
 
         SetActive(true);
         SetPosition(step.dialogueBoxPosition.x, step.dialogueBoxPosition.y);
@@ -70,6 +68,7 @@ public class TutorialPanel : MonoBehaviour
         if (typingCoroutine != null)
         {
             StopCoroutine(typingCoroutine);
+            typingCoroutine = null;
         }
 
         // 첫 페이지 타이핑 시작
@@ -128,17 +127,23 @@ public class TutorialPanel : MonoBehaviour
         // 글자가 나타나는 중 : 현재 페이지의 글자를 모두 보여준다
         if (isTyping)
         {
+            // 실행 중인 코루틴을 먼저 종료하고, 나머지 텍스트 조작이 들어가야 함
+            if (typingCoroutine != null)
+            {
+                StopCoroutine(typingCoroutine);
+                typingCoroutine = null;
+            }
             textComponent.text = fullText;
             isTyping = false;
             OnCurrentPageFinish();
-            return; // 타이핑 중일 때 클릭해도 다음 대화로 넘어가지 않게끔 함
+            return; // 타이핑 중일 때 클릭하면 다음 대화로 넘어가지 않음
         }
 
         // 다음 페이지로 넘어갈 수 있음 : 다음 페이지로 넘어간다
         if (CanMoveToNextPage)
         {
             currentPageIndex++;
-            StartCoroutine(TypeText());
+            typingCoroutine = StartCoroutine(TypeText());
             return;
         }
     }
@@ -147,6 +152,16 @@ public class TutorialPanel : MonoBehaviour
     public void AddClickListener(UnityEngine.Events.UnityAction action)
     {
         transparentPanel.onClick.AddListener(action);
+    }
+
+    public void RemoveClickListener(UnityEngine.Events.UnityAction action)
+    {
+        transparentPanel.onClick.RemoveListener(action);
+    }
+
+    public void RemoveAllClickListeners()
+    {
+        transparentPanel.onClick.RemoveAllListeners();
     }
 
     private void SetPageIndicator(bool show)

@@ -11496,7 +11496,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   confirmPanelPrefab: {fileID: 69893379082690581, guid: 48808be8d01ae534eb8fedae769885a1, type: 3}
   tutorialPanelPrefab: {fileID: 5501752837593280999, guid: 5e6e06464d339f34cab225ace63eb627, type: 3}
-  tutorialData: {fileID: 11400000, guid: 259fde182c3d87f46aa02bf7e91ab6b4, type: 2}
+  tutorialDatas:
+  - {fileID: 11400000, guid: 259fde182c3d87f46aa02bf7e91ab6b4, type: 2}
+  - {fileID: 11400000, guid: dfb13b5b753419f4dbcbdd05afb6c3fa, type: 2}
 --- !u!1 &1032098792
 GameObject:
   m_ObjectHideFlags: 0
