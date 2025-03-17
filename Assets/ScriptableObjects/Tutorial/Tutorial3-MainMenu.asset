@@ -12,6 +12,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b06c5e2c39898174a844cb701edc1ec3, type: 3}
   m_Name: Tutorial3-MainMenu
   m_EditorClassIdentifier: 
-  tutorialName: 
-  isTutorialFinished: 0
-  steps: []
+  tutorialName: Tutorial_2_LevelUpAndPromotion
+  steps:
+  - stepName: 1. Return To Lobby
+    dialogues:
+    - "\uB85C\uBE44\uB85C \uB3CC\uC544\uC624\uAE30!"
+    dialogueBoxPosition: {x: 0, y: 0}
+    requireUserAction: 0
+    expectedButtonName: 

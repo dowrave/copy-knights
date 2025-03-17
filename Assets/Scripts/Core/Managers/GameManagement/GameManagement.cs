@@ -14,6 +14,8 @@ public class GameManagement : MonoBehaviour
     [SerializeField] private ResourceManager? resourceManager = null!;
     [SerializeField] private PlayerDataManager? playerDataManager = null!;
     [SerializeField] private TutorialManager? tutorialManager = null!;
+    [SerializeField] private TimeManager? timeManager = null!;
+
 
 
     [Header("System Data")]
@@ -26,6 +28,7 @@ public class GameManagement : MonoBehaviour
     public ResourceManager ResourceManager => resourceManager!;
     public PlayerDataManager PlayerDataManager => playerDataManager!;
     public TutorialManager TutorialManager => tutorialManager!;
+    public TimeManager TimeManager => timeManager!;
 
 
 

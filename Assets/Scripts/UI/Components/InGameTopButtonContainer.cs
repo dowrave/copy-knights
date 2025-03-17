@@ -51,11 +51,11 @@ public class InGameTopButtonContainer : MonoBehaviour
     }
 
 
-    public void UpdateSpeedUpButtonVisual()
+    public void UpdateSpeedUpButtonVisual(bool isSpeedUp)
     {
         // 현재 배속인 상태를 띄움
-        currentSpeedText.text = StageManager.Instance!.IsSpeedUp ? "x2" : "x1";
-        currentSpeedImage.sprite = StageManager.Instance!.IsSpeedUp ? x2SpeedSprite : x1SpeedSprite;
+        currentSpeedText.text = isSpeedUp ? "x2" : "x1";
+        currentSpeedImage.sprite = isSpeedUp ? x2SpeedSprite : x1SpeedSprite;
     }
 
     public void UpdatePauseButtonVisual()

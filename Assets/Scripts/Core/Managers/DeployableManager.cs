@@ -89,9 +89,8 @@ public class DeployableManager : MonoBehaviour
 
     public bool IsClickingPrevented => Time.time - lastPlacementTime < preventClickingTime;
 
-    //public event System.Action? OnDeployableUIInitialized;
-    public event System.Action OnCurrentOperatorDeploymentCountChanged = delegate { };
-
+    // 이벤트
+    public event Action OnCurrentOperatorDeploymentCountChanged = delegate { };
 
      
     private void Awake()
@@ -165,6 +164,17 @@ public class DeployableManager : MonoBehaviour
 
             GameObject boxObject = Instantiate(DeployableBoxPrefab, bottomPanel);
             DeployableBox box = boxObject.GetComponent<DeployableBox>();
+
+            // 이름 설정
+            if (deployableInfo.operatorData != null)
+            {
+                box.gameObject.name = $"DeployableBox({deployableInfo.operatorData.entityName})";
+            }
+            else
+            {
+                box.gameObject.name = $"DeployableBox({deployableInfo.deployableUnitData.entityName})";
+            }
+
 
             if (box != null)
             {
@@ -286,7 +296,8 @@ public class DeployableManager : MonoBehaviour
             IsDeployableSelecting = false;
             IsDraggingDeployable = true;
             CreatePreviewDeployable();
-            StageManager.Instance!.SlowDownTime();
+            //StageManager.Instance!.SlowDownTime();
+            GameManagement.Instance!.TimeManager.SetPlacementTimeScale();
         }
     }
 
@@ -537,7 +548,7 @@ public class DeployableManager : MonoBehaviour
             {
                 op.Deploy(tile.transform.position);
                 op.SetDirection(placementDirection);
-
+                
                 CurrentOperatorDeploymentCount++;
                 if (currentDeployableBox != null)
                 {
@@ -556,7 +567,7 @@ public class DeployableManager : MonoBehaviour
         deployedItems.Add(currentDeployable!);
         UpdateDeployableUI(currentDeployableInfo!);
         ResetPlacement();
-        StageManager.Instance.UpdateTimeScale();
+        GameManagement.Instance.TimeManager.UpdateTimeScale();
     }
     
     private void UpdateDeployableUI(DeployableInfo info)
@@ -598,7 +609,7 @@ public class DeployableManager : MonoBehaviour
         currentDeployableInfo = null;
 
         UIManager.Instance!.HideDeployableInfo();
-        StageManager.Instance!.UpdateTimeScale(); // 시간 원상복구
+        GameManagement.Instance!.TimeManager.UpdateTimeScale();
         ResetHighlights();
 
         HideUIs();

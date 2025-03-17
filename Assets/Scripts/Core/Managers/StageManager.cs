@@ -53,11 +53,20 @@ public class StageManager : MonoBehaviour
             }
         }
     }
-    public bool IsSpeedUp { get; private set; } = false;
-
-    private const float speedUpScale = 2f;
-    private const float originalTimeScale = 1f;
-    private const float placementTimeScale = 0.2f;
+    private bool isSpeedUp = false; 
+    public bool IsSpeedUp
+    {
+        get => isSpeedUp;
+        set
+        {
+            if (isSpeedUp != value)
+            {
+                isSpeedUp = value;
+                // 시간 변화 이벤트 발생
+                OnSpeedUpChanged?.Invoke(isSpeedUp);
+            }
+        }
+    }
 
     public int CurrentDeploymentCost
     {
@@ -83,14 +92,15 @@ public class StageManager : MonoBehaviour
     private StageLoadingScreen? stageLoadingScreen;
 
     // 이벤트
-    public event System.Action<Map>? OnMapLoaded;
-    public event System.Action OnStageStarted; // GameState.Battle이 최초로 실행됐을 때
-    public event System.Action? OnDeploymentCostChanged; // 이벤트 발동 조건은 currentDeploymentCost 값이 변할 때, 여기 등록된 함수들이 동작
-    public event System.Action<int>? OnLifePointsChanged; // 라이프 포인트 변경 시 발생 이벤트
-    public event System.Action? OnEnemyKilled; // 적을 잡을 때마다 발생 이벤트
-    public event System.Action? OnPreparationCompleted; // 스테이지 준비 완료 이벤트 
-    public event System.Action<GameState>? OnGameStateChanged;
-    public event System.Action? OnGameEnded; // 게임 종료 시에 동작
+    public event Action<Map>? OnMapLoaded;
+    public event Action OnStageStarted; // GameState.Battle이 최초로 실행됐을 때
+    public event Action<bool> OnSpeedUpChanged; // 배속 변화 발생
+    public event Action? OnDeploymentCostChanged; // 이벤트 발동 조건은 currentDeploymentCost 값이 변할 때, 여기 등록된 함수들이 동작
+    public event Action<int>? OnLifePointsChanged; // 라이프 포인트 변경 시 발생 이벤트
+    public event Action? OnEnemyKilled; // 적을 잡을 때마다 발생 이벤트
+    public event Action? OnPreparationCompleted; // 스테이지 준비 완료 이벤트 
+    public event Action<GameState>? OnGameStateChanged;
+    public event Action? OnGameEnded; // 게임 종료 시에 동작
 
     private void Awake()
     {
@@ -110,7 +120,7 @@ public class StageManager : MonoBehaviour
     private void Start()
     {
         // Awake에서 UIManager null 에러가 갑자기 떠서 Start로 옮겨놨음
-        UIManager.Instance!.UpdateSpeedUpButtonVisual();
+        UIManager.Instance!.UpdateSpeedUpButtonVisual(StageManager.Instance!.IsSpeedUp);
         UIManager.Instance!.UpdatePauseButtonVisual();
 
         if (GameManagement.Instance != null)
@@ -220,21 +230,22 @@ public class StageManager : MonoBehaviour
         return count;
     }
 
+    // 게임의 상태를 변경하고 그에 맞는 시간 속도 지정
     public void SetGameState(GameState gameState)
     {
         currentState = gameState;
+        TimeManager timeManager = GameManagement.Instance!.TimeManager;
 
         switch (gameState)
         {
             case GameState.Battle:
-                Time.timeScale = IsSpeedUp ? speedUpScale : originalTimeScale;
+                timeManager.UpdateTimeScale(IsSpeedUp);
                 break;
+
             case GameState.Paused:
-                Time.timeScale = 0f;
-                break;
             case GameState.GameOver:
             case GameState.GameWin:
-                Time.timeScale = 0f;
+                timeManager.SetPauseTime();
                 break;
         }
 
@@ -335,11 +346,9 @@ public class StageManager : MonoBehaviour
     private void GameWin()
     {
         SetGameState(GameState.GameWin);
-        Time.timeScale = 0;
         int stars = 3 - PassedEnemies;
         UIManager.Instance!.HidePauseOverlay();
         UIManager.Instance!.ShowGameWinUI(stars);
-
 
         GameManagement.Instance!.PlayerDataManager.RecordStageResult(stageData!.stageId, stars);
         GameManagement.Instance!.PlayerDataManager.GrantStageRewards(stageData!.rewardItems);
@@ -351,7 +360,6 @@ public class StageManager : MonoBehaviour
     private void GameOver()
     { 
         SetGameState(GameState.GameOver);
-        Time.timeScale = 0; // 게임 일시 정지
         UIManager.Instance!.ShowGameOverUI();
         OnGameEnded?.Invoke();
         StopAllCoroutines();
@@ -361,7 +369,6 @@ public class StageManager : MonoBehaviour
     public void RequestExit()
     {
         SetGameState(GameState.GameOver);
-        Time.timeScale = 0;
         StopAllCoroutines();
         StartCoroutine(UIManager.Instance!.ShowResultAfterDelay(0));
     }
@@ -380,26 +387,11 @@ public class StageManager : MonoBehaviour
         }
     }
 
-    public void SlowDownTime()
-    {
-        Time.timeScale = placementTimeScale;
-    }
-
-    public void UpdateTimeScale()
-    {
-        if (currentState != GameState.Paused)
-        {
-            Time.timeScale = IsSpeedUp ? speedUpScale : originalTimeScale;
-        }
-    }
-
     public void ToggleSpeedUp()
     {
         if (currentState != GameState.Battle) return;
 
         IsSpeedUp = !IsSpeedUp;
-        UpdateTimeScale();
-        UIManager.Instance!.UpdateSpeedUpButtonVisual();
     }
 
     public void TogglePause()

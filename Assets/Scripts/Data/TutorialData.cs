@@ -16,7 +16,9 @@ public class TutorialData : ScriptableObject
         public List<string> dialogues = new List<string>();
         public Vector2 dialogueBoxPosition = new Vector2(0, 0);
         public bool requireUserAction;
+
         [Tooltip("requireUserAction이 true일 때만 사용. 활성화 시 해당 버튼의 입력을 기다립니다.")]
-        public string expectedButtonName; 
+        public string expectedButtonName;
+
     }
 }

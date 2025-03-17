@@ -21,7 +21,7 @@ public class TutorialPanel : MonoBehaviour
 
     private string currentText = string.Empty; // 1글자씩 나타남. 현재 나타난 글자
     private string fullText = string.Empty; // 이번 dialogue에서 나타나야 할 전체 글자
-    private float typingSpeed = 1f;
+    private float typingSpeed = 0.05f;
     private bool isTyping = false;
     private Coroutine typingCoroutine;
 
@@ -54,6 +54,7 @@ public class TutorialPanel : MonoBehaviour
         boxRect = dialogueBox.GetComponent<RectTransform>();
 
         // 배경 패널 이벤트 초기화 및 등록
+        transparentPanel.gameObject.SetActive(true);
         transparentPanel.onClick.RemoveAllListeners();
         transparentPanel.onClick.AddListener(OnClick);
 
@@ -71,6 +72,7 @@ public class TutorialPanel : MonoBehaviour
             typingCoroutine = null;
         }
 
+       
         // 첫 페이지 타이핑 시작
         typingCoroutine = StartCoroutine(TypeText());
     }
@@ -90,17 +92,36 @@ public class TutorialPanel : MonoBehaviour
         isTyping = true;
         SetPageIndicator(false);
 
-        foreach (char c in fullText)
+        int index = 0;
+        while (index < fullText.Length)
         {
-            currentText += c;
+            // 만약 현재 문자가 '<'이면 태그 시작 -> '>'까지 전체를 한 번에 추가
+            if (fullText[index] == '<')
+            {
+                int tagEndIndex = fullText.IndexOf('>', index);
+                if (tagEndIndex != -1)
+                {
+                    string tag = fullText.Substring(index, tagEndIndex - index + 1);
+                    currentText += tag;
+                    textComponent.text = currentText;
+                    index = tagEndIndex + 1;
+
+                    yield return new WaitForSecondsRealtime(typingSpeed);
+                    continue;
+                }
+            }
+            
+            // 그냥 글자 출력
+            currentText += fullText[index];
+            index++;
             textComponent.text = currentText;
-            yield return new WaitForSeconds(typingSpeed);
+            yield return new WaitForSecondsRealtime(typingSpeed);
+            
         }
 
         isTyping = false;
 
         // 글자가 모두 나타난 후의 처리
-
         OnCurrentPageFinish();
     }
 
@@ -146,6 +167,11 @@ public class TutorialPanel : MonoBehaviour
             typingCoroutine = StartCoroutine(TypeText());
             return;
         }
+    }
+    
+    public void SetTransparentPanel(bool show)
+    {
+        transparentPanel.gameObject.SetActive(show);
     }
 
     // transparentPanel.onClick에 리스너를 추가하는 메서드

@@ -72,6 +72,14 @@ public class UIManager : MonoBehaviour
         stageResultPanelObject.SetActive(false);
     }
 
+    private void Start()
+    {
+        if (StageManager.Instance != null)
+        {
+            StageManager.Instance.OnSpeedUpChanged += UpdateSpeedUpButtonVisual;
+        }
+    }
+
     private void InitializeListeners()
     {
         StageManager.Instance!.OnLifePointsChanged += UpdateLifePointsText;
@@ -173,9 +181,9 @@ public class UIManager : MonoBehaviour
         lifePointsText!.text = $"<color=#ff7485>{currentLifePoints}</color>";
     }
 
-    public void UpdateSpeedUpButtonVisual()
+    public void UpdateSpeedUpButtonVisual(bool isSpeedUp)
     {
-        inGameTopButtonContainer!.UpdateSpeedUpButtonVisual();
+        inGameTopButtonContainer!.UpdateSpeedUpButtonVisual(isSpeedUp);
     }
 
     public void UpdatePauseButtonVisual()
@@ -259,5 +267,10 @@ public class UIManager : MonoBehaviour
     private void OnDisable()
     {
         DeployableManager.Instance!.OnCurrentOperatorDeploymentCountChanged -= UpdateLeftDeploymentCountText;
+
+        if (StageManager.Instance != null)
+        {
+            StageManager.Instance.OnSpeedUpChanged -= UpdateSpeedUpButtonVisual;
+        }
     }
 }
