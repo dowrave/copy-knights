@@ -100,7 +100,10 @@ public class StageManager : MonoBehaviour
     public event Action? OnEnemyKilled; // 적을 잡을 때마다 발생 이벤트
     public event Action? OnPreparationCompleted; // 스테이지 준비 완료 이벤트 
     public event Action<GameState>? OnGameStateChanged;
-    public event Action? OnGameEnded; // 게임 종료 시에 동작
+    public event Action? OnGameCleared;
+    public event Action? OnGameFailed;
+
+    public event Action? OnGameEnded; // 게임 종료 시에 동작 - 성공, 실패 공용
 
     private void Awake()
     {
@@ -208,7 +211,19 @@ public class StageManager : MonoBehaviour
     {
         if (stageData.stageId == "1-0")
         {
-            GameManagement.Instance!.TutorialManager.CheckBattleStart(stageData.stageId);
+            bool secondTutorialNotStarted = GameManagement.Instance!.PlayerDataManager.IsTutorialStatus(1, PlayerDataManager.TutorialStatus.NotStarted);
+            bool secondTutorialInProgress = GameManagement.Instance!.PlayerDataManager.IsTutorialStatus(1, PlayerDataManager.TutorialStatus.InProgress);
+            bool secondTutorialFailed = GameManagement.Instance!.PlayerDataManager.IsTutorialStatus(1, PlayerDataManager.TutorialStatus.Failed);
+
+            if (secondTutorialNotStarted)
+            {
+                GameManagement.Instance!.TutorialManager.StartSecondTutorial();
+                return;
+            }
+            else if (secondTutorialInProgress || secondTutorialFailed)
+            {
+                GameManagement.Instance!.TutorialManager.StartSecondTutorialQuiet();
+            }
         }
     }
 
@@ -354,6 +369,7 @@ public class StageManager : MonoBehaviour
         GameManagement.Instance!.PlayerDataManager.GrantStageRewards(stageData!.rewardItems);
 
         OnGameEnded?.Invoke();
+        OnGameCleared?.Invoke();
         StopAllCoroutines();
     }
 
@@ -362,6 +378,7 @@ public class StageManager : MonoBehaviour
         SetGameState(GameState.GameOver);
         UIManager.Instance!.ShowGameOverUI();
         OnGameEnded?.Invoke();
+        OnGameFailed?.Invoke();
         StopAllCoroutines();
     }
 

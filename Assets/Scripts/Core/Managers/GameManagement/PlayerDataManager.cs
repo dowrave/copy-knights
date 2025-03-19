@@ -3,6 +3,8 @@ using System.Linq;
 using System;
 using UnityEngine;
 using UnityEditor.Overlays;
+using Newtonsoft.Json;
+using UnityEditor.Experimental.GraphView;
 
 
 // 사용자의 데이터(보유 오퍼레이터, 스쿼드 등등)를 관리한다.
@@ -19,7 +21,16 @@ public class PlayerDataManager : MonoBehaviour
         public UserInventoryData inventory = new UserInventoryData(); // 아이템 인벤토리
         public StageResultData stageResults = new StageResultData(); // 스테이지 진행 상황
         public bool isTutorialFinished = false;
-        public int tutorialProgressStage = -1; // 튜토리얼 진행 중일 때만 관리
+        public List<TutorialStatus> tutorialDataStatus = new List<TutorialStatus>();
+
+    }
+
+    public enum TutorialStatus
+    {
+        NotStarted,
+        InProgress,
+        Failed,
+        Completed
     }
 
     private PlayerData? playerData;
@@ -98,9 +109,15 @@ public class PlayerDataManager : MonoBehaviour
         {
             playerData = new PlayerData
             {
-                maxSquadSize = defaultMaxSquadSize,
-                currentSquadOperatorNames = new List<string>()
+                maxSquadSize = defaultMaxSquadSize
             };
+
+            // 튜토리얼 상태 초기화. 현재 TutorialData의 갯수는 3개. 
+            for (int i = 0; i < 3; i++)
+            {
+                playerData.tutorialDataStatus.Add(TutorialStatus.NotStarted);
+            }
+
 
             // 초기 오퍼레이터를 ownedOperators에 추가
             if (startingOperators != null)
@@ -117,7 +134,8 @@ public class PlayerDataManager : MonoBehaviour
         }
         else
         {
-            playerData = JsonUtility.FromJson<PlayerData>(savedData);
+            //playerData = JsonUtility.FromJson<PlayerData>(savedData);
+            playerData = JsonConvert.DeserializeObject<PlayerData>(savedData);
             ValidateSquadSize();
 
             // 정예화, 레벨에 따른 변경사항 반영
@@ -214,6 +232,9 @@ public class PlayerDataManager : MonoBehaviour
         var safePlayerData = playerData!;
 
         string jsonData = JsonUtility.ToJson(safePlayerData);
+
+        // Dictionary 직렬화를 위한 Newtonsoft.Json 사용
+        //string jsonData = JsonConvert.SerializeObject(safePlayerData, settings);
         PlayerPrefs.SetString("PlayerData", jsonData);
         PlayerPrefs.Save();
     }
@@ -587,37 +608,49 @@ public class PlayerDataManager : MonoBehaviour
     }
 
     // 튜토리얼 완료 상태 확인
-    public bool IsTutorialFinished()
+    public bool IsAllTutorialFinished()
     {
         return playerData!.isTutorialFinished;
     }
 
-    // 튜토리얼 진행 단계 가져오기
-    public int GetTutorialProgress()
+    // 가장 마지막으로 클리어된 튜토리얼 인덱스
+    public int GetLastCompletedTutorialIndex()
     {
-        return playerData.tutorialProgressStage;
+        int lastCompletedIndex = -1;
+        for (int i = 0; i < 3; i++)
+        {
+            if (IsTutorialStatus(i, TutorialStatus.Completed))
+            {
+                lastCompletedIndex = i;
+            }
+        }
+        return lastCompletedIndex;
     }
 
-    // 튜토리얼 진행 단계 설정하기
-    public void SetTutorialProgress(int stage)
+    // 튜토리얼 상태를 설정하는 메서드
+    public void SetTutorialStatus(int tutorialIndex, TutorialStatus status)
     {
-        playerData.tutorialProgressStage = stage;
+        playerData.tutorialDataStatus[tutorialIndex] = status;
         SavePlayerData();
     }
 
-    // 튜토리얼 완료 설정
-    public void CompleteTutorial()
+    // 튜토리얼 상태를 확인하는 메서드
+    public bool IsTutorialStatus(int tutorialIndex, TutorialStatus status)
     {
-        playerData.isTutorialFinished = true;
-        playerData.tutorialProgressStage = -1;
-        SavePlayerData();
+        return playerData.tutorialDataStatus[tutorialIndex] == status;
     }
 
-    // 튜토리얼 스킵
-    public void SkipTutorial()
+    // 모든 튜토리얼 진행
+    public void FinishAllTutorials()
     {
         playerData.isTutorialFinished = true;
-        playerData.tutorialProgressStage = -1;
+
+        // 모든 튜토리얼을 완료 상태로 설정
+        for (int i = 0; i < 3; i++)
+        {
+            playerData.tutorialDataStatus[i] = TutorialStatus.Completed;
+        }
+
         SavePlayerData();
     }
 

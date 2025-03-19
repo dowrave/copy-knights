@@ -22,19 +22,12 @@ public class TutorialManager : MonoBehaviour
     private TutorialData.TutorialStep currentStep = default!;
     private int currentTutorialIndex = -1;
     private int currentStepIndex = -1;
-    private bool isTutorialActive = false; // 0, 1, 2번 튜토리얼이 진행 중인 경우 활성화
-    public bool IsTutorialActive => isTutorialActive;
+
     private TutorialPanel? currentTutorialPanel;
     private Button? currentOverlay; // 현재 Step의 목표 버튼 위에 나타나는 투명한 버튼
 
-    
     private ConfirmationPanel confirmPanelInstance;
-
-    
-    
     private Canvas? canvas;
-
-
 
     private void Awake()
     {
@@ -44,13 +37,13 @@ public class TutorialManager : MonoBehaviour
     private void Start()
     {
         // 튜토리얼 완료 시 진행하지 않음
-        if (GameManagement.Instance.PlayerDataManager.IsTutorialFinished()) return;
+        if (GameManagement.Instance!.PlayerDataManager.IsAllTutorialFinished()) return;
 
         // 튜토리얼 진행 상황 확인
-        int progress = GameManagement.Instance.PlayerDataManager.GetTutorialProgress();
+        int lastCompletedTutorialIndex = GameManagement.Instance!.PlayerDataManager.GetLastCompletedTutorialIndex();
 
-        // 튜토리얼을 시작하지 않았거나 스킵된 상태
-        if (!isTutorialActive && progress == -1)
+        // 튜토리얼을 시작하지 않은 상태
+        if (lastCompletedTutorialIndex == -1)
         {
             InitializeTutorialConfirmPanel();
         }
@@ -78,7 +71,7 @@ public class TutorialManager : MonoBehaviour
         confirmPanelInstance.OnConfirm -= CheckStartTutorial;
         confirmPanelInstance.OnCancel -= CheckStopTutorial;
 
-        GameManagement.Instance.PlayerDataManager.SkipTutorial();
+        GameManagement.Instance.PlayerDataManager.FinishAllTutorials();
     }
 
     private IEnumerator ShowTutorialStartPanel(string message, bool isCancelButton, bool blurAreaActivation)
@@ -107,20 +100,29 @@ public class TutorialManager : MonoBehaviour
         StartSpecificTutorial(0);
     }
 
-    private void StartSpecificTutorial(int progress)
+    private void StartSpecificTutorial(int progress, bool show = true)
     {
-        currentData = tutorialDatas[progress];
-        currentTutorialIndex = progress;
-        currentStepIndex = 0;
-        isTutorialActive = true;
-
-        // 스테이지 씬의 경우 시간 멈춤
-        if (progress == 1)
+        // 명시적으로 나타내야 하는 요소는 여기에 넣음(대화 박스 표시 등)
+        if (show)
         {
-            GameManagement.Instance?.TimeManager.SetPauseTime();
-        }
+            currentData = tutorialDatas[progress];
+            currentStepIndex = 0;
 
-        PlayCurrentStep();
+            // 스테이지 씬의 경우 시간 멈춤
+            if (progress == 1)
+            {
+                GameManagement.Instance?.TimeManager.SetPauseTime();
+            }
+
+            PlayCurrentStep();
+        }
+        
+        // 상태만을 관리하고 조용히 진행시키는 요소들
+        currentTutorialIndex = progress;
+
+        // 현재 튜토리얼을 진행 중으로 저장
+        GameManagement.Instance!.PlayerDataManager.SetTutorialStatus(currentTutorialIndex, PlayerDataManager.TutorialStatus.InProgress);
+
     }
 
     private void PlayCurrentStep()
@@ -169,31 +171,34 @@ public class TutorialManager : MonoBehaviour
     }
 
 
-    // 각 TutorialData를 끝낼 때 호출
+    // 각 TutorialData의 모든 step이 끝났을 때 호출
     private void FinishCurrentTutorial()
     {
+        if (currentTutorialPanel != null)
+        {
+            currentTutorialPanel.gameObject.SetActive(false);   
+        }
+
         if (currentTutorialIndex == 1)
         {
             // 시간 원상 복구
             GameManagement.Instance?.TimeManager.UpdateTimeScale();
+
+            // 스테이지 씬에서 튜토리얼이 클리어된 시점은 게임을 클리어한 시점이라서
+            // 여기서 저장을 수행하지 않음
         }
-
-        // 진행 내역 저장
-        GameManagement.Instance.PlayerDataManager.SetTutorialProgress(currentTutorialIndex);
-
-        // 마지막 튜토리얼이었다면 튜토리얼을 끝냄
-        if (currentTutorialIndex == tutorialDatas.Count - 1)
+        else
         {
-            FinishTutorial();
-        }
+            GameManagement.Instance.PlayerDataManager.SetTutorialStatus(currentTutorialIndex, PlayerDataManager.TutorialStatus.Completed);
 
-        // 할당했던 값들 해제
-        currentData = null;
-        currentStep = null;
-        currentTutorialIndex = -1;
-        currentStepIndex = -1;
-        isTutorialActive = false;
-        
+            // 마지막 튜토리얼이었다면 튜토리얼을 끝냄
+            if (currentTutorialIndex == tutorialDatas.Count - 1)
+            {
+                FinishAllTutorials();
+            }
+
+            ResetTutorialFields();
+        }        
     }
 
     private void AdvanceToNextStep()
@@ -320,25 +325,34 @@ public class TutorialManager : MonoBehaviour
     }
 
     // 튜토리얼을 완전히 종료
-    public void FinishTutorial()
+    public void FinishAllTutorials()
     {
-        currentTutorialPanel.gameObject.SetActive(false);
-        GameManagement.Instance.PlayerDataManager.CompleteTutorial();
+        GameManagement.Instance.PlayerDataManager.FinishAllTutorials();
     }
 
     // 2번째 튜토리얼은 이걸 체크해서 시작됨
-    public void CheckBattleStart(string stageId)
+    public void StartSecondTutorial()
     {
-        // 이미 활성화된 튜토리얼이 있다면 실행되지 않음
-        if (isTutorialActive) return;
+        bool firstTutorialCleared = GameManagement.Instance!.PlayerDataManager.IsTutorialStatus(0, PlayerDataManager.TutorialStatus.Completed);
 
-        // 2번째 튜토리얼 시작 체크
-        bool firstTutorialCleared = GameManagement.Instance!.PlayerDataManager.GetTutorialProgress() == 0;
-
-        if (stageId == stageIdRequiredForTutorial && firstTutorialCleared)
+        // 1번 튜토리얼을 깼고, 2번 튜토리얼을 플레이한 적 없을 때
+        if (firstTutorialCleared)
         {
             StartSpecificTutorial(1);
+            StageManager.Instance!.OnGameCleared += SaveSecondTutorialClear;
+            StageManager.Instance!.OnGameFailed += SaveSecondTutorialFailed;
+            Debug.Log("튜토리얼 2번 시작");
         }
+    }
+
+    // 스테이지 Fail한 적 있을 때
+    public void StartSecondTutorialQuiet()
+    {
+        // 튜토리얼 상태를 켜되, 조용히 실행
+        StartSpecificTutorial(1, false);
+        StageManager.Instance!.OnGameCleared += SaveSecondTutorialClear;
+        StageManager.Instance!.OnGameFailed += SaveSecondTutorialFailed;
+        Debug.Log("튜토리얼 2번 조용히 시작");
     }
 
     private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
@@ -348,33 +362,45 @@ public class TutorialManager : MonoBehaviour
 
         // 저장된 데이터를 점검
         // - 튜토리얼이 완료/스킵된 경우 생략
-        if (GameManagement.Instance.PlayerDataManager.IsTutorialFinished()) return;
+        if (GameManagement.Instance.PlayerDataManager.IsAllTutorialFinished()) return;
 
-        // - 현재 진행 중인 튜토리얼을 점검하고 실행한다
-        int progress = GameManagement.Instance.PlayerDataManager.GetTutorialProgress();
-        if (progress >= 0)
+        // 3번째 튜토리얼 실행 조건
+        int lastCompletedTutorialIndex = GameManagement.Instance!.PlayerDataManager.GetLastCompletedTutorialIndex();
+
+        if (lastCompletedTutorialIndex == 1 && // 2번째 튜토리얼이 클리어되었고
+            GameManagement.Instance!.PlayerDataManager.IsTutorialStatus(2, PlayerDataManager.TutorialStatus.NotStarted)) // 3번째 튜토리얼이 실행되지 않았다면
         {
-            CheckTutorialConditions(scene.name, progress);
+            StartSpecificTutorial(2);
         }
     }
 
-    // 씬 전환 시 조건에 따른 튜토리얼 실행 체크
-    private void CheckTutorialConditions(string sceneName, int progress)
+    private void SaveSecondTutorialClear()
     {
-        // 튜토리얼이 이미 활성화되었다면 중복 실행 방지
-        if (isTutorialActive) return;
+        GameManagement.Instance.PlayerDataManager.SetTutorialStatus(currentTutorialIndex, PlayerDataManager.TutorialStatus.Completed);
+        ResetTutorialFields();
+    }
 
-        if (sceneName == "MainMenuScene")
+    private void SaveSecondTutorialFailed()
+    {
+        GameManagement.Instance.PlayerDataManager.SetTutorialStatus(currentTutorialIndex, PlayerDataManager.TutorialStatus.Failed);
+        ResetTutorialFields();
+    }
+
+    private void ResetTutorialFields()
+    {
+
+        currentData = null;
+        currentStep = null;
+        currentTutorialIndex = -1;
+        currentStepIndex = -1;
+    }
+
+    private void OnDisable()
+    {
+        if (StageManager.Instance != null)
         {
-            if (progress == 0)
-            {
-                StartSpecificTutorial(0);
-            }
-            else if (progress == 2 &&
-                GameManagement.Instance.PlayerDataManager.IsStageCleared(stageIdRequiredForTutorial))
-            {
-                StartSpecificTutorial(2);
-            }
+            StageManager.Instance!.OnGameCleared -= SaveSecondTutorialClear;
+            StageManager.Instance!.OnGameFailed -= SaveSecondTutorialFailed;
         }
     }
 

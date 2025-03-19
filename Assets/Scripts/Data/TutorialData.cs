@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 
+// 튜토리얼 각각에 대한 데이터. 사용자가 저장하는 데이터가 아님!
 [CreateAssetMenu(fileName = "TutorialData", menuName = "Tutorial/Tutorial Data")]
 public class TutorialData : ScriptableObject
 {

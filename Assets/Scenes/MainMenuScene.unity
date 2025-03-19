@@ -11543,6 +11543,7 @@ MonoBehaviour:
   tutorialDatas:
   - {fileID: 11400000, guid: 259fde182c3d87f46aa02bf7e91ab6b4, type: 2}
   - {fileID: 11400000, guid: dfb13b5b753419f4dbcbdd05afb6c3fa, type: 2}
+  - {fileID: 11400000, guid: fed0387018cb4064b993e52220e1620b, type: 2}
 --- !u!1 &1032098792
 GameObject:
   m_ObjectHideFlags: 0

@@ -42,7 +42,6 @@ public class DeployableManager : MonoBehaviour
             if (_currentOperatorDeploymentCount != value) // 값이 변경될 때에만
             {
                 _currentOperatorDeploymentCount = value;
-                Debug.Log(_currentOperatorDeploymentCount);
                 OnCurrentOperatorDeploymentCountChanged?.Invoke();
             }
         }
