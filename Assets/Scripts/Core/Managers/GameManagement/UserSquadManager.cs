@@ -12,7 +12,7 @@ public class UserSquadManager : MonoBehaviour
     // 편집 상태 관리
     private int editingSlotIndex = -1;
     public int EditingSlotIndex => editingSlotIndex;
-    public bool IsEditingSquad => editingSlotIndex != -1;
+    public bool IsEditingSquad => editingSlotIndex != -1; // -1이 아니면 편집 중이니까 true
 
     public int? MaxSquadSize => GameManagement.Instance!.PlayerDataManager.GetMaxSquadSize();
 

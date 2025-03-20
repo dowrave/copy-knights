@@ -10,6 +10,7 @@ using UnityEngine.UI;
 public class OperatorInventoryPanel : MonoBehaviour
 {
     [Header("UI References")]
+    [SerializeField] private Image leftArea = default!;
     [SerializeField] private Transform operatorSlotContainer = default!;
     [SerializeField] private TextMeshProUGUI operatorNameText = default!;
     [SerializeField] private OperatorSlot slotButtonPrefab = default!;
@@ -49,8 +50,9 @@ public class OperatorInventoryPanel : MonoBehaviour
     // 오퍼레이터가 들어가 있는 상태에서 해당 슬롯을 수정할 경우에만 사용
     private OwnedOperator? existingOperator;
 
-    // UserSquadManager에서 현재 편집 중인 인덱스
-    private int nowEditingIndex;  
+    // UserSquadManager에서 편집 중인 상태 관리
+    private int nowEditingIndex;
+    private bool isEditing;
 
     private void Awake()
     {
@@ -81,16 +83,27 @@ public class OperatorInventoryPanel : MonoBehaviour
 
     private void OnEnable()
     {
-        ResetSelection();
-        nowEditingIndex = GameManagement.Instance!.UserSquadManager.EditingSlotIndex;
+        isEditing = GameManagement.Instance!.UserSquadManager.IsEditingSquad;
 
-        existingOperator = GameManagement.Instance!.PlayerDataManager.GetOperatorInSlot(nowEditingIndex);
-        PopulateOperators();
+        SetSquadEditMode(isEditing);
 
-        // 이미 배치된 오퍼레이터가 있다면 해당 오퍼레이터 슬롯을 클릭한 상태로 시작
-        if (existingOperator != null)
+        if (isEditing)
         {
-            HandleSlotClicked(operatorSlots[0]);
+            ResetSelection();
+            nowEditingIndex = GameManagement.Instance!.UserSquadManager.EditingSlotIndex;
+            existingOperator = GameManagement.Instance!.PlayerDataManager.GetOperatorInSlot(nowEditingIndex);
+
+            PopulateOperators();
+
+            // 이미 배치된 오퍼레이터가 있다면 해당 오퍼레이터 슬롯을 클릭한 상태로 시작
+            if (existingOperator != null)
+            {
+                HandleSlotClicked(operatorSlots[0]);
+            }
+        }
+        else
+        {
+            PopulateOperators();
         }
     }
 
@@ -98,33 +111,43 @@ public class OperatorInventoryPanel : MonoBehaviour
     // 보유한 오퍼레이터 리스트를 만들고 오퍼레이터 슬롯들을 초기화합니다.
     private void PopulateOperators()
     {
+        List<OwnedOperator> availableOperators;
+
         // 슬롯 정리
         ClearSlots();
 
-        // 현재 스쿼드 가져오기
-        List<OwnedOperator> currentSquad = GameManagement.Instance!.UserSquadManager.GetCurrentSquad();
-
-        // 보유 중인 오퍼레이터 중, 현재 스쿼드에 없는 오퍼레이터만 가져옴
-        List<OwnedOperator> availableOperators = GameManagement.Instance!.PlayerDataManager.GetOwnedOperators()
-            .Where(op => !currentSquad.Contains(op))
-            .ToList();
-
-        // 이미 오퍼레이터가 있는 슬롯을 클릭해서 들어온 경우, 해당 오퍼레이터도 나타남
-        if (existingOperator != null)
+        if (isEditing)
         {
-            // 가장 앞 인덱스에 넣음
-            availableOperators.Insert(0, existingOperator);
-        }
+            // 현재 스쿼드 가져오기
+            List<OwnedOperator> currentSquad = GameManagement.Instance!.UserSquadManager.GetCurrentSquad();
 
-        // 그리드 영역의 너비 조절
-        RectTransform slotContainerRectTransform = operatorSlotContainer.gameObject.GetComponent<RectTransform>(); 
-        if (availableOperators.Count > 12)
-        {
-            Vector2 currentSize = slotContainerRectTransform.sizeDelta;
-            float additionalWidth = 250 * Mathf.Floor( (availableOperators.Count - 12) / 2);
+            // 보유 중인 오퍼레이터 중, 현재 스쿼드에 없는 오퍼레이터만 가져옴
+            availableOperators = GameManagement.Instance!.PlayerDataManager.GetOwnedOperators()
+                .Where(op => !currentSquad.Contains(op))
+                .ToList();
+
+            // 이미 오퍼레이터가 있는 슬롯을 클릭해서 들어온 경우
+            if (existingOperator != null)
+            {
+                // 가장 앞 인덱스에 넣음
+                availableOperators.Insert(0, existingOperator);
+            }
+
+            // 그리드 영역의 너비 조절
+            RectTransform slotContainerRectTransform = operatorSlotContainer.gameObject.GetComponent<RectTransform>(); 
+            if (availableOperators.Count > 12)
+            {
+                Vector2 currentSize = slotContainerRectTransform.sizeDelta;
+                float additionalWidth = 250 * Mathf.Floor( (availableOperators.Count - 12) / 2);
             
-            slotContainerRectTransform.sizeDelta = new Vector2(currentSize.x + additionalWidth, currentSize.y);
+                slotContainerRectTransform.sizeDelta = new Vector2(currentSize.x + additionalWidth, currentSize.y);
+            }
         }
+        else
+        {
+            availableOperators = GameManagement.Instance!.PlayerDataManager.GetOwnedOperators().ToList();
+        }
+
 
         // 오퍼레이터 별로 슬롯 생성
         foreach (OwnedOperator op in availableOperators)
@@ -142,23 +165,33 @@ public class OperatorInventoryPanel : MonoBehaviour
 
     private void HandleSlotClicked(OperatorSlot clickedSlot)
     {
-        // 이미 선택된 슬롯 재클릭시 무시 (이거 없으면 무한 이벤트로 인한 스택 오버플로우 뜸)
-        if (selectedSlot == clickedSlot) return; 
+        if (isEditing)
+        {
+            // 스쿼드 편집 중
 
-        // 이전 선택 해제
-        if (selectedSlot != null) { selectedSlot.SetSelected(false); }
+            // 이미 선택된 슬롯 재클릭시 무시 (이거 없으면 무한 이벤트로 인한 스택 오버플로우 뜸)
+            if (selectedSlot == clickedSlot) return;
 
-        // 기존 SideView에 할당된 요소 제거
-        ClearSideView();
+            // 이전 선택 해제
+            if (selectedSlot != null) { selectedSlot.SetSelected(false); }
 
-        // 새로운 선택 처리
-        selectedSlot = clickedSlot;
-        UpdateSideView(clickedSlot);
-        selectedSlot.SetSelected(true);
-        confirmButton.interactable = true;
-        detailButton.interactable = true;
+            // 기존 SideView에 할당된 요소 제거
+            ClearSideView();
+
+            // 새로운 선택 처리
+            selectedSlot = clickedSlot;
+            UpdateSideView(clickedSlot);
+            selectedSlot.SetSelected(true);
+            confirmButton.interactable = true;
+            detailButton.interactable = true;
+        }
+        else
+        {
+            // 스쿼드 편집 중이 아니라면, 해당 오퍼레이터 세부 정보 패널로 들어감
+            MoveToDetailPanel(clickedSlot);
+        }
     }
-    
+
     private void OnConfirmButtonClicked()
     {
         if (selectedSlot != null && 
@@ -180,15 +213,21 @@ public class OperatorInventoryPanel : MonoBehaviour
 
     private void OnDetailButtonClicked()
     {
-        if (selectedSlot != null && selectedSlot.OwnedOperator != null)
+        if (selectedSlot != null)
         {
-            GameObject detailPanel = MainMenuManager.Instance!.PanelMap[MainMenuManager.MenuPanel.OperatorDetail];
-            detailPanel.GetComponent<OperatorDetailPanel>().Initialize(selectedSlot.OwnedOperator);
-            MainMenuManager.Instance!.ActivateAndFadeOut(detailPanel, gameObject);
+            MoveToDetailPanel(selectedSlot);
         }
-        MainMenuManager.Instance!.ActivateAndFadeOut(MainMenuManager.Instance!.PanelMap[MainMenuManager.MenuPanel.OperatorDetail], gameObject);
     }
 
+    private void MoveToDetailPanel(OperatorSlot slot)
+    {
+        if (slot.OwnedOperator != null)
+        {
+            GameObject detailPanel = MainMenuManager.Instance!.PanelMap[MainMenuManager.MenuPanel.OperatorDetail];
+            detailPanel.GetComponent<OperatorDetailPanel>().Initialize(slot.OwnedOperator);
+            MainMenuManager.Instance!.FadeInAndHide(detailPanel, gameObject);
+        }
+    }
 
     private void ResetSelection()
     {
@@ -341,6 +380,13 @@ public class OperatorInventoryPanel : MonoBehaviour
         MainMenuManager.Instance!.ActivateAndFadeOut(MainMenuManager.Instance!.PanelMap[MainMenuManager.MenuPanel.SquadEdit], gameObject);
     }
 
+    private void SetSquadEditMode(bool isEditing)
+    { 
+        // 스쿼드 편집 중 or 단순히 오퍼레이터 상태 보기
+        leftArea.gameObject.SetActive(isEditing);
+        confirmButton.gameObject.SetActive(isEditing);
+        setEmptyButton.gameObject.SetActive(isEditing);
+    }
 
     private void OnDisable()
     {

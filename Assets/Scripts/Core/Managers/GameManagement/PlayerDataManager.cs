@@ -186,8 +186,40 @@ public class PlayerDataManager : MonoBehaviour
         return new List<OwnedOperator>(safePlayerData.ownedOperators);
     }
 
+    private void TestAboutTutorial()
+    {
+        // 테스트: TutorialManager의 2번째 튜토리얼까지 클리어한 상태 시뮬레이션
+        InstanceValidator.ValidateInstance(playerData);
+        var safePlayerData = playerData!;
+
+        // 튜토리얼 진행 상태 설정: 첫 번째와 두 번째 튜토리얼 완료, 세 번째는 NotStarted
+        if (safePlayerData.tutorialDataStatus.Count >= 3)
+        {
+            safePlayerData.tutorialDataStatus[0] = TutorialStatus.Completed;
+            safePlayerData.tutorialDataStatus[1] = TutorialStatus.Completed;
+            safePlayerData.tutorialDataStatus[2] = TutorialStatus.NotStarted;
+        }
+        else
+        {
+            safePlayerData.tutorialDataStatus = new List<TutorialStatus>
+            {
+                TutorialStatus.Completed,
+                TutorialStatus.Completed,
+                TutorialStatus.NotStarted
+            };
+        }
+
+        RecordStageResult("1-0", 3);
+
+        // 전체 튜토리얼 완료 여부는 아직 아님
+        safePlayerData.isTutorialFinished = false;
+        SavePlayerData();
+    }
+
     private void InitializeForTest()
     {
+        TestAboutTutorial();
+
         // 오퍼레이터들 1정예화
         //foreach (var op in playerData.ownedOperators)
         //{

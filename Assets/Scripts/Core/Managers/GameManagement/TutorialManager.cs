@@ -327,6 +327,7 @@ public class TutorialManager : MonoBehaviour
     // 튜토리얼을 완전히 종료
     public void FinishAllTutorials()
     {
+        Debug.Log("튜토리얼을 종료");
         GameManagement.Instance.PlayerDataManager.FinishAllTutorials();
     }
 
