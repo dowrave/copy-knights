@@ -218,7 +218,7 @@ public class PlayerDataManager : MonoBehaviour
 
     private void InitializeForTest()
     {
-        TestAboutTutorial();
+        //TestAboutTutorial();
 
         // 오퍼레이터들 1정예화
         //foreach (var op in playerData.ownedOperators)
@@ -516,8 +516,8 @@ public class PlayerDataManager : MonoBehaviour
         return safePlayerData.stageResults.clearedStages.Any(info => info.stageId == stageId);
     }
 
-    // 특정 스테이지의 클리어 정보 가져오기
-    public StageResultData.StageResultInfo GetStageResultInfo(string stageId)
+    // 특정 스테이지의 클리어 정보를 가져오며, 없으면 null을 반환한다.
+    public StageResultData.StageResultInfo? GetStageResultInfo(string stageId)
     {
         InstanceValidator.ValidateInstance(playerData);
         var safePlayerData = playerData!;
@@ -578,40 +578,36 @@ public class PlayerDataManager : MonoBehaviour
         }
     }
 
-    public void GrantStageRewards(List<ItemWithCount> rewardItems)
+    public void GrantStageRewards()
     {
-        if (rewardItems == null) 
-        {
-            Debug.LogWarning("지급받을 아이템 목록이 비어있습니다.");
-            return;
-        }
+        // IReadOnlyList 등은 제대로 직렬화되지 않을 수 있어서, List로 바꿔서 저장하는 게 안전하다.
+        List<ItemWithCount> firstClearRewards = new List<ItemWithCount>(StageManager.Instance!.ActualFirstClearRewards);
+        List<ItemWithCount> basicClearRewards = new List<ItemWithCount>(StageManager.Instance!.ActualBasicClearRewards);
 
-        bool errorOccurred = false;
+        GrantItems(firstClearRewards);
+        GrantItems(basicClearRewards);
 
+        SavePlayerData();
+    }
+
+    // 사용자에게 아이템을 지급
+    private void GrantItems(List<ItemWithCount> rewardItems)
+    {
         foreach (ItemWithCount itemWithCount in rewardItems)
         {
             if (itemWithCount.itemData != null)
             {
+                // 비율이 반영된 아이템 지급 갯수
                 AddItems(itemWithCount.itemData.itemName!, itemWithCount.count);
-                Debug.Log($"{itemWithCount.itemData.itemName} x {itemWithCount.count} 지급 완료");
             }
             else
             {
-                Debug.LogError("ItemData가 null이거나, 로드되지 않았습니다.");
-                errorOccurred = true;
+                throw new InvalidOperationException("아이템이 정상적으로 지급되지 않는 현상 발생");
             }
-        }
-
-        // 정상적으로 아이템이 추가되었다면 저장
-        SavePlayerData();
-
-        if (errorOccurred)
-        {
-            Debug.LogWarning("일부 아이템을 획득하지 못했습니다");
         }
     }
 
-    // 아이템을 지급하고 저장하는 메서드
+    // 아이템을 실질적으로 저장하는 메서드
     public void AddItems(string itemName, int itemCount)
     {
         InstanceValidator.ValidateInstance(playerData);

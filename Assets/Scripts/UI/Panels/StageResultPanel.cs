@@ -350,19 +350,20 @@ public class StageResultPanel : MonoBehaviour
 
         RemoveRewardItemsUI();
 
-        // UI에 사용될 아이템 표시
-        foreach (var itemPair in StageManager.Instance!.StageData!.rewardItems)
+        ShowItemElements(StageManager.Instance!.ActualFirstClearRewards, true);
+        ShowItemElements(StageManager.Instance!.ActualBasicClearRewards);
+    }
+
+    private void ShowItemElements(IReadOnlyList<ItemWithCount> rewards, bool showFirst = false)
+    {
+        if (rewards.Count > 0)
         {
-            ItemUIElement itemElement = Instantiate(itemUIPrefab, rewardItemContainer);
-            itemElement.Initialize(itemPair.itemData, itemPair.count, true);
-
-            // 사용 예정 아이템의 배경색 변경
-            //if (itemElement.itemCountBackground != null)
-            //{
-            //    itemElement.itemCountBackground.color = usageItemBackgroundColor;
-            //}
-
-            activeItemElements.Add(itemElement);
+            foreach (var itemPair in rewards)
+            {
+                ItemUIElement itemElement = Instantiate(itemUIPrefab, rewardItemContainer);
+                itemElement.Initialize(itemPair.itemData, itemPair.count, true, showFirst);
+                activeItemElements.Add(itemElement);
+            }
         }
     }
 

@@ -12,6 +12,7 @@ public class ItemUIElement : MonoBehaviour, IPointerClickHandler
     [SerializeField] private Image itemIconImage = default!;
     [SerializeField] private TextMeshProUGUI countText = default!;
     [SerializeField] private Button backArea = default!;
+    [SerializeField] private Image firstClearImage = default!;
     public Image itemCountBackground = default!; // 다른 스크립트에서 사용함
 
     [Header("OnClick Detail Panel")]
@@ -45,7 +46,7 @@ public class ItemUIElement : MonoBehaviour, IPointerClickHandler
     // 아이템 클릭 시 호출 이벤트 
     //public System.Action<ItemData> OnItemClicked;
 
-    public void Initialize(ItemData data, int count, bool isOnStageScene)
+    public void Initialize(ItemData data, int count, bool isOnStageScene, bool isFirstClear = false)
     {
         itemData = data;
         itemCount = count;
@@ -81,6 +82,9 @@ public class ItemUIElement : MonoBehaviour, IPointerClickHandler
             detailPanelItemNameText.text = itemData.itemName;
             detailPanelItemDetailText.text = itemData.description;
         }
+
+        // 첫 클리어 시 지급되는 아이템 표시
+        firstClearImage.gameObject.SetActive(isFirstClear);
     }
 
     public void UpdateCount(int newCount)

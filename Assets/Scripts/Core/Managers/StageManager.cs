@@ -91,6 +91,12 @@ public class StageManager : MonoBehaviour
     // 스크린이 완전히 사라진 다음 게임 시작을 위한 할당
     private StageLoadingScreen? stageLoadingScreen;
 
+    private List<ItemWithCount> actualFirstClearRewards;
+    public IReadOnlyList<ItemWithCount> ActualFirstClearRewards => actualFirstClearRewards;
+    private List<ItemWithCount> actualBasicClearRewards;
+    public IReadOnlyList<ItemWithCount> ActualBasicClearRewards => actualBasicClearRewards;
+
+
     // 이벤트
     public event Action<Map>? OnMapLoaded;
     public event Action OnStageStarted; // GameState.Battle이 최초로 실행됐을 때
@@ -362,11 +368,13 @@ public class StageManager : MonoBehaviour
     {
         SetGameState(GameState.GameWin);
         int stars = 3 - PassedEnemies;
+
+        SetStageRewards(stageData, stars);
+        GameManagement.Instance!.PlayerDataManager.GrantStageRewards();
+        GameManagement.Instance!.PlayerDataManager.RecordStageResult(stageData!.stageId, stars);
+
         UIManager.Instance!.HidePauseOverlay();
         UIManager.Instance!.ShowGameWinUI(stars);
-
-        GameManagement.Instance!.PlayerDataManager.RecordStageResult(stageData!.stageId, stars);
-        GameManagement.Instance!.PlayerDataManager.GrantStageRewards(stageData!.rewardItems);
 
         OnGameEnded?.Invoke();
         OnGameCleared?.Invoke();
@@ -494,6 +502,76 @@ public class StageManager : MonoBehaviour
 
         // 스쿼드 + 맵의 배치 가능 요소 초기화
         DeployableManager.Instance!.Initialize(squadData, deployableList, stageData!.operatorMaxDeploymentCount);
+    }
+
+    // 클리어 별 갯수에 따른 보상을 설정합니다. 
+    public void SetStageRewards(StageData stageData, int stars)
+    {
+        var stageResultInfo = GameManagement.Instance!.PlayerDataManager.GetStageResultInfo(stageData.stageId);
+        List<ItemWithCount> perfectFirstClearRewards = stageData.FirstClearRewardItems;
+        List<ItemWithCount> perfectBasicClearRewards = stageData.BasicClearRewardItems;
+        float firstClearItemRate = SetFirstClearItemRate(stageResultInfo, stars);
+        float basicClearItemRate = SetBasicClearItemRate(stars);
+
+        if (perfectFirstClearRewards.Count == 0 || perfectBasicClearRewards.Count == 0)
+        {
+            Debug.LogWarning("지급받을 아이템 목록이 비어있습니다.");
+            return;
+        }
+
+        actualFirstClearRewards = MultiplyRewards(perfectFirstClearRewards, firstClearItemRate);
+        actualBasicClearRewards = MultiplyRewards(perfectBasicClearRewards, basicClearItemRate);
+    }
+
+    // 각 reward의 count에 itemRate를 곱하여 새 리스트로 반환합니다.
+    private List<ItemWithCount> MultiplyRewards(List<ItemWithCount> rewards, float itemRate)
+    {
+        List<ItemWithCount> scaledRewards = new List<ItemWithCount>();
+        foreach (var reward in rewards)
+        {
+            int scaledCount = Mathf.FloorToInt(reward.count * itemRate);
+            // ItemWithCount 객체를 새로 생성합니다.
+            scaledRewards.Add(new ItemWithCount(reward.itemData, scaledCount));
+        }
+        return scaledRewards;
+    }
+
+    // n성을 최초로 달성했을 때의 아이템 지급 배율을 계산한다.
+    private float SetFirstClearItemRate(StageResultData.StageResultInfo? resultInfo, int stars)
+    {
+        // 클리어한 적 없을 때의 최초 보상 배율
+        if (resultInfo == null)
+        {
+            if (stars == 1) return 0.25f;
+            else if (stars == 2) return 0.5f;
+            else if (stars == 3) return 1f;
+        }
+
+        // 클리어한 적이 있지만 더 잘 클리어했을 떄 - 남은 보상들을 가져가는 구조
+        else if (resultInfo.stars < stars)
+        {
+            if (resultInfo.stars == 1)
+            {
+                if (stars == 2) return 0.25f;
+                if (stars == 3) return 0.75f;
+            }
+            else if (resultInfo.stars == 2)
+            {
+                if (stars == 3) return 0.5f;
+            }
+        }
+
+        // return 문으로 빠져나가지 못했다면 에러 발생
+        throw new InvalidOperationException("FirstClearItemRate의 예상치 못한 동작");
+    }
+
+    // n성으로 클리어했을 때의 아이템 지급 비율을 계산한다
+    private float SetBasicClearItemRate(int stars)
+    {
+        if (stars == 1) return 0.25f;
+        else if (stars == 2) return 0.5f;
+        else if (stars == 3) return 1f;
+        else throw new InvalidOperationException("BasicClearItemRate의 예상치 못한 동작");
     }
 
     private void OnDestroy()

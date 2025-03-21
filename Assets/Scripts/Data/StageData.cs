@@ -28,9 +28,11 @@ public class StageData : ScriptableObject
     [Tooltip("이 맵에서만 사용할 수 있는 요소들")]
     public List<MapDeployableData> mapDeployables = new List<MapDeployableData>();
 
+    // 3성 클리어 기준 지급되는 아이템. 
     [Header("Item List")]
-    [Tooltip("스테이지 클리어 시에 지급되는 아이템들")]
-    public List<ItemWithCount> rewardItems = new List<ItemWithCount>(); // List<Dictionary<ItemData, int>>로 쓰는 것보다 별도의 클래스 or 구조체를 정의해서 사용하는 것이 좋은 방법
+    public List<ItemWithCount> FirstClearRewardItems = new List<ItemWithCount>(); // 최초 클리어 기준
+    public List<ItemWithCount> BasicClearRewardItems = new List<ItemWithCount>(); // 그냥 클리어하면 준다
+
 }
 
 [System.Serializable]
