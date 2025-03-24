@@ -417,6 +417,7 @@ public class StageManager : MonoBehaviour
         if (currentState != GameState.Battle) return;
 
         IsSpeedUp = !IsSpeedUp;
+        GameManagement.Instance!.TimeManager.UpdateTimeScale(IsSpeedUp);
     }
 
     public void TogglePause()
@@ -510,16 +511,13 @@ public class StageManager : MonoBehaviour
         var stageResultInfo = GameManagement.Instance!.PlayerDataManager.GetStageResultInfo(stageData.stageId);
         List<ItemWithCount> perfectFirstClearRewards = stageData.FirstClearRewardItems;
         List<ItemWithCount> perfectBasicClearRewards = stageData.BasicClearRewardItems;
+
+        // 최초 클리어 조건. 세부 조건은 메서드 내부에 있음
         float firstClearItemRate = SetFirstClearItemRate(stageResultInfo, stars);
-        float basicClearItemRate = SetBasicClearItemRate(stars);
-
-        if (perfectFirstClearRewards.Count == 0 || perfectBasicClearRewards.Count == 0)
-        {
-            Debug.LogWarning("지급받을 아이템 목록이 비어있습니다.");
-            return;
-        }
-
         actualFirstClearRewards = MultiplyRewards(perfectFirstClearRewards, firstClearItemRate);
+
+
+        float basicClearItemRate = SetBasicClearItemRate(stars);
         actualBasicClearRewards = MultiplyRewards(perfectBasicClearRewards, basicClearItemRate);
     }
 
@@ -527,6 +525,10 @@ public class StageManager : MonoBehaviour
     private List<ItemWithCount> MultiplyRewards(List<ItemWithCount> rewards, float itemRate)
     {
         List<ItemWithCount> scaledRewards = new List<ItemWithCount>();
+
+        // 3성 클리어를 반복했을 경우 배율이 0일 수 있으며, 이 경우는 빈 리스트를 반환함 
+        if (itemRate == 0) return scaledRewards; 
+
         foreach (var reward in rewards)
         {
             int scaledCount = Mathf.FloorToInt(reward.count * itemRate);
@@ -547,8 +549,11 @@ public class StageManager : MonoBehaviour
             else if (stars == 3) return 1f;
         }
 
-        // 클리어한 적이 있지만 더 잘 클리어했을 떄 - 남은 보상들을 가져가는 구조
-        else if (resultInfo.stars < stars)
+        // 기존에 3성으로 클리어했다면 최초 보상은 없음
+        if (resultInfo.stars == 3) return 0f;
+
+        // 기존보다 더 잘 클리어했을 때 - 남은 2, 3성의 보상을 가져감
+        if (resultInfo.stars < stars)
         {
             if (resultInfo.stars == 1)
             {

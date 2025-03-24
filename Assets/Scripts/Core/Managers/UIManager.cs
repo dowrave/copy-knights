@@ -1,9 +1,11 @@
 using System;
 using System.Collections;
+using NUnit.Framework.Interfaces;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
+// 스테이지 씬의 Canvas를 관리하는 UI Manager
 public class UIManager : MonoBehaviour
 {
     public static UIManager? Instance { get; private set; }
@@ -40,6 +42,10 @@ public class UIManager : MonoBehaviour
     [Header("Left Deployment Count Text")]
     [SerializeField] private TextMeshProUGUI leftDeploymentCountText = default!;
 
+    [Header("Item Popup")]
+    [SerializeField] private StageItemInfoPopup stageItemInfoPopup = default!;
+
+    [Header("ResultPanel Appearance Delay")]
     [SerializeField] private float resultDelay = 0.5f;
 
     // 코스트 이펙트에서 사용할 좌표statsPanelObject
@@ -262,6 +268,18 @@ public class UIManager : MonoBehaviour
 
         Debug.LogWarning("Could not project UI element to world space - ray is parallel to XZ plane");
         return Vector3.zero;
+    }
+
+    public void ShowItemPopup(ItemUIElement itemUIElement)
+    {
+        stageItemInfoPopup.gameObject.SetActive(true);
+        stageItemInfoPopup.Show(itemUIElement);
+    }
+
+    public void HideItemPopup()
+    {
+        stageItemInfoPopup.Hide();
+
     }
 
     private void OnDisable()

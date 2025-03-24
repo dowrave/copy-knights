@@ -71,7 +71,6 @@
     <Compile Include="Assets\Scripts\Interfaces\ICombatData.cs" />
     <Compile Include="Assets\Scripts\Interfaces\IDeployable.cs" />
     <Compile Include="Assets\Scripts\Skills\SkillController\FieldEffectController.cs" />
-    <Compile Include="Assets\Scripts\UI\Panels\ItemInfoPopup.cs" />
     <Compile Include="Assets\Scripts\Data\OperatorIconData.cs" />
     <Compile Include="Assets\Scripts\Utils\OperatorIconHelper.cs" />
     <Compile Include="Assets\Scripts\UI\Components\DiamondOutline.cs" />
@@ -137,7 +136,10 @@
     <Compile Include="Assets\Scripts\Skills\VFXController\CombatVFXController.cs" />
     <Compile Include="Assets\Scripts\UI\Panels\OperatorLevelUpPanel.cs" />
     <Compile Include="Assets\Scripts\Core\Managers\CameraManager.cs" />
+    <Compile Include="Assets\Scripts\UI\Components\MainmenuItemInfoPopup.cs" />
     <Compile Include="Assets\Scripts\Entities\Base\UnitEntity.cs" />
+    <Compile Include="Assets\Scripts\UI\Panels\StageItemDetailPanel.cs" />
+    <Compile Include="Assets\Scripts\UI\Components\StageItemInfoPopup.cs" />
     <Compile Include="Assets\Scripts\UI\Panels\StageSelectPanel.cs" />
     <Compile Include="Assets\Scripts\Data\TileData.cs" />
     <Compile Include="Assets\Scripts\Core\Managers\SpawnerManager.cs" />

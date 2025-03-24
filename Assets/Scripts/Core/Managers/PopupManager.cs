@@ -7,7 +7,7 @@ public class PopupManager : MonoBehaviour
     public static PopupManager? Instance { get; private set; }
 
     [Header("Popup Prefabs")]
-    [SerializeField] private ItemInfoPopup? itemInfoPopup;
+    [SerializeField] private MainmenuItemInfoPopup? itemInfoPopup;
 
     private void Awake()
     {
@@ -29,7 +29,7 @@ public class PopupManager : MonoBehaviour
         }
     }
 
-    public void OnPopupClosed(ItemInfoPopup popup)
+    public void OnPopupClosed(MainmenuItemInfoPopup popup)
     {
         if (itemInfoPopup != null)
         {

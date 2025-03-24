@@ -228,7 +228,7 @@ public class PlayerDataManager : MonoBehaviour
         //}
 
         // 아이템 지급
-        //AddStartingItems();
+        AddStartingItems();
 
         // 스테이지 임의 클리어
         //RecordStageResult("1-1", 3);

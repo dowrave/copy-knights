@@ -8,7 +8,7 @@ using UnityEngine.UI;
 /// <summary>
 /// 아이템 상세 정보를 표시하는 패널. 화면 중앙에 표시되며 다른 UI 요소들을 흐리게 만든다.
 /// </summary>
-public class ItemInfoPopup : MonoBehaviour
+public class MainmenuItemInfoPopup : MonoBehaviour
 {
     [Header("Panel Components")]
     //[SerializeField] private RectTransform panelRect = default!;

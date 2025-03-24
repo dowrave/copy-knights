@@ -23,6 +23,7 @@ public class OperatorLevelData : ScriptableObject
     // 레벨 x에서 레벨업하기 위해 필요한 경험치량은 인덱스 x-1에 저장된다
     [HideInInspector]
     public List<int> baseLevelUpExpRequirements = new List<int>();
+    [HideInInspector]
     public List<int> phase1LevelUpExpRequirements = new List<int>();
 
     private void OnValidate()

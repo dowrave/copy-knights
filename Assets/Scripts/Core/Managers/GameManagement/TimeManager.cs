@@ -53,10 +53,10 @@ public class TimeManager : MonoBehaviour
 
     private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
     {
-        if (StageManager.Instance != null)
-        {
-            StageManager.Instance.OnSpeedUpChanged += ReactSpeedToggleButton;
-        }
+        //if (StageManager.Instance != null)
+        //{
+        //    StageManager.Instance.OnSpeedUpChanged += ReactSpeedToggleButton;
+        //}
 
         // 씬 전환시 시간의 흐름 설정
         UpdateTimeScale();
@@ -65,9 +65,9 @@ public class TimeManager : MonoBehaviour
 
     private void OnDisable()
     {
-        if (StageManager.Instance != null)
-        {
-            StageManager.Instance.OnSpeedUpChanged -= ReactSpeedToggleButton;
-        }
+        //if (StageManager.Instance != null)
+        //{
+        //    StageManager.Instance.OnSpeedUpChanged -= ReactSpeedToggleButton;
+        //}
     }
 }
