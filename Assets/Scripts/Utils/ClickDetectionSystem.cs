@@ -106,7 +106,7 @@ public class ClickDetectionSystem : MonoBehaviour
 
         foreach (RaycastResult result in results)
         {
-            Debug.Log($"Raycast Hit: {result.gameObject.name} (Layer: {result.gameObject.layer})");
+            //Debug.Log($"Raycast Hit: {result.gameObject.name} (Layer: {result.gameObject.layer})");
         }
 
         bool isClickHandled = ProcessClickPriority(results);
@@ -148,7 +148,7 @@ public class ClickDetectionSystem : MonoBehaviour
     {
         foreach (var result in uiResults)
         {
-            Debug.Log($"ui 탐지: {result.gameObject.name}");
+            //Debug.Log($"ui 탐지: {result.gameObject.name}");
 
             // 1. 다이아몬드 외부 클릭 시 상태 해제
             DiamondMask diamondMask = result.gameObject.GetComponent<DiamondMask>();

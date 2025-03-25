@@ -76,6 +76,7 @@ public class UIManager : MonoBehaviour
         gameWinPanelObject.SetActive(false);
         infoPanelObject.SetActive(false);
         stageResultPanelObject.SetActive(false);
+        HideItemPopup();
     }
 
     private void Start()
@@ -272,14 +273,12 @@ public class UIManager : MonoBehaviour
 
     public void ShowItemPopup(ItemUIElement itemUIElement)
     {
-        stageItemInfoPopup.gameObject.SetActive(true);
         stageItemInfoPopup.Show(itemUIElement);
     }
 
     public void HideItemPopup()
     {
         stageItemInfoPopup.Hide();
-
     }
 
     private void OnDisable()

@@ -183,7 +183,6 @@ MonoBehaviour:
   backgroundImage: {fileID: 6321489942551284011}
   itemIconImage: {fileID: 879291587049708621}
   countText: {fileID: 5628012550882501142}
-  backArea: {fileID: 0}
   firstClearImage: {fileID: 5813857954926133757}
   itemCountBackground: {fileID: 1201595309889817896}
   commonColor: {r: 0.7, g: 0.7, b: 0.7, a: 1}
