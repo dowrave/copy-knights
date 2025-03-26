@@ -228,9 +228,11 @@ public class PlayerDataManager : MonoBehaviour
         //}
 
         // 아이템 지급
-        AddStartingItems();
+        //AddStartingItems();
 
         // 스테이지 임의 클리어
+        RecordStageResult("1-0", 3);
+
         //RecordStageResult("1-1", 3);
         //RecordStageResult("1-2", 2);
     }
@@ -415,26 +417,26 @@ public class PlayerDataManager : MonoBehaviour
 #endif
     }
 
-    public bool AddItem(string itemName, int count = 1)
-    {
-        InstanceValidator.ValidateInstance(playerData);
-        var safePlayerData = playerData!;
+    //public bool AddItem(string itemName, int count = 1)
+    //{
+    //    InstanceValidator.ValidateInstance(playerData);
+    //    var safePlayerData = playerData!;
 
-        UserInventoryData.ItemStack existingItem = safePlayerData.inventory.items.Find(i => i.itemName == itemName);
+    //    UserInventoryData.ItemStack existingItem = safePlayerData.inventory.items.Find(i => i.itemName == itemName);
 
-        // dict를 이용, 아이템이 있으면 값만 더하고 없으면 새로 만듦
-        if (existingItem != null)
-        {
-            existingItem.count += count;
-        }
-        else
-        {
-            safePlayerData.inventory.items.Add(new UserInventoryData.ItemStack(itemName, count));
-        }
+    //    // dict를 이용, 아이템이 있으면 값만 더하고 없으면 새로 만듦
+    //    if (existingItem != null)
+    //    {
+    //        existingItem.count += count;
+    //    }
+    //    else
+    //    {
+    //        safePlayerData.inventory.items.Add(new UserInventoryData.ItemStack(itemName, count));
+    //    }
 
-        SavePlayerData();
-        return true;
-    }
+    //    SavePlayerData();
+    //    return true;
+    //}
 
     public bool UseItems(Dictionary<string, int> itemsToUse)
     {

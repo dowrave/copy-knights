@@ -671,7 +671,7 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable,
     // 공격 모션
     public void SetAttackDuration()
     {
-        AttackDuration = 0.3f / AttackSpeed;
+        AttackDuration = AttackSpeed / 3f;
     }
 
     // 다음 공격까지의 대기 시간
@@ -683,7 +683,7 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable,
         }
         else
         {
-            AttackCooldown = 1 / AttackSpeed;
+            AttackCooldown = AttackSpeed;
         }
     }
 

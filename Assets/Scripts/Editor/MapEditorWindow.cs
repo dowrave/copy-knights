@@ -120,6 +120,7 @@ public class MapEditorWindow : EditorWindow
         EditorGUILayout.EndHorizontal();
     }
 
+    // 수정된 DrawMapGrid 메서드
     private void DrawMapGrid(int width, int height)
     {
         if (currentMap == null) return;
@@ -129,14 +130,12 @@ public class MapEditorWindow : EditorWindow
             EditorGUILayout.BeginHorizontal();
             for (int x = 0; x < width; x++)
             {
+                // 타일 데이터가 null이어도 GetTileSymbol 내에서 '-'를 반환하도록 수정합니다.
                 TileData? tileData = currentMap.GetTileData(x, y);
-                if (tileData != null)
+                string tileSymbol = GetTileSymbol(tileData);
+                if (GUILayout.Button(tileSymbol, GUILayout.Width(30), GUILayout.Height(30)))
                 {
-                    string tileSymbol = GetTileSymbol(tileData);
-                    if (GUILayout.Button(tileSymbol, GUILayout.Width(30), GUILayout.Height(30)))
-                    {
-                        HandleTileClick(x, y);
-                    }
+                    HandleTileClick(x, y);
                 }
             }
             EditorGUILayout.EndHorizontal();
@@ -198,9 +197,11 @@ public class MapEditorWindow : EditorWindow
     }
 
 
-    private string GetTileSymbol(TileData tileData)
+    // GetTileSymbol 메서드의 파라미터를 nullable로 변경하여 null 체크를 수행하게 합니다.
+    private string GetTileSymbol(TileData? tileData)
     {
-        if (tileData == null || tileData.terrain == TileData.TerrainType.Empty) return "-";
+        if (tileData == null || tileData.terrain == TileData.TerrainType.Empty)
+            return "-";
         return tileData.TileName.Substring(0, 1).ToUpper();
     }
 

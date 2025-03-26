@@ -37,7 +37,9 @@ public class StageResultPanel : MonoBehaviour
     [SerializeField] private Button healingDoneTab = default!; // 회복량 버튼
 
     [Header("About Reward Item")]
-    [SerializeField] private Transform rewardItemContainer = default!;
+    [SerializeField] private ScrollRect rewardItemsScrollRect = default!;
+    [SerializeField] private RectTransform rewardItemsViewportRect = default!;
+    [SerializeField] private RectTransform rewardItemContentsContainerRect = default!;
     [SerializeField] private ItemUIElement itemUIPrefab = default!;
 
     [Header("Button Colors")]
@@ -62,6 +64,9 @@ public class StageResultPanel : MonoBehaviour
         InitializeButtonList();
         returnToLobbyButton.onClick.AddListener(OnReturnButtonClicked);
         SetupButtons();
+
+        rewardItemsScrollRect.onValueChanged.AddListener(_ => LimitScroll());
+
     }
 
     private void InitializeButtonList()
@@ -360,7 +365,7 @@ public class StageResultPanel : MonoBehaviour
         {
             foreach (var itemPair in rewards)
             {
-                ItemUIElement itemElement = Instantiate(itemUIPrefab, rewardItemContainer);
+                ItemUIElement itemElement = Instantiate(itemUIPrefab, rewardItemContentsContainerRect.transform);
                 itemElement.Initialize(itemPair.itemData, itemPair.count, true, showFirst);
                 activeItemElements.Add(itemElement);
             }
@@ -400,6 +405,54 @@ public class StageResultPanel : MonoBehaviour
             Debug.LogWarning("Grid Layout Group component not found on statisticItemContainer");
         }
     }
+
+    // 스크롤 제한
+    // 왼쪽 끝 : 뷰포트의 왼쪽에 Content의 첫 번째 아이템이 올 때
+    // 오른쪽 끝 : 뷰포트의 오른쪽에 Content의 마지막 아이템이 올 때
+    private void LimitScroll()
+    {
+        // Content의 너비와 뷰포트의 너비 계산
+        float contentWidth = rewardItemContentsContainerRect.rect.width;
+        float viewportWidth = rewardItemsViewportRect.rect.width;
+
+        // Content의 현재 위치
+        float contentPos = rewardItemContentsContainerRect.anchoredPosition.x;
+
+        Debug.Log($"contentWidth : {contentWidth}");
+        Debug.Log($"viewportWidth : {viewportWidth}");
+
+
+        // Content가 Viewport보다 작거나 같다면 스크롤이 필요하지 않음
+        //if (contentWidth <= viewportWidth)
+        //{
+        //    // 중앙 정렬로 배치
+        //    //rewardItemContentsContainerRect.anchoredPosition = new Vector2(0, rewardItemContentsContainerRect.anchoredPosition.y);
+        //    // 스크롤 비활성화
+        //    rewardItemsScrollRect.enabled = false;
+        //    return;
+        //}
+
+        // 스크롤 활성화
+        //rewardItemsScrollRect.enabled = true;
+
+        // 왼쪽 제한: 컨텐츠의 왼쪽 끝이 뷰포트의 왼쪽을 넘어가지 않도록
+        float leftLimit = 0;
+        // 오른쪽 제한: 컨텐츠의 오른쪽 끝이 뷰포트의 오른쪽을 넘어가지 않도록
+        float rightLimit = -(contentWidth - viewportWidth);
+
+        // 현재 위치가 제한을 벗어났는지 확인하고 필요시 조정
+        if (contentPos > leftLimit)
+        {
+            rewardItemContentsContainerRect.anchoredPosition = new Vector2(leftLimit, rewardItemContentsContainerRect.anchoredPosition.y);
+        }
+        else if (contentPos < rightLimit)
+        {
+            rewardItemContentsContainerRect.anchoredPosition = new Vector2(rightLimit, rewardItemContentsContainerRect.anchoredPosition.y);
+        }
+        
+    }
+
+
     private void OnDisable()
     {
         foreach (Button button in statButtons)
@@ -409,6 +462,9 @@ public class StageResultPanel : MonoBehaviour
 
         returnToLobbyButton.onClick.RemoveAllListeners();
         RemoveRewardItemsUI();
+
+        rewardItemsScrollRect.onValueChanged.RemoveListener(_ => LimitScroll());
+
     }
 
     private void OnDestroy()

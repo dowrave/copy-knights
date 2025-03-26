@@ -335,13 +335,13 @@ public class StageManager : MonoBehaviour
 
     private IEnumerator GameWinAfterDelay()
     {
-        yield return new WaitForSeconds(0.2f);
+        yield return null;
         GameWin();
     }
 
     private IEnumerator GameOverAfterDelay()
     {
-        yield return new WaitForSeconds(0.2f);
+        yield return null;
         GameOver();
     }
 
@@ -513,33 +513,45 @@ public class StageManager : MonoBehaviour
         List<ItemWithCount> perfectBasicClearRewards = stageData.BasicClearRewardItems;
 
         // 최초 클리어 조건. 세부 조건은 메서드 내부에 있음
-        float firstClearItemRate = SetFirstClearItemRate(stageResultInfo, stars);
-        actualFirstClearRewards = MultiplyRewards(perfectFirstClearRewards, firstClearItemRate);
+        float firstClearExpItemRate = SetFirstClearExpItemRate(stageResultInfo, stars);
+        float firstClearPromoItemRate = SetFirstClearPromotionItemRate(stageResultInfo, stars);
+        actualFirstClearRewards = MultiplyRewards(perfectFirstClearRewards, firstClearExpItemRate, firstClearPromoItemRate);
 
 
-        float basicClearItemRate = SetBasicClearItemRate(stars);
-        actualBasicClearRewards = MultiplyRewards(perfectBasicClearRewards, basicClearItemRate);
+        float basicClearExpItemRate = SetBasicClearItemRate(stars);
+        actualBasicClearRewards = MultiplyRewards(perfectBasicClearRewards, basicClearExpItemRate);
     }
 
     // 각 reward의 count에 itemRate를 곱하여 새 리스트로 반환합니다.
-    private List<ItemWithCount> MultiplyRewards(List<ItemWithCount> rewards, float itemRate)
+    private List<ItemWithCount> MultiplyRewards(List<ItemWithCount> rewards, float expItemRate, float promoItemRate = 0f)
     {
         List<ItemWithCount> scaledRewards = new List<ItemWithCount>();
 
         // 3성 클리어를 반복했을 경우 배율이 0일 수 있으며, 이 경우는 빈 리스트를 반환함 
-        if (itemRate == 0) return scaledRewards; 
+        if (expItemRate == 0f && promoItemRate == 0f) return scaledRewards; 
 
         foreach (var reward in rewards)
         {
-            int scaledCount = Mathf.FloorToInt(reward.count * itemRate);
-            // ItemWithCount 객체를 새로 생성합니다.
-            scaledRewards.Add(new ItemWithCount(reward.itemData, scaledCount));
+            // 정예화 아이템 처리
+            if (reward.itemData.type == ItemData.ItemType.EliteItem)
+            {
+                int scaledCount = Mathf.FloorToInt(reward.count * promoItemRate);
+                scaledRewards.Add(new ItemWithCount(reward.itemData, scaledCount));
+            }
+
+            // 경험치 아이템 처리
+            else
+            {
+                int scaledCount = Mathf.FloorToInt(reward.count * expItemRate);
+                // ItemWithCount 객체를 새로 생성합니다.
+                scaledRewards.Add(new ItemWithCount(reward.itemData, scaledCount));
+            }
         }
         return scaledRewards;
     }
 
-    // n성을 최초로 달성했을 때의 아이템 지급 배율을 계산한다.
-    private float SetFirstClearItemRate(StageResultData.StageResultInfo? resultInfo, int stars)
+    // n성을 최초로 달성했을 때의 경험치 아이템 지급 배율을 계산한다.
+    private float SetFirstClearExpItemRate(StageResultData.StageResultInfo? resultInfo, int stars)
     {
         // 클리어한 적 없을 때의 최초 보상 배율
         if (resultInfo == null)
@@ -568,6 +580,18 @@ public class StageManager : MonoBehaviour
 
         // return 문으로 빠져나가지 못했다면 에러 발생
         throw new InvalidOperationException("FirstClearItemRate의 예상치 못한 동작");
+    }
+
+    private float SetFirstClearPromotionItemRate(StageResultData.StageResultInfo? resultInfo, int stars)
+    {
+        // 기존에 클리어한 적이 없고 3성 클리어할 경우에만 1f 반환하여 정예화 아이템 지급
+        if (resultInfo == null && stars == 3)
+        {
+            return 1f;
+        }
+
+        // 나머지 경우는 0 반환
+        return 0f;
     }
 
     // n성으로 클리어했을 때의 아이템 지급 비율을 계산한다

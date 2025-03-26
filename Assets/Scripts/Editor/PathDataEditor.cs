@@ -80,7 +80,7 @@ public class PathDataEditor : Editor
             }
         }
 
-        DrawPath();
+        //DrawPath();
     }
 
     // 부모 오브젝트에서 Tile 컴포넌트를 찾음

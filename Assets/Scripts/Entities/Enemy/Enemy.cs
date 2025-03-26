@@ -675,12 +675,12 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity, ICrowdControlTarget
 
     public void SetAttackDuration()
     {
-        AttackDuration = 0.3f / AttackSpeed;
+        AttackDuration = AttackSpeed / 3f;
     }
 
     public void SetAttackCooldown(float? intentionalCooldown = null)
     {
-        AttackCooldown = 1 / AttackSpeed;
+        AttackCooldown = AttackSpeed;
     }
 
     public bool CanAttack()

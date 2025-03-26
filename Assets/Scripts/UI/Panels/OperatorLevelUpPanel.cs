@@ -526,12 +526,15 @@ public class OperatorLevelUpPanel : MonoBehaviour
 
         Debug.Log($"모든 아이템 사용 시 최대 도달 레벨 : {maxLevel}");
 
+        // 스크롤 설정
+        SetScrollToLevel(maxLevel, true);
+        UpdateLevelUpPreviewDisplay();
+
         if (maxLevel > op.currentLevel)
         {
-            SetScrollToLevel(maxLevel, true);
             currentUsagePlan = usagePlan;
-            UpdateLevelUpPreviewDisplay();
         }
+
     }
 
 
