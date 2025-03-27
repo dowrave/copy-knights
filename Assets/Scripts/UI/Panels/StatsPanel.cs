@@ -14,8 +14,6 @@ public class StatsPanel : MonoBehaviour
     TextMeshProUGUI toggleButtonText = default!;
 
     [Header("StatisticsItem")]
-    //[SerializeField] private Transform statsItemContainer = default!;
-    //[SerializeField] private GameObject statItemPrefab = default!;
     [SerializeField] private Button statsItemContainerButton = default!; // 절대 수치 <-> 퍼센티지 변환 버튼, StatsItemContainer 그 자체
     [SerializeField] private StatisticItem[] statItems = default!;
 

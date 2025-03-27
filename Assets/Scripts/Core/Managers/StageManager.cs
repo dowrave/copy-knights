@@ -245,7 +245,7 @@ public class StageManager : MonoBehaviour
         foreach (var spawner in spawners!)
         {
             // Enemy만 전체 수량에 계산
-            count += spawner.spawnList
+            count += spawner.spawnList.spawnedEnemies
                 .Count(spawnInfo => spawnInfo.spawnType is SpawnType.Enemy);
         }
         return count;

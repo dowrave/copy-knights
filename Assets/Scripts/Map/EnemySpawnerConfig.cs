@@ -1,7 +1,15 @@
 using UnityEngine;
+using System.Collections.Generic;
+
+[CreateAssetMenu(fileName = "New Enemy Spawner Config", menuName ="Game/Enemy Spawner Config")]
+public class EnemySpawnerConfig : ScriptableObject
+{
+    public List<EnemySpawnData> spawnedEnemies = new List<EnemySpawnData>();
+}
+
 
 [System.Serializable]
-public class EnemySpawnInfo
+public class EnemySpawnData
 {
     public SpawnType spawnType;
     public float spawnTime = 0f;
@@ -24,3 +32,4 @@ public enum EnemyType
     Elite,
     Boss
 }
+

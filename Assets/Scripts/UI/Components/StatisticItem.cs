@@ -6,6 +6,7 @@ using UnityEngine.UI;
 public class StatisticItem : MonoBehaviour
 {
     [SerializeField] private Image operatorIcon = default!;
+    [SerializeField] private Image classIcon = default!;
     [SerializeField] private TextMeshProUGUI valueText = default!;
     [SerializeField] private Slider percentageBar = default!; // 하위 오브젝트에 Fill 이 있음
     [SerializeField] private TextMeshProUGUI percentageText = default!;
@@ -31,7 +32,7 @@ public class StatisticItem : MonoBehaviour
         opStats = StatisticsManager.Instance!.GetAllOperatorStats().Find(s => s.opData == opData);
         fillImage = percentageBar.fillRect.GetComponent<Image>();
 
-        SetOperatorIcon(opData);
+        SetIcons(opData);
         SetBarColor(statType);
         SetDisplayMode(showPercentage); // 절대 수치 / 백분율 전환
 
@@ -39,17 +40,28 @@ public class StatisticItem : MonoBehaviour
         StartCoroutine(DelayedUpdate(statType, showPercentage));
     }
 
-    private void SetOperatorIcon(OperatorData opData)
+    // 오퍼레이터와 클래스 아이콘을 할당함
+    private void SetIcons(OperatorData opData)
     {
-        // 아이콘이 있다면 아이콘 할당
+        // 오퍼레이터 고유 아이콘 할당, 없다면 모델 머티리얼의 색을 가져옴
         if (opData.Icon != null)
         {
             operatorIcon.sprite = opData.Icon;
         }
-        // 없다면 머티리얼 색을 가져옴
         else
         {
             operatorIcon.color = opData.prefab.GetComponentInChildren<Renderer>().sharedMaterial.color;
+        }
+
+        // 클래스 아이콘 할당, 없다면 검은색으로 표시
+        Sprite? classSprite = GameManagement.Instance.ResourceManager.IconData.GetClassIcon(opData.operatorClass);
+        if (classSprite != null)
+        {
+            classIcon.sprite = classSprite;
+        }
+        else
+        {
+            classIcon.color = new Color(0, 0, 0, 0);
         }
     }
 

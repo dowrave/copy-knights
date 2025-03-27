@@ -144,6 +144,7 @@
     <Compile Include="Assets\Scripts\Data\TileData.cs" />
     <Compile Include="Assets\Scripts\Core\Managers\SpawnerManager.cs" />
     <Compile Include="Assets\Scripts\Core\Managers\CCEffectManager.cs" />
+    <Compile Include="Assets\Scripts\Map\EnemySpawnerConfig.cs" />
     <Compile Include="Assets\Scripts\Entities\Operators\Operator.cs" />
     <Compile Include="Assets\Scripts\UI\Components\StatisticItem.cs" />
     <Compile Include="Assets\Scripts\Utils\UIHelper.cs" />
@@ -187,7 +188,6 @@
     <Compile Include="Assets\Scripts\UI\Panels\StatsPanel.cs" />
     <Compile Include="Assets\Scripts\Data\UnitData.cs" />
     <Compile Include="Assets\Scripts\UI\Panels\StageResultPanel.cs" />
-    <Compile Include="Assets\Scripts\Map\EnemySpawnInfo.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Assets\TextMesh Pro\Shaders\TMPro.cginc" />

@@ -106,28 +106,26 @@ public class ClickDetectionSystem : MonoBehaviour
 
         foreach (RaycastResult result in results)
         {
-            //Debug.Log($"Raycast Hit: {result.gameObject.name} (Layer: {result.gameObject.layer})");
+            Debug.Log($"Raycast Hit: {result.gameObject.name}");
         }
 
-        bool isClickHandled = ProcessClickPriority(results);
-        if (isClickHandled) return;
-    }
+        ProcessClickPriority(results);    }
 
-    private bool ProcessClickPriority(List<RaycastResult> results)
+    private void ProcessClickPriority(List<RaycastResult> results)
     {
         // 1. UI 요소 처리: GraphicRaycaster 모듈이 있는 결과만 필터링
         var uiResults = results.Where(r => r.module is GraphicRaycaster).ToList();
         if (uiResults.Count > 0 && HandleUIClick(uiResults))
         {
             // UI 요소가 처리되었다면 더 이상 진행하지 않음
-            return true;
+            return;
         }
 
         // 2. 배치 중 드래깅 혹은 방향 선택 상태라면 클릭 처리 중단
         if (DeployableManager.Instance!.IsSelectingDirection ||
             DeployableManager.Instance!.IsDraggingDeployable)
         {
-            return true;
+            return;
         }
 
         // 3. 3D 오브젝트 클릭 처리: 
@@ -140,8 +138,6 @@ public class ClickDetectionSystem : MonoBehaviour
         {
             HandleEmptySpaceClick();
         }
-
-        return true;
     }
 
     private bool HandleUIClick(List<RaycastResult> uiResults)

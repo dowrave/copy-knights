@@ -1,3 +1,4 @@
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using DG.Tweening;
@@ -42,13 +43,17 @@ public class StageResultPanel : MonoBehaviour
     [SerializeField] private RectTransform rewardItemContentsContainerRect = default!;
     [SerializeField] private ItemUIElement itemUIPrefab = default!;
 
+    private int visibleItemCount = 4; // 뷰포트에 최대로 나타나는 아이템의 갯수
+    private float rightBoundaryPosition = 0; // 오른쪽 경계 스크롤 위치 (0 ~ 1)
+
     [Header("Button Colors")]
     [SerializeField] private Color hoveredColor = default!;
     [SerializeField] private Color selectedColor = default!;
     private Color normalColor = Color.black;
 
     [Header("Return To Lobby Button")]
-    [SerializeField] private Button returnToLobbyButton = default!;
+    [SerializeField] private Button returnToLobbyButton = default!; // 오브젝트 순서 : 버튼이 위, 보상 아이템 컨테이너가 아래
+
 
     private bool showingPercentage = false;
     private StatisticsManager.StatType currentStatType = StatisticsManager.StatType.DamageDealt;
@@ -64,9 +69,6 @@ public class StageResultPanel : MonoBehaviour
         InitializeButtonList();
         returnToLobbyButton.onClick.AddListener(OnReturnButtonClicked);
         SetupButtons();
-
-        rewardItemsScrollRect.onValueChanged.AddListener(_ => LimitScroll());
-
     }
 
     private void InitializeButtonList()
@@ -82,6 +84,7 @@ public class StageResultPanel : MonoBehaviour
 
     private void OnReturnButtonClicked()
     {
+        Debug.Log("로비로 돌아가기 버튼이 클릭됨");
         bool isPerfectClear = stars == 3;
         StageManager.Instance!.ReturnToMainMenu(isPerfectClear);
     }
@@ -206,7 +209,6 @@ public class StageResultPanel : MonoBehaviour
         EventSystem.current.SetSelectedGameObject(null!);
     }
 
-
     public void Initialize(int stars)
     {
         this.stars = stars; 
@@ -243,7 +245,7 @@ public class StageResultPanel : MonoBehaviour
 
     // 제네릭을 쓰는 상황이라 타입을 아래처럼 지정 / 평소에는 IEnumerator로 충분
     // Star들의 애니메이션
-    private System.Collections.IEnumerator AnimateStars()
+    private IEnumerator AnimateStars()
     {
         for (int i = 0; i < stars; i++)
         {
@@ -283,7 +285,6 @@ public class StageResultPanel : MonoBehaviour
             yield return starSequence.WaitForCompletion();
 
             // 다음 별까지 딜레이
-            
             yield return new WaitForSecondsRealtime(starActivationInterval); // 주의 : WaitForSeconds는 Time.timeScale의 영향을 받는다.
 
         }
@@ -406,54 +407,18 @@ public class StageResultPanel : MonoBehaviour
         }
     }
 
-    // 스크롤 제한
-    // 왼쪽 끝 : 뷰포트의 왼쪽에 Content의 첫 번째 아이템이 올 때
-    // 오른쪽 끝 : 뷰포트의 오른쪽에 Content의 마지막 아이템이 올 때
-    private void LimitScroll()
+    private void OnScrollValueChanged(Vector2 normalizedPosition)
     {
-        // Content의 너비와 뷰포트의 너비 계산
-        float contentWidth = rewardItemContentsContainerRect.rect.width;
-        float viewportWidth = rewardItemsViewportRect.rect.width;
+        float horizontalPos = normalizedPosition.x;
 
-        // Content의 현재 위치
-        float contentPos = rewardItemContentsContainerRect.anchoredPosition.x;
-
-        Debug.Log($"contentWidth : {contentWidth}");
-        Debug.Log($"viewportWidth : {viewportWidth}");
-
-
-        // Content가 Viewport보다 작거나 같다면 스크롤이 필요하지 않음
-        //if (contentWidth <= viewportWidth)
-        //{
-        //    // 중앙 정렬로 배치
-        //    //rewardItemContentsContainerRect.anchoredPosition = new Vector2(0, rewardItemContentsContainerRect.anchoredPosition.y);
-        //    // 스크롤 비활성화
-        //    rewardItemsScrollRect.enabled = false;
-        //    return;
-        //}
-
-        // 스크롤 활성화
-        //rewardItemsScrollRect.enabled = true;
-
-        // 왼쪽 제한: 컨텐츠의 왼쪽 끝이 뷰포트의 왼쪽을 넘어가지 않도록
-        float leftLimit = 0;
-        // 오른쪽 제한: 컨텐츠의 오른쪽 끝이 뷰포트의 오른쪽을 넘어가지 않도록
-        float rightLimit = -(contentWidth - viewportWidth);
-
-        // 현재 위치가 제한을 벗어났는지 확인하고 필요시 조정
-        if (contentPos > leftLimit)
+        if (horizontalPos < rightBoundaryPosition + 0.01f)
         {
-            rewardItemContentsContainerRect.anchoredPosition = new Vector2(leftLimit, rewardItemContentsContainerRect.anchoredPosition.y);
+            rewardItemsScrollRect.horizontalNormalizedPosition = rightBoundaryPosition;
         }
-        else if (contentPos < rightLimit)
-        {
-            rewardItemContentsContainerRect.anchoredPosition = new Vector2(rightLimit, rewardItemContentsContainerRect.anchoredPosition.y);
-        }
-        
     }
 
-
-    private void OnDisable()
+    // OnDisable에 구현하면 최초에 이 패널이 비활성화되므로 동작하지 않는 것들이 생김
+    private void OnDestroy()
     {
         foreach (Button button in statButtons)
         {
@@ -463,12 +428,6 @@ public class StageResultPanel : MonoBehaviour
         returnToLobbyButton.onClick.RemoveAllListeners();
         RemoveRewardItemsUI();
 
-        rewardItemsScrollRect.onValueChanged.RemoveListener(_ => LimitScroll());
-
-    }
-
-    private void OnDestroy()
-    {
-
+        rewardItemsScrollRect.onValueChanged.RemoveListener(OnScrollValueChanged);
     }
 }

@@ -1,0 +1,95 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 27b28f2099ad3ba4c9f301873da05e13, type: 3}
+  m_Name: 1-1
+  m_EditorClassIdentifier: 
+  spawnedEnemies:
+  - spawnType: 1
+    spawnTime: 2
+    pathData: {fileID: 11400000, guid: d02cc1bbc5194a24e80b8fa7fb741ae0, type: 2}
+    prefab: {fileID: 7620251311904048292, guid: 9aeab8e4aa50ac446ba479d0f93c4f56, type: 3}
+    enemyType: 0
+  - spawnType: 0
+    spawnTime: 5
+    pathData: {fileID: 11400000, guid: d02cc1bbc5194a24e80b8fa7fb741ae0, type: 2}
+    prefab: {fileID: 5757678546452218239, guid: 4a8686ea2411bd34eac7f54eb59d7e55, type: 3}
+    enemyType: 0
+  - spawnType: 0
+    spawnTime: 6
+    pathData: {fileID: 11400000, guid: d02cc1bbc5194a24e80b8fa7fb741ae0, type: 2}
+    prefab: {fileID: 5757678546452218239, guid: 4a8686ea2411bd34eac7f54eb59d7e55, type: 3}
+    enemyType: 0
+  - spawnType: 0
+    spawnTime: 10
+    pathData: {fileID: 11400000, guid: d02cc1bbc5194a24e80b8fa7fb741ae0, type: 2}
+    prefab: {fileID: 6542749020257112806, guid: a25e00875a1545645b0cd199aef220b0, type: 3}
+    enemyType: 0
+  - spawnType: 0
+    spawnTime: 12
+    pathData: {fileID: 11400000, guid: d02cc1bbc5194a24e80b8fa7fb741ae0, type: 2}
+    prefab: {fileID: 6542749020257112806, guid: b64bfbf4c6a80384295e7286bbcc9d3e, type: 3}
+    enemyType: 0
+  - spawnType: 0
+    spawnTime: 13
+    pathData: {fileID: 11400000, guid: d02cc1bbc5194a24e80b8fa7fb741ae0, type: 2}
+    prefab: {fileID: 6542749020257112806, guid: 53b71dc6cf9a3434190f6e26b2d4ead4, type: 3}
+    enemyType: 0
+  - spawnType: 1
+    spawnTime: 16
+    pathData: {fileID: 11400000, guid: 10b14a4343495ed45a3a7b2b1f1fa061, type: 2}
+    prefab: {fileID: 7620251311904048292, guid: 9aeab8e4aa50ac446ba479d0f93c4f56, type: 3}
+    enemyType: 0
+  - spawnType: 0
+    spawnTime: 19
+    pathData: {fileID: 11400000, guid: 10b14a4343495ed45a3a7b2b1f1fa061, type: 2}
+    prefab: {fileID: 5757678546452218239, guid: 4a8686ea2411bd34eac7f54eb59d7e55, type: 3}
+    enemyType: 0
+  - spawnType: 0
+    spawnTime: 20
+    pathData: {fileID: 11400000, guid: 10b14a4343495ed45a3a7b2b1f1fa061, type: 2}
+    prefab: {fileID: 5757678546452218239, guid: 4a8686ea2411bd34eac7f54eb59d7e55, type: 3}
+    enemyType: 0
+  - spawnType: 0
+    spawnTime: 23
+    pathData: {fileID: 11400000, guid: 10b14a4343495ed45a3a7b2b1f1fa061, type: 2}
+    prefab: {fileID: 6542749020257112806, guid: a25e00875a1545645b0cd199aef220b0, type: 3}
+    enemyType: 0
+  - spawnType: 0
+    spawnTime: 25
+    pathData: {fileID: 11400000, guid: 10b14a4343495ed45a3a7b2b1f1fa061, type: 2}
+    prefab: {fileID: 6542749020257112806, guid: b64bfbf4c6a80384295e7286bbcc9d3e, type: 3}
+    enemyType: 0
+  - spawnType: 1
+    spawnTime: 27
+    pathData: {fileID: 11400000, guid: 10b14a4343495ed45a3a7b2b1f1fa061, type: 2}
+    prefab: {fileID: 6542749020257112806, guid: 53b71dc6cf9a3434190f6e26b2d4ead4, type: 3}
+    enemyType: 0
+  - spawnType: 1
+    spawnTime: 29
+    pathData: {fileID: 11400000, guid: d02cc1bbc5194a24e80b8fa7fb741ae0, type: 2}
+    prefab: {fileID: 6542749020257112806, guid: b64bfbf4c6a80384295e7286bbcc9d3e, type: 3}
+    enemyType: 0
+  - spawnType: 1
+    spawnTime: 30
+    pathData: {fileID: 11400000, guid: d02cc1bbc5194a24e80b8fa7fb741ae0, type: 2}
+    prefab: {fileID: 6542749020257112806, guid: b64bfbf4c6a80384295e7286bbcc9d3e, type: 3}
+    enemyType: 0
+  - spawnType: 1
+    spawnTime: 25
+    pathData: {fileID: 11400000, guid: 10b14a4343495ed45a3a7b2b1f1fa061, type: 2}
+    prefab: {fileID: 6542749020257112806, guid: b64bfbf4c6a80384295e7286bbcc9d3e, type: 3}
+    enemyType: 0
+  - spawnType: 1
+    spawnTime: 25
+    pathData: {fileID: 11400000, guid: 10b14a4343495ed45a3a7b2b1f1fa061, type: 2}
+    prefab: {fileID: 6542749020257112806, guid: b64bfbf4c6a80384295e7286bbcc9d3e, type: 3}
+    enemyType: 0
