@@ -69,7 +69,9 @@ public class MainMenuManager : MonoBehaviour
 
     // 여러 개의 parentPanels을 둔 패널로 진입할 때, 어떤 패널에서 진입했는지를 저장하는 변수
     public MenuPanel ConditionalParentPanel { get; private set; } = MenuPanel.None;
-     
+
+    public DateTime LastNotificationTime { get; private set; }
+
     public StageData? SelectedStage { get; private set; }
 
     private void Awake()
@@ -334,11 +336,16 @@ public class MainMenuManager : MonoBehaviour
 
     public void ShowNotification(string message)
     {
+        // 저번 알림 패널이 2초 내에 떴다면 아무 것도 활성화하지 않음
+        if (DateTime.Now - LastNotificationTime < TimeSpan.FromSeconds(2)) return;
+
         if (notificationPanelPrefab != null && mainCanvas != null)
         {
             GameObject notificationObj = Instantiate(notificationPanelPrefab, mainCanvas.transform);
             NotificationPanel notificationPanel = notificationObj.GetComponent<NotificationPanel>();
             notificationPanel?.Initialize(message);
+
+            LastNotificationTime = DateTime.Now;
         }
     }
 

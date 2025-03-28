@@ -70,10 +70,7 @@ public class OperatorInventoryPanel : MonoBehaviour
         skill2Button.interactable = false;
 
         noSkillSprite = skill1Button.GetComponent<Image>().sprite;
-    }
 
-    private void Start()
-    {
         // AttackRangeHelper 초기화
         attackRangeHelper = UIHelper.Instance!.CreateAttackRangeHelper(
             attackRangeContainer,
@@ -270,6 +267,9 @@ public class OperatorInventoryPanel : MonoBehaviour
             attackSpeedText.text = Mathf.Floor(opStats.AttackSpeed).ToString();
 
             // 공격 범위 시각화
+            Debug.Log($"attackRangeHelper : {attackRangeHelper}");
+            Debug.Log($"op.CurrentAttackableGridPos : {op.CurrentAttackableGridPos}");
+
             attackRangeHelper.ShowBasicRange(op.CurrentAttackableGridPos);
 
             // 스킬 버튼 초기화 및 설정

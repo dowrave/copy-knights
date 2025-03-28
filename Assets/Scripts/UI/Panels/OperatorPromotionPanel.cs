@@ -1,5 +1,7 @@
 using System.Collections.Generic;
+using Skills.Base;
 using TMPro;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -16,29 +18,30 @@ public class OperatorPromotionPanel : MonoBehaviour
     [SerializeField] private Image currentPromotionImage = default!;
     [SerializeField] private Image newPromotionImage = default!;
 
-
     private UIHelper.AttackRangeHelper attackRangeHelper = default!;
 
     [Header("Controls")]
     [SerializeField] private Button confirmButton = default!;
 
-    [Header("UnlockContents")]
-    //[SerializeField] private TextMeshProUGUI skillUnlockText = default!;
-    //[SerializeField] private Image attackRangePrefab = default!;
+    [Header("Unlock Contents")]
+    [SerializeField] private GameObject attackRangeContents = default!; // attackRange 관련 요소들이 들어가 있음
+    [SerializeField] private Image attackRangeBox = default!;
+    [SerializeField] private Image skillIconImage = default!;
+    [SerializeField] private TextMeshProUGUI skillNameText = default!;
+    [SerializeField] private TextMeshProUGUI skillDetailText = default!;
 
     [SerializeField] private TextMeshProUGUI cannotConditionText = default!;
 
-    private OwnedOperator op = default!;
+    private OwnedOperator? op;
+    private OperatorData? opData;
+
     private string updateColor = string.Empty; // 사용 중임.
 
     private void Awake()
     {
         confirmButton.onClick.AddListener(OnConfirmButtonClicked);
         updateColor = GameManagement.Instance!.ResourceManager.TextUpdateColor;
-    }
 
-    private void Start()
-    {
         // 공격 범위 시각화 도우미 초기화
         if (attackRangeContainer != null)
         {
@@ -53,7 +56,9 @@ public class OperatorPromotionPanel : MonoBehaviour
     public void Initialize(OwnedOperator op)
     {
         this.op = op;
-        UpdatePromotionInfo();
+        opData = op.OperatorProgressData; 
+ 
+
         UpdateUI();
     }
 
@@ -70,40 +75,98 @@ public class OperatorPromotionPanel : MonoBehaviour
         OperatorIconHelper.SetElitePhaseIcon(newPromotionImage, newPhase);
 
         // 버튼 업데이트
-        bool canPromote = op.CanPromote;
+        bool canPromote = op.CanPromote && HasPromotionItems();
+
+
+
         confirmButton.interactable = canPromote;
         cannotConditionText.gameObject.SetActive(!canPromote);
+
+        if (!canPromote)
+        {
+            SetCannotConditionText();
+        }
+
+        UpdatePromotionInfoUI();
     }
 
-    private void UpdatePromotionInfo()
+    private void UpdatePromotionInfoUI()
     {
         ShowNewSkill();
         ShowAttackRangePreview();
     }
 
 
-    // 새로 업데이트되는 스킬 정보
+    // 새로 업데이트되는 스킬 정보 업데이트 
     private void ShowNewSkill()
     {
-        
+        BaseSkill? unlockedSkill = opData.elite1Unlocks.unlockedSkill;
+
+        if (unlockedSkill != null)
+        {
+            // 스킬 이름 정보
+            skillNameText.text = $"- 스킬 사용 가능 : <color=#179bff>{unlockedSkill.skillName}</color>";
+
+            // 스킬 아이콘 정보
+            skillIconImage.sprite = unlockedSkill.skillIcon;
+
+            // 스킬 설명
+            skillDetailText.text = unlockedSkill.description;
+        }
     }
 
     private void ShowAttackRangePreview()
     {
         if (attackRangeHelper == null) return;
 
+        // 정예화 후 추가되는 공격 범위
+        List<Vector2Int>? additionalTiles = opData.elite1Unlocks.additionalAttackTiles;
+
+        // 추가되는 범위가 없으면 공격 범위를 담는 부분은 보여주지 않음
+        if (additionalTiles.Count == 0)
+        {
+            attackRangeContents.SetActive(false);
+            return;
+        }
+
+        // 추가되는 범위가 있을 때에는 보여줌
+        attackRangeContents.SetActive(true);
+
         // 정예화 이전 기본 공격 범위
         List<Vector2Int> baseTiles = new List<Vector2Int>(op.CurrentAttackableGridPos);
 
-        // 정예화 후 추가되는 공격 범위
-        List<Vector2Int>? additionalTiles = op.OperatorProgressData.elite1Unlocks.additionalAttackTiles;
-
         // 기본 범위와 추가 범위를 다른 색상으로 표시
-        if (additionalTiles != null)
+        if (additionalTiles.Count > 0)
         {
             attackRangeHelper.ShowRangeWithUnlocks(baseTiles, additionalTiles);
         }
     }
+
+    private bool HasPromotionItems()
+    {
+        int promoItemCount = GameManagement.Instance!.PlayerDataManager.GetItemCount("ItemPromotion");
+
+        return promoItemCount > 0;
+    }
+
+    private void SetCannotConditionText()
+    {
+        string baseText = "정예화 조건을 달성하지 못했습니다.\r\n필요 조건 : <color=#FFCCCC>";
+
+        // 레벨이 부족한 경우
+        if (!op.CanPromote)
+        {
+            string lowLevelText = "0정예화 50레벨</color>";
+            cannotConditionText.text = baseText + lowLevelText;
+        }
+        // 정예화 아이템이 없는 경우
+        else if (!HasPromotionItems())
+        {
+            string lowLevelText = "정예화 아이템 1개</color>";
+            cannotConditionText.text = baseText + lowLevelText;
+        }
+    }
+
 
     private void OnDisable()
     {

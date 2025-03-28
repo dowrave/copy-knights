@@ -48,17 +48,26 @@ public class OperatorGrowthManager: MonoBehaviour
     {
         if (!OperatorGrowthSystem.CanPromote(op)) return false;
 
-        // 정예화 진행
-        op.Promote();
-
+        // 아이템 소비 시도
         if (GameManagement.Instance == null)
         {
             throw new InvalidOperationException("게임 매니지먼트 인스턴스가 초기화되지 않았음");
         }
 
+        Dictionary<string, int> itemsToUse = new Dictionary<string, int>
+        {
+            { "ItemPromotion", 1 }
+        };
+
+        bool itemUseSuccess = GameManagement.Instance!.PlayerDataManager.UseItems(itemsToUse);
+        if (!itemUseSuccess) return false;
+
+        // 정예화 진행
+        op.Promote();
+
         GameManagement.Instance.PlayerDataManager.SavePlayerData();
 
-        return true; 
+        return true;
     }
 
 

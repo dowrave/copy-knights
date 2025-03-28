@@ -216,25 +216,28 @@ public class PlayerDataManager : MonoBehaviour
         SavePlayerData();
     }
 
+    // 테스트용 초기화
     private void InitializeForTest()
     {
         //TestAboutTutorial();
 
-        // 오퍼레이터들 1정예화
-        //foreach (var op in playerData.ownedOperators)
-        //{
-        //    InitializeOperator1stPromotion(op);
-        //    SavePlayerData();
-        //}
+        // 오퍼레이터들 성장 반영
+        foreach (var op in playerData.ownedOperators)
+        {
+            InitializeOperator1stPromotion(op);
+            
+        }
 
         // 아이템 지급
-        //AddStartingItems();
+        AddStartingItems();
 
         // 스테이지 임의 클리어
         RecordStageResult("1-0", 3);
 
         //RecordStageResult("1-1", 3);
         //RecordStageResult("1-2", 2);
+
+        SavePlayerData();
     }
 
 
@@ -484,6 +487,7 @@ public class PlayerDataManager : MonoBehaviour
         return result;
     }
 
+    // 어떤 아이템이 몇 개 있는지 확인하는 메서드. 있는지 여부도 체크 가능.
     public int GetItemCount(string itemName)
     {
         InstanceValidator.ValidateInstance(playerData);
@@ -507,7 +511,7 @@ public class PlayerDataManager : MonoBehaviour
     private void InitializeOperator1stPromotion(OwnedOperator op)
     {
         op.LevelUP(50, 0);
-        op.Promote();
+        //op.Promote();
     }
 
     public bool IsStageCleared(string stageId)

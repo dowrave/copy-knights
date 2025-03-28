@@ -82,6 +82,8 @@ public class OwnedOperator
         {
             currentAttackableGridPos.AddRange(baseData.elite1Unlocks.additionalAttackTiles);
         }
+
+        Debug.Log($"{operatorName}의 공격범위 초기화 완료");
     }
 
     private void InitializeSkills()

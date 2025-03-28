@@ -109,6 +109,7 @@ public class UIHelper : MonoBehaviour
             {
                 foreach (Vector2Int pos in additionalTiles)
                 {
+                    // 방향 보정 - 기본으로 저장된 설정은 왼쪽을 보고, UI에서는 오른쪽을 보게 함
                     Vector2Int convertedPos = new Vector2Int(-pos.x, -pos.y);
                     CreateTile(convertedPos, false, true);
                 }

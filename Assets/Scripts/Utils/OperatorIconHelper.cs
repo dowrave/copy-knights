@@ -41,7 +41,7 @@ public static class OperatorIconHelper
 
     public static void SetElitePhaseIcon(Image imageComponent, OperatorGrowthSystem.ElitePhase phase)
     {
-        Sprite icon = elitePhaseIcons.GetValueOrDefault(phase);
+        Sprite? icon = elitePhaseIcons.GetValueOrDefault(phase);
 
         if (icon != null)
         {
