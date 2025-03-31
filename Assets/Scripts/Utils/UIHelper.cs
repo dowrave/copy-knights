@@ -44,7 +44,7 @@ public class UIHelper : MonoBehaviour
             this.tileSize = tileSize ?? Instance!.filledTilePrefab.rectTransform.rect.width;
         }
 
-        private Image CreateTile(Vector2Int gridPos, bool isCenter, bool isHighlight)
+        private Image CreateTile(Vector2Int gridPos, bool isCenter, bool isHighlight, float skillRectOffset = 0f)
         {
             // 프리팹은 이제 Instance에서 가져옴
             Image tilePrefab = isCenter ? Instance!.filledTilePrefab :
@@ -61,7 +61,7 @@ public class UIHelper : MonoBehaviour
             float gridY = gridPos.y * (tileSize + interval);
 
             tile.rectTransform.anchoredPosition = new Vector2(
-                gridX - centerOffset,
+                gridX - centerOffset - skillRectOffset,
                 gridY
             );
 
@@ -70,10 +70,10 @@ public class UIHelper : MonoBehaviour
         }
 
         // 기본 공격 범위만 표시
-        public void ShowBasicRange(List<Vector2Int> attackableTiles)
+        public void ShowBasicRange(List<Vector2Int> attackableTiles, float skillRectOffset = 0f, bool opIsCenter = true)
         {
             ClearTiles();
-            CreateCenterTile();
+            CreateCenterTile(opIsCenter, skillRectOffset);
 
             foreach (Vector2Int pos in attackableTiles)
             {
@@ -81,14 +81,19 @@ public class UIHelper : MonoBehaviour
                 Vector2Int convertedPos = new Vector2Int(-pos.x, -pos.y);
                 if (convertedPos != Vector2Int.zero)
                 {
-                    CreateTile(convertedPos, false, false);
+                    CreateTile(convertedPos, false, false, skillRectOffset);
                 }
             }
         }
 
-        private void CreateCenterTile()
+        private void CreateCenterTile(bool opIsCenter, float skillRectOffset = 0f)
         {
-            CreateTile(Vector2Int.zero, true, false);
+            Image centerTile = CreateTile(Vector2Int.zero, true, false, skillRectOffset);
+            
+            // 오퍼레이터가 중심이 아닐 경우, 여기에 할당된 색으로 변경
+            if (!opIsCenter) centerTile.color = new Color(0.75f, 0.3f, 0.3f, 1f);
+
+            // 오퍼레이터가 중심이면 기본 색 사용
         }
 
         public void ClearTiles()

@@ -7,10 +7,14 @@ using UnityEngine.UI;
 
 public class OperatorPromotionPanel : MonoBehaviour
 {
-    [Header("Attack Range Preview")]
+    [Header("Range Container")]
     [SerializeField] private RectTransform attackRangeContainer = default!;
-    [SerializeField] private float centerPositionOffset;
-    [SerializeField] private float tileSize = 25f;
+    private float attackRangecenterPositionOffset = 45f;
+    private float attackRangeTileSize = 25f;
+    [SerializeField] private RectTransform skillRangeContainer = default!;
+    private float skillRangecenterPositionOffset = 0f;
+    private float skillRangeTileSize = 20f;
+
 
     [Header("Current/Target Promotion UI")]
     [SerializeField] private TextMeshProUGUI currentPromotionText = default!;
@@ -19,6 +23,7 @@ public class OperatorPromotionPanel : MonoBehaviour
     [SerializeField] private Image newPromotionImage = default!;
 
     private UIHelper.AttackRangeHelper attackRangeHelper = default!;
+    private UIHelper.AttackRangeHelper skillRangeHelper = default!;
 
     [Header("Controls")]
     [SerializeField] private Button confirmButton = default!;
@@ -31,6 +36,8 @@ public class OperatorPromotionPanel : MonoBehaviour
     [SerializeField] private TextMeshProUGUI skillDetailText = default!;
 
     [SerializeField] private TextMeshProUGUI cannotConditionText = default!;
+
+
 
     private OwnedOperator? op;
     private OperatorData? opData;
@@ -47,8 +54,14 @@ public class OperatorPromotionPanel : MonoBehaviour
         {
             attackRangeHelper = UIHelper.Instance!.CreateAttackRangeHelper(
                 attackRangeContainer,
-                centerPositionOffset,
-                tileSize
+                attackRangecenterPositionOffset,
+                attackRangeTileSize
+            );
+
+            skillRangeHelper = UIHelper.Instance!.CreateAttackRangeHelper(
+                skillRangeContainer,
+                skillRangecenterPositionOffset,
+                skillRangeTileSize
             );
         }
     }
@@ -57,7 +70,6 @@ public class OperatorPromotionPanel : MonoBehaviour
     {
         this.op = op;
         opData = op.OperatorProgressData; 
- 
 
         UpdateUI();
     }
@@ -76,8 +88,6 @@ public class OperatorPromotionPanel : MonoBehaviour
 
         // 버튼 업데이트
         bool canPromote = op.CanPromote && HasPromotionItems();
-
-
 
         confirmButton.interactable = canPromote;
         cannotConditionText.gameObject.SetActive(!canPromote);
@@ -112,8 +122,24 @@ public class OperatorPromotionPanel : MonoBehaviour
 
             // 스킬 설명
             skillDetailText.text = unlockedSkill.description;
+
+            // 범위가 있는 스킬의 경우 스킬 범위 오브젝트를 활성화하고 보여줌
+            if (unlockedSkill is ActiveSkill unlockedActiveSkill && 
+                unlockedActiveSkill.SkillRangeOffset.Count > 0)
+            {
+                List<Vector2Int> skillRange = new List<Vector2Int>(unlockedActiveSkill.SkillRangeOffset);
+                skillRangeHelper.ShowBasicRange(skillRange, unlockedActiveSkill.RectOffset, unlockedActiveSkill.ActiveFromOperatorPosition);
+                skillRangeContainer.gameObject.SetActive(true);
+            }
+            else
+            {
+                skillRangeContainer.gameObject.SetActive(false);
+            }
         }
     }
+
+
+
 
     private void ShowAttackRangePreview()
     {
@@ -129,7 +155,8 @@ public class OperatorPromotionPanel : MonoBehaviour
             return;
         }
 
-        // 추가되는 범위가 있을 때에는 보여줌
+
+
         attackRangeContents.SetActive(true);
 
         // 정예화 이전 기본 공격 범위

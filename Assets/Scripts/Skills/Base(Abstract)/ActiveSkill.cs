@@ -1,5 +1,6 @@
 
 using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.VFX;
 namespace Skills.Base
@@ -12,9 +13,20 @@ namespace Skills.Base
         [Header("Skill Duration Effects")]
         [SerializeField] protected GameObject skillVFXPrefab = default!;
 
+        [Header("Optional) Skill Range")]
+        [SerializeField] protected bool activeFromOperatorPosition = true; // UI에 사거리 표시할 때 중심이 되는 부분의 색을 변경하기 위한 기능적인 필드
+        [SerializeField] protected List<Vector2Int> skillRangeOffset = new List<Vector2Int>();
+        [SerializeField] protected float rectOffset; // UI용 오프셋
+
+        public IReadOnlyList<Vector2Int> SkillRangeOffset => skillRangeOffset;
+        public bool ActiveFromOperatorPosition => activeFromOperatorPosition;
+        public float RectOffset => rectOffset;
+
         protected GameObject? VfxInstance;
         protected VisualEffect? VfxComponent;
         protected ParticleSystem? VfxPs;
+
+        protected HashSet<Vector2Int> actualSkillRange = new HashSet<Vector2Int>();
 
         public override void Activate(Operator op)
         {
@@ -144,5 +156,13 @@ namespace Skills.Base
             Destroy(vfxObject);
         }
 
+        protected void CalculateActualSkillRange(Vector2Int center)
+        {
+            foreach (Vector2Int offset in skillRangeOffset)
+            {
+                Vector2Int rotatedOffset = DirectionSystem.RotateGridOffset(offset, caster.FacingDirection);
+                actualSkillRange.Add(center + rotatedOffset);
+            }
+        }
     }
 }

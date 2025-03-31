@@ -22,11 +22,14 @@ MonoBehaviour:
   modifiesAttackAction: 0
   duration: 0
   skillVFXPrefab: {fileID: 0}
+  activeFromOperatorPosition: 1
+  skillRangeOffset:
+  - {x: -1, y: 0}
+  - {x: -2, y: 0}
+  - {x: -3, y: 0}
+  - {x: 0, y: 0}
+  rectOffset: 40
   damageMultiplier: 2
   slashEffectPrefab: {fileID: 2616778333904927978, guid: a1b5a5fdd4e11c54e916725d4c24d68b, type: 3}
   effectSpeed: 8
   effectLifetime: 0.5
-  attackRange:
-  - {x: -1, y: 0}
-  - {x: -2, y: 0}
-  - {x: -3, y: 0}

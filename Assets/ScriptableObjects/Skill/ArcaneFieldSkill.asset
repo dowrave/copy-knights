@@ -23,8 +23,6 @@ MonoBehaviour:
   modifiesAttackAction: 1
   duration: 3
   skillVFXPrefab: {fileID: 0}
-  fieldEffectPrefab: {fileID: 926762040787327029, guid: bb7f19d33fefe14408ec775a2d8506f8, type: 3}
-  skillRangeVFXPrefab: {fileID: 4360018886635934139, guid: 9ff6fcecb6f1c76469c6c95092aaeb21, type: 3}
   skillRangeOffset:
   - {x: -2, y: 0}
   - {x: -1, y: -1}
@@ -39,6 +37,9 @@ MonoBehaviour:
   - {x: 1, y: 0}
   - {x: 1, y: -1}
   - {x: 2, y: 0}
+  activeFromOperatorPosition: 0
+  fieldEffectPrefab: {fileID: 926762040787327029, guid: bb7f19d33fefe14408ec775a2d8506f8, type: 3}
+  skillRangeVFXPrefab: {fileID: 4360018886635934139, guid: 9ff6fcecb6f1c76469c6c95092aaeb21, type: 3}
   EFFECT_TAG: ArcaneField
   damagePerTickRatio: 0.5
   slowAmount: 0.3

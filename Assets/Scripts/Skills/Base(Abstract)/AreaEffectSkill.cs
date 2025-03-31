@@ -10,11 +10,9 @@ namespace Skills.Base
         [Header("AreaEffectSkill References")]
         [SerializeField] protected GameObject fieldEffectPrefab = default!; // 실질적인 효과 프리팹
         [SerializeField] protected GameObject skillRangeVFXPrefab = default!; // 시각 효과 프리팹
-        [SerializeField] protected List<Vector2Int> skillRangeOffset = new List<Vector2Int>();
         [SerializeField] protected string EFFECT_TAG = string.Empty;
 
         protected UnitEntity? mainTarget;
-        protected HashSet<Vector2Int> actualSkillRange = new HashSet<Vector2Int>();
 
         protected GameObject? hitEffectPrefab;
         protected Dictionary<Operator, List<GameObject>> activeEffects = new Dictionary<Operator, List<GameObject>>();
@@ -57,15 +55,6 @@ namespace Skills.Base
                     TrackEffect(op, fieldEffect);
                     op.OnOperatorDied += HandleOperatorDeath; 
                 }
-            }
-        }
-
-        private void CalculateActualSkillRange(Vector2Int center)
-        {
-            foreach (Vector2Int offset in skillRangeOffset)
-            {
-                Vector2Int rotatedOffset = DirectionSystem.RotateGridOffset(offset, caster.FacingDirection);
-                actualSkillRange.Add(center + rotatedOffset);
             }
         }
 

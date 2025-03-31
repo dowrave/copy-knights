@@ -15,16 +15,6 @@ namespace Skills.OperatorSkills
         [SerializeField] private float effectSpeed = 8f;
         [SerializeField] private float effectLifetime = 0.5f;
 
-        [Header("Attack Range")]
-        [SerializeField]
-        // 범위에 설정하는 벡터 기준은 왼쪽 방향임
-        private List<Vector2Int> attackRange = new List<Vector2Int>
-        {
-            new Vector2Int(-1, 0),
-            new Vector2Int(-2, 0),
-            new Vector2Int(-3, 0)
-        };
-
         protected override void SetDefaults()
         {
             autoRecover = true;
@@ -45,7 +35,7 @@ namespace Skills.OperatorSkills
                 GameObject? hitEffectPrefab = op.OperatorData.HitEffectPrefab;
                 if (effectController != null && hitEffectPrefab != null)
                 {
-                    effectController.Initialize(op, direction, effectSpeed, effectLifetime, damageMultiplier, attackRange, hitEffectPrefab);
+                    effectController.Initialize(op, direction, effectSpeed, effectLifetime, damageMultiplier, skillRangeOffset, hitEffectPrefab);
 
                 }
             }

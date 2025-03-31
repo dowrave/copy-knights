@@ -51,10 +51,12 @@ public class OperatorDetailPanel : MonoBehaviour
 
     private OperatorData operatorData = default!;
     private OwnedOperator? currentOperator;
+    private Sprite noSkillIcon = default!; 
 
     private void Awake()
     {
         SetupButtons();
+        noSkillIcon = skill2Button.GetComponent<Image>().sprite;
     }
 
     private void SetupButtons()
@@ -90,6 +92,7 @@ public class OperatorDetailPanel : MonoBehaviour
         }
     }
 
+    // OnEnable이 필요한 이유) 레벨업 / 정예화 후에 돌아오는 경우는 Initialize로 실행되지 않음
     private void OnEnable()
     {
         // 현재 오퍼레이터가 할당된 경우에만 UI 업데이트 실행
@@ -259,12 +262,15 @@ public class OperatorDetailPanel : MonoBehaviour
             var unlockedSkills = currentOperator.UnlockedSkills;
 
             skill1Button.GetComponent<Image>().sprite = unlockedSkills[0].skillIcon;
+
             if (unlockedSkills.Count > 1)
             {
                 skill2Button.GetComponent<Image>().sprite = unlockedSkills[1].skillIcon;
+                skill2Button.interactable = true;
             }
             else
             {
+                skill2Button.GetComponent<Image>().sprite = noSkillIcon;
                 skill2Button.interactable = false;
             }
 
@@ -279,6 +285,7 @@ public class OperatorDetailPanel : MonoBehaviour
         if (currentOperator == null) return;
 
         var skills = currentOperator.UnlockedSkills;
+
         if (skillIndex < skills.Count)
         {
             currentOperator.SetDefaultSelectedSkills(skills[skillIndex]);
@@ -288,18 +295,21 @@ public class OperatorDetailPanel : MonoBehaviour
         }
     }
 
+    // 스킬이 선택됐음을 보여주는 인디케이터 표시 로직
     private void UpdateSkillSelection()
     {
         if (currentOperator == null) return;
 
-        // Update selection indicators
         skill1SelectedIndicator.gameObject.SetActive(
             currentOperator.DefaultSelectedSkill == currentOperator.UnlockedSkills[0]);
-
         if (currentOperator.UnlockedSkills.Count > 1)
         {
             skill2SelectedIndicator.gameObject.SetActive(
-                currentOperator.DefaultSelectedSkill == currentOperator.UnlockedSkills[1]);
+            currentOperator.DefaultSelectedSkill == currentOperator.UnlockedSkills[1]);
+        }
+        else // 2번째 스킬이 해금되지 않은 상황은 무조건 선택되지 않으니까
+        {
+            skill2SelectedIndicator.gameObject.SetActive(false);
         }
     }
 
