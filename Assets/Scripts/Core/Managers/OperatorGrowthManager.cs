@@ -46,6 +46,7 @@ public class OperatorGrowthManager: MonoBehaviour
 
     public bool TryPromoteOperator(OwnedOperator op)
     {
+        // 정예화 가능한 성장 상태 검사
         if (!OperatorGrowthSystem.CanPromote(op)) return false;
 
         // 아이템 소비 시도
@@ -54,10 +55,10 @@ public class OperatorGrowthManager: MonoBehaviour
             throw new InvalidOperationException("게임 매니지먼트 인스턴스가 초기화되지 않았음");
         }
 
-        Dictionary<string, int> itemsToUse = new Dictionary<string, int>
-        {
-            { "ItemPromotion", 1 }
-        };
+        // 정예화에 필요한 아이템 검사: promotionItems 데이터를 Dictionary(아이템 이름, 갯수)로 변환
+        var itemsToUse = op.OperatorProgressData.promotionItems.ToDictionary(
+            promotionItem => promotionItem.itemData.itemName,
+            promotionItem => promotionItem.count);
 
         bool itemUseSuccess = GameManagement.Instance!.PlayerDataManager.UseItems(itemsToUse);
         if (!itemUseSuccess) return false;

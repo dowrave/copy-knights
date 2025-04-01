@@ -39,6 +39,9 @@ public class OperatorData : ScriptableObject, ICombatData
     [Header("Elite Phase Settings")]
     public ElitePhaseUnlocks elite1Unlocks = default!;
 
+    [Header("Promotion Required Items")]
+    public List<PromotionItems> promotionItems = default!; 
+
     public GameObject HitEffectPrefab => hitEffectPrefab;
     public AttackType AttackType => attackType;
     public AttackRangeType AttackRangeType => attackRangeType;
@@ -69,6 +72,13 @@ public class OperatorData : ScriptableObject, ICombatData
 
         [Header("New Skills")]
         public BaseSkill? unlockedSkill;
+    }
+
+    [System.Serializable]
+    public class PromotionItems
+    {
+        public ItemData itemData;
+        public int count;
     }
 }
 

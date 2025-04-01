@@ -125,7 +125,7 @@ public static class OperatorGrowthSystem
     /// CanPromote의 래핑 함수
     public static bool CanPromote(OwnedOperator op)
     {
-        return CanPromote(op.currentPhase, op.currentLevel);
+        return CanPromote(op.currentPhase, op.currentLevel) ;
     }
 
     public static int GetSafeExpAmount(int currentExp, int itemExp, int currentLevel, ElitePhase currentPhase)

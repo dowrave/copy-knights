@@ -15,6 +15,9 @@ public class OperatorPromotionPanel : MonoBehaviour
     private float skillRangecenterPositionOffset = 0f;
     private float skillRangeTileSize = 20f;
 
+    [Header("About Required Items")]
+    [SerializeField] private Transform requiredItemList = default!;
+    [SerializeField] private List<ItemUIElement> itemUIElements = default!;
 
     [Header("Current/Target Promotion UI")]
     [SerializeField] private TextMeshProUGUI currentPromotionText = default!;
@@ -36,8 +39,6 @@ public class OperatorPromotionPanel : MonoBehaviour
     [SerializeField] private TextMeshProUGUI skillDetailText = default!;
 
     [SerializeField] private TextMeshProUGUI cannotConditionText = default!;
-
-
 
     private OwnedOperator? op;
     private OperatorData? opData;
@@ -69,7 +70,10 @@ public class OperatorPromotionPanel : MonoBehaviour
     public void Initialize(OwnedOperator op)
     {
         this.op = op;
-        opData = op.OperatorProgressData; 
+        opData = op.OperatorProgressData!;
+
+        // 보상 목록 초기화
+        InitializeRequiredItems();
 
         UpdateUI();
     }
@@ -87,7 +91,7 @@ public class OperatorPromotionPanel : MonoBehaviour
         OperatorIconHelper.SetElitePhaseIcon(newPromotionImage, newPhase);
 
         // 버튼 업데이트
-        bool canPromote = op.CanPromote && HasPromotionItems();
+        bool canPromote = op.CanPromote && GameManagement.Instance!.PlayerDataManager.HasPromotionItems(opData);
 
         confirmButton.interactable = canPromote;
         cannotConditionText.gameObject.SetActive(!canPromote);
@@ -104,6 +108,7 @@ public class OperatorPromotionPanel : MonoBehaviour
     {
         ShowNewSkill();
         ShowAttackRangePreview();
+        ShowRequiredItems();
     }
 
 
@@ -155,8 +160,6 @@ public class OperatorPromotionPanel : MonoBehaviour
             return;
         }
 
-
-
         attackRangeContents.SetActive(true);
 
         // 정예화 이전 기본 공격 범위
@@ -167,13 +170,6 @@ public class OperatorPromotionPanel : MonoBehaviour
         {
             attackRangeHelper.ShowRangeWithUnlocks(baseTiles, additionalTiles);
         }
-    }
-
-    private bool HasPromotionItems()
-    {
-        int promoItemCount = GameManagement.Instance!.PlayerDataManager.GetItemCount("ItemPromotion");
-
-        return promoItemCount > 0;
     }
 
     private void SetCannotConditionText()
@@ -187,13 +183,33 @@ public class OperatorPromotionPanel : MonoBehaviour
             cannotConditionText.text = baseText + lowLevelText;
         }
         // 정예화 아이템이 없는 경우
-        else if (!HasPromotionItems())
+        else if (opData != null && !GameManagement.Instance!.PlayerDataManager.HasPromotionItems(opData))
         {
+            // 요구조건이 다 동일할 예정이라 별도로 수정하지는 않겠음.
+            // 반복문을 돌려서 필요 아이템들을 하나씩 나열하는 방법이 사실 정석이겠다.
             string lowLevelText = "정예화 아이템 1개</color>";
             cannotConditionText.text = baseText + lowLevelText;
         }
     }
 
+    private void InitializeRequiredItems()
+    {
+        for (int i = 0; i < itemUIElements.Count; i++)
+        {
+            itemUIElements[i].gameObject.SetActive(false);
+        }
+
+    }
+
+    private void ShowRequiredItems()
+    {
+        for (int i=0; i < opData.promotionItems.Count; i++)
+        {
+            OperatorData.PromotionItems promotionItem = opData.promotionItems[i];
+            itemUIElements[i].Initialize(promotionItem.itemData, promotionItem.count, false);
+            itemUIElements[i].gameObject.SetActive(true);
+        }
+    }
 
     private void OnDisable()
     {
@@ -202,6 +218,12 @@ public class OperatorPromotionPanel : MonoBehaviour
         {
             attackRangeHelper.ClearTiles();
         }
+
+        // 좌측 하단의 아이템들도 제거
+        //foreach (ItemUIElement itemUIElement in activeItemUIElements)
+        //{
+        //    Destroy(itemUIElement);
+        //}
     }
 
     private void OnConfirmButtonClicked()

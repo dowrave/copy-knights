@@ -688,6 +688,19 @@ public class PlayerDataManager : MonoBehaviour
         SavePlayerData();
     }
 
+    // 정예화에 필요한 아이템들이 모두 있는지 검사하는 메서드
+    public bool HasPromotionItems(OperatorData opData)
+    {
+        foreach (OperatorData.PromotionItems promotionItem in opData.promotionItems)
+        {
+            string itemName = promotionItem.itemData.itemName;
+            int requiredCount = promotionItem.count;
+            int playerHasCount = GetItemCount(itemName);
+            if (playerHasCount < requiredCount) return false;
+        }
+
+        return true;
+    }
 
     // 아이템 데이터베이스를 이용해 초기 아이템 지급
     // 이름은 itemData.name 필드의 그것(LoadItemDatabase 참조)
