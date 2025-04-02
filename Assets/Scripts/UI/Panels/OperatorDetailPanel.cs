@@ -1,6 +1,10 @@
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
+using NUnit.Framework;
+using System;
+using System.Collections.Generic;
+using Skills.Base;
 
 public class OperatorDetailPanel : MonoBehaviour
 {
@@ -43,20 +47,18 @@ public class OperatorDetailPanel : MonoBehaviour
     [SerializeField] private TextMeshProUGUI canLevelUpIndicator = default!;
 
     [Header("Skills")]
-    [SerializeField] private Button skill1Button = default!;
-    [SerializeField] private Image skill1SelectedIndicator = default!;
-    [SerializeField] private Button skill2Button = default!;
-    [SerializeField] private Image skill2SelectedIndicator = default!;
+    [SerializeField] private List<SkillIconBox> skillIconBoxes = new List<SkillIconBox>();
     [SerializeField] private TextMeshProUGUI skillDetailText = default!;
+    [SerializeField] private Image skillSelectedIndicator = default!;
+    [SerializeField] private Button SetDefaultSkillButton = default!;
 
+    private BaseSkill currentSelectedSkill = default!;
     private OperatorData operatorData = default!;
     private OwnedOperator? currentOperator;
-    private Sprite noSkillIcon = default!; 
 
     private void Awake()
     {
         SetupButtons();
-        noSkillIcon = skill2Button.GetComponent<Image>().sprite;
     }
 
     private void SetupButtons()
@@ -67,8 +69,15 @@ public class OperatorDetailPanel : MonoBehaviour
         levelUpButton.onClick.AddListener(OnLevelUpClicked);
         promoteButton.onClick.AddListener(OnPromoteClicked);
 
-        skill1Button.onClick.AddListener(() => OnSkillButtonClicked(0));
-        skill2Button.onClick.AddListener(() => OnSkillButtonClicked(1));
+
+        for (int i = 0; i < skillIconBoxes.Count; i++)
+        {
+            int index = i;
+            skillIconBoxes[i].OnButtonClicked += () => OnSkillButtonClicked(index);
+        }
+        
+
+        SetDefaultSkillButton.onClick.AddListener(HandleDefaultButtonClicked);
     }
 
 
@@ -87,6 +96,8 @@ public class OperatorDetailPanel : MonoBehaviour
                 centerPositionOffset,
                 tileSize
             );
+
+            currentSelectedSkill = ownedOp.DefaultSelectedSkill;
 
             UpdateAllUI();
         }
@@ -253,6 +264,10 @@ public class OperatorDetailPanel : MonoBehaviour
             OperatorPromotionPanel promotionPanel = promotionPanelObject.GetComponent<OperatorPromotionPanel>();
             promotionPanel.Initialize(currentOperator);
         }
+        else if (currentOperator.currentPhase == OperatorGrowthSystem.ElitePhase.Elite1)
+        {
+            MainMenuManager.Instance!.ShowNotification($"최대 정예화에 도달했습니다.");
+        }
     }
 
     private void UpdateSkillsUI()
@@ -261,69 +276,92 @@ public class OperatorDetailPanel : MonoBehaviour
         { 
             var unlockedSkills = currentOperator.UnlockedSkills;
 
-            skill1Button.GetComponent<Image>().sprite = unlockedSkills[0].skillIcon;
+            skillIconBoxes[0].Initialize(unlockedSkills[0], true, true);
 
             if (unlockedSkills.Count > 1)
             {
-                skill2Button.GetComponent<Image>().sprite = unlockedSkills[1].skillIcon;
-                skill2Button.interactable = true;
+                skillIconBoxes[1].Initialize(unlockedSkills[1], true, true);
+                skillIconBoxes[1].SetButtonInteractable(true);
             }
             else
             {
-                skill2Button.GetComponent<Image>().sprite = noSkillIcon;
-                skill2Button.interactable = false;
+                skillIconBoxes[1].ResetSkillIcon();
+                skillIconBoxes[1].SetButtonInteractable(false);
             }
 
-            UpdateSkillSelection();
-            UpdateSkillDescription();
-
+            UpdateSkillSelectionUI();
+            UpdateSkillDescriptionUI();
         }
     }
 
     private void OnSkillButtonClicked(int skillIndex)
     {
         if (currentOperator == null) return;
-
         var skills = currentOperator.UnlockedSkills;
 
         if (skillIndex < skills.Count)
         {
-            currentOperator.SetDefaultSelectedSkills(skills[skillIndex]);
-            UpdateSkillSelection();
-            UpdateSkillDescription();
-            MainMenuManager.Instance!.ShowNotification($"기본 설정 스킬이 {skills[skillIndex].skillName}으로 변경되었습니다.");
+            currentSelectedSkill = currentOperator.UnlockedSkills[skillIndex];
         }
+
+        UpdateSkillSelectionUI();
+        UpdateSkillDescriptionUI();
     }
 
     // 스킬이 선택됐음을 보여주는 인디케이터 표시 로직
-    private void UpdateSkillSelection()
+    private void UpdateSkillSelectionUI()
     {
         if (currentOperator == null) return;
 
-        skill1SelectedIndicator.gameObject.SetActive(
-            currentOperator.DefaultSelectedSkill == currentOperator.UnlockedSkills[0]);
-        if (currentOperator.UnlockedSkills.Count > 1)
+        // 기본 선택 스킬이 없으면 인디케이터 숨김.
+        if (currentOperator.DefaultSelectedSkill == null)
         {
-            skill2SelectedIndicator.gameObject.SetActive(
-            currentOperator.DefaultSelectedSkill == currentOperator.UnlockedSkills[1]);
+            skillSelectedIndicator.gameObject.SetActive(false);
+            return;
         }
-        else // 2번째 스킬이 해금되지 않은 상황은 무조건 선택되지 않으니까
+
+        Transform targetButtonTransform = null;
+        var unlockedSkills = currentOperator.UnlockedSkills;
+
+        // 첫 번째 스킬이 기본 선택 스킬과 같으면 skillIconBox1의 버튼을 대상으로 함
+        if (unlockedSkills.Count > 0 && currentSelectedSkill == unlockedSkills[0])
         {
-            skill2SelectedIndicator.gameObject.SetActive(false);
+            targetButtonTransform = skillIconBoxes[0].transform;
         }
-    }
-
-    private void UpdateSkillDescription()
-    {
-        if (currentOperator == null) return;
-
-        if (currentOperator.DefaultSelectedSkill != null)
+        // 두 번째 스킬이 기본 선택 스킬과 같으면 skillIconBox2의 버튼을 대상으로 함
+        else if (unlockedSkills.Count > 1 && currentSelectedSkill == unlockedSkills[1])
         {
-            skillDetailText.text = currentOperator.DefaultSelectedSkill.description;
+            targetButtonTransform = skillIconBoxes[1].transform;
+        }
+
+        if (targetButtonTransform != null)
+        {
+            // 인디케이터를 선택된 스킬 버튼의 첫 번째 자식으로 재배치
+            skillSelectedIndicator.transform.SetParent(targetButtonTransform, false);
+            skillSelectedIndicator.transform.SetSiblingIndex(0);
+
+            // 위치 이동
+            skillSelectedIndicator.transform.localPosition = Vector3.zero; // 위치도 바꿔줌
+
+            // 활성화
+            skillSelectedIndicator.gameObject.SetActive(true);
         }
         else
         {
-            skillDetailText.text = "";
+            skillSelectedIndicator.gameObject.SetActive(false);
         }
+    }
+
+    private void UpdateSkillDescriptionUI()
+    {
+        if (currentOperator == null || currentSelectedSkill == null) return;
+
+        skillDetailText.text = currentSelectedSkill.description;
+    }
+
+    private void HandleDefaultButtonClicked()
+    {
+        currentOperator.SetDefaultSelectedSkills(currentSelectedSkill);
+        MainMenuManager.Instance!.ShowNotification($"기본 설정 스킬이 {currentSelectedSkill.skillName}으로 변경되었습니다.");
     }
 }

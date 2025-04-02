@@ -34,10 +34,8 @@ public class OperatorInventoryPanel : MonoBehaviour
     [SerializeField] private TextMeshProUGUI attackSpeedText = default!;
 
     [Header("Skills")]
-    [SerializeField] private Button skill1Button = default!;
-    [SerializeField] private Image skill1SelectedIndicator = default!;
-    [SerializeField] private Button skill2Button = default!;
-    [SerializeField] private Image skill2SelectedIndicator = default!;
+    [SerializeField] private List<SkillIconBox> skillIconBoxes = new List<SkillIconBox>();
+    [SerializeField] private Image skillSelectionIndicator = default!;
     [SerializeField] private TextMeshProUGUI skillDetailText = default!;
 
     // 화면 오른쪽에 나타나는 사용 가능한 오퍼레이터 리스트 -- 혼동 주의!!
@@ -60,22 +58,14 @@ public class OperatorInventoryPanel : MonoBehaviour
         setEmptyButton.onClick.AddListener(OnSetEmptyButtonClicked);
         detailButton.onClick.AddListener(OnDetailButtonClicked);
 
-        skill1Button.onClick.AddListener(() => OnSkillButtonClicked(0));
-        skill2Button.onClick.AddListener(() => OnSkillButtonClicked(1));
+        for (int i = 0; i < skillIconBoxes.Count; i++)
+        {
+            int index = i;
+            skillIconBoxes[i].OnButtonClicked += () => OnSkillButtonClicked(index);
+        }
 
         confirmButton.interactable = false;
         detailButton.interactable = false;
-
-        skill1Button.interactable = false;
-        skill2Button.interactable = false;
-
-        noSkillSprite = skill1Button.GetComponent<Image>().sprite;
-
-        // AttackRangeHelper 초기화
-        attackRangeHelper = UIHelper.Instance!.CreateAttackRangeHelper(
-            attackRangeContainer,
-            centerPositionOffset
-        );
     }
 
     private void OnEnable()
@@ -86,6 +76,16 @@ public class OperatorInventoryPanel : MonoBehaviour
 
         if (isEditing)
         {
+            // Awake에 둘 경우, 이 패널이 활성화된 채로 시작하면 오류 발생해서 여기로 이동
+            if (UIHelper.Instance != null)
+            {
+                attackRangeHelper = UIHelper.Instance.CreateAttackRangeHelper(
+                    attackRangeContainer,
+                    centerPositionOffset
+                );
+            }
+
+
             ResetSelection();
             nowEditingIndex = GameManagement.Instance!.UserSquadManager.EditingSlotIndex;
             existingOperator = GameManagement.Instance!.PlayerDataManager.GetOperatorInSlot(nowEditingIndex);
@@ -294,15 +294,14 @@ public class OperatorInventoryPanel : MonoBehaviour
         blockCountText.text = "";
         attackSpeedText.text = "";
 
-        skill1Button.GetComponent<Image>().sprite = noSkillSprite;
-        skill2Button.GetComponent<Image>().sprite = noSkillSprite;
-        skill1SelectedIndicator.gameObject.SetActive(false);
-        skill2SelectedIndicator.gameObject.SetActive(false);
+        for (int i = 0; i < skillIconBoxes.Count; i++)
+        {
+            int index = i;
+            skillIconBoxes[i].ResetSkillIcon();
+            skillIconBoxes[i].SetButtonInteractable(false);
+        }
+
         skillDetailText.text = "";
-
-        skill1Button.interactable = false;
-        skill2Button.interactable = false;
-
         selectedSkill = null;
     }
 
@@ -312,9 +311,8 @@ public class OperatorInventoryPanel : MonoBehaviour
         {
             OwnedOperator op = slot.OwnedOperator;
 
-            skill1Button.interactable = true;
-            var unlockedSkills = op.UnlockedSkills;
-            skill1Button.GetComponent<Image>().sprite = unlockedSkills[0].skillIcon;
+            skillIconBoxes[0].Initialize(op.UnlockedSkills[0], true, true);
+            skillIconBoxes[0].SetButtonInteractable(true);
 
             // 디폴트 스킬 설정
             if (selectedSkill == null)
@@ -325,14 +323,15 @@ public class OperatorInventoryPanel : MonoBehaviour
             }
 
             // 1정예화라면 스킬이 2개일 것
-            if (unlockedSkills.Count > 1)
+            if (op.UnlockedSkills.Count > 1)
             {
-                skill2Button.GetComponent<Image>().sprite = unlockedSkills[1].skillIcon;
-                skill2Button.interactable = true;
+                skillIconBoxes[1].Initialize(op.UnlockedSkills[1], true, true);
+                skillIconBoxes[1].SetButtonInteractable(true);
             }
             else
             {
-                skill2Button.interactable = false; 
+                skillIconBoxes[1].ResetSkillIcon();
+                skillIconBoxes[1].SetButtonInteractable(false);
             }
         }
     }
@@ -355,11 +354,38 @@ public class OperatorInventoryPanel : MonoBehaviour
     {
         if (selectedSlot?.OwnedOperator == null) return;
 
-        skill1SelectedIndicator.gameObject.SetActive(selectedSkill == selectedSlot.OwnedOperator.UnlockedSkills[0]);
+        OwnedOperator op = selectedSlot.OwnedOperator;
 
-        if (selectedSlot.OwnedOperator.UnlockedSkills.Count > 1)
+        Transform targetButtonTransform = null;
+        List<BaseSkill> unlockedSkills = op.UnlockedSkills;
+
+        // 첫 번째 스킬이 기본 선택 스킬과 같으면 skillIconBox1의 버튼을 대상으로 함
+        if (unlockedSkills.Count > 0 && selectedSkill == unlockedSkills[0])
+        { 
+            targetButtonTransform = skillIconBoxes[0].transform;
+        }
+        // 두 번째 스킬이 기본 선택 스킬과 같으면 skillIconBox2의 버튼을 대상으로 함
+        else if (unlockedSkills.Count > 1 && selectedSkill == unlockedSkills[1])
         {
-            skill2SelectedIndicator.gameObject.SetActive(selectedSkill == selectedSlot.OwnedOperator.UnlockedSkills[1]);
+            targetButtonTransform = skillIconBoxes[1].transform;
+        }
+
+        // 인디케이터 위치 배치
+        if (targetButtonTransform != null)
+        {
+            // 인디케이터를 선택된 스킬 버튼의 첫 번째 자식으로 재배치
+            skillSelectionIndicator.transform.SetParent(targetButtonTransform, false);
+            skillSelectionIndicator.transform.SetSiblingIndex(0);
+
+            // 위치 이동
+            skillSelectionIndicator.transform.localPosition = Vector3.zero; // 위치도 바꿔줌
+
+            // 활성화
+            skillSelectionIndicator.gameObject.SetActive(true);
+        }
+        else
+        {
+            skillSelectionIndicator.gameObject.SetActive(false);
         }
     }
 

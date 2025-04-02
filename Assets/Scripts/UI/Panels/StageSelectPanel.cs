@@ -18,7 +18,8 @@ public class StageSelectPanel : MonoBehaviour
     [SerializeField] private List<StageUIData> stageUIDataList = new List<StageUIData>();
     [SerializeField] private Button cancelArea = default!; // buttonContainer가 이 역할을 함
     [SerializeField] private GameObject stageDetailPanel = default!;
-    [SerializeField] private TextMeshProUGUI stageTitleText = default!;
+    [SerializeField] private TextMeshProUGUI stageIdText = default!;
+    [SerializeField] private TextMeshProUGUI stageNameText = default!;
     [SerializeField] private TextMeshProUGUI stageDetailText = default!;
     [SerializeField] private Button confirmButton = default!;
 
@@ -145,7 +146,8 @@ public class StageSelectPanel : MonoBehaviour
         {
             stageDetailPanel.SetActive(true);
             cancelArea.interactable = true;
-            stageTitleText.text = stageData.stageId;
+            stageIdText.text = stageData.stageId;
+            stageNameText.text = stageData.stageName;
             stageDetailText.text = stageData.stageDetail;
             confirmButton.interactable = true;
         }

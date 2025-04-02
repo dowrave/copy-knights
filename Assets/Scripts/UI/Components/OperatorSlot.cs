@@ -198,7 +198,9 @@ public class OperatorSlot : MonoBehaviour
     public void UpdateSelectedSkill(BaseSkill skill)
     {
         SelectedSkill = skill;
-        skillImage.sprite = SelectedSkill.skillIcon;
+
+        // 지우지 말것) 인벤토리 좌측 패널의 스킬 아이콘 클릭 시 우측 스킬 슬롯의 아이콘 업데이트
+        skillImage.sprite = SelectedSkill.skillIcon; 
     }
 
     private void UpdateSelectionIndicator()

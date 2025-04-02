@@ -29,6 +29,7 @@ public class StageResultPanel : MonoBehaviour
     [SerializeField] private TextMeshProUGUI clearOrFailedText = default!;
 
     [Header("Statistics")]
+    [SerializeField] private TextMeshProUGUI statsTitleText = default!; 
     //[SerializeField] private GameObject resultStatisticPanelObject = default!; // 통계 패널 전체
     [SerializeField] private StatisticItem statisticItemPrefab = default!;
     [SerializeField] private Transform statisticItemContainer = default!;
@@ -128,32 +129,28 @@ public class StageResultPanel : MonoBehaviour
         showPercentageTab.onClick.AddListener(() =>
         {
             showingPercentage = !showingPercentage;
-            UpdateStats();
-            UpdateButtonVisuals();
+            UpdateStatContainer();
             StopEventPropagation();
         });
 
         damageDealtTab.onClick.AddListener(() =>
         {
             currentStatType = StatisticsManager.StatType.DamageDealt;
-            UpdateStats();
-            UpdateButtonVisuals();
+            UpdateStatContainer();
             StopEventPropagation();
         });
 
         damageTakenTab.onClick.AddListener(() =>
         {
             currentStatType = StatisticsManager.StatType.DamageTaken;
-            UpdateStats();
-            UpdateButtonVisuals();
+            UpdateStatContainer();
             StopEventPropagation();
         });
 
         healingDoneTab.onClick.AddListener(() =>
         {
             currentStatType = StatisticsManager.StatType.HealingDone;
-            UpdateStats();
-            UpdateButtonVisuals();
+            UpdateStatContainer();
             StopEventPropagation();
         });
 
@@ -217,7 +214,7 @@ public class StageResultPanel : MonoBehaviour
         UpdateStarRating();
         UpdateHeaders();
         CreateStatItems();
-        UpdateButtonVisuals(); // 버튼이 눌린 상태로 보이도록 초기화
+        UpdateStatContainer();
         ShowRewardItemsUI(); // stars > 0 일 때에만 동작
     }
 
@@ -405,6 +402,28 @@ public class StageResultPanel : MonoBehaviour
         {
             Debug.LogWarning("Grid Layout Group component not found on statisticItemContainer");
         }
+    }
+
+    private void UpdateStatContainer()
+    {
+        UpdateStats();
+        UpdateButtonVisuals();
+        UpdateStatContainerTitle();
+    }
+
+    private void UpdateStatContainerTitle()
+    {
+        string statTypeTitle = currentStatType switch
+        {
+            StatisticsManager.StatType.DamageDealt => "적에게 가한 피해",
+            StatisticsManager.StatType.DamageTaken => "적으로부터 받은 피해",
+            StatisticsManager.StatType.HealingDone => "치유",
+            _ => "Unknown Stat"
+        };
+
+        string valueTypeTitle = showingPercentage ? "%" : "수치";
+
+        statsTitleText.text = $"{statTypeTitle}({valueTypeTitle})";
     }
 
     private void OnScrollValueChanged(Vector2 normalizedPosition)
