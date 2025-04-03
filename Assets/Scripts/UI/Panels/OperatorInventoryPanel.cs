@@ -45,8 +45,10 @@ public class OperatorInventoryPanel : MonoBehaviour
     private BaseSkill? selectedSkill;
     private Sprite noSkillSprite = default!;
 
-    // 오퍼레이터가 들어가 있는 상태에서 해당 슬롯을 수정할 경우에만 사용
-    private OwnedOperator? existingOperator;
+    // 초기화 시에 커서 위치 관련
+    private OwnedOperator? existingOperator; // squadEditPanel의 오퍼레이터가 있는 슬롯을 클릭한 상태로 인벤토리 패널에 들어왔을 때, 유지되는 정보
+    private OwnedOperator? editingOperator; // 인벤토리 패널의 상세 정보를 통해 들어갔다가 나올 때
+
 
     // UserSquadManager에서 편집 중인 상태 관리
     private int nowEditingIndex;
@@ -85,15 +87,25 @@ public class OperatorInventoryPanel : MonoBehaviour
                 );
             }
 
+            ClearSideView();
 
             ResetSelection();
             nowEditingIndex = GameManagement.Instance!.UserSquadManager.EditingSlotIndex;
             existingOperator = GameManagement.Instance!.PlayerDataManager.GetOperatorInSlot(nowEditingIndex);
+            editingOperator = MainMenuManager.Instance!.CurrentEditingOperator;
 
             PopulateOperators();
 
-            // 이미 배치된 오퍼레이터가 있다면 해당 오퍼레이터 슬롯을 클릭한 상태로 시작
-            if (existingOperator != null)
+            // 자동 선택
+
+            // 1. DetailPanel에 들어갔다 나온 경우 해당 오퍼레이터 선택
+            if (editingOperator != null)
+            {
+                HandleSlotClicked(operatorSlots[0]);
+                MainMenuManager.Instance.SetCurrentEditingOperator(null);
+            }
+            // 2. SquadEditPanel에서 오퍼레이터가 있는 슬롯을 클릭해서 들어온 경우, 해당 오퍼레이터 선택
+            else if (existingOperator != null)
             {
                 HandleSlotClicked(operatorSlots[0]);
             }
@@ -123,12 +135,20 @@ public class OperatorInventoryPanel : MonoBehaviour
                 .Where(op => !currentSquad.Contains(op))
                 .ToList();
 
-            // 이미 오퍼레이터가 있는 슬롯을 클릭해서 들어온 경우
+            // 스쿼드 편집에서 오퍼레이터가 있는 슬롯을 클릭해서 들어온 경우, 해당 오퍼레이터가 맨 앞
             if (existingOperator != null)
             {
                 // 가장 앞 인덱스에 넣음
                 availableOperators.Insert(0, existingOperator);
             }
+
+            // 현재 수정한 오퍼레이터가 있다면 슬롯의 맨 앞으로 (existingOperator가 있다면 2번째 순서로 자연스럽게 밀려남)
+            if (editingOperator != null)
+            {
+                availableOperators.Remove(editingOperator);
+                availableOperators.Insert(0, editingOperator);
+            }
+
 
             // 그리드 영역의 너비 조절
             RectTransform slotContainerRectTransform = operatorSlotContainer.gameObject.GetComponent<RectTransform>(); 
@@ -213,6 +233,7 @@ public class OperatorInventoryPanel : MonoBehaviour
         if (selectedSlot != null)
         {
             MoveToDetailPanel(selectedSlot);
+            MainMenuManager.Instance.SetCurrentEditingOperator(selectedSlot.OwnedOperator);
         }
     }
 
@@ -267,9 +288,6 @@ public class OperatorInventoryPanel : MonoBehaviour
             attackSpeedText.text = Mathf.Floor(opStats.AttackSpeed).ToString();
 
             // 공격 범위 시각화
-            Debug.Log($"attackRangeHelper : {attackRangeHelper}");
-            Debug.Log($"op.CurrentAttackableGridPos : {op.CurrentAttackableGridPos}");
-
             attackRangeHelper.ShowBasicRange(op.CurrentAttackableGridPos);
 
             // 스킬 버튼 초기화 및 설정
@@ -300,6 +318,8 @@ public class OperatorInventoryPanel : MonoBehaviour
             skillIconBoxes[i].ResetSkillIcon();
             skillIconBoxes[i].SetButtonInteractable(false);
         }
+
+        skillSelectionIndicator.gameObject.SetActive(false);
 
         skillDetailText.text = "";
         selectedSkill = null;
@@ -420,4 +440,6 @@ public class OperatorInventoryPanel : MonoBehaviour
         ClearSideView();
         ResetSelection();
     }
+
+
 }

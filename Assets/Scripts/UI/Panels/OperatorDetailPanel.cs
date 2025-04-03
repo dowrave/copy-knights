@@ -15,7 +15,6 @@ public class OperatorDetailPanel : MonoBehaviour
     [SerializeField] private TextMeshProUGUI levelText = default!;
     [SerializeField] private TextMeshProUGUI maxLevelText = default!;
     [SerializeField] private TextMeshProUGUI phaseText = default!;
-    //[SerializeField] private Image[] skillIconImages = default!;
 
     [Header("Attack Range Visualization")]
     [SerializeField] private RectTransform attackRangeContainer = default!;

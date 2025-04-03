@@ -33,6 +33,7 @@ public class SkillIconBox : MonoBehaviour
 
     public void Initialize(BaseSkill skillData, bool showDurationBox = false, bool showSkillName = false)
     {
+        
         this.skillData = skillData;
 
         if (skillData.skillIcon != null)
@@ -68,6 +69,7 @@ public class SkillIconBox : MonoBehaviour
         {
             skillNameText.gameObject.SetActive(false);
         }
+        
     }
 
     private void HandleButtonClick()
@@ -75,8 +77,10 @@ public class SkillIconBox : MonoBehaviour
         OnButtonClicked?.Invoke();
     }
 
+    // SkillData가 할당되지 않은 상태로 수정
     public void ResetSkillIcon()
     {
+        //Debug.Log($"{gameObject.name} - noSkillIconImage : {noSkillIconImage}");
         skillIconImage.sprite = noSkillIconImage;
         durationBox.gameObject.SetActive(false);
         durationText.text = string.Empty;
@@ -88,6 +92,13 @@ public class SkillIconBox : MonoBehaviour
     public void SetButtonInteractable(bool interactable)
     {
         button.interactable = interactable;
+    }
+
+    // "아무것도 할당되지 않은 초기화"와, "무언가가 할당되어야 하는 초기화"를 구분함
+    // 전자는 ResetSkillIcon, 후자는 Initialize
+    private void OnEnable()
+    {
+        ResetSkillIcon();
     }
 
     private void OnDisable()

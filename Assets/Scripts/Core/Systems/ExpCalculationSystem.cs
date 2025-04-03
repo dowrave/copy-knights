@@ -72,8 +72,17 @@ public static class ExpCalculationSystem
             else break;
         }
 
-        optimalPlan.remainingExp = remainingExp;
-        optimalPlan.targetLevel = finalLevel; 
+        // 현재 정예화의 최대 레벨에 도달했다면 현재 경험치는 0으로 설정
+        if (finalLevel == OperatorGrowthSystem.GetMaxLevel(phase))
+        {
+            optimalPlan.remainingExp = 0;
+        }
+        else
+        {
+            optimalPlan.remainingExp = remainingExp;
+        }
+
+        optimalPlan.targetLevel = finalLevel;
 
         return optimalPlan;
     }

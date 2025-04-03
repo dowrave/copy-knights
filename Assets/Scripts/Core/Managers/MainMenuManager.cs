@@ -74,6 +74,9 @@ public class MainMenuManager : MonoBehaviour
 
     public StageData? SelectedStage { get; private set; }
 
+    public OwnedOperator? CurrentEditingOperator { get; private set; }
+
+
     private void Awake()
     {
         if (Instance == null)
@@ -363,6 +366,11 @@ public class MainMenuManager : MonoBehaviour
                 ConditionalParentPanel = parentPanel;
             }
         }
+    }
+
+    public void SetCurrentEditingOperator(OwnedOperator op)
+    {
+        CurrentEditingOperator = op;
     }
 
     private void OnDestroy()

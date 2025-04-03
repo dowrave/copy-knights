@@ -295,7 +295,7 @@ public class StageResultPanel : MonoBehaviour
         if (stageData != null)
         {
             stageIdText.text = $"{stageData.stageId}";
-            stageNameText.text = $"{stageData.stageDetail}";
+            stageNameText.text = $"{stageData.stageName}";
             clearOrFailedText.text = stars > 0 ? "작전 종료" : "작전 실패";
         }
     }

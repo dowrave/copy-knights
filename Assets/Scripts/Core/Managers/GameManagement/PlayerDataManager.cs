@@ -222,11 +222,11 @@ public class PlayerDataManager : MonoBehaviour
         //TestAboutTutorial();
 
         // 오퍼레이터들 성장 반영
-        foreach (var op in playerData.ownedOperators)
-        {
-            InitializeOperator1stPromotion(op);
+        //foreach (var op in playerData.ownedOperators)
+        //{
+        //    InitializeOperator1stPromotion(op);
             
-        }
+        //}
 
         // 아이템 지급
         AddStartingItems();
@@ -712,17 +712,17 @@ public class PlayerDataManager : MonoBehaviour
         // 여기 들어가는 키값이 ItemData.name 값임 / 생성자
         if (itemDatabase.TryGetValue("ExpSmall", out ItemData expSmall))
         {
-            safePlayerData.inventory.items.Add(new UserInventoryData.ItemStack(expSmall.itemName, 5));
+            safePlayerData.inventory.items.Add(new UserInventoryData.ItemStack(expSmall.itemName, 99));
         }
 
         if (itemDatabase.TryGetValue("ExpMiddle", out ItemData expMiddle))
         {
-            safePlayerData.inventory.items.Add(new UserInventoryData.ItemStack("ExpMiddle", 1));
+            safePlayerData.inventory.items.Add(new UserInventoryData.ItemStack(expMiddle.itemName, 99));
         }
 
         if (itemDatabase.TryGetValue("ItemPromotion", out ItemData promotion))
         {
-            safePlayerData.inventory.items.Add(new UserInventoryData.ItemStack("ItemPromotion", 1));
+            safePlayerData.inventory.items.Add(new UserInventoryData.ItemStack(promotion.itemName, 1));
         }
     }
 }

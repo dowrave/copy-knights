@@ -198,16 +198,23 @@ public class OperatorPromotionPanel : MonoBehaviour
         {
             itemUIElements[i].gameObject.SetActive(false);
         }
-
     }
 
     private void ShowRequiredItems()
     {
-        for (int i=0; i < opData.promotionItems.Count; i++)
+        for (int i = 0; i < opData.promotionItems.Count; i++)
         {
             OperatorData.PromotionItems promotionItem = opData.promotionItems[i];
-            itemUIElements[i].Initialize(promotionItem.itemData, promotionItem.count, false);
+
+            // 아이템 갯수 계산 - 가지고 있는 아이템이 요구 조건에 미달하는지 여부를 판단
+            int ownedCount = GameManagement.Instance!.PlayerDataManager.GetItemCount(promotionItem.itemData.itemName);
+            bool showNotEnough = ownedCount < promotionItem.count;
+
+            Debug.Log($"ShowNotEnough : {showNotEnough}");
+
+            // 갯수는 필요 갯수를 띄우고, 부족한 건 showNotEnough로 들어가야 함
             itemUIElements[i].gameObject.SetActive(true);
+            itemUIElements[i].Initialize(promotionItem.itemData, promotionItem.count, false, false, showNotEnough);
         }
     }
 

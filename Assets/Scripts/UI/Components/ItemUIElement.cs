@@ -12,6 +12,7 @@ public class ItemUIElement : MonoBehaviour, IPointerClickHandler
     [SerializeField] private Image itemIconImage = default!;
     [SerializeField] private TextMeshProUGUI countText = default!;
     [SerializeField] private Image firstClearImage = default!;
+    [SerializeField] private Image notEnoughImage = default!; 
     public Image itemCountBackground = default!; // 다른 스크립트에서 사용함
 
     [Header("Visual Settings")]
@@ -37,7 +38,7 @@ public class ItemUIElement : MonoBehaviour, IPointerClickHandler
     // 아이템 클릭 시 호출 이벤트 
     //public System.Action<ItemData> OnItemClicked;
 
-    public void Initialize(ItemData data, int count, bool isOnStageScene, bool isFirstClear = false)
+    public void Initialize(ItemData data, int count, bool isOnStageScene, bool isFirstClear = false, bool showNotEnough = false)
     {
         itemData = data;
         itemCount = count;
@@ -67,6 +68,10 @@ public class ItemUIElement : MonoBehaviour, IPointerClickHandler
 
         // 첫 클리어 시 지급되는 아이템 표시
         firstClearImage.gameObject.SetActive(isFirstClear);
+
+        // 아이템 부족 박스 표시 - promotionPanel에서만 사용
+        notEnoughImage.gameObject.SetActive(showNotEnough);
+        
     }
 
     public void UpdateCount(int newCount)
@@ -86,6 +91,11 @@ public class ItemUIElement : MonoBehaviour, IPointerClickHandler
         {
             PopupManager.Instance.ShowItemInfoPopup(itemData);
         }
+    }
+
+    private void OnEnable()
+    {
+        notEnoughImage.gameObject.SetActive(false);
     }
 
     public (ItemData data, int count) getItemInfo()
