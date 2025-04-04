@@ -353,8 +353,8 @@ public class StageResultPanel : MonoBehaviour
 
         RemoveRewardItemsUI();
 
-        ShowItemElements(StageManager.Instance!.ActualFirstClearRewards, true);
-        ShowItemElements(StageManager.Instance!.ActualBasicClearRewards);
+        ShowItemElements(StageManager.Instance!.FirstClearRewards, true);
+        ShowItemElements(StageManager.Instance!.BasicClearRewards);
     }
 
     private void ShowItemElements(IReadOnlyList<ItemWithCount> rewards, bool showFirst = false)

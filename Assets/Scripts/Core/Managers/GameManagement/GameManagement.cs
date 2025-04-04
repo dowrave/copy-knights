@@ -15,6 +15,8 @@ public class GameManagement : MonoBehaviour
     [SerializeField] private PlayerDataManager? playerDataManager = null!;
     [SerializeField] private TutorialManager? tutorialManager = null!;
     [SerializeField] private TimeManager? timeManager = null!;
+    [SerializeField] private RewardManager? rewardManager = null!;
+    [SerializeField] private StageDatabase? stageDatabase = null!;
 
 
 
@@ -29,6 +31,8 @@ public class GameManagement : MonoBehaviour
     public PlayerDataManager PlayerDataManager => playerDataManager!;
     public TutorialManager TutorialManager => tutorialManager!;
     public TimeManager TimeManager => timeManager!;
+    public RewardManager RewardManager => rewardManager!;
+    public StageDatabase StageDatabase => stageDatabase!;
 
 
 

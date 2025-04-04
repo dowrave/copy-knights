@@ -3440,7 +3440,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c034ddc81e3f5b34fa37814b1d51156f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  spawnList: {fileID: 11400000, guid: 89755caa6ca7c634d95a97a6a4adfaa7, type: 2}
+  spawnList: {fileID: 11400000, guid: 56b9826261b9a33478dd9185de9634e1, type: 2}
 --- !u!1 &6212872513040523399
 GameObject:
   m_ObjectHideFlags: 0

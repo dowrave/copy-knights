@@ -91,6 +91,7 @@
     <Compile Include="Assets\Scripts\UI\Components\DiamondMask.cs" />
     <Compile Include="Assets\Scripts\Skills\Base(Abstract)\PassiveSkill.cs" />
     <Compile Include="Assets\Scripts\Entities\PathIndicator.cs" />
+    <Compile Include="Assets\Scripts\Core\Managers\GameManagement\RewardManager.cs" />
     <Compile Include="Assets\Scripts\Interfaces\ITargettable.cs" />
     <Compile Include="Assets\Scripts\Skills\Base(Abstract)\BaseSkill.cs" />
     <Compile Include="Assets\Scripts\UI\Panels\OperatorInventoryPanel.cs" />
@@ -104,6 +105,7 @@
     <Compile Include="Assets\Scripts\Entities\Operators\MedicOperator.cs" />
     <Compile Include="Assets\Scripts\Data\UserInventoryData.cs" />
     <Compile Include="Assets\Scripts\UI\Panels\DeploymentCostPanel.cs" />
+    <Compile Include="Assets\Scripts\Core\Managers\GameManagement\StageDatabase.cs" />
     <Compile Include="Assets\Scripts\Core\Managers\MapManager.cs" />
     <Compile Include="Assets\Scripts\Data\StageData.cs" />
     <Compile Include="Assets\Scripts\UI\Panels\GameWinPanel.cs" />
