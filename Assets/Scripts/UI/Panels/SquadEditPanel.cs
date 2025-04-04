@@ -6,13 +6,9 @@ using UnityEngine.UI;
 public class SquadEditPanel : MonoBehaviour
 {
     [Header("UI References")]
-    [SerializeField] private Transform operatorSlotsContainer;
+    //[SerializeField] private Transform operatorSlotsContainer = default!;
     [SerializeField] private List<OperatorSlot> operatorSlots = new List<OperatorSlot>();
-    [SerializeField] private Button startButton;
-
-    private List<OperatorData> currentSquad = new List<OperatorData>();
-    private GameObject stageSelectPanel;
-    private GameObject operatorListPanel;
+    [SerializeField] private Button startButton = default!;
 
     private void Awake()
     {
@@ -34,7 +30,7 @@ public class SquadEditPanel : MonoBehaviour
             int slotIndex = i;  // 이런 식으로 복사해서 변수를 사용함 - i가 같이 움직일 위험이 있단다.
             OperatorSlot slot = operatorSlots[i];
 
-            bool isActiveSlot = i < GameManagement.Instance.UserSquadManager.MaxSquadSize;
+            bool isActiveSlot = i < GameManagement.Instance!.UserSquadManager.MaxSquadSize;
             slot.Initialize(isActiveSlot);
 
             if (isActiveSlot)
@@ -53,20 +49,20 @@ public class SquadEditPanel : MonoBehaviour
 
     private void UpdateSquadUI()
     {
-        List<OwnedOperator> currentSquad = GameManagement.Instance.PlayerDataManager.GetCurrentSquadWithNull();
-        if (currentSquad.Count == 0) return; // 현재 스쿼드 정보가 없으면 실행 중단
+        List<OwnedOperator?> currentSquad = GameManagement.Instance!.PlayerDataManager.GetCurrentSquadWithNull();
+        if (currentSquad == null) return; // 현재 스쿼드 정보가 없으면 실행 중단
 
         for (int i = 0; i < operatorSlots.Count; i++)
         {
             OperatorSlot slot = operatorSlots[i];
-            bool isActiveSlot = i < GameManagement.Instance.UserSquadManager.MaxSquadSize;
+            bool isActiveSlot = i < GameManagement.Instance!.UserSquadManager.MaxSquadSize;
 
             if (isActiveSlot)
             {
                 if (currentSquad[i] != null)
                 {
                     // 오퍼레이터 할당 슬롯
-                    slot.AssignOperator(currentSquad[i]);
+                    slot.AssignOperator(currentSquad[i]!);
                 }
                 else
                 {
@@ -89,14 +85,14 @@ public class SquadEditPanel : MonoBehaviour
     private void HandleSlotClicked(OperatorSlot clickedSlot, int slotIndex)
     {
         // 현재 수정 중인 인덱스 설정
-        GameManagement.Instance.UserSquadManager.StartEditingSlot(slotIndex);
-        MainMenuManager.Instance.FadeInAndHide(MainMenuManager.Instance.PanelMap[MainMenuManager.MenuPanel.OperatorInventory], gameObject);
+        GameManagement.Instance!.UserSquadManager.StartEditingSlot(slotIndex);
+        MainMenuManager.Instance!.FadeInAndHide(MainMenuManager.Instance!.PanelMap[MainMenuManager.MenuPanel.OperatorInventory], gameObject);
     }
 
     private void HandleStartButtonClicked()
     {
         // 어떤 스테이지인지는 MainMenuManager에서 관리 중
-        MainMenuManager.Instance.StartStage();
+        MainMenuManager.Instance!.StartStage();
     }
 
     /// <summary>
@@ -105,7 +101,7 @@ public class SquadEditPanel : MonoBehaviour
     private int GetDeployedOperatorCount()
     {
         int count = 0;
-        for (int i = 0; i < GameManagement.Instance.UserSquadManager.MaxSquadSize; i++)
+        for (int i = 0; i < GameManagement.Instance!.UserSquadManager.MaxSquadSize; i++)
         {
             if (!operatorSlots[i].IsEmpty())
             {

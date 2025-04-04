@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class StatisticsManager : MonoBehaviour
 {
-    public static StatisticsManager Instance { get; private set; }
+    public static StatisticsManager? Instance { get; private set; }
 
 
     /// <summary>
@@ -14,7 +14,7 @@ public class StatisticsManager : MonoBehaviour
     [System.Serializable]
     public struct OperatorStats
     {
-        public Operator op;
+        public OperatorData opData;
         public float damageDealt;
         public float damageTaken;
         public float healingDone;
@@ -22,9 +22,9 @@ public class StatisticsManager : MonoBehaviour
 
     private List<OperatorStats> allOperatorStats = new List<OperatorStats>();
 
-    [SerializeField] private StatsPanel statsPanel;
+    [SerializeField] private StatsPanel? statsPanel;
 
-    public event System.Action<StatType> OnStatUpdated; // 일단 시각화할지 여부만 결정할 것이므로 StatType만 넣음
+    public event System.Action<StatType>? OnStatUpdated; // 일단 시각화할지 여부만 결정할 것이므로 StatType만 넣음
 
     private void Awake()
     {
@@ -45,17 +45,17 @@ public class StatisticsManager : MonoBehaviour
     }
 
 
-    public void UpdateDamageDealt(Operator op, float damage)
+    public void UpdateDamageDealt(OperatorData op, float damage)
     {
         UpdateStat(op, damage, StatType.DamageDealt);
     }
 
-    public void UpdateDamageTaken(Operator op, float damage)
+    public void UpdateDamageTaken(OperatorData op, float damage)
     {
         UpdateStat(op, damage, StatType.DamageTaken);
     }
 
-    public void UpdateHealingDone(Operator op, float healing)
+    public void UpdateHealingDone(OperatorData op, float healing)
     {
         UpdateStat(op, healing, StatType.HealingDone);
     }
@@ -63,9 +63,9 @@ public class StatisticsManager : MonoBehaviour
     /// <summary>
     /// 특정 통계 유형에 대한 오퍼레이터의 값을 업데이트합니다.
     /// </summary>
-    private void UpdateStat(Operator op, float value, StatType statType)
+    private void UpdateStat(OperatorData opData, float value, StatType statType)
     {
-        var stat = allOperatorStats.Find(s => s.op == op);
+        var stat = allOperatorStats.Find(s => s.opData == opData);
         int index = allOperatorStats.IndexOf(stat);
 
         if (index != -1)
@@ -86,7 +86,7 @@ public class StatisticsManager : MonoBehaviour
         }
         else
         {
-            stat = new OperatorStats { op = op };
+            stat = new OperatorStats { opData = opData };
             switch (statType)
             {
                 case StatType.DamageDealt:
@@ -106,9 +106,8 @@ public class StatisticsManager : MonoBehaviour
         //statsPanel.UpdateStatItems(statType);
     }
 
-    /// <summary>
-    /// 특정 통계 유형에 대해 상위 오퍼레이터들을 반환합니다.
-    /// </summary>
+
+    // 특정 통계 유형에 대해 상위 오퍼레이터들을 반환합니다.
     public List<OperatorStats> GetTopOperators(StatType statType, int count)
     {
         return allOperatorStats
@@ -117,18 +116,14 @@ public class StatisticsManager : MonoBehaviour
             .ToList();
     }
 
-    /// <summary>
-    /// OperatorStats 구조체 리스트를 반환합니다. 
-    /// 마지막에
-    /// </summary>
+
+    // OperatorStats 구조체 리스트를 반환합니다. 
     public List<OperatorStats> GetAllOperatorStats()
     {
         return new List<OperatorStats>(allOperatorStats);
     }
 
-    /// <summary>
-    /// 특정 오퍼레이터의 특정 통계 유형에 대한 값을 반환합니다.
-    /// </summary>
+    // 특정 오퍼레이터의 특정 통계 유형에 대한 값을 반환합니다.
     public float GetOperatorValueForStatType(OperatorStats stat, StatType statType)
     {
         switch (statType)
@@ -144,21 +139,19 @@ public class StatisticsManager : MonoBehaviour
         }
     }
 
-    /// <summary>
-    /// 특정 통계 유형에 대한 모든 오퍼레이터의 값을 모두 더한 총합을 반환합니다.
-    /// </summary>
+
+    // 특정 통계 유형에 대한 모든 오퍼레이터의 값을 모두 더한 총합을 반환합니다.
     public float GetTotalValueForStatType(StatType statType)
     {
         return allOperatorStats.Sum(s => GetOperatorValueForStatType(s, statType));
     }
-    /// <summary>
-    /// 특정 통계 유형에 대해, 내림차순으로 정렬된 오퍼레이터 통계를 반환합니다.
-    /// </summary>
-    public List<(Operator op, float value)> GetSortedOperatorStats(StatType statType)
+
+    // 특정 통계 유형에 대해, 내림차순으로 정렬된 오퍼레이터 통계를 반환합니다.
+    public List<(OperatorData opData, float value)> GetSortedOperatorStats(StatType statType)
     {
         return allOperatorStats
             .Select(stat => (
-                op: stat.op,
+                opData: stat.opData,
                 value: GetOperatorValueForStatType(stat, statType)
             ))
             .OrderByDescending(x => x.value)

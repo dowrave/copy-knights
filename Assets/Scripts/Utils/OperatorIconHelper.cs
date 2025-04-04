@@ -5,10 +5,10 @@ using UnityEngine.UI;
 
 public static class OperatorIconHelper
 {
-    private static OperatorIconData iconData;
-    private static Dictionary<OperatorGrowthSystem.ElitePhase, Sprite> elitePhaseIcons; 
+    private static OperatorIconData? iconData;
+    private static Dictionary<OperatorGrowthSystem.ElitePhase, Sprite> elitePhaseIcons = new Dictionary<OperatorGrowthSystem.ElitePhase, Sprite>(); 
 
-    public static event System.Action OnIconDataInitialized;
+    public static event System.Action OnIconDataInitialized = delegate { };
 
     public static void Initialize(OperatorIconData data)
     {
@@ -27,7 +27,7 @@ public static class OperatorIconHelper
     public static void SetClassIcon(Image imageComponent, OperatorData.OperatorClass operatorClass)
     {
         // 기능만 수행
-        Sprite icon = iconData?.GetClassIcon(operatorClass);
+        Sprite? icon = iconData?.GetClassIcon(operatorClass);
         if (icon != null)
         {
             imageComponent.sprite = icon;
@@ -41,7 +41,7 @@ public static class OperatorIconHelper
 
     public static void SetElitePhaseIcon(Image imageComponent, OperatorGrowthSystem.ElitePhase phase)
     {
-        Sprite icon = elitePhaseIcons.GetValueOrDefault(phase);
+        Sprite? icon = elitePhaseIcons.GetValueOrDefault(phase);
 
         if (icon != null)
         {

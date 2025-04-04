@@ -5,21 +5,22 @@ using UnityEngine;
 public class EnemyData : ScriptableObject, ICombatData
 {
     // UnitData
-    public string entityName;
+    public string entityName = string.Empty;
     public EnemyStats stats;
-    public GameObject prefab;
+    public GameObject prefab = default!;
 
     // EnemyData
     public AttackType attackType;
     public AttackRangeType attackRangeType;
     public int blockCount = 1;
-    public GameObject projectilePrefab;
+    public GameObject? projectilePrefab;
 
     public float defaultYPosition = 0.5f;
 
     [Header("VFX Effects")]
-    public GameObject meleeAttackEffectPrefab; // 근접 공격 이펙트
-    public GameObject hitEffectPrefab; // 공격이 적중했을 때의 이펙트
+    public GameObject? meleeAttackEffectPrefab; // 근접 공격 이펙트
+    public GameObject hitEffectPrefab = default!; // 공격이 적중했을 때의 이펙트
+
 
     public GameObject HitEffectPrefab => hitEffectPrefab;
     public AttackType AttackType => attackType;

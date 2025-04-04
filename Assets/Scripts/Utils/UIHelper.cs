@@ -8,12 +8,12 @@ using UnityEngine.UI;
 public class UIHelper : MonoBehaviour
 {
     [Header("Attack Range Tile Prefabs")]
-    [SerializeField] private Image filledTilePrefab;
-    [SerializeField] private Image outlineTilePrefab;
-    [SerializeField] private Image highlightTilePrefab;
+    [SerializeField] private Image filledTilePrefab = default!;
+    [SerializeField] private Image outlineTilePrefab = default!;
+    [SerializeField] private Image highlightTilePrefab = default!;
 
     // 싱글톤 구현
-    public static UIHelper Instance { get; private set; }
+    public static UIHelper? Instance { get; private set; }
 
     private void Awake()
     {
@@ -41,15 +41,15 @@ public class UIHelper : MonoBehaviour
             centerOffset = offset;
 
             // 타일 크기는 지정할 수 있으며, 없다면 기본 프리팹의 사이즈 이용
-            this.tileSize = tileSize ?? Instance.filledTilePrefab.rectTransform.rect.width;
+            this.tileSize = tileSize ?? Instance!.filledTilePrefab.rectTransform.rect.width;
         }
 
-        private Image CreateTile(Vector2Int gridPos, bool isCenter, bool isHighlight)
+        private Image CreateTile(Vector2Int gridPos, bool isCenter, bool isHighlight, float skillRectOffset = 0f)
         {
             // 프리팹은 이제 Instance에서 가져옴
-            Image tilePrefab = isCenter ? Instance.filledTilePrefab :
-                             isHighlight ? Instance.highlightTilePrefab :
-                             Instance.outlineTilePrefab;
+            Image tilePrefab = isCenter ? Instance!.filledTilePrefab :
+                             isHighlight ? Instance!.highlightTilePrefab :
+                             Instance!.outlineTilePrefab;
             Image tile = Instantiate(tilePrefab, containerRect);
 
             // 타일 크기 지정
@@ -61,7 +61,7 @@ public class UIHelper : MonoBehaviour
             float gridY = gridPos.y * (tileSize + interval);
 
             tile.rectTransform.anchoredPosition = new Vector2(
-                gridX - centerOffset,
+                gridX - centerOffset - skillRectOffset,
                 gridY
             );
 
@@ -70,10 +70,10 @@ public class UIHelper : MonoBehaviour
         }
 
         // 기본 공격 범위만 표시
-        public void ShowBasicRange(List<Vector2Int> attackableTiles)
+        public void ShowBasicRange(List<Vector2Int> attackableTiles, float skillRectOffset = 0f, bool opIsCenter = true)
         {
             ClearTiles();
-            CreateCenterTile();
+            CreateCenterTile(opIsCenter, skillRectOffset);
 
             foreach (Vector2Int pos in attackableTiles)
             {
@@ -81,14 +81,19 @@ public class UIHelper : MonoBehaviour
                 Vector2Int convertedPos = new Vector2Int(-pos.x, -pos.y);
                 if (convertedPos != Vector2Int.zero)
                 {
-                    CreateTile(convertedPos, false, false);
+                    CreateTile(convertedPos, false, false, skillRectOffset);
                 }
             }
         }
 
-        private void CreateCenterTile()
+        private void CreateCenterTile(bool opIsCenter, float skillRectOffset = 0f)
         {
-            CreateTile(Vector2Int.zero, true, false);
+            Image centerTile = CreateTile(Vector2Int.zero, true, false, skillRectOffset);
+            
+            // 오퍼레이터가 중심이 아닐 경우, 여기에 할당된 색으로 변경
+            if (!opIsCenter) centerTile.color = new Color(0.75f, 0.3f, 0.3f, 1f);
+
+            // 오퍼레이터가 중심이면 기본 색 사용
         }
 
         public void ClearTiles()
@@ -109,6 +114,7 @@ public class UIHelper : MonoBehaviour
             {
                 foreach (Vector2Int pos in additionalTiles)
                 {
+                    // 방향 보정 - 기본으로 저장된 설정은 왼쪽을 보고, UI에서는 오른쪽을 보게 함
                     Vector2Int convertedPos = new Vector2Int(-pos.x, -pos.y);
                     CreateTile(convertedPos, false, true);
                 }

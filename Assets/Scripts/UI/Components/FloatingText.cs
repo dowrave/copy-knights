@@ -6,8 +6,8 @@ public class FloatingText : MonoBehaviour
 {
     [SerializeField] private float lifetime = 1f;
     [SerializeField] private float moveSpeed = 1f;
-    [SerializeField] private AnimationCurve alphaCurve;
-    private TMP_Text valueText; // WorldSpace에 바로 쓴다면 이렇게 씀
+    [SerializeField] private AnimationCurve alphaCurve = default!;
+    private TMP_Text? valueText; // WorldSpace에 바로 쓴다면 이렇게 씀
 
     [SerializeField] private Color attackColor;
     [SerializeField] private Color healColor;
@@ -63,7 +63,7 @@ public class FloatingText : MonoBehaviour
 
         if (timer >= lifetime)
         {
-            ObjectPoolManager.Instance.ReturnToPool(ObjectPoolManager.Instance.FLOATING_TEXT_TAG, gameObject);
+            ObjectPoolManager.Instance!.ReturnToPool(ObjectPoolManager.Instance.FLOATING_TEXT_TAG, gameObject);
         }
     }
 

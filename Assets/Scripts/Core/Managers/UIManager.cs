@@ -1,44 +1,51 @@
+using System;
 using System.Collections;
+using NUnit.Framework.Interfaces;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
+// 스테이지 씬의 Canvas를 관리하는 UI Manager
 public class UIManager : MonoBehaviour
 {
-    public static UIManager Instance { get; private set; }
+    public static UIManager? Instance { get; private set; }
 
     [Header("Panels")]
-    [SerializeField] private GameObject statsPanelObject; // 통계 패널
-    [SerializeField] private GameObject gameOverPanelObject;
-    [SerializeField] private GameObject gameWinPanelObject; // 여기는 애니메이션이 들어가니까 일단 냅두기만 합니다
-    [SerializeField] private GameObject deploymentCostPanelObject;
-    [SerializeField] private GameObject topCenterPanelObject; // 남은 적 수, 라이프 수
-    [SerializeField] private GameObject bottomPanelObject;
-    [SerializeField] private GameObject infoPanelObject; // 선택된 오퍼레이터 정보 패널
-    [SerializeField] private GameObject stageResultPanelObject;
-    [SerializeField] private ConfirmationReturnToLobbyPanel confirmationReturnToLobbyPanel;
+    [SerializeField] private GameObject statsPanelObject = default!; // 통계 패널
+    [SerializeField] private GameObject gameOverPanelObject = default!;
+    [SerializeField] private GameObject gameWinPanelObject = default!; // 여기는 애니메이션이 들어가니까 일단 냅두기만 합니다
+    [SerializeField] private GameObject deploymentPanelObject = default!;
+    [SerializeField] private GameObject topCenterPanelObject = default!; // 남은 적 수, 라이프 수
+    [SerializeField] private GameObject bottomPanelObject = default!;
+    [SerializeField] private GameObject infoPanelObject = default!; // 선택된 오퍼레이터 정보 패널
+    [SerializeField] private GameObject stageResultPanelObject = default!;
+    [SerializeField] private ConfirmationReturnToLobbyPanel confirmationReturnToLobbyPanel = default!;
 
-    private InStageInfoPanel inStageInfoPanelScript;
+    private InStageInfoPanel inStageInfoPanelScript = default!;
+
+    [Header("Button Container")]
+    [SerializeField] private InGameTopButtonContainer inGameTopButtonContainer = default!;
 
     [Header("Top Panel Elements")]
-    [SerializeField] private TextMeshProUGUI enemyCountText;
-    [SerializeField] private TextMeshProUGUI lifePointsText;
+    [SerializeField] private TextMeshProUGUI enemyCountText = default!;
+    [SerializeField] private TextMeshProUGUI lifePointsText = default!;
 
     [Header("Top Left Button")]
-    [SerializeField] private Button toLobbyButton;
+    [SerializeField] private Button toLobbyButton = default!;
 
-    [Header("Top Right Panel Elements")]
-    [SerializeField] private Button ReturnToLobbyButton;
-    [SerializeField] private Button currentSpeedButton;
-    [SerializeField] private Button pauseButton;
-    [SerializeField] private Image pauseOverlay;
-    [SerializeField] private TextMeshProUGUI currentSpeedText;
-    [SerializeField] private TextMeshProUGUI currentSpeedIcon;
-    [SerializeField] private TextMeshProUGUI pauseButtonText;
+    [Header("Overlays")]
+    [SerializeField] private Image pauseOverlay = default!;
 
     [Header("Cost Panel Elements")]
-    [SerializeField] private GameObject costIcon;
+    [SerializeField] private GameObject costIcon = default!;
 
+    [Header("Left Deployment Count Text")]
+    [SerializeField] private TextMeshProUGUI leftDeploymentCountText = default!;
+
+    [Header("Item Popup")]
+    [SerializeField] private StageItemInfoPopup stageItemInfoPopup = default!;
+
+    [Header("ResultPanel Appearance Delay")]
     [SerializeField] private float resultDelay = 0.5f;
 
     // 코스트 이펙트에서 사용할 좌표statsPanelObject
@@ -61,7 +68,7 @@ public class UIManager : MonoBehaviour
             Destroy(gameObject);
         }
 
-        // 비활성화 전에 참조를 넣어두는 게 좋다
+        // 비활성화 전에 참조를 넣어두기
         inStageInfoPanelScript = infoPanelObject.GetComponent<InStageInfoPanel>();
 
         // 패널 비활성화
@@ -69,36 +76,38 @@ public class UIManager : MonoBehaviour
         gameWinPanelObject.SetActive(false);
         infoPanelObject.SetActive(false);
         stageResultPanelObject.SetActive(false);
+        HideItemPopup();
     }
 
     private void Start()
     {
-        InitializeListeners();
-
-
-        // 최초 카메라에서 코스트 아이콘의 월드 포지션을 잡아줌
-        RectTransform costIconComponent = costIcon.GetComponent<RectTransform>();
-        CostIconWorldPosition = GetUIElementWorldProjection(costIconComponent);
+        if (StageManager.Instance != null)
+        {
+            StageManager.Instance.OnSpeedUpChanged += UpdateSpeedUpButtonVisual;
+        }
     }
 
     private void InitializeListeners()
     {
-        currentSpeedButton.onClick.RemoveAllListeners(); // 기존 리스너 제거
-        pauseButton.onClick.RemoveAllListeners(); // 기존 리스너 제거
-        ReturnToLobbyButton.onClick.RemoveAllListeners();
-
-        currentSpeedButton.onClick.AddListener(StageManager.Instance.ToggleSpeedUp);
-        pauseButton.onClick.AddListener(StageManager.Instance.TogglePause);
-        ReturnToLobbyButton.onClick.AddListener(OnReturnToLobbyButtonClicked);
-
-        StageManager.Instance.OnLifePointsChanged += UpdateLifePointsText;
-        StageManager.Instance.OnEnemyKilled += UpdateEnemyKillCountText;
+        StageManager.Instance!.OnLifePointsChanged += UpdateLifePointsText;
+        StageManager.Instance!.OnEnemyKilled += UpdateEnemyKillCountText;
+        DeployableManager.Instance!.OnCurrentOperatorDeploymentCountChanged += UpdateLeftDeploymentCountText;
     }
 
-    public void InitializeUI()
+    public void Initialize()
     {
+
+        inGameTopButtonContainer!.Initialize();
+
+        // 최초 카메라에서 코스트 아이콘의 월드 포지션을 잡아줌
+        RectTransform costIconComponent = costIcon!.GetComponent<RectTransform>();
+        CostIconWorldPosition = GetUIElementWorldProjection(costIconComponent);
+
         UpdateEnemyKillCountText();
-        UpdateLifePointsText(StageManager.Instance.CurrentLifePoints);
+        UpdateLifePointsText(StageManager.Instance!.CurrentLifePoints);
+        UpdateLeftDeploymentCountText();
+
+        InitializeListeners();
     }
 
     public void ShowGameOverUI()
@@ -142,73 +151,78 @@ public class UIManager : MonoBehaviour
     // 배치되지 않은 유닛의 정보 보기 동작
     public void ShowUndeployedInfo(DeployableManager.DeployableInfo deployableInfo)
     {
-        if (inStageInfoPanelScript != null)
+        infoPanelObject.SetActive(true);
+        inStageInfoPanelScript.UpdateInfo(deployableInfo);
+
+        if (deployableInfo.prefab != null)
         {
-            infoPanelObject.SetActive(true);
-
-            inStageInfoPanelScript.UpdateUnDeployedInfo(deployableInfo);
-
             DeployableUnitEntity deployable = deployableInfo.prefab.GetComponent<DeployableUnitEntity>();
-            CameraManager.Instance.AdjustForDeployableInfo(true, deployable);
+            CameraManager.Instance!.AdjustForDeployableInfo(true, deployable);
         }
+        
     }
 
 
     // 배치된 유닛의 정보 보기 동작
     public void ShowDeployedInfo(DeployableUnitEntity deployableUnitEntity)
     {
-        if (inStageInfoPanelScript != null)
-        {
-            infoPanelObject.SetActive(true);
-            inStageInfoPanelScript.UpdateDeployedInfo(deployableUnitEntity);
-            CameraManager.Instance.AdjustForDeployableInfo(true, deployableUnitEntity);
-        }
+        infoPanelObject.SetActive(true);
+        inStageInfoPanelScript.UpdateInfo(deployableUnitEntity.DeployableInfo!);
+        CameraManager.Instance!.AdjustForDeployableInfo(true, deployableUnitEntity);
+        
     }
 
     public void HideDeployableInfo()
     {
-        if (infoPanelObject != null)
-        {
-            infoPanelObject.SetActive(false);
-            CameraManager.Instance.AdjustForDeployableInfo(false);
-        }
+        infoPanelObject.SetActive(false);
+        CameraManager.Instance!.AdjustForDeployableInfo(false);
     }
 
     public void UpdateEnemyKillCountText()
     {
-        enemyCountText.text = $"{StageManager.Instance.KilledEnemyCount} / {StageManager.Instance.TotalEnemyCount}";
+        enemyCountText.text = $"{StageManager.Instance!.KilledEnemyCount} / {StageManager.Instance!.TotalEnemyCount}";
     }
 
     public void UpdateLifePointsText(int currentLifePoints)
     {
-        lifePointsText.text = $"<color=#ff7485>{currentLifePoints}</color>";
+        lifePointsText!.text = $"<color=#ff7485>{currentLifePoints}</color>";
     }
 
-    public void UpdateSpeedUpButtonVisual()
+    public void UpdateSpeedUpButtonVisual(bool isSpeedUp)
     {
-        currentSpeedText.text = StageManager.Instance.IsSpeedUp ? "2X" : "1X";
-        currentSpeedIcon.text = StageManager.Instance.IsSpeedUp ? "▶▶" : "▶";
+        inGameTopButtonContainer!.UpdateSpeedUpButtonVisual(isSpeedUp);
     }
 
     public void UpdatePauseButtonVisual()
     {
-        pauseButtonText.text = (StageManager.Instance.currentState == GameState.Paused) ? "▶" : "||";
+        inGameTopButtonContainer!.UpdatePauseButtonVisual();
     }
 
     public void ShowPauseOverlay()
     {
-        pauseOverlay.gameObject.SetActive(true);
+        if (pauseOverlay!.gameObject.activeSelf == false)
+        {
+            pauseOverlay!.gameObject.SetActive(true);
+        }
     }
 
     public void HidePauseOverlay()
     {
-        pauseOverlay.gameObject.SetActive(false);
+        if (pauseOverlay!.gameObject.activeSelf == true)
+        {
+            pauseOverlay!.gameObject.SetActive(false);
+        }
     }
 
-    private void OnReturnToLobbyButtonClicked()
+    public void InitializeReturnToLobbyPanel()
     {
-        StageManager.Instance.SetGameState(GameState.Paused);
-        confirmationReturnToLobbyPanel.Initialize();
+        confirmationReturnToLobbyPanel!.Initialize();
+    }
+
+    public void UpdateLeftDeploymentCountText()
+    {
+        int leftDeploymentCount = DeployableManager.Instance!.MaxOperatorDeploymentCount - DeployableManager.Instance!.CurrentOperatorDeploymentCount;
+        leftDeploymentCountText!.text = $"남은 배치 수 : {leftDeploymentCount}";
     }
 
 
@@ -256,5 +270,24 @@ public class UIManager : MonoBehaviour
         Debug.LogWarning("Could not project UI element to world space - ray is parallel to XZ plane");
         return Vector3.zero;
     }
-    
+
+    public void ShowItemPopup(ItemUIElement itemUIElement)
+    {
+        stageItemInfoPopup.Show(itemUIElement);
+    }
+
+    public void HideItemPopup()
+    {
+        stageItemInfoPopup.Hide();
+    }
+
+    private void OnDisable()
+    {
+        DeployableManager.Instance!.OnCurrentOperatorDeploymentCountChanged -= UpdateLeftDeploymentCountText;
+
+        if (StageManager.Instance != null)
+        {
+            StageManager.Instance.OnSpeedUpChanged -= UpdateSpeedUpButtonVisual;
+        }
+    }
 }

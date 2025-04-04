@@ -13,7 +13,7 @@ public interface ICombatEntity
     // AttackDuration < AttackCooldown보다 짧아야 함
     float AttackCooldown { get; }
     float AttackDuration { get; } // 공격 모션 시간
-    UnitEntity CurrentTarget { get; }
+    UnitEntity? CurrentTarget { get; }
 
     void Attack(UnitEntity target, float damage);
     bool CanAttack(); // 공격 가능 여부 : 공격 범위 내에 적이 있는가 + 공격 쿨타임인가 로 결정

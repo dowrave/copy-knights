@@ -8,16 +8,16 @@ using UnityEngine.UI;
 /// </summary>
 public class StageButton : MonoBehaviour
 {
-    [SerializeField] private TextMeshProUGUI stageIdText; // 버튼에 표시되는 텍스트
-    [SerializeField] private Image stageClearStar;
+    //[SerializeField] private TextMeshProUGUI stageIdText = default!; // 버튼에 표시되는 텍스트
+    [SerializeField] private Image stageClearStar = default!;
     [SerializeField] private Color highlightColor;
 
-    [SerializeField] private StageData stageData;
+    [SerializeField] private StageData stageData = default!;
     public StageData StageData => stageData;
 
-    private Image image;
-    private Color originalColor;
-    private Button button;
+    private Image image = default!;
+    private Color originalColor = default!;
+    private Button button = default!;
     private int star;
 
     // 클릭 이벤트
@@ -47,15 +47,15 @@ public class StageButton : MonoBehaviour
 
             if (stars == 3)
             {
-                stageClearStar.sprite = GameManagement.Instance.ResourceManager.StageButtonStar3;
+                stageClearStar.sprite = GameManagement.Instance!.ResourceManager.StageButtonStar3;
             }
             else if (stars == 2)
             {
-                stageClearStar.sprite = GameManagement.Instance.ResourceManager.StageButtonStar2;
+                stageClearStar.sprite = GameManagement.Instance!.ResourceManager.StageButtonStar2;
             }
             else
             {
-                stageClearStar.sprite = GameManagement.Instance.ResourceManager.StageButtonStar1;
+                stageClearStar.sprite = GameManagement.Instance!.ResourceManager.StageButtonStar1;
             }
         }
         else

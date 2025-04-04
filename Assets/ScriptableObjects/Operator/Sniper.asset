@@ -60,3 +60,6 @@ MonoBehaviour:
     - {x: -3, y: -1}
     - {x: -3, y: 1}
     unlockedSkill: {fileID: 11400000, guid: 2729d1dfe731a9046ab2a74823c9ccfc, type: 2}
+  promotionItems:
+  - itemData: {fileID: 11400000, guid: 2329af0554c87104bb26e072bb7d6935, type: 2}
+    count: 1

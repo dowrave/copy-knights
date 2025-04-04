@@ -20,7 +20,7 @@ namespace Skills.OperatorSkills
             public float magicResistanceModifier = 1f;
 
             public int? blockCountModifier = null;
-            public Vector2Int[] attackRangeModifier; // 설정되지 않으면 원본 공격 범위를 그대로 이용함
+            public List<Vector2Int> attackRangeModifier = new List<Vector2Int>();
         }
 
         [Header("Stat Modification Settings")]
@@ -32,8 +32,8 @@ namespace Skills.OperatorSkills
         private float originalAttackSpeed;
         private float originalDefense;
         private float originalMagicResistance;
-        int originalBlockableEnemies;
-        List<Vector2Int> originalAttackableGridPos;
+        private int originalBlockableEnemies;
+        List<Vector2Int> originalAttackableGridPos = new List<Vector2Int>();
 
         protected override void SetDefaults()
         {
@@ -49,7 +49,10 @@ namespace Skills.OperatorSkills
         protected override void OnSkillEnd(Operator op)
         {
             RestoreOriginalStats(op);
-            SafeDestroySkillVFX(VfxInstance);
+            if (VfxInstance != null)
+            {
+                SafeDestroySkillVFX(VfxInstance);
+            }
             base.OnSkillEnd(op);
         }
 
@@ -58,9 +61,9 @@ namespace Skills.OperatorSkills
             originalMaxHealth = op.MaxHealth;
             originalAttackPower = op.AttackPower;
             originalAttackSpeed = op.AttackSpeed;
-            originalDefense = op.currentStats.Defense;
-            originalMagicResistance = op.currentStats.MagicResistance;
-            originalBlockableEnemies = op.currentStats.MaxBlockableEnemies;
+            originalDefense = op.currentOperatorStats.Defense;
+            originalMagicResistance = op.currentOperatorStats.MagicResistance;
+            originalBlockableEnemies = op.currentOperatorStats.MaxBlockableEnemies;
             originalAttackableGridPos = new List<Vector2Int>(op.CurrentAttacakbleGridPos);
         }
 
@@ -86,7 +89,7 @@ namespace Skills.OperatorSkills
             }
 
             // 공격 범위를 수정합니다
-            if (modifiers.attackRangeModifier != null && modifiers.attackRangeModifier.Length > 0)
+            if (modifiers.attackRangeModifier != null && modifiers.attackRangeModifier.Count > 0)
             {
                 UpdateAttackRange(op);
             }

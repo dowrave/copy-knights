@@ -5,10 +5,10 @@ using UnityEngine.UI;
 public class HealthBar : MonoBehaviour
 {
     // 체력바 UI 관리
-    private Slider slider;
-    [SerializeField] private Image healthFill;
-    [SerializeField] private Image shieldFill;
-    [SerializeField] private Image damageOverlayImage;
+    private Slider slider = default!;
+    [SerializeField] private Image healthFill = default!;
+    [SerializeField] private Image shieldFill = default!;
+    [SerializeField] private Image damageOverlayImage = default!;
     [SerializeField] private float damageFadeTime = 0.5f;
 
     [Header("체력 게이지인 경우 체크")]
@@ -22,7 +22,7 @@ public class HealthBar : MonoBehaviour
     private float currentAmount;
     private float maxAmount; // Health, SP 등 게이지가 주로 나타내는 값의 최대 수치
     private float totalAmount; // 추가로 반영되는 값까지 포함한 수치
-    private Coroutine damageCoroutine; 
+    private Coroutine? damageCoroutine; 
 
     private void Awake()
     {

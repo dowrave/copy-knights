@@ -5,8 +5,8 @@ using UnityEngine.UIElements;
 [ExecuteAlways] // 에디터, 런타임 모두에서 스크립트 실행
 public class Tile : MonoBehaviour
 {
-    public TileData data;
-    public DeployableUnitEntity OccupyingDeployable { get; private set; }
+    public TileData data = default!;
+    public DeployableUnitEntity? OccupyingDeployable { get; private set; }
     public bool IsOccupied
     {
         get { return OccupyingDeployable != null; }
@@ -14,7 +14,7 @@ public class Tile : MonoBehaviour
 
     public bool IsWalkable { get; private set; }
 
-    private Transform cubeTransform;
+    private Transform cubeTransform = default!;
     private float tileScale = 0.98f;
     public Vector2 size2D;
 
@@ -35,19 +35,19 @@ public class Tile : MonoBehaviour
         private set { gridPosition = value; }
     }
 
-    [SerializeField] private Material baseTileMaterial; // Inspector에서 할당함
-    private Renderer tileRenderer;
-    private MaterialPropertyBlock propBlock; // 머티리얼 속성을 오버라이드하는 경량 객체. 모든 타일이 동일한 머티리얼을 공유하되 색을 개별적으로 설정할 수 있다.
+    [SerializeField] private Material baseTileMaterial = default!; // Inspector에서 할당함
+    private Renderer tileRenderer = default!;
+    private MaterialPropertyBlock propBlock = default!; // 머티리얼 속성을 오버라이드하는 경량 객체. 모든 타일이 동일한 머티리얼을 공유하되 색을 개별적으로 설정할 수 있다.
 
     // 길찾기 알고리즘을 위한 속성들
     public int GCost { get; set; }
     public int HCost { get; set; }
     public int FCost => GCost + HCost;
-    public Tile Parent { get; set; }
+    public Tile Parent { get; set; } = default!;
 
     private void Awake()
     {
-        cubeTransform = transform.Find("Cube");
+        
         InitializeGridPosition();
         size2D = new Vector2(tileScale, tileScale);
     }
@@ -68,16 +68,15 @@ public class Tile : MonoBehaviour
 
     private void Initialize()
     {
+        cubeTransform = transform.Find("Cube");
+
         // 자식 오브젝트 Cube의 Renderer를 가져온다.
         if (tileRenderer == null)
         {
-            tileRenderer = GetComponentInChildren<Renderer>();
+            tileRenderer = cubeTransform.GetComponentInChildren<Renderer>();
         }
 
-        else
-        {
-            tileRenderer.sharedMaterial = baseTileMaterial;
-        }
+        tileRenderer.sharedMaterial = baseTileMaterial;
 
         propBlock = new MaterialPropertyBlock();
         UpdateVisuals();
@@ -89,25 +88,14 @@ public class Tile : MonoBehaviour
         GridPosition = gridPosition;
         IsWalkable = data.isWalkable;
 
-        AdjustCubeScale();
+        AdjustScale();
         UpdateVisuals();
     }
 
-    public void AdjustCubeScale()
+    public void AdjustScale()
     {
-        if (cubeTransform != null)
-        {
-
-            cubeTransform.localScale = new Vector3(tileScale, GetHeightScale(), tileScale);
-
-            // BoxCollider 크기 조정
-            BoxCollider boxCollider = cubeTransform.GetComponent<BoxCollider>();
-            if (boxCollider != null)
-            {
-                boxCollider.size = new Vector3(1f / tileScale, 1f / GetHeightScale(), 1f / tileScale); // 부모 오브젝트의 스케일 변경을 대비
-            }
-
-        }
+        Vector3 targetScale = new Vector3(tileScale, GetHeightScale(), tileScale);
+        transform.localScale = targetScale;
     }
 
     // 배치될 요소는 이 값의 절반보다 위에 놔야 함
@@ -227,24 +215,6 @@ public class Tile : MonoBehaviour
     {
         return enemiesOnTile;
     }
-
-    //private void OnTriggerEnter(Collider other)
-    //{
-    //    Enemy enemy = other.GetComponent<Enemy>();
-    //    if (enemy != null)
-    //    {
-    //        EnemyEntered(enemy);
-    //    }
-    //}
-
-    //private void OnTriggerExit(Collider other)
-    //{
-    //    Enemy enemy = other.GetComponent<Enemy>();
-    //    if (enemy != null)
-    //    {
-    //        EnemyExited(enemy);
-    //    }
-    //}
 
     // 적이 타일에 진입
     public void EnemyEntered(Enemy enemy)

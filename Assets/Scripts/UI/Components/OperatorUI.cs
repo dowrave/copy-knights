@@ -4,18 +4,16 @@ using UnityEngine.EventSystems;
 public class OperatorUI : MonoBehaviour
 {
     [Header("Components")]
-    [SerializeField] private GameObject deployableBarUI;  // 기존에 할당된 Bar UI
-    [SerializeField] private GameObject skillIconUI;      // 스킬 아이콘 UI
-    [SerializeField] private SpriteRenderer directionIndicator; // 방향 표시기
+    [SerializeField] private GameObject deployableBarUI = default!;  // 기존에 할당된 Bar UI
+    [SerializeField] private GameObject skillIconUI = default!;      // 스킬 아이콘 UI
+    [SerializeField] private SpriteRenderer directionIndicator = default!; // 방향 표시기
 
-    private DeployableBarUI deployableBarUIScript;
+    private DeployableBarUI deployableBarUIScript = default!;
 
-    private Operator op;
-    private Color originalSPBarColor;
-    [SerializeField] private Color onSkillSPBarColor;
+    private Operator op = default!;
 
-    private Canvas canvas;
-    private Camera mainCamera;
+    private Canvas canvas = default!;
+    private Camera mainCamera = default!;
 
     private void Awake()
     {
@@ -40,7 +38,6 @@ public class OperatorUI : MonoBehaviour
         deployableBarUIScript.Initialize(op);
      
         this.op = op;
-        originalSPBarColor = deployableBarUIScript.GetSPBarColor();
 
         SetSkillIconVisibility(op.CurrentSP >= op.MaxSP);
     }
@@ -58,11 +55,11 @@ public class OperatorUI : MonoBehaviour
     {
         if (op.IsSkillOn)
         {
-            deployableBarUIScript.SetSPBarColor(onSkillSPBarColor);
+            deployableBarUIScript.SetSPBarColor(GameManagement.Instance!.ResourceManager.OnSkillColor);
         }
         else
         {
-            deployableBarUIScript.SetSPBarColor(originalSPBarColor);
+            deployableBarUIScript.SetSPBarColor(GameManagement.Instance!.ResourceManager.OffSkillColor);
         }
 
         SetSkillIconVisibility(

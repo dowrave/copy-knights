@@ -11,14 +11,14 @@ using UnityEngine.SceneManagement;
 public class StageLoader : MonoBehaviour
 {
     [Header("References")]
-    [SerializeField] private GameObject loadingScreenPrefab;
+    [SerializeField] private GameObject loadingScreenPrefab = default!;
 
-    private StageData cachedStageData;
-    public StageData CachedStageData => cachedStageData; 
-    private List<OwnedOperator> cachedSquadData;
+    private StageData? cachedStageData;
+    public StageData? CachedStageData => cachedStageData; 
+    private List<OwnedOperator>? cachedSquadData;
     private bool isLoading;
 
-    private StageLoadingScreen loadingScreen;
+    private StageLoadingScreen? loadingScreen;
     private const float MIN_LOADING_TIME = 0.5f;
 
     private const string MAINMENU_SCENE = "MainMenuScene"; // 스테이지 씬은 StageData 내에 있음
@@ -33,7 +33,7 @@ public class StageLoader : MonoBehaviour
         }
 
         cachedStageData = stageData;
-        cachedSquadData = new List<OwnedOperator>(GameManagement.Instance.UserSquadManager.GetCurrentSquad());
+        cachedSquadData = new List<OwnedOperator>(GameManagement.Instance!.UserSquadManager.GetCurrentSquad());
 
         StartCoroutine(LoadStageRoutine());
     }
@@ -71,7 +71,11 @@ public class StageLoader : MonoBehaviour
         }
 
         // 씬 로딩 완료 후 진행
-        StageManager.Instance.InitializeStage(CachedStageData, cachedSquadData, loadingScreen);
+        if (CachedStageData != null && cachedSquadData != null && loadingScreen != null)
+        {
+            StageManager.Instance!.InitializeStage(CachedStageData, cachedSquadData, loadingScreen);
+
+        }
 
         // 초기화 후에는 로딩화면 사라짐
         loadingScreen = null;
@@ -85,7 +89,7 @@ public class StageLoader : MonoBehaviour
         GameObject loadingObj = Instantiate(loadingScreenPrefab);
         loadingScreen = loadingObj.GetComponent<StageLoadingScreen>();
 
-        if (loadingScreen != null)
+        if (loadingScreen != null && CachedStageData != null)
         {
             loadingScreen.Initialize(
                     CachedStageData.stageId,
@@ -106,15 +110,19 @@ public class StageLoader : MonoBehaviour
     // 메인 메뉴로 돌아가서 현재 스테이지를 선택
     public void ReturnToMainMenuWithStageSelected()
     {
-        string currentStageId = cachedStageData.stageId;
+        if (cachedStageData != null)
+        {
+            string currentStageId = cachedStageData.stageId;
 
-        // 씬 전환 + 스테이지 선택 상태 전달
-        PlayerPrefs.SetString("LastPlayedStage", currentStageId);
-        PlayerPrefs.Save();
+            // 씬 전환 + 스테이지 선택 상태 전달
+            PlayerPrefs.SetString("LastPlayedStage", currentStageId);
+            PlayerPrefs.Save();
 
-        SceneManager.LoadScene(MAINMENU_SCENE);
+            SceneManager.LoadScene(MAINMENU_SCENE);
 
-        // 스테이지 정보를 갖고 메인메뉴로 돌아가야 하므로 캐시를 정리하지 않음
+            // 스테이지 정보를 갖고 메인메뉴로 돌아가야 하므로 캐시를 정리하지 않음
+
+        }
     }
     
   

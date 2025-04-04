@@ -31,7 +31,7 @@ namespace Skills.OperatorSkills
 
         private IEnumerator PerformDoubleShot(Operator op)
         {
-            UnitEntity target = op.CurrentTarget;
+            UnitEntity? target = op.CurrentTarget;
             if (target == null) yield break;
 
             float modifiedDamage = op.AttackPower * damageMultiplier;

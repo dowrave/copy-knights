@@ -21,7 +21,7 @@ MonoBehaviour:
         _defense: 139
         _magicResistance: 0
       _deploymentCost: 11
-      _redeployTime: 70
+      _redeployTime: 1
     _attackPower: 273
     _attackSpeed: 1.05
     _maxBlockableEnemies: 2
@@ -50,3 +50,6 @@ MonoBehaviour:
   elite1Unlocks:
     additionalAttackTiles: []
     unlockedSkill: {fileID: 11400000, guid: c265b734f1061d94b826e5c889ed234b, type: 2}
+  promotionItems:
+  - itemData: {fileID: 11400000, guid: 2329af0554c87104bb26e072bb7d6935, type: 2}
+    count: 1

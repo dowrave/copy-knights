@@ -14,9 +14,9 @@ namespace Skills.OperatorSkills
         [SerializeField] private StatModifiers statModifiers = new StatModifiers();
 
         [Header("Shield Visual Effects")]
-        [SerializeField] private GameObject shieldEffectPrefab;
-        private GameObject currentShieldEffect;
-        private VisualEffect ShieldVFX;
+        [SerializeField] private GameObject shieldEffectPrefab = default!;
+        private GameObject? currentShieldEffect;
+        private VisualEffect? ShieldVFX;
 
         private float originalDefense;
         private float originalMagicResistance;
@@ -47,6 +47,7 @@ namespace Skills.OperatorSkills
             op.DeactivateShield();
             op.shieldSystem.OnShieldChanged -= HandleShieldChanged;
             RestoreOriginalStats(op);
+
             if (currentShieldEffect != null)
             {
                 SafeDestroySkillVFX(currentShieldEffect);

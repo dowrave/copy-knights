@@ -4,18 +4,18 @@ using UnityEngine;
 // 범위 효과 스킬 내용 구현
 public abstract class FieldEffectController : MonoBehaviour
 {
-    protected Operator caster; // 시전자
+    protected Operator? caster; // 시전자
     protected Vector2Int centerPosition; // 중심 위치
-    protected HashSet<Vector2Int> affectedTiles; // 실제 영향을 받는 타일들
+    protected HashSet<Vector2Int> affectedTiles = new HashSet<Vector2Int>(); // 실제 영향을 받는 타일들
     protected float fieldDuration; // 지속 시간
     protected float amountPerTick; // 필드 위의 타겟들에 적용되는 수치 (공격, 힐 등)
     protected float interval; // 틱이 적용되는 간격(초)
 
-    protected float elapsedTime = 0f; // 경과 시간
-    protected float lastTickTime = 0f; // 마지막 효과 적용 시간
+    protected float elapsedTime; // 경과 시간
+    protected float lastTickTime; // 마지막 효과 적용 시간
 
-    protected GameObject? hitEffectPrefab;
-    protected SkillRangeVFXController rangeVFXController;
+    protected GameObject hitEffectPrefab = default!;
+    protected SkillRangeVFXController rangeVFXController = default!;
 
     // 영향받은 대상 딕셔너리
     protected Dictionary<UnitEntity, List<CrowdControl>> affectedTargets = new Dictionary<UnitEntity, List<CrowdControl>>();
@@ -72,7 +72,7 @@ public abstract class FieldEffectController : MonoBehaviour
     {
         if (target == null) return false;
 
-        Vector2Int targetPos = MapManager.Instance.ConvertToGridPosition(target.transform.position);
+        Vector2Int targetPos = MapManager.Instance!.ConvertToGridPosition(target.transform.position);
         return affectedTiles.Contains(targetPos);
     }
 

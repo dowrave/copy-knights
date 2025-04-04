@@ -13,10 +13,10 @@ public class CCEffectDatabase : ScriptableObject
     }
 
     [Header("CC Vfx Prefabs")]
-    [SerializeField] private GameObject stunVfxPrefab;
-    [SerializeField] private GameObject slowVfxPrefab;
+    [SerializeField] private GameObject? stunVfxPrefab;
+    [SerializeField] private GameObject? slowVfxPrefab;
 
-    private Dictionary<System.Type, GameObject> CCVfxMap;
+    private Dictionary<System.Type, GameObject>? CCVfxMap;
 
     public void Initialize()
     {
@@ -34,9 +34,11 @@ public class CCEffectDatabase : ScriptableObject
     }
 
 
-    public GameObject GetEffectPrefab(System.Type ccType)
+    public GameObject? GetEffectPrefab(System.Type ccType)
     {
-        return CCVfxMap.TryGetValue(ccType, out GameObject prefab) ? prefab : null;
+        InstanceValidator.ValidateInstance(CCVfxMap);
+
+        return CCVfxMap!.TryGetValue(ccType, out GameObject prefab) ? prefab : null;
     }
 
 }

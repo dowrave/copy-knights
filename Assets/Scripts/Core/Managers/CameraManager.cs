@@ -3,7 +3,7 @@ using UnityEngine;
 
 public class CameraManager : MonoBehaviour
 {
-    public static CameraManager Instance { get; private set; }
+    public static CameraManager Instance { get; private set; } = null!; // null이 아님을 보장, 경고문구 무시
 
     private float animationDuration = 0.1f;
 
@@ -13,7 +13,13 @@ public class CameraManager : MonoBehaviour
     private float clickedOperatorZShiftAmount = 2f;
     private Vector3 operatorInfoRotation = new Vector3(0, -15, -15);
 
-    public Camera MainCamera { get; private set; }
+    [SerializeField] Camera? mainCamera;
+    public Camera MainCamera 
+    { 
+        get => mainCamera!;
+        private set { mainCamera = value; }
+    }
+
     private Vector3 originalPosition;
     private Quaternion originalRotation;
     private float originalSize;
@@ -29,16 +35,9 @@ public class CameraManager : MonoBehaviour
         {
             Destroy(gameObject);
         }
-
-        InitializeCameras();
-    }
-    private void InitializeCameras()
-    {
-        MainCamera = GameObject.Find("Main Camera")?.GetComponent<Camera>();
     }
 
-
-    public void SetupForMap(Map map)
+    public void SetupForMap(Map? map)
     {
         // map의 카메라 position, rotation을 이용해 카메라 위치 설정
         // 카메라 위치 설정 자체는 개발자가 직접 보면서 실험하고 있음
@@ -69,16 +68,21 @@ public class CameraManager : MonoBehaviour
     }
 
     // UI를 클릭하거나 배치된 오퍼레이터 클릭 시 카메라 이동 / 회전 변경
-    public void AdjustForDeployableInfo(bool show, DeployableUnitEntity deployable = null)
+    public void AdjustForDeployableInfo(bool show, DeployableUnitEntity? deployable = null)
     {
         // ShowDeployableInfo
         if (show)
         {
             Vector3 newPosition;
+            if (MapManager.Instance == null)
+            {
+                Debug.LogError("맵 매니저 인스턴스가 초기화되지 않았음");
+                return;
+            }
             float mapWidth = MapManager.Instance.GetCurrentMapWidth();
 
             // 배치된 Deployable 클릭
-            if (deployable.IsDeployed)
+            if (deployable != null && deployable.IsDeployed)
             {
                 Vector3 operatorPosition = deployable.transform.position;
 

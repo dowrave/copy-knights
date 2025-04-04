@@ -4,9 +4,9 @@ using UnityEngine;
 
 public class SpawnerManager : MonoBehaviour
 {
-    public static SpawnerManager Instance { get; private set; }
+    public static SpawnerManager? Instance { get; private set; }
     private List<EnemySpawner> spawners = new List<EnemySpawner>();
-    private Map currentMap;
+    private Map? currentMap;
 
     private void Awake()
     {
@@ -34,7 +34,7 @@ public class SpawnerManager : MonoBehaviour
         spawners.Clear();
 
         // Map 찾기
-        Map currentMap = MapManager.Instance?.CurrentMap; 
+        Map? currentMap = MapManager.Instance?.CurrentMap; 
         if (currentMap != null)
         {
             // FindObjectsOfType이나 GetComponentsInChildren이나 모두 리스트를 찾음

@@ -41,11 +41,12 @@ public class ArcaneFieldController : FieldEffectController
         // 새로 진입한 적 처리
         foreach (Vector2Int tilePos in affectedTiles)
         {
-            Tile tile = MapManager.Instance.GetTile(tilePos.x, tilePos.y);
+            Tile? tile = MapManager.Instance!.GetTile(tilePos.x, tilePos.y);
             if (tile != null)
             {
                 foreach (Enemy enemy in tile.GetEnemiesOnTile())
                 {
+                    // 여기서 중복이 이미 방지되고 있음
                     if (!affectedTargets.ContainsKey(enemy))
                     {
                         ApplyInitialEffect(enemy);
@@ -60,8 +61,11 @@ public class ArcaneFieldController : FieldEffectController
         if (target is Enemy enemy)
         {
             var slowEffect = new SlowEffect();
-            slowEffect.Initialize(enemy, caster, fieldDuration - elapsedTime, slowAmount);
-            enemy.AddCrowdControl(slowEffect);
+            if (caster != null)
+            {
+                slowEffect.Initialize(enemy, caster, fieldDuration - elapsedTime, slowAmount);
+                enemy.AddCrowdControl(slowEffect);
+            }
 
             affectedTargets[enemy] = new List<CrowdControl> { slowEffect };
         }
@@ -71,7 +75,7 @@ public class ArcaneFieldController : FieldEffectController
     {
         foreach (var target in affectedTargets.Keys)
         {
-            if (target != null && target is Enemy enemy)
+            if (target != null && target is Enemy enemy && caster != null)
             {
                 ICombatEntity.AttackSource attackSource =
                     new ICombatEntity.AttackSource(transform.position, true, hitEffectPrefab);

@@ -22,12 +22,14 @@ public class AreaHasteHealController: FieldEffectController
         // 새로 범위에 들어온 아군 찾기
         foreach (Vector2Int tilePos in affectedTiles)
         {
-            Tile tile = MapManager.Instance.GetTile(tilePos.x, tilePos.y);
-            if (tile?.OccupyingDeployable != null &&
+            Tile? tile = MapManager.Instance!.GetTile(tilePos.x, tilePos.y);
+            
+            if (tile != null &&
+                tile.OccupyingDeployable != null &&
                 tile.OccupyingDeployable.Faction == Faction.Ally)
             {
-                DeployableUnitEntity ally = tile.OccupyingDeployable;
-                if (!affectedTargets.ContainsKey(ally))
+                DeployableUnitEntity? ally = tile.OccupyingDeployable;
+                if (ally != null && !affectedTargets.ContainsKey(ally))
                 {
                     ApplyInitialEffect(ally);
                 }
@@ -48,7 +50,7 @@ public class AreaHasteHealController: FieldEffectController
     {
         foreach (var target in affectedTargets.Keys)
         {
-            if (target != null)
+            if (target != null && caster != null)
             {
                 ICombatEntity.AttackSource healSource =
                     new ICombatEntity.AttackSource(transform.position, true, hitEffectPrefab);

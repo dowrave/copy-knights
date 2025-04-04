@@ -1,0 +1,35 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a5f8246236f87694eaf25235bf3291e5, type: 3}
+  m_Name: StageData_1-0
+  m_EditorClassIdentifier: 
+  stageId: 1-0
+  stageName: Tutorial
+  stageDetail: "\uD29C\uD1A0\uB9AC\uC5BC \uC2A4\uD14C\uC774\uC9C0\uC785\uB2C8\uB2E4."
+  mapPrefab: {fileID: 8686630383873738881, guid: edb172ee44ccd75489fd7b8f9e1476e5, type: 3}
+  startDeploymentCost: 10
+  maxDeploymentCost: 99
+  timeToFillCost: 1
+  operatorMaxDeploymentCount: 5
+  playerHealthMultiplier: 1
+  enemyStatMultiplier: 1
+  mapDeployables: []
+  FirstClearRewardItems:
+  - itemData: {fileID: 11400000, guid: 9b62d9bdc8111b845a020c11ae3e3646, type: 2}
+    count: 12
+  - itemData: {fileID: 11400000, guid: e5fa78c43c8bdd34f93ea46a391e758b, type: 2}
+    count: 28
+  BasicClearRewardItems:
+  - itemData: {fileID: 11400000, guid: 9b62d9bdc8111b845a020c11ae3e3646, type: 2}
+    count: 6
+  - itemData: {fileID: 11400000, guid: e5fa78c43c8bdd34f93ea46a391e758b, type: 2}
+    count: 12

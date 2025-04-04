@@ -5,16 +5,15 @@ using UnityEngine;
 public class DeployableUnitData : ScriptableObject
 {
     // UnitData
-    public string entityName;
+    public string entityName = string.Empty;
     public DeployableUnitStats stats;
-    public GameObject prefab;
+    public GameObject prefab = default!;
 
     // DeployableUnitData
-    public Sprite? icon;
+    public Sprite? icon; // null일 수 있다고 하겠음
     public bool canDeployOnGround = false;
     public bool canDeployOnHill = false;
 
-    //public bool isMultiDeployable = false; // 여러 개 배치 여부
     public float cooldownTime = 0f; // 배치 후 쿨다운 시간
 
     // IDeployableUnitData 인터페이스 구현

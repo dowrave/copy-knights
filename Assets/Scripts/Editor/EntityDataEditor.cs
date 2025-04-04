@@ -49,28 +49,31 @@ public class UnitEntityEditor : Editor
     /// <summary>
     /// 기본 인스펙터를 그림
     /// </summary>
-    private void DrawDefaultInspector()
+    private new void DrawDefaultInspector()
     {
         var unitEntity = target as UnitEntity;
-        var currentType = unitEntity.GetType();
-
-        // 현재 타입에 해당하는 데이터 필드만 표시
-        var dataField = FindDataField(currentType);
-
-        if (dataField != null)
+        if (unitEntity != null)
         {
-            var property = serializedObject.FindProperty(dataField.Name);
-            EditorGUILayout.PropertyField(property, new GUIContent("Data"), true);
-        }
+            var currentType = unitEntity.GetType();
 
-        // 나머지 필드들 표시
-        DrawRemainingFields(dataField?.Name);
+            // 현재 타입에 해당하는 데이터 필드만 표시
+            var dataField = FindDataField(currentType);
+
+            if (dataField != null)
+            {
+                var property = serializedObject.FindProperty(dataField.Name);
+                EditorGUILayout.PropertyField(property, new GUIContent("Data"), true);
+            }
+
+            // 나머지 필드들 표시
+            DrawRemainingFields(dataField?.Name ?? string.Empty);
+        }
     }
 
     /// <summary>
     /// 주어진 타입과 그 부모 타입들에서 데이터 필드를 찾는 메서드
     /// </summary>
-    private FieldInfo FindDataField(System.Type type)
+    private FieldInfo? FindDataField(System.Type type)
     {
         while (type != null && type != typeof(object))
         {

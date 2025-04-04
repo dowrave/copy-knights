@@ -1,14 +1,11 @@
 using UnityEngine;
 using System.Collections.Generic;
 
-/// <summary>
-/// 코스트 획득 시 파티클이 코스트 아이콘으로 날아가는 처리
-/// </summary>
+// 코스트 획득 시 파티클이 코스트 아이콘으로 날아가는 처리
 public class CostParticleMotion : MonoBehaviour
 {
-    [SerializeField] private RectTransform deploymentCostIconTransform;
-    private new ParticleSystem particleSystem;
-    private ParticleSystem.Particle[] particles;
+    private new ParticleSystem particleSystem = default!;
+    private ParticleSystem.Particle[] particles = System.Array.Empty<ParticleSystem.Particle>();
     private float elapsed = 0f;
 
     private Vector2 iconScreenPosition;
@@ -20,12 +17,7 @@ public class CostParticleMotion : MonoBehaviour
     [SerializeField] private float turnSpeed = 5f;
     [SerializeField] private float arrivalThreshold = 2f;
 
-    [Header("Debug Settings")]
-    [SerializeField] private bool showDebugMarker = true;
-    [SerializeField] private float markerSize = 20f;
-    [SerializeField] private Color targetMarkerColor = Color.yellow;
-    [SerializeField] private Color particleMarkerColor = Color.green;
-
+    private RectTransform deploymentCostIconTransform = default!;
     private Dictionary<uint, Vector3> particleVelocities = new Dictionary<uint, Vector3>();
    
 
@@ -36,13 +28,14 @@ public class CostParticleMotion : MonoBehaviour
 
         if (deploymentCostIconTransform == null)
         {
-            deploymentCostIconTransform = GameObject.Find("MainCanvas/DeploymentCostPanel/DeploymentCostIcon").GetComponent<RectTransform>();
+            GameObject DeploymentCostIconObject = GameObject.Find("MainCanvas/DeploymentPanel/DeploymentCostIcon");
+            deploymentCostIconTransform = DeploymentCostIconObject.GetComponent<RectTransform>();
         }
     }
 
     private void Start()
     {
-        iconWorldPosition = UIManager.Instance.CostIconWorldPosition;
+        iconWorldPosition = UIManager.Instance!.CostIconWorldPosition;
     }
 
     private void LateUpdate()
@@ -72,7 +65,8 @@ public class CostParticleMotion : MonoBehaviour
         // 목표 지점 근처 도달 시 파티클 제거
         if (distanceToTarget < arrivalThreshold)
         {
-            particle.remainingLifetime = 0f;
+            //particle.remainingLifetime = 0f; // 이걸로 쓰면 파티클이 다시 생김
+            Destroy(particleSystem.gameObject, 0.1f);
             return;
         }
 

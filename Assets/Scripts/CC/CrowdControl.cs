@@ -3,20 +3,20 @@ using UnityEngine.VFX;
 
 public abstract class CrowdControl
 {
-    protected ICrowdControlTarget target;
-    protected UnitEntity source;
+    protected ICrowdControlTarget? target;
+    protected UnitEntity? source;
     protected float duration;
     protected float elapsedTime;
     protected bool isActive = false;
 
-    private GameObject CCVFX;
-    private ParticleSystem vfxPs;
-    private VisualEffect vfxGraph;
+    private GameObject? CCVFX;
+    private ParticleSystem? vfxPs;
+    private VisualEffect? vfxGraph;
 
     public bool IsExpired => elapsedTime >= duration || target == null;
 
     // CC 효과 초기화 및 적용
-    public virtual void Initialize(ICrowdControlTarget target, UnitEntity source, float duration)
+    public virtual void Initialize(ICrowdControlTarget? target, UnitEntity? source, float duration)
     {
         this.target = target;
         this.source = source;
@@ -61,6 +61,7 @@ public abstract class CrowdControl
     {
         if (target is MonoBehaviour mb)
         {
+            if (CCEffectManager.Instance == null) return;
             CCVFX = CCEffectManager.Instance.CreateCCVFXObject(this, mb.transform); // 자식 클래스에서 this가 호출될 때, 자식 클래스의 type이 들어감
 
             if (CCVFX != null)
@@ -102,3 +103,5 @@ public abstract class CrowdControl
     protected abstract void ApplyEffect();
     protected abstract void RemoveEffect();
 }
+
+

@@ -8,14 +8,8 @@ public class Map : MonoBehaviour
 {
 
     [Header("Map Identity")]
-    [SerializeField] private string mapId;
+    [SerializeField] private string mapId = string.Empty;
     public string Mapid => mapId;
-
-    [Header("References")]
-    [SerializeField] private GameObject tilePrefab;
-
-    [Header("Deployable Settings")]
-    [SerializeField] private List<MapDeployableData> mapDeployables = new List<MapDeployableData>();
 
     [SerializeField] private int width;
     [SerializeField] private int height;
@@ -27,28 +21,31 @@ public class Map : MonoBehaviour
     public Vector3 CameraPosition => cameraPosition;
     public Vector3 CameraRotation => cameraRotation;
 
+    private TileData?[,]? tileDataArray; 
+    private Dictionary<Vector2Int, GameObject> tileObjects = new Dictionary<Vector2Int, GameObject>(); // 좌표에 Tile 오브젝트 할당.
+    private GameObject enemySpawnerPrefab = default!;
 
-    private TileData[] serializedTileData;
-    private TileData[,] tileDataArray;
-    private Dictionary<Vector2Int, GameObject> tileObjects; // 좌표에 Tile 오브젝트 할당.
-    private GameObject enemySpawnerPrefab;
+    // Map 프리팹에 저장하기 위해 이렇게 설정함
+    [SerializeField] private List<EnemySpawner> enemySpawners = new List<EnemySpawner>();
+    public IReadOnlyList<EnemySpawner> EnemySpawners => enemySpawners;
 
 
     // 스크립트 활성화마다 초기화를 확인한다
-    private void OnEnable()
+    private void OnValidate()
     {
-        if (tileDataArray == null || tileObjects == null)
-        {
-            Initialize(width, height, true);
-        }
+        InitializeOnEditor(width, height, true);
     }
 
-    public void Initialize(int width, int height, bool load = false)
+    public void InitializeOnStage(int width, int height)
     {
-        this.width = width;
-        this.height = height;
-        tileDataArray = new TileData[width, height];
-        tileObjects = new Dictionary<Vector2Int, GameObject>();
+        InitializeCommon(width, height);
+        LoadExistingMap();
+        GetEnemySpawners();
+    }
+
+    public void InitializeOnEditor(int width, int height, bool load = false)
+    {
+        InitializeCommon(width, height);
 
         if (load)
         {
@@ -61,9 +58,36 @@ public class Map : MonoBehaviour
 
         if (enemySpawnerPrefab == null)
         {
-            enemySpawnerPrefab = AssetDatabase.LoadAssetAtPath<GameObject>("Assets/Prefabs/Enemy Spawner.prefab");
+            enemySpawnerPrefab = AssetDatabase.LoadAssetAtPath<GameObject>("Assets/Prefabs/EnemySpawner.prefab");
+        }
+
+        // 불러오는 상황, enemySpawners에 정보가 없는 상황일 때
+        GetEnemySpawners();
+    }
+
+    private void InitializeCommon(int width, int height)
+    {
+        this.width = width;
+        this.height = height;
+        tileDataArray = new TileData[width, height];
+        tileObjects = new Dictionary<Vector2Int, GameObject>();
+    }
+
+    // 맵의 EnemySpawners들을 긁어옴. 
+    private void GetEnemySpawners()
+    {
+        // enemySpawners가 빈 리스트일 때만 긁어온다
+        if (enemySpawners.Count == 0)
+        {
+            EnemySpawner[] spawners = FindObjectsByType<EnemySpawner>(FindObjectsSortMode.None);
+            foreach (EnemySpawner spawner in spawners)
+            {
+                enemySpawners.Add(spawner);
+            }
         }
     }
+
+
 
     private void CreateNewMap()
     {
@@ -80,7 +104,7 @@ public class Map : MonoBehaviour
         }
 
         // 맵 생성 후 데이터 저장
-        SaveTileData();
+        //SaveTileData();
     }
 
     private void LoadExistingMap()
@@ -88,22 +112,23 @@ public class Map : MonoBehaviour
         // 기존 자식 Tile 오브젝트에서 데이터 로드
         foreach (Transform child in transform)
         {
-            Tile tile = child.GetComponent<Tile>();
-            if (tile != null)
+            Tile tile = child.GetComponent<Tile>()!;
+            Vector2Int gridPos = tile.GridPosition;
+            if (IsValidGridPosition(gridPos.x, gridPos.y))
             {
-                Vector2Int gridPos = tile.GridPosition;
-                if (IsValidGridPosition(gridPos.x, gridPos.y))
+                if (tile.data != null)
                 {
-                    tileDataArray[gridPos.x, gridPos.y] = tile.data;
+                    // Null 허용 어서션(!)을 사용하여 경고 해결
+                    tileDataArray![gridPos.x, gridPos.y] = tile.data;
                     tileObjects[gridPos] = child.gameObject;
                 }
             }
         }
-        SaveTileData(); // 로드 후 serializedTileData 업데이트
+
     }
 
     // 특정 위치의 타일 데이터 업데이트
-    public void UpdateTile(int x, int y, TileData newTileData)
+    public void UpdateTile(int x, int y, TileData? newTileData)
     {
         if (!IsValidGridPosition(x, y)) return;
 
@@ -113,7 +138,7 @@ public class Map : MonoBehaviour
         }
         else
         {
-            tileDataArray[x, y] = newTileData;
+            tileDataArray![x, y] = newTileData;
             CreateOrUpdateTileObject(x, y);
             if (newTileData.isStartPoint)
             {
@@ -127,7 +152,9 @@ public class Map : MonoBehaviour
     private void CreateOrUpdateTileObject(int x, int y)
     {
         Vector2Int gridPos = new Vector2Int(x, y);
-        TileData tileData = tileDataArray[x, y];
+        TileData? tileData = tileDataArray![x, y];
+
+        if (tileData == null) return;
 
         // 해당 위치에 타일이 있다면
         if (tileObjects.TryGetValue(gridPos, out GameObject existingTileObj))
@@ -152,10 +179,11 @@ public class Map : MonoBehaviour
 
     private void CreateNewTile(int x, int y, TileData tileData)
     {
-        if (tilePrefab == null) return;
-
         Vector2Int gridPos = new Vector2Int(x, y);
         Vector3 worldPos = GridToWorldPosition(gridPos);
+
+        GameObject tilePrefab = tileData.tilePrefab;
+        if (tilePrefab == null) return;
         GameObject tileObj = Instantiate(tilePrefab, transform);
 
         tileObj.name = GenerateTileName(x, y, tileData);
@@ -186,9 +214,16 @@ public class Map : MonoBehaviour
         Vector2Int gridPos = new Vector2Int(x, y);
         if (tileObjects.TryGetValue(gridPos, out GameObject tileObj))
         {
+            // 이 내부에 EnemySpawner라는 컴포넌트가 들어가 있음
             GameObject spawnerObj = Instantiate(enemySpawnerPrefab, tileObj.transform);
             spawnerObj.transform.localPosition = new Vector3(0, 0.5f, 0);
-            spawnerObj.name = "EnemySpawner";
+            spawnerObj.name = $"EnemySpawner({x}-{y})";
+
+            EnemySpawner spawner = spawnerObj.GetComponent<EnemySpawner>();
+            if (spawner != null)
+            {
+                enemySpawners.Add(spawner);
+            }
         }
         else
         {
@@ -214,23 +249,36 @@ public class Map : MonoBehaviour
         Vector2Int gridPos = new Vector2Int(x, y);
         if (tileObjects.TryGetValue(gridPos, out GameObject tileObj))
         {
+            // 제거될 오브젝트의 자식에 EnemySpawner가 있다면 리스트에서 먼저 제거
+            EnemySpawner spawner = tileObj.GetComponentInChildren<EnemySpawner>();
+            if (spawner != null)
+            {
+                if (enemySpawners != null && enemySpawners.Contains(spawner))
+                {
+                    enemySpawners.Remove(spawner);
+                }
+            }
+
             DestroyImmediate(tileObj);
             tileObjects.Remove(gridPos);
         }
-        tileDataArray[x, y] = null;
+
+        // 빈 타일 데이터를 입력: TerrainType.Empty와 "빈 타일" 이름 설정.
+        tileDataArray![x, y] = new TileData() { terrain = TileData.TerrainType.Empty, TileName = "빈 타일" };
     }
 
-    public TileData GetTileData(int x, int y)
+    public TileData? GetTileData(int x, int y)
     {
         if (IsValidGridPosition(x, y))
         {
-            return tileDataArray[x, y];
+            return tileDataArray![x, y];
         }
+
         return null;
     }
 
     // 해당 그리드 좌표에 대한 타일을 반환합니다
-    public Tile GetTile(int gridX, int gridY)
+    public Tile? GetTile(int gridX, int gridY)
     {
         if (!IsValidGridPosition(gridX, gridY)) return null;
 
@@ -265,25 +313,10 @@ public class Map : MonoBehaviour
         }
     }
 
-    public Vector3 FindEndPoint()
-    {
-        for (int x = 0; x < width; x++)
-        {
-            for (int y = 0; y < height; y++)
-            {
-                if (tileDataArray[x, y]?.isEndPoint == true)
-                {
-                    return GridToWorldPosition(new Vector2Int(x, y));
-                }
-            }
-        }
-        return Vector3.zero;
-    }
-
-    // 월드 y 좌표는 0으로 설정. 
-    // 0.5로 설정하고 싶다면 Vector3.Up * 0.5f을 사용하자.
     public Vector3 GridToWorldPosition(Vector2Int gridPos)
-    { 
+    {
+        // 월드 y 좌표는 0으로 설정. 
+        // 0.5로 설정하고 싶다면 Vector3.Up * 0.5f을 사용하자.
         return new Vector3(gridPos.x, 0, height - 1 - gridPos.y);
     }
 
@@ -297,36 +330,27 @@ public class Map : MonoBehaviour
         enemySpawnerPrefab = prefab;
     }
 
-    // 2차원 타일 배열을 1차원으로 변환해서 저장
-    public void SaveTileData()
-    {
-        serializedTileData = new TileData[width * height];
-        for (int y = 0; y < height; y++)
-        {
-            for (int x = 0; x < width; x++)
-            {
-                serializedTileData[y * width + x] = tileDataArray[x, y];
-            }
-        }
-    }
-
     // 디버그 용 모든 타일 보기
     public string GetTileDataDebugString()
     {
-        StringBuilder sb = new StringBuilder();
-        sb.AppendLine("Map Tile Data:");
-        for (int y = 0; y < height; y++)
-        {
-            for (int x = 0; x < width; x++)
+        if (tileDataArray != null) 
+        { 
+            StringBuilder sb = new StringBuilder();
+            sb.AppendLine("Map Tile Data:");
+            for (int y = 0; y < height; y++)
             {
-                TileData tileData = tileDataArray[x, y];
-                string tileInfo = tileData != null
-                    ? $"{tileData.TileName} ({tileData.terrain})"
-                    : "Empty";
-                sb.AppendLine($"  Position ({x}, {y}): {tileInfo}");
+                for (int x = 0; x < width; x++)
+                {
+                    TileData? tileData = tileDataArray![x, y];
+                    string tileInfo = tileData != null
+                        ? $"{tileData.TileName} ({tileData.terrain})"
+                        : "Empty";
+                    sb.AppendLine($"  Position ({x}, {y}): {tileInfo}");
+                }
             }
+            return sb.ToString();
         }
-        return sb.ToString();
+        return string.Empty;
     }
 
     public void RemoveAllTiles()
@@ -338,10 +362,5 @@ public class Map : MonoBehaviour
                 RemoveTile(x, y);
             }
         }
-    }
-
-    public IReadOnlyList<MapDeployableData> GetMapDeployables()
-    {
-        return mapDeployables.AsReadOnly();
     }
 }

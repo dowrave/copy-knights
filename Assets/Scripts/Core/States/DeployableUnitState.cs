@@ -6,17 +6,16 @@ using UnityEngine;
 public class DeployableUnitState
 {
     private readonly DeployableInfo deployableInfo;
-    public int DeploymentCount { get; private set; }
+    public int DeploymentCount { get; private set; } // 총 배치된 횟수, 0에서 시작
     public int CurrentDeploymentCost { get; private set; }
-    public int RemainingDeployCount { get; private set; }
+    public int RemainingDeployCount { get; private set; } // 남은 배치 수, 오퍼레이터라면 1
     public bool IsOnCooldown { get; private set; }
     public float CooldownTimer { get; private set; }
-    public bool IsDeployed { get; private set; }
+    public bool IsDeployed { get; private set; } // 오퍼레이터인 경우에만 추적
 
-    public DeployableUnitEntity currentDeployable;
-    public Operator currentOperator;
+    public DeployableUnitEntity? currentDeployable;
+    public Operator? currentOperator;
 
-    private const int MAX_COST_INCREASE_COUNT = 2;
     private const float COST_INCREASE_RATE = 0.5f;
 
     public bool IsOperator { get; private set; }
@@ -26,9 +25,9 @@ public class DeployableUnitState
         deployableInfo = info;
         IsOperator = deployableInfo.ownedOperator != null;
 
-        CurrentDeploymentCost = IsOperator ? 
-                info.ownedOperator.BaseData.stats.DeploymentCost : 
-                info.deployableUnitData.stats.DeploymentCost;
+        CurrentDeploymentCost = IsOperator && info.ownedOperator != null ?
+            info.ownedOperator.OperatorProgressData.stats.DeploymentCost :
+            info.deployableUnitData?.stats.DeploymentCost ?? 0;
 
         RemainingDeployCount = info.maxDeployCount;
         IsOnCooldown = false;
@@ -40,12 +39,12 @@ public class DeployableUnitState
     {
         DeploymentCount++;
         RemainingDeployCount--;
-        IsDeployed = true;
 
         // 배치된 유닛을 추적
         if (deployableUnitEntity is Operator op)
         {
             currentOperator = op;
+            IsDeployed = true;
         }
         else
         {
@@ -93,12 +92,19 @@ public class DeployableUnitState
         }
     }
 
+    // 오퍼레이터일 경우에만 수행되는 배치 코스트 갱신
     private void UpdateDeploymentCost()
     {
         if (deployableInfo.ownedOperator == null) return;
 
-        int baseCost = deployableInfo.ownedOperator.BaseData.stats.DeploymentCost;
-        float multiplier = 1f + (Mathf.Min(DeploymentCount - 1, MAX_COST_INCREASE_COUNT - 1) * COST_INCREASE_RATE);
+        // 기본 코스트
+        int baseCost = deployableInfo.ownedOperator.OperatorProgressData.stats.DeploymentCost;
+
+        // 1, 1.5, 2만 가질 수 있다.
+        // 상세) 재배치마다 50%식 배치 코스트가 증가, 최대 2회(즉 2회 이후부터는 최초의 2배 코스트가 듦)까지만.
+        float multiplier = 1f + (Mathf.Min(DeploymentCount, 2) * COST_INCREASE_RATE);
+
+        // 현재 배치 비용 갱신
         CurrentDeploymentCost = Mathf.RoundToInt(baseCost * multiplier);
     }
 }

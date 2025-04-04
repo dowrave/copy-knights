@@ -5,21 +5,24 @@ using UnityEngine.UI;
 public class EnemyBarUI : MonoBehaviour
 {
     private float backOffset = 0; // UI의 높이 오프셋
-    private HealthBar healthBar;
-    private Camera mainCamera;
 
-    private Canvas canvas;
-    private Enemy enemy;
+    private HealthBar? healthBar;
+    private Camera? mainCamera;
+    private Canvas? canvas;
+    private Enemy? enemy;
 
     private void Awake()
     {
         canvas = GetComponent<Canvas>();
-        canvas.renderMode = RenderMode.WorldSpace;
-        mainCamera = Camera.main;
-        canvas.worldCamera = mainCamera;
+        if (canvas != null)
+        {
+            canvas.renderMode = RenderMode.WorldSpace;
+            canvas.worldCamera = mainCamera;
+        }
 
         healthBar = GetComponentInChildren<HealthBar>();
 
+        mainCamera = Camera.main;
         if (mainCamera != null)
         {
             transform.LookAt(transform.position + mainCamera.transform.rotation * Vector3.forward, mainCamera.transform.rotation * Vector3.up);
@@ -55,17 +58,26 @@ public class EnemyBarUI : MonoBehaviour
 
     public void UpdateHealthBar(float currentHealth, float maxHealth, float currentShield = 0)
     {
-        healthBar.UpdateHealthBar(currentHealth, maxHealth, currentShield);
+        if (healthBar != null)
+        {
+            healthBar.UpdateHealthBar(currentHealth, maxHealth, currentShield);
+        }
     }
 
     public void SetHealthBarVisible(bool isVisible)
     {
-        healthBar.SetVisible(isVisible);
+        if (healthBar != null)
+        {
+            healthBar.SetVisible(isVisible);
+        }
     }
 
     public void SetHealthBarColor(Color color)
     {
-        healthBar.SetColor(color);
+        if (healthBar != null) 
+        {
+            healthBar.SetColor(color);  
+        }
     }
 
     private void UpdatePosition()

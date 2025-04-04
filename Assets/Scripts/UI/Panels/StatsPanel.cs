@@ -8,29 +8,27 @@ using UnityEngine.UI;
 
 public class StatsPanel : MonoBehaviour
 {
-    [SerializeField] private GameObject statisticsContainer;
-    [SerializeField] private Button statisticsToggleButton;
+    [SerializeField] private GameObject statisticsContainer = default!;
+    [SerializeField] private Button statisticsToggleButton = default!;
     public bool IsActive { get; private set; }
-    TextMeshProUGUI toggleButtonText;
+    TextMeshProUGUI toggleButtonText = default!;
 
     [Header("StatisticsItem")]
-    [SerializeField] private Transform statsItemContainer;
-    [SerializeField] private GameObject statItemPrefab;
-    [SerializeField] private Button statsItemContainerButton; // 절대 수치 <-> 퍼센티지 변환 버튼, StatsItemContainer 그 자체
-    [SerializeField] private StatisticItem[] statItems;
+    [SerializeField] private Button statsItemContainerButton = default!; // 절대 수치 <-> 퍼센티지 변환 버튼, StatsItemContainer 그 자체
+    [SerializeField] private StatisticItem[] statItems = default!;
 
-    [SerializeField] private Button damageDealtTab;
-    [SerializeField] private Button damageTakenTab;
-    [SerializeField] private Button healingDoneTab;
+    [SerializeField] private Button damageDealtTab = default!;
+    [SerializeField] private Button damageTakenTab = default!;
+    [SerializeField] private Button healingDoneTab = default!;
 
     private bool showPercentage = false;
 
     // 수정할 수도 있으니 이렇게 달아둠
-    private RectTransform containerRect;
+    private RectTransform containerRect = default!;
     private Vector2 inactivePosition;
     private Vector2 activePosition;
 
-    private List<StatisticItem> activeStatItems = new List<StatisticItem>();
+    //private List<StatisticItem> activeStatItems = new List<StatisticItem>();
     private StatisticsManager.StatType currentDisplayedStatType;
 
     [SerializeField] private Color defaultTabColor;
@@ -66,7 +64,7 @@ public class StatsPanel : MonoBehaviour
             statItem.gameObject.SetActive(false);
         }
 
-        StatisticsManager.Instance.OnStatUpdated += ShowStatsByEvent;
+        StatisticsManager.Instance!.OnStatUpdated += ShowStatsByEvent;
         statisticsContainer.SetActive(false);
     }
 
@@ -158,7 +156,7 @@ public class StatsPanel : MonoBehaviour
     public void UpdateStatItems(StatisticsManager.StatType statType)
     {
         // 스탯에 따른 상위 3개의 (오퍼레이터 + 스탯) 반환
-        var topOperators = StatisticsManager.Instance.GetTopOperators(statType, 3);
+        var topOperators = StatisticsManager.Instance!.GetTopOperators(statType, 3);
 
         for (int i=0; i < statItems.Count(); i++)
         {
@@ -174,14 +172,14 @@ public class StatsPanel : MonoBehaviour
 
         if (index < stats.Count)
         {
-            Operator op = stats[index].op;
+            OperatorData op = stats[index].opData;
             StatisticsManager.OperatorStats stat = stats[index];
-            float value = StatisticsManager.Instance.GetOperatorValueForStatType(stat, statType);
+            float value = StatisticsManager.Instance!.GetOperatorValueForStatType(stat, statType);
 
             if (value > 0) // 기여한 값이 0이라면 나타나지 않게 함
             {
                 item.gameObject.SetActive(true);
-                item.Initialize(stats[index].op, statType, showPercentage);
+                item.Initialize(stats[index].opData, statType, showPercentage);
                 item.UpdateDisplay(statType, showPercentage);
             }
             else

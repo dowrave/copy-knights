@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using static UnityEngine.GraphicsBuffer;
 namespace Skills.Base
 {
     [CreateAssetMenu(fileName = "New Area Haste Heal Skill", menuName = "Skills/Area Haste Heal Skill")]
@@ -16,7 +17,7 @@ namespace Skills.Base
             GameObject fieldObj = Instantiate(fieldEffectPrefab);
             AreaHasteHealController controller = fieldObj.GetComponent<AreaHasteHealController>();
 
-            if (controller != null)
+            if (controller != null && hitEffectPrefab != null)
             {
                 float actualHealPerTick = op.AttackPower * healPerTickRatio;
                 controller.Initialize(op, centerPos, actualSkillRange, duration, actualHealPerTick, healInterval, hitEffectPrefab);
@@ -28,7 +29,7 @@ namespace Skills.Base
 
         protected override Vector2Int GetCenterPos(Operator op)
         {
-            return MapManager.Instance.ConvertToGridPosition(op.transform.position);
+            return MapManager.Instance!.ConvertToGridPosition(op.transform.position);
         }
     }
 }

@@ -5,15 +5,12 @@ using UnityEngine.UI;
 
 public class DeployableDeployingUI : MonoBehaviour
 {
-    [SerializeField] private MaskedDiamondOverlay maskedOverlay;
-    [SerializeField] private Button cancelButton;
+    [SerializeField] private MaskedDiamondOverlay maskedOverlay = default!;
+    [SerializeField] private Button cancelButton = default!;
 
     private float darkPanelAlpha = 0.3f;
-
-    private RectTransform diamondRect;
-    private RectTransform cancelButtonRect;
-
-    private Camera mainCamera;
+    private Camera mainCamera = default!;
+    private RectTransform cancelButtonRect = default!;
 
     public void Initialize(IDeployable deployable)
     {
@@ -60,7 +57,7 @@ public class DeployableDeployingUI : MonoBehaviour
 
     private void OnCancelButtonClicked()
     {
-        DeployableManager.Instance.CancelDeployableSelection();
+        DeployableManager.Instance!.CancelDeployableSelection();
     }
 
 

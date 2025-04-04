@@ -58,3 +58,6 @@ MonoBehaviour:
   elite1Unlocks:
     additionalAttackTiles: []
     unlockedSkill: {fileID: 11400000, guid: 7a622039d1d94804ea07e6d19c9c1f42, type: 2}
+  promotionItems:
+  - itemData: {fileID: 11400000, guid: 2329af0554c87104bb26e072bb7d6935, type: 2}
+    count: 1

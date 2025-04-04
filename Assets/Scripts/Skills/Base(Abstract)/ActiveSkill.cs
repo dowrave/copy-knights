@@ -1,5 +1,6 @@
 
 using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.VFX;
 namespace Skills.Base
@@ -10,11 +11,22 @@ namespace Skills.Base
         public float duration = 0f;
 
         [Header("Skill Duration Effects")]
-        [SerializeField] protected GameObject skillVFXPrefab;
+        [SerializeField] protected GameObject skillVFXPrefab = default!;
 
-        protected GameObject VfxInstance;
-        protected VisualEffect VfxComponent;
-        protected ParticleSystem VfxPs;
+        [Header("Optional) Skill Range")]
+        [SerializeField] protected bool activeFromOperatorPosition = true; // UI에 사거리 표시할 때 중심이 되는 부분의 색을 변경하기 위한 기능적인 필드
+        [SerializeField] protected List<Vector2Int> skillRangeOffset = new List<Vector2Int>();
+        [SerializeField] protected float rectOffset; // UI용 오프셋
+
+        public IReadOnlyList<Vector2Int> SkillRangeOffset => skillRangeOffset;
+        public bool ActiveFromOperatorPosition => activeFromOperatorPosition;
+        public float RectOffset => rectOffset;
+
+        protected GameObject? VfxInstance;
+        protected VisualEffect? VfxComponent;
+        protected ParticleSystem? VfxPs;
+
+        protected HashSet<Vector2Int> actualSkillRange = new HashSet<Vector2Int>();
 
         public override void Activate(Operator op)
         {
@@ -55,7 +67,11 @@ namespace Skills.Base
 
         protected virtual void OnSkillEnd(Operator op)
         {
-            SafeDestroySkillVFX(VfxInstance);
+            if (VfxInstance != null)
+            {
+                SafeDestroySkillVFX(VfxInstance);
+            }
+
             op.CurrentSP = 0;
             op.SetSkillOnState(false);
         }
@@ -74,18 +90,22 @@ namespace Skills.Base
                 op.transform    // 오퍼레이터의 자식으로 생성
             );
 
-            // VFX 또는 파티클 시스템 컴포넌트 검색 및 재생
-            VfxComponent = VfxInstance.GetComponent<VisualEffect>();
-            if (VfxComponent != null)
+            if (VfxInstance != null)
             {
-                VfxComponent.Play();
+                // VFX 또는 파티클 시스템 컴포넌트 검색 및 재생
+                VfxComponent = VfxInstance.GetComponent<VisualEffect>();
+                if (VfxComponent != null)
+                {
+                    VfxComponent.Play();
+                }
+
+                VfxPs = VfxInstance.GetComponent<ParticleSystem>();
+                if (VfxPs != null)
+                {
+                    VfxPs.Play();
+                }
             }
 
-            VfxPs = VfxInstance.GetComponent<ParticleSystem>();
-            if (VfxPs != null)
-            {
-                VfxPs.Play();
-            }
         }
 
         // 스킬 지속시간 처리
@@ -136,5 +156,13 @@ namespace Skills.Base
             Destroy(vfxObject);
         }
 
+        protected void CalculateActualSkillRange(Vector2Int center)
+        {
+            foreach (Vector2Int offset in skillRangeOffset)
+            {
+                Vector2Int rotatedOffset = DirectionSystem.RotateGridOffset(offset, caster.FacingDirection);
+                actualSkillRange.Add(center + rotatedOffset);
+            }
+        }
     }
 }

@@ -12,9 +12,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6f7a9d3d7bb561f4191e8a6a8c0cf203, type: 3}
   m_Name: ShieldBuff
   m_EditorClassIdentifier: 
-  skillName: 
-  description: "\uBC29\uC5B4\uB825\uC744 30% \uC99D\uAC00\uC2DC\uD0A4\uACE0, 1000\uC758
-    \uBCF4\uD638\uB9C9\uC744 \uC0DD\uC131\uD569\uB2C8\uB2E4."
+  skillName: ShieldUp
+  description: "<color=#179bff>15\uCD08</color> \uB3D9\uC548 \uBC29\uC5B4\uB825\uC774
+    <color=#179bff>30%</color> \uC99D\uAC00\uD558\uACE0, <color=#179bff>1000</color>\uC758
+    \uC274\uB4DC\uB97C \uAC16\uC2B5\uB2C8\uB2E4."
   SPCost: 1
   skillIcon: {fileID: 21300000, guid: 63190965cf09d184c8ee9aa0edd539ca, type: 3}
   autoRecover: 1
@@ -22,6 +23,9 @@ MonoBehaviour:
   modifiesAttackAction: 0
   duration: 15
   skillVFXPrefab: {fileID: 2673592997991987600, guid: 43f083d1a6e670d40a1998803b5a1140, type: 3}
+  activeFromOperatorPosition: 1
+  skillRangeOffset: []
+  rectOffset: 0
   shieldAmount: 1000
   statModifiers:
     defenseModifier: 1.3

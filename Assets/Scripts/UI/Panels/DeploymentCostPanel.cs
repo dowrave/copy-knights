@@ -4,8 +4,8 @@ using TMPro;
 
 public class DeploymentCostPanel : MonoBehaviour
 {
-    private TextMeshProUGUI costText;
-    private Slider costGaugeSlider;
+    private TextMeshProUGUI costText = default!;
+    private Slider costGaugeSlider = default!;
 
     private void Awake()
     {
@@ -23,8 +23,8 @@ public class DeploymentCostPanel : MonoBehaviour
     {
         if (StageManager.Instance != null)
         {
-            costText.text = StageManager.Instance.CurrentDeploymentCost.ToString();
-            costGaugeSlider.value = StageManager.Instance.CurrentCostGauge;
+            costText.text = StageManager.Instance!.CurrentDeploymentCost.ToString();
+            costGaugeSlider.value = StageManager.Instance!.CurrentCostGauge;
         }
     }
 

@@ -4,16 +4,16 @@ using UnityEngine;
 
 public class SlashSkillController : MonoBehaviour
 {
-    private Operator attacker;
+    private Operator attacker = default!; // 죽은 경우에 대한 별도 처리가 없어서 일단 이렇게 구현
     private float lifetime;
     private Vector3 opDirection;
     private float damageMultiplier;
-    private List<Vector2Int> baseAttackRange;
-    private GameObject hitEffectPrefab; 
+    private List<Vector2Int> baseAttackRange = new List<Vector2Int>();
+    private GameObject hitEffectPrefab = default!; 
 
     // 파티클 시스템 관련
-    [SerializeField] private ParticleSystem mainEffect;
-    private ParticleSystem.Particle[] particles;
+    [SerializeField] private ParticleSystem mainEffect = default!;
+    private ParticleSystem.Particle[] particles = System.Array.Empty<ParticleSystem.Particle>();
 
     // 대미지 적용 적 추적
     private HashSet<Enemy> damagedEnemies = new HashSet<Enemy>();
@@ -71,7 +71,7 @@ public class SlashSkillController : MonoBehaviour
     private void CalculateAttackableGridPositions()
     {
         // 오퍼레이터의 현재 그리드 위치
-        Vector2Int operatorGridPos = MapManager.Instance.ConvertToGridPosition(attacker.transform.position);
+        Vector2Int operatorGridPos = MapManager.Instance!.ConvertToGridPosition(attacker.transform.position);
         attackableGridPositions.Add(operatorGridPos); // 오퍼레이터 위치도 공격 범위에 포함
 
         // 오퍼레이터의 방향에 따라 기본 공격 범위(Left 기준)를 회전
@@ -127,8 +127,9 @@ public class SlashSkillController : MonoBehaviour
     {
         foreach (Vector2Int gridPos in attackableGridPositions)
         {
-            Tile eachTile = MapManager.Instance.GetTile(gridPos.x, gridPos.y);
-            if (eachTile.EnemiesOnTile.Contains(enemy)) return true;
+            Tile? eachTile = MapManager.Instance!.GetTile(gridPos.x, gridPos.y);
+            if (eachTile != null && 
+                eachTile.EnemiesOnTile.Contains(enemy)) return true;
         }
         return false;
     }

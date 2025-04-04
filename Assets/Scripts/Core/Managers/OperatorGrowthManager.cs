@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -5,7 +6,7 @@ using UnityEngine;
 // 성장 시스템을 실행하는 매니저.
 public class OperatorGrowthManager: MonoBehaviour
 {
-    public static OperatorGrowthManager Instance { get; private set; }
+    public static OperatorGrowthManager? Instance { get; private set; }
 
     private void Awake()
     {
@@ -24,10 +25,15 @@ public class OperatorGrowthManager: MonoBehaviour
     public bool TryLevelUpOperator(OwnedOperator op, int targetLevel, ExpCalculationSystem.ExpItemUsagePlan usagePlan)
     {
         // 아이템 사용 가능 여부 검증
-        Dictionary<string, int> itemsToUse = usagePlan.itemsToUse.ToDictionary(pair => pair.Key.itemName, pair => pair.Value);
+        Dictionary<string, int> itemsToUse = usagePlan.itemsToUse.ToDictionary(pair => pair.Key.itemName!, pair => pair.Value);
 
         // 아이템 소비 시도
-        bool itemUseSuccess = GameManagement.Instance.PlayerDataManager.UseItems(itemsToUse);
+        if (GameManagement.Instance == null)
+        {
+            throw new InvalidOperationException("게임 매니지먼트 인스턴스가 초기화되지 않았음");
+        }
+
+        bool itemUseSuccess = GameManagement.Instance!.PlayerDataManager.UseItems(itemsToUse);
         if (!itemUseSuccess) return false;
 
         int remainingExp = usagePlan.remainingExp;
@@ -40,20 +46,40 @@ public class OperatorGrowthManager: MonoBehaviour
 
     public bool TryPromoteOperator(OwnedOperator op)
     {
+        // 정예화 가능한 성장 상태 검사
         if (!OperatorGrowthSystem.CanPromote(op)) return false;
+
+        // 아이템 소비 시도
+        if (GameManagement.Instance == null)
+        {
+            throw new InvalidOperationException("게임 매니지먼트 인스턴스가 초기화되지 않았음");
+        }
+
+        // 정예화에 필요한 아이템 검사: promotionItems 데이터를 Dictionary(아이템 이름, 갯수)로 변환
+        var itemsToUse = op.OperatorProgressData.promotionItems.ToDictionary(
+            promotionItem => promotionItem.itemData.itemName,
+            promotionItem => promotionItem.count);
+
+        bool itemUseSuccess = GameManagement.Instance!.PlayerDataManager.UseItems(itemsToUse);
+        if (!itemUseSuccess) return false;
 
         // 정예화 진행
         op.Promote();
 
         GameManagement.Instance.PlayerDataManager.SavePlayerData();
 
-        return true; 
+        return true;
     }
 
 
     // 선택한 레벨까지 필요한 아이템을 계산합니다. UI 프리뷰용.
     public ExpCalculationSystem.ExpItemUsagePlan CalculateRequiredItems (OwnedOperator op, int targetLevel)
     {
+        if (GameManagement.Instance == null)
+        {
+            throw new InvalidOperationException("게임 매니지먼트 인스턴스가 초기화되지 않았음");
+        }
+
         var availableItems = GameManagement.Instance.PlayerDataManager.GetAllItems()
             .Where(x => x.itemData.type == ItemData.ItemType.Exp)
             .ToList();

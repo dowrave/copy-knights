@@ -49,6 +49,9 @@ SpriteRenderer:
   m_ReflectionProbeUsage: 1
   m_RayTracingMode: 0
   m_RayTraceProcedural: 0
+  m_RayTracingAccelStructBuildFlagsOverride: 0
+  m_RayTracingAccelStructBuildFlags: 1
+  m_SmallMeshCulling: 1
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
@@ -216,7 +219,6 @@ MonoBehaviour:
   deployableBarUI: {fileID: 8644454524508351020}
   skillIconUI: {fileID: 4680552250585978025}
   directionIndicator: {fileID: 2044978366136488506}
-  onSkillSPBarColor: {r: 1, g: 0.52494174, b: 0, a: 1}
 --- !u!223 &6578767485840493022
 Canvas:
   m_ObjectHideFlags: 0
@@ -262,7 +264,7 @@ MonoBehaviour:
   m_FallbackScreenDPI: 96
   m_DefaultSpriteDPI: 96
   m_DynamicPixelsPerUnit: 1
-  m_PresetInfoIsWorld: 0
+  m_PresetInfoIsWorld: 1
 --- !u!114 &-4599507656022332454
 MonoBehaviour:
   m_ObjectHideFlags: 0

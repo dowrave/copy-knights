@@ -1,15 +1,17 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using Unity.VisualScripting;
 using UnityEngine;
-using UnityEngine.VFX;
 using static ICombatEntity;
+using System;
+
 
 public class Enemy : UnitEntity, IMovable, ICombatEntity, ICrowdControlTarget
 {
     [SerializeField]
-    private EnemyData enemyData;
-    public new EnemyData BaseData => enemyData;
+    private EnemyData enemyData = default!;
+    public EnemyData BaseData => enemyData;
 
     private EnemyStats currentStats;
 
@@ -35,32 +37,36 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity, ICrowdControlTarget
     }
 
     // 경로 관련
-    private PathData pathData;
+    private PathData? pathData;
     private List<Vector3> currentPath = new List<Vector3>();
     private List<UnitEntity> targetsInRange = new List<UnitEntity>();
-    private PathNode nextNode;
+    private PathNode nextNode = default!;
     private int nextNodeIndex = 0; // 시작하자마자 1이 됨
     private Vector3 nextPosition; // 다음 노드의 좌표
     private Vector3 destinationPosition; // 목적지
     private bool isWaiting = false;
-    private Barricade targetBarricade;
+    private Barricade? targetBarricade;
 
-    private Operator blockingOperator; // 자신을 저지 중인 오퍼레이터
-    public Operator BlockingOperator => blockingOperator;
-    public UnitEntity CurrentTarget { get; private set; } // 공격 대상
+    private Operator? blockingOperator; // 자신을 저지 중인 오퍼레이터
+    public Operator? BlockingOperator => blockingOperator;
+    public UnitEntity? CurrentTarget { get; private set; } // 공격 대상
 
     protected int initialPoolSize = 5;
     protected string? projectileTag;
 
     // 이펙트 풀 태그
-    string meleeAttackEffectTag;
-    string hitEffectTag;
+    string? meleeAttackEffectTag;
+    string hitEffectTag = string.Empty;
 
-    [SerializeField] private GameObject enemyBarUIPrefab;
-    private EnemyBarUI enemyBarUI;
+    [SerializeField] private GameObject enemyBarUIPrefab = default!;
+    private EnemyBarUI? enemyBarUI;
 
     // 접촉 중인 타일 관리
     private List<Tile> contactedTiles = new List<Tile>();
+
+    // 메쉬의 회전 관련해서 모델 관리
+    [Header("Model Components")]
+    [SerializeField] protected GameObject modelContainer = default!;
 
     // ICrowdControlTarget
     public Vector3 Position => transform.position;
@@ -69,7 +75,19 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity, ICrowdControlTarget
     protected override void Awake()
     {
         Faction = Faction.Enemy;
+
+        InitializeModelComponents();
+
         base.Awake();
+    }
+
+    // 모델 회전 관련 로직을 쓸 일이 Enemy 뿐이라 여기에 구현해놓음.
+    protected void InitializeModelComponents()
+    {
+        if (modelContainer == null)
+        {
+            modelContainer = transform.Find("ModelContainer").gameObject;
+        }
     }
 
     public void Initialize(EnemyData enemyData, PathData pathData)
@@ -80,9 +98,6 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity, ICrowdControlTarget
 
         InitializeHP();
 
-        // 현재 위치를 기반으로 한 타일 설정
-        //UpdateCurrentTile();
-        
         // 프리팹 설정
         Prefab = enemyData.prefab;
 
@@ -92,7 +107,7 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity, ICrowdControlTarget
         InitializeCurrentPath();
 
         // 최초에 설정한 경로가 막힌 상황일 때 동작
-        if (PathfindingManager.Instance.IsBarricadeDeployed && IsPathBlocked())
+        if (PathfindingManager.Instance!.IsBarricadeDeployed && IsPathBlocked())
         {
             FindPathToDestinationOrBarricade();
         }
@@ -114,26 +129,26 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity, ICrowdControlTarget
 
     private void SetupInitialPosition()
     {
-        if (pathData != null && pathData.nodes.Count > 0)
-        {
-            // 스포너의 위치랑 동일해도 상관없는데 pathData가 또 별도로 있어서 거시기하다.
-            transform.position = MapManager.Instance.ConvertToWorldPosition(pathData.nodes[0].gridPosition) +
-                Vector3.up * BaseData.defaultYPosition;
-                //Vector3.up * 0.5f;
+        if (pathData == null || pathData.nodes == null) return;
 
+        if (pathData!.nodes!.Count > 0)
+        {
+            transform.position = MapManager.Instance!.ConvertToWorldPosition(pathData.nodes![0].gridPosition) +
+                Vector3.up * BaseData.defaultYPosition;
         }
     }
 
     protected void Update()
     {
-
-        if (StageManager.Instance.currentState == GameState.Battle)
+        if (StageManager.Instance!.currentState == GameState.Battle)
         {
             UpdateAttackDuration();
             UpdateAttackCooldown();
             UpdateCrowdControls();
 
-            if (pathData != null && nextNodeIndex < pathData.nodes.Count)
+            if (pathData == null || pathData.nodes == null) return;
+
+            if (nextNodeIndex < pathData.nodes.Count)
             {
                 if (activeCC.Any(cc => cc is StunEffect)) return; // 스턴
                 if (AttackDuration > 0) return;  // 공격 모션 중
@@ -144,9 +159,9 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity, ICrowdControlTarget
                 // 저지당함 - 근거리 공격
                 if (blockingOperator != null)
                 {
-                    if (CurrentTarget != null && AttackCooldown <= 0)
+                    if (AttackCooldown <= 0)
                     {
-                        PerformMeleeAttack(CurrentTarget, AttackPower); 
+                        PerformMeleeAttack(CurrentTarget!, AttackPower); 
                     }
                 }
                 else
@@ -160,7 +175,7 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity, ICrowdControlTarget
                     // 타겟이 있고, 공격이 가능한 상태
                     if (CanAttack())
                     {
-                        Attack(CurrentTarget, AttackPower);
+                        Attack(CurrentTarget!, AttackPower);
                     }
 
                     // 이동 관련 로직.
@@ -178,26 +193,29 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity, ICrowdControlTarget
     // pathData.nodes를 이용해 currentPath 초기화
     private void InitializeCurrentPath()
     {
+        if (pathData == null || pathData.nodes == null) throw new InvalidOperationException("null인 변수가 존재");
+
         foreach (var node in pathData.nodes)
         {
-            currentPath.Add(MapManager.Instance.ConvertToWorldPosition(node.gridPosition) + Vector3.up * BaseData.defaultYPosition);
+            currentPath.Add(MapManager.Instance!.ConvertToWorldPosition(node.gridPosition) + Vector3.up * BaseData.defaultYPosition);
         }
+
         destinationPosition = currentPath[currentPath.Count - 1]; // 목적지 설정
     }
 
     // 경로를 따라 이동
     private void MoveAlongPath()
     {
+        if (nextPosition == null || destinationPosition == null) throw new InvalidOperationException("다음/목적지 노드가 설정되어있지 않음");
+
         if (CheckIfReachedDestination())
         {
             ReachDestination();
             return;
         }
-
+        
         Move(nextPosition);
-
-        // 타일 갱신
-        //UpdateCurrentTile();
+        RotateModelTowardsMovementDirection();
 
         // 노드 도달 확인
         if (Vector3.Distance(transform.position, nextPosition) < 0.05f)
@@ -238,18 +256,20 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity, ICrowdControlTarget
     // 다음 노드 인덱스를 설정하고 현재 목적지로 지정함
     private void UpdateNextNode()
     {
+        if (pathData == null || pathData.nodes == null) return;
+
         nextNodeIndex++;
         if (nextNodeIndex < pathData.nodes.Count)
         {
             nextNode = pathData.nodes[nextNodeIndex];
-            nextPosition = MapManager.Instance.ConvertToWorldPosition(nextNode.gridPosition) + 
+            nextPosition = MapManager.Instance!.ConvertToWorldPosition(nextNode.gridPosition) + 
                 Vector3.up * BaseData.defaultYPosition;
         }
     }
 
     private void ReachDestination()
     {
-        StageManager.Instance.OnEnemyReachDestination();
+        StageManager.Instance!.OnEnemyReachDestination();
         Destroy(gameObject);
     }
 
@@ -263,7 +283,7 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity, ICrowdControlTarget
 
         foreach (var collider in colliders)
         {
-            DeployableUnitEntity target = collider.transform.parent?.GetComponent<DeployableUnitEntity>(); // GetComponent : 해당 오브젝트부터 시작, 부모 오브젝트로 올라가며 컴포넌트를 찾는다.
+            DeployableUnitEntity? target = collider.transform.parent?.GetComponent<DeployableUnitEntity>(); // GetComponent : 해당 오브젝트부터 시작, 부모 오브젝트로 올라가며 컴포넌트를 찾는다.
             if (target != null && target.IsDeployed && Faction.Ally == target.Faction)
             {
                 // 실제 거리 계산
@@ -307,15 +327,15 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity, ICrowdControlTarget
     private void PerformRangedAttack(UnitEntity target, float damage)
     {
         SetAttackTimings();
-        if (BaseData.projectilePrefab != null)
+        if (BaseData.projectilePrefab != null && projectileTag != null)
         {
             // 투사체 생성 위치
             Vector3 spawnPosition = transform.position + Vector3.up * 0.5f;
-            GameObject projectileObj = ObjectPoolManager.Instance.SpawnFromPool(projectileTag, spawnPosition, Quaternion.identity);
+            GameObject? projectileObj = ObjectPoolManager.Instance!.SpawnFromPool(projectileTag, spawnPosition, Quaternion.identity);
 
             if (projectileObj != null)
             {
-                Projectile projectile = projectileObj.GetComponent<Projectile>();
+                Projectile? projectile = projectileObj.GetComponent<Projectile>();
                 if (projectile != null)
                 {
                     projectile.Initialize(this, target, damage, false, projectileTag, BaseData.hitEffectPrefab);
@@ -349,12 +369,13 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity, ICrowdControlTarget
             tile.EnemyExited(this);
         }
 
-        StageManager.Instance.OnEnemyDefeated(); // 사망한 적 수 +1
+        StageManager.Instance!.OnEnemyDefeated(); // 사망한 적 수 +1
+        Debug.Log($"{BaseData.entityName} 사망, 사망 카운트 + 1");
 
         // 공격 이펙트 프리팹 제거
         if (BaseData.hitEffectPrefab != null)
         {
-            ObjectPoolManager.Instance.RemovePool("Effect_" + BaseData.entityName);
+            ObjectPoolManager.Instance!.RemovePool("Effect_" + BaseData.entityName);
         }
 
         // UI 제거
@@ -368,7 +389,7 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity, ICrowdControlTarget
 
     public override void TakeDamage(UnitEntity attacker, AttackSource attackSource, float damage)
     {
-        if (attacker is ICombatEntity iCombatEntity)
+        if (attacker is ICombatEntity iCombatEntity && CurrentHealth > 0) 
         {
             // 방어 / 마법 저항력이 고려된 실제 들어오는 대미지
             float actualDamage = CalculateActualDamage(iCombatEntity.AttackType, damage);
@@ -382,9 +403,9 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity, ICrowdControlTarget
             // attacker가 null일 때에도 잘 동작합니다
             if (attacker is Operator op)
             {
-                StatisticsManager.Instance.UpdateDamageDealt(op, actualDamage);
+                StatisticsManager.Instance!.UpdateDamageDealt(op.OperatorData, actualDamage);
 
-                if (op.BaseData.hitEffectPrefab != null)
+                if (op.OperatorData.hitEffectPrefab != null)
                 {
                     PlayGetHitEffect(attacker, attackSource);
                 }
@@ -415,10 +436,12 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity, ICrowdControlTarget
     // 마지막 타일의 월드 좌표 기준
     private bool CheckIfReachedDestination()
     {
+        if (pathData == null || pathData.nodes == null) throw new InvalidOperationException("pathData, pathData.nodes가 없음");
+
         if (pathData.nodes.Count == 0) return false;
 
-        Vector2Int lastNodeGridPos = pathData.nodes[pathData.nodes.Count - 1].gridPosition;
-        Vector3 lastNodePosition = MapManager.Instance.ConvertToWorldPosition(lastNodeGridPos) + Vector3.up * 0.5f;
+        Vector2Int lastNodeGridPos = pathData!.nodes![pathData!.nodes!.Count - 1].gridPosition;
+        Vector3 lastNodePosition = MapManager.Instance!.ConvertToWorldPosition(lastNodeGridPos) + Vector3.up * 0.5f;
 
         return Vector3.Distance(transform.position, lastNodePosition) < 0.05f;
     }
@@ -470,10 +493,10 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity, ICrowdControlTarget
 
     public void InitializeProjectilePool()
     {
-        if (AttackRangeType == AttackRangeType.Ranged)
+        if (AttackRangeType == AttackRangeType.Ranged && BaseData.projectilePrefab != null)
         {
             projectileTag = $"{BaseData.entityName}_Projectile";
-            ObjectPoolManager.Instance.CreatePool(projectileTag, BaseData.projectilePrefab, initialPoolSize);
+            ObjectPoolManager.Instance!.CreatePool(projectileTag, BaseData.projectilePrefab, initialPoolSize);
         }
     }
 
@@ -481,7 +504,7 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity, ICrowdControlTarget
     // 현재 경로상에서 목적지까지 남은 거리 계산
     public float GetRemainingPathDistance()
     {
-        if (currentPath == null || nextNodeIndex > +currentPath.Count)
+        if (currentPath.Count == 0 || nextNodeIndex > +currentPath.Count)
         {
             return float.MaxValue;
         }
@@ -507,7 +530,8 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity, ICrowdControlTarget
     private void OnBarricadePlaced(Barricade barricade)
     {
         // 내 타일과 같은 타일에 바리케이드가 배치된 경우
-        if (barricade.CurrentTile.EnemiesOnTile.Contains(this))
+        if (barricade.CurrentTile != null && 
+            barricade.CurrentTile.EnemiesOnTile.Contains(this))
         {
             targetBarricade = barricade;
         }
@@ -549,18 +573,22 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity, ICrowdControlTarget
     // 현재 pathData를 사용하는 경로가 막혔는지를 점검한다
     private bool IsPathBlocked()
     {
+        if (currentPath.Count == 0) throw new InvalidOperationException("currentPath가 비어 있음");
+        
         for (int i = nextNodeIndex; i <= currentPath.Count - 1; i++)
         {
-            // 
-            if ((i == nextNodeIndex && PathfindingManager.Instance.IsPathSegmentValid(transform.position, currentPath[i]) == false) ||
-                PathfindingManager.Instance.IsPathSegmentValid(currentPath[i], currentPath[i + 1]) == false)
+            // 경로가 막힌 상황 : 기존 경로 데이터들을 정리한다
+            if ((i == nextNodeIndex && PathfindingManager.Instance!.IsPathSegmentValid(transform.position, currentPath[i]) == false) ||
+                PathfindingManager.Instance!.IsPathSegmentValid(currentPath[i], currentPath[i + 1]) == false)
             {
                 pathData = null;
-                currentPath = null;
+                currentPath.Clear();
                 Debug.Log("현재 경로가 막힘");
                 return true;
             }
         }
+       
+
         return false;
     }
 
@@ -573,7 +601,7 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity, ICrowdControlTarget
             PathData newPathData = ScriptableObject.CreateInstance<PathData>();
             newPathData.nodes = newPathNodes;
             pathData = newPathData;
-            currentPath = newPathNodes.Select(node => MapManager.Instance.ConvertToWorldPosition(node.gridPosition) + Vector3.up * 0.5f).ToList();
+            currentPath = newPathNodes.Select(node => MapManager.Instance!.ConvertToWorldPosition(node.gridPosition) + Vector3.up * 0.5f).ToList();
 
             nextNodeIndex = 0;
 
@@ -584,7 +612,7 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity, ICrowdControlTarget
     // targetPosition으로 향하는 경로를 계산하고, 경로가 있다면 새로운 pathData와 currentPath로 설정함
     private bool CalculateAndSetPath(Vector3 currentPosition, Vector3 targetPosition)
     {
-        List<PathNode> tempPathNodes = PathfindingManager.Instance.FindPathAsNodes(currentPosition, targetPosition);
+        List<PathNode>? tempPathNodes = PathfindingManager.Instance!.FindPathAsNodes(currentPosition, targetPosition);
 
         if (tempPathNodes == null || tempPathNodes.Count == 0) return false; // 목적지로 향하는 경로가 없음
 
@@ -595,7 +623,7 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity, ICrowdControlTarget
     // 현재 위치에서 가장 가까운 바리케이드를 설정하고, 바리케이드로 향하는 경로를 설정함
     private void SetBarricadePath()
     {
-        targetBarricade = PathfindingManager.Instance.GetNearestBarricade(transform.position);
+        targetBarricade = PathfindingManager.Instance!.GetNearestBarricade(transform.position);
 
         if (targetBarricade != null)
         {
@@ -647,12 +675,12 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity, ICrowdControlTarget
 
     public void SetAttackDuration()
     {
-        AttackDuration = 0.3f / AttackSpeed;
+        AttackDuration = AttackSpeed / 3f;
     }
 
     public void SetAttackCooldown(float? intentionalCooldown = null)
     {
-        AttackCooldown = 1 / AttackSpeed;
+        AttackCooldown = AttackSpeed;
     }
 
     public bool CanAttack()
@@ -671,7 +699,7 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity, ICrowdControlTarget
         if (BaseData.meleeAttackEffectPrefab != null)
         {
             meleeAttackEffectTag = id + BaseData.entityName + BaseData.meleeAttackEffectPrefab.name;
-            ObjectPoolManager.Instance.CreatePool(
+            ObjectPoolManager.Instance!.CreatePool(
                 meleeAttackEffectTag,
                 BaseData.meleeAttackEffectPrefab
             );
@@ -681,7 +709,7 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity, ICrowdControlTarget
         if (BaseData.hitEffectPrefab != null)
         {
             hitEffectTag = id + BaseData.entityName + BaseData.hitEffectPrefab.name;
-            ObjectPoolManager.Instance.CreatePool(
+            ObjectPoolManager.Instance!.CreatePool(
                 hitEffectTag,
                 BaseData.hitEffectPrefab
             );
@@ -693,16 +721,21 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity, ICrowdControlTarget
     private void PlayMeleeAttackEffect(UnitEntity target, AttackSource attackSource)
     {
         // 이펙트 처리
-        if (BaseData.meleeAttackEffectPrefab != null)
+        if (meleeAttackEffectTag != null && BaseData.meleeAttackEffectPrefab != null)
         {
-            GameObject effectObj = ObjectPoolManager.Instance.SpawnFromPool(
+            GameObject? effectObj = ObjectPoolManager.Instance!.SpawnFromPool(
                    meleeAttackEffectTag,
                    transform.position,
                    Quaternion.identity
             );
-
-            CombatVFXController combatVFXController = effectObj.GetComponent<CombatVFXController>();
-            combatVFXController.Initialize(attackSource, target, meleeAttackEffectTag);
+            if (effectObj != null)
+            {
+                CombatVFXController? combatVFXController = effectObj.GetComponent<CombatVFXController>();
+                if (combatVFXController != null)
+                {
+                    combatVFXController.Initialize(attackSource, target, meleeAttackEffectTag);
+                }
+            }
         }
     }
 
@@ -712,7 +745,10 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity, ICrowdControlTarget
         {
             GameObject uiObject = Instantiate(enemyBarUIPrefab, transform);
             enemyBarUI = uiObject.GetComponentInChildren<EnemyBarUI>();
-            enemyBarUI.Initialize(this);
+            if (enemyBarUI != null)
+            {
+                enemyBarUI.Initialize(this);
+            }
         }
     }
 
@@ -721,7 +757,7 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity, ICrowdControlTarget
     {
         if (AttackRangeType == AttackRangeType.Ranged && !string.IsNullOrEmpty(projectileTag))
         {
-            ObjectPoolManager.Instance.RemovePool(projectileTag);
+            ObjectPoolManager.Instance!.RemovePool(projectileTag);
         }
     }
 
@@ -729,12 +765,12 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity, ICrowdControlTarget
     {
         if (meleeAttackEffectTag != null)
         {
-            ObjectPoolManager.Instance.RemovePool(meleeAttackEffectTag);
+            ObjectPoolManager.Instance!.RemovePool(meleeAttackEffectTag);
         }
 
         if (hitEffectTag != null)
         {
-            ObjectPoolManager.Instance.RemovePool(hitEffectTag);
+            ObjectPoolManager.Instance!.RemovePool(hitEffectTag);
         }
 
         RemoveProjectilePool();
@@ -753,6 +789,12 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity, ICrowdControlTarget
             blockingOperator = op;
         }
     }
+
+    public void RemoveBlockingOperator()
+    {
+        blockingOperator = null;
+    }
+
     protected override float CalculateActualDamage(AttackType attacktype, float incomingDamage)
     {
         float actualDamage = 0; // 할당까지 필수
@@ -783,6 +825,7 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity, ICrowdControlTarget
         }
     }
 
+
     private void OnTriggerExit(Collider other)
     {
         Tile tile = other.GetComponent<Tile>();
@@ -793,10 +836,45 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity, ICrowdControlTarget
         }
     }
 
+    // enemy는 콜라이더를 끌 상황이 없는 듯 하다
+    protected override void SetColliderState()
+    {
+        boxCollider.enabled = true;
+    }
+
     public void SetMovementSpeed(float newSpeed)
     {
         currentStats.MovementSpeed = newSpeed;
     }
+
+    private void RotateModelTowardsMovementDirection()
+    {
+        if (modelContainer == null) return;
+
+        Vector3 direction = nextPosition - transform.position;
+        direction.y = 0f; 
+        if (direction != Vector3.zero)
+        {
+            
+            // 핵심 : LookRoation은 +z 방향을 바라보게 만든다
+            // forward : 바라볼 방향 / up : 윗 방향
+            Quaternion targetRotation = Quaternion.LookRotation(direction, Vector3.up);
+            modelContainer.transform.rotation = targetRotation;
+
+            // 다른 방법
+            //direction.Normalize();
+            //float angle = Vector3.SignedAngle(modelContainer.transform.forward, direction, Vector3.up);
+            //modelContainer.transform.eulerAngles = new Vector3(0, angle, 0);
+
+            // 만약 부드러운 회전을 원한다면
+            //model.transform.rotation = Quaternion.Slerp(
+            //    model.transform.rotation, 
+            //    targetRotation, 
+            //    rotationSpeed * Time.deltaTime
+            //    );
+        }
+    }
+
 
     protected void OnDestroy()
     {

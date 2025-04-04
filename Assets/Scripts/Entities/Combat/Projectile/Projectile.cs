@@ -9,16 +9,15 @@ public class Projectile : MonoBehaviour
     private float value; // 대미지 or 힐값
     private bool showValue;
     private bool isHealing = false;
-    private UnitEntity attacker;
-    private UnitEntity target;
-    private Vector3 lastKnownPosition; // 마지막으로 알려진 적의 위치
-    private string poolTag;
-    private GameObject hitEffectPrefab;
-    public string PoolTag { get; private set; }
-    private bool shouldDestroy;
+    private UnitEntity? attacker; // 날아가는 중에 파괴될 수 있음
+    private UnitEntity? target; // 날아가는 중에 파괴될 수 있음
+    private Vector3 lastKnownPosition = new Vector3(0f, 0f, 0f); // 마지막으로 알려진 적의 위치
+    private string poolTag = string.Empty;
+    private GameObject hitEffectPrefab = default!;
+    private bool shouldDestroy = false;
 
-    private VisualEffect vfx;
-    private Vector3 vfxBaseDirection;
+    private VisualEffect? vfx;
+    private Vector3 vfxBaseDirection = new Vector3(0f, 0f, 0f);
 
     // VFX에서 자체 회전을 가질 때에만 사용
     private float rotationSpeed = 360f; // 초당 회전 각도 (도 단위)
@@ -31,6 +30,13 @@ public class Projectile : MonoBehaviour
         string poolTag,
         GameObject hitEffectPrefab)
     {
+        // 공격자(attacker)와 대상(target)은 Initialize 메서드의 인자로 반드시 전달되므로 null일 수 없다고 가정할 수 있습니다.
+        // 따라서 null 확인 없이 바로 Faction을 비교할 수 있습니다.
+        if (attacker.Faction == target.Faction)
+        {
+            isHealing = true;
+            this.showValue = true;
+        }
         UnSubscribeFromEvents();
 
         this.attacker = attacker;
@@ -42,8 +48,6 @@ public class Projectile : MonoBehaviour
         shouldDestroy = false;
 
         this.hitEffectPrefab = hitEffectPrefab;
-        target.OnDestroyed += OnTargetDestroyed;
-        attacker.OnDestroyed += OnAttackerDestroyed;
 
         vfx = GetComponentInChildren<VisualEffect>();
 
@@ -53,12 +57,16 @@ public class Projectile : MonoBehaviour
             vfx.Play();
         }
 
+        // 이 시점의 target, attacker은 null이 아님
+        target.OnDestroyed += OnTargetDestroyed;
+        attacker.OnDestroyed += OnAttackerDestroyed;
+     
         // 공격자와 대상이 같다면 힐로 간주
-        if (attacker.Faction == target.Faction)
-        {
-            isHealing = true;
-            this.showValue = true;
-        }
+        //if (attacker.Faction == target.Faction)
+        //{
+        //    isHealing = true;
+        //    this.showValue = true;
+        //}
     }
 
     private void Update()
@@ -157,7 +165,7 @@ public class Projectile : MonoBehaviour
     private void OnReachTarget()
     {
         // 타겟이 살아있는 경우
-        if (target != null)
+        if (target != null && attacker != null)
         {
             AttackSource attackSource = new AttackSource(transform.position, true, hitEffectPrefab);
 
@@ -171,7 +179,7 @@ public class Projectile : MonoBehaviour
                 // 대미지는 보여야 하는 경우에만 보여줌
                 if (showValue == true)
                 {
-                    ObjectPoolManager.Instance.ShowFloatingText(target.transform.position, value, false);
+                    ObjectPoolManager.Instance!.ShowFloatingText(target.transform.position, value, false);
                 }
 
                 target.TakeDamage(attacker, attackSource, value);
@@ -186,7 +194,7 @@ public class Projectile : MonoBehaviour
         }
         else
         {
-            ObjectPoolManager.Instance.ReturnToPool(poolTag, gameObject);
+            ObjectPoolManager.Instance!.ReturnToPool(poolTag, gameObject);
         }
     }
 

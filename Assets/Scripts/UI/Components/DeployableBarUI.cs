@@ -3,14 +3,14 @@ using UnityEngine;
 
 public class DeployableBarUI : MonoBehaviour
 {
-    [SerializeField] private HealthBar healthBar;
-    [SerializeField] private HealthBar spBar;
+    [SerializeField] private HealthBar healthBar = default!;
+    [SerializeField] private HealthBar spBar = default!;
 
     private float backOffset = 0; // UI의 높이 오프셋
-    private Operator op;
+    private Operator? op;
 
-    private Camera mainCamera;
-    private Canvas canvas;
+    private Camera mainCamera = default!;
+    private Canvas canvas = default!;
 
     private void Awake()
     {

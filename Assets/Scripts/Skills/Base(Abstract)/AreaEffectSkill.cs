@@ -8,22 +8,23 @@ namespace Skills.Base
     public abstract class AreaEffectSkill: ActiveSkill
     {
         [Header("AreaEffectSkill References")]
-        [SerializeField] protected GameObject fieldEffectPrefab; // 실질적인 효과 프리팹
-        [SerializeField] protected GameObject skillRangeVFXPrefab; // 시각 효과 프리팹
-        [SerializeField] protected List<Vector2Int> skillRangeOffset;
-        [SerializeField] protected string EFFECT_TAG;
+        [SerializeField] protected GameObject fieldEffectPrefab = default!; // 실질적인 효과 프리팹
+        [SerializeField] protected GameObject skillRangeVFXPrefab = default!; // 시각 효과 프리팹
+        [SerializeField] protected string EFFECT_TAG = string.Empty;
 
-        protected UnitEntity mainTarget;
-        protected HashSet<Vector2Int> actualSkillRange = new HashSet<Vector2Int>();
-        protected HashSet<Tile> actualSkillRangeTiles = new HashSet<Tile>();
+        protected UnitEntity? mainTarget;
 
-        protected GameObject hitEffectPrefab;
-        private Dictionary<Operator, List<GameObject>> activeEffects = new Dictionary<Operator, List<GameObject>>();
+        protected GameObject? hitEffectPrefab;
+        protected Dictionary<Operator, List<GameObject>> activeEffects = new Dictionary<Operator, List<GameObject>>();
+
+        // 타겟 중복 가능성을 제거하기 위한 해쉬셋
+        protected HashSet<int> enemyIdSet = new HashSet<int>();
+
 
         protected override void OnSkillStart(Operator op)
         {
             base.OnSkillStart(op);
-            hitEffectPrefab = op.BaseData.HitEffectPrefab ?? null;
+            hitEffectPrefab = op.OperatorData.HitEffectPrefab ?? null;
         }
 
         protected override void SetDefaults()
@@ -44,7 +45,7 @@ namespace Skills.Base
             VisualizeActualSkillRange(op);
 
             // 실제 효과 장판 생성
-            GameObject fieldEffect = CreateEffectField(op, centerPos);
+            GameObject? fieldEffect = CreateEffectField(op, centerPos);
 
             // 필드 효과 추적 및 사망 이벤트 구독
             if (fieldEffect != null)
@@ -57,32 +58,29 @@ namespace Skills.Base
             }
         }
 
-        private void CalculateActualSkillRange(Vector2Int center)
-        {
-            foreach (Vector2Int offset in skillRangeOffset)
-            {
-                Vector2Int rotatedOffset = DirectionSystem.RotateGridOffset(offset, caster.FacingDirection);
-                actualSkillRange.Add(center + rotatedOffset);
-            }
-        }
-
         private void VisualizeActualSkillRange(Operator op)
         {
             // 유효한 타일에만 VFX 생성
             foreach (Vector2Int pos in actualSkillRange)
             {
-                if (MapManager.Instance.CurrentMap.IsValidGridPosition(pos.x, pos.y))
+                if (MapManager.Instance!.CurrentMap!.IsValidGridPosition(pos.x, pos.y))
                 {
-                    GameObject vfxObj = ObjectPoolManager.Instance.SpawnFromPool(
-                        EFFECT_TAG,
-                        MapManager.Instance.ConvertToWorldPosition(pos),
-                        Quaternion.identity
-                    );
+                    GameObject? vfxObj = ObjectPoolManager.Instance!.SpawnFromPool(
+                                           EFFECT_TAG,
+                                           MapManager.Instance!.ConvertToWorldPosition(pos),
+                                           Quaternion.identity
+                                       );
 
-                    TrackEffect(op, vfxObj);
+                    if (vfxObj != null)
+                    {
+                        TrackEffect(op, vfxObj);
 
-                    var rangeEffect = vfxObj.GetComponent<SkillRangeVFXController>();
-                    rangeEffect.Initialize(pos, actualSkillRange, duration, EFFECT_TAG);
+                        var rangeEffect = vfxObj.GetComponent<SkillRangeVFXController>();
+                        if (rangeEffect != null)
+                        {
+                            rangeEffect.Initialize(pos, actualSkillRange, duration, EFFECT_TAG);
+                        }
+                    }
                 }
             }
         }
@@ -94,10 +92,17 @@ namespace Skills.Base
 
         public override void InitializeSkillObjectPool()
         {
-            ObjectPoolManager.Instance.CreatePool(EFFECT_TAG, skillRangeVFXPrefab, skillRangeOffset.Count);
+            ObjectPoolManager.Instance!.CreatePool(EFFECT_TAG, skillRangeVFXPrefab, skillRangeOffset.Count);
         }
 
-        public override void CleanupSkillObjectPool()
+        public override void CleanupSkill()
+        {
+            // 서순 중요
+            CleanupSkillObjectPool();
+            actualSkillRange.Clear();
+        }
+
+        public void CleanupSkillObjectPool()
         {
             // 모든 활성 효과 정리
             foreach (var pair in activeEffects)
@@ -119,7 +124,7 @@ namespace Skills.Base
                 }
             }
 
-            ObjectPoolManager.Instance.RemovePool(EFFECT_TAG);
+            ObjectPoolManager.Instance!.RemovePool(EFFECT_TAG);
         }
 
         private void TrackEffect(Operator op, GameObject effect)
@@ -153,7 +158,7 @@ namespace Skills.Base
             activeEffects.Remove(op);
         }
 
-        protected abstract GameObject CreateEffectField(Operator op, Vector2Int centerPos); // 스킬의 실제 효과 구현
+        protected abstract GameObject? CreateEffectField(Operator op, Vector2Int centerPos); // 스킬의 실제 효과 구현
         protected abstract Vector2Int GetCenterPos(Operator op);
     }
 

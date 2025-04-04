@@ -6,17 +6,17 @@ namespace Skills.Base
     public abstract class BaseSkill : ScriptableObject
     {
         [Header("Basic Skill Properties")]
-        public string skillName;
+        public string skillName = string.Empty;
         [TextArea(3, 10)]
-        public string description;
-        public float SPCost;
-        public Sprite skillIcon;
+        public string description = string.Empty;
+        public float SPCost = 0f;
+        public Sprite skillIcon = default!;
 
         public bool autoRecover = false; // SP 자동회복 여부
         public bool autoActivate = false; // 자동발동 여부
         public bool modifiesAttackAction = false; // 기본 공격이 다르게 나가는 스킬일 때 true
 
-        protected Operator caster; // 스킬 시전자
+        protected Operator caster = default!; // 스킬 시전자
 
         protected abstract void SetDefaults(); // 인스펙터 bool 필드값들 초기 설정.
 
@@ -27,7 +27,7 @@ namespace Skills.Base
 
         // 오브젝트 풀링을 사용할 경우
         public virtual void InitializeSkillObjectPool() { } // 오브젝트 풀 구현
-        public virtual void CleanupSkillObjectPool() { } // 오브젝트 풀 제거
+        public virtual void CleanupSkill() { } // 스킬에 관련된 리소스 제거
 
         protected void Reset()
         {

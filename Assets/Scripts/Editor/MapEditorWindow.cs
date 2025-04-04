@@ -7,18 +7,18 @@ using System.Linq;
 public class MapEditorWindow : EditorWindow
 {
 
-    private GameObject spawnerPrefab;
+    private GameObject? spawnerPrefab;
 
     public int currentMapWidth = 5;
     public int currentMapHeight = 5;
     private int newMapWidth;
     private int newMapHeight;
-    private Map currentMap;
-    private TileData selectedTileData;
+    private Map? currentMap;
+    private TileData? selectedTileData;
     private Vector2 scrollPosition;
     private List<TileData> availableTileData = new List<TileData>();
 
-    private GameObject tilePrefab;
+    private GameObject? tilePrefab;
 
     private const string MAP_OBJECT_NAME = "Map";
     private const string MAP_PREFAB_PATH = "Assets/Prefabs/Map";
@@ -31,7 +31,6 @@ public class MapEditorWindow : EditorWindow
 
     private void OnEnable()
     {
-
         LoadAvailableTileData(); // 사용 가능한 타일 정보 준비
         LoadSpawnerPrefab(); // 스포너 준비
         LoadTilePrefab(); // 타일 정보 준비
@@ -121,6 +120,7 @@ public class MapEditorWindow : EditorWindow
         EditorGUILayout.EndHorizontal();
     }
 
+    // 수정된 DrawMapGrid 메서드
     private void DrawMapGrid(int width, int height)
     {
         if (currentMap == null) return;
@@ -130,7 +130,8 @@ public class MapEditorWindow : EditorWindow
             EditorGUILayout.BeginHorizontal();
             for (int x = 0; x < width; x++)
             {
-                TileData tileData = currentMap.GetTileData(x, y);
+                // 타일 데이터가 null이어도 GetTileSymbol 내에서 '-'를 반환하도록 수정합니다.
+                TileData? tileData = currentMap.GetTileData(x, y);
                 string tileSymbol = GetTileSymbol(tileData);
                 if (GUILayout.Button(tileSymbol, GUILayout.Width(30), GUILayout.Height(30)))
                 {
@@ -146,7 +147,7 @@ public class MapEditorWindow : EditorWindow
     /// </summary>
     private void HandleTileClick(int x, int y)
     {
-        if (selectedTileData != null)
+        if (selectedTileData != null && currentMap != null)
         {
             currentMap.UpdateTile(x, y, selectedTileData);
             SceneView.RepaintAll();
@@ -154,30 +155,16 @@ public class MapEditorWindow : EditorWindow
         }
     }
 
-    // 루트 오브젝트에 있는 스테이지 오브젝트를 찾는다
-    private GameObject GetStageObject()
-    {
-        GameObject[] rootObjects = SceneManager.GetActiveScene().GetRootGameObjects();
-        foreach (GameObject go in rootObjects)
-        {
-            if (go.name.StartsWith("Stage"))
-            {
-                return go;
-            }
-        }
-        return null;
-    }
-
     // 현재 하이어라키에 있는 Map 컴포넌트를 찾음
     private void FindExistingMap()
     {
-        currentMap = FindObjectOfType<Map>(); // 큰 씬일수록 연산량이 많지만 에디터니까 ㄱㅊ
+        currentMap = FindFirstObjectByType<Map>();
         if (currentMap != null)
         {
             currentMapWidth = currentMap.Width;
             currentMapHeight = currentMap.Height;
             // 맵 다시 초기화 - 컴파일이 다시 된 다음에 MapEditorWindow에 참조를 유실하는 문제가 있음
-            currentMap.Initialize(currentMapWidth, currentMapHeight, true);
+            currentMap.InitializeOnEditor(currentMapWidth, currentMapHeight, true);
         }
     }
 
@@ -191,7 +178,7 @@ public class MapEditorWindow : EditorWindow
         currentMap = mapObject.AddComponent<Map>();
 
         // Map 오브젝트 초기화(load = false)
-        currentMap.Initialize(currentMapWidth, currentMapHeight, false);
+        currentMap.InitializeOnEditor(currentMapWidth, currentMapHeight, false);
 
         // Map 컴포넌트의 tilePrefab 속성을 에디터 스크립트에서 설정, 맵 생성 시 올바른 타일 프리팹이 사용되도록 한다.
         SerializedObject serializedMap = new SerializedObject(currentMap);
@@ -210,9 +197,11 @@ public class MapEditorWindow : EditorWindow
     }
 
 
-    private string GetTileSymbol(TileData tileData)
+    // GetTileSymbol 메서드의 파라미터를 nullable로 변경하여 null 체크를 수행하게 합니다.
+    private string GetTileSymbol(TileData? tileData)
     {
-        if (tileData == null || tileData.terrain == TileData.TerrainType.Empty) return "-";
+        if (tileData == null || tileData.terrain == TileData.TerrainType.Empty)
+            return "-";
         return tileData.TileName.Substring(0, 1).ToUpper();
     }
 
@@ -249,40 +238,32 @@ public class MapEditorWindow : EditorWindow
         // 현재 씬에 존재하는 맵 제거 
         RemoveExistingMaps();
 
-        // 스테이지 오브젝트 아래에 맵 오브젝트 설정
-        GameObject stageObject = GetStageObject();
-        GameObject mapInstance = PrefabUtility.InstantiatePrefab(loadedMapPrefab, stageObject.transform) as GameObject;
-        mapInstance.name = MAP_OBJECT_NAME;
-        currentMap = mapInstance.GetComponent<Map>();
-        if (currentMap == null)
+        // 맵에 관한 설정
+        GameObject? mapInstance = PrefabUtility.InstantiatePrefab(loadedMapPrefab) as GameObject;
+        if (mapInstance != null)
         {
-            Debug.LogError("Loaded prefab does not have a Map component.");
-            DestroyImmediate(mapInstance);
-            return;
+            mapInstance.name = MAP_OBJECT_NAME;
+            currentMap = mapInstance.GetComponent<Map>();
+            if (currentMap == null)
+            {
+                Debug.LogError("Loaded prefab does not have a Map component.");
+                DestroyImmediate(mapInstance);
+                return;
+            }
+
+            currentMap.InitializeOnEditor(currentMap.Width, currentMap.Height, true);
+            currentMapWidth = currentMap.Width;
+            currentMapHeight = currentMap.Height;
+
+            SceneView.RepaintAll(); // 씬을 리페인트
+            Repaint(); // 윈도우를 리페인트
         }
-
-        // Map 컴포넌트의 tilePrefab 속성을 에디터 스크립트에서 설정, 맵 생성 시 올바른 타일 프리팹이 사용되도록 한다.
-        SerializedObject serializedMap = new SerializedObject(currentMap);
-        SerializedProperty tilePrefabProperty = serializedMap.FindProperty("tilePrefab");
-        if (tilePrefabProperty.objectReferenceValue == null)
-        {
-            tilePrefabProperty.objectReferenceValue = tilePrefab;
-            serializedMap.ApplyModifiedProperties();
-        }
-
-        currentMap.Initialize(currentMap.Width, currentMap.Height, true);
-
-        currentMapWidth = currentMap.Width;
-        currentMapHeight = currentMap.Height;
-
-        SceneView.RepaintAll(); // 씬을 리페인트
-        Repaint(); // 윈도우를 리페인트
     }
 
 
     private void RemoveExistingMaps()
     {
-        Map[] existingMaps = FindObjectsOfType<Map>();
+        Map[] existingMaps = FindObjectsByType<Map>(FindObjectsSortMode.None);
         foreach (Map map in existingMaps)
         {
             DestroyImmediate(map.gameObject);
@@ -302,14 +283,18 @@ public class MapEditorWindow : EditorWindow
         {
             for (int y = 0; y < currentMapHeight; y++)
             {
-                oldTileData[x, y] = currentMap.GetTileData(x, y);
+                TileData? tileData = currentMap.GetTileData(x, y);
+                if (tileData != null)
+                {
+                    oldTileData[x, y] = tileData;
+                }
             }
         }
 
         currentMap.RemoveAllTiles();
 
         // 맵 크기 조정
-        currentMap.Initialize(newWidth, newHeight, false);
+        currentMap.InitializeOnEditor(newWidth, newHeight, false);
 
         // 기존 데이터 복원
         for (int x = 0; x < Mathf.Min(currentMapWidth, newWidth); x++)
@@ -357,7 +342,7 @@ public class MapEditorWindow : EditorWindow
 
     private void LoadSpawnerPrefab()
     {
-        spawnerPrefab = AssetDatabase.LoadAssetAtPath<GameObject>("Assets/Prefabs/Stage/Enemy Spawner.prefab");
+        spawnerPrefab = AssetDatabase.LoadAssetAtPath<GameObject>("Assets/Prefabs/EnemySpawner.prefab");
         if (spawnerPrefab == null)
         {
             Debug.LogWarning("Enemy spawner prefab not found");

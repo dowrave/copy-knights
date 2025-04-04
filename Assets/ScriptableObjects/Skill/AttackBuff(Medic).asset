@@ -12,8 +12,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: dd75ae2c82a93b249a8e5571199facdd, type: 3}
   m_Name: AttackBuff(Medic)
   m_EditorClassIdentifier: 
-  skillName: 
-  description: "\uCE58\uC720\uB825\uC744 50% \uC62C\uB824\uC90D\uB2C8\uB2E4."
+  skillName: HealUp
+  description: "<color=#179bff>5\uCD08</color> \uB3D9\uC548 \uACF5\uACA9\uB825\uC774
+    <color=#179bff>50%</color> \uC62C\uB77C\uAC11\uB2C8\uB2E4."
   SPCost: 2
   skillIcon: {fileID: 21300000, guid: 382f7708e34e52843bc66fd9701310df, type: 3}
   autoRecover: 1
@@ -21,6 +22,9 @@ MonoBehaviour:
   modifiesAttackAction: 0
   duration: 5
   skillVFXPrefab: {fileID: 2673592997991987600, guid: 71dcdfc208cb9544faefa0e237696144, type: 3}
+  activeFromOperatorPosition: 1
+  skillRangeOffset: []
+  rectOffset: 0
   modifiers:
     healthModifier: 1
     attackPowerModifier: 1.5

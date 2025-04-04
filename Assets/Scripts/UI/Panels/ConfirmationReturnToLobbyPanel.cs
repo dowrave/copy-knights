@@ -1,38 +1,49 @@
 using UnityEngine;
 using UnityEngine.UI;
 using DG.Tweening;
+using TMPro;
 
 public class ConfirmationReturnToLobbyPanel : MonoBehaviour
 {
     [Header("UI References")]
-    [SerializeField] Button blurArea; // 빈 영역 클릭 시 로비로 돌아감
-    [SerializeField] Button ConfirmButton;
-    [SerializeField] Button CancelButton;
+    [SerializeField] TextMeshProUGUI textContent = default!;
+    [SerializeField] Button blurArea = default!; // 빈 영역 클릭 시 로비로 돌아감
+    [SerializeField] Button ConfirmButton = default!;
+    [SerializeField] Button CancelButton = default!;
 
-    CanvasGroup canvasGroup;
+
+
+    private CanvasGroup canvasGroup = default!;
     private float animationSpeed = 0.01f; // DOFade의 실제 알파값에 영향을 준다. 왜 그런지는 모르겠음.
 
-    private void Start()
+    private void Awake()
     {
         canvasGroup = GetComponent<CanvasGroup>();
-        gameObject.SetActive(false);
     }
 
     public void Initialize()
     {
-        StageManager.Instance.SetGameState(GameState.Paused);
+        if (StageManager.Instance!.currentState == GameState.Battle)
+        {
+            StageManager.Instance!.SetGameState(GameState.Paused);
+        }
+
+        // 멈춤 오버레이가 활성화된 경우 비활성화
+        UIManager.Instance!.HidePauseOverlay();
         gameObject.SetActive(true);
+
         if (canvasGroup != null)
         {
             canvasGroup.alpha = 0f;
             canvasGroup.DOKill();
-            canvasGroup.DOFade(1f, animationSpeed);
+            canvasGroup.DOFade(1f, animationSpeed)
+                .SetUpdate(true); // Time.timeScale 무시
         }
     }
 
     private void OnConfirmButtonClicked()
     {
-        StageManager.Instance.RequestExit();
+        StageManager.Instance!.RequestExit();
     }
 
     private void OnCancelButtonClicked()
@@ -46,11 +57,14 @@ public class ConfirmationReturnToLobbyPanel : MonoBehaviour
         {
             canvasGroup.alpha = 1f;
             canvasGroup.DOKill();
-            canvasGroup.DOFade(0f, animationSpeed);
+            canvasGroup.DOFade(0f, animationSpeed)
+                .SetUpdate(true);
 
             gameObject.SetActive(false);
         }
-        StageManager.Instance.SetGameState(GameState.Battle);
+
+        //UIManager.Instance.HidePauseOverlay();
+        StageManager.Instance!.SetGameState(GameState.Battle);
     }
 
     private void AddOnClickEventListeners()

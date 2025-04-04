@@ -19,4 +19,5 @@ MonoBehaviour:
   isStartPoint: 0
   isEndPoint: 0
   tileColor: {r: 0.5, g: 0.5, b: 0.5, a: 1}
+  tilePrefab: {fileID: 4667640908928492419, guid: 4b0f68de89c80ab419cdfffd87622bbc, type: 3}
   hasPit: 0
