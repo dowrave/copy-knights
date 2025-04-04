@@ -372,7 +372,7 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable,
             {
                 BlockEnemy(collidedEnemy); // 적을 저지
                 collidedEnemy.SetBlockingOperator(this);
-                Debug.Log($"{OperatorData.entityName}이 {collidedEnemy}을 저지하기 시작함, 현재 저지 수 : {blockedEnemies.Count}");
+                //Debug.Log($"{OperatorData.entityName}이 {collidedEnemy}을 저지하기 시작함, 현재 저지 수 : {blockedEnemies.Count}");
             }
         }
     }
@@ -385,7 +385,7 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable,
         {
             UnblockEnemy(collidedEnemy);
             collidedEnemy.RemoveBlockingOperator();
-            Debug.Log($"{OperatorData.entityName}이 {collidedEnemy}을 저지 해제, 현재 저지 수 : {blockedEnemies.Count}");
+            //Debug.Log($"{OperatorData.entityName}이 {collidedEnemy}을 저지 해제, 현재 저지 수 : {blockedEnemies.Count}");
         }
     }
 

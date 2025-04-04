@@ -48,7 +48,7 @@ public class PlayerDataManager : MonoBehaviour
     {
         ResetPlayerData(); // 디버깅용
         InitializeSystem();
-        InitializeForTest();
+        
     }
 
     private void InitializeSystem()
@@ -229,17 +229,21 @@ public class PlayerDataManager : MonoBehaviour
         //}
 
         // 아이템 지급
-        AddStartingItems();
+        //AddStartingItems();
 
         // 스테이지 임의 클리어
-        RecordStageResult("1-0", 3);
-
-        //RecordStageResult("1-1", 3);
-        //RecordStageResult("1-2", 2);
+        StageClearAndGetRewards("1-0", 3);
 
         SavePlayerData();
     }
 
+    private void StageClearAndGetRewards(string stageId, int stars)
+    {
+        RecordStageResult(stageId, stars);
+
+        StageData stageData = GameManagement.Instance!.StageDatabase.GetDataById(stageId);
+        GameManagement.Instance!.RewardManager.SetAndGiveStageRewards(stageData, stars);
+    }
 
 
     // 유저가 오퍼레이터를 보유하게 함
@@ -380,6 +384,11 @@ public class PlayerDataManager : MonoBehaviour
         OnSquadUpdated?.Invoke();
     }
 
+    private void Start()
+    {
+        InitializeForTest();
+    }
+
     public int GetMaxSquadSize() => playerData!.maxSquadSize;
 
 
@@ -419,27 +428,6 @@ public class PlayerDataManager : MonoBehaviour
         }
 #endif
     }
-
-    //public bool AddItem(string itemName, int count = 1)
-    //{
-    //    InstanceValidator.ValidateInstance(playerData);
-    //    var safePlayerData = playerData!;
-
-    //    UserInventoryData.ItemStack existingItem = safePlayerData.inventory.items.Find(i => i.itemName == itemName);
-
-    //    // dict를 이용, 아이템이 있으면 값만 더하고 없으면 새로 만듦
-    //    if (existingItem != null)
-    //    {
-    //        existingItem.count += count;
-    //    }
-    //    else
-    //    {
-    //        safePlayerData.inventory.items.Add(new UserInventoryData.ItemStack(itemName, count));
-    //    }
-
-    //    SavePlayerData();
-    //    return true;
-    //}
 
     public bool UseItems(Dictionary<string, int> itemsToUse)
     {
@@ -584,11 +572,11 @@ public class PlayerDataManager : MonoBehaviour
         }
     }
 
-    public void GrantStageRewards()
+    public void GrantStageRewards(List<ItemWithCount> firstClearRewards, List<ItemWithCount> basicClearRewards)
     {
         // IReadOnlyList 등은 제대로 직렬화되지 않을 수 있어서, List로 바꿔서 저장하는 게 안전하다.
-        List<ItemWithCount> firstClearRewards = new List<ItemWithCount>(StageManager.Instance!.ActualFirstClearRewards);
-        List<ItemWithCount> basicClearRewards = new List<ItemWithCount>(StageManager.Instance!.ActualBasicClearRewards);
+        //List<ItemWithCount> firstClearRewards = new List<ItemWithCount>(StageManager.Instance!.ActualFirstClearRewards);
+        //List<ItemWithCount> basicClearRewards = new List<ItemWithCount>(StageManager.Instance!.ActualBasicClearRewards);
 
         GrantItems(firstClearRewards);
         GrantItems(basicClearRewards);

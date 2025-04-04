@@ -81,10 +81,6 @@ public class DeployableActionUI : MonoBehaviour
         {
             skillImage.sprite = currentOperator.CurrentSkill.skillIcon;
         }
-        else
-        {
-            Debug.LogError("스킬 아이콘에 이미지가 없음!");
-        }
     }
 
     // ResourceManager에서 가져온 색상들을 다듬거나 할당함

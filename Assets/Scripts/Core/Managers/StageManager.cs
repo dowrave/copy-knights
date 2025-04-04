@@ -91,10 +91,10 @@ public class StageManager : MonoBehaviour
     // 스크린이 완전히 사라진 다음 게임 시작을 위한 할당
     private StageLoadingScreen? stageLoadingScreen;
 
-    private List<ItemWithCount> actualFirstClearRewards;
-    public IReadOnlyList<ItemWithCount> ActualFirstClearRewards => actualFirstClearRewards;
-    private List<ItemWithCount> actualBasicClearRewards;
-    public IReadOnlyList<ItemWithCount> ActualBasicClearRewards => actualBasicClearRewards;
+    // 패널에 전달하기 위한 보상 값들
+    public IReadOnlyList<ItemWithCount> FirstClearRewards = default!;
+    public IReadOnlyList<ItemWithCount> BasicClearRewards = default!;
+
 
 
     // 이벤트
@@ -369,8 +369,16 @@ public class StageManager : MonoBehaviour
         SetGameState(GameState.GameWin);
         int stars = 3 - PassedEnemies;
 
-        SetStageRewards(stageData, stars);
-        GameManagement.Instance!.PlayerDataManager.GrantStageRewards();
+        GameManagement.Instance!.RewardManager.SetAndGiveStageRewards(stageData, stars);
+
+        // 어차피 바꿀거라서 변수명은 약어 처리함
+        (FirstClearRewards, BasicClearRewards) = GameManagement.Instance!.RewardManager.SetStageRewards(stageData, stars);
+
+        // 리스트로 바꿔서 전달해야 직렬화 시에 더 안전하다고 함
+        List<ItemWithCount> firstClearRewards = new List<ItemWithCount>(FirstClearRewards);
+        List<ItemWithCount> basicClearRewards = new List<ItemWithCount>(BasicClearRewards);
+
+        GameManagement.Instance!.PlayerDataManager.GrantStageRewards(firstClearRewards, basicClearRewards);
         GameManagement.Instance!.PlayerDataManager.RecordStageResult(stageData!.stageId, stars);
 
         UIManager.Instance!.HidePauseOverlay();
@@ -505,103 +513,7 @@ public class StageManager : MonoBehaviour
         DeployableManager.Instance!.Initialize(squadData, deployableList, stageData!.operatorMaxDeploymentCount);
     }
 
-    // 클리어 별 갯수에 따른 보상을 설정합니다. 
-    public void SetStageRewards(StageData stageData, int stars)
-    {
-        var stageResultInfo = GameManagement.Instance!.PlayerDataManager.GetStageResultInfo(stageData.stageId);
-        List<ItemWithCount> perfectFirstClearRewards = stageData.FirstClearRewardItems;
-        List<ItemWithCount> perfectBasicClearRewards = stageData.BasicClearRewardItems;
 
-        // 최초 클리어 조건. 세부 조건은 메서드 내부에 있음
-        float firstClearExpItemRate = SetFirstClearExpItemRate(stageResultInfo, stars);
-        float firstClearPromoItemRate = SetFirstClearPromotionItemRate(stageResultInfo, stars);
-        actualFirstClearRewards = MultiplyRewards(perfectFirstClearRewards, firstClearExpItemRate, firstClearPromoItemRate);
-
-
-        float basicClearExpItemRate = SetBasicClearItemRate(stars);
-        actualBasicClearRewards = MultiplyRewards(perfectBasicClearRewards, basicClearExpItemRate);
-    }
-
-    // 각 reward의 count에 itemRate를 곱하여 새 리스트로 반환합니다.
-    private List<ItemWithCount> MultiplyRewards(List<ItemWithCount> rewards, float expItemRate, float promoItemRate = 0f)
-    {
-        List<ItemWithCount> scaledRewards = new List<ItemWithCount>();
-
-        // 3성 클리어를 반복했을 경우 배율이 0일 수 있으며, 이 경우는 빈 리스트를 반환함 
-        if (expItemRate == 0f && promoItemRate == 0f) return scaledRewards; 
-
-        foreach (var reward in rewards)
-        {
-            // 정예화 아이템 처리
-            if (reward.itemData.type == ItemData.ItemType.EliteItem)
-            {
-                int scaledCount = Mathf.FloorToInt(reward.count * promoItemRate);
-                scaledRewards.Add(new ItemWithCount(reward.itemData, scaledCount));
-            }
-
-            // 경험치 아이템 처리
-            else
-            {
-                int scaledCount = Mathf.FloorToInt(reward.count * expItemRate);
-                // ItemWithCount 객체를 새로 생성합니다.
-                scaledRewards.Add(new ItemWithCount(reward.itemData, scaledCount));
-            }
-        }
-        return scaledRewards;
-    }
-
-    // n성을 최초로 달성했을 때의 경험치 아이템 지급 배율을 계산한다.
-    private float SetFirstClearExpItemRate(StageResultData.StageResultInfo? resultInfo, int stars)
-    {
-        // 클리어한 적 없을 때의 최초 보상 배율
-        if (resultInfo == null)
-        {
-            if (stars == 1) return 0.25f;
-            else if (stars == 2) return 0.5f;
-            else if (stars == 3) return 1f;
-        }
-
-        // 기존에 3성으로 클리어했다면 최초 보상은 없음
-        if (resultInfo.stars == 3) return 0f;
-
-        // 기존보다 더 잘 클리어했을 때 - 남은 2, 3성의 보상을 가져감
-        if (resultInfo.stars < stars)
-        {
-            if (resultInfo.stars == 1)
-            {
-                if (stars == 2) return 0.25f;
-                if (stars == 3) return 0.75f;
-            }
-            else if (resultInfo.stars == 2)
-            {
-                if (stars == 3) return 0.5f;
-            }
-        }
-
-        // return 문으로 빠져나가지 못했다면 에러 발생
-        throw new InvalidOperationException("FirstClearItemRate의 예상치 못한 동작");
-    }
-
-    private float SetFirstClearPromotionItemRate(StageResultData.StageResultInfo? resultInfo, int stars)
-    {
-        // 기존에 클리어한 적이 없고 3성 클리어할 경우에만 1f 반환하여 정예화 아이템 지급
-        if (resultInfo == null && stars == 3)
-        {
-            return 1f;
-        }
-
-        // 나머지 경우는 0 반환
-        return 0f;
-    }
-
-    // n성으로 클리어했을 때의 아이템 지급 비율을 계산한다
-    private float SetBasicClearItemRate(int stars)
-    {
-        if (stars == 1) return 0.25f;
-        else if (stars == 2) return 0.5f;
-        else if (stars == 3) return 1f;
-        else throw new InvalidOperationException("BasicClearItemRate의 예상치 못한 동작");
-    }
 
     private void OnDestroy()
     {

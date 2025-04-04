@@ -13,6 +13,9 @@ public class StageItemInfoPopup : MonoBehaviour
     [SerializeField] private TextMeshProUGUI popupItemNameText = default!;
     [SerializeField] private TextMeshProUGUI popupItemDetailText = default!;
     [SerializeField] private RectTransform popupItemNameBackground = default!;
+    [SerializeField] private ScrollRect scrollRect = default!;
+
+    private ItemData itemData = default!;
 
     private ItemUIElement itemUIElement = default!;
     private RectTransform popupRectTransform = default!;
@@ -22,6 +25,10 @@ public class StageItemInfoPopup : MonoBehaviour
 
     private Vector2 originalItemNamePosition = default!;
 
+
+    // 이 스크립트에서 각 Area의 활성화는 웬만하면 지켜주자.
+
+    // 최초에 패널은 UIManager.Awake에서 Hide가 호출되면서 의해 비활성화됨
     private void Awake()
     {
         // GetComponent 계열은 Awake에서 수행한다.
@@ -29,9 +36,9 @@ public class StageItemInfoPopup : MonoBehaviour
         canvasRectTransform = canvas.GetComponent<RectTransform>();
         popupRectTransform = popupArea.GetComponent<RectTransform>();
 
-        originalItemNamePosition = popupItemNameBackground.anchoredPosition;
+        Debug.Log($"popupRectTransform : {popupRectTransform}");
 
-        popupArea.gameObject.SetActive(false);
+        originalItemNamePosition = popupItemNameBackground.anchoredPosition;
     }
 
     public void Show(ItemUIElement itemUIElement)
@@ -39,15 +46,43 @@ public class StageItemInfoPopup : MonoBehaviour
         gameObject.SetActive(true);
 
         this.itemUIElement = itemUIElement;
-        ItemData itemData = itemUIElement.ItemData;
+        itemData = itemUIElement.ItemData;
+
+        // 팝업 요소 배치 및 활성화 
+        ActivatePopupElements();
+    }
+
+    private void ActivatePopupElements()
+    {
+        // (Horizontal Layout Group에 의한) 레이아웃 업데이트를 위한 한 프레임 대기
+        //yield return new WaitForEndOfFrame();
+        // Canvas.ForceUpdateCavases(); 로 강제 업데이트도 가능하다고 함
+
         popupItemNameText.text = itemData.itemName;
         popupItemDetailText.text = itemData.description;
 
-        // 팝업 요소들
-        ActivatePopupElements();
-        //StartCoroutine(WaitAndActivatePopupElements());
+        // 기존 itemUIElement의 위치 얻기
+        RectTransform originalRect = itemUIElement.GetComponent<RectTransform>();
+        Vector3 finalWorldPosition = originalRect.position;
 
+        // backArea 위에 오는 복사본 인스턴스화
+        copiedItem = Instantiate(itemUIElement.gameObject, transform, originalRect);
+
+        // 팝업 요소의 위치 설정
+        AdjustPopupLocation();
+
+        // BackArea 클릭 시 popupArea을 닫는 리스너 추가
+        backArea.onClick.AddListener(OnBackAreaClicked);
+
+        // 스크롤 위치 맨 위로 설정
+        scrollRect.verticalNormalizedPosition = 1.0f;
+
+        // 복사본을 만든 다음 팝업을 띄움 - 복사본이 순간적으로 깜빡이는 현상 방지
+        popupArea.gameObject.SetActive(true);
+        //gameObject.SetActive(true);
     }
+
+
 
     // 팝업이 화면에서 잘리면 왼쪽으로 띄움
     private void AdjustPopupLocation()
@@ -127,28 +162,6 @@ public class StageItemInfoPopup : MonoBehaviour
         popupItemNameBackground.anchoredPosition = originalItemNamePosition;
     }
 
-    private void ActivatePopupElements()
-    {
-        // (Horizontal Layout Group에 의한) 레이아웃 업데이트를 위한 한 프레임 대기
-        //yield return new WaitForEndOfFrame();
-        // Canvas.ForceUpdateCavases(); 로 강제 업데이트도 가능하다고 함
-
-        // 기존 itemUIElement의 위치 얻기
-        RectTransform originalRect = itemUIElement.GetComponent<RectTransform>();
-        Vector3 finalWorldPosition = originalRect.position;
-
-        // 복사본 인스턴스화
-        copiedItem = Instantiate(itemUIElement.gameObject, transform, originalRect);
-
-        // 팝업 요소의 위치 설정
-        AdjustPopupLocation();
-
-        // BackArea 클릭 시 popupArea을 닫는 리스너 추가
-        backArea.onClick.AddListener(OnBackAreaClicked);
-
-        // 복사본을 만든 다음 팝업을 띄움 - 복사본이 순간적으로 깜빡이는 현상 방지
-        popupArea.gameObject.SetActive(true);
-    }
 
     private IEnumerator WaitAndActivatePopupElements()
     {
