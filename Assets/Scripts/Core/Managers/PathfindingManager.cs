@@ -74,7 +74,7 @@ public class PathfindingManager : MonoBehaviour
         List<Vector3>? worldPath = FindPath(startPos, endPos);
         if (worldPath == null)
         {
-            Debug.LogError("반환된 경로가 없음!");
+            Debug.Log("반환된 경로가 없음!");
             return null;
         }
 

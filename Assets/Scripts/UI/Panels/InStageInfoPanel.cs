@@ -49,7 +49,7 @@ public class InStageInfoPanel : MonoBehaviour
         cancelPanel.gameObject.SetActive(false);
     }
 
-    public void UpdateInfo(DeployableManager.DeployableInfo deployableInfo)
+    public void UpdateInfo(DeployableManager.DeployableInfo deployableInfo, bool IsClickDeployed)
     {
         currentDeployableInfo = deployableInfo;
         currentDeployableUnitState = DeployableManager.Instance!.UnitStates[currentDeployableInfo];
@@ -60,8 +60,8 @@ public class InStageInfoPanel : MonoBehaviour
             return;
         }
 
-        // 배치된 요소가 아닐 때에만 CancelPanel이 나타남 (배치된 요소는 다이아몬드가 나타나므로 필요 x)
-        if (!currentDeployableUnitState.IsDeployed)
+        // 박스에서 꺼내는 요소인 경우, 맵의 남은 부분을 클릭하면 현재 동작을 취소할 수 있음
+        if (!IsClickDeployed)
         {
             cancelPanel.gameObject.SetActive(true);
             cancelPanel.onClick.AddListener(OnCancelPanelClicked);

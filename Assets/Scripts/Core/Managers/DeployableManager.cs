@@ -380,9 +380,10 @@ public class DeployableManager : MonoBehaviour
         InstanceValidator.ValidateInstance(actionUIPrefab);
 
         HideUIs();
+
         // 일관된 위치 구현하기
         Vector3 ActionUIPosition = new Vector3(deployable.transform.position.x, 1f, deployable.transform.position.z);
-        currentActionUI = Instantiate(actionUIPrefab!, ActionUIPosition, Quaternion.identity);
+        currentActionUI = Instantiate(actionUIPrefab, ActionUIPosition, Quaternion.identity);
         currentActionUI.Initialize(deployable);
         currentUIState = UIState.OperatorAction;
     }

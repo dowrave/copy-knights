@@ -152,7 +152,7 @@ public class UIManager : MonoBehaviour
     public void ShowUndeployedInfo(DeployableManager.DeployableInfo deployableInfo)
     {
         infoPanelObject.SetActive(true);
-        inStageInfoPanelScript.UpdateInfo(deployableInfo);
+        inStageInfoPanelScript.UpdateInfo(deployableInfo, false);
 
         if (deployableInfo.prefab != null)
         {
@@ -167,7 +167,7 @@ public class UIManager : MonoBehaviour
     public void ShowDeployedInfo(DeployableUnitEntity deployableUnitEntity)
     {
         infoPanelObject.SetActive(true);
-        inStageInfoPanelScript.UpdateInfo(deployableUnitEntity.DeployableInfo!);
+        inStageInfoPanelScript.UpdateInfo(deployableUnitEntity.DeployableInfo!, true);
         CameraManager.Instance!.AdjustForDeployableInfo(true, deployableUnitEntity);
         
     }

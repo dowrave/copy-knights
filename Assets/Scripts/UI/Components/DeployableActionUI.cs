@@ -39,8 +39,9 @@ public class DeployableActionUI : MonoBehaviour
     private Color skillOnColorWithAlpha;
     private Color skillOffColorWithAlpha;
 
-    public void Initialize(IDeployable deployable)
+    public void Initialize(DeployableUnitEntity deployable)
     {
+        gameObject.SetActive(true);
         this.deployable = deployable;
 
         if (deployable is Operator)
@@ -48,13 +49,21 @@ public class DeployableActionUI : MonoBehaviour
             currentOperator = deployable as Operator;
             if (currentOperator != null)
             {
+                Debug.LogWarning("배치요소는 operator");
+                skillButton.gameObject.SetActive(true);
+
                 UpdateSkillButton();
                 currentOperator.OnSPChanged += HandleSPChange;
                 isSPImageActive = currentOperator.CanUseSkill();
+
+                // 스킬 아이콘 부분에 이미지 할당
+                InitializeSkillIcon();
+                InitializeColors();
             }
         }
         else
         {
+            Debug.LogWarning($"배치요소는 deployable : {deployable.DeployableUnitData.entityName}");
             skillButton.gameObject.SetActive(false);
         }
 
@@ -62,21 +71,21 @@ public class DeployableActionUI : MonoBehaviour
         canvas = GetComponent<Canvas>();
         canvas.worldCamera = Camera.main;
 
+        // 버튼들에 이벤트 리스너 설정
         SetUpButtons();
-        InitializeSkillIcon();
-        InitializeColors();
 
-        transform.rotation = Quaternion.Euler(90, 0, 0); // 카메라가 70도, 의도적으로 맵과 평행하게 구현
+
+        // 맵과 나란한 방향으로 설정
+        transform.rotation = Quaternion.Euler(90, 0, 0);
 
         maskedOverlay.Initialize(darkPanelAlpha); // 알파 0으로 조정
 
-        gameObject.SetActive(true);
     }
 
     private void InitializeSkillIcon()
     {
         // 스킬 아이콘이 있다면 아이콘을 버튼 이미지로
-        if (currentOperator != null && 
+        if (currentOperator != null &&
             currentOperator.CurrentSkill.skillIcon != null)
         {
             skillImage.sprite = currentOperator.CurrentSkill.skillIcon;
@@ -103,6 +112,7 @@ public class DeployableActionUI : MonoBehaviour
         // 버튼 위치는 인스펙터에서 설정
         // 버튼 이벤트 설정
         retreatButton.onClick.AddListener(OnRetreatButtonClicked);
+        Debug.LogWarning("퇴각 버튼에 리스너 설정됨");
 
         if (deployable is Operator)
         {
@@ -143,26 +153,15 @@ public class DeployableActionUI : MonoBehaviour
 
     private void OnRetreatButtonClicked()
     {
+        Debug.LogWarning("퇴각 버튼 클릭됨");
         deployable.Retreat();
         ClickDetectionSystem.Instance!.OnButtonClicked();
         Hide();
     }
 
-    public void Show()
-    {
-        maskedOverlay.Show();
-        gameObject.SetActive(true);
-        if (currentOperator != null)
-        {
-            UpdateSkillButton();
-        }
-    }
-
     public void Hide()
     {
-        //maskedOverlay.Hide();
-        DeployableManager.Instance!.CancelCurrentAction();
-        //gameObject.SetActive(false);
+        DeployableManager.Instance!.CancelCurrentAction(); // 결과적으로 이 오브젝트가 파괴됨
     }
 
     private void UpdateSPIndicator()
@@ -263,8 +262,10 @@ public class DeployableActionUI : MonoBehaviour
 
     private void OnDestroy()
     {
+        retreatButton.onClick.RemoveAllListeners();
         if (currentOperator != null)
         {
+            skillButton.onClick.RemoveAllListeners();
             currentOperator.OnSPChanged -= HandleSPChange;
         }
     }

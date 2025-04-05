@@ -109,7 +109,8 @@ public class ClickDetectionSystem : MonoBehaviour
             Debug.Log($"Raycast Hit: {result.gameObject.name}");
         }
 
-        ProcessClickPriority(results);    }
+        ProcessClickPriority(results);    
+    }
 
     private void ProcessClickPriority(List<RaycastResult> results)
     {
