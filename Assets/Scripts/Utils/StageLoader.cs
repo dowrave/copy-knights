@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.SceneManagement;
 
 
@@ -14,15 +15,16 @@ public class StageLoader : MonoBehaviour
     [SerializeField] private GameObject loadingScreenPrefab = default!;
 
     private StageData? cachedStageData;
-    public StageData? CachedStageData => cachedStageData; 
+    public StageData? CachedStageData => cachedStageData;
     private List<OwnedOperator>? cachedSquadData;
     private bool isLoading;
-
     private StageLoadingScreen? loadingScreen;
     private const float MIN_LOADING_TIME = 0.5f;
-
     private const string MAINMENU_SCENE = "MainMenuScene"; // 스테이지 씬은 StageData 내에 있음
     private const string STAGE_SCENE = "StageScene";
+
+    // 새로 추가한 입력 차단용 변수
+    private GameObject? inputBlocker;
 
     public void LoadStage(StageData stageData)
     {
@@ -35,33 +37,34 @@ public class StageLoader : MonoBehaviour
         cachedStageData = stageData;
         cachedSquadData = new List<OwnedOperator>(GameManagement.Instance!.UserSquadManager.GetCurrentSquad());
 
-        StartCoroutine(LoadStageRoutine());
+        StartCoroutine(LoadStage());
     }
 
-    private IEnumerator LoadStageRoutine()
+    private IEnumerator LoadStage()
     {
-
         float loadStartTime = Time.time;
 
-        // 로딩 화면 보여주기
+        // 모든 입력 차단(스테이지 입력 버튼 재클릭 때문에 필요)
+        EventSystem.current.enabled = false; 
+
+        // 로딩 화면 보여주기 및 입력 차단
         ShowLoadingScreen();
 
         // 비동기 씬 로드
         AsyncOperation asyncLoad = SceneManager.LoadSceneAsync(STAGE_SCENE);
         asyncLoad.allowSceneActivation = false;
 
-        // 씬 로드 진행 - 로딩이 90% 됐을 때 다음으로 넘어간다.
+        // 씬 로드 진행 - 로딩이 90% 되었을 때 다음으로 넘어간다.
         while (asyncLoad.progress < 0.9f)
         {
-            // 로딩 진행률을 추가해도 좋다
-            yield return null; 
+            yield return null;
         }
 
         // 최소 로딩 시간 보장
-        float elpasedTime = Time.time - loadStartTime;
-        if (elpasedTime < MIN_LOADING_TIME)
+        float elapsedTime = Time.time - loadStartTime;
+        if (elapsedTime < MIN_LOADING_TIME)
         {
-            yield return new WaitForSeconds(MIN_LOADING_TIME - elpasedTime);
+            yield return new WaitForSeconds(MIN_LOADING_TIME - elapsedTime);
         }
 
         asyncLoad.allowSceneActivation = true;
@@ -70,16 +73,16 @@ public class StageLoader : MonoBehaviour
             yield return null;
         }
 
-        // 씬 로딩 완료 후 진행
+        // 로딩 완료 직전에 입력 차단 해제
+        EventSystem.current.enabled = true;
+
         if (CachedStageData != null && cachedSquadData != null && loadingScreen != null)
         {
             StageManager.Instance!.InitializeStage(CachedStageData, cachedSquadData, loadingScreen);
-
         }
 
         // 초기화 후에는 로딩화면 사라짐
         loadingScreen = null;
-
     }
 
     private void ShowLoadingScreen()
@@ -92,9 +95,9 @@ public class StageLoader : MonoBehaviour
         if (loadingScreen != null && CachedStageData != null)
         {
             loadingScreen.Initialize(
-                    CachedStageData.stageId,
-                    CachedStageData.stageName
-                );
+                CachedStageData.stageId,
+                CachedStageData.stageName
+            );
             DontDestroyOnLoad(loadingObj);
         }
     }
@@ -105,27 +108,17 @@ public class StageLoader : MonoBehaviour
         CleanupCache();
     }
 
-
-    // 2성 이하로 클리어 / 게임 패배시에 동작
-    // 메인 메뉴로 돌아가서 현재 스테이지를 선택
     public void ReturnToMainMenuWithStageSelected()
     {
         if (cachedStageData != null)
         {
             string currentStageId = cachedStageData.stageId;
-
-            // 씬 전환 + 스테이지 선택 상태 전달
             PlayerPrefs.SetString("LastPlayedStage", currentStageId);
             PlayerPrefs.Save();
-
             SceneManager.LoadScene(MAINMENU_SCENE);
-
-            // 스테이지 정보를 갖고 메인메뉴로 돌아가야 하므로 캐시를 정리하지 않음
-
         }
     }
-    
-  
+
     private void CleanupCache()
     {
         cachedStageData = null;
@@ -136,8 +129,5 @@ public class StageLoader : MonoBehaviour
     public void OnGameQuit()
     {
         CleanupCache();
-        //HideLoadingScreen();
     }
-
-    
 }

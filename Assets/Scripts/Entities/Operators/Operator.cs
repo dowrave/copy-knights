@@ -419,7 +419,12 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable,
     public override void TakeDamage(UnitEntity attacker, AttackSource attackSource, float damage)
     {
         base.TakeDamage(attacker, attackSource, damage);
-        StatisticsManager.Instance!.UpdateDamageTaken(OperatorData, damage);
+    }
+
+    // 부모 클래스에서 정의된 TakeDamage에서 사용됨
+    protected override void OnDamageTaken(float actualDamage)
+    {
+        StatisticsManager.Instance!.UpdateDamageTaken(OperatorData, actualDamage);
     }
 
     protected override void Die()

@@ -173,31 +173,29 @@ public class StageResultPanel : MonoBehaviour
     {
         var sortedStats = StatisticsManager.Instance!.GetSortedOperatorStats(currentStatType);
 
-        // StatItems 재정렬
-        for (int i = 0; i < statItems.Count; i++)
+        // 아이템 이름과 statisicItem 매핑
+        Dictionary<string, StatisticItem> itemDict = new Dictionary<string, StatisticItem>();
+        foreach (var item in statItems)
         {
-            var (opData, value) = sortedStats[i];
-
-            // 현재 위치의 StatItem이 올바른 오퍼레이터를 표시하고 있는지 확인
-            if (statItems[i].OpData != opData)
-            {
-                // 올바른 위치의 StatItem 찾기
-                var correctItem = statItems.Find(item => item.OpData == opData);
-                if (correctItem != null)
-                {
-                    // Transform 순서 변경
-                    correctItem.transform.SetSiblingIndex(i);
-
-                    // statItems 리스트 순서도 변경
-                    int oldIndex = statItems.IndexOf(correctItem);
-                    statItems[oldIndex] = statItems[i];
-                    statItems[i] = correctItem;
-                }
-            }
-
-            // 통계 표시 업데이트
-            statItems[i].UpdateDisplay(currentStatType, showingPercentage);
+            itemDict[item.OpData.entityName] = item;
         }
+
+        // 순서를 정함
+        List<StatisticItem> newOrder = new List<StatisticItem>();
+        foreach (var (opData, _) in sortedStats)
+        {
+            newOrder.Add(itemDict[opData.entityName]);
+        }
+
+        // UI 업데이트
+        for (int i=0; i < newOrder.Count; i++)
+        {
+            newOrder[i].transform.SetSiblingIndex(i);
+            newOrder[i].UpdateDisplay(currentStatType, showingPercentage);
+            
+        }
+
+        statItems = newOrder;
     }
 
     private void StopEventPropagation()

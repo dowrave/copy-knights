@@ -119,7 +119,17 @@ public class StatisticItem : MonoBehaviour
         float totalValue = StatisticsManager.Instance!.GetTotalValueForStatType(statType);
         float percentage = (totalValue > 0) ? (value / totalValue) : 0; // 전체 값 중 해당 오퍼레이터가 기여한 값
 
-        fillImage.fillAmount = percentage;
+        percentageBar.normalizedValue = percentage;
+
+        // 값이 0이면 숨기기
+        if (value == 0) 
+        {
+            gameObject.SetActive(false);
+            return;
+        } 
+
+        gameObject.SetActive(true);
+
         if (showPercentage)
         {
             SetPercentage(percentage);

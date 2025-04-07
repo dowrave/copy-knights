@@ -19,7 +19,7 @@ MonoBehaviour:
     \uD22C\uC0AC\uCCB4\uB97C <color=#179bff>2\uD68C</color> \uBC1C\uC0AC\uD558\uACE0,
     \uC2A4\uD0AC\uC744 \uC2DC\uC804\uD560 \uB54C <color=#179bff>\uBC30\uCE58 \uCF54\uC2A4\uD2B8
     10</color>\uC744 \uD68C\uBCF5\uD569\uB2C8\uB2E4."
-  SPCost: 1
+  SPCost: 12
   skillIcon: {fileID: 21300000, guid: 096a82d916c6a5348895f1d6e7667114, type: 3}
   autoRecover: 1
   autoActivate: 0

@@ -184,7 +184,7 @@ public class StageManager : MonoBehaviour
         // 코스트 관련 초기화
         currentDeploymentCost = stageData!.startDeploymentCost;
         maxDeploymentCost = stageData!.maxDeploymentCost;
-        timeToFillCost = stageData!.timeToFillCost;
+        timeToFillCost = stageData!.costPerSecond;
 
         // 체력 포인트 초기화
         CurrentLifePoints = MaxLifePoints;

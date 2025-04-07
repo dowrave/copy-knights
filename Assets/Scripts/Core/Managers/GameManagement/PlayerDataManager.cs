@@ -2,10 +2,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System;
 using UnityEngine;
-using UnityEditor.Overlays;
-using Newtonsoft.Json;
-using UnityEditor.Experimental.GraphView;
-
 
 // 사용자의 데이터(보유 오퍼레이터, 스쿼드 등등)를 관리한다.
 // GameManagement의 하위 오브젝트
@@ -22,7 +18,6 @@ public class PlayerDataManager : MonoBehaviour
         public StageResultData stageResults = new StageResultData(); // 스테이지 진행 상황
         public bool isTutorialFinished = false;
         public List<TutorialStatus> tutorialDataStatus = new List<TutorialStatus>();
-
     }
 
     public enum TutorialStatus
@@ -134,8 +129,8 @@ public class PlayerDataManager : MonoBehaviour
         }
         else
         {
-            //playerData = JsonUtility.FromJson<PlayerData>(savedData);
-            playerData = JsonConvert.DeserializeObject<PlayerData>(savedData);
+            playerData = JsonUtility.FromJson<PlayerData>(savedData);
+            //playerData = JsonConvert.DeserializeObject<PlayerData>(savedData);
             ValidateSquadSize();
 
             // 정예화, 레벨에 따른 변경사항 반영

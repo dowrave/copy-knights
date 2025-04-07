@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using UnityEngine;
 using static ICombatEntity;
 
@@ -203,10 +204,12 @@ public abstract class UnitEntity : MonoBehaviour, ITargettable, IFactionMember
 
     public virtual void TakeDamage(UnitEntity attacker, AttackSource attackSource, float damage)
     {
+        float actualDamage = 0f;
+
         if (attacker is ICombatEntity iCombatEntity && CurrentHealth > 0)
         {
             // 방어 / 마법 저항력이 고려된 실제 들어오는 대미지
-            float actualDamage = CalculateActualDamage(iCombatEntity.AttackType, damage);
+            actualDamage = CalculateActualDamage(iCombatEntity.AttackType, damage);
 
             // 쉴드를 깎고 남은 대미지
             float remainingDamage = shieldSystem.AbsorbDamage(actualDamage);
@@ -220,12 +223,15 @@ public abstract class UnitEntity : MonoBehaviour, ITargettable, IFactionMember
             PlayGetHitEffect(attacker, attackSource);
         }
 
+        OnDamageTaken(actualDamage);
 
         if (CurrentHealth <= 0)
         {
             Die(); // 오버라이드 메서드
         }
     }
+
+    protected virtual void OnDamageTaken(float actualDamage) { }
 
     // 콜라이더의 활성화 여부 결정
     protected virtual void SetColliderState() { } // Enemy, DeployableUnitEntity에서 상세 구현(abstract으로 하면 반드시 말단에서 구현해야 함)
