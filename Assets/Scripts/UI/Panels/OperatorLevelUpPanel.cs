@@ -28,7 +28,7 @@ public class OperatorLevelUpPanel : MonoBehaviour
     [SerializeField] private TextMeshProUGUI cantReachLevelText = default!; // 해당 레벨에 도달이 불가능할 때 아이템 대신 등장
     private List<ItemUIElement> activeItemElements = new List<ItemUIElement>(); // 현재 표시중인 아이템 요소들
 
-    [SerializeField] private float velocityThreshold = 0.5f; // 스크롤이 멈췄다고 판단하는 속도 임계값
+    [SerializeField] private float velocityThreshold = 0.1f; // 스크롤이 멈췄다고 판단하는 속도 임계값
 
     private float snapThreshold; // 스냅 거리 임계값. 지우지 않도록 주의.
     private string updateColor = string.Empty;
@@ -62,6 +62,7 @@ public class OperatorLevelUpPanel : MonoBehaviour
     private float viewportHeight; // 뷰포트의 높이
     private bool isMousePressed = false;
     private bool isScrolling = false; // 관성 스크롤 중인지 여부
+    private bool isSnapping = false;
     private bool isInitialized = false;
     private bool isUpdatingPanel = false;
     private bool isPanelUpdated = false; // 이 레벨에 대한 패널이 업데이트 됐으면 true
@@ -101,8 +102,8 @@ public class OperatorLevelUpPanel : MonoBehaviour
                 SetMaxLevelButtonVisible(true);
             }
         }
-
     }
+
 
     public void Initialize(OwnedOperator op)
     {
@@ -117,7 +118,6 @@ public class OperatorLevelUpPanel : MonoBehaviour
         InitializeLevelStrip();
         UpdateExpGauge();
         InitializeStatTexts();
-        UpdateConfirmButton();
 
         // 초기 위치 설정
         SetInitialScrollPositon(); 
@@ -271,19 +271,21 @@ public class OperatorLevelUpPanel : MonoBehaviour
 
         if (animate)
         {
+            isSnapping = true;
             DOTween.Kill(levelScrollRect);
 
             DOTween.To(
                 () => levelScrollRect.verticalNormalizedPosition,
                 x => levelScrollRect.verticalNormalizedPosition = x,
                 targetPosition,
-                0.5f
+                0.25f // 애니메이션 속도
             )
             .SetEase(Ease.OutCubic)
             .OnComplete(() =>
              {
                  // 스크롤 완료 후 해당 레벨 정보 업데이트
                  StartCoroutine(UpdatePanelWithDelay(targetLevel));
+                 isSnapping = false;
              });
         }
         else
@@ -296,24 +298,26 @@ public class OperatorLevelUpPanel : MonoBehaviour
     private void Update()
     {
         if (!isInitialized) return;
+        if (isSnapping) return; 
 
         // 스크롤 상태 확인
         Vector2 velocity = levelScrollRect.velocity;
 
-        // 임계치를 넘으면 스크롤 중이라고 판단
-        isScrolling = velocity.magnitude > velocityThreshold; 
+        //임계치를 넘으면 스크롤 중이라고 판단
+        isScrolling = velocity.magnitude > velocityThreshold;
 
-        // 마우스 버튼 다운 확인
+        // 마우스 버튼 다운 중인지 확인(GetMouseButtonDown은 눌린 순간만을 감지)
         isMousePressed = Input.GetMouseButton(0);
 
-        // Max 버튼 상태 업데이트
         if (isScrolling)
         {
             SetMaxLevelButtonVisible(false);
-        }
-        
 
-        // 자유 스크롤 중일 때는 selectedLevel만 업데이트
+            // isMousePressed의 조건 상, 확인 버튼을 누르려고 할 때 동작할 가능성이 있어서 따로 분리
+            UpdateConfirmButton();
+        }
+
+        // 스크롤 중일 때의 처리
         if (isMousePressed || isScrolling)
         {
             int newLevel = FindNearestLevel(levelScrollRect.verticalNormalizedPosition);
@@ -330,20 +334,44 @@ public class OperatorLevelUpPanel : MonoBehaviour
         if (!isUpdatingPanel)
         {
             float currentScrollPos = levelScrollRect.verticalNormalizedPosition;
-            int nearestLevelFromCurrentScroll = FindNearestLevel(currentScrollPos);
-            float nearestLevelPos = GetScrollPositionForLevel(nearestLevelFromCurrentScroll);
+
+            SetSelectedLevelByItemUsagePlan(currentScrollPos);
+
+            float selectedLevelPos = GetScrollPositionForLevel(selectedLevel);
 
             // 가장 가까운 레벨로 부드럽게 스냅
             levelScrollRect.verticalNormalizedPosition = Mathf.Lerp(
                 currentScrollPos,
-                nearestLevelPos,
+                selectedLevelPos,
                 Time.deltaTime * snapSpeed
             );
 
-            if (Mathf.Abs(currentScrollPos - nearestLevelPos) < 0.05f && !isPanelUpdated) // 레벨 당 간격이 0.02 언더라서 조건은 적합해보임
+            if (Mathf.Abs(currentScrollPos - selectedLevelPos) < 0.05f && !isPanelUpdated) // 레벨 당 간격이 0.02 언더라서 조건은 적합해보임
             {
-                StartCoroutine(UpdatePanelWithDelay(nearestLevelFromCurrentScroll));
+                StartCoroutine(UpdatePanelWithDelay(selectedLevel));
             }
+        }
+    }
+
+
+    /// <summary>
+    /// 스크롤 위치에서 가장 가까운 레벨을 선택하고 
+    /// 해당 레벨까지 필요한 아이템 사용 계획을 계산하여,
+    /// 만약 결과 targetLevel이 변경되면 해당 레벨로 스크롤 이동합니다.
+    /// </summary>
+    private void SetSelectedLevelByItemUsagePlan(float currentScrollPos)
+    {
+        selectedLevel = FindNearestLevel(currentScrollPos);
+
+        // 해당 레벨에 도달하기 위한 아이템 사용 계획을 가져옴
+        currentUsagePlan = OperatorGrowthManager.Instance!.CalculateRequiredItems(op, selectedLevel);
+
+        // 아이템들을 사용했을 때 도달하는 레벨이 유저가 지정한 레벨보다 높다면 해당 레벨로 이동
+        if (currentUsagePlan.targetLevel > selectedLevel)
+        {
+            SetScrollToLevel(currentUsagePlan.targetLevel, true);
+            selectedLevel = currentUsagePlan.targetLevel;
+            isPanelUpdated = false; // 상태를 넣었으니 패널 업데이트 전까지는 비활성화
         }
     }
 
@@ -353,10 +381,12 @@ public class OperatorLevelUpPanel : MonoBehaviour
         isUpdatingPanel = true;
         selectedLevel = targetLevel;
 
-        yield return new WaitForSeconds(0.1f);
+        yield return null; // 한 프레임 대기
 
         // 스탯 패널 업데이트
         OperatorStats targetLevelStats = OperatorGrowthSystem.CalculateStats(op, targetLevel, op.currentPhase);
+
+        // 레벨업 상황일 때 텍스트에 색깔만 추가
         if (targetLevel == currentLevel)
         {
             healthPreview.newValue.text = targetLevelStats.Health.ToString();
@@ -371,7 +401,7 @@ public class OperatorLevelUpPanel : MonoBehaviour
         }
         magicResistancePreview.newValue.text = targetLevelStats.MagicResistance.ToString(); // 마법 저항력은 레벨업으로 바뀌지 않음
 
-        // 
+
         UpdateLevelUpPreviewDisplay();
 
         // 패널 업데이트 완료
@@ -402,9 +432,10 @@ public class OperatorLevelUpPanel : MonoBehaviour
 
     private void UpdateConfirmButton()
     {
-        bool canConfirm = !isScrolling && 
-            isPanelUpdated && 
-            selectedLevel > currentLevel && 
+        bool canConfirm = !isScrolling && // 스크롤 중이 아닐 때
+            !isSnapping && // 스냅핑 중이 아닐 때
+            isPanelUpdated && // 패널이 다 업데이트 됐을 때
+            selectedLevel > currentLevel && // 레벨 제한
             selectedLevel <= maxReachableLevel;
 
         // 확인 버튼 활성화 상태 업데이트
@@ -429,11 +460,11 @@ public class OperatorLevelUpPanel : MonoBehaviour
         {
             // UI 업데이트
             InitializeStatTexts();
-            UpdateLevelStrip(selectedLevel);
             ClearItemDisplay();
             UpdateExpGauge();
+            MainMenuManager.Instance!.ShowNotification($"레벨업 완료 : 현재 레벨 {selectedLevel}");
+            UpdateLevelStrip(selectedLevel);
             UpdateConfirmButton();
-            MainMenuManager.Instance!.ShowNotification("레벨업 완료");
         }
         else
         {
@@ -466,9 +497,6 @@ public class OperatorLevelUpPanel : MonoBehaviour
         {
             cantReachLevelText.gameObject.SetActive(false);
 
-            // 매니저에서 아이템 사용 계획 가져오기
-            currentUsagePlan = OperatorGrowthManager.Instance!.CalculateRequiredItems(op, selectedLevel);
-
             // UI에 사용될 아이템 표시
             foreach (var itemPair in currentUsagePlan.itemsToUse)
             {
@@ -493,17 +521,8 @@ public class OperatorLevelUpPanel : MonoBehaviour
                 );
                 expGauge.value = currentUsagePlan.remainingExp / maxExpForLevel;
             }
-
-            // 아이템들을 사용했을 때 도달하는 레벨이 유저가 지정한 레벨보다 높다면 해당 레벨로 이동
-            if (currentUsagePlan.targetLevel > selectedLevel)
-            {
-                SetScrollToLevel(currentUsagePlan.targetLevel, true);
-                selectedLevel = currentUsagePlan.targetLevel;
-                // isPanelUpdated를 false로 설정하여 새 레벨에 대한 UI 업데이트 트리거
-                isPanelUpdated = false; 
-            }
         }
-
+         
     }
 
     private void ClearItemDisplay()
@@ -534,7 +553,6 @@ public class OperatorLevelUpPanel : MonoBehaviour
         {
             currentUsagePlan = usagePlan;
         }
-
     }
 
 

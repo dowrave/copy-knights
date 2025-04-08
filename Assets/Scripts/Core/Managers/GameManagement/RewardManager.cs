@@ -18,18 +18,21 @@ public class RewardManager : MonoBehaviour
     }
 
     // 클리어 별 갯수에 따른 보상을 계산하여 반환합니다.
-    public (IReadOnlyList<ItemWithCount> firstClearRewards, IReadOnlyList<ItemWithCount> basicClearRewards) SetStageRewards(StageData stageData, int stars)
+    public (IReadOnlyList<ItemWithCount> firstClearRewards, IReadOnlyList<ItemWithCount> basicClearRewards) 
+        SetStageRewards(StageData stageData, int stars)
     {
         var stageResultInfo = GameManagement.Instance!.PlayerDataManager.GetStageResultInfo(stageData.stageId);
-        List<ItemWithCount> perfectFirstClearRewards = stageData.FirstClearRewardItems;
-        List<ItemWithCount> perfectBasicClearRewards = stageData.BasicClearRewardItems;
 
         // 최초 클리어 보상 계산
+        List<ItemWithCount> perfectFirstClearRewards = stageData.FirstClearRewardItems;
+
         float firstClearExpItemRate = SetFirstClearExpItemRate(stageResultInfo, stars);
         float firstClearPromoItemRate = SetFirstClearPromotionItemRate(stageResultInfo, stars);
         var firstClearRewards = MultiplyRewards(perfectFirstClearRewards, firstClearExpItemRate, firstClearPromoItemRate);
 
         // 기본 클리어 보상 계산
+        List<ItemWithCount> perfectBasicClearRewards = stageData.BasicClearRewardItems;
+
         float basicClearExpItemRate = SetBasicClearItemRate(stars);
         var basicClearRewards = MultiplyRewards(perfectBasicClearRewards, basicClearExpItemRate);
 

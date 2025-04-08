@@ -8,7 +8,7 @@ public class ItemInventoryPanel : MonoBehaviour
 
     private List<ItemUIElement> itemElements = new List<ItemUIElement>();
 
-    private void Start()
+    private void OnEnable()
     {
         InitializeInventory();   
     }
@@ -30,11 +30,18 @@ public class ItemInventoryPanel : MonoBehaviour
         itemElements.Add(element);
     }
 
-    // 아이템 갯수 변경시 UI 업데이트
-    private void UpdateItemCount(ItemData itemData, int count)
+    private void ClearOldElements()
     {
-        ItemUIElement element = Instantiate(itemUIPrefab, itemContainer);
-        element.Initialize(itemData, count, false);
-        itemElements.Add(element);
+        // 생성된 모든 UI 엘리먼트를 파괴 후 리스트 초기화
+        foreach (var element in itemElements)
+        {
+            Destroy(element.gameObject);
+        }
+        itemElements.Clear();
+    }
+
+    private void OnDisable()
+    {
+        ClearOldElements();
     }
 }

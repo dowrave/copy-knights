@@ -13,16 +13,15 @@ public class SkillIconBox : MonoBehaviour
     [SerializeField] private Button button = default!;
     [SerializeField] private TextMeshProUGUI skillNameText = default!;
 
+    [Header("No Skill Sprite")]
+    [SerializeField] private Sprite noSkillIconSprite;
+
     private BaseSkill skillData;
-    private Sprite noSkillIconImage;
 
     public event Action OnButtonClicked;
 
     private void Awake()
     {
-        // 인스펙터에서 기본으로 할당되어 있음
-        noSkillIconImage = skillIconImage.sprite;
-
         if (button == null)
         {
             button = GetComponent<Button>();
@@ -80,8 +79,7 @@ public class SkillIconBox : MonoBehaviour
     // SkillData가 할당되지 않은 상태로 수정
     public void ResetSkillIcon()
     {
-        //Debug.Log($"{gameObject.name} - noSkillIconImage : {noSkillIconImage}");
-        skillIconImage.sprite = noSkillIconImage;
+        skillIconImage.sprite = noSkillIconSprite;
         durationBox.gameObject.SetActive(false);
         durationText.text = string.Empty;
 

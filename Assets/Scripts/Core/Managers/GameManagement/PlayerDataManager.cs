@@ -234,10 +234,10 @@ public class PlayerDataManager : MonoBehaviour
 
     private void StageClearAndGetRewards(string stageId, int stars)
     {
-        RecordStageResult(stageId, stars);
-
+        // 서순 중요) 보상 지급 후 기록 (역으로 하면 3성 클리어 -> 3성 클리어가 되어서, 첫 클리어 아이템이 지급되지 않음)
         StageData stageData = GameManagement.Instance!.StageDatabase.GetDataById(stageId);
         GameManagement.Instance!.RewardManager.SetAndGiveStageRewards(stageData, stars);
+        RecordStageResult(stageId, stars);
     }
 
 
@@ -586,6 +586,7 @@ public class PlayerDataManager : MonoBehaviour
         {
             if (itemWithCount.itemData != null)
             {
+                //Debug.Log($"{itemWithCount.itemData.itemName} : {itemWithCount.count}");
                 // 비율이 반영된 아이템 지급 갯수
                 AddItems(itemWithCount.itemData.itemName!, itemWithCount.count);
             }
