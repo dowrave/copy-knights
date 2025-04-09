@@ -49,15 +49,23 @@ public class OperatorDetailPanel : MonoBehaviour
     [SerializeField] private List<SkillIconBox> skillIconBoxes = new List<SkillIconBox>();
     [SerializeField] private TextMeshProUGUI skillDetailText = default!;
     [SerializeField] private Image skillSelectedIndicator = default!;
-    [SerializeField] private Button SetDefaultSkillButton = default!;
+    [SerializeField] private Button setDefaultSkillButton = default!;
+    [SerializeField] private Image defaultSkillIndicator = default!;
 
-    private BaseSkill currentSelectedSkill = default!;
+    [Header("Set Needed Rect")]
+    [SerializeField] private RectTransform? skillSelectedIndicatorRect = default!;
+    [SerializeField] private RectTransform? defaultSkillIndicatorRect = default!;
+
+
+    private BaseSkill currentSelectedSkill = default!; // UI상에서 선택되고 있는 스킬
     private OperatorData operatorData = default!;
     private OwnedOperator? currentOperator;
+
 
     private void Awake()
     {
         SetupButtons();
+        SetRectComponents();
     }
 
     private void SetupButtons()
@@ -76,14 +84,28 @@ public class OperatorDetailPanel : MonoBehaviour
         }
         
 
-        SetDefaultSkillButton.onClick.AddListener(HandleDefaultButtonClicked);
+        setDefaultSkillButton.onClick.AddListener(HandleDefaultButtonClicked);
     }
 
+    private void SetRectComponents()
+    {
+        if (skillSelectedIndicatorRect == null)
+        {
+            skillSelectedIndicatorRect = skillSelectedIndicator.GetComponent<RectTransform>();
+        }
 
+        if (defaultSkillIndicatorRect == null)
+        {
+            defaultSkillIndicatorRect = skillSelectedIndicator.GetComponent<RectTransform>();
+        }
+    }
+
+    // Initialize가 실행되는 경우, Awake보다 먼저 실행될 수 있음에 유의
     public void Initialize(OwnedOperator ownedOp)
     {
         if (currentOperator != ownedOp)
         {
+            SetRectComponents();
             ClearAttackRange();
 
             currentOperator = ownedOp;
@@ -117,10 +139,9 @@ public class OperatorDetailPanel : MonoBehaviour
         UpdateBasicInfo();
         UpdateStats();
         UpdateGrowthInfo();
+        InitializeSkillsUI();
         UpdateSkillsUI();
-        //UpdateButtonStates();
     }
-
 
     private void UpdateBasicInfo()
     {
@@ -269,10 +290,10 @@ public class OperatorDetailPanel : MonoBehaviour
         }
     }
 
-    private void UpdateSkillsUI()
+    private void InitializeSkillsUI()
     {
         if (currentOperator != null)
-        { 
+        {
             var unlockedSkills = currentOperator.UnlockedSkills;
 
             skillIconBoxes[0].Initialize(unlockedSkills[0], true, true);
@@ -287,10 +308,16 @@ public class OperatorDetailPanel : MonoBehaviour
                 skillIconBoxes[1].ResetSkillIcon();
                 skillIconBoxes[1].SetButtonInteractable(false);
             }
-
-            UpdateSkillSelectionUI();
-            UpdateSkillDescriptionUI();
         }
+
+    }
+
+    private void UpdateSkillsUI()
+    {
+        UpdateSkillSelectionUI();
+        UpdateSkillDescriptionUI();
+        UpdateDefaultSkillIndicator();
+        UpdateSetDefaultSkillButton();
     }
 
     private void OnSkillButtonClicked(int skillIndex)
@@ -300,11 +327,10 @@ public class OperatorDetailPanel : MonoBehaviour
 
         if (skillIndex < skills.Count)
         {
-            currentSelectedSkill = currentOperator.UnlockedSkills[skillIndex];
+            currentSelectedSkill = skills[skillIndex];
         }
 
-        UpdateSkillSelectionUI();
-        UpdateSkillDescriptionUI();
+        UpdateSkillsUI();
     }
 
     // 스킬이 선택됐음을 보여주는 인디케이터 표시 로직
@@ -340,7 +366,7 @@ public class OperatorDetailPanel : MonoBehaviour
             skillSelectedIndicator.transform.SetSiblingIndex(0);
 
             // 위치 이동
-            skillSelectedIndicator.transform.localPosition = Vector3.zero; // 위치도 바꿔줌
+            skillSelectedIndicatorRect.anchoredPosition = Vector2.zero;
 
             // 활성화
             skillSelectedIndicator.gameObject.SetActive(true);
@@ -350,6 +376,7 @@ public class OperatorDetailPanel : MonoBehaviour
             skillSelectedIndicator.gameObject.SetActive(false);
         }
     }
+
 
     private void UpdateSkillDescriptionUI()
     {
@@ -362,5 +389,54 @@ public class OperatorDetailPanel : MonoBehaviour
     {
         currentOperator.SetDefaultSelectedSkills(currentSelectedSkill);
         MainMenuManager.Instance!.ShowNotification($"기본 설정 스킬이 {currentSelectedSkill.skillName}으로 변경되었습니다.");
+        UpdateSkillsUI();
+    }
+
+    // currentDefaultSkill에 해당하는 인디케이터 업데이트
+    private void UpdateDefaultSkillIndicator()
+    {
+        if (currentOperator == null || currentOperator.DefaultSelectedSkill == null)
+        {
+            defaultSkillIndicator.gameObject.SetActive(false);
+            return;
+        }
+
+        // 이 인디케이터가 들어간 skillIconBox를 찾음
+        Transform targetTransform = null;
+        var unlockedSkills = currentOperator.UnlockedSkills;
+        if (unlockedSkills.Count > 0 && currentOperator.DefaultSelectedSkill == unlockedSkills[0])
+        {
+            targetTransform = skillIconBoxes[0].transform;
+        }
+        else if (unlockedSkills.Count > 1 && currentOperator.DefaultSelectedSkill == unlockedSkills[1])
+        {
+            targetTransform = skillIconBoxes[1].transform;
+        }
+
+        // 인디케이터의 위치를 옮김
+        if (targetTransform != null)
+        {
+            defaultSkillIndicator.transform.SetParent(targetTransform, false);
+            defaultSkillIndicatorRect.anchoredPosition = Vector2.zero;
+
+            defaultSkillIndicator.gameObject.SetActive(true);
+        }
+        else
+        {
+            defaultSkillIndicator.gameObject.SetActive(false);
+        }
+    }
+
+    private void UpdateSetDefaultSkillButton()
+    {
+        if (currentSelectedSkill == currentOperator.DefaultSelectedSkill)
+        {
+            setDefaultSkillButton.interactable = false;
+        }
+        else
+        {
+            setDefaultSkillButton.interactable = true;
+        }
+
     }
 }

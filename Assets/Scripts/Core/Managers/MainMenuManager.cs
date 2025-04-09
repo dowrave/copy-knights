@@ -74,6 +74,9 @@ public class MainMenuManager : MonoBehaviour
 
     public StageData? SelectedStage { get; private set; }
 
+    // 캔버스 전환 시 최소 알파값
+    private float minAlpha = 0f;
+
     public OwnedOperator? CurrentEditingOperator { get; private set; }
 
 
@@ -139,6 +142,7 @@ public class MainMenuManager : MonoBehaviour
             if (CurrentPanel == MenuPanel.OperatorInventory && 
                 GameManagement.Instance!.UserSquadManager.IsEditingSquad)
             {
+                //Debug.Break(); // 테스트용
                 GameManagement.Instance!.UserSquadManager.CancelOperatorSelection();
             }
 
@@ -264,7 +268,7 @@ public class MainMenuManager : MonoBehaviour
             panelToShow.SetActive(true);
             UpdateTopAreaButtons();
             CanvasGroup showGroup = panelToShow.GetComponent<CanvasGroup>();
-            showGroup.alpha = 0f;
+            showGroup.alpha = minAlpha;
             showGroup.DOKill();
             showGroup.DOFade(1f, panelTransitionSpeed)
                 .OnComplete(() =>
@@ -285,7 +289,7 @@ public class MainMenuManager : MonoBehaviour
             showGroup.alpha = 1f;
             UpdateTopAreaButtons();
             CanvasGroup hideGroup = panelToHide.GetComponent<CanvasGroup>();
-            hideGroup.DOFade(0f, panelTransitionSpeed)
+            hideGroup.DOFade(minAlpha, panelTransitionSpeed)
                 .OnComplete(() =>
                 {
                     panelToHide.SetActive(false);

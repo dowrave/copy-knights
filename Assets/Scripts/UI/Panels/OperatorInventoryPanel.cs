@@ -440,6 +440,4 @@ public class OperatorInventoryPanel : MonoBehaviour
         ClearSideView();
         ResetSelection();
     }
-
-
 }

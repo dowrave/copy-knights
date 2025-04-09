@@ -13,9 +13,15 @@ public class DeployableBox : MonoBehaviour, IPointerDownHandler, IBeginDragHandl
     [SerializeField] private Image operatorClassIconImage = default!; // 아이콘 자체 할당
     [SerializeField] private Image inActiveImage = default!;
     [SerializeField] private TextMeshProUGUI costText = default!;
+    [SerializeField] private TextMeshProUGUI countText = default!;
+
+    [Header("Cooldown Container")]
+    [SerializeField] private GameObject cooldownContainer = default!;
     [SerializeField] private Image cooldownGauge = default!;
     [SerializeField] private TextMeshProUGUI cooldownText = default!;
-    [SerializeField] private TextMeshProUGUI countText = default!;
+
+    private Color cannotDeployColor = new Color(0, 0, 0, 0.95f);
+    private Color onCooldownColor = new Color(0.3f, 0, 0, 0.95f);
 
     private Sprite? boxIcon;
     private GameObject deployablePrefab = default!;
@@ -31,7 +37,6 @@ public class DeployableBox : MonoBehaviour, IPointerDownHandler, IBeginDragHandl
     private bool isOriginalPositionSet;
 
     // box의 상태 관련
-    private bool wasOnCooldown = false;
     public bool IsSelected { get; private set; } = false;
 
     // 남은 갯수
@@ -103,16 +108,12 @@ public class DeployableBox : MonoBehaviour, IPointerDownHandler, IBeginDragHandl
         }
     }
 
+    // Box를 덮는 inactiveOverlay는 UpdateAvailability에서 설정됨
     private void UpdateCooldownContainer()
     {
         if (deployableUnitState.IsOnCooldown)
         {
-            if (wasOnCooldown == false)
-            {
-                cooldownText.gameObject.SetActive(true);
-                cooldownGauge.gameObject.SetActive(true);
-                wasOnCooldown = true;
-            }
+            cooldownContainer.SetActive(true);
 
             // 오퍼레이터가 아닌 경우에도 배치 후에 쿨이 돌기 때문에 동작함(unitState 참고)
             float currentCooldown = deployableUnitState.CooldownTimer; // max -> 0으로 가는 방향
@@ -123,9 +124,7 @@ public class DeployableBox : MonoBehaviour, IPointerDownHandler, IBeginDragHandl
         }
         else
         {
-            cooldownGauge.gameObject.SetActive(false);
-            cooldownText.gameObject.SetActive(false);
-            wasOnCooldown = false;
+            cooldownContainer.SetActive(false);
         }
     }
 
@@ -177,15 +176,23 @@ public class DeployableBox : MonoBehaviour, IPointerDownHandler, IBeginDragHandl
         UpdateVisuals();
     }
 
+    // inactiveOverlay 관련 설정
     private void UpdateAvailability()
     {
-        if (CanInteract())
+        bool canInteract = CanInteract();
+
+        inActiveImage.gameObject.SetActive(!canInteract);
+
+        if (!canInteract)
         {
-            inActiveImage.gameObject.SetActive(false); // 흐릿한 이미지 제거
-        }
-        else
-        {
-            inActiveImage.gameObject.SetActive(true); // 흐릿한 이미지 활성화
+            if (deployableUnitState.IsOnCooldown)
+            {
+                inActiveImage.color = onCooldownColor;
+            }
+            else
+            {
+                inActiveImage.color = cannotDeployColor;
+            }
         }
     }
 

@@ -217,11 +217,10 @@ public class PlayerDataManager : MonoBehaviour
         //TestAboutTutorial();
 
         // 오퍼레이터들 성장 반영
-        //foreach (var op in playerData.ownedOperators)
-        //{
-        //    InitializeOperator1stPromotion(op);
-            
-        //}
+        foreach (var op in playerData.ownedOperators)
+        {
+            InitializeOperator1stPromotion(op);
+        }
 
         // 아이템 지급
         //AddStartingItems();
@@ -494,7 +493,7 @@ public class PlayerDataManager : MonoBehaviour
     private void InitializeOperator1stPromotion(OwnedOperator op)
     {
         op.LevelUP(50, 0);
-        //op.Promote();
+        op.Promote();
     }
 
     public bool IsStageCleared(string stageId)
