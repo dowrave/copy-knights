@@ -89,7 +89,7 @@ public abstract class UnitEntity : MonoBehaviour, ITargettable, IFactionMember
     {
         float oldHealth = CurrentHealth;
         CurrentHealth += healAmount; 
-        float actualHealAmount = CurrentHealth - oldHealth; // 실제 힐량
+        float actualHealAmount = Mathf.FloorToInt(CurrentHealth - oldHealth); // 실제 힐량
 
         if (healer is MedicOperator medic && medic.OperatorData.hitEffectPrefab != null)
         {
@@ -194,11 +194,11 @@ public abstract class UnitEntity : MonoBehaviour, ITargettable, IFactionMember
     // 스킬 등으로 인한 현재 체력 변경 시 이 메서드를 사용
     public void ChangeCurrentHealth(float newCurrentHealth)
     {
-        CurrentHealth = newCurrentHealth;
+        CurrentHealth = Mathf.Floor(newCurrentHealth);
     }
     public void ChangeMaxHealth(float newMaxHealth)
     {
-        MaxHealth = newMaxHealth;
+        MaxHealth = Mathf.Floor(newMaxHealth);
     }
 
 
@@ -209,7 +209,7 @@ public abstract class UnitEntity : MonoBehaviour, ITargettable, IFactionMember
         if (attacker is ICombatEntity iCombatEntity && CurrentHealth > 0)
         {
             // 방어 / 마법 저항력이 고려된 실제 들어오는 대미지
-            actualDamage = CalculateActualDamage(iCombatEntity.AttackType, damage);
+            actualDamage = Mathf.Floor(CalculateActualDamage(iCombatEntity.AttackType, damage));
 
             // 쉴드를 깎고 남은 대미지
             float remainingDamage = shieldSystem.AbsorbDamage(actualDamage);

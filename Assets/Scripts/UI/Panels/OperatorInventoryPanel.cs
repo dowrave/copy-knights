@@ -278,14 +278,14 @@ public class OperatorInventoryPanel : MonoBehaviour
             OperatorData opData = op.OperatorProgressData;
 
             operatorNameText.text = opData.entityName;
-            healthText.text = Mathf.Floor(opStats.Health).ToString();
-            redeployTimeText.text = Mathf.Floor(opStats.RedeployTime).ToString();
-            attackPowerText.text = Mathf.Floor(opStats.AttackPower).ToString();
-            deploymentCostText.text = Mathf.Floor(opStats.DeploymentCost).ToString();
-            defenseText.text = Mathf.Floor(opStats.Defense).ToString();
-            magicResistanceText.text = Mathf.Floor(opStats.MagicResistance).ToString();
-            blockCountText.text = Mathf.Floor(opStats.MaxBlockableEnemies).ToString();
-            attackSpeedText.text = Mathf.Floor(opStats.AttackSpeed).ToString();
+            healthText.text = Mathf.FloorToInt(opStats.Health).ToString();
+            redeployTimeText.text = Mathf.FloorToInt(opStats.RedeployTime).ToString();
+            attackPowerText.text = Mathf.FloorToInt(opStats.AttackPower).ToString();
+            deploymentCostText.text = Mathf.FloorToInt(opStats.DeploymentCost).ToString();
+            defenseText.text = Mathf.FloorToInt(opStats.Defense).ToString();
+            magicResistanceText.text = Mathf.FloorToInt(opStats.MagicResistance).ToString();
+            blockCountText.text = Mathf.FloorToInt(opStats.MaxBlockableEnemies).ToString();
+            attackSpeedText.text = opStats.AttackSpeed.ToString("F2");
 
             // 공격 범위 시각화
             attackRangeHelper.ShowBasicRange(op.CurrentAttackableGridPos);

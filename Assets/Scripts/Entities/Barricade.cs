@@ -32,6 +32,6 @@ public class Barricade : DeployableUnitEntity
 
     protected override float CalculateActualDamage(AttackType attacktype, float incomingDamage)
     {
-        return incomingDamage; 
+        return Mathf.Floor(incomingDamage); 
     }
 }

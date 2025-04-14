@@ -173,6 +173,7 @@ public class PlayerDataManager : MonoBehaviour
         return safePlayerData.ownedOperators.Find(op => op.operatorName == operatorName) ?? null;
     }
 
+    // 가지고 있는 오퍼레이터들 불러오기
     public List<OwnedOperator> GetOwnedOperators()
     {
         InstanceValidator.ValidateInstance(playerData);
@@ -216,11 +217,16 @@ public class PlayerDataManager : MonoBehaviour
     {
         //TestAboutTutorial();
 
+        int targetLevel = 1;
+
         // 오퍼레이터들 성장 반영
         foreach (var op in playerData.ownedOperators)
         {
+            InitializeOperatorLevelUp(op, targetLevel);
             InitializeOperator1stPromotion(op);
         }
+        // 오퍼레이터들 슬롯에 배치
+        InitializeSquad();
 
         // 아이템 지급
         //AddStartingItems();
@@ -490,10 +496,29 @@ public class PlayerDataManager : MonoBehaviour
         }
     }
 
+    private void InitializeSquad()
+    {
+        // 가지고 있는 오퍼레이터들 불러오기
+        List<OwnedOperator> ownedOps = GetOwnedOperators();
+
+        // 오퍼레이터들을 스쿼드에 배치하기
+        for (int i = 0; i < 6; i++)
+        {
+            GameManagement.Instance!.UserSquadManager.TryReplaceOperator(i, ownedOps[i]);
+        }
+    }
+
+    private void InitializeOperatorLevelUp(OwnedOperator op, int level)
+    {
+        op.LevelUP(level, 0);
+    }
+
     private void InitializeOperator1stPromotion(OwnedOperator op)
     {
-        op.LevelUP(50, 0);
-        op.Promote();
+        if (op.currentLevel == OperatorGrowthSystem.Elite0MaxLevel)
+        {
+            op.Promote();
+        }
     }
 
     public bool IsStageCleared(string stageId)
@@ -565,6 +590,8 @@ public class PlayerDataManager : MonoBehaviour
             return null;
         }
     }
+
+
 
     public void GrantStageRewards(List<ItemWithCount> firstClearRewards, List<ItemWithCount> basicClearRewards)
     {

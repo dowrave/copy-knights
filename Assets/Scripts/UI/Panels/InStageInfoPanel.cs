@@ -117,10 +117,10 @@ public class InStageInfoPanel : MonoBehaviour
             if (currentOperator != null)
             {
                 UpdateHealthText(currentOperator.CurrentHealth, currentOperator.MaxHealth);
-                attackText.text = $"공격력: {Mathf.Ceil(currentOperator.currentOperatorStats.AttackPower)}";
-                defenseText.text = $"방어력: {Mathf.Ceil(currentOperator.currentOperatorStats.Defense)}";
-                magicResistanceText.text = $"마법저항력: {Mathf.Ceil(currentOperator.currentOperatorStats.MagicResistance)}";
-                blockCountText.text = $"저지수: {Mathf.Ceil(currentOperator.currentOperatorStats.MaxBlockableEnemies)}";
+                attackText.text = $"공격력: {Mathf.FloorToInt(currentOperator.currentOperatorStats.AttackPower)}";
+                defenseText.text = $"방어력: {Mathf.FloorToInt(currentOperator.currentOperatorStats.Defense)}";
+                magicResistanceText.text = $"마법저항력: {Mathf.FloorToInt(currentOperator.currentOperatorStats.MagicResistance)}";
+                blockCountText.text = $"저지수: {Mathf.FloorToInt(currentOperator.currentOperatorStats.MaxBlockableEnemies)}";
 
                 // 이벤트 구독
                 currentOperator.OnHealthChanged += UpdateHealthText;
@@ -133,16 +133,16 @@ public class InStageInfoPanel : MonoBehaviour
 
             float initialHealth = ownedOperatorStats.Health;
             UpdateHealthText(initialHealth, initialHealth);
-            attackText.text = $"공격력: {Mathf.Ceil(ownedOperatorStats.AttackPower)}";
-            defenseText.text = $"방어력: {Mathf.Ceil(ownedOperatorStats.Defense)}";
-            magicResistanceText.text = $"마법저항력: {Mathf.Ceil(ownedOperatorStats.MagicResistance)}";
-            blockCountText.text = $"저지수: {Mathf.Ceil(ownedOperatorStats.MaxBlockableEnemies)}";
+            attackText.text = $"공격력: {Mathf.FloorToInt(ownedOperatorStats.AttackPower)}";
+            defenseText.text = $"방어력: {Mathf.FloorToInt(ownedOperatorStats.Defense)}";
+            magicResistanceText.text = $"마법저항력: {Mathf.FloorToInt(ownedOperatorStats.MagicResistance)}";
+            blockCountText.text = $"저지수: {Mathf.FloorToInt(ownedOperatorStats.MaxBlockableEnemies)}";
         }
     }
 
     private void UpdateHealthText(float currentHealth, float maxHealth, float currentShield = 0)
     {
-        healthText.text = $"체력 <color=#ff6666>{Mathf.Ceil(currentHealth)} / {Mathf.Ceil(maxHealth)}</color>";
+        healthText.text = $"체력 <color=#ff6666>{Mathf.FloorToInt(currentHealth)} / {Mathf.FloorToInt(maxHealth)}</color>";
     }
 
     private void ShowOperatorPanels()
@@ -175,7 +175,17 @@ public class InStageInfoPanel : MonoBehaviour
         {
             ShowOperatorPanels();
             OperatorIconHelper.SetClassIcon(classIconImage, currentDeployableInfo.operatorData.operatorClass);
-            OperatorIconHelper.SetElitePhaseIcon(promotionIconImage, currentDeployableInfo.ownedOperator.currentPhase);
+
+            // 0 정예화는 아이콘에 이미지가 없음 : 오브젝트 비활성화 -> 레벨 요소가 왼쪽으로 이동
+            if (currentDeployableInfo.ownedOperator.currentPhase == OperatorGrowthSystem.ElitePhase.Elite0)
+            {
+                promotionIconImage.gameObject.SetActive(false);
+            }
+            else
+            {
+                promotionIconImage.gameObject.SetActive(true);
+                OperatorIconHelper.SetElitePhaseIcon(promotionIconImage, currentDeployableInfo.ownedOperator.currentPhase);
+            }
 
             skillIconImage.sprite = operatorSkill.skillIcon;
             skillNameText.text = operatorSkill.skillName;

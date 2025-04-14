@@ -188,8 +188,8 @@ public abstract class DeployableUnitEntity: UnitEntity, IDeployable
 
     protected override void InitializeHP()
     {
-        MaxHealth = currentDeployableStats.Health;
-        CurrentHealth = MaxHealth;
+        MaxHealth = Mathf.Floor(currentDeployableStats.Health);
+        CurrentHealth = Mathf.Floor(MaxHealth);
     }
 
     protected void SetDeployState(bool isDeployed)

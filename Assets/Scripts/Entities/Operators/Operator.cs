@@ -238,7 +238,8 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable,
     public virtual void Attack(UnitEntity target, float damage)
     {
         bool showDamagePopup = false;
-        PerformAttack(target, damage, showDamagePopup);
+        float polishedDamage = Mathf.Floor(damage);
+        PerformAttack(target, polishedDamage, showDamagePopup);
     }
 
     protected void PerformAttack(UnitEntity target, float damage, bool showDamagePopup)
@@ -595,8 +596,8 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable,
 
     protected override void InitializeHP()
     {
-        MaxHealth = currentOperatorStats.Health;
-        CurrentHealth = MaxHealth;
+        MaxHealth = Mathf.Floor(currentOperatorStats.Health);
+        CurrentHealth = Mathf.Floor(MaxHealth);
     }
 
     // 공격 대상 설정 로직
@@ -867,6 +868,8 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable,
                 actualDamage = incomingDamage;
                 break;
         }
+
+
         return Mathf.Max(actualDamage, 0.05f * incomingDamage); // 들어온 대미지의 5%는 들어가게끔 보장
     }
 

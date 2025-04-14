@@ -174,15 +174,15 @@ public class OperatorLevelUpPanel : MonoBehaviour
         if (op != null)
         {
             OperatorStats initialStats = op.CurrentStats;
-            healthPreview.currentValue.text = initialStats.Health.ToString();
-            attackPreview.currentValue.text = initialStats.AttackPower.ToString();
-            defensePreview.currentValue.text = initialStats.Defense.ToString();
-            magicResistancePreview.currentValue.text = initialStats.MagicResistance.ToString();
+            healthPreview.currentValue.text = Mathf.FloorToInt(initialStats.Health).ToString(); 
+            attackPreview.currentValue.text = Mathf.FloorToInt(initialStats.AttackPower).ToString();
+            defensePreview.currentValue.text = Mathf.FloorToInt(initialStats.Defense).ToString();
+            magicResistancePreview.currentValue.text = Mathf.FloorToInt(initialStats.MagicResistance).ToString();
 
-            healthPreview.newValue.text = initialStats.Health.ToString();
-            attackPreview.newValue.text = initialStats.AttackPower.ToString();
-            defensePreview.newValue.text = initialStats.Defense.ToString();
-            magicResistancePreview.newValue.text = initialStats.MagicResistance.ToString();
+            healthPreview.newValue.text = Mathf.FloorToInt(initialStats.Health).ToString();
+            attackPreview.newValue.text = Mathf.FloorToInt(initialStats.AttackPower).ToString();
+            defensePreview.newValue.text = Mathf.FloorToInt(initialStats.Defense).ToString();
+            magicResistancePreview.newValue.text = Mathf.FloorToInt(initialStats.MagicResistance).ToString();
         }
     }
 

@@ -175,14 +175,14 @@ public class OperatorDetailPanel : MonoBehaviour
         {
             OperatorStats currentStats = currentOperator.CurrentStats;
 
-            healthText.text = Mathf.Floor(currentStats.Health).ToString();
-            attackPowerText.text = Mathf.Floor(currentStats.AttackPower).ToString();
-            defenseText.text = Mathf.Floor(currentStats.Defense).ToString();
-            magicResistanceText.text = Mathf.Floor(currentStats.MagicResistance).ToString();
-            deploymentCostText.text = Mathf.Floor(currentStats.DeploymentCost).ToString();
-            redeployTimeText.text = Mathf.Floor(currentStats.RedeployTime).ToString();
-            blockCountText.text = Mathf.Floor(currentStats.MaxBlockableEnemies).ToString();
-            attackSpeedText.text = Mathf.Floor(currentStats.AttackSpeed).ToString();
+            healthText.text = Mathf.FloorToInt(currentStats.Health).ToString();
+            attackPowerText.text = Mathf.FloorToInt(currentStats.AttackPower).ToString();
+            defenseText.text = Mathf.FloorToInt(currentStats.Defense).ToString();
+            magicResistanceText.text = Mathf.FloorToInt(currentStats.MagicResistance).ToString();
+            deploymentCostText.text = Mathf.FloorToInt(currentStats.DeploymentCost).ToString();
+            redeployTimeText.text = Mathf.FloorToInt(currentStats.RedeployTime).ToString();
+            blockCountText.text = Mathf.FloorToInt(currentStats.MaxBlockableEnemies).ToString();
+            attackSpeedText.text = currentStats.AttackSpeed.ToString("F2");
         }
     }
 

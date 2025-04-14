@@ -64,7 +64,8 @@ public class MedicOperator : Operator
 
     public override void Attack(UnitEntity target, float damage)
     {
-        Heal(target, damage);
+        float polishedDamage = Mathf.Floor(damage);
+        Heal(target, polishedDamage);
     }
 
     private void Heal(UnitEntity target,  float healValue)

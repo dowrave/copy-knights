@@ -298,7 +298,8 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity, ICrowdControlTarget
 
     public void Attack(UnitEntity target, float damage)
     {
-        PerformAttack(target, damage);
+        float polishedDamage = Mathf.Floor(damage);
+        PerformAttack(target, polishedDamage);
     }
 
     private void PerformAttack(UnitEntity target, float damage)
@@ -778,8 +779,8 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity, ICrowdControlTarget
 
     protected override void InitializeHP()
     {
-        MaxHealth = currentStats.Health;
-        CurrentHealth = MaxHealth;
+        MaxHealth = Mathf.Floor(currentStats.Health);
+        CurrentHealth = Mathf.Floor(MaxHealth);
     }
 
     public void SetBlockingOperator(Operator op)
