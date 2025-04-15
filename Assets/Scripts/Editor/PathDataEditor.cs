@@ -1,6 +1,8 @@
 using UnityEngine;
 using UnityEditor;
+using System; 
 using System.Linq;
+using UnityEditor.SceneManagement;
 
 [CustomEditor(typeof(PathData))]
 public class PathDataEditor : Editor
@@ -49,28 +51,46 @@ public class PathDataEditor : Editor
     {
         if (!isEditing) return;
 
+        // 마우스 클릭 - 씬 뷰에서 기본 컨트롤을 강제로 소비, 선택 변경을 방지함
+        HandleUtility.AddDefaultControl(GUIUtility.GetControlID(FocusType.Passive));
+
+
         // 이벤트 처리
         Event e = Event.current;
         if (e.type == EventType.MouseDown && e.button == 0 && !e.alt)
         {
+            bool isPrefabMode = PrefabStageUtility.GetCurrentPrefabStage() != null;
+            GameObject pickedObject = null;
 
-            Ray ray = HandleUtility.GUIPointToWorldRay(e.mousePosition);
-            RaycastHit hit;
-            if (Physics.Raycast(ray, out hit))
+            // 모드에 따른 감지 로직
+            if (isPrefabMode)
             {
-                // 디버깅용
-                Debug.Log($"Hit object: {hit.collider.gameObject.name}");
-                Debug.Log($"Hit point: {hit.point}");
-                Debug.Log($"Hit object layer: {LayerMask.LayerToName(hit.collider.gameObject.layer)}");
+                pickedObject = HandleUtility.PickGameObject(e.mousePosition, false);
+            }
+            else
+            {
+                Ray ray = HandleUtility.GUIPointToWorldRay(e.mousePosition);
+                RaycastHit hit;
+                if (Physics.Raycast(ray, out hit))
+                {
+                    pickedObject = hit.collider.gameObject;
+                }
+            }
 
-                Tile? clickedTile = FindTileComponent(hit.collider.gameObject);
+            // 클릭된 타일을 얻음
+            if (pickedObject != null)
+            {
+                Debug.Log($"picked Object : {pickedObject.name}");
+                Tile? clickedTile = FindTileComponent(pickedObject);
                 if (clickedTile != null)
                 {
-                    Debug.Log($"Found Tile: {clickedTile.name}, Grid Position: {clickedTile.GridPosition}");
+                    Debug.Log($"Found Tile : {clickedTile.name}, Grid Position : {clickedTile.GridPosition}");
+                    // shift 누르면 취소
                     if (e.shift)
                     {
                         RemoveNearestNode(clickedTile.GridPosition);
                     }
+                    // 아니라면 추가
                     else
                     {
                         AddNode(clickedTile);
@@ -134,26 +154,42 @@ public class PathDataEditor : Editor
         EditorUtility.SetDirty(pathData);
     }
 
-    private void DrawPath()
-    {
-        InstanceValidator.ValidateInstance(pathData);
-
-        for (int i = 0; i < pathData!.nodes.Count; i++)
-        {
-            PathNode node = pathData!.nodes[i];
-            Vector3 nodePosition = MapManager.Instance!.ConvertToWorldPosition(node.gridPosition);
-            Handles.color = Color.yellow;
-            Handles.SphereHandleCap(0, nodePosition, Quaternion.identity, 0.2f, EventType.Repaint);
+    //private void DrawPath()
+    //{
+    //    if (pathData == null || pathData.nodes == null)
+    //    {
+    //        Debug.LogWarning("PathData나 노드가 null이라 DrawPath 생략");
+    //        return;
+    //    }
         
-            if (i < pathData.nodes.Count - 1)
-            {
-                Vector3 nextPosition = MapManager.Instance.ConvertToWorldPosition(pathData!.nodes[i + 1].gridPosition);
-                Handles.DrawLine(nodePosition, nextPosition);
-            }
+    //    try
+    //    {
+    //        for (int i = 0; i < pathData!.nodes.Count; i++)
+    //        {
+    //            PathNode node = pathData!.nodes[i];
+    //            Vector3 nodePosition = MapManager.Instance!.ConvertToWorldPosition(node.gridPosition);
+    //            Handles.color = Color.yellow;
+    //            Handles.SphereHandleCap(0, nodePosition, Quaternion.identity, 0.2f, EventType.Repaint);
+        
+    //            if (i < pathData.nodes.Count - 1)
+    //            {
+    //                Vector3 nextPosition = MapManager.Instance.ConvertToWorldPosition(pathData!.nodes[i + 1].gridPosition);
+    //                Handles.DrawLine(nodePosition, nextPosition);
+    //            }
 
-            Handles.Label(nodePosition + Vector3.up, $"$Node {i}: Wait {pathData!.nodes[i].waitTime}s");
-        }
-    }
+    //            Handles.Label(nodePosition + Vector3.up, $"$Node {i}: Wait {pathData!.nodes[i].waitTime}s");
+    //        }
+    //    }
+    //    catch (Exception ex)
+    //    {
+    //        Debug.LogError($"Error in DrawPath : {ex.Message}");
+    //    }
+    //    finally
+    //    {
+    //        // GUI 상태 정리
+    //        Handles.EndGUI();
+    //    }
+    //}
 
     private void OnDisable()
     {

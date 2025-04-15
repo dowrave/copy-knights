@@ -389,15 +389,15 @@ public class OperatorLevelUpPanel : MonoBehaviour
         // 레벨업 상황일 때 텍스트에 색깔만 추가
         if (targetLevel == currentLevel)
         {
-            healthPreview.newValue.text = targetLevelStats.Health.ToString();
-            attackPreview.newValue.text = targetLevelStats.AttackPower.ToString();
-            defensePreview.newValue.text = targetLevelStats.Defense.ToString();
+            healthPreview.newValue.text = Mathf.FloorToInt(targetLevelStats.Health).ToString();
+            attackPreview.newValue.text = Mathf.FloorToInt(targetLevelStats.AttackPower).ToString();
+            defensePreview.newValue.text = Mathf.FloorToInt(targetLevelStats.Defense).ToString();
         }
         else
         {
-            healthPreview.newValue.text = $"<color={updateColor}>{targetLevelStats.Health.ToString()}</color>";
-            attackPreview.newValue.text = $"<color={updateColor}>{targetLevelStats.AttackPower.ToString()}</color>";
-            defensePreview.newValue.text = $"<color={updateColor}>{targetLevelStats.Defense.ToString()}</color>";
+            healthPreview.newValue.text = $"<color={updateColor}>{Mathf.FloorToInt(targetLevelStats.Health).ToString()}</color>";
+            attackPreview.newValue.text = $"<color={updateColor}>{Mathf.FloorToInt(targetLevelStats.AttackPower).ToString()}</color>";
+            defensePreview.newValue.text = $"<color={updateColor}>{Mathf.FloorToInt(targetLevelStats.Defense).ToString()}</color>";
         }
         magicResistancePreview.newValue.text = targetLevelStats.MagicResistance.ToString(); // 마법 저항력은 레벨업으로 바뀌지 않음
 

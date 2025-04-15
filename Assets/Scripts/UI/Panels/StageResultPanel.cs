@@ -357,10 +357,12 @@ public class StageResultPanel : MonoBehaviour
 
     private void ShowItemElements(IReadOnlyList<ItemWithCount> rewards, bool showFirst = false)
     {
-        if (rewards.Count > 0)
+        if (rewards.Count > 0) // 보상 아이템이 있을 때
         {
             foreach (var itemPair in rewards)
             {
+                if (itemPair.count == 0) continue; // 보상 아이템이 0개인 경우는 나타날 필요 없음
+
                 ItemUIElement itemElement = Instantiate(itemUIPrefab, rewardItemContentsContainerRect.transform);
                 itemElement.Initialize(itemPair.itemData, itemPair.count, true, showFirst);
                 activeItemElements.Add(itemElement);

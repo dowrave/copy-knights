@@ -2794,7 +2794,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c034ddc81e3f5b34fa37814b1d51156f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  spawnList: []
+  spawnList: {fileID: 11400000, guid: c87c9bce37c71c544abcc8e0aa85314f, type: 2}
 --- !u!1 &2470149106295802323
 GameObject:
   m_ObjectHideFlags: 0
@@ -4346,7 +4346,7 @@ MonoBehaviour:
   mapId: 1-2
   width: 10
   height: 7
-  cameraPosition: {x: 4.5, y: 6.5, z: 0}
+  cameraPosition: {x: 4.5, y: 7, z: -0.5}
   enemySpawners:
   - {fileID: 3655705327619961629}
   - {fileID: 2254645462616787002}
@@ -5702,7 +5702,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c034ddc81e3f5b34fa37814b1d51156f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  spawnList: []
+  spawnList: {fileID: 11400000, guid: b258674ba72e47d4fa3ac7c6f2fffc53, type: 2}
 --- !u!1 &4975598525375548965
 GameObject:
   m_ObjectHideFlags: 0

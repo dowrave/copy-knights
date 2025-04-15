@@ -205,8 +205,6 @@ public class PlayerDataManager : MonoBehaviour
             };
         }
 
-        RecordStageResult("1-0", 3);
-
         // 전체 튜토리얼 완료 여부는 아직 아님
         safePlayerData.isTutorialFinished = false;
         SavePlayerData();
@@ -232,7 +230,9 @@ public class PlayerDataManager : MonoBehaviour
         //AddStartingItems();
 
         // 스테이지 임의 클리어
-        StageClearAndGetRewards("1-0", 3);
+        //StageClearAndGetRewards("1-0", 3);
+        //StageClearAndGetRewards("1-1", 3);
+
 
         SavePlayerData();
     }
