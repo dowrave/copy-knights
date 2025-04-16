@@ -83,9 +83,9 @@ public class SkillRangeVFXController : MonoBehaviour, IPooledObject
 
         floorImage.gameObject.SetActive(true);
 
+        // 방향에 따른 타일 검사로 이펙트 실행 여부를 결정함
         foreach (var direction in directions)
         {
-            // 이펙트 표시 여부 결정
             Vector2Int neighborPos = position + direction; 
 
             // 방향에 대한 이펙트 표시 여부
@@ -141,7 +141,7 @@ public class SkillRangeVFXController : MonoBehaviour, IPooledObject
             pair.boundary.gameObject.SetActive(false);
         }
 
-        floorImage.gameObject.SetActive(false);
+        //floorImage.gameObject.SetActive(false);
         ObjectPoolManager.Instance!.ReturnToPool(poolTag, gameObject);
         isInitialized = false;
     }

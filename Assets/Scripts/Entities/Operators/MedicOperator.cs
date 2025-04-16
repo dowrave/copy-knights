@@ -78,7 +78,7 @@ public class MedicOperator : Operator
         }
         else
         {
-            AttackSource attackSource = new AttackSource(transform.position, false, OperatorData.HitEffectPrefab);
+            AttackSource attackSource = new AttackSource(transform.position, false, OperatorData.HitEffectPrefab, hitEffectTag);
             target.TakeHeal(this, attackSource, healValue);
         }
     }

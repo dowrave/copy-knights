@@ -33,9 +33,11 @@ namespace Skills.OperatorSkills
                 // 이펙트 컨트롤러 추가 및 초기화
                 SlashSkillController? effectController = effectObj.GetComponent<SlashSkillController>();
                 GameObject? hitEffectPrefab = op.OperatorData.HitEffectPrefab;
+                string hitEffectTag = op.HitEffectTag; 
+
                 if (effectController != null && hitEffectPrefab != null)
                 {
-                    effectController.Initialize(op, direction, effectSpeed, effectLifetime, damageMultiplier, skillRangeOffset, hitEffectPrefab);
+                    effectController.Initialize(op, direction, effectSpeed, effectLifetime, damageMultiplier, skillRangeOffset, hitEffectPrefab, hitEffectTag);
 
                 }
             }

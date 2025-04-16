@@ -126,8 +126,9 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable,
     protected string? projectileTag;
 
     // 이펙트 풀 태그
-    private string? meleeAttackEffectTag;
-    private string hitEffectTag = string.Empty;
+    protected string? meleeAttackEffectTag;
+    protected string hitEffectTag = string.Empty;
+    public string HitEffectTag => hitEffectTag;
 
     // 스킬 관련
     public BaseSkill CurrentSkill { get; private set; } = default!;
@@ -262,7 +263,7 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable,
 
     protected virtual void PerformMeleeAttack(UnitEntity target, float damage, bool showDamagePopup)
     {
-        AttackSource attackSource = new AttackSource(transform.position, false, OperatorData.HitEffectPrefab);
+        AttackSource attackSource = new AttackSource(transform.position, false, OperatorData.HitEffectPrefab, hitEffectTag);
 
         PlayMeleeAttackEffect(target, attackSource);
 
@@ -288,7 +289,7 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable,
                     Projectile? projectile = projectileObj.GetComponent<Projectile>();
                     if (projectile != null)
                     {
-                        projectile.Initialize(this, target, damage, showDamagePopup, projectileTag, OperatorData.hitEffectPrefab);
+                        projectile.Initialize(this, target, damage, showDamagePopup, projectileTag, OperatorData.hitEffectPrefab, hitEffectTag);
                     }
                 }
             }

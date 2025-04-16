@@ -19,7 +19,7 @@ MonoBehaviour:
     \uACF5\uACA9\uB825\uC758 <color=#179bff>50%</color>\uC5D0 \uD574\uB2F9\uD558\uB294
     \uB9C8\uBC95 \uD53C\uD574\uB97C \uBC1B\uC73C\uBA70, \uC774\uB3D9 \uC18D\uB3C4\uAC00
     <color=#179bff>30%</color> \uB0AE\uC544\uC9D1\uB2C8\uB2E4."
-  SPCost: 1
+  SPCost: 10
   skillIcon: {fileID: 21300000, guid: 51225a169dd3b6d4a92a3eac3b466177, type: 3}
   autoRecover: 1
   autoActivate: 0
@@ -44,7 +44,9 @@ MonoBehaviour:
   rectOffset: 0
   fieldEffectPrefab: {fileID: 926762040787327029, guid: bb7f19d33fefe14408ec775a2d8506f8, type: 3}
   skillRangeVFXPrefab: {fileID: 4360018886635934139, guid: 9ff6fcecb6f1c76469c6c95092aaeb21, type: 3}
-  EFFECT_TAG: ArcaneField
+  skillRangeEffectTag: ArcaneField_Range
+  hitEffectPrefab: {fileID: 3203997605157756808, guid: b9e7f41b116042649aa38a9b2d325729, type: 3}
+  skillHitEffectTag: ArcaneField_Hit
   damagePerTickRatio: 0.5
   slowAmount: 0.3
   damageInterval: 0.5

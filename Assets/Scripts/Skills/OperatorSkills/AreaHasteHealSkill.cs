@@ -20,7 +20,7 @@ namespace Skills.Base
             if (controller != null && hitEffectPrefab != null)
             {
                 float actualHealPerTick = op.AttackPower * healPerTickRatio;
-                controller.Initialize(op, centerPos, actualSkillRange, duration, actualHealPerTick, healInterval, hitEffectPrefab);
+                controller.Initialize(op, centerPos, actualSkillRange, duration, actualHealPerTick, healInterval, hitEffectPrefab, skillHitEffectTag);
             }
 
             return fieldObj;

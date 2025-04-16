@@ -54,9 +54,16 @@ namespace Skills.Base
             float actualDamage = op.AttackPower * damageMultiplier;
 
             MeteorController? controller = meteorObj.GetComponent<MeteorController>();
+
+            // 스킬 피격 태그가 없으면 오퍼레이터의 것을 사용
+            if (skillHitEffectTag == string.Empty)
+            {
+                skillHitEffectTag = op.HitEffectTag;
+            }
+
             if (controller != null && hitEffectPrefab != null)
             {
-                controller.Initialize(op, target, actualDamage, delayTime, stunDuration, hitEffectPrefab);
+                controller.Initialize(op, target, actualDamage, delayTime, stunDuration, hitEffectPrefab, skillHitEffectTag);
             }
         }
 

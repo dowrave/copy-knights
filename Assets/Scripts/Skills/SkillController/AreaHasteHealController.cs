@@ -53,7 +53,7 @@ public class AreaHasteHealController: FieldEffectController
             if (target != null && caster != null)
             {
                 ICombatEntity.AttackSource healSource =
-                    new ICombatEntity.AttackSource(transform.position, true, hitEffectPrefab);
+                    new ICombatEntity.AttackSource(transform.position, true, hitEffectPrefab, caster.HitEffectTag);
                 target.TakeHeal(caster, healSource, amountPerTick);
             }
         }

@@ -15,6 +15,7 @@ public abstract class FieldEffectController : MonoBehaviour
     protected float lastTickTime; // 마지막 효과 적용 시간
 
     protected GameObject hitEffectPrefab = default!;
+    protected string hitEffectTag = default!;
     protected SkillRangeVFXController rangeVFXController = default!;
 
     // 영향받은 대상 딕셔너리
@@ -27,7 +28,8 @@ public abstract class FieldEffectController : MonoBehaviour
         float fieldDuration,
         float amountPerTick,
         float interval,
-        GameObject hitEffectPrefab
+        GameObject hitEffectPrefab,
+        string hitEffectTag
         )
     {
         this.caster = caster;
@@ -37,6 +39,7 @@ public abstract class FieldEffectController : MonoBehaviour
         this.amountPerTick = amountPerTick;
         this.interval = interval;
         this.hitEffectPrefab = hitEffectPrefab;
+        this.hitEffectTag = hitEffectTag;
 
         caster.OnOperatorDied += HandleOperatorDied; 
     }

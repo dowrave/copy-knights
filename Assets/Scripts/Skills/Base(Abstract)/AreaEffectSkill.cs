@@ -8,23 +8,53 @@ namespace Skills.Base
     public abstract class AreaEffectSkill: ActiveSkill
     {
         [Header("AreaEffectSkill References")]
+        [Tooltip("실제 효과를 담당하는 프리팹")]
         [SerializeField] protected GameObject fieldEffectPrefab = default!; // 실질적인 효과 프리팹
+        [Tooltip("스킬 효과 범위의 시각적 이펙트를 담당하는 프리팹")]
         [SerializeField] protected GameObject skillRangeVFXPrefab = default!; // 시각 효과 프리팹
-        [SerializeField] protected string EFFECT_TAG = string.Empty;
+        [SerializeField] protected string skillRangeEffectTag = string.Empty;
+        [Tooltip("스킬의 타격 이펙트 프리팹")]
+        [SerializeField] protected GameObject? hitEffectPrefab = default!;
+        [SerializeField] protected string skillHitEffectTag = string.Empty;
+
 
         protected UnitEntity? mainTarget;
 
-        protected GameObject? hitEffectPrefab;
+
         protected Dictionary<Operator, List<GameObject>> activeEffects = new Dictionary<Operator, List<GameObject>>();
 
         // 타겟 중복 가능성을 제거하기 위한 해쉬셋
         protected HashSet<int> enemyIdSet = new HashSet<int>();
 
 
+        
+
+        public override void Activate(Operator op)
+        {
+
+            CreateHitEffectObjectPool(op);
+            base.Activate(op);
+        }
+
+        protected void CreateHitEffectObjectPool(Operator op)
+        {
+            if (hitEffectPrefab == null)
+            {
+                // 할당되지 않은 경우 오퍼레이터의 타격 이펙트를 사용
+                hitEffectPrefab = op.OperatorData.HitEffectPrefab;
+            }
+
+            if (skillHitEffectTag == null)
+            {
+                skillHitEffectTag = "Skill_" + op.HitEffectTag;
+            }
+
+            ObjectPoolManager.Instance!.CreatePool(skillHitEffectTag, hitEffectPrefab, 10);
+        }
+
         protected override void OnSkillStart(Operator op)
         {
             base.OnSkillStart(op);
-            hitEffectPrefab = op.OperatorData.HitEffectPrefab ?? null;
         }
 
         protected override void SetDefaults()
@@ -34,9 +64,21 @@ namespace Skills.Base
             modifiesAttackAction = true;
         }
 
-        // 장판 이펙트 생성 + 효과 적용
+        protected override void OnSkillEnd(Operator op)
+        {
+            // 스킬 범위 초기화
+            actualSkillRange.Clear();
+
+            // 활성화된 스킬 효과와 VFX를 제거함
+            activeEffects.Clear();
+
+            base.OnSkillEnd(op);
+        }
+
+        // 스킬의 기능적 효과와 시각적 이펙트 실행
         protected override void PlaySkillEffect(Operator op)
         {
+
             // 스킬 범위 계산
             Vector2Int centerPos = GetCenterPos(op);
             CalculateActualSkillRange(centerPos);
@@ -44,7 +86,7 @@ namespace Skills.Base
             // 이펙트 시각화
             VisualizeActualSkillRange(op);
 
-            // 실제 효과 장판 생성
+            // 시각 요소가 아닌, 실제 효과 장판 생성
             GameObject? fieldEffect = CreateEffectField(op, centerPos);
 
             // 필드 효과 추적 및 사망 이벤트 구독
@@ -58,6 +100,7 @@ namespace Skills.Base
             }
         }
 
+        // 스킬 범위 이펙트 시각화
         private void VisualizeActualSkillRange(Operator op)
         {
             // 유효한 타일에만 VFX 생성
@@ -66,7 +109,7 @@ namespace Skills.Base
                 if (MapManager.Instance!.CurrentMap!.IsValidGridPosition(pos.x, pos.y))
                 {
                     GameObject? vfxObj = ObjectPoolManager.Instance!.SpawnFromPool(
-                                           EFFECT_TAG,
+                                           skillRangeEffectTag,
                                            MapManager.Instance!.ConvertToWorldPosition(pos),
                                            Quaternion.identity
                                        );
@@ -78,7 +121,7 @@ namespace Skills.Base
                         var rangeEffect = vfxObj.GetComponent<SkillRangeVFXController>();
                         if (rangeEffect != null)
                         {
-                            rangeEffect.Initialize(pos, actualSkillRange, duration, EFFECT_TAG);
+                            rangeEffect.Initialize(pos, actualSkillRange, duration, skillRangeEffectTag);
                         }
                     }
                 }
@@ -92,14 +135,16 @@ namespace Skills.Base
 
         public override void InitializeSkillObjectPool()
         {
-            ObjectPoolManager.Instance!.CreatePool(EFFECT_TAG, skillRangeVFXPrefab, skillRangeOffset.Count);
+            ObjectPoolManager.Instance!.CreatePool(skillRangeEffectTag, skillRangeVFXPrefab, skillRangeOffset.Count);
         }
 
+        // 스킬을 "완전히" 정리할 때 사용한다
         public override void CleanupSkill()
         {
             // 서순 중요
-            CleanupSkillObjectPool();
+            CleanupSkillObjectPool(); // 오브젝트 풀을 아예 제거함
             actualSkillRange.Clear();
+            
         }
 
         public void CleanupSkillObjectPool()
@@ -124,9 +169,11 @@ namespace Skills.Base
                 }
             }
 
-            ObjectPoolManager.Instance!.RemovePool(EFFECT_TAG);
+            // 태그에 해당하는 오브젝트 풀 제거
+            ObjectPoolManager.Instance!.RemovePool(skillRangeEffectTag);
         }
 
+        // 실제 효과, 비주얼 이펙트 모두 이것으로 동작함
         private void TrackEffect(Operator op, GameObject effect)
         {
             if (!activeEffects.ContainsKey(op))

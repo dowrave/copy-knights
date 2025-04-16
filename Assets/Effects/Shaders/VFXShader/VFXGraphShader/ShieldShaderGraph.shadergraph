@@ -1204,7 +1204,7 @@
     "m_DefaultValue": {
         "x": 0.0,
         "y": 0.0,
-        "z": 0.0
+        "z": 1.0
     },
     "m_Labels": []
 }
@@ -1315,8 +1315,8 @@
     "m_ObjectId": "223c66803ceb48879b4eb0e59781601a",
     "m_Title": "Sphere Mask",
     "m_Position": {
-        "x": 661.0000610351563,
-        "y": 866.9999389648438
+        "x": 671.0,
+        "y": 896.0
     }
 }
 
@@ -4012,8 +4012,8 @@
     "m_ObjectId": "a93d855eb3824053aa599ba76f85973b",
     "m_Title": "Fresnel",
     "m_Position": {
-        "x": -559.9999389648438,
-        "y": 1051.9998779296875
+        "x": -560.0,
+        "y": 1052.0
     }
 }
 
@@ -4221,6 +4221,9 @@
     "m_AlphaClip": false,
     "m_CastShadows": false,
     "m_ReceiveShadows": true,
+    "m_DisableTint": false,
+    "m_AdditionalMotionVectorMode": 0,
+    "m_AlembicMotionVectors": false,
     "m_SupportsLODCrossFade": false,
     "m_CustomEditorGUI": "",
     "m_SupportVFX": true
@@ -4791,7 +4794,7 @@
     "m_StageCapability": 3,
     "m_BareResource": false,
     "m_Texture": {
-        "m_SerializedTexture": "{\"texture\":{\"instanceID\":0}}",
+        "m_SerializedTexture": "",
         "m_Guid": ""
     },
     "m_DefaultType": 0

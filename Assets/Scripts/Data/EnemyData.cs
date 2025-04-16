@@ -14,12 +14,14 @@ public class EnemyData : ScriptableObject, ICombatData
     public AttackRangeType attackRangeType;
     public int blockCount = 1;
     public GameObject? projectilePrefab;
+    public string projectileTag = string.Empty;
 
     public float defaultYPosition = 0.5f;
 
     [Header("VFX Effects")]
     public GameObject? meleeAttackEffectPrefab; // 근접 공격 이펙트
     public GameObject hitEffectPrefab = default!; // 공격이 적중했을 때의 이펙트
+    public string hitEffectTag = string.Empty;
 
 
     public GameObject HitEffectPrefab => hitEffectPrefab;

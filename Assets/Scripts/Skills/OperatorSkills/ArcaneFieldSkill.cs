@@ -26,10 +26,10 @@ namespace Skills.OperatorSkills
             GameObject fieldObj = Instantiate(fieldEffectPrefab);
             ArcaneFieldController? controller = fieldObj.GetComponent<ArcaneFieldController>(); 
 
-            if (controller != null && hitEffectPrefab != null)
+            if (controller != null)
             {
                 float actualDamagePerTick = op.AttackPower * damagePerTickRatio;
-                controller.Initialize(op, centerPos, actualSkillRange, duration, actualDamagePerTick, damageInterval, hitEffectPrefab, slowAmount);
+                controller.Initialize(op, centerPos, actualSkillRange, duration, actualDamagePerTick, damageInterval, hitEffectPrefab!, skillHitEffectTag, slowAmount);
             }
 
             return fieldObj;

@@ -107,20 +107,27 @@ public abstract class UnitEntity : MonoBehaviour, ITargettable, IFactionMember
 
     protected virtual void PlayGetHitEffect(UnitEntity attacker, AttackSource attackSource)
     {
-        GameObject hitEffectPrefab;
+        GameObject hitEffectPrefab = attackSource.HitEffectPrefab;
+        string hitEffectTag = attackSource.HitEffectTag;
         string attackerName;
 
         if (attacker is Operator op)
         {
             OperatorData opData = op.OperatorData;
-            hitEffectPrefab = opData.hitEffectPrefab;
             attackerName = opData.entityName;
+            if (hitEffectPrefab == null)
+            {
+                hitEffectPrefab = opData.hitEffectPrefab;
+            }
         }
         else if (attacker is Enemy enemy)
         {
             EnemyData enemyData = enemy.BaseData;
-            hitEffectPrefab = enemyData.hitEffectPrefab;
             attackerName = enemyData.entityName;
+            if (hitEffectPrefab == null)
+            {
+                hitEffectPrefab = enemyData.hitEffectPrefab;
+            }
         }
         else
         {
@@ -133,12 +140,15 @@ public abstract class UnitEntity : MonoBehaviour, ITargettable, IFactionMember
             Vector3 effectPosition = transform.position;
 
             // 풀에서 이펙트 오브젝트 가져오기
-            string effectTag = attackerName + hitEffectPrefab.name;
-            GameObject? hitEffect = ObjectPoolManager.Instance!.SpawnFromPool(effectTag, effectPosition, Quaternion.identity);
+            if (hitEffectTag == string.Empty)
+            {
+                hitEffectTag = attackerName + hitEffectPrefab.name;
+            }
+            GameObject? hitEffect = ObjectPoolManager.Instance!.SpawnFromPool(hitEffectTag, effectPosition, Quaternion.identity);
             if (hitEffect != null)
             {
                 CombatVFXController hitVFXController = hitEffect.GetComponent<CombatVFXController>();
-                hitVFXController.Initialize(attackSource, this, effectTag);
+                hitVFXController.Initialize(attackSource, this, hitEffectTag);
             }
         }
     }

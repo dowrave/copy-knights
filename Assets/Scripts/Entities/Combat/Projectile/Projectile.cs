@@ -13,6 +13,7 @@ public class Projectile : MonoBehaviour
     private UnitEntity? target; // 날아가는 중에 파괴될 수 있음
     private Vector3 lastKnownPosition = new Vector3(0f, 0f, 0f); // 마지막으로 알려진 적의 위치
     private string poolTag = string.Empty;
+    private string hitEffectTag = string.Empty;
     private GameObject hitEffectPrefab = default!;
     private bool shouldDestroy = false;
 
@@ -28,7 +29,8 @@ public class Projectile : MonoBehaviour
         float value, 
         bool showValue, 
         string poolTag,
-        GameObject hitEffectPrefab)
+        GameObject hitEffectPrefab, 
+        string hitEffectTag)
     {
         // 공격자(attacker)와 대상(target)은 Initialize 메서드의 인자로 반드시 전달되므로 null일 수 없다고 가정할 수 있습니다.
         // 따라서 null 확인 없이 바로 Faction을 비교할 수 있습니다.
@@ -167,7 +169,7 @@ public class Projectile : MonoBehaviour
         // 타겟이 살아있는 경우
         if (target != null && attacker != null)
         {
-            AttackSource attackSource = new AttackSource(transform.position, true, hitEffectPrefab);
+            AttackSource attackSource = new AttackSource(transform.position, true, hitEffectPrefab, hitEffectTag);
 
             if (isHealing)
             {

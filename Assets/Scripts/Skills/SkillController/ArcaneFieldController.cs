@@ -16,10 +16,11 @@ public class ArcaneFieldController : FieldEffectController
         float amountPerTick,
         float amountInterval,
         GameObject hitEffectPrefab,
+        string hitEffectTag,
         float slowAmount
         )
     {
-        base.Initialize(caster, centerPosition, affectedTiles, fieldDuration, amountPerTick, amountInterval, hitEffectPrefab);
+        base.Initialize(caster, centerPosition, affectedTiles, fieldDuration, amountPerTick, amountInterval, hitEffectPrefab, hitEffectTag);
         this.slowAmount = slowAmount;
     }
 
@@ -78,7 +79,7 @@ public class ArcaneFieldController : FieldEffectController
             if (target != null && target is Enemy enemy && caster != null)
             {
                 ICombatEntity.AttackSource attackSource =
-                    new ICombatEntity.AttackSource(transform.position, true, hitEffectPrefab);
+                    new ICombatEntity.AttackSource(transform.position, true, hitEffectPrefab, hitEffectTag);
                 enemy.TakeDamage(caster, attackSource, amountPerTick);
             }
         }

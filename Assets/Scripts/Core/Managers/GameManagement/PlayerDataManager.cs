@@ -215,7 +215,7 @@ public class PlayerDataManager : MonoBehaviour
     {
         //TestAboutTutorial();
 
-        int targetLevel = 1;
+        int targetLevel = 50;
 
         // 오퍼레이터들 성장 반영
         foreach (var op in playerData.ownedOperators)

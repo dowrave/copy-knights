@@ -57,6 +57,7 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity, ICrowdControlTarget
     // 이펙트 풀 태그
     string? meleeAttackEffectTag;
     string hitEffectTag = string.Empty;
+    public string HitEffectTag => hitEffectTag;
 
     [SerializeField] private GameObject enemyBarUIPrefab = default!;
     private EnemyBarUI? enemyBarUI;
@@ -318,7 +319,7 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity, ICrowdControlTarget
     private void PerformMeleeAttack(UnitEntity target, float damage)
     {
         SetAttackTimings(); // 이걸 따로 호출하는 경우가 있어서 여기서 다시 설정
-        AttackSource attackSource = new AttackSource(transform.position, false, BaseData.HitEffectPrefab);
+        AttackSource attackSource = new AttackSource(transform.position, false, BaseData.HitEffectPrefab, hitEffectTag);
 
         PlayMeleeAttackEffect(target, attackSource);
 
@@ -339,7 +340,7 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity, ICrowdControlTarget
                 Projectile? projectile = projectileObj.GetComponent<Projectile>();
                 if (projectile != null)
                 {
-                    projectile.Initialize(this, target, damage, false, projectileTag, BaseData.hitEffectPrefab);
+                    projectile.Initialize(this, target, damage, false, projectileTag, BaseData.hitEffectPrefab, hitEffectTag);
                 }
             }
         }

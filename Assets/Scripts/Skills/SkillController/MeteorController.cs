@@ -11,9 +11,10 @@ public class MeteorController : MonoBehaviour
     private float waitTime;
     private float fallSpeed = 5f;
     private bool hasDamageApplied = false;
-    private GameObject hitEffectPrefab = default!; 
+    private GameObject hitEffectPrefab = default!;
+    private string hitEffectTag = string.Empty;
 
-    public void Initialize(Operator op, Enemy target, float damage, float waitTime, float stunDuration, GameObject hitEffectPrefab)
+    public void Initialize(Operator op, Enemy target, float damage, float waitTime, float stunDuration, GameObject hitEffectPrefab, string hitEffectTag)
     {
         this.caster = op;
         this.target = target;
@@ -21,6 +22,7 @@ public class MeteorController : MonoBehaviour
         this.waitTime = waitTime;
         this.stunDuration = stunDuration;
         this.hitEffectPrefab = hitEffectPrefab;
+        this.hitEffectTag = hitEffectTag;
 
         // 공격자나 타겟이 제거된다면 이것도 제거시키기 위한 이벤트 등록
         if (caster != null)
@@ -76,7 +78,7 @@ public class MeteorController : MonoBehaviour
             target.AddCrowdControl(stunEffect);
 
             // 대미지 적용
-            ICombatEntity.AttackSource attackSource = new ICombatEntity.AttackSource(transform.position, false, hitEffectPrefab);
+            ICombatEntity.AttackSource attackSource = new ICombatEntity.AttackSource(transform.position, false, hitEffectPrefab, hitEffectTag);
             target.TakeDamage(caster, attackSource, damage);
 
             hasDamageApplied = true;
