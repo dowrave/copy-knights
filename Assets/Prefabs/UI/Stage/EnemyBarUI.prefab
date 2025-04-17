@@ -60,7 +60,7 @@ Canvas:
   m_VertexColorAlwaysGammaSpace: 0
   m_AdditionalShaderChannelsFlag: 8
   m_UpdateRectTransformForStandalone: 0
-  m_SortingLayerID: 0
+  m_SortingLayerID: -335978105
   m_SortingOrder: 0
   m_TargetDisplay: 0
 --- !u!114 &2645934172642921739
@@ -166,6 +166,18 @@ PrefabInstance:
     - target: {fileID: 2151420207133738341, guid: e2398dcf759e75743b0e55cc17de6acc, type: 3}
       propertyPath: m_Layer
       value: 5
+      objectReference: {fileID: 0}
+    - target: {fileID: 4361264696287308240, guid: e2398dcf759e75743b0e55cc17de6acc, type: 3}
+      propertyPath: m_Color.b
+      value: 0.13333333
+      objectReference: {fileID: 0}
+    - target: {fileID: 4361264696287308240, guid: e2398dcf759e75743b0e55cc17de6acc, type: 3}
+      propertyPath: m_Color.g
+      value: 0.43582603
+      objectReference: {fileID: 0}
+    - target: {fileID: 4361264696287308240, guid: e2398dcf759e75743b0e55cc17de6acc, type: 3}
+      propertyPath: m_Color.r
+      value: 0.9019608
       objectReference: {fileID: 0}
     - target: {fileID: 4361264696287308240, guid: e2398dcf759e75743b0e55cc17de6acc, type: 3}
       propertyPath: m_FillAmount
@@ -289,15 +301,15 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7940435949015412083, guid: e2398dcf759e75743b0e55cc17de6acc, type: 3}
       propertyPath: healthFillColor.b
-      value: 0.23874341
+      value: 0.15566039
       objectReference: {fileID: 0}
     - target: {fileID: 7940435949015412083, guid: e2398dcf759e75743b0e55cc17de6acc, type: 3}
       propertyPath: healthFillColor.g
-      value: 0.58193713
+      value: 0.31120837
       objectReference: {fileID: 0}
     - target: {fileID: 7940435949015412083, guid: e2398dcf759e75743b0e55cc17de6acc, type: 3}
       propertyPath: healthFillColor.r
-      value: 0.95
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 7940435949015412083, guid: e2398dcf759e75743b0e55cc17de6acc, type: 3}
       propertyPath: shieldFillColor.a

@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 192131886596985814}
   - component: {fileID: 6014381942327017519}
   - component: {fileID: 1812385329615077131}
-  m_Layer: 0
+  m_Layer: 11
   m_Name: Debris
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -4774,6 +4774,9 @@ ParticleSystemRenderer:
   m_ReflectionProbeUsage: 0
   m_RayTracingMode: 0
   m_RayTraceProcedural: 0
+  m_RayTracingAccelStructBuildFlagsOverride: 0
+  m_RayTracingAccelStructBuildFlags: 1
+  m_SmallMeshCulling: 1
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
@@ -4795,8 +4798,8 @@ ParticleSystemRenderer:
   m_AutoUVMaxDistance: 0.5
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
-  m_SortingLayerID: 0
-  m_SortingLayer: 0
+  m_SortingLayerID: 19170391
+  m_SortingLayer: 3
   m_SortingOrder: 0
   m_RenderMode: 4
   m_MeshDistribution: 0
@@ -4841,7 +4844,7 @@ GameObject:
   - component: {fileID: 8442660697950243790}
   - component: {fileID: 4288934830004049081}
   - component: {fileID: 2947004834948596769}
-  m_Layer: 0
+  m_Layer: 11
   m_Name: Sparks
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -9604,6 +9607,9 @@ ParticleSystemRenderer:
   m_ReflectionProbeUsage: 0
   m_RayTracingMode: 0
   m_RayTraceProcedural: 0
+  m_RayTracingAccelStructBuildFlagsOverride: 0
+  m_RayTracingAccelStructBuildFlags: 1
+  m_SmallMeshCulling: 1
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
@@ -9625,8 +9631,8 @@ ParticleSystemRenderer:
   m_AutoUVMaxDistance: 0.5
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
-  m_SortingLayerID: 0
-  m_SortingLayer: 0
+  m_SortingLayerID: 19170391
+  m_SortingLayer: 3
   m_SortingOrder: 0
   m_RenderMode: 1
   m_MeshDistribution: 0
@@ -9671,7 +9677,7 @@ GameObject:
   - component: {fileID: 7940960483174333537}
   - component: {fileID: 477054650348270}
   - component: {fileID: 112978774074176511}
-  m_Layer: 0
+  m_Layer: 11
   m_Name: GroundDark
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -14434,6 +14440,9 @@ ParticleSystemRenderer:
   m_ReflectionProbeUsage: 0
   m_RayTracingMode: 0
   m_RayTraceProcedural: 0
+  m_RayTracingAccelStructBuildFlagsOverride: 0
+  m_RayTracingAccelStructBuildFlags: 1
+  m_SmallMeshCulling: 1
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
@@ -14455,8 +14464,8 @@ ParticleSystemRenderer:
   m_AutoUVMaxDistance: 0.5
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
-  m_SortingLayerID: 0
-  m_SortingLayer: 0
+  m_SortingLayerID: 19170391
+  m_SortingLayer: 3
   m_SortingOrder: -1
   m_RenderMode: 0
   m_MeshDistribution: 0
@@ -14500,7 +14509,7 @@ GameObject:
   m_Component:
   - component: {fileID: 8806161120609968796}
   - component: {fileID: 4526572924944222420}
-  m_Layer: 0
+  m_Layer: 11
   m_Name: Skill_SlashEffect
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -14547,7 +14556,7 @@ GameObject:
   - component: {fileID: 3898820222115575866}
   - component: {fileID: 466229275085980897}
   - component: {fileID: 6356751523992640448}
-  m_Layer: 0
+  m_Layer: 11
   m_Name: GroundBright
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -19310,6 +19319,9 @@ ParticleSystemRenderer:
   m_ReflectionProbeUsage: 0
   m_RayTracingMode: 0
   m_RayTraceProcedural: 0
+  m_RayTracingAccelStructBuildFlagsOverride: 0
+  m_RayTracingAccelStructBuildFlags: 1
+  m_SmallMeshCulling: 1
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
@@ -19331,8 +19343,8 @@ ParticleSystemRenderer:
   m_AutoUVMaxDistance: 0.5
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
-  m_SortingLayerID: 0
-  m_SortingLayer: 0
+  m_SortingLayerID: 19170391
+  m_SortingLayer: 3
   m_SortingOrder: 0
   m_RenderMode: 0
   m_MeshDistribution: 0
@@ -19377,7 +19389,7 @@ GameObject:
   - component: {fileID: 5977655493225998848}
   - component: {fileID: 9203243609956710177}
   - component: {fileID: 2155914551595799691}
-  m_Layer: 0
+  m_Layer: 11
   m_Name: SlashOnly
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -24226,6 +24238,9 @@ ParticleSystemRenderer:
   m_ReflectionProbeUsage: 0
   m_RayTracingMode: 0
   m_RayTraceProcedural: 0
+  m_RayTracingAccelStructBuildFlagsOverride: 0
+  m_RayTracingAccelStructBuildFlags: 1
+  m_SmallMeshCulling: 1
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
@@ -24247,8 +24262,8 @@ ParticleSystemRenderer:
   m_AutoUVMaxDistance: 0.5
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
-  m_SortingLayerID: 0
-  m_SortingLayer: 0
+  m_SortingLayerID: 19170391
+  m_SortingLayer: 3
   m_SortingOrder: 0
   m_RenderMode: 4
   m_MeshDistribution: 0

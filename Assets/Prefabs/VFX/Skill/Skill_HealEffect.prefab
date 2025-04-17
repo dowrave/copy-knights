@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 5894435791198665315}
   - component: {fileID: 5820312374111338354}
   - component: {fileID: 7832479097347853418}
-  m_Layer: 0
+  m_Layer: 11
   m_Name: Skill_HealEffect
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -124,6 +124,9 @@ VFXRenderer:
   m_ReflectionProbeUsage: 0
   m_RayTracingMode: 0
   m_RayTraceProcedural: 0
+  m_RayTracingAccelStructBuildFlagsOverride: 0
+  m_RayTracingAccelStructBuildFlags: 1
+  m_SmallMeshCulling: 1
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_StaticBatchInfo:
@@ -143,6 +146,6 @@ VFXRenderer:
   m_AutoUVMaxDistance: 0.5
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
-  m_SortingLayerID: 0
-  m_SortingLayer: 0
+  m_SortingLayerID: 19170391
+  m_SortingLayer: 3
   m_SortingOrder: 0

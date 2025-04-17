@@ -25,13 +25,13 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 415945029125974465}
   serializedVersion: 2
-  m_LocalRotation: {x: 0.18301274, y: 0.18301274, z: -0.6830127, w: 0.6830127}
-  m_LocalPosition: {x: 0, y: -0.1, z: 0}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 0.3, y: 0.3, z: 0.3}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 6419366335812389716}
-  m_LocalEulerAnglesHint: {x: 30, y: 0, z: -90}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!212 &2044978366136488506
 SpriteRenderer:
   m_ObjectHideFlags: 0
@@ -73,8 +73,8 @@ SpriteRenderer:
   m_AutoUVMaxDistance: 0.5
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
-  m_SortingLayerID: 0
-  m_SortingLayer: 0
+  m_SortingLayerID: 103597713
+  m_SortingLayer: 2
   m_SortingOrder: 0
   m_Sprite: {fileID: 21300000, guid: e49c8004f88e28c4598247e28ad0435e, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
@@ -239,7 +239,7 @@ Canvas:
   m_VertexColorAlwaysGammaSpace: 0
   m_AdditionalShaderChannelsFlag: 0
   m_UpdateRectTransformForStandalone: 0
-  m_SortingLayerID: 0
+  m_SortingLayerID: -335978105
   m_SortingOrder: 0
   m_TargetDisplay: 0
 --- !u!114 &1664625941257757301
@@ -292,11 +292,11 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 512711757875777836, guid: d39c58a7b8ae3eb43beb195d5f3164a8, type: 3}
       propertyPath: m_SizeDelta.y
-      value: 0.7
+      value: 0.5
       objectReference: {fileID: 0}
     - target: {fileID: 512711757875777836, guid: d39c58a7b8ae3eb43beb195d5f3164a8, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: -0.375
+      value: -0.35
       objectReference: {fileID: 0}
     - target: {fileID: 2073903883274204691, guid: d39c58a7b8ae3eb43beb195d5f3164a8, type: 3}
       propertyPath: m_AnchorMax.x
@@ -416,7 +416,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5829774511885003898, guid: d39c58a7b8ae3eb43beb195d5f3164a8, type: 3}
       propertyPath: m_SizeDelta.y
-      value: 0.75
+      value: 0.5
       objectReference: {fileID: 0}
     - target: {fileID: 5829774511885003898, guid: d39c58a7b8ae3eb43beb195d5f3164a8, type: 3}
       propertyPath: m_AnchoredPosition.y

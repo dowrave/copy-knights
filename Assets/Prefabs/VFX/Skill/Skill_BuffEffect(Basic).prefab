@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 6565643841674516667}
   - component: {fileID: 6432073566611957333}
   - component: {fileID: 4499002485407716826}
-  m_Layer: 0
+  m_Layer: 11
   m_Name: Skill_BuffEffect(Basic)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -89,6 +89,9 @@ VFXRenderer:
   m_ReflectionProbeUsage: 0
   m_RayTracingMode: 0
   m_RayTraceProcedural: 0
+  m_RayTracingAccelStructBuildFlagsOverride: 0
+  m_RayTracingAccelStructBuildFlags: 1
+  m_SmallMeshCulling: 1
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_StaticBatchInfo:
@@ -108,6 +111,6 @@ VFXRenderer:
   m_AutoUVMaxDistance: 0.5
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
-  m_SortingLayerID: 0
-  m_SortingLayer: 0
+  m_SortingLayerID: 19170391
+  m_SortingLayer: 3
   m_SortingOrder: 0

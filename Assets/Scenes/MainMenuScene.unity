@@ -15986,8 +15986,8 @@ MonoBehaviour:
   stageButtonStar2: {fileID: 21300000, guid: f2740fb1c8b930a4e935646eb5db4aef, type: 3}
   stageButtonStar3: {fileID: 21300000, guid: f98468cc187a7c7428b3f7befe390af3, type: 3}
   textUpdateColor: '#179bff'
-  onSkillColor: {r: 1, g: 0.5254902, b: 0, a: 255}
-  offSkillColor: {r: 0.4509804, g: 0.85882354, b: 0.40392157, a: 255}
+  onSkillColor: {r: 1, g: 0.6351647, b: 0.23113209, a: 255}
+  offSkillColor: {r: 0.2912736, g: 0.8962264, b: 0.2240566, a: 255}
 --- !u!4 &1259888923
 Transform:
   m_ObjectHideFlags: 0

@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 7144937329101160706}
   - component: {fileID: 8121655660851779579}
   - component: {fileID: 5887020825010218458}
-  m_Layer: 0
+  m_Layer: 11
   m_Name: Skill_CostEffect
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -4842,6 +4842,9 @@ ParticleSystemRenderer:
   m_ReflectionProbeUsage: 0
   m_RayTracingMode: 0
   m_RayTraceProcedural: 0
+  m_RayTracingAccelStructBuildFlagsOverride: 0
+  m_RayTracingAccelStructBuildFlags: 1
+  m_SmallMeshCulling: 1
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
@@ -4864,8 +4867,8 @@ ParticleSystemRenderer:
   m_AutoUVMaxDistance: 0.5
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
-  m_SortingLayerID: 0
-  m_SortingLayer: 0
+  m_SortingLayerID: 19170391
+  m_SortingLayer: 3
   m_SortingOrder: 0
   m_RenderMode: 0
   m_MeshDistribution: 0
@@ -4911,12 +4914,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fc1acf9c50333ab4f9508a24b4997e48, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  deploymentCostIconTransform: {fileID: 0}
   initialDuration: 0.5
   moveSpeed: 12
   turnSpeed: 5
   arrivalThreshold: 0.1
-  showDebugMarker: 0
-  markerSize: 20
-  targetMarkerColor: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
-  particleMarkerColor: {r: 0, g: 1, b: 0, a: 1}

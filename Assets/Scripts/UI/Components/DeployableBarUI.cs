@@ -28,10 +28,10 @@ public class DeployableBarUI : MonoBehaviour
         mainCamera = Camera.main;
         canvas.worldCamera = mainCamera;
 
-        if (mainCamera != null)
-        {
-            transform.LookAt(transform.position + mainCamera.transform.rotation * Vector3.forward, mainCamera.transform.rotation * Vector3.up);
-        }
+        //if (mainCamera != null)
+        //{
+        //    transform.LookAt(transform.position + mainCamera.transform.rotation * Vector3.forward, mainCamera.transform.rotation * Vector3.up);
+        //}
     }
 
     public void Initialize(IDeployable deployable)
@@ -108,9 +108,9 @@ public class DeployableBarUI : MonoBehaviour
             transform.position = op.transform.position + Vector3.back * backOffset;
         }
 
-        transform.rotation = Quaternion.Euler(90, 0, 0);
+        //transform.rotation = Quaternion.Euler(90, 0, 0);
 
         // Canvas가 항상 카메라를 향하도록 회전 설정
-        //transform.rotation = Camera.main.transform.rotation;
+        transform.rotation = Camera.main.transform.rotation;
     }
 }
