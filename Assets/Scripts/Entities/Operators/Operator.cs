@@ -4,10 +4,12 @@ using UnityEngine;
 using UnityEngine.VFX;
 using Skills.Base;
 using static ICombatEntity;
+using Unity.VisualScripting;
 
 public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable, ICrowdControlTarget
 {
     public OperatorData OperatorData { get; protected set; } = default!;
+    [HideInInspector] 
     public OperatorStats currentOperatorStats; // 일단 public으로 구현
 
     // ICombatEntity 필드
@@ -120,7 +122,7 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable,
 
     [SerializeField] protected GameObject operatorUIPrefab = default!;
     protected GameObject operatorUIInstance = default!;
-    protected OperatorUI? operatorUIScript;
+    protected OperatorUI? operatorUI;
 
     // 원거리 공격 오브젝트 풀 옵션
     protected string? projectileTag;
@@ -185,13 +187,18 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable,
     {
         if (operatorUIPrefab != null)
         {
-            operatorUIInstance = Instantiate(operatorUIPrefab, transform);
-            operatorUIScript = operatorUIInstance.GetComponent<OperatorUI>();
-            if (operatorUIScript != null)
+            operatorUIInstance = Instantiate(operatorUIPrefab);
+            operatorUI = operatorUIInstance.GetComponent<OperatorUI>();
+            if (operatorUI != null)
             {
-                operatorUIScript.Initialize(this);
+                operatorUI.Initialize(this);
             }
         }
+    }
+    
+    protected void DestroyOperatorUI()
+    {
+        Destroy(operatorUI);
     }
 
     protected void Update()
@@ -338,16 +345,16 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable,
             CurrentSP = Mathf.Min(CurrentSP + currentOperatorStats.SPRecoveryRate * Time.deltaTime, MaxSP);
         }
 
-        if (CurrentSP != oldSP && operatorUIScript != null)
+        if (CurrentSP != oldSP && operatorUI != null)
         {
-            operatorUIScript.UpdateUI();
+            operatorUI.UpdateUI();
             OnSPChanged?.Invoke(CurrentSP, MaxSP);
 
             // 수동 발동인 스킬만 스킬 실행 가능 상태를 띄움
             if (!CurrentSkill.autoActivate)
             {
                 bool isSkillReady = CurrentSP >= MaxSP;
-                operatorUIScript.SetSkillIconVisibility(isSkillReady);
+                operatorUI.SetSkillIconVisibility(isSkillReady);
             }
         }
     }
@@ -438,7 +445,7 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable,
         UnblockAllEnemies();
 
         // UI 파괴
-        Destroy(operatorUIInstance.gameObject);
+        //DestroyOperatorUI();
         
         // 필요한지 모르겠어서 일단 주석처리
         //OnSPChanged = null;
@@ -562,6 +569,7 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable,
         operatorGridPos = MapManager.Instance!.CurrentMap!.WorldToGridPosition(transform.position);
         SetDirection(FacingDirection);
         UpdateAttackableTiles();
+        CreateDirectionIndicator();
         CreateOperatorUI();
         CurrentSP = currentOperatorStats.StartSP;
 
@@ -746,9 +754,9 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable,
 
     protected void UpdateOperatorUI()
     {
-        if (operatorUIScript != null)
+        if (operatorUI != null)
         {
-            operatorUIScript.UpdateUI();
+            operatorUI.UpdateUI();
         }
     }
 
@@ -851,7 +859,15 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable,
         IsSkillOn = skillOnState;
     }
 
+    // 방향 표시 UI 생성
+    private void CreateDirectionIndicator()
+    {
+        // 자식 오브젝트로 들어감
+        DirectionIndicator indicator = Instantiate(UIManager.Instance!.directionIndicator, transform).GetComponent<DirectionIndicator>();
+        indicator.Initialize(this);
 
+        // 오퍼레이터가 파괴될 때 함께 파괴되므로 전역변수로 설정하지 않아도 됨
+    }
 
     protected override float CalculateActualDamage(AttackType attacktype, float incomingDamage)
     {

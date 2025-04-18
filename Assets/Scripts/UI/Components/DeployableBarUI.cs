@@ -28,10 +28,6 @@ public class DeployableBarUI : MonoBehaviour
         mainCamera = Camera.main;
         canvas.worldCamera = mainCamera;
 
-        //if (mainCamera != null)
-        //{
-        //    transform.LookAt(transform.position + mainCamera.transform.rotation * Vector3.forward, mainCamera.transform.rotation * Vector3.up);
-        //}
     }
 
     public void Initialize(IDeployable deployable)
@@ -44,20 +40,17 @@ public class DeployableBarUI : MonoBehaviour
             op.OnSPChanged += UpdateSPBar;
 
             UpdateUI();
-            UpdatePosition();
         }
     }
 
     private void Update()
-    {
-        if (op != null)
-        {
-            UpdatePosition();
-        }
-        else
+    {   
+        if (op == null)
         {
             Destroy(gameObject);
         }
+
+        UpdatePosition();
     }
 
     public void UpdateUI()
@@ -103,14 +96,14 @@ public class DeployableBarUI : MonoBehaviour
 
     private void UpdatePosition()
     {
-        if (op != null)
-        {
-            transform.position = op.transform.position + Vector3.back * backOffset;
-        }
+        //if (op != null)
+        //{
+        //    transform.position = op.transform.position + Vector3.back * backOffset;
+        //}
 
         //transform.rotation = Quaternion.Euler(90, 0, 0);
 
-        // Canvas가 항상 카메라를 향하도록 회전 설정
+        // Canvas가 항상 카메라를 향하도록 회전 설정 - 삐딱하게 나타나는 거 방지해줌
         transform.rotation = Camera.main.transform.rotation;
     }
 }

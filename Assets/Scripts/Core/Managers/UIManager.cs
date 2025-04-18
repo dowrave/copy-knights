@@ -48,6 +48,10 @@ public class UIManager : MonoBehaviour
     [Header("ResultPanel Appearance Delay")]
     [SerializeField] private float resultDelay = 0.5f;
 
+    [Header("Operator UIs")]
+    public GameObject operatorUI = default!; // 오퍼레이터의 위치에 뜨되, 별도의 오브젝트
+    public GameObject directionIndicator = default!; // 오퍼레이터의 자식 오브젝트로 들어감
+
     // 코스트 이펙트에서 사용할 좌표statsPanelObject
     private Vector3 costIconWorldPosition;
     public Vector3 CostIconWorldPosition 

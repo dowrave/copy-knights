@@ -113,6 +113,7 @@
     <Compile Include="Assets\Scripts\Core\Managers\UIManager.cs" />
     <Compile Include="Assets\Scripts\Data\OperatorLevelData.cs" />
     <Compile Include="Assets\Scripts\CC\Types\StunEffect.cs" />
+    <Compile Include="Assets\Scripts\UI\Components\DirectionIndicator.cs" />
     <Compile Include="Assets\Scripts\Skills\OperatorSkills\CostRecoverySkill.cs" />
     <Compile Include="Assets\Scripts\Entities\Combat\Projectile\Projectile.cs" />
     <Compile Include="Assets\Scripts\UI\Components\EnemyBarUI.cs" />

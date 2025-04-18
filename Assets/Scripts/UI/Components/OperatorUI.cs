@@ -6,7 +6,6 @@ public class OperatorUI : MonoBehaviour
     [Header("Components")]
     [SerializeField] private GameObject deployableBarUI = default!;  // 기존에 할당된 Bar UI
     [SerializeField] private GameObject skillIconUI = default!;      // 스킬 아이콘 UI
-    [SerializeField] private SpriteRenderer directionIndicator = default!; // 방향 표시기
 
     private DeployableBarUI deployableBarUIScript = default!;
 
@@ -22,24 +21,27 @@ public class OperatorUI : MonoBehaviour
         canvas.renderMode = RenderMode.WorldSpace;
         mainCamera = Camera.main;
         canvas.worldCamera = mainCamera;
+    }
 
-        // UI를 카메라 방향으로 회전
+    public void Initialize(Operator op)
+    {
+        this.op = op;
+
+        deployableBarUIScript = deployableBarUI.GetComponent<DeployableBarUI>();
+        deployableBarUIScript.Initialize(op);
+
+        transform.position = op.transform.position;
+
+        SetSkillIconVisibility(op.CurrentSP >= op.MaxSP);
+
+        // 배치 시점에 카메라를 봐야 함
         if (mainCamera != null)
         {
             transform.LookAt(transform.position + mainCamera.transform.rotation * Vector3.forward, mainCamera.transform.rotation * Vector3.up);
         }
 
-        directionIndicator.enabled = false;
-    }
-
-    public void Initialize(Operator op)
-    {
-        deployableBarUIScript = deployableBarUI.GetComponent<DeployableBarUI>();
-        deployableBarUIScript.Initialize(op);
-     
-        this.op = op;
-
-        SetSkillIconVisibility(op.CurrentSP >= op.MaxSP);
+        // 오퍼레이터 파괴 시 UI도 파괴하는 이벤트 등록
+        op.OnOperatorDied += DestroyThis;
     }
 
     // 스킬 아이콘 UI의 초기화 및 상태 업데이트
@@ -67,23 +69,11 @@ public class OperatorUI : MonoBehaviour
             !op.IsSkillOn && 
             !op.CurrentSkill.autoActivate
         );
-
-        SetDirectionIndicator(op.FacingDirection);
     }
 
-    public void SetDirectionIndicator(Vector3 direction)
+    private void DestroyThis(Operator op)
     {
-        directionIndicator.enabled = op.IsDeployed ? true : false;
-
-        if (directionIndicator != null)
-        {
-            float zRot = 0f;
-            if (op.FacingDirection == Vector3.left) zRot = 0;
-            else if (op.FacingDirection == Vector3.right) zRot = 180;
-            else if (op.FacingDirection == Vector3.forward) zRot = -90;
-            else if (op.FacingDirection == Vector3.back) zRot = 90;
-
-            directionIndicator.transform.localRotation = Quaternion.Euler(30, 0, zRot);
-        }
+        Debug.Log("operatorUI 파괴 로직 동작");
+        Destroy(gameObject);
     }
 }

@@ -47,9 +47,6 @@ public class HealthBar : MonoBehaviour
         shieldFill.color = shieldFillColor;
     }
 
-    /// <summary>
-    /// 게이지 업데이트
-    /// </summary>
     public void UpdateHealthBar(float newValue, float maxValue, float currentShield = 0)
     {
         maxAmount = maxValue;

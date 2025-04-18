@@ -13330,6 +13330,7 @@ MonoBehaviour:
   leftDeploymentCountText: {fileID: 1038398216}
   stageItemInfoPopup: {fileID: 7864103133559354938}
   resultDelay: 0.5
+  directionIndicator: {fileID: 8158370507994738441, guid: 0e1c42209c72c2948ae458745836bebc, type: 3}
 --- !u!114 &4426849581333860165
 MonoBehaviour:
   m_ObjectHideFlags: 0
