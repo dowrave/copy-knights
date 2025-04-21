@@ -2,7 +2,7 @@ using UnityEngine;
 using TMPro;
 using System;
 
-public class FloatingText : MonoBehaviour
+public class FloatingText : MonoBehaviour, IPooledObject
 {
     [SerializeField] private float lifetime = 1f;
     [SerializeField] private float moveSpeed = 1f;
@@ -14,22 +14,21 @@ public class FloatingText : MonoBehaviour
 
     private float timer;
 
+    // 이 컴포넌트의 회전은 ObjectPoolManager.ShowFloatingText에 들어가고 그 이후로는 수정되지 않음
+
     private void Awake()
     {
         if (valueText == null)
         {
             valueText = GetComponent<TextMeshPro>(); // WorldSpace에 바로 쓴다면 이렇게 씀
         }
+
+
     }
 
     public void OnObjectSpawn()
     {
-        timer = 0f; 
-    }
-
-    private void OnEnable()
-    {
-        OnObjectSpawn();
+        timer = 0f;
     }
 
     public void SetValue(float damage, bool isHealing)
@@ -65,10 +64,5 @@ public class FloatingText : MonoBehaviour
         {
             ObjectPoolManager.Instance!.ReturnToPool(ObjectPoolManager.Instance.FLOATING_TEXT_TAG, gameObject);
         }
-    }
-
-    private void LateUpdate()
-    {
-        transform.forward = Camera.main.transform.forward;
     }
 }

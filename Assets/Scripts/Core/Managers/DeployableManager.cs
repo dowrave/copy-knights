@@ -58,7 +58,6 @@ public class DeployableManager : MonoBehaviour
 
     [Header("Highlight Color")]
     // 하이라이트 관련 변수 - 인스펙터에서 설정
-    public Color availableTileColor;
     public Color attackRangeTileColor;
 
     // 배치 과정 상태 변수
@@ -217,6 +216,7 @@ public class DeployableManager : MonoBehaviour
         }
     }
 
+    // 배치 가능한 타일을 하이라이트
     private void HighlightAvailableTiles()
     {
         ResetHighlights();
@@ -232,8 +232,8 @@ public class DeployableManager : MonoBehaviour
             {
                 if (CheckTileCondition(tile))
                 {
-                    tile.Highlight(availableTileColor);
                     highlightedTiles.Add(tile);
+                    tile.Highlight();
                 }
             }
         }
@@ -510,12 +510,12 @@ public class DeployableManager : MonoBehaviour
         return null;
     }
 
-    public void HighlightTiles(List<Tile> tiles, Color color)
+    public void HighlightAttackRanges(List<Tile> tiles, bool isMedic)
     {
         ResetHighlights();
         foreach (Tile tile in tiles)
         {
-            tile.Highlight(color);
+            tile.ShowAttackRange(isMedic);
             highlightedTiles.Add(tile);
         }
     }
@@ -624,6 +624,7 @@ public class DeployableManager : MonoBehaviour
     {
         foreach (Tile tile in highlightedTiles)
         {
+            tile.HideAttackRange();
             tile.ResetHighlight();
         }
         highlightedTiles.Clear();

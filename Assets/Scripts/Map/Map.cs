@@ -17,9 +17,7 @@ public class Map : MonoBehaviour
     public int Height => height;
 
     [SerializeField] private Vector3 cameraPosition;
-    private Vector3 cameraRotation = new Vector3(70, 0, 0);
     public Vector3 CameraPosition => cameraPosition;
-    public Vector3 CameraRotation => cameraRotation;
 
     private TileData?[,]? tileDataArray; 
     private Dictionary<Vector2Int, GameObject> tileObjects = new Dictionary<Vector2Int, GameObject>(); // 좌표에 Tile 오브젝트 할당.

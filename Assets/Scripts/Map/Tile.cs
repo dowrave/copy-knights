@@ -1,10 +1,16 @@
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.UIElements;
+using UnityEngine.UI;
 
 [ExecuteAlways] // 에디터, 런타임 모두에서 스크립트 실행
 public class Tile : MonoBehaviour
 {
+    [Header("Highlight References")]
+    [SerializeField] private Material highlightMaterial = default!;
+    [SerializeField] private MeshRenderer attackRangeIndicator = default!;
+
+
+
     public TileData data = default!;
     public DeployableUnitEntity? OccupyingDeployable { get; private set; }
     public bool IsOccupied
@@ -13,8 +19,6 @@ public class Tile : MonoBehaviour
     }
 
     public bool IsWalkable { get; private set; }
-
-    private Transform cubeTransform = default!;
     private float tileScale = 0.98f;
     public Vector2 size2D;
 
@@ -28,16 +32,22 @@ public class Tile : MonoBehaviour
      * 즉, 아래처럼 설정하는 건 각 타일이 스스로 gridPosition 정보를 갖게 하기 위함이다.
      * public Vector2Int GridPosition {get; set;} 만 설정하면, 프리팹을 저장했다가 불러올 때 각 타일의 그리드 좌표가 날아간다.
     */
-    [SerializeField] private Vector2Int gridPosition; 
+    [HideInInspector] [SerializeField] private Vector2Int gridPosition; 
     public Vector2Int GridPosition
     {
         get { return gridPosition; }
         private set { gridPosition = value; }
     }
 
-    [SerializeField] private Material baseTileMaterial = default!; // Inspector에서 할당함
-    private Renderer tileRenderer = default!;
+    private MeshRenderer meshRenderer = default!;
     private MaterialPropertyBlock propBlock = default!; // 머티리얼 속성을 오버라이드하는 경량 객체. 모든 타일이 동일한 머티리얼을 공유하되 색을 개별적으로 설정할 수 있다.
+    private Material[] originalMaterials;
+    private Material[] highlightMaterials;
+
+    // attackRange의 색깔들
+    private Color defaultIndicatorColor = new Color(0.94f, 0.56f, 0.12f);
+    private Color medicIndicatorColor = new Color(0.12f, 0.65f, 0.95f);
+
 
     // 길찾기 알고리즘을 위한 속성들
     public int GCost { get; set; }
@@ -47,10 +57,32 @@ public class Tile : MonoBehaviour
 
     private void Awake()
     {
-        
+        PrepareHighlight();
         InitializeGridPosition();
         size2D = new Vector2(tileScale, tileScale);
     }
+
+    // 자식 모델의 Mesh Renderer에 들어가는 머티리얼 배열을 2가지로 준비함
+    // 1. 기본 머티리얼만 들어간 상태
+    // 2. 기본 머티리얼 + 하이라이트 머티리얼이 들어간 상태
+
+    private void PrepareHighlight()
+    {
+        meshRenderer = GetComponentInChildren<MeshRenderer>();
+
+        originalMaterials = meshRenderer.sharedMaterials;
+
+        // 하이라이트 머티리얼 배열 준비
+        highlightMaterials = new Material[originalMaterials.Length + 1];
+
+        for (int i = 0; i < originalMaterials.Length; i++)
+        {
+            highlightMaterials[i] = originalMaterials[i];
+        }
+
+        highlightMaterials[highlightMaterials.Length - 1] = highlightMaterial;
+    }
+
 
     private void OnValidate()
     {
@@ -68,18 +100,20 @@ public class Tile : MonoBehaviour
 
     private void Initialize()
     {
-        cubeTransform = transform.Find("Cube");
-
-        // 자식 오브젝트 Cube의 Renderer를 가져온다.
-        if (tileRenderer == null)
-        {
-            tileRenderer = cubeTransform.GetComponentInChildren<Renderer>();
-        }
-
-        tileRenderer.sharedMaterial = baseTileMaterial;
-
         propBlock = new MaterialPropertyBlock();
-        UpdateVisuals();
+        InitializeVisuals();
+        InitializeIndicatorPosition();
+    }
+
+    private void InitializeIndicatorPosition()
+    {
+        // 타일 월드 위치를 기준으로 y값은 타일의 y스케일의 절반 + 0.01
+        Vector3 tilePosition = transform.position;
+        float indicatorY = transform.localScale.y / 2f + 0.01f;
+        attackRangeIndicator.gameObject.transform.position = new Vector3(tilePosition.x, indicatorY, tilePosition.z);
+
+        // 최초에는 비활성화
+        attackRangeIndicator.gameObject.SetActive(false);
     }
 
     public void SetTileData(TileData tileData, Vector2Int gridPosition)
@@ -89,7 +123,7 @@ public class Tile : MonoBehaviour
         IsWalkable = data.isWalkable;
 
         AdjustScale();
-        UpdateVisuals();
+        InitializeVisuals();
     }
 
     public void AdjustScale()
@@ -104,13 +138,13 @@ public class Tile : MonoBehaviour
         return (data != null && data.terrain == TileData.TerrainType.Hill) ? 0.5f : 0.1f;
     }
 
-    protected void UpdateVisuals()
+    private void InitializeVisuals()
     {
-        if (tileRenderer == null || data == null) return;
+        if (meshRenderer == null || data == null) return;
 
-        tileRenderer.GetPropertyBlock(propBlock);
+        meshRenderer.GetPropertyBlock(propBlock);
         propBlock.SetColor("_BaseColor", data.tileColor);
-        tileRenderer.SetPropertyBlock(propBlock);
+        meshRenderer.SetPropertyBlock(propBlock);
     }
 
     public bool CanPlaceDeployable()
@@ -133,22 +167,36 @@ public class Tile : MonoBehaviour
         OccupyingDeployable = null;
     }
 
-    public void Highlight(Color color)
+    public void ShowAttackRange(bool isMedic)
     {
-        if (tileRenderer != null)
+        // 색 설정
+        if (isMedic)
         {
-            tileRenderer.GetPropertyBlock(propBlock);
-            propBlock.SetColor("_BaseColor", color);
-            tileRenderer.SetPropertyBlock(propBlock);
-        } 
+            attackRangeIndicator.material.color = medicIndicatorColor;
+        }
+        else
+        {
+            attackRangeIndicator.material.color = defaultIndicatorColor;
+        }
+
+
+        attackRangeIndicator.gameObject.SetActive(true);
     }
+
+    public void HideAttackRange()
+    {
+        attackRangeIndicator.gameObject.SetActive(false);
+    }
+
+    public void Highlight()
+    {
+        meshRenderer.sharedMaterials = highlightMaterials;
+    }
+
 
     public void ResetHighlight()
     {
-        if (tileRenderer != null)
-        {
-            UpdateVisuals();
-        }
+        meshRenderer.sharedMaterials = originalMaterials;
     }
 
     public EnemySpawner GetSpawner()

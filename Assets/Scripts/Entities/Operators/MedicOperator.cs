@@ -62,6 +62,11 @@ public class MedicOperator : Operator
         }
     }
 
+    protected override void HighlightAttackRanges(List<Tile> tiles)
+    {
+        DeployableManager.Instance!.HighlightAttackRanges(tiles, true);
+    }
+
     public override void Attack(UnitEntity target, float damage)
     {
         float polishedDamage = Mathf.Floor(damage);

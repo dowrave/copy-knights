@@ -513,7 +513,12 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable,
             }
         }
 
-        DeployableManager.Instance!.HighlightTiles(tilesToHighlight, DeployableManager.Instance!.attackRangeTileColor);
+        HighlightAttackRanges(tilesToHighlight);
+    }
+
+    protected virtual void HighlightAttackRanges(List<Tile> tiles)
+    {
+        DeployableManager.Instance!.HighlightAttackRanges(tiles, false);
     }
 
     /// 현재 타겟의 유효성 검사

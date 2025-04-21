@@ -164,7 +164,7 @@ public class ObjectPoolManager : MonoBehaviour
     // 대미지 팝업 관련 구현
     public void ShowFloatingText(Vector3 position, float value, bool isHealing)
     {
-        GameObject? floatingTextObj = SpawnFromPool(FLOATING_TEXT_TAG, position + Vector3.up * 0.3f, Quaternion.identity);
+        GameObject? floatingTextObj = SpawnFromPool(FLOATING_TEXT_TAG, position + Vector3.up * 0.3f, CameraManager.Instance.baseRotation);
         if (floatingTextObj != null)
         {
             FloatingText floatingText = floatingTextObj.GetComponent<FloatingText>();

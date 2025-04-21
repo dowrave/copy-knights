@@ -11,6 +11,8 @@ public class CameraManager : MonoBehaviour
     private float cameraShiftAmount = -0.1f;
     private float cameraHeightAmount = 1f;
     private float clickedOperatorZShiftAmount = 2f;
+
+
     private Vector3 operatorInfoRotation = new Vector3(0, -15, -15);
 
     [SerializeField] Camera? mainCamera;
@@ -21,7 +23,12 @@ public class CameraManager : MonoBehaviour
     }
 
     private Vector3 originalPosition;
-    private Quaternion originalRotation;
+
+    // 카메라 각도 - Quaternion 타입은 transform.rotation에 할당
+    public Quaternion baseRotation = Quaternion.Euler(70f, 0f, 0f);
+    public Quaternion infoRotation = Quaternion.Euler(70f, -15f, -15f);
+    // 만약 Vector3을 쓴다면 transform.eulerAngles에 할당
+
     private float originalSize;
 
 
@@ -43,15 +50,15 @@ public class CameraManager : MonoBehaviour
         // 카메라 위치 설정 자체는 개발자가 직접 보면서 실험하고 있음
         if (map != null)
         {
-            SetCameraPosition(map.CameraPosition, map.CameraRotation);
+            SetCameraTransform(map.CameraPosition);
             SaveOriginalCameraSettings();
         }
     }
 
-    private void SetCameraPosition(Vector3 position, Vector3 rotation)
+    private void SetCameraTransform(Vector3 position)
     {
         MainCamera.transform.position = position;
-        MainCamera.transform.rotation = Quaternion.Euler(rotation);
+        MainCamera.transform.rotation = baseRotation;
     }
 
     public void FocusOnPosition(Vector3 targetPosition)
@@ -63,7 +70,6 @@ public class CameraManager : MonoBehaviour
     private void SaveOriginalCameraSettings()
     {
         originalPosition = MainCamera.transform.position;
-        originalRotation = MainCamera.transform.rotation;
         originalSize = MainCamera.orthographicSize;
     }
 
@@ -107,16 +113,18 @@ public class CameraManager : MonoBehaviour
             StartCoroutine(LerpPosition(MainCamera.transform, newPosition, animationDuration));
 
             // 카메라 회전
-            Quaternion newRotation = Quaternion.Euler(originalRotation.eulerAngles + operatorInfoRotation);
-            StartCoroutine(LerpRotation(MainCamera.transform, newRotation, animationDuration));
+            //Quaternion newRotation = Quaternion.Euler(originalRotation.eulerAngles + operatorInfoRotation);
+            StartCoroutine(LerpRotation(MainCamera.transform, infoRotation, animationDuration));
         }
 
         // HideDeployableInfo
         else
         {
-            // 원위치와 크기로 복귀
+            // 원위치 복귀
             StartCoroutine(LerpPosition(MainCamera.transform, originalPosition, animationDuration));
-            StartCoroutine(LerpRotation(MainCamera.transform, originalRotation, animationDuration));
+
+            // 원래 회전 복귀
+            StartCoroutine(LerpRotation(MainCamera.transform, baseRotation, animationDuration));
 
         }
     }
