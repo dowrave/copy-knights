@@ -223,6 +223,7 @@ public class PlayerDataManager : MonoBehaviour
             InitializeOperatorLevelUp(op, targetLevel);
             InitializeOperator1stPromotion(op);
         }
+
         // 오퍼레이터들 슬롯에 배치
         InitializeSquad();
 
@@ -230,7 +231,7 @@ public class PlayerDataManager : MonoBehaviour
         //AddStartingItems();
 
         // 스테이지 임의 클리어
-        //StageClearAndGetRewards("1-0", 3);
+        StageClearAndGetRewards("1-0", 3);
         //StageClearAndGetRewards("1-1", 3);
 
 

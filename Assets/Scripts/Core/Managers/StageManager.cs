@@ -24,7 +24,20 @@ public class StageManager : MonoBehaviour
     // 게임 상태 변수
     public int TotalEnemyCount { get; private set; }
     public int MaxLifePoints { get; private set; } = 3;
-    public int PassedEnemies { get; private set; } = 0;
+
+    private int _passedEnemies = 0;
+    public int PassedEnemies
+    {
+        get => _passedEnemies;
+        private set
+        {
+            if (_passedEnemies != value)
+            {
+                _passedEnemies = value;
+                OnEnemyPassed?.Invoke(_passedEnemies);
+            }
+        }
+    }
 
 
     private int _killedEnemyCount;
@@ -102,6 +115,7 @@ public class StageManager : MonoBehaviour
     public event Action OnStageStarted; // GameState.Battle이 최초로 실행됐을 때
     public event Action<bool> OnSpeedUpChanged; // 배속 변화 발생
     public event Action? OnDeploymentCostChanged; // 이벤트 발동 조건은 currentDeploymentCost 값이 변할 때, 여기 등록된 함수들이 동작
+    public event Action<int>? OnEnemyPassed; // 적이 도착 지점에 도달했을 때 발생 이벤트
     public event Action<int>? OnLifePointsChanged; // 라이프 포인트 변경 시 발생 이벤트
     public event Action? OnEnemyKilled; // 적을 잡을 때마다 발생 이벤트
     public event Action? OnPreparationCompleted; // 스테이지 준비 완료 이벤트 

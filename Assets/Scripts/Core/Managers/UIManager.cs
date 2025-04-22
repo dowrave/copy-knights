@@ -21,7 +21,7 @@ public class UIManager : MonoBehaviour
     [SerializeField] private GameObject stageResultPanelObject = default!;
     [SerializeField] private ConfirmationReturnToLobbyPanel confirmationReturnToLobbyPanel = default!;
 
-    private InStageInfoPanel inStageInfoPanelScript = default!;
+
 
     [Header("Button Container")]
     [SerializeField] private InGameTopButtonContainer inGameTopButtonContainer = default!;
@@ -49,8 +49,11 @@ public class UIManager : MonoBehaviour
     [SerializeField] private float resultDelay = 0.5f;
 
     [Header("Operator UIs")]
-    public GameObject operatorUI = default!; // 오퍼레이터의 위치에 뜨되, 별도의 오브젝트
     public GameObject directionIndicator = default!; // 오퍼레이터의 자식 오브젝트로 들어감
+
+    [Header("Top Sub Boxes")]
+    [SerializeField] private GameObject passedEnemiesBox = default!;
+    [SerializeField] private TextMeshProUGUI passedEnemiesText = default!;
 
     // 코스트 이펙트에서 사용할 좌표statsPanelObject
     private Vector3 costIconWorldPosition;
@@ -59,6 +62,9 @@ public class UIManager : MonoBehaviour
         get => costIconWorldPosition;
         private set => costIconWorldPosition = value;
     }
+
+    private InStageInfoPanel inStageInfoPanelScript = default!;
+
 
     // Awake는 모든 오브젝트의 초기화 전에 실행되어서 다른 스크립트가 참조할 수 있도록 한다. 특히 UI는 Awake를 쓸 것.
     private void Awake()
@@ -95,12 +101,12 @@ public class UIManager : MonoBehaviour
     {
         StageManager.Instance!.OnLifePointsChanged += UpdateLifePointsText;
         StageManager.Instance!.OnEnemyKilled += UpdateEnemyKillCountText;
+        StageManager.Instance!.OnEnemyPassed += UpdatePassedEnemiesBox;
         DeployableManager.Instance!.OnCurrentOperatorDeploymentCountChanged += UpdateLeftDeploymentCountText;
     }
 
     public void Initialize()
     {
-
         inGameTopButtonContainer!.Initialize();
 
         // 최초 카메라에서 코스트 아이콘의 월드 포지션을 잡아줌
@@ -109,7 +115,10 @@ public class UIManager : MonoBehaviour
 
         UpdateEnemyKillCountText();
         UpdateLifePointsText(StageManager.Instance!.CurrentLifePoints);
+        UpdatePassedEnemiesBox(StageManager.Instance!.PassedEnemies);
         UpdateLeftDeploymentCountText();
+
+        passedEnemiesBox.gameObject.SetActive(false);
 
         InitializeListeners();
     }
@@ -173,7 +182,6 @@ public class UIManager : MonoBehaviour
         infoPanelObject.SetActive(true);
         inStageInfoPanelScript.UpdateInfo(deployableUnitEntity.DeployableInfo!, true);
         CameraManager.Instance!.AdjustForDeployableInfo(true, deployableUnitEntity);
-        
     }
 
     public void HideDeployableInfo()
@@ -283,6 +291,18 @@ public class UIManager : MonoBehaviour
     public void HideItemPopup()
     {
         stageItemInfoPopup.Hide();
+    }
+
+    public void UpdatePassedEnemiesBox(int passedEnemies)
+    {
+        if (passedEnemies == 0)
+        {
+            passedEnemiesBox.gameObject.SetActive(false);
+            return;
+        }
+
+        passedEnemiesBox.gameObject.SetActive(true);
+        passedEnemiesText.text = $"-{passedEnemies}";
     }
 
     private void OnDisable()
