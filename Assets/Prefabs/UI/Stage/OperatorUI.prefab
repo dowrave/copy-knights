@@ -713,7 +713,7 @@ MonoBehaviour:
   showDamageEffect: 1
   healthFillColor: {r: 0, g: 0.8679245, b: 0.788391, a: 0.9019608}
   shieldFillColor: {r: 0, g: 0.5672978, b: 0.8666667, a: 0.9019608}
-  damageOverlayColor: {r: 0.5304824, g: 0.8584906, b: 0.8288066, a: 0.9019608}
+  damageOverlayColor: {r: 0.70598966, g: 0.8962264, b: 0.87757576, a: 0.9019608}
 --- !u!222 &2284489797956281936
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -852,7 +852,7 @@ MonoBehaviour:
   m_FallbackScreenDPI: 96
   m_DefaultSpriteDPI: 96
   m_DynamicPixelsPerUnit: 1
-  m_PresetInfoIsWorld: 1
+  m_PresetInfoIsWorld: 0
 --- !u!114 &-4599507656022332454
 MonoBehaviour:
   m_ObjectHideFlags: 0

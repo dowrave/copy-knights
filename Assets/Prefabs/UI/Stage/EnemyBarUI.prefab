@@ -339,6 +339,22 @@ PrefabInstance:
       propertyPath: shieldFillColor.r
       value: 0.23921564
       objectReference: {fileID: 0}
+    - target: {fileID: 7940435949015412083, guid: e2398dcf759e75743b0e55cc17de6acc, type: 3}
+      propertyPath: damageOverlayColor.a
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 7940435949015412083, guid: e2398dcf759e75743b0e55cc17de6acc, type: 3}
+      propertyPath: damageOverlayColor.b
+      value: 0.6556604
+      objectReference: {fileID: 0}
+    - target: {fileID: 7940435949015412083, guid: e2398dcf759e75743b0e55cc17de6acc, type: 3}
+      propertyPath: damageOverlayColor.g
+      value: 0.718122
+      objectReference: {fileID: 0}
+    - target: {fileID: 7940435949015412083, guid: e2398dcf759e75743b0e55cc17de6acc, type: 3}
+      propertyPath: damageOverlayColor.r
+      value: 1
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []

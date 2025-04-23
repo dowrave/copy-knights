@@ -43,13 +43,14 @@ Material:
     m_Ints: []
     m_Floats:
     - _AlphaFluctuation: 0.1
-    - _BaseAlpha: 0.4
+    - _BaseAlpha: 0.2
     - _Frequency: 2
     - _QueueControl: 0
     - _QueueOffset: 0
     - _UseHighlight: 0
     m_Colors:
-    - _Color: {r: 0.33879098, g: 0.7264151, b: 0.3255162, a: 1}
+    - _BrightMinMax: {r: 0.5, g: 0.8, b: 0, a: 0}
+    - _Color: {r: 0.245665, g: 0.8773585, b: 0.22761661, a: 1}
   m_BuildTextureStacks: []
   m_AllowLocking: 1
 --- !u!114 &4505189954102917786

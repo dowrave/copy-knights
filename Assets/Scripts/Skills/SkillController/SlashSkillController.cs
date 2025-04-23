@@ -5,7 +5,8 @@ using UnityEngine;
 public class SlashSkillController : MonoBehaviour
 {
     private Operator attacker = default!; // 죽은 경우에 대한 별도 처리가 없어서 일단 이렇게 구현
-    private float lifetime;
+    private float effectDuration;
+    private float effectSpeed;
     private Vector3 opDirection;
     private float damageMultiplier;
     private List<Vector2Int> baseAttackRange = new List<Vector2Int>();
@@ -24,10 +25,11 @@ public class SlashSkillController : MonoBehaviour
 
     private bool isInitialized = false;
 
-    public void Initialize(Operator op, Vector3 dir, float spd, float life, float dmgMult, List<Vector2Int> attackRange, GameObject hitEffectPrefab, string hitEffectTag)
+    public void Initialize(Operator op, Vector3 dir, float spd, float duration, float dmgMult, List<Vector2Int> attackRange, GameObject hitEffectPrefab, string hitEffectTag)
     {
         attacker = op;
-        lifetime = life;
+        effectDuration = duration;
+        effectSpeed = spd;
         damageMultiplier = dmgMult;
         opDirection = dir;
         baseAttackRange = attackRange;
@@ -38,7 +40,7 @@ public class SlashSkillController : MonoBehaviour
         SetRotationByDirection();
         CalculateAttackableGridPositions();
 
-        Destroy(gameObject, lifetime);
+        Destroy(gameObject, effectDuration);
     }
 
     private void InitializeParticleSystem()
@@ -49,12 +51,28 @@ public class SlashSkillController : MonoBehaviour
         }
         particles = new ParticleSystem.Particle[mainEffect.main.maxParticles];
 
+        SetParticleDurationAndSpeed();
+
         if (!mainEffect.isPlaying)
         {
             mainEffect.Play(); // 이거 없으면 아래에서 파티클 감지 못함
         }
 
         isInitialized = true;
+    }
+
+    private void SetParticleDurationAndSpeed()
+    {
+        // 파티클의 속도와 생존 시간 설정
+        var mainModule = mainEffect.main;
+        var velocityModule = mainEffect.velocityOverLifetime;
+
+        // 파티클 개별 생존 시간 설정
+        mainModule.startLifetime = effectDuration;
+
+        // 파티클 진행 속도 배율 - Velocity Over Lifetime의 Speed Modifier 값
+        velocityModule.enabled = true;
+        velocityModule.speedModifier = effectSpeed;
     }
 
     // 디폴트 방향이 오른쪽 - 오퍼레이터의 방향에 맞춰서 스킬이 나가야 함

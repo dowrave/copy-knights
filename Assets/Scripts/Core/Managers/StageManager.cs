@@ -383,16 +383,13 @@ public class StageManager : MonoBehaviour
         SetGameState(GameState.GameWin);
         int stars = 3 - PassedEnemies;
 
-        GameManagement.Instance!.RewardManager.SetAndGiveStageRewards(stageData, stars);
-
-        // 어차피 바꿀거라서 변수명은 약어 처리함
+        // 아이템 보상 설정 및 지급
+        // RewardManager.SetAndGrantStageRewards와 동일하지만, SetStageRewards에서 반환되는 값을 StageManager에서 갖고 있어야 한다는 차이점은 있다.
         (FirstClearRewards, BasicClearRewards) = GameManagement.Instance!.RewardManager.SetStageRewards(stageData, stars);
-
-        // 리스트로 바꿔서 전달해야 직렬화 시에 더 안전하다고 함
         List<ItemWithCount> firstClearRewards = new List<ItemWithCount>(FirstClearRewards);
         List<ItemWithCount> basicClearRewards = new List<ItemWithCount>(BasicClearRewards);
-
         GameManagement.Instance!.PlayerDataManager.GrantStageRewards(firstClearRewards, basicClearRewards);
+
         GameManagement.Instance!.PlayerDataManager.RecordStageResult(stageData!.stageId, stars);
 
         UIManager.Instance!.HidePauseOverlay();
@@ -533,6 +530,7 @@ public class StageManager : MonoBehaviour
     {
         stageLoadingScreen!.OnHideComplete -= StartStageCoroutine;
     }
+
 }
 
 public enum GameState

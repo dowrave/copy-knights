@@ -34,5 +34,5 @@ MonoBehaviour:
   rectOffset: 40
   damageMultiplier: 2
   slashEffectPrefab: {fileID: 2616778333904927978, guid: a1b5a5fdd4e11c54e916725d4c24d68b, type: 3}
-  effectSpeed: 8
-  effectLifetime: 0.5
+  effectSpeed: 0.4
+  effectLifetime: 0.9
