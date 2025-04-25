@@ -124,6 +124,6 @@ public class OwnedOperator
 
     public void SetStageSelectedSkill(BaseSkill newSkill)
     {
-        defaultSelectedSkill = newSkill;
+        stageSelectedSkill = newSkill;
     }
 }

@@ -77,6 +77,7 @@ public class MainMenuManager : MonoBehaviour
     // 캔버스 전환 시 최소 알파값
     private float minAlpha = 0f;
 
+    public OwnedOperator? CurrentExistingOperator { get; private set; }
     public OwnedOperator? CurrentEditingOperator { get; private set; }
 
 

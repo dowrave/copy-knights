@@ -217,7 +217,7 @@ public class PlayerDataManager : MonoBehaviour
 
         int targetLevel = 50;
 
-        // 오퍼레이터들 성장 반영
+        //오퍼레이터들 성장 반영
         foreach (var op in playerData.ownedOperators)
         {
             InitializeOperatorLevelUp(op, targetLevel);

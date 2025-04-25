@@ -14,6 +14,7 @@ public class DeployableBox : MonoBehaviour, IPointerDownHandler, IBeginDragHandl
     [SerializeField] private Image inActiveImage = default!;
     [SerializeField] private TextMeshProUGUI costText = default!;
     [SerializeField] private TextMeshProUGUI countText = default!;
+    [SerializeField] private Image promotionIconImage = default!;
 
     [Header("Cooldown Container")]
     [SerializeField] private GameObject cooldownContainer = default!;
@@ -162,7 +163,6 @@ public class DeployableBox : MonoBehaviour, IPointerDownHandler, IBeginDragHandl
             operatorIllustImage.sprite = boxIcon;
             operatorIllustImage.color = Color.white; // 원래의 아이콘 그대로 나타내기 위함
         }
-
         // 아니라면 deployable 모델의 설정을 가져옴
         else if (deployablePrefab != null)
         {
@@ -171,6 +171,16 @@ public class DeployableBox : MonoBehaviour, IPointerDownHandler, IBeginDragHandl
             {
                 operatorIllustImage.color = modelRenderer.sharedMaterial.color;
             }
+        }
+
+        // 좌측 하단 정예화 아이콘 활성화 여부
+        if (deployableComponent is Operator op && deployableInfo.ownedOperator.currentPhase == OperatorGrowthSystem.ElitePhase.Elite1)
+        {
+            promotionIconImage.gameObject.SetActive(true);
+        }
+        else
+        {
+            promotionIconImage.gameObject.SetActive(false);
         }
 
         UpdateVisuals();

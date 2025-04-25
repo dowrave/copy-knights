@@ -161,7 +161,7 @@ public class OperatorSlot : MonoBehaviour
             }
 
             // 스킬 아이콘 설정
-            InitializeSkillIcon();
+            InitializeSkill();
 
             // 오퍼레이터 이름 설정
             operatorNameText.gameObject.SetActive(true);
@@ -172,7 +172,7 @@ public class OperatorSlot : MonoBehaviour
         }
     }
 
-    private void InitializeSkillIcon()
+    private void InitializeSkill()
     {
         if (OwnedOperator == null) return;
 
@@ -190,8 +190,18 @@ public class OperatorSlot : MonoBehaviour
         if (OwnedOperator.DefaultSelectedSkill != null &&
             MainMenuManager.Instance!.CurrentPanel == MainMenuManager.MenuPanel.OperatorInventory)
         {
-            SelectedSkill = OwnedOperator.DefaultSelectedSkill;
-            skillImage.sprite = OwnedOperator.DefaultSelectedSkill.skillIcon;
+            // 스쿼드 편집에서 인벤토리로 들어갔을 때는 현재 스쿼드에서 사용 중인 스킬로 초기화한다
+            int nowEditingIndex = GameManagement.Instance!.UserSquadManager.EditingSlotIndex;
+            OwnedOperator? existingOperator = GameManagement.Instance!.PlayerDataManager.GetOperatorInSlot(nowEditingIndex);
+            if (existingOperator == OwnedOperator)
+            {
+                SelectedSkill = OwnedOperator.StageSelectedSkill;
+            }
+            else
+            {
+                SelectedSkill = OwnedOperator.DefaultSelectedSkill;
+            }
+            skillImage.sprite = SelectedSkill.skillIcon;
         }
     }
 
