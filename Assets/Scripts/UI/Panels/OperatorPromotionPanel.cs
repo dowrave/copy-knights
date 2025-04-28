@@ -214,7 +214,7 @@ public class OperatorPromotionPanel : MonoBehaviour
 
             // 갯수는 필요 갯수를 띄우고, 부족한 건 showNotEnough로 들어가야 함
             itemUIElements[i].gameObject.SetActive(true);
-            itemUIElements[i].Initialize(promotionItem.itemData, promotionItem.count, false, false, showNotEnough);
+            itemUIElements[i].Initialize(promotionItem.itemData, promotionItem.count, false, showNotEnough);
         }
     }
 

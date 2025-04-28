@@ -32,6 +32,6 @@ MonoBehaviour:
     count: 3
   BasicClearRewardItems:
   - itemData: {fileID: 11400000, guid: 9b62d9bdc8111b845a020c11ae3e3646, type: 2}
-    count: 15
+    count: 16
   - itemData: {fileID: 11400000, guid: e5fa78c43c8bdd34f93ea46a391e758b, type: 2}
-    count: 9
+    count: 8

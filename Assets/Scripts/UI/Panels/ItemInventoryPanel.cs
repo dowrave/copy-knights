@@ -19,6 +19,7 @@ public class ItemInventoryPanel : MonoBehaviour
 
         foreach (var (itemData, count) in items)
         {
+            if (count == 0) continue;
             CreateItemElement(itemData, count);
         }
     }

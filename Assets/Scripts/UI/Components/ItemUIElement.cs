@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.EventSystems;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 
@@ -33,16 +34,17 @@ public class ItemUIElement : MonoBehaviour, IPointerClickHandler
         // GetComponent 계열은 Awake에서 수행한다.
         canvas = GetComponentInParent<Canvas>();
         canvasRectTransform = canvas.GetComponent<RectTransform>();
+
+        isOnStageScene = SceneManager.GetActiveScene().name == "StageScene";
     }
 
     // 아이템 클릭 시 호출 이벤트 
     //public System.Action<ItemData> OnItemClicked;
 
-    public void Initialize(ItemData data, int count, bool isOnStageScene, bool isFirstClear = false, bool showNotEnough = false)
+    public void Initialize(ItemData data, int count, bool isFirstClear = false, bool showNotEnough = false)
     {
         itemData = data;
         itemCount = count;
-        this.isOnStageScene = isOnStageScene;
 
         // 아이템 아이콘 설정
         if (itemData.icon != null)

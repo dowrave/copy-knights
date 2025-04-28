@@ -364,7 +364,7 @@ public class StageResultPanel : MonoBehaviour
                 if (itemPair.count == 0) continue; // 보상 아이템이 0개인 경우는 나타날 필요 없음
 
                 ItemUIElement itemElement = Instantiate(itemUIPrefab, rewardItemContentsContainerRect.transform);
-                itemElement.Initialize(itemPair.itemData, itemPair.count, true, showFirst);
+                itemElement.Initialize(itemPair.itemData, itemPair.count, showFirst, false);
                 activeItemElements.Add(itemElement);
             }
         }

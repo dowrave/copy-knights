@@ -56,8 +56,10 @@ public class FloatingText : MonoBehaviour, IPooledObject
     private void Update()
     {
         timer += Time.deltaTime;
-        transform.position += Vector3.up * moveSpeed * Time.deltaTime;
 
+        // 메인 카메라의 윗쪽 방향으로 이동시키기
+        transform.position += Camera.main.transform.up * moveSpeed * Time.deltaTime;
+       
         float alpha = alphaCurve.Evaluate(timer / lifetime);
 
         if (timer >= lifetime)

@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System;
 using UnityEngine;
+using UnityEditor.Overlays;
 
 public class RewardManager : MonoBehaviour
 {
@@ -109,5 +110,26 @@ public class RewardManager : MonoBehaviour
         else if (stars == 2) return 0.5f;
         else if (stars == 3) return 1f;
         else throw new InvalidOperationException("BasicClearItemRate의 예상치 못한 동작");
+    }
+
+    // UI 표시용 - 3성 기준 클리어를 한다고 가정했을 때 남은 최초 아이템 배율 계산
+    public float GetResultFirstClearItemRate(int prevStars)
+    {
+        // 첫 클리어 보상의 남은 지급량 계산
+        if (prevStars == 0)
+        {
+            return 1f;
+        }
+        else if (prevStars == 1)
+        {
+            return 0.75f;
+        }
+        else if (prevStars == 2)
+        {
+            return 0.5f;
+        }
+
+        throw new InvalidOperationException("엉?");
+
     }
 }

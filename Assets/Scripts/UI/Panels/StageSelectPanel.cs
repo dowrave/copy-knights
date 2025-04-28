@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using TMPro;
+using UnityEditor.SceneManagement;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -16,12 +17,16 @@ public class StageUIData
 public class StageSelectPanel : MonoBehaviour
 {
     [SerializeField] private List<StageUIData> stageUIDataList = new List<StageUIData>();
+
+    [Header("Side Panel Elements")]
     [SerializeField] private Button cancelArea = default!; // buttonContainer가 이 역할을 함
     [SerializeField] private GameObject stageDetailPanel = default!;
     [SerializeField] private TextMeshProUGUI stageIdText = default!;
     [SerializeField] private TextMeshProUGUI stageNameText = default!;
     [SerializeField] private TextMeshProUGUI stageDetailText = default!;
     [SerializeField] private Button confirmButton = default!;
+    [SerializeField] private GameObject itemElementPrefab = default!;
+    [SerializeField] private Transform itemContainerTransform = default!;
 
     public StageButton? CurrentStageButton { get; private set; }
     private StageData? selectedStage => MainMenuManager.Instance!.SelectedStage;
@@ -150,8 +155,66 @@ public class StageSelectPanel : MonoBehaviour
             stageNameText.text = stageData.stageName;
             stageDetailText.text = stageData.stageDetail;
             confirmButton.interactable = true;
+            ShowRewardItems(stageData);
         }
     }
+
+    private void ShowRewardItems(StageData stageData)
+    {
+        // 기존 아이템 UI 제거
+        foreach (Transform child in itemContainerTransform)
+        {
+            Destroy(child.gameObject);
+        }
+
+        // 선택된 스테이지가 없으면 종료
+        if (stageData == null || CurrentStageButton == null)
+            return;
+
+        var stageResultInfo = GameManagement.Instance!.PlayerDataManager.GetStageResultInfo(stageData.stageId);
+        int prevStars = stageResultInfo != null ? stageResultInfo.stars : 0;
+        
+
+        // 첫 클리어 보상 - 3성 클리어 기준, 남은 보상들을 보여준다.
+        if (stageResultInfo.stars != 3)
+        {
+            // 배율 설정
+            float firstItemRewardMultiplier = GameManagement.Instance!.RewardManager.GetResultFirstClearItemRate(prevStars);
+
+            foreach (var reward in stageData.FirstClearRewardItems)
+            {
+                int fullCount = reward.count;
+
+                // 배율은 경험치 아이템에만 적용, 정예화 아이템은 1
+                int remainingCount = reward.itemData.type == ItemData.ItemType.EliteItem ? 1 
+                    : Mathf.FloorToInt(fullCount * firstItemRewardMultiplier);
+
+
+                if (remainingCount > 0)
+                {
+                    GameObject rewardUI = Instantiate(itemElementPrefab, itemContainerTransform);
+                    ItemUIElement uiElement = rewardUI.GetComponent<ItemUIElement>();
+                    if (uiElement != null)
+                    {
+                        uiElement.Initialize(reward.itemData, remainingCount, true, false);
+                    }
+                }
+            }
+        }
+
+        // 기본 보상(반복 보상): 항상 전체 수량(3성 클리어 기준)으로 보여줌
+        foreach (var reward in stageData.BasicClearRewardItems)
+        {
+            int fullCount = reward.count;
+            GameObject rewardUI = Instantiate(itemElementPrefab, itemContainerTransform);
+            ItemUIElement uiElement = rewardUI.GetComponent<ItemUIElement>();
+            if (uiElement != null)
+            {
+                uiElement.Initialize(reward.itemData, fullCount);
+            }
+        }
+    }
+
 
 
     private void OnConfirmButtonClicked()
