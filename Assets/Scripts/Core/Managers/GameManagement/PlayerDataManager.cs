@@ -231,8 +231,8 @@ public class PlayerDataManager : MonoBehaviour
         //AddStartingItems();
 
         // 스테이지 임의 클리어
-        StageClearAndGetRewards("1-0", 2);
-        //StageClearAndGetRewards("1-1", 3);
+        StageClearAndGetRewards("1-0", 3);
+        StageClearAndGetRewards("1-1", 3);
 
 
         SavePlayerData();
@@ -613,7 +613,6 @@ public class PlayerDataManager : MonoBehaviour
         {
             if (itemWithCount.itemData != null)
             {
-                Debug.Log($"{itemWithCount.itemData.itemName} : {itemWithCount.count}");
                 // 비율이 반영된 아이템 지급 갯수
                 AddItems(itemWithCount.itemData.itemName!, itemWithCount.count);
             }

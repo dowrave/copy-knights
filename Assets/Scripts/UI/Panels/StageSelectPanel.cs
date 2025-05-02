@@ -173,10 +173,11 @@ public class StageSelectPanel : MonoBehaviour
 
         var stageResultInfo = GameManagement.Instance!.PlayerDataManager.GetStageResultInfo(stageData.stageId);
         int prevStars = stageResultInfo != null ? stageResultInfo.stars : 0;
-        
+
+        Debug.Log($"stageResultInfo : {stageResultInfo}");
 
         // 첫 클리어 보상 - 3성 클리어 기준, 남은 보상들을 보여준다.
-        if (stageResultInfo.stars != 3)
+        if (stageResultInfo == null || stageResultInfo.stars != 3)
         {
             // 배율 설정
             float firstItemRewardMultiplier = GameManagement.Instance!.RewardManager.GetResultFirstClearItemRate(prevStars);
@@ -201,6 +202,7 @@ public class StageSelectPanel : MonoBehaviour
                 }
             }
         }
+        
 
         // 기본 보상(반복 보상): 항상 전체 수량(3성 클리어 기준)으로 보여줌
         foreach (var reward in stageData.BasicClearRewardItems)

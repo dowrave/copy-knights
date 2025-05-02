@@ -192,15 +192,14 @@ public class OperatorSlot : MonoBehaviour
         {
             // 스쿼드 편집에서 인벤토리로 들어갔을 때는 현재 스쿼드에서 사용 중인 스킬로 초기화한다
             int nowEditingIndex = GameManagement.Instance!.UserSquadManager.EditingSlotIndex;
-            OwnedOperator? existingOperator = GameManagement.Instance!.PlayerDataManager.GetOperatorInSlot(nowEditingIndex);
-            if (existingOperator == OwnedOperator)
-            {
-                SelectedSkill = OwnedOperator.StageSelectedSkill;
-            }
-            else
-            {
-                SelectedSkill = OwnedOperator.DefaultSelectedSkill;
-            }
+            OwnedOperator? existingOperator = (nowEditingIndex != -1)
+                                              ? GameManagement.Instance!.PlayerDataManager.GetOperatorInSlot(nowEditingIndex)
+                                              : null;
+
+            SelectedSkill = (nowEditingIndex != -1 && existingOperator == OwnedOperator)
+                            ? OwnedOperator.StageSelectedSkill
+                            : OwnedOperator.DefaultSelectedSkill;
+
             skillImage.sprite = SelectedSkill.skillIcon;
         }
     }

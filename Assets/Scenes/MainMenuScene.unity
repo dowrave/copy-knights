@@ -28891,7 +28891,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: "\uAC2F\uC218"
+  m_text: "\uBCF4\uC720"
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 9a74ce14430cc3f48bf994adb55efb4a, type: 2}
   m_sharedMaterial: {fileID: -3359706481741712507, guid: 9a74ce14430cc3f48bf994adb55efb4a, type: 2}

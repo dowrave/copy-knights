@@ -11,7 +11,7 @@ public class SlashSkillController : MonoBehaviour
     private float damageMultiplier;
     private List<Vector2Int> baseAttackRange = new List<Vector2Int>();
     private GameObject hitEffectPrefab = default!;
-    private string hitEffectTag = string.Empty; 
+    private string hitEffectTag = string.Empty;
 
     // 파티클 시스템 관련
     [SerializeField] private ParticleSystem mainEffect = default!;
@@ -49,13 +49,14 @@ public class SlashSkillController : MonoBehaviour
         {
             mainEffect = GetComponentInChildren<ParticleSystem>();
         }
+
         particles = new ParticleSystem.Particle[mainEffect.main.maxParticles];
 
         SetParticleDurationAndSpeed();
 
         if (!mainEffect.isPlaying)
         {
-            mainEffect.Play(); // 이거 없으면 아래에서 파티클 감지 못함
+            mainEffect.Play(); // 이거 없으면 파티클 충돌 감지 안됨
         }
 
         isInitialized = true;
@@ -63,19 +64,14 @@ public class SlashSkillController : MonoBehaviour
 
     private void SetParticleDurationAndSpeed()
     {
-        // 파티클의 속도와 생존 시간 설정
         var mainModule = mainEffect.main;
         var velocityModule = mainEffect.velocityOverLifetime;
 
-        // 파티클 개별 생존 시간 설정
         mainModule.startLifetime = effectDuration;
-
-        // 파티클 진행 속도 배율 - Velocity Over Lifetime의 Speed Modifier 값
         velocityModule.enabled = true;
         velocityModule.speedModifier = effectSpeed;
     }
 
-    // 디폴트 방향이 오른쪽 - 오퍼레이터의 방향에 맞춰서 스킬이 나가야 함
     private void SetRotationByDirection()
     {
         float yRotation = 0f;
@@ -84,33 +80,28 @@ public class SlashSkillController : MonoBehaviour
         else if (opDirection == Vector3.back) yRotation = 90f;
         else if (opDirection == Vector3.left) yRotation = 180f;
 
-        // 이펙트 방향 설정
         transform.rotation = Quaternion.Euler(0f, yRotation, 0f);
     }
 
     private void CalculateAttackableGridPositions()
     {
-        // 오퍼레이터의 현재 그리드 위치
         Vector2Int operatorGridPos = MapManager.Instance!.ConvertToGridPosition(attacker.transform.position);
-        attackableGridPositions.Add(operatorGridPos); // 오퍼레이터 위치도 공격 범위에 포함
+        attackableGridPositions.Add(operatorGridPos);
 
-        // 오퍼레이터의 방향에 따라 기본 공격 범위(Left 기준)를 회전
         foreach (Vector2Int baseOffset in baseAttackRange)
         {
-            Vector2Int rotatedOffset;
-            rotatedOffset = DirectionSystem.RotateGridOffset(baseOffset, opDirection);
-
+            Vector2Int rotatedOffset = DirectionSystem.RotateGridOffset(baseOffset, opDirection);
             Vector2Int targetPos = operatorGridPos + rotatedOffset;
             attackableGridPositions.Add(targetPos);
         }
     }
 
-    // 움직임이 진행된 다음에 동작.
     private void LateUpdate()
     {
         if (!isInitialized || mainEffect == null || !mainEffect.isPlaying) return;
 
         int numParticlesAlive = mainEffect.GetParticles(particles);
+        Debug.Log(numParticlesAlive);
 
         CheckParticleCollisions(numParticlesAlive);
     }
@@ -123,12 +114,11 @@ public class SlashSkillController : MonoBehaviour
             Vector3 particleWorldPos = transform.TransformPoint(particles[i].position);
 
             // 파티클 주변 영역 체크
-            Collider[] colliders = Physics.OverlapSphere(particleWorldPos, 0.25f);
+            Collider[] colliders = Physics.OverlapSphere(particleWorldPos, 0.5f);
 
             foreach (Collider col in colliders)
             {
                 Enemy enemy = col.GetComponent<Enemy>();
-
                 if (enemy != null && !damagedEnemies.Contains(enemy) && IsEnemyInRangeTile(enemy))
                 {
                     damagedEnemies.Add(enemy);
@@ -142,14 +132,13 @@ public class SlashSkillController : MonoBehaviour
         }
     }
 
-    // 타일 조건을 체크
     private bool IsEnemyInRangeTile(Enemy enemy)
     {
         foreach (Vector2Int gridPos in attackableGridPositions)
         {
             Tile? eachTile = MapManager.Instance!.GetTile(gridPos.x, gridPos.y);
-            if (eachTile != null && 
-                eachTile.EnemiesOnTile.Contains(enemy)) return true;
+            if (eachTile != null && eachTile.EnemiesOnTile.Contains(enemy))
+                return true;
         }
         return false;
     }
@@ -158,5 +147,4 @@ public class SlashSkillController : MonoBehaviour
     {
         damagedEnemies.Clear();
     }
-
 }
