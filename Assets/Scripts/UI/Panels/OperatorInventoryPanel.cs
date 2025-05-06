@@ -42,6 +42,8 @@ public class OperatorInventoryPanel : MonoBehaviour
     private List<OperatorSlot> operatorSlots = new List<OperatorSlot>();
     private OperatorSlot? selectedSlot;
 
+    private List<OwnedOperator> availableOperators = new List<OwnedOperator>();
+
     private BaseSkill? selectedSkill;
     private Sprite noSkillSprite = default!;
 
@@ -49,10 +51,10 @@ public class OperatorInventoryPanel : MonoBehaviour
     private OwnedOperator? existingOperator; // squadEditPanel의 오퍼레이터가 있는 슬롯을 클릭한 상태로 인벤토리 패널에 들어왔을 때, 유지되는 정보
     private OwnedOperator? editingOperator; // 인벤토리 패널의 상세 정보를 통해 들어갔다가 나올 때
 
-
     // UserSquadManager에서 편집 중인 상태 관리
-    private int nowEditingIndex;
-    private bool isEditing;
+    private int nowEditingIndex; // 경우에 따라 다르게 쓸 거임
+    private bool isEditingSlot;
+    private bool isEditingBulk;
 
     private void Awake()
     {
@@ -72,101 +74,84 @@ public class OperatorInventoryPanel : MonoBehaviour
 
     private void OnEnable()
     {
-        isEditing = GameManagement.Instance!.UserSquadManager.IsEditingSquad;
+        isEditingSlot = GameManagement.Instance!.UserSquadManager.IsEditingSlot;
+        isEditingBulk = GameManagement.Instance!.UserSquadManager.IsEditingBulk;
 
+        bool isEditing = isEditingSlot || isEditingBulk;
         SetSquadEditMode(isEditing);
 
-        if (isEditing)
+        if (isEditingSlot)
         {
-            // Awake에 둘 경우, 이 패널이 활성화된 채로 시작하면 오류 발생해서 여기로 이동
-            if (UIHelper.Instance != null)
-            {
-                attackRangeHelper = UIHelper.Instance.CreateAttackRangeHelper(
-                    attackRangeContainer,
-                    centerPositionOffset
-                );
-            }
-
-            ClearSideView();
-
-            ResetSelection();
-            nowEditingIndex = GameManagement.Instance!.UserSquadManager.EditingSlotIndex;
-            existingOperator = GameManagement.Instance!.PlayerDataManager.GetOperatorInSlot(nowEditingIndex);
-            editingOperator = MainMenuManager.Instance!.CurrentEditingOperator;
-
-            PopulateOperators();
-
-            // 자동 선택
-
-            // 1. DetailPanel에 들어갔다 나온 경우 해당 오퍼레이터 선택
-            if (editingOperator != null)
-            {
-                HandleSlotClicked(operatorSlots[0]);
-                MainMenuManager.Instance.SetCurrentEditingOperator(null);
-            }
-            // 2. SquadEditPanel에서 오퍼레이터가 있는 슬롯을 클릭해서 들어온 경우, 해당 오퍼레이터 선택
-            else if (existingOperator != null)
-            {
-                HandleSlotClicked(operatorSlots[0]);
-            }
+            InitializeSingleSlotEditing();
         }
-        else
+        else if (isEditingBulk)
         {
-            PopulateOperators();
-        }
-    }
-
-
-    // 보유한 오퍼레이터 리스트를 만들고 오퍼레이터 슬롯들을 초기화합니다.
-    private void PopulateOperators()
-    {
-        List<OwnedOperator> availableOperators;
-
-        // 슬롯 정리
-        ClearSlots();
-
-        if (isEditing)
-        {
-            // 현재 스쿼드 가져오기
-            List<OwnedOperator> currentSquad = GameManagement.Instance!.UserSquadManager.GetCurrentSquad();
-
-            // 보유 중인 오퍼레이터 중, 현재 스쿼드에 없는 오퍼레이터만 가져옴
-            availableOperators = GameManagement.Instance!.PlayerDataManager.GetOwnedOperators()
-                .Where(op => !currentSquad.Contains(op))
-                .ToList();
-
-            // 스쿼드 편집에서 오퍼레이터가 있는 슬롯을 클릭해서 들어온 경우, 해당 오퍼레이터가 맨 앞
-            if (existingOperator != null)
-            {
-                // 가장 앞 인덱스에 넣음
-                availableOperators.Insert(0, existingOperator);
-            }
-
-            // 현재 수정한 오퍼레이터가 있다면 슬롯의 맨 앞으로 (existingOperator가 있다면 2번째 순서로 자연스럽게 밀려남)
-            if (editingOperator != null)
-            {
-                availableOperators.Remove(editingOperator);
-                availableOperators.Insert(0, editingOperator);
-            }
-
-
-            // 그리드 영역의 너비 조절
-            RectTransform slotContainerRectTransform = operatorSlotContainer.gameObject.GetComponent<RectTransform>(); 
-            if (availableOperators.Count > 12)
-            {
-                Vector2 currentSize = slotContainerRectTransform.sizeDelta;
-                float additionalWidth = 250 * Mathf.Floor( (availableOperators.Count - 12) / 2);
-            
-                slotContainerRectTransform.sizeDelta = new Vector2(currentSize.x + additionalWidth, currentSize.y);
-            }
+            InitializeBulkEditing();
         }
         else
         {
             availableOperators = GameManagement.Instance!.PlayerDataManager.GetOwnedOperators().ToList();
+            InitializeOperatorSlots();
+        }
+    }
+
+    // 오퍼레이터 1개 슬롯을 편집하는 상태로 패널 상태를 수정
+    private void InitializeSingleSlotEditing()
+    {
+        InitializeSideView();
+        ResetSelection();
+
+        nowEditingIndex = GameManagement.Instance!.UserSquadManager.EditingSlotIndex;
+        existingOperator = GameManagement.Instance!.PlayerDataManager.GetOperatorInSlot(nowEditingIndex); // 스쿼드 슬롯에 있던 오퍼레이터
+        editingOperator = MainMenuManager.Instance!.CurrentEditingOperator; // 디테일에 들어갔다 나올 때 저장된 오퍼레이터
+
+        availableOperators = GetAvailableOperatorsForSingleEditing();
+        InitializeOperatorSlots();
+
+        // 슬롯 자동 선택 상황
+        // 1. DetailPanel에 들어갔다 나온 경우 해당 오퍼레이터 선택
+        if (editingOperator != null)
+        {
+            HandleSlotClicked(operatorSlots[0]);
+            MainMenuManager.Instance.SetCurrentEditingOperator(null);
+        }
+        // 2. SquadEditPanel에서 오퍼레이터가 있는 슬롯을 클릭해서 들어온 경우, 해당 오퍼레이터 선택
+        else if (existingOperator != null)
+        {
+            HandleSlotClicked(operatorSlots[0]);
+        }
+    }
+
+    // 스쿼드 전체를 편집하는 상태로 패널 상태를 수정
+    private void InitializeBulkEditing()
+    {
+        InitializeSideView();
+        ResetSelection();
+
+        availableOperators = GetAvailableOperatorsForBulkEditing();
+        InitializeOperatorSlots();
+
+        nowEditingIndex = 0;
+    }
+
+    private void InitializeSideView()
+    {
+        if (UIHelper.Instance != null)
+        {
+            // Awake에 둘 경우, 이 패널이 활성화된 채로 시작하면 오류 발생해서 OnEnable에서 동작하도록 수정
+            attackRangeHelper = UIHelper.Instance.CreateAttackRangeHelper(
+                attackRangeContainer,
+                centerPositionOffset
+            );
         }
 
+        ClearSideView();
+    }
 
-        // 오퍼레이터 별로 슬롯 생성
+    // availableOperators으로 operatorSlot들을 생성합니다. 
+    private void InitializeOperatorSlots()
+    {
+        ClearSlots();
         foreach (OwnedOperator op in availableOperators)
         {
             OperatorSlot slot = Instantiate(slotButtonPrefab, operatorSlotContainer);
@@ -180,11 +165,72 @@ public class OperatorInventoryPanel : MonoBehaviour
         }
     }
 
+    private List<OwnedOperator> GetAvailableOperatorsForSingleEditing()
+    {
+        ClearSlots();
+
+        // 현재 스쿼드 가져오기
+        List<OwnedOperator> currentSquad = GameManagement.Instance!.UserSquadManager.GetCurrentSquad();
+
+        // 보유 중인 오퍼레이터 중, 현재 스쿼드에 없는 오퍼레이터만 가져옴
+        List<OwnedOperator> availableOperators = GameManagement.Instance!.PlayerDataManager.GetOwnedOperators()
+            .Where(op => !currentSquad.Contains(op))
+            .ToList();
+
+        // 스쿼드 편집에서 오퍼레이터가 있는 슬롯을 클릭해서 들어온 경우, 해당 오퍼레이터를 맨 앞에 배치
+        if (existingOperator != null)
+        {
+            availableOperators.Insert(0, existingOperator);
+        }
+
+        // 현재 수정한 오퍼레이터가 있다면 슬롯의 맨 앞으로 배치 (기존 existingOperator가 있다면 2번째로 밀림)
+        if (editingOperator != null)
+        {
+            availableOperators.Remove(editingOperator);
+            availableOperators.Insert(0, editingOperator);
+        }
+
+        return availableOperators;
+    }
+
+    private List<OwnedOperator> GetAvailableOperatorsForBulkEditing()
+    {
+        // 현재 스쿼드에 있는 오퍼레이터들을 순서대로 배열하고, 나머지 보유 오퍼레이터들을 뒤에 배치
+        List<OwnedOperator?> currentSquadWithNull = GameManagement.Instance!.PlayerDataManager.GetCurrentSquadWithNull();
+
+        // null이 아닌 오퍼레이터만 추출 (순서 유지)
+        List<OwnedOperator> squadOperators = currentSquadWithNull
+            .Where(op => op != null)
+            .Cast<OwnedOperator>()
+            .ToList();
+
+        List<OwnedOperator> allOperators = GameManagement.Instance!.PlayerDataManager.GetOwnedOperators().ToList();
+
+        // 이미 스쿼드에 배치된 오퍼레이터들을 리스트에서 제거
+        foreach (var op in squadOperators)
+        {
+            allOperators.Remove(op);
+        }
+        return squadOperators.Concat(allOperators).ToList();
+    }
+
+    private void AdjustSlotContainerSize(List<OwnedOperator> availableOperators)
+    {
+        // 그리드 영역의 너비 조절
+        RectTransform slotContainerRectTransform = operatorSlotContainer.gameObject.GetComponent<RectTransform>();
+        if (availableOperators.Count > 12)
+        {
+            Vector2 currentSize = slotContainerRectTransform.sizeDelta;
+            float additionalWidth = 250 * Mathf.Floor((availableOperators.Count - 12) / 2);
+            slotContainerRectTransform.sizeDelta = new Vector2(currentSize.x + additionalWidth, currentSize.y);
+        }
+    }
+
     private void HandleSlotClicked(OperatorSlot clickedSlot)
     {
-        if (isEditing)
+        if (isEditingSlot)
         {
-            // 스쿼드 편집 중
+            // 단일 슬롯 편집 
 
             // 이미 선택된 슬롯 재클릭시 무시 (이거 없으면 무한 이벤트로 인한 스택 오버플로우 뜸)
             if (selectedSlot == clickedSlot) return;
@@ -202,11 +248,25 @@ public class OperatorInventoryPanel : MonoBehaviour
             confirmButton.interactable = true;
             detailButton.interactable = true;
         }
+        else if (isEditingBulk)
+        {
+            // 스쿼드 째로 편집
+            ClearSideView();
+
+            
+
+        }
         else
         {
             // 스쿼드 편집 중이 아니라면, 해당 오퍼레이터 세부 정보 패널로 들어감
             MoveToDetailPanel(clickedSlot);
         }
+    }
+
+    private void HandleCurrentSlotIndex()
+    {
+        // 벌크일 때에만 관리
+
     }
 
     private void OnConfirmButtonClicked()

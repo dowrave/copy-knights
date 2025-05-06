@@ -44,6 +44,7 @@ public class MainMenuManager : MonoBehaviour
     [SerializeField] private Button? homeButton;
     [SerializeField] private Button? itemInventoryButton;
     [SerializeField] private Button? operatorInventoryButton;
+    [SerializeField] private Button? squadBulkEditButton;
 
     [Header("Panel References")]
     [SerializeField] private List<PanelInfo>? panels;
@@ -126,12 +127,17 @@ public class MainMenuManager : MonoBehaviour
             }
         }
 
+        InitializeListeners();
+        UpdateTopAreaButtons();
+    }
+
+    private void InitializeListeners()
+    {
         if (backButton != null) backButton.onClick.AddListener(NavigateBack);
         if (homeButton != null) homeButton.onClick.AddListener(NavigateToHome);
         if (itemInventoryButton != null) itemInventoryButton.onClick.AddListener(NavigateToItemInventory);
         if (operatorInventoryButton != null) operatorInventoryButton.onClick.AddListener(NavigateToOperatorInventory);
-
-        UpdateTopAreaButtons();
+        if (squadBulkEditButton != null) squadBulkEditButton.onClick.AddListener(NavigateToOperatorInventoryWithBulk);
     }
 
     public void NavigateBack()
@@ -141,7 +147,7 @@ public class MainMenuManager : MonoBehaviour
         if (parentMap.TryGetValue(CurrentPanel, out List<MenuPanel> parentPanels))
         {
             if (CurrentPanel == MenuPanel.OperatorInventory && 
-                GameManagement.Instance!.UserSquadManager.IsEditingSquad)
+                GameManagement.Instance!.UserSquadManager.IsEditingSlot)
             {
                 //Debug.Break(); // 테스트용
                 GameManagement.Instance!.UserSquadManager.CancelOperatorSelection();
@@ -180,6 +186,12 @@ public class MainMenuManager : MonoBehaviour
         FadeInAndHide(panelMap[MenuPanel.OperatorInventory], panelMap[CurrentPanel]);
     }
 
+    private void NavigateToOperatorInventoryWithBulk()
+    {
+        GameManagement.Instance!.UserSquadManager.SetIsBulkEditing(true);
+        NavigateToOperatorInventory();
+    }
+
     private void UpdateTopAreaButtons()
     {
         if (navButtonContainer == null || itemInventoryButton == null)
@@ -199,6 +211,15 @@ public class MainMenuManager : MonoBehaviour
             navButtonContainer.SetActive(true);
             itemInventoryButton.gameObject.SetActive(false);
             operatorInventoryButton.gameObject.SetActive(false);
+        }
+
+        if (CurrentPanel == MenuPanel.SquadEdit)
+        {
+            squadBulkEditButton.gameObject.SetActive(true);
+        }
+        else
+        {
+            squadBulkEditButton.gameObject.SetActive(false);
         }
     }
 

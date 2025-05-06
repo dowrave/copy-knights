@@ -9,10 +9,14 @@ using UnityEngine;
 /// </summary>
 public class UserSquadManager : MonoBehaviour
 {
-    // 편집 상태 관리
+    // 개별 인덱스 편집 상태 관리
     private int editingSlotIndex = -1;
     public int EditingSlotIndex => editingSlotIndex;
-    public bool IsEditingSquad => editingSlotIndex != -1; // -1이 아니면 편집 중이니까 true
+    public bool IsEditingSlot => editingSlotIndex != -1; // -1이 아니면 편집 중이니까 true
+
+    // 단체 인덱스 편집 상태 관리
+    private bool _isEditingBulk;
+    public bool IsEditingBulk => _isEditingBulk;
 
     public int? MaxSquadSize => GameManagement.Instance!.PlayerDataManager.GetMaxSquadSize();
 
@@ -46,7 +50,7 @@ public class UserSquadManager : MonoBehaviour
 
     public void ConfirmOperatorSelection(OwnedOperator selectedOperator)
     {
-        if (IsEditingSquad)
+        if (IsEditingSlot)
         {
             TryReplaceOperator(editingSlotIndex, selectedOperator);
             editingSlotIndex = -1; // 편집 상태 초기화
@@ -57,6 +61,11 @@ public class UserSquadManager : MonoBehaviour
     public bool TryReplaceOperator(int index, OwnedOperator? newOp = null)
     {
         return GameManagement.Instance!.PlayerDataManager.TryUpdateSquad(index, newOp?.operatorName ?? string.Empty); // operatorName이 null일 경우의 처리 추가
+    }
+
+    public void SetIsBulkEditing(bool state)
+    {
+        _isEditingBulk = state; 
     }
 
     public void CancelOperatorSelection()
