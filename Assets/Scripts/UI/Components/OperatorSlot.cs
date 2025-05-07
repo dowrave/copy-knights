@@ -216,6 +216,7 @@ public class OperatorSlot : MonoBehaviour
     {
         if (selectedIndicator != null)
         {
+            Debug.Log($"셀렉션 인디케이터 활성화 여부 : {IsSelected}");
             selectedIndicator.gameObject.SetActive(IsSelected);
         }
     }
