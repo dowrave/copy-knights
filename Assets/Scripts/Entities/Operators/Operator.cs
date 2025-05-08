@@ -163,7 +163,15 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable,
             baseOffsets = new List<Vector2Int>(ownedOp.CurrentAttackableGridPos); // 왼쪽 방향 기준
 
             // 스킬 설정
-            CurrentSkill = ownedOp.StageSelectedSkill;
+            if (opInfo.skillIndex.HasValue)
+            {
+                CurrentSkill = ownedOp.UnlockedSkills[opInfo.skillIndex.Value];
+            }
+            else
+            {
+                throw new System.InvalidOperationException("인덱스가 없어서 CurrentSkill이 지정되지 않음");
+            }
+
             CurrentSP = ownedOp.CurrentStats.StartSP;
             MaxSP = CurrentSkill?.SPCost ?? 0f;
 

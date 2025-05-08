@@ -16,15 +16,17 @@ public class OwnedOperator
     // 런타임에만 존재하는 계산된 필드들
     [System.NonSerialized] private OperatorStats currentStats;
     [System.NonSerialized] private List<Vector2Int> currentAttackableGridPos = new List<Vector2Int>();
-    [System.NonSerialized] private BaseSkill defaultSelectedSkill = default!;
     [System.NonSerialized] private List<BaseSkill> unlockedSkills = new List<BaseSkill>();
+    [System.NonSerialized] private BaseSkill defaultSelectedSkill = default!;
+    //[System.NonSerialized] private BaseSkill stageSelectedSkill = default!;
+    //[System.NonSerialized] private int selectedSkillIndex; 
     [System.NonSerialized] private OperatorData baseData = default!;
-    [System.NonSerialized] private BaseSkill stageSelectedSkill = default!;
 
     // 읽기 전용 프로퍼티
     public OperatorStats CurrentStats => currentStats;
     public List<BaseSkill> UnlockedSkills => unlockedSkills;
     public BaseSkill DefaultSelectedSkill => defaultSelectedSkill;
+    public int DefaultSelectedSkillIndex => UnlockedSkills.IndexOf(defaultSelectedSkill);
     public List<Vector2Int> CurrentAttackableGridPos => currentAttackableGridPos;
     public OperatorData OperatorProgressData
     {
@@ -39,10 +41,23 @@ public class OwnedOperator
             return baseData;
         }
     }
-    public BaseSkill StageSelectedSkill
-    {
-        get => stageSelectedSkill ?? defaultSelectedSkill;
-    }
+
+    //private int selectedSkillIndex;
+    private int defaultSkillIndex; // 여기서 갖는 값
+
+    //public BaseSkill SelectedSkill
+    //{
+    //    get => unlockedSkills[selectedSkillIndex];
+    //}
+
+    //public BaseSkill StageSelectedSkill
+    //{
+    //    get => stageSelectedSkill ?? defaultSelectedSkill;
+    //}
+    //public BaseSkill StageSelectedSkill { get => unlockedSkills[SelectedSkillIndex] };
+
+    //public int SelectedSkillIndex { get; private set; }
+    
 
     public bool CanLevelUp => OperatorGrowthSystem.CanLevelUp(currentPhase, currentLevel);
     public bool CanPromote => OperatorGrowthSystem.CanPromote(currentPhase, currentLevel);
@@ -69,9 +84,14 @@ public class OwnedOperator
         InitializeSkills();
     }
 
-    public void SetDefaultSelectedSkills(BaseSkill skill)
+    // 인덱스를 받아 기본으로 사용할 스킬을 설정한다.
+    public void SetDefaultSelectedSkill(int skillIndex)
     {
-        defaultSelectedSkill = skill;
+        if (unlockedSkills.Count > skillIndex)
+        {
+            defaultSkillIndex = skillIndex;
+            defaultSelectedSkill = unlockedSkills[defaultSkillIndex];
+        }
     }
 
     private void InitializeAttackRange()
@@ -82,8 +102,6 @@ public class OwnedOperator
         {
             currentAttackableGridPos.AddRange(baseData.elite1Unlocks.additionalAttackTiles);
         }
-
-        Debug.Log($"{operatorName}의 공격범위 초기화 완료");
     }
 
     private void InitializeSkills()
@@ -122,8 +140,13 @@ public class OwnedOperator
         Initialize();
     }
 
-    public void SetStageSelectedSkill(BaseSkill newSkill)
-    {
-        stageSelectedSkill = newSkill;
-    }
+    //public void SetStageSelectedSkillIndex(int index)
+    //{
+    //    SelectedSkillIndex = index;
+    //}
+
+    //public void SetStageSelectedSkill(BaseSkill newSkill)
+    //{
+    //    stageSelectedSkill = newSkill;
+    //}
 }

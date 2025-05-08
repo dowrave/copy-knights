@@ -58,6 +58,7 @@ public class OperatorDetailPanel : MonoBehaviour
 
 
     private BaseSkill currentSelectedSkill = default!; // UI상에서 선택되고 있는 스킬
+    private int currentSelectedSkillIndex;
     private OperatorData operatorData = default!;
     private OwnedOperator? currentOperator;
 
@@ -327,6 +328,7 @@ public class OperatorDetailPanel : MonoBehaviour
 
         if (skillIndex < skills.Count)
         {
+            currentSelectedSkillIndex = skillIndex;
             currentSelectedSkill = skills[skillIndex];
         }
 
@@ -387,7 +389,7 @@ public class OperatorDetailPanel : MonoBehaviour
 
     private void HandleDefaultButtonClicked()
     {
-        currentOperator.SetDefaultSelectedSkills(currentSelectedSkill);
+        currentOperator.SetDefaultSelectedSkill(currentSelectedSkillIndex);
         MainMenuManager.Instance!.ShowNotification($"기본 설정 스킬이 {currentSelectedSkill.skillName}으로 변경되었습니다.");
         UpdateSkillsUI();
     }

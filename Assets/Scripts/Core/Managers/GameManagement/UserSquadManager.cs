@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Skills.Base;
 using UnityEngine;
 
 /// <summary>
@@ -48,19 +49,31 @@ public class UserSquadManager : MonoBehaviour
         }
     }
 
-    public void ConfirmOperatorSelection(OwnedOperator selectedOperator)
+    public void ConfirmOperatorSelection(OwnedOperator selectedOperator, int skillIndex)
     {
         if (IsEditingSlot)
         {
-            TryReplaceOperator(editingSlotIndex, selectedOperator);
+            TryReplaceOperator(editingSlotIndex, selectedOperator, skillIndex);
             editingSlotIndex = -1; // 편집 상태 초기화
         }
     }
 
-    /// Squad의 Index에 오퍼레이터를 배치/대체 하려고 할 때 사용
-    public bool TryReplaceOperator(int index, OwnedOperator? newOp = null)
+    /// 스쿼드에 오퍼레이터를 배치/대체 하려고 할 때 사용
+    public bool TryReplaceOperator(int squadIndex, OwnedOperator? newOp = null, int skillIndex = 0)
     {
-        return GameManagement.Instance!.PlayerDataManager.TryUpdateSquad(index, newOp?.operatorName ?? string.Empty); // operatorName이 null일 경우의 처리 추가
+        // 해당 인덱스 초기화
+        if (newOp == null)
+        {
+            skillIndex = -1;
+            return GameManagement.Instance!.PlayerDataManager.TryUpdateSquad(squadIndex, string.Empty, skillIndex);
+        }
+        // 해당 인덱스에 오퍼레이터 지정
+        else
+        {
+            if (skillIndex < 0 || skillIndex >= newOp.UnlockedSkills.Count)
+                throw new InvalidOperationException("TryReplaceOperator의 스킬 지정이 이상함");
+            return GameManagement.Instance!.PlayerDataManager.TryUpdateSquad(squadIndex, newOp.operatorName, skillIndex);
+        }
     }
 
     public void SetIsBulkEditing(bool state)
@@ -74,7 +87,7 @@ public class UserSquadManager : MonoBehaviour
     }
 
 
-    public List<OwnedOperator> GetCurrentSquad()
+    public List<SquadOperatorInfo> GetCurrentSquad()
     {
         return GameManagement.Instance!.PlayerDataManager.GetCurrentSquad();
     }
@@ -82,7 +95,7 @@ public class UserSquadManager : MonoBehaviour
     /// <summary>
     /// null이 포함된 currentSquad 리스트를 반환합니다.
     /// </summary>
-    public List<OwnedOperator?> GetCurrentSquadWithNull()
+    public List<SquadOperatorInfo?> GetCurrentSquadWithNull()
     {
         return GameManagement.Instance!.PlayerDataManager.GetCurrentSquadWithNull();
     }
@@ -91,5 +104,39 @@ public class UserSquadManager : MonoBehaviour
     public List<OperatorData> GetCurrentSquadData()
     {
         return GameManagement.Instance!.PlayerDataManager.GetCurrentSquadData();
+    }
+
+    public bool UpdateFullSquad(List<SquadOperatorInfo> ownedOpInfoSquad)
+    {
+        return GameManagement.Instance!.PlayerDataManager.UpdateFullSquad(ownedOpInfoSquad);
+    }
+
+    // 현재 스쿼드에서 오퍼레이터에 설정된 스킬 인덱스를 반환합니다.
+    public int GetCurrentSkillIndex(OwnedOperator op)
+    {
+        List<SquadOperatorInfo> currentSquad = GetCurrentSquad();
+        SquadOperatorInfo targetOpInfo = currentSquad.FirstOrDefault(member => member.op == op);
+        if (targetOpInfo != null) return targetOpInfo.skillIndex;
+
+        return -1;
+    }
+}
+
+public class SquadOperatorInfo
+{
+    public OwnedOperator op;
+    public int skillIndex;
+
+    // 생성자
+    public SquadOperatorInfo()
+    {
+        op = null;
+        skillIndex = -1;
+    }
+
+    public SquadOperatorInfo(OwnedOperator op, int index)
+    {
+        this.op = op;
+        skillIndex = index;
     }
 }

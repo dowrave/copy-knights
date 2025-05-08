@@ -12,13 +12,16 @@ public class PlayerDataManager : MonoBehaviour
     private class PlayerData
     {
         public List<OwnedOperator> ownedOperators = new List<OwnedOperator>(); // 보유 오퍼레이터
-        public List<string> currentSquadOperatorNames = new List<string>(); // 스쿼드, 직렬화를 위해 이름만 저장
+        //public List<string> currentSquadOperatorNames = new List<string>(); // 스쿼드, 직렬화를 위해 이름만 저장
+        public List<SquadOperatorInfoForSave> currentSquad = new List<SquadOperatorInfoForSave>();
         public int maxSquadSize;
         public UserInventoryData inventory = new UserInventoryData(); // 아이템 인벤토리
         public StageResultData stageResults = new StageResultData(); // 스테이지 진행 상황
         public bool isTutorialFinished = false;
         public List<TutorialStatus> tutorialDataStatus = new List<TutorialStatus>();
     }
+
+
 
     public enum TutorialStatus
     {
@@ -143,10 +146,11 @@ public class PlayerDataManager : MonoBehaviour
         InstanceValidator.ValidateInstance(playerData);
         var safePlayerData = playerData!;  
 
-        safePlayerData.currentSquadOperatorNames.Clear();
+        safePlayerData.currentSquad.Clear();
         for (int i = 0; i < safePlayerData.maxSquadSize; i++)
         {
-            safePlayerData.currentSquadOperatorNames.Add(string.Empty); // null 대신 빈 문자열 추가
+            //safePlayerData.currentSquadOperatorNames.Add(string.Empty); // null 대신 빈 문자열 추가
+            safePlayerData.currentSquad.Add(new SquadOperatorInfoForSave());
         }
     }
 
@@ -155,16 +159,17 @@ public class PlayerDataManager : MonoBehaviour
         InstanceValidator.ValidateInstance(playerData);
         var safePlayerData = playerData!;
 
-        if (safePlayerData.currentSquadOperatorNames?.Count > safePlayerData.maxSquadSize)
+        if (safePlayerData.currentSquad?.Count > safePlayerData.maxSquadSize)
         {
-            safePlayerData.currentSquadOperatorNames = safePlayerData.currentSquadOperatorNames?
+            safePlayerData.currentSquad = safePlayerData.currentSquad?
                 .Take(safePlayerData.maxSquadSize) // 처음부터 지정된 수만큼 가져오는 메서드
-                .ToList() ?? new List<string>();
+                .ToList() ?? new List<SquadOperatorInfoForSave>();
         }
 
         SavePlayerData();
     }
 
+    // operatorName에 해당하는 OwnedOperator을 얻는다
     public OwnedOperator? GetOwnedOperator(string operatorName)
     {
         InstanceValidator.ValidateInstance(playerData);
@@ -305,29 +310,80 @@ public class PlayerDataManager : MonoBehaviour
     }
 
 
-    // null을 포함하지 않은 실제 배치된 오퍼레이터만 포함된 스쿼드 리스트 반환
-    public List<OwnedOperator> GetCurrentSquad()
+    // opName 리스트로 OwnedOperator 리스트를 얻어서 반환함
+    //public List<OwnedOperator> GetCurrentSquad()
+    //{
+    //    InstanceValidator.ValidateInstance(playerData);
+    //    var safePlayerData = playerData!;
+
+    //    return safePlayerData.currentSquad
+    //        .Where(squadOpInfo => squadOpInfo != null && !string.IsNullOrEmpty(squadOpInfo.operatorName))
+    //        .Select(squadOpInfo => GetOwnedOperator(squadOpInfo.operatorName!)) // 'opName'이 null이 아님을 명시적으로 표시  
+    //        .Where(op => op != null)
+    //        .Cast<OwnedOperator>() // null이 아닌 OwnedOperator로 캐스팅  
+    //        .ToList() ?? new List<OwnedOperator>();
+    //}
+
+    // 새로 만들 메서드 : <OwnedOperator, skillIndex>를 갖는 리스트를 반환함. 런타임에서만 사용하는 타입을 하나 정의해두자.
+    public List<SquadOperatorInfo> GetCurrentSquad()
     {
         InstanceValidator.ValidateInstance(playerData);
         var safePlayerData = playerData!;
 
-        return safePlayerData.currentSquadOperatorNames
-            .Where(name => !string.IsNullOrEmpty(name))
-            .Select(opName => GetOwnedOperator(opName!)) // 'opName'이 null이 아님을 명시적으로 표시  
-            .Where(op => op != null)
-            .Cast<OwnedOperator>() // null이 아닌 OwnedOperator로 캐스팅  
-            .ToList() ?? new List<OwnedOperator>();
+        return safePlayerData.currentSquad
+            .Where(savedInfo => savedInfo != null && !string.IsNullOrEmpty(savedInfo.operatorName))
+            .Select(savedInfo =>
+            {
+                OwnedOperator ownedOp = GetOwnedOperator(savedInfo.operatorName!);
+
+                if (ownedOp != null)
+                {
+                    return new SquadOperatorInfo(ownedOp, savedInfo.skillIndex);
+                }
+                return null;
+            })
+            .Where(runtimeInfo => runtimeInfo != null) // null인 항목들 제외
+            .Select(runtimeInfo => runtimeInfo!) // nullability 경고 제거 목적
+            .ToList() ?? new List<SquadOperatorInfo>();
     }
 
 
     // null을 포함한 전체 스쿼드 리스트 반환. MaxSquadSize가 보장된다.
-    public List<OwnedOperator?> GetCurrentSquadWithNull()
+    //public List<OwnedOperator?> GetCurrentSquadWithNull()
+    //{
+    //    InstanceValidator.ValidateInstance(playerData);
+    //    var safePlayerData = playerData!;
+
+    //    return safePlayerData.currentSquad
+    //        .Select(squadOpInfo => string.IsNullOrEmpty(squadOpInfo.operatorName) ? null : GetOwnedOperator(squadOpInfo.operatorName))
+    //        .ToList();
+    //}
+
+    public List<SquadOperatorInfo?> GetCurrentSquadWithNull()
     {
         InstanceValidator.ValidateInstance(playerData);
         var safePlayerData = playerData!;
 
-        return safePlayerData.currentSquadOperatorNames
-            .Select(opName => string.IsNullOrEmpty(opName) ? null : GetOwnedOperator(opName))
+        if (safePlayerData.currentSquad == null) return new List<SquadOperatorInfo?>();
+
+        return safePlayerData.currentSquad
+            .Select(savedInfo =>
+            {
+                if (savedInfo == null || string.IsNullOrEmpty(savedInfo.operatorName))
+                {
+                    return (SquadOperatorInfo?)null;
+                }
+                else
+                {
+                    OwnedOperator ownedOp = GetOwnedOperator(savedInfo.operatorName);
+
+                    if (ownedOp != null) return new SquadOperatorInfo(ownedOp, savedInfo.skillIndex);
+                    else
+                    {
+                        return (SquadOperatorInfo?)null;
+                    }
+                }
+            })
             .ToList();
     }
 
@@ -335,7 +391,7 @@ public class PlayerDataManager : MonoBehaviour
     public List<OperatorData> GetCurrentSquadData()
     {
         return GetCurrentSquad()
-            .Select(ownedOp => ownedOp.OperatorProgressData)
+            .Select(opInfo => opInfo.op.OperatorProgressData)
             .Where(op => op != null)
             .ToList();
     }
@@ -343,27 +399,92 @@ public class PlayerDataManager : MonoBehaviour
 
 
     // 스쿼드를 업데이트한다
-    public bool TryUpdateSquad(int index, string operatorName)
+    public bool TryUpdateSquad(int squadIndex, string operatorName, int skillIndex)
     {
         InstanceValidator.ValidateInstance(playerData);
         var safePlayerData = playerData!;
+        List<SquadOperatorInfoForSave> squadForSave = safePlayerData.currentSquad;
 
-        if (index < 0 || index >= safePlayerData.maxSquadSize) return false;
+        if (squadIndex < 0 || squadIndex >= safePlayerData.maxSquadSize) return false;
 
 
         // 스쿼드 크기 확보
-        while (safePlayerData.currentSquadOperatorNames.Count <= index)
+        while (squadForSave.Count <= squadIndex)
         {
-            safePlayerData.currentSquadOperatorNames.Add(string.Empty);
+            squadForSave.Add(new SquadOperatorInfoForSave());
         }
 
         // 오퍼레이터 소유 확인
         if (!string.IsNullOrEmpty(operatorName) && !safePlayerData.ownedOperators.Any(op => op.operatorName == operatorName)) return false;
 
-        // 중복 체크
-        if (!string.IsNullOrEmpty(operatorName) && safePlayerData.currentSquadOperatorNames.Contains(operatorName)) return false;
+        // 같은 이름의 오퍼레이터 중복 방지 : 단, 스킬 인덱스가 다른 경우는 허용함
+        if (squadForSave.Any(opInfo => opInfo != null && opInfo.operatorName == operatorName && opInfo.skillIndex == skillIndex)) return false;
 
-        safePlayerData.currentSquadOperatorNames[index] = operatorName;
+        // 등록 로직
+        // 스킬 인덱스를 지정하는 로직도 필요해보임. 이건 연속적으로 수정해야 할 내용이라 일단 작성만 해둠
+        //safePlayerData.currentSquadOperatorNames[squadIndex] = operatorName;
+        squadForSave[squadIndex] = new SquadOperatorInfoForSave(operatorName, skillIndex);
+
+        // 스쿼드 수정마다 반복문 실행해서 점검
+        for (int i=0; i < squadForSave.Count; i++)
+        {
+            Debug.Log($"스쿼드 구성 : {i}번째 인덱스 - ({squadForSave[i].operatorName}, 스킬 인덱스 : {squadForSave[i].skillIndex})");
+        }
+
+        SavePlayerData();
+        OnSquadUpdated?.Invoke();
+        return true;
+    }
+
+    // 일괄 업데이트용
+    public bool UpdateFullSquad(List<SquadOperatorInfo> tempOwnedOpSquad)
+    {
+        InstanceValidator.ValidateInstance(playerData);
+        var safePlayerData = playerData!;
+        var newSquadForSave = new List<SquadOperatorInfoForSave>(safePlayerData.maxSquadSize);
+
+        // 1. newSquadForSave 내용을 채움
+        for (int i = 0; i < safePlayerData.maxSquadSize; i++)
+        {
+            if (i < tempOwnedOpSquad.Count)
+            {
+                SquadOperatorInfo runtimeInfo = tempOwnedOpSquad[i];
+                if (runtimeInfo == null || runtimeInfo.op == null)
+                {
+                    // 빈 슬롯 처리
+                    newSquadForSave.Add(new SquadOperatorInfoForSave()); // 기본값
+                }
+                else
+                {
+                    string opName = runtimeInfo.op.operatorName;
+                    int skillIdx = runtimeInfo.skillIndex;
+
+                    if (!string.IsNullOrEmpty(opName) &&
+                        (safePlayerData.ownedOperators == null || !safePlayerData.ownedOperators.Any(ownedOp => ownedOp.operatorName == opName)))
+                    {
+                        // 소유하지 않은 오퍼레이터가 있으면 업데이트 실패
+                        Debug.LogError($"{opName}은 소유하고 있는 오퍼레이터가 아님");
+                        return false;
+                    }
+
+                    // 빈 슬롯
+                    if (string.IsNullOrEmpty(opName))
+                    {
+                        skillIdx = -1;
+                    }
+
+                    newSquadForSave.Add(new SquadOperatorInfoForSave(opName, skillIdx));
+                }
+            }
+            else
+            {
+                // 비어있는 나머지 슬롯은 빈 슬롯으로 채움
+                newSquadForSave.Add(new SquadOperatorInfoForSave());
+            }
+        }
+        
+        // 2. 실제 스쿼드 데이터 교체
+        safePlayerData.currentSquad = newSquadForSave;
         SavePlayerData();
         OnSquadUpdated?.Invoke();
         return true;
@@ -376,10 +497,10 @@ public class PlayerDataManager : MonoBehaviour
         InstanceValidator.ValidateInstance(playerData);
         var safePlayerData = playerData!;
 
-        safePlayerData.currentSquadOperatorNames.Clear();
+        safePlayerData.currentSquad.Clear();
         for (int i = 0; i < safePlayerData.maxSquadSize; i++)
         {
-            safePlayerData.currentSquadOperatorNames.Add(string.Empty);
+            safePlayerData.currentSquad.Add(new SquadOperatorInfoForSave());
         }
         SavePlayerData();
         OnSquadUpdated?.Invoke();
@@ -399,9 +520,9 @@ public class PlayerDataManager : MonoBehaviour
         InstanceValidator.ValidateInstance(playerData);
         var safePlayerData = playerData!;
 
-        if (index < 0 || index >= safePlayerData.currentSquadOperatorNames.Count) return null;
+        if (index < 0 || index >= safePlayerData.currentSquad.Count) return null;
 
-        string? opName = safePlayerData.currentSquadOperatorNames[index];
+        string? opName = safePlayerData.currentSquad[index].operatorName;
         return string.IsNullOrEmpty(opName) ? null : GetOwnedOperator(opName);
     }
 
@@ -410,7 +531,8 @@ public class PlayerDataManager : MonoBehaviour
         InstanceValidator.ValidateInstance(playerData);
         var safePlayerData = playerData!;
 
-        return new List<string?>(safePlayerData.currentSquadOperatorNames); 
+        //return new List<string?>(safePlayerData.currentSquadOperatorNames);
+        return new List<string?>(safePlayerData.currentSquad.Select(opInfo => opInfo?.operatorName));
     }
 
     private void LoadItemDatabase()
@@ -505,7 +627,11 @@ public class PlayerDataManager : MonoBehaviour
         // 오퍼레이터들을 스쿼드에 배치하기
         for (int i = 0; i < 6; i++)
         {
-            GameManagement.Instance!.UserSquadManager.TryReplaceOperator(i, ownedOps[i]);
+            // 2번 슬롯을 비움
+            if (i == 1) continue;
+
+            // 슬롯 추가 로직 필요
+            GameManagement.Instance!.UserSquadManager.TryReplaceOperator(i, ownedOps[i], 0);
         }
     }
 
@@ -582,9 +708,9 @@ public class PlayerDataManager : MonoBehaviour
         InstanceValidator.ValidateInstance(playerData);
         var safePlayerData = playerData!;
 
-        if (safePlayerData.currentSquadOperatorNames[index] != null)
+        if (safePlayerData.currentSquad[index] != null)
         {
-            return GetOwnedOperator(safePlayerData.currentSquadOperatorNames[index]);
+            return GetOwnedOperator(safePlayerData.currentSquad[index].operatorName);
         }
         else
         {
@@ -734,5 +860,25 @@ public class PlayerDataManager : MonoBehaviour
         {
             safePlayerData.inventory.items.Add(new UserInventoryData.ItemStack(promotion.itemName, 1));
         }
+    }
+}
+
+[Serializable]
+public class SquadOperatorInfoForSave
+{
+    public string operatorName;
+    public int skillIndex;
+
+    // 생성자
+    public SquadOperatorInfoForSave()
+    {
+        operatorName = string.Empty;
+        skillIndex = -1;
+    }
+
+    public SquadOperatorInfoForSave(string name, int index)
+    {
+        operatorName = name;
+        skillIndex = index;
     }
 }

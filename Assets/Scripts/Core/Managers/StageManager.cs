@@ -165,7 +165,7 @@ public class StageManager : MonoBehaviour
         }
     }
 
-    public void InitializeStage(StageData stageData, List<OwnedOperator> squadData, StageLoadingScreen stageLoadingScreen)
+    public void InitializeStage(StageData stageData, List<SquadOperatorInfo> squadData, StageLoadingScreen stageLoadingScreen)
     {
         this.stageData = stageData;
         this.stageLoadingScreen = stageLoadingScreen;
@@ -510,7 +510,7 @@ public class StageManager : MonoBehaviour
     }
 
     // 배치 가능한 유닛 리스트를 준비합니다. 오퍼레이터 + 스테이지에서 사용 가능한 오브젝트
-    private void PrepareDeployables(List<OwnedOperator> squadData)
+    private void PrepareDeployables(List<SquadOperatorInfo> squadData)
     {
         InstanceValidator.ValidateInstance(StageData);
 

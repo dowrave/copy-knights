@@ -177,12 +177,14 @@ public class OperatorSlot : MonoBehaviour
         if (OwnedOperator == null) return;
 
         skillImage.gameObject.SetActive(true);
+
+        int skillIndex = GameManagement.Instance!.UserSquadManager.GetCurrentSkillIndex(OwnedOperator);
         
         // 스쿼드 편집 패널 : 스테이지에서 사용할 스킬 표시
-        if (OwnedOperator.StageSelectedSkill != null &&
+        if (OwnedOperator.UnlockedSkills.Count > skillIndex &&
             MainMenuManager.Instance!.CurrentPanel == MainMenuManager.MenuPanel.SquadEdit)
         {
-            SelectedSkill = OwnedOperator.StageSelectedSkill;
+            SelectedSkill = OwnedOperator.UnlockedSkills[skillIndex];
             skillImage.sprite = SelectedSkill.skillIcon;
         }
 
@@ -197,8 +199,8 @@ public class OperatorSlot : MonoBehaviour
                                               : null;
 
             SelectedSkill = (nowEditingIndex != -1 && existingOperator == OwnedOperator)
-                            ? OwnedOperator.StageSelectedSkill
-                            : OwnedOperator.DefaultSelectedSkill;
+                            ? OwnedOperator.UnlockedSkills[skillIndex] // 오퍼레이터를 선택해 들어왔다면 스쿼드에서의 스킬을 설정
+                            : OwnedOperator.DefaultSelectedSkill; // 아니라면 기본 지정 스킬로 설정
 
             skillImage.sprite = SelectedSkill.skillIcon;
         }
@@ -216,7 +218,6 @@ public class OperatorSlot : MonoBehaviour
     {
         if (selectedIndicator != null)
         {
-            Debug.Log($"셀렉션 인디케이터 활성화 여부 : {IsSelected}");
             selectedIndicator.gameObject.SetActive(IsSelected);
         }
     }

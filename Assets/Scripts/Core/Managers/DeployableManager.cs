@@ -106,7 +106,7 @@ public class DeployableManager : MonoBehaviour
     }
 
     public void Initialize(
-        List<OwnedOperator> squadData,
+        List<SquadOperatorInfo> squadData,
         List<MapDeployableData> stageDeployables,
         int maxOperatorDeploymentCount
         )
@@ -115,14 +115,17 @@ public class DeployableManager : MonoBehaviour
         deployableInfoMap.Clear();
 
         // OwnedOperator -> DeployableInfo로 변환해서 추가
-        foreach (OwnedOperator op in squadData.Where(op => op != null))
+        foreach (SquadOperatorInfo opInfo in squadData.Where(op => op != null))
         {
+            OwnedOperator op = opInfo.op;
+
             var info = new DeployableInfo
             {
                 prefab = op.OperatorProgressData.prefab,
                 maxDeployCount = 1,
                 redeployTime = op.OperatorProgressData.stats.RedeployTime,
                 ownedOperator = op,
+                skillIndex = opInfo.skillIndex,
                 operatorData = op.OperatorProgressData
             };
 
@@ -772,6 +775,7 @@ public class DeployableManager : MonoBehaviour
         public Operator? deployedOperator;
         public OwnedOperator? ownedOperator;
         public OperatorData? operatorData;
+        public int? skillIndex;
 
         // 일반 배치 가능한 유닛일 때 할당
         public DeployableUnitEntity? deployedDeployable;

@@ -16,7 +16,7 @@ public class StageLoader : MonoBehaviour
 
     private StageData? cachedStageData;
     public StageData? CachedStageData => cachedStageData;
-    private List<OwnedOperator>? cachedSquadData;
+    private List<SquadOperatorInfo>? cachedSquadData;
     private bool isLoading;
     private StageLoadingScreen? loadingScreen;
     private const float MIN_LOADING_TIME = 0.5f;
@@ -35,7 +35,7 @@ public class StageLoader : MonoBehaviour
         }
 
         cachedStageData = stageData;
-        cachedSquadData = new List<OwnedOperator>(GameManagement.Instance!.UserSquadManager.GetCurrentSquad());
+        cachedSquadData = new List<SquadOperatorInfo>(GameManagement.Instance!.UserSquadManager.GetCurrentSquad());
 
         StartCoroutine(LoadStage());
     }

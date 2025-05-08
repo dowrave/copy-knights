@@ -325,7 +325,7 @@ public class MainMenuManager : MonoBehaviour
         {
             throw new InvalidOperationException("게임 매니지먼트 인스턴스가 초기화되지 않았음");
         }
-        List<OwnedOperator> currentSquad = GameManagement.Instance.UserSquadManager.GetCurrentSquad();
+        List<SquadOperatorInfo> currentSquad = GameManagement.Instance.UserSquadManager.GetCurrentSquad();
         if (currentSquad.Count > 0)
         {
             if (SelectedStage != null)
@@ -351,7 +351,7 @@ public class MainMenuManager : MonoBehaviour
 
     private void UpdateSquadUI()
     {
-        List<OwnedOperator?> currentSquad = GameManagement.Instance!.UserSquadManager.GetCurrentSquadWithNull();
+        List<SquadOperatorInfo?> currentSquad = GameManagement.Instance!.UserSquadManager.GetCurrentSquadWithNull();
         // UI 업데이트
     }
 

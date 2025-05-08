@@ -49,7 +49,7 @@ public class SquadEditPanel : MonoBehaviour
 
     private void UpdateSquadUI()
     {
-        List<OwnedOperator?> currentSquad = GameManagement.Instance!.PlayerDataManager.GetCurrentSquadWithNull();
+        List<SquadOperatorInfo?> currentSquad = GameManagement.Instance!.PlayerDataManager.GetCurrentSquadWithNull();
         if (currentSquad == null) return; // 현재 스쿼드 정보가 없으면 실행 중단
 
         for (int i = 0; i < operatorSlots.Count; i++)
@@ -62,7 +62,7 @@ public class SquadEditPanel : MonoBehaviour
                 if (currentSquad[i] != null)
                 {
                     // 오퍼레이터 할당 슬롯
-                    slot.AssignOperator(currentSquad[i]!);
+                    slot.AssignOperator(currentSquad[i].op!);
                 }
                 else
                 {

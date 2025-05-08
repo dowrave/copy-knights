@@ -169,7 +169,8 @@ public class InStageInfoPanel : MonoBehaviour
             return;
         }
 
-        operatorSkill = currentDeployableInfo.ownedOperator.StageSelectedSkill;
+        int skillIndex = GameManagement.Instance!.UserSquadManager.GetCurrentSkillIndex(currentDeployableInfo.ownedOperator);
+        operatorSkill = currentDeployableInfo.ownedOperator.UnlockedSkills[skillIndex];
 
         if (operatorSkill != null)
         {
