@@ -189,6 +189,7 @@
     <Compile Include="Assets\Scripts\Skills\VFXController\CostParticleMotion.cs" />
     <Compile Include="Assets\Scripts\Core\Systems\DirectionSystem.cs" />
     <Compile Include="Assets\Scripts\UI\Panels\StatsPanel.cs" />
+    <Compile Include="Assets\Scripts\UI\Components\ExpandableButton.cs" />
     <Compile Include="Assets\Scripts\Data\UnitData.cs" />
     <Compile Include="Assets\Scripts\UI\Panels\StageResultPanel.cs" />
   </ItemGroup>

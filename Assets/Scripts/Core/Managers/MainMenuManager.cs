@@ -44,7 +44,12 @@ public class MainMenuManager : MonoBehaviour
     [SerializeField] private Button? homeButton;
     [SerializeField] private Button? itemInventoryButton;
     [SerializeField] private Button? operatorInventoryButton;
-    [SerializeField] private Button? squadBulkEditButton;
+
+    [Header("For SquadEdit Panel")]
+    [SerializeField] private GameObject squadEditButtonContainer;
+    [SerializeField] private ExpandableButton squadBulkEditButton;
+    [SerializeField] private ExpandableButton resetSquadButton;
+
 
     [Header("Panel References")]
     [SerializeField] private List<PanelInfo>? panels;
@@ -77,6 +82,9 @@ public class MainMenuManager : MonoBehaviour
 
     // 캔버스 전환 시 최소 알파값
     private float minAlpha = 0f;
+
+    // 2번 클릭되는 버튼을 위한 옵션. 최초로 클릭된 버튼이 갖는다.
+    private Button firstClickedButton;
 
     public OwnedOperator? CurrentExistingOperator { get; private set; }
     public OwnedOperator? CurrentEditingOperator { get; private set; }
@@ -137,7 +145,6 @@ public class MainMenuManager : MonoBehaviour
         if (homeButton != null) homeButton.onClick.AddListener(NavigateToHome);
         if (itemInventoryButton != null) itemInventoryButton.onClick.AddListener(NavigateToItemInventory);
         if (operatorInventoryButton != null) operatorInventoryButton.onClick.AddListener(NavigateToOperatorInventory);
-        if (squadBulkEditButton != null) squadBulkEditButton.onClick.AddListener(NavigateToOperatorInventoryWithBulk);
     }
 
     public void NavigateBack()
@@ -186,7 +193,8 @@ public class MainMenuManager : MonoBehaviour
         FadeInAndHide(panelMap[MenuPanel.OperatorInventory], panelMap[CurrentPanel]);
     }
 
-    private void NavigateToOperatorInventoryWithBulk()
+    // UnityAction의 이벤트 구독
+    public void NavigateToOperatorInventoryWithBulk()
     {
         GameManagement.Instance!.UserSquadManager.SetIsBulkEditing(true);
         NavigateToOperatorInventory();
@@ -215,11 +223,12 @@ public class MainMenuManager : MonoBehaviour
 
         if (CurrentPanel == MenuPanel.SquadEdit)
         {
-            squadBulkEditButton.gameObject.SetActive(true);
+            squadEditButtonContainer.gameObject.SetActive(true);
+            InitializeExpandableButtons();
         }
         else
         {
-            squadBulkEditButton.gameObject.SetActive(false);
+            squadEditButtonContainer.gameObject.SetActive(false);
         }
     }
 
@@ -391,6 +400,25 @@ public class MainMenuManager : MonoBehaviour
             {
                 ConditionalParentPanel = parentPanel;
             }
+        }
+    }
+
+    private void InitializeExpandableButtons()
+    {
+        squadBulkEditButton.SetIsExpanded(true, isInitializing: true);
+        resetSquadButton.SetIsExpanded(false, isInitializing: true);
+    }
+
+    // expandableButton을 클릭했을 때 다른 버튼은 확장 상태를 해제함
+    public void SetTheOtherExpandableButton(ExpandableButton clickedButton)
+    {
+        if (clickedButton == squadBulkEditButton)
+        {
+            resetSquadButton.SetIsExpanded(false);
+        }
+        else
+        {
+            squadBulkEditButton.SetIsExpanded(false);
         }
     }
 

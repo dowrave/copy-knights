@@ -21,6 +21,7 @@ public class OperatorSlot : MonoBehaviour
     [SerializeField] private Image promotionImage = default!;
     [SerializeField] private TextMeshProUGUI operatorNameText = default!;
     [SerializeField] private Image selectedIndicator = default!;
+    [SerializeField] private TextMeshProUGUI indexText = default!;
 
     [Header("Visual Settings")]
     [SerializeField] private Color normalColor = Color.white;
@@ -62,6 +63,8 @@ public class OperatorSlot : MonoBehaviour
         {
             InitializeEmptyOrDisabled(isActive);
         }
+
+        ClearIndexText();
     }
 
     // 1. Empty와 Disabled의 구현 차이가 거의 없어서 함께 이용
@@ -96,10 +99,22 @@ public class OperatorSlot : MonoBehaviour
         InitializeActiveSlotVisuals();
     }
     
-    public void SetSelected(bool selected)
+    // idx는 벌크 편집일 때에만 전달된다.
+    public void SetSelected(bool selected, int? idx = null)
     {
         IsSelected = selected;
         UpdateSelectionIndicator();
+
+        if (selected && idx != null) // .HasValue를 써도 무방함
+        {
+            UpdateIndexText(idx.Value);
+        }
+        else if (!selected)
+        {
+            ClearIndexText();
+        }
+
+
         OnSlotClicked.Invoke(this);
     }
 
@@ -220,6 +235,16 @@ public class OperatorSlot : MonoBehaviour
         {
             selectedIndicator.gameObject.SetActive(IsSelected);
         }
+    }
+
+    private void UpdateIndexText(int idx)
+    {
+        indexText.text = $"{idx + 1}";
+    }
+
+    private void ClearIndexText()
+    {
+        indexText.text = "";
     }
 
     private void UpdateButtonColor()

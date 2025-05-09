@@ -80,9 +80,6 @@ public class StageSelectPanel : MonoBehaviour
             stageDetailPanel.SetActive(false);
         }
 
-        confirmButton.onClick.AddListener(OnConfirmButtonClicked);
-        cancelArea.onClick.AddListener(OnCancelAreaClicked);
-
         InitializeDetailPanelButtons();
         cancelArea.interactable = false;
     }
@@ -98,6 +95,8 @@ public class StageSelectPanel : MonoBehaviour
         {
             confirmButton.interactable = false;
         }
+
+        cancelArea.onClick.AddListener(OnCancelAreaClicked);
     }
 
 
@@ -230,6 +229,8 @@ public class StageSelectPanel : MonoBehaviour
 
             // squadEditPanel을 보여주고 stageSelectPanel을 숨김
             MainMenuManager.Instance!.FadeInAndHide(squadEditPanel, stageSelectPanel);
+            confirmButton.interactable = false; // 중복 클릭 방지
+            //Debug.Log("StageSelectPanel : ConfirmButton 클릭됨");
         }
     }
 

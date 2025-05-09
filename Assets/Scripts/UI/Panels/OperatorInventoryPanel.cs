@@ -65,8 +65,14 @@ public class OperatorInventoryPanel : MonoBehaviour
     private OwnedOperator? existingOperator; // squadEditPanel의 오퍼레이터가 있는 슬롯을 클릭한 상태로 인벤토리 패널에 들어왔을 때, 유지되는 정보
     private OwnedOperator? editingOperator; // 인벤토리 패널의 상세 정보를 통해 들어갔다가 나올 때
 
+
+    /* 
+    현재 편집 중인 슬롯 인덱스. 상황에 따라 다르게 쓰인다.
+    bulk의 경우 슬롯이 클릭된 시점에 지정되는 게 맞음(다음 인덱스를 미리 갖는 게 아니라)
+    */
+    private int nowEditingIndex; 
+
     // UserSquadManager에서 편집 중인 상태 관리
-    private int nowEditingIndex; // 경우에 따라 다르게 쓸 거임
     private bool isEditingSlot;
     private bool isEditingBulk;
 
@@ -178,16 +184,13 @@ public class OperatorInventoryPanel : MonoBehaviour
                 if (slot != null)
                 {
                     // 슬롯 선택된 상태로 지정
-                    slot.SetSelected(true); // HandleSlotClicked 동작함(내부 이벤트 구독 때문에)
+                    slot.SetSelected(true, i); // HandleSlotClicked 동작함(내부 이벤트 구독 때문에)
                     clickedSlots[i] = slot;
 
                     // 슬롯 우측 상단에 i + 1 표시 (나중에 구현)
                 }
             }
         }
-
-        // 다음 인덱스 지정
-        SetNowEditingIndexForBulk();
 
         UpdateConfirmButtonState();
     }
@@ -370,16 +373,14 @@ public class OperatorInventoryPanel : MonoBehaviour
         // 클릭 상태 추가 로직
         else
         {
-            clickedSlot.SetSelected(true);
+            SetNowEditingIndexForBulk(); // 현재 편집 중인 인덱스 설정
 
-            Debug.Log($"nowEditingIndex : {nowEditingIndex}");
+            clickedSlot.SetSelected(true, nowEditingIndex); // 재귀호출되지만 플래그 때문에 더 진행되진 않음
+
             tempSquad[nowEditingIndex] = new SquadOperatorInfo(clickedSlot.OwnedOperator, clickedSlot.OwnedOperator.DefaultSelectedSkillIndex);
             clickedSlots[nowEditingIndex] = clickedSlot;
             SelectedSlot = clickedSlot;
             UpdateSideView();
-
-            // 다음 인덱스 지정
-            SetNowEditingIndexForBulk();
         }
 
         // 확인 버튼 UI 업데이트
@@ -420,9 +421,20 @@ public class OperatorInventoryPanel : MonoBehaviour
 
     private void OnSetEmptyButtonClicked()
     {
-        GameManagement.Instance!.UserSquadManager.TryReplaceOperator(nowEditingIndex, null);
-        GameManagement.Instance!.UserSquadManager.CancelOperatorSelection(); // 현재 스쿼드의 배치 중인 인덱스를 없앰
-        ReturnToSquadEditPanel();
+        if (isEditingSlot)
+        {
+            GameManagement.Instance!.UserSquadManager.TryReplaceOperator(nowEditingIndex, null);
+            GameManagement.Instance!.UserSquadManager.CancelOperatorSelection(); // 현재 스쿼드의 배치 중인 인덱스를 없앰
+            ReturnToSquadEditPanel();
+        }
+        else if (isEditingBulk)
+        {
+            // 벌크에서는 clickedSlot, tempSquads을 초기화시키기만 하고 되돌아가지 않음
+            for (int i = 0; i < clickedSlots.Count; i++)
+            {
+                clickedSlots[i]?.SetSelected(false);
+            }
+        }
     }
 
     private void OnDetailButtonClicked()
@@ -643,14 +655,6 @@ public class OperatorInventoryPanel : MonoBehaviour
         if (isEditingBulk)
         {
             bool activeCondition = (tempSquad.Count > 0 && clickedSlots.Count > 0);
-
-            Debug.Log("tempSquad 및 clickedSlots 점검");
-            for (int i=0; i < tempSquad.Count; i++)
-            {
-                Debug.Log($"인덱스 {i} - tempSquad의 opName : {tempSquad[i]?.op.operatorName}");
-                Debug.Log($"인덱스 {i} - clickedSlots의 opName : {clickedSlots[i]?.OwnedOperator.operatorName}");
-            }
-
             confirmButton.interactable = activeCondition;
         }
     }
