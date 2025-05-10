@@ -23,7 +23,7 @@ public class ConfirmationPanel : MonoBehaviour
         canvasGroup = GetComponent<CanvasGroup>();
     }
 
-    private void Start()
+    private void OnEnable()
     {
         confirmButton.onClick.AddListener(() =>
         {
@@ -120,5 +120,12 @@ public class ConfirmationPanel : MonoBehaviour
     public void Show()
     {
         gameObject.SetActive(true);
+    }
+
+    private void OnDisable()
+    {
+        confirmButton.onClick.RemoveAllListeners();
+        cancelButton.onClick.RemoveAllListeners();
+        blurArea.onClick.RemoveAllListeners();
     }
 }

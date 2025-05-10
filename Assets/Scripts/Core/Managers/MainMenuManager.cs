@@ -59,6 +59,9 @@ public class MainMenuManager : MonoBehaviour
     [Header("Notification")]
     [SerializeField] private GameObject? notificationPanelPrefab;
 
+    [Header("ConfirmationPanel")]
+    [SerializeField] private ConfirmationPanel confirmPanelPrefab = default!;
+
     // 패널로 오브젝트 조회하는 딕셔너리
     private Dictionary<MenuPanel, GameObject> panelMap = new Dictionary<MenuPanel, GameObject>();
 
@@ -193,8 +196,7 @@ public class MainMenuManager : MonoBehaviour
         FadeInAndHide(panelMap[MenuPanel.OperatorInventory], panelMap[CurrentPanel]);
     }
 
-    // UnityAction의 이벤트 구독
-    public void NavigateToOperatorInventoryWithBulk()
+    private void NavigateToOperatorInventoryWithBulk()
     {
         GameManagement.Instance!.UserSquadManager.SetIsBulkEditing(true);
         NavigateToOperatorInventory();
@@ -420,6 +422,27 @@ public class MainMenuManager : MonoBehaviour
         {
             squadBulkEditButton.SetIsExpanded(false);
         }
+    }
+
+    // 유니티 액션에서 등록
+    public void HandleSquadBulkEditButton()
+    {
+        NavigateToOperatorInventoryWithBulk();
+    }
+
+    // 유니티 액션에서 등록
+    public void HandleResetSquadButton()
+    {
+        // 스쿼드 초기화를 할까를 알리는 확인 패널을 띄움. 
+        // 실제 초기화는 확인 패널의 확인 버튼을 클릭했을 때 진행
+        ConfirmationPanel confirmPanelInstance = Instantiate(confirmPanelPrefab, mainCanvas.transform);
+        confirmPanelInstance.Initialize("현재 스쿼드를 초기화하겠습니까?", isCancelButton: true, blurAreaActivation: false);
+        confirmPanelInstance.OnConfirm += ClearSquad;
+    }
+
+    private void ClearSquad()
+    {
+        GameManagement.Instance!.UserSquadManager.ClearSquad();
     }
 
     public void SetCurrentEditingOperator(OwnedOperator op)

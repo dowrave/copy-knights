@@ -53,7 +53,7 @@ public class TutorialManager : MonoBehaviour
     {
         Canvas canvas = FindObjectsByType<Canvas>(FindObjectsSortMode.None)[0];
         confirmPanelInstance = Instantiate(confirmPanelPrefab, canvas.transform);
-        confirmPanelInstance.Initialize("최초 실행이 감지되었습니다. 튜토리얼을 진행하시겠습니까?", true, false);
+        confirmPanelInstance.Initialize("최초 실행이 감지되었습니다. 튜토리얼을 진행하시겠습니까?", isCancelButton: true, blurAreaActivation: false);
         confirmPanelInstance.OnConfirm += CheckStartTutorial;
         confirmPanelInstance.OnCancel += CheckStopTutorial;
     }
@@ -342,7 +342,6 @@ public class TutorialManager : MonoBehaviour
             StartSpecificTutorial(1);
             StageManager.Instance!.OnGameCleared += SaveSecondTutorialClear;
             StageManager.Instance!.OnGameFailed += SaveSecondTutorialFailed;
-            Debug.Log("튜토리얼 2번 시작");
         }
     }
 
@@ -353,7 +352,6 @@ public class TutorialManager : MonoBehaviour
         StartSpecificTutorial(1, false);
         StageManager.Instance!.OnGameCleared += SaveSecondTutorialClear;
         StageManager.Instance!.OnGameFailed += SaveSecondTutorialFailed;
-        Debug.Log("튜토리얼 2번 조용히 시작");
     }
 
     private void OnSceneLoaded(Scene scene, LoadSceneMode mode)

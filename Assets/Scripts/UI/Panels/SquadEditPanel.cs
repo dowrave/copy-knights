@@ -42,6 +42,7 @@ public class SquadEditPanel : MonoBehaviour
 
     private void OnEnable()
     {
+        GameManagement.Instance!.PlayerDataManager.OnSquadUpdated += UpdateSquadUI;
         InitializePanel();
         UpdateSquadUI();
     }
@@ -115,5 +116,10 @@ public class SquadEditPanel : MonoBehaviour
     private void UpdateEnterButtonState()
     {
         startButton.interactable = GetDeployedOperatorCount() > 0;
+    }
+
+    private void OnDisable()
+    {
+        GameManagement.Instance!.PlayerDataManager.OnSquadUpdated -= UpdateSquadUI;
     }
 }

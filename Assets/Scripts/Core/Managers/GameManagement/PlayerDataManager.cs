@@ -230,7 +230,7 @@ public class PlayerDataManager : MonoBehaviour
         }
 
         // 오퍼레이터들 슬롯에 배치
-        InitializeSquad();
+        InitializeSquadForTest();
 
         // 아이템 지급
         //AddStartingItems();
@@ -310,21 +310,8 @@ public class PlayerDataManager : MonoBehaviour
     }
 
 
-    // opName 리스트로 OwnedOperator 리스트를 얻어서 반환함
-    //public List<OwnedOperator> GetCurrentSquad()
-    //{
-    //    InstanceValidator.ValidateInstance(playerData);
-    //    var safePlayerData = playerData!;
 
-    //    return safePlayerData.currentSquad
-    //        .Where(squadOpInfo => squadOpInfo != null && !string.IsNullOrEmpty(squadOpInfo.operatorName))
-    //        .Select(squadOpInfo => GetOwnedOperator(squadOpInfo.operatorName!)) // 'opName'이 null이 아님을 명시적으로 표시  
-    //        .Where(op => op != null)
-    //        .Cast<OwnedOperator>() // null이 아닌 OwnedOperator로 캐스팅  
-    //        .ToList() ?? new List<OwnedOperator>();
-    //}
-
-    // 새로 만들 메서드 : <OwnedOperator, skillIndex>를 갖는 리스트를 반환함. 런타임에서만 사용하는 타입을 하나 정의해두자.
+    // 새로 만들 메서드 : <OwnedOperator, skillIndex>를 갖는 리스트를 반환함. 런타임에서만 사용.
     public List<SquadOperatorInfo> GetCurrentSquad()
     {
         InstanceValidator.ValidateInstance(playerData);
@@ -346,18 +333,6 @@ public class PlayerDataManager : MonoBehaviour
             .Select(runtimeInfo => runtimeInfo!) // nullability 경고 제거 목적
             .ToList() ?? new List<SquadOperatorInfo>();
     }
-
-
-    // null을 포함한 전체 스쿼드 리스트 반환. MaxSquadSize가 보장된다.
-    //public List<OwnedOperator?> GetCurrentSquadWithNull()
-    //{
-    //    InstanceValidator.ValidateInstance(playerData);
-    //    var safePlayerData = playerData!;
-
-    //    return safePlayerData.currentSquad
-    //        .Select(squadOpInfo => string.IsNullOrEmpty(squadOpInfo.operatorName) ? null : GetOwnedOperator(squadOpInfo.operatorName))
-    //        .ToList();
-    //}
 
     public List<SquadOperatorInfo?> GetCurrentSquadWithNull()
     {
@@ -396,8 +371,6 @@ public class PlayerDataManager : MonoBehaviour
             .ToList();
     }
 
-
-
     // 스쿼드를 업데이트한다
     public bool TryUpdateSquad(int squadIndex, string operatorName, int skillIndex)
     {
@@ -421,8 +394,6 @@ public class PlayerDataManager : MonoBehaviour
         if (squadForSave.Any(opInfo => opInfo != null && opInfo.operatorName == operatorName && opInfo.skillIndex == skillIndex)) return false;
 
         // 등록 로직
-        // 스킬 인덱스를 지정하는 로직도 필요해보임. 이건 연속적으로 수정해야 할 내용이라 일단 작성만 해둠
-        //safePlayerData.currentSquadOperatorNames[squadIndex] = operatorName;
         squadForSave[squadIndex] = new SquadOperatorInfoForSave(operatorName, skillIndex);
 
         // 스쿼드 수정마다 반복문 실행해서 점검
@@ -502,6 +473,7 @@ public class PlayerDataManager : MonoBehaviour
         {
             safePlayerData.currentSquad.Add(new SquadOperatorInfoForSave());
         }
+
         SavePlayerData();
         OnSquadUpdated?.Invoke();
     }
@@ -619,7 +591,7 @@ public class PlayerDataManager : MonoBehaviour
         }
     }
 
-    private void InitializeSquad()
+    private void InitializeSquadForTest()
     {
         // 가지고 있는 오퍼레이터들 불러오기
         List<OwnedOperator> ownedOps = GetOwnedOperators();

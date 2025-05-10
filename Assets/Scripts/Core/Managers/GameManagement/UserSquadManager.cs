@@ -86,6 +86,11 @@ public class UserSquadManager : MonoBehaviour
         editingSlotIndex = -1;
     }
 
+    // 스쿼드를 초기화합니다.
+    public void ClearSquad()
+    {
+        GameManagement.Instance!.PlayerDataManager.ClearSquad();
+    }
 
     public List<SquadOperatorInfo> GetCurrentSquad()
     {
