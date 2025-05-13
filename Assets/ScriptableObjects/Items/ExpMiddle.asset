@@ -18,6 +18,6 @@ MonoBehaviour:
     \uC0C1\uC2B9\uC2DC\uD0B5\uB2C8\uB2E4.\n\n\n<i>CD\uB294 \uB514\uC9C0\uD138 \uB370\uC774\uD130\uB97C
     \uC800\uC7A5\uD558\uB294 \uAD11\uD559 \uB514\uC2A4\uD06C\uB85C, \uC57D 700MB
     \uC815\uB3C4\uC758 \uB370\uC774\uD130\uB97C \uC800\uC7A5\uD560 \uC218 \uC788\uC2B5\uB2C8\uB2E4.</i>"
-  icon: {fileID: 21300000, guid: f652d3307144d9f4289899765de195df, type: 3}
+  icon: {fileID: 21300000, guid: 4826a41f8dca2c04394563aafc742b0d, type: 3}
   expAmount: 1000
   canPromote: 0

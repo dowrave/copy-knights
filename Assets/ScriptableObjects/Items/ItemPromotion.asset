@@ -18,6 +18,6 @@ MonoBehaviour:
     \uC7AC\uB8CC\uC785\uB2C8\uB2E4.\n\n\n<i>\uC815\uC608\uD654 \uC7AC\uB8CC\uB97C
     \uC5B4\uB5BB\uAC8C \uADF8\uB9B4\uC9C0\uC5D0 \uB300\uD55C \uC544\uC774\uB514\uC5B4\uAC00
     \uB5A0\uC624\uB974\uC9C0 \uC54A\uC558\uC2B5\uB2C8\uB2E4.</i>"
-  icon: {fileID: 21300000, guid: 046c0e6825db194438ecb3a3c770aad7, type: 3}
+  icon: {fileID: 21300000, guid: 40584c75b436ec04bbfc082b3c53a30e, type: 3}
   expAmount: 0
   canPromote: 1

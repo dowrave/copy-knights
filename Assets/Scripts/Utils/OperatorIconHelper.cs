@@ -3,9 +3,10 @@ using System.Linq;
 using UnityEngine;
 using UnityEngine.UI;
 
+// 클래스, 정예화 아이콘을 관리합니다.
 public static class OperatorIconHelper
 {
-    private static OperatorIconData? iconData;
+    private static OperatorIconData? iconData; // 아이콘들 정보. 수정 필요 시 ScriptableObject에서 수정하면 됨 
     private static Dictionary<OperatorGrowthSystem.ElitePhase, Sprite> elitePhaseIcons = new Dictionary<OperatorGrowthSystem.ElitePhase, Sprite>(); 
 
     public static event System.Action OnIconDataInitialized = delegate { };

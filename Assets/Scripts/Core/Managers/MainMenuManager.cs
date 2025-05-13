@@ -89,6 +89,7 @@ public class MainMenuManager : MonoBehaviour
     // 2번 클릭되는 버튼을 위한 옵션. 최초로 클릭된 버튼이 갖는다.
     private Button firstClickedButton;
 
+    public bool OperatorSelectionSession { get; private set; }
     public OwnedOperator? CurrentExistingOperator { get; private set; }
     public OwnedOperator? CurrentEditingOperator { get; private set; }
 
@@ -144,25 +145,54 @@ public class MainMenuManager : MonoBehaviour
 
     private void InitializeListeners()
     {
-        if (backButton != null) backButton.onClick.AddListener(NavigateBack);
-        if (homeButton != null) homeButton.onClick.AddListener(NavigateToHome);
+        if (backButton != null) backButton.onClick.AddListener(HandleBackButtonClicked);
+        if (homeButton != null) homeButton.onClick.AddListener(HandleHomeButtonClicked);
         if (itemInventoryButton != null) itemInventoryButton.onClick.AddListener(NavigateToItemInventory);
         if (operatorInventoryButton != null) operatorInventoryButton.onClick.AddListener(NavigateToOperatorInventory);
     }
 
-    public void NavigateBack()
+    private void HandleHomeButtonClicked()
+    {
+        StateChangeAboutHomeButton();
+        NavigateToHome();
+    }
+
+    private void StateChangeAboutHomeButton()
+    {
+        if (CurrentPanel == MenuPanel.OperatorDetail && CurrentEditingOperator != null)
+        {
+            CurrentEditingOperator = null;
+        }
+
+        if (CurrentPanel == MenuPanel.OperatorInventory && CurrentExistingOperator != null)
+        {
+            if (CurrentExistingOperator != null)
+            {
+                CurrentExistingOperator = null;
+            }
+
+            SetOperatorSelectionSession(false);
+        }
+
+        if (CurrentPanel == MenuPanel.OperatorInventory &&
+            GameManagement.Instance!.UserSquadManager.IsEditingSlot)
+        {
+            GameManagement.Instance!.UserSquadManager.CancelOperatorSelection();
+        }
+    }
+
+    private void HandleBackButtonClicked()
+    {
+        StateChangeAboutBackButton();
+        NavigateBack();
+    }
+
+    private void NavigateBack()
     {
         if (CurrentPanel == MenuPanel.None) return;
 
         if (parentMap.TryGetValue(CurrentPanel, out List<MenuPanel> parentPanels))
         {
-            if (CurrentPanel == MenuPanel.OperatorInventory && 
-                GameManagement.Instance!.UserSquadManager.IsEditingSlot)
-            {
-                //Debug.Break(); // 테스트용
-                GameManagement.Instance!.UserSquadManager.CancelOperatorSelection();
-            }
-
             // 여러 부모 패널이 있었고, 
             if (parentPanels.Count > 1 && ConditionalParentPanel != MenuPanel.None)
             {
@@ -180,6 +210,32 @@ public class MainMenuManager : MonoBehaviour
         }
     }
 
+    // BackButton 클릭 시 변화시킬 상태들
+    private void StateChangeAboutBackButton()
+    {
+        // CurrentEditingOperator 초기화는 OperatorDetailPanel로 돌아간 다음 거기서 진행됨
+        //if (CurrentPanel == MenuPanel.OperatorDetail && CurrentEditingOperator != null)
+        //{
+        //    CurrentEditingOperator = null;
+        //}
+
+        if (CurrentPanel == MenuPanel.OperatorInventory)
+        {
+            if (CurrentExistingOperator != null)
+            {
+                CurrentExistingOperator = null;
+            }
+
+            SetOperatorSelectionSession(false);
+        }
+
+        if (CurrentPanel == MenuPanel.OperatorInventory &&
+            GameManagement.Instance!.UserSquadManager.IsEditingSlot)
+        {
+            GameManagement.Instance!.UserSquadManager.CancelOperatorSelection();
+        }
+        
+    }
 
     public void NavigateToHome()
     {
@@ -445,9 +501,21 @@ public class MainMenuManager : MonoBehaviour
         GameManagement.Instance!.UserSquadManager.ClearSquad();
     }
 
-    public void SetCurrentEditingOperator(OwnedOperator op)
+    public void SetCurrentEditingOperator(OwnedOperator? op)
     {
+        Debug.Log($"현재 편집 중인 오퍼레이터 : {op}");
         CurrentEditingOperator = op;
+    }
+
+    public void SetCurrentExistingOperator(OwnedOperator? op)
+    {
+        CurrentExistingOperator = op;
+    }
+
+    public void SetOperatorSelectionSession(bool isActive)
+    {
+        OperatorSelectionSession = isActive;
+        Debug.Log($"세션 상태 : {isActive}");
     }
 
     private void OnDestroy()

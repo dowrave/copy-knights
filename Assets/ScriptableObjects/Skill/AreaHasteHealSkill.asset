@@ -18,7 +18,7 @@ MonoBehaviour:
     \uBC94\uC704 \uB0B4\uC758 \uC544\uAD70\uC744 \uCE58\uB8CC\uD558\uB294 \uC7A5\uD310\uC744
     \uC0DD\uC131\uD569\uB2C8\uB2E4.\n"
   SPCost: 1
-  skillIcon: {fileID: 21300000, guid: 32fc8d31bf6bf604683aefdf9c0ab19c, type: 3}
+  skillIcon: {fileID: 21300000, guid: 990471e0c3318dc47b1223219f7c3625, type: 3}
   autoRecover: 1
   autoActivate: 0
   modifiesAttackAction: 1
@@ -41,6 +41,8 @@ MonoBehaviour:
   rectOffset: 0
   fieldEffectPrefab: {fileID: 1289097755909381850, guid: 0a6d06047b202fd4fa9053260fe97aa0, type: 3}
   skillRangeVFXPrefab: {fileID: 4360018886635934139, guid: 81938680071d2294e815b70c7eac96a5, type: 3}
-  EFFECT_TAG: AreaHasteHeal
+  skillRangeEffectTag: 
+  hitEffectPrefab: {fileID: 0}
+  skillHitEffectTag: 
   healPerTickRatio: 0.7
   healInterval: 0.5

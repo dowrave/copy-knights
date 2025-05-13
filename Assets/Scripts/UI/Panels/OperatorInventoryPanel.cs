@@ -41,6 +41,7 @@ public class OperatorInventoryPanel : MonoBehaviour
 
     // 화면 오른쪽에 나타나는 사용 가능한 오퍼레이터 리스트 -- 혼동 주의!!
     private List<OperatorSlot> operatorSlots = new List<OperatorSlot>();
+
     private OperatorSlot? _selectedSlot;
     public OperatorSlot? SelectedSlot
     {
@@ -55,7 +56,7 @@ public class OperatorInventoryPanel : MonoBehaviour
         }
     }
 
-    private List<OwnedOperator> availableOperators = new List<OwnedOperator>();
+    private List<OwnedOperator> ownedOperators = new List<OwnedOperator>();
 
     private BaseSkill? selectedSkill;
     private int selectedSkillIndex;
@@ -80,9 +81,13 @@ public class OperatorInventoryPanel : MonoBehaviour
     private List<SquadOperatorInfo?> tempSquad = new List<SquadOperatorInfo?>();
     private List<OperatorSlot> clickedSlots = new List<OperatorSlot>();
 
-    // 둘다 HandleSlotClicked 떄문에 구현
+    // HandleSlotClicked 떄문에 구현
     private bool isSlotProcessing = false; // 재귀 방지 플래그
-    private bool isInitializing = false; // Bulk에서 사용. 초기화 중에 이벤트 핸들러의 동작 방지를 위한 플래그
+
+    // operatorSlots들이 초기화되었는가를 검사
+    private bool isInitialized = false; // 초기화 중에 이벤트 핸들러의 동작 방지를 위한 플래그
+
+    public bool IsOnSelectionSession => MainMenuManager.Instance!.OperatorSelectionSession;
 
     private void Awake()
     {
@@ -98,17 +103,36 @@ public class OperatorInventoryPanel : MonoBehaviour
 
         confirmButton.interactable = false;
         detailButton.interactable = false;
+
+        // 모든 슬롯 생성
+        InitializeAllSlots();
+
+        isInitialized = true;
     }
+
+
 
     private void OnEnable()
     {
-        isInitializing = true;
+        // 인벤토리로만 접근하거나, 편집 세션을 막 만들었을 때에만 동작
+        if (!IsOnSelectionSession)
+        {
+            // 모든 슬롯의 스킬을 기본 스킬로 초기화
+            SessionInitializeSkillSlot();
 
-        isEditingSlot = GameManagement.Instance!.UserSquadManager.IsEditingSlot;
-        isEditingBulk = GameManagement.Instance!.UserSquadManager.IsEditingBulk;
+            isEditingSlot = GameManagement.Instance!.UserSquadManager.IsEditingSlot;
+            isEditingBulk = GameManagement.Instance!.UserSquadManager.IsEditingBulk;
 
-        bool isEditing = isEditingSlot || isEditingBulk;
-        SetSquadEditMode(isEditing);
+            bool isEditing = isEditingSlot || isEditingBulk;
+            SetSquadEditMode(isEditing);
+            MainMenuManager.Instance.SetOperatorSelectionSession(isEditing); // IsOnSession 활성화
+        }
+
+        // 모든 슬롯 선택 인디케이터 비활성화
+        foreach (OperatorSlot slot in operatorSlots)
+        {
+            slot.UpdateSelectionIndicator(false);
+        }
 
         if (isEditingSlot)
         {
@@ -118,13 +142,25 @@ public class OperatorInventoryPanel : MonoBehaviour
         {
             InitializeBulkEditing();
         }
-        else
-        {
-            availableOperators = GameManagement.Instance!.PlayerDataManager.GetOwnedOperators().ToList();
-            InitializeOperatorSlots();
-        }
+    }
 
-        isInitializing = false;
+    // 인벤토리만 보거나, 편집을 시작하기 전에 모든 슬롯의 스킬을 기본 설정 스킬로 초기화함
+    private void SessionInitializeSkillSlot()
+    {
+        foreach (OperatorSlot slot in operatorSlots)
+        {
+            if (slot.OwnedOperator != null && slot.OwnedOperator.UnlockedSkills.Count > 0)
+            {
+                slot.UpdateSelectedSkill(slot.OwnedOperator.DefaultSelectedSkill);
+            }
+        }
+    }
+    
+    // 보유한 모든 오퍼레이터들을 슬롯으로 초기화합니다.
+    private void InitializeAllSlots()
+    {
+        ownedOperators = GameManagement.Instance!.PlayerDataManager.GetOwnedOperators().ToList();
+        InitializeOperatorSlots();
     }
 
     // 오퍼레이터 1개 슬롯을 편집하는 상태로 패널 상태를 수정
@@ -133,24 +169,72 @@ public class OperatorInventoryPanel : MonoBehaviour
         InitializeSideView();
         ResetSelection();
 
+        // 1번보다 위에 있어야 할 듯 - existingOperator 때문에
         nowEditingIndex = GameManagement.Instance!.UserSquadManager.EditingSlotIndex;
         existingOperator = GameManagement.Instance!.PlayerDataManager.GetOperatorInSlot(nowEditingIndex); // 스쿼드 슬롯에 있던 오퍼레이터
         editingOperator = MainMenuManager.Instance!.CurrentEditingOperator; // 디테일에 들어갔다 나올 때 저장된 오퍼레이터
 
-        availableOperators = GetAvailableOperatorsForSingleEditing();
-        InitializeOperatorSlots();
+        // 1. 보여줄 보유 오퍼레이터 정리
+        List<OwnedOperator> operatorsToDisplay = GetAvailableOperatorsForSingleEditing();
 
-        // 슬롯 자동 선택 상황
-        // 1. DetailPanel에 들어갔다 나온 경우 해당 오퍼레이터 선택
+        // 2. 모든 슬롯 비활성화
+        foreach (OperatorSlot slot in operatorSlots)
+        {
+            slot.UpdateSelectionIndicator(false);
+            slot.gameObject.SetActive(false);
+        }
+
+        // 3. 자동 선택할 오퍼레이터 찾기
+        OwnedOperator operatorToAutoSelect = null;
+
         if (editingOperator != null)
         {
-            HandleSlotClicked(operatorSlots[0]);
+            operatorToAutoSelect = editingOperator;
             MainMenuManager.Instance.SetCurrentEditingOperator(null);
         }
-        // 2. SquadEditPanel에서 오퍼레이터가 있는 슬롯을 클릭해서 들어온 경우, 해당 오퍼레이터 선택
         else if (existingOperator != null)
         {
-            HandleSlotClicked(operatorSlots[0]);
+            operatorToAutoSelect = existingOperator;
+        }
+
+        // 우선 선택해야 할 오퍼레이터를 0번 인덱스로 보냄
+        if (operatorToAutoSelect != null)
+        {
+            if (operatorsToDisplay.Contains(operatorToAutoSelect))
+            {
+                operatorsToDisplay.Remove(operatorToAutoSelect);
+                operatorsToDisplay.Insert(0, operatorToAutoSelect);
+            }
+            else
+            {
+                throw new System.InvalidOperationException("오퍼레이터 필터링이 제대로 안 된 듯?");
+            }
+        }
+
+        // 4. operatorsToDisplay에 따라 슬롯 활성화 및 순서 지정
+        int visibleSlotOrder = 0;
+        foreach (OwnedOperator opToShow in operatorsToDisplay)
+        {
+            OperatorSlot slotToActivate = operatorSlots.FirstOrDefault(s => s.OwnedOperator == opToShow);
+            if (slotToActivate != null)
+            {
+                slotToActivate.gameObject.SetActive(true);
+
+                // 슬롯의 배치 순서 지정
+                slotToActivate.transform.SetSiblingIndex(visibleSlotOrder++);
+            }
+        }
+
+        // 5. 슬롯 자동 선택 상황
+        // 0번 인덱스를 선택해도 되지만, 명확성 + 견고함 + 디커플링을 위해 "찾아야 하는 슬롯"을 명확하게 정의하는 방식으로 수정
+        if (operatorToAutoSelect != null)
+        {
+            OperatorSlot slotToClick = operatorSlots.FirstOrDefault(s => s.gameObject.activeSelf && s.OwnedOperator == operatorToAutoSelect);
+            Debug.Log($"slotToClick : {slotToClick.name}");
+            if (slotToClick != null)
+            {
+                HandleSlotClicked(slotToClick);
+            }
         }
     }
 
@@ -160,9 +244,8 @@ public class OperatorInventoryPanel : MonoBehaviour
         InitializeSideView();
         ResetSelection();
 
-        availableOperators = GetAvailableOperatorsForBulkEditing();
-        AdjustSlotContainerSize(availableOperators);
-        InitializeOperatorSlots();
+        List<OwnedOperator> operatorsToDisplay = GetAvailableOperatorsForBulkEditing();
+        //InitializeOperatorSlots();
 
         // 기존 스쿼드 표시 및 선택 상태로 지정
         nowEditingIndex = 0;
@@ -214,7 +297,7 @@ public class OperatorInventoryPanel : MonoBehaviour
     {
         ClearSlots();
 
-        foreach (OwnedOperator op in availableOperators)
+        foreach (OwnedOperator op in ownedOperators)
         {
             OperatorSlot slot = Instantiate(slotButtonPrefab, operatorSlotContainer);
 
@@ -224,35 +307,37 @@ public class OperatorInventoryPanel : MonoBehaviour
             slot.Initialize(true, op);
             operatorSlots.Add(slot);
             slot.OnSlotClicked.AddListener(HandleSlotClicked);
+            Debug.Log($"슬롯 생성 완료 : {slot}");
         }
 
-        AdjustSlotContainerSize(availableOperators);
+        AdjustSlotContainerSize(ownedOperators);
     }
 
+    // 표시할 보유 오퍼레이터 필터링
     private List<OwnedOperator> GetAvailableOperatorsForSingleEditing()
     {
-        ClearSlots();
-
         // 현재 스쿼드 가져오기
         List<SquadOperatorInfo> currentSquad = GameManagement.Instance!.UserSquadManager.GetCurrentSquad();
 
         // 보유 중인 오퍼레이터 중, 현재 스쿼드에 없는 오퍼레이터만 가져옴
-        List<OwnedOperator> availableOperators = GameManagement.Instance!.PlayerDataManager.GetOwnedOperators()
-            .Where(ownedOp => !currentSquad.Any(squadInfo => squadInfo.op == ownedOp)) 
+        List<OwnedOperator> availableOperators = ownedOperators.Where(ownedOp => !currentSquad.Any(squadInfo => squadInfo.op == ownedOp)) 
             .ToList();
 
+        // 인덱스 순서는 여기서 진행 안 함
+
         // 스쿼드 편집에서 오퍼레이터가 있는 슬롯을 클릭해서 들어온 경우, 해당 오퍼레이터를 맨 앞에 배치
-        if (existingOperator != null)
+        if (existingOperator != null && !availableOperators.Contains(existingOperator))
         {
-            availableOperators.Insert(0, existingOperator);
+            //availableOperators.Insert(0, existingOperator);
+            availableOperators.Add(existingOperator);
         }
 
         // 현재 수정한 오퍼레이터가 있다면 슬롯의 맨 앞으로 배치 (기존 existingOperator가 있다면 2번째로 밀림)
-        if (editingOperator != null)
-        {
-            availableOperators.Remove(editingOperator);
-            availableOperators.Insert(0, editingOperator);
-        }
+        //if (editingOperator != null)
+        //{
+        //    availableOperators.Remove(editingOperator);
+        //    availableOperators.Insert(0, editingOperator);
+        //}
 
         return availableOperators;
     }
@@ -323,7 +408,7 @@ public class OperatorInventoryPanel : MonoBehaviour
 
                 // 새로운 선택 처리
                 SelectedSlot = clickedSlot;
-                //UpdateSideView();
+                //UpdateSideView(); // SelectedSlot이 업데이트되면 자동 실행
                 SelectedSlot.SetSelected(true);
                 confirmButton.interactable = true;
                 
@@ -336,7 +421,7 @@ public class OperatorInventoryPanel : MonoBehaviour
             }
             else
             {
-                // 스쿼드 편집 중이 아니라면, 해당 오퍼레이터 세부 정보 패널로 이동
+                // 스쿼드 편집 중이 아니라면, 해당 오퍼레이터 세부 정보 패널로 바로 이동
                 MoveToDetailPanel(clickedSlot);
             }
         }
@@ -350,7 +435,7 @@ public class OperatorInventoryPanel : MonoBehaviour
     private void HandleSlotClickedForBulk(OperatorSlot clickedSlot)
     {
         // 초기화 중에는 동작을 막음
-        if (isInitializing) return;
+        if (isInitialized) return;
 
         // 슬롯 클릭 상태 해제 로직
         if (clickedSlots.Contains(clickedSlot))
@@ -478,6 +563,7 @@ public class OperatorInventoryPanel : MonoBehaviour
 
 
     // 왼쪽 패널의 SideView에 나타나는 오퍼레이터와 관련된 정보를 업데이트한다.
+    // SelectedSlot이 업데이트되면 자동 실행
     private void UpdateSideView()
     {
         if (SelectedSlot != null) 
@@ -501,7 +587,7 @@ public class OperatorInventoryPanel : MonoBehaviour
                 // 공격 범위 시각화
                 attackRangeHelper.ShowBasicRange(op.CurrentAttackableGridPos);
 
-                // 스킬 버튼 초기화 및 설정
+                // 스킬 버튼 초기화 및 선택된 스킬 설정
                 UpdateSkillButtons(SelectedSlot);
 
                 // 디테일 이동 버튼 활성화
@@ -552,10 +638,27 @@ public class OperatorInventoryPanel : MonoBehaviour
         {
             OwnedOperator op = slot.OwnedOperator;
 
-            skillIconBoxes[0].Initialize(op.UnlockedSkills[0], true, true);
+            // 기본 스킬 초기화
+            skillIconBoxes[0].Initialize(op.UnlockedSkills[0],
+                                            showDurationBox: true,
+                                            showSkillName: true);
             skillIconBoxes[0].SetButtonInteractable(true);
 
-            // 디폴트 스킬 설정  
+            // 1정예화라면 스킬이 2개일 것  
+            if (op.UnlockedSkills.Count > 1)
+            {
+                skillIconBoxes[1].Initialize(op.UnlockedSkills[1], 
+                                                showDurationBox: true, 
+                                                showSkillName: true);
+                skillIconBoxes[1].SetButtonInteractable(true);
+            }
+            else
+            {
+                skillIconBoxes[1].ResetSkillIcon();
+                skillIconBoxes[1].SetButtonInteractable(false);
+            }
+
+            // 디폴트 스킬 설정 
             if (selectedSkill == null)
             {
                 selectedSkillIndex = op.UnlockedSkills.IndexOf(slot.SelectedSkill);
@@ -564,17 +667,6 @@ public class OperatorInventoryPanel : MonoBehaviour
                 UpdateSkillDescription();
             }
 
-            // 1정예화라면 스킬이 2개일 것  
-            if (op.UnlockedSkills.Count > 1)
-            {
-                skillIconBoxes[1].Initialize(op.UnlockedSkills[1], true, true);
-                skillIconBoxes[1].SetButtonInteractable(true);
-            }
-            else
-            {
-                skillIconBoxes[1].ResetSkillIcon();
-                skillIconBoxes[1].SetButtonInteractable(false);
-            }
         }
     }
 
@@ -670,14 +762,31 @@ public class OperatorInventoryPanel : MonoBehaviour
         leftArea.gameObject.SetActive(isEditing);
         confirmButton.gameObject.SetActive(isEditing);
         setEmptyButton.gameObject.SetActive(isEditing);
+
+
     }
 
     private void OnDisable()
-    {
-        ClearSlots();
-        ClearSideView();
-        ResetSelection();
+    { 
+        // 상태 유지를 위해 일단 재낌
+        //ClearSlots();
+        // ClearSideView();
 
         //GameManagement.Instance!.UserSquadManager.SetIsBulkEditing(false);
+    }
+
+    private void OnDestroy()
+    {
+        confirmButton.onClick.RemoveAllListeners();
+        setEmptyButton.onClick.RemoveAllListeners();
+        detailButton.onClick.RemoveAllListeners();
+
+        foreach (OperatorSlot slot in operatorSlots)
+        {
+            slot.OnSlotClicked.RemoveAllListeners();
+            Destroy(slot.gameObject);
+        }
+
+        isInitialized = false;
     }
 }

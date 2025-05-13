@@ -218,16 +218,16 @@ public class PlayerDataManager : MonoBehaviour
     // 테스트용 초기화
     private void InitializeForTest()
     {
-        //TestAboutTutorial();
+        ////TestAboutTutorial();
 
-        int targetLevel = 50;
+        //int targetLevel = 50;
 
-        ////오퍼레이터들 성장 반영
-        foreach (var op in playerData.ownedOperators)
-        {
-            InitializeOperatorLevelUp(op, targetLevel);
-            InitializeOperator1stPromotion(op);
-        }
+        //////오퍼레이터들 성장 반영
+        //foreach (var op in playerData.ownedOperators)
+        //{
+        //    InitializeOperatorLevelUp(op, targetLevel);
+        //    InitializeOperator1stPromotion(op);
+        //}
 
         // 오퍼레이터들 슬롯에 배치
         InitializeSquadForTest();

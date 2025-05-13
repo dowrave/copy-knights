@@ -14,19 +14,19 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   classIcons:
   - operatorClass: 0
-    icon: {fileID: 21300000, guid: 6eea21899d5afdc4c96150526016f50c, type: 3}
+    icon: {fileID: 21300000, guid: 062267f6958596046b70a892e75dcea6, type: 3}
   - operatorClass: 1
-    icon: {fileID: 21300000, guid: b033fb9be7ef86b4a9ce278e0b857fd9, type: 3}
+    icon: {fileID: 21300000, guid: 9c459c89ba2fc2f4d92cc75e1d094fbf, type: 3}
   - operatorClass: 2
-    icon: {fileID: 21300000, guid: c88f495f779c0234a9640ce9faf4cecb, type: 3}
+    icon: {fileID: 21300000, guid: 467e7140a85170d498e419f4a7a78ac4, type: 3}
   - operatorClass: 3
-    icon: {fileID: 21300000, guid: 3b7c1653278e3824798e657c6521440f, type: 3}
+    icon: {fileID: 21300000, guid: 819a8e1c59e4e1b4cbf61d8d00066fc1, type: 3}
   - operatorClass: 4
-    icon: {fileID: 21300000, guid: ec8ff89e3867a724bbdb5cca41b58e66, type: 3}
+    icon: {fileID: 21300000, guid: 1c56c173e931b8447b470a1baf7fe807, type: 3}
   - operatorClass: 5
-    icon: {fileID: 21300000, guid: 833228521e124f94fbc7054ca13cfcdd, type: 3}
+    icon: {fileID: 21300000, guid: 050900da56df9d4468494ec2db70726f, type: 3}
   elitePhaseIcons:
   - phase: 0
     icon: {fileID: 0}
   - phase: 1
-    icon: {fileID: 21300000, guid: 36e3ca5ba2305dc44810d2bc764b4926, type: 3}
+    icon: {fileID: 21300000, guid: 3636ad7074d1e4e4bad3f3b889d81177, type: 3}

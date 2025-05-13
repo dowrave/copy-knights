@@ -49,7 +49,6 @@ public class OperatorSlot : MonoBehaviour
         button.onClick.AddListener(() => OnSlotClicked?.Invoke(this)); 
     }
 
-
     public void Initialize(bool isActive, OwnedOperator? ownedOp = null)
     {
         isThisActiveButton = isActive;
@@ -66,6 +65,8 @@ public class OperatorSlot : MonoBehaviour
 
         ClearIndexText();
     }
+
+
 
     // 1. Empty와 Disabled의 구현 차이가 거의 없어서 함께 이용
     // 2. OperatorSelectionPanel에서 SquadEditPanel의 Slot을 비울 때에도 쓸 수 있음
@@ -90,6 +91,13 @@ public class OperatorSlot : MonoBehaviour
         }
     }
 
+    private void OnEnable()
+    {
+        if (OwnedOperator != null)
+        {
+            UpdateActiveSlotVisuals();
+        }
+    }
 
     // 현재 슬롯에 오퍼레이터를 할당하고 시각 요소 업데이트
 
@@ -103,7 +111,7 @@ public class OperatorSlot : MonoBehaviour
     public void SetSelected(bool selected, int? idx = null)
     {
         IsSelected = selected;
-        UpdateSelectionIndicator();
+        UpdateSelectionIndicator(selected);
 
         if (selected && idx != null) // .HasValue를 써도 무방함
         {
@@ -115,7 +123,7 @@ public class OperatorSlot : MonoBehaviour
         }
 
 
-        OnSlotClicked.Invoke(this);
+        OnSlotClicked?.Invoke(this);
     }
 
     public bool IsEmpty()
@@ -162,11 +170,6 @@ public class OperatorSlot : MonoBehaviour
             {
                 operatorImage.gameObject.SetActive(false);
             }
-            // 경험치 게이지, 레벨, 정예화 표시
-            int remainingExp = OperatorGrowthSystem.GetMaxExpForNextLevel(OwnedOperator.currentPhase, OwnedOperator.currentLevel);
-            expSlider.value = (float)OwnedOperator.currentExp / remainingExp;
-            levelText.text = $"LV\r\n<size=40><b>{OwnedOperator.currentLevel}</b>\r\n</size>";
-            OperatorIconHelper.SetElitePhaseIcon(promotionImage, OwnedOperator.currentPhase);
 
             // 클래스 아이콘 설정
             classIconImage.gameObject.SetActive(true);
@@ -174,6 +177,9 @@ public class OperatorSlot : MonoBehaviour
             {
                 OperatorIconHelper.SetClassIcon(classIconImage, opData.operatorClass);
             }
+
+            // 경험치 게이지, 레벨, 정예화 표시
+            UpdateActiveSlotVisuals();
 
             // 스킬 아이콘 설정
             InitializeSkill();
@@ -183,8 +189,22 @@ public class OperatorSlot : MonoBehaviour
             operatorNameText.text = opData?.entityName ?? string.Empty;
 
             UpdateButtonColor();
-            UpdateSelectionIndicator();
+            UpdateSelectionIndicator(IsSelected);
         }
+    }
+
+    // 패널을 오가면서 변할 수 있는 요소들에 대한 UI 업데이트
+    private void UpdateActiveSlotVisuals()
+    {
+        // 경험치 게이지, 레벨, 정예화 표시
+        int remainingExp = OperatorGrowthSystem.GetMaxExpForNextLevel(OwnedOperator.currentPhase, OwnedOperator.currentLevel);
+        expSlider.value = (float)OwnedOperator.currentExp / remainingExp;
+        levelText.text = $"LV\r\n<size=40><b>{OwnedOperator.currentLevel}</b>\r\n</size>";
+        OperatorIconHelper.SetElitePhaseIcon(promotionImage, OwnedOperator.currentPhase);
+
+        // 스킬 설정은 따로 건드릴 필요 없을 듯
+        // 인벤토리에서 스킬1 선택 -> 디테일에서 기본 스킬2로 지정 -> 인벤토리에서는 스킬1 유지되어야 함
+        // 디테일에서 지정하는 건 "기본 스킬"이지 "현재 설정한 스킬"이 아니기 때문
     }
 
     private void InitializeSkill()
@@ -207,13 +227,22 @@ public class OperatorSlot : MonoBehaviour
         if (OwnedOperator.DefaultSelectedSkill != null &&
             MainMenuManager.Instance!.CurrentPanel == MainMenuManager.MenuPanel.OperatorInventory)
         {
-            // 스쿼드 편집에서 인벤토리로 들어갔을 때는 현재 스쿼드에서 사용 중인 스킬로 초기화한다
+            // 현재 편집 중인 스쿼드의 인덱스
             int nowEditingIndex = GameManagement.Instance!.UserSquadManager.EditingSlotIndex;
+
             OwnedOperator? existingOperator = (nowEditingIndex != -1)
                                               ? GameManagement.Instance!.PlayerDataManager.GetOperatorInSlot(nowEditingIndex)
                                               : null;
+            OwnedOperator? currentEditingOpereator = MainMenuManager.Instance!.CurrentEditingOperator;
 
-            SelectedSkill = (nowEditingIndex != -1 && existingOperator == OwnedOperator)
+
+            // 스쿼드 편집에서 인벤토리로 들어갔을 때는 현재 스쿼드에서 사용 중인 스킬로 초기화한다
+            // 스쿼드에서의 최초 스킬 선택 조건
+            bool skillInSquadCondition = nowEditingIndex != -1 && 
+                existingOperator == OwnedOperator && // SquadEditPanel에서 선택해서 들어온 오퍼레이터가
+                currentEditingOpereator != OwnedOperator; // 디테일 패널에서 수정된 오퍼레이터가 아닐 때
+
+            SelectedSkill = skillInSquadCondition
                             ? OwnedOperator.UnlockedSkills[skillIndex] // 오퍼레이터를 선택해 들어왔다면 스쿼드에서의 스킬을 설정
                             : OwnedOperator.DefaultSelectedSkill; // 아니라면 기본 지정 스킬로 설정
 
@@ -229,11 +258,11 @@ public class OperatorSlot : MonoBehaviour
         skillImage.sprite = SelectedSkill.skillIcon; 
     }
 
-    private void UpdateSelectionIndicator()
+    public void UpdateSelectionIndicator(bool isActive)
     {
         if (selectedIndicator != null)
         {
-            selectedIndicator.gameObject.SetActive(IsSelected);
+            selectedIndicator.gameObject.SetActive(isActive);
         }
     }
 
