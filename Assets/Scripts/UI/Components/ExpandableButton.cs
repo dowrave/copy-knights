@@ -162,7 +162,6 @@ public class ExpandableButton : MonoBehaviour, IPointerEnterHandler, IPointerExi
     // 초기화 시에는 애니메이션이 없어도 ㅇㅋ
     private void InitializeButtonUI()
     {
-        Debug.Log("버튼 초기화 로직 동작");
         if (IsExpanded)
         {
             // 펼치기 (애니메이션 없음)

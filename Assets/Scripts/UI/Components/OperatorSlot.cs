@@ -271,7 +271,7 @@ public class OperatorSlot : MonoBehaviour
         indexText.text = $"{idx + 1}";
     }
 
-    private void ClearIndexText()
+    public void ClearIndexText()
     {
         indexText.text = "";
     }

@@ -11,13 +11,11 @@ using UnityEngine;
 public class UserSquadManager : MonoBehaviour
 {
     // 개별 인덱스 편집 상태 관리
-    private int _editingSlotIndex = -1;
-    public int EditingSlotIndex => _editingSlotIndex;
-    public bool IsEditingSlot => _editingSlotIndex != -1; // -1이 아니면 편집 중이니까 true
+    public int EditingSlotIndex { get; private set; }
+    public bool IsEditingSlot => EditingSlotIndex != -1; // -1이 아니면 편집 중이니까 true
 
     // 단체 인덱스 편집 상태 관리
-    private bool _isEditingBulk;
-    public bool IsEditingBulk => _isEditingBulk;
+    public bool IsEditingBulk { get; private set; }
 
     public int MaxSquadSize => GameManagement.Instance!.PlayerDataManager.GetMaxSquadSize();
 
@@ -45,7 +43,7 @@ public class UserSquadManager : MonoBehaviour
     {
         if (index >= 0 && index < MaxSquadSize)
         {
-            _editingSlotIndex = index;
+            SetIsEditingSlotIndex(index);
         }
     }
 
@@ -53,8 +51,8 @@ public class UserSquadManager : MonoBehaviour
     {
         if (IsEditingSlot)
         {
-            TryReplaceOperator(_editingSlotIndex, selectedOperator, skillIndex);
-            _editingSlotIndex = -1; // 편집 상태 초기화
+            TryReplaceOperator(EditingSlotIndex, selectedOperator, skillIndex);
+            ResetIsEditingSlotIndex();
             MainMenuManager.Instance!.SetCurrentExistingOperator(null); // 현재 편집 중인 오퍼레이터 정보 초기화
         }
     }
@@ -77,14 +75,9 @@ public class UserSquadManager : MonoBehaviour
         }
     }
 
-    public void SetIsBulkEditing(bool state)
-    {
-        _isEditingBulk = state; 
-    }
-
     public void CancelOperatorSelection()
     {
-        _editingSlotIndex = -1;
+        ResetIsEditingSlotIndex();
     }
 
     // 스쿼드를 초기화합니다.
@@ -125,6 +118,44 @@ public class UserSquadManager : MonoBehaviour
         if (targetOpInfo != null) return targetOpInfo.skillIndex;
 
         return -1;
+    }
+
+    
+    public void SetIsEditingSlotIndex(int slotIndex)
+    {
+        if (slotIndex == -1)
+        {
+            ResetIsEditingSlotIndex();
+            return;
+        }
+        else
+        {
+            Debug.Log($"슬롯 인덱스 : {slotIndex}");
+            EditingSlotIndex = slotIndex;
+
+            // 반대되는 개념이 켜져 있으면 자동으로 해제
+            if (IsEditingBulk)
+            {
+                SetIsEditingBulk(false); 
+            }
+        }
+    }
+
+    // IsEditingSlot도 함께 초기화됨
+    public void ResetIsEditingSlotIndex()
+    {
+        EditingSlotIndex = -1;
+    }
+
+    public void SetIsEditingBulk(bool state)
+    {
+        IsEditingBulk = state;
+
+        // 반대되는 개념이 켜져 있으면 자동으로 해제
+        if (IsEditingSlot)
+        {
+            ResetIsEditingSlotIndex();
+        }
     }
 }
 

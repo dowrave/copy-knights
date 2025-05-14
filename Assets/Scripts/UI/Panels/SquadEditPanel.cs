@@ -12,7 +12,7 @@ public class SquadEditPanel : MonoBehaviour
 
     private void Awake()
     {
-        startButton.onClick.AddListener(HandleStartButtonClicked);
+        startButton.onClick.AddListener(OnStartButtonClicked);
     }
 
     private void Start()
@@ -27,15 +27,19 @@ public class SquadEditPanel : MonoBehaviour
        // 슬롯 초기화
        for (int i = 0; i < operatorSlots.Count; i++)
         {
-            int slotIndex = i;  // 이런 식으로 복사해서 변수를 사용함 - i가 같이 움직일 위험이 있단다.
             OperatorSlot slot = operatorSlots[i];
 
             bool isActiveSlot = i < GameManagement.Instance!.UserSquadManager.MaxSquadSize;
             slot.Initialize(isActiveSlot);
 
+            int slotIndex = i;  // 이런 식으로 복사해서 변수를 사용함 - i가 같이 움직일 위험이 있단다.
+            // OnSlotClicked에 i를 쓰면 slot이 실제로 실행되는 시점에는 종료 시점의 i값으로 인식하는 이슈가 있다고 함
+            // 이런 리스너에 이벤트 추가하는 상황에서만 주의하면 될 듯.
+
             if (isActiveSlot)
-            {
-                slot.OnSlotClicked.AddListener((clickedSlot) => HandleSlotClicked(clickedSlot, slotIndex));
+            { 
+                slot.OnSlotClicked.RemoveAllListeners();
+                slot.OnSlotClicked.AddListener((clickedSlot) => OnSlotClicked(clickedSlot, slotIndex));
             }
         }
     }
@@ -63,7 +67,7 @@ public class SquadEditPanel : MonoBehaviour
                 if (currentSquad[i] != null)
                 {
                     // 오퍼레이터 할당 슬롯
-                    slot.AssignOperator(currentSquad[i].op!);
+                    slot.AssignOperator(currentSquad[i].op);
                 }
                 else
                 {
@@ -83,15 +87,16 @@ public class SquadEditPanel : MonoBehaviour
 
 
     // OperatorSlot 버튼 클릭 시 OpeatorInventoryPanel로 넘어감
-    private void HandleSlotClicked(OperatorSlot clickedSlot, int slotIndex)
+    private void OnSlotClicked(OperatorSlot clickedSlot, int slotIndex)
     {
+        Debug.Log($"squadEditPanel 슬롯 클릭 : {clickedSlot}, {slotIndex}");
+
         // 현재 수정 중인 인덱스 설정
         GameManagement.Instance!.UserSquadManager.StartEditingSlot(slotIndex);
-        //Debug.Break(); // 테스트 용, 클릭 시 일시 정지 -> 한 프레임씩 체크
         MainMenuManager.Instance!.FadeInAndHide(MainMenuManager.Instance!.PanelMap[MainMenuManager.MenuPanel.OperatorInventory], gameObject);
     }
 
-    private void HandleStartButtonClicked()
+    private void OnStartButtonClicked()
     {
         // 어떤 스테이지인지는 MainMenuManager에서 관리 중
         MainMenuManager.Instance!.StartStage();

@@ -374,29 +374,34 @@ public class PlayerDataManager : MonoBehaviour
     // 스쿼드를 업데이트한다
     public bool TryUpdateSquad(int squadIndex, string operatorName, int skillIndex)
     {
+        // 1. 저장된 스쿼드 정보를 불러옴
         InstanceValidator.ValidateInstance(playerData);
         var safePlayerData = playerData!;
         List<SquadOperatorInfoForSave> squadForSave = safePlayerData.currentSquad;
-
         if (squadIndex < 0 || squadIndex >= safePlayerData.maxSquadSize) return false;
 
 
-        // 스쿼드 크기 확보
+        // 2. 스쿼드 크기 확보
         while (squadForSave.Count <= squadIndex)
         {
             squadForSave.Add(new SquadOperatorInfoForSave());
         }
 
-        // 오퍼레이터 소유 확인
-        if (!string.IsNullOrEmpty(operatorName) && !safePlayerData.ownedOperators.Any(op => op.operatorName == operatorName)) return false;
+        // 3. 오퍼레이터를 넣는 경우, 지금 보유했는지 + 스쿼드에 중복된 오퍼레이터가 없는지 점검함
+        // 빈 슬롯으로 대체하려는 경우는 이 조건들을 무시
+        if (operatorName != string.Empty)
+        {
+            // 오퍼레이터 소유 확인
+            if (!string.IsNullOrEmpty(operatorName) && !safePlayerData.ownedOperators.Any(op => op.operatorName == operatorName)) return false;
 
-        // 같은 이름의 오퍼레이터 중복 방지 : 단, 스킬 인덱스가 다른 경우는 허용함
-        if (squadForSave.Any(opInfo => opInfo != null && opInfo.operatorName == operatorName && opInfo.skillIndex == skillIndex)) return false;
+            // 같은 이름의 오퍼레이터 중복 방지 : 단, 스킬 인덱스가 다른 경우는 허용함
+            if (squadForSave.Any(opInfo => opInfo != null && opInfo.operatorName == operatorName && opInfo.skillIndex == skillIndex)) return false;
+        }
 
-        // 등록 로직
+        // 4. 등록
         squadForSave[squadIndex] = new SquadOperatorInfoForSave(operatorName, skillIndex);
 
-        // 스쿼드 수정마다 반복문 실행해서 점검
+        // 디버깅 - 스쿼드 수정마다 반복문 실행해서 점검
         for (int i=0; i < squadForSave.Count; i++)
         {
             Debug.Log($"스쿼드 구성 : {i}번째 인덱스 - ({squadForSave[i].operatorName}, 스킬 인덱스 : {squadForSave[i].skillIndex})");

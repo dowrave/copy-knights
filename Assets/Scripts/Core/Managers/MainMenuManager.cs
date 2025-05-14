@@ -145,13 +145,13 @@ public class MainMenuManager : MonoBehaviour
 
     private void InitializeListeners()
     {
-        if (backButton != null) backButton.onClick.AddListener(HandleBackButtonClicked);
-        if (homeButton != null) homeButton.onClick.AddListener(HandleHomeButtonClicked);
+        if (backButton != null) backButton.onClick.AddListener(OnBackButtonClicked);
+        if (homeButton != null) homeButton.onClick.AddListener(OnHomeButtonClicked);
         if (itemInventoryButton != null) itemInventoryButton.onClick.AddListener(NavigateToItemInventory);
-        if (operatorInventoryButton != null) operatorInventoryButton.onClick.AddListener(NavigateToOperatorInventory);
+        if (operatorInventoryButton != null) operatorInventoryButton.onClick.AddListener(OnOperatorInventoryButtonClicked);
     }
 
-    private void HandleHomeButtonClicked()
+    private void OnHomeButtonClicked()
     {
         StateChangeAboutHomeButton();
         NavigateToHome();
@@ -181,7 +181,7 @@ public class MainMenuManager : MonoBehaviour
         }
     }
 
-    private void HandleBackButtonClicked()
+    private void OnBackButtonClicked()
     {
         StateChangeAboutBackButton();
         NavigateBack();
@@ -214,10 +214,6 @@ public class MainMenuManager : MonoBehaviour
     private void StateChangeAboutBackButton()
     {
         // CurrentEditingOperator 초기화는 OperatorDetailPanel로 돌아간 다음 거기서 진행됨
-        //if (CurrentPanel == MenuPanel.OperatorDetail && CurrentEditingOperator != null)
-        //{
-        //    CurrentEditingOperator = null;
-        //}
 
         if (CurrentPanel == MenuPanel.OperatorInventory)
         {
@@ -247,6 +243,13 @@ public class MainMenuManager : MonoBehaviour
         FadeInAndHide(panelMap[MenuPanel.ItemInventory], panelMap[CurrentPanel]);
     }
 
+    private void OnOperatorInventoryButtonClicked()
+    {
+        GameManagement.Instance!.UserSquadManager.SetIsEditingSlotIndex(-1);
+        GameManagement.Instance!.UserSquadManager.SetIsEditingBulk(false);
+        NavigateToOperatorInventory();
+    }
+
     private void NavigateToOperatorInventory()
     {
         FadeInAndHide(panelMap[MenuPanel.OperatorInventory], panelMap[CurrentPanel]);
@@ -254,7 +257,7 @@ public class MainMenuManager : MonoBehaviour
 
     private void NavigateToOperatorInventoryWithBulk()
     {
-        GameManagement.Instance!.UserSquadManager.SetIsBulkEditing(true);
+        GameManagement.Instance!.UserSquadManager.SetIsEditingBulk(true);
         NavigateToOperatorInventory();
     }
 
@@ -503,7 +506,6 @@ public class MainMenuManager : MonoBehaviour
 
     public void SetCurrentEditingOperator(OwnedOperator? op)
     {
-        Debug.Log($"현재 편집 중인 오퍼레이터 : {op}");
         CurrentEditingOperator = op;
     }
 
@@ -515,7 +517,13 @@ public class MainMenuManager : MonoBehaviour
     public void SetOperatorSelectionSession(bool isActive)
     {
         OperatorSelectionSession = isActive;
-        Debug.Log($"세션 상태 : {isActive}");
+
+        // 꺼지는 경우 현재 편집 중인 오퍼레이터 정보 해제
+        if (!isActive)
+        {
+            SetCurrentEditingOperator(null);
+            SetCurrentExistingOperator(null);
+        }
     }
 
     private void OnDestroy()
