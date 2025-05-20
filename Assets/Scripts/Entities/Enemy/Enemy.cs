@@ -849,6 +849,8 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity, ICrowdControlTarget
         currentStats.MovementSpeed = newSpeed;
     }
 
+    // 모델을 이동 방향으로 회전시킴
+    // 참고) 프리팹 기준 +z 방향으로 이동한다고 가정했을 때 작동함
     private void RotateModelTowardsMovementDirection()
     {
         if (modelContainer == null) return;

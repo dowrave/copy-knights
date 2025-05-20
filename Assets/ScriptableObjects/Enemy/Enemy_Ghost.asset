@@ -10,25 +10,25 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 277825dab463fe8469435119db921473, type: 3}
-  m_Name: Enemy_EasyWeak
+  m_Name: Enemy_Ghost
   m_EditorClassIdentifier: 
-  entityName: Enemy_WeakAlpha
+  entityName: 
   stats:
     _baseStats:
-      _health: 1050
-      _defense: 0
-      _magicResistance: 0
-    _movementSpeed: 1
-    _attackPower: 185
-    _attackSpeed: 1.7
+      _health: 1500
+      _defense: 150
+      _magicResistance: 5
+    _movementSpeed: 1.3
+    _attackPower: 0
+    _attackSpeed: 0
     _attackRange: 0
-  prefab: {fileID: 5757678546452218239, guid: 4a8686ea2411bd34eac7f54eb59d7e55, type: 3}
+  prefab: {fileID: 6542749020257112806, guid: 8286c7e86561fed45aa30aca892a27ce, type: 3}
   attackType: 0
   attackRangeType: 0
-  blockCount: 1
+  blockCount: 8
   projectilePrefab: {fileID: 0}
   projectileTag: 
-  defaultYPosition: 0.3
-  meleeAttackEffectPrefab: {fileID: 2667795462971242445, guid: ab921526673becc4dba3450e1f02e066, type: 3}
-  hitEffectPrefab: {fileID: 8008928503674968961, guid: 9e60a750274072b42bc151642e7195b2, type: 3}
+  defaultYPosition: 0.5
+  meleeAttackEffectPrefab: {fileID: 0}
+  hitEffectPrefab: {fileID: 0}
   hitEffectTag: 

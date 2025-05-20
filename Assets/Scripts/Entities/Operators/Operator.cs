@@ -377,6 +377,7 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable,
         ProcessEnemyCollision(other);
     }
 
+    // 적과 콜라이더 충돌 시 저지 처리
     private void ProcessEnemyCollision(Collider other)
     {
         if (IsDeployed && blockedEnemies.Count < currentOperatorStats.MaxBlockableEnemies)
@@ -389,7 +390,6 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable,
             {
                 BlockEnemy(collidedEnemy); // 적을 저지
                 collidedEnemy.SetBlockingOperator(this);
-                //Debug.Log($"{OperatorData.entityName}이 {collidedEnemy}을 저지하기 시작함, 현재 저지 수 : {blockedEnemies.Count}");
             }
         }
     }
@@ -602,10 +602,6 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable,
     // 수동 퇴각 시 최초 배치 코스트의 절반 회복
     private void RecoverInitialCost()
     {
-        Debug.Log("deploymentCost 비교하기");
-        Debug.Log($"currentOperatorStats.DeploymentCost : {currentOperatorStats.DeploymentCost}");
-        Debug.Log($"OperatorData.DeploymentCost : {OperatorData.stats.DeploymentCost}");
-
         int recoverCost = (int)Mathf.Round(currentOperatorStats.DeploymentCost / 2f);
         StageManager.Instance!.RecoverDeploymentCost(recoverCost);
     }

@@ -10,25 +10,25 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 277825dab463fe8469435119db921473, type: 3}
-  m_Name: Enemy_EasyWeak
+  m_Name: Enemy_NormalRanged
   m_EditorClassIdentifier: 
-  entityName: Enemy_WeakAlpha
+  entityName: Enemy_EasyRanged
   stats:
     _baseStats:
-      _health: 1050
-      _defense: 0
-      _magicResistance: 0
+      _health: 2500
+      _defense: 150
+      _magicResistance: 5
     _movementSpeed: 1
-    _attackPower: 185
-    _attackSpeed: 1.7
-    _attackRange: 0
-  prefab: {fileID: 5757678546452218239, guid: 4a8686ea2411bd34eac7f54eb59d7e55, type: 3}
+    _attackPower: 420
+    _attackSpeed: 1.2
+    _attackRange: 3
+  prefab: {fileID: 6542749020257112806, guid: 36e1a276cfad1eb419f1e2aa2dbca3a4, type: 3}
   attackType: 0
-  attackRangeType: 0
+  attackRangeType: 1
   blockCount: 1
-  projectilePrefab: {fileID: 0}
+  projectilePrefab: {fileID: 2265705452529792940, guid: 02e0cea4be8652d44a5a73f40b6b34be, type: 3}
   projectileTag: 
-  defaultYPosition: 0.3
+  defaultYPosition: 0.5
   meleeAttackEffectPrefab: {fileID: 2667795462971242445, guid: ab921526673becc4dba3450e1f02e066, type: 3}
   hitEffectPrefab: {fileID: 8008928503674968961, guid: 9e60a750274072b42bc151642e7195b2, type: 3}
   hitEffectTag: 

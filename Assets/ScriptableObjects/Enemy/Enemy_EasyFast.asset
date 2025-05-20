@@ -17,16 +17,18 @@ MonoBehaviour:
     _baseStats:
       _health: 820
       _defense: 0
-      _magicResistance: 20
+      _magicResistance: 5
     _movementSpeed: 1.9
     _attackPower: 190
     _attackSpeed: 1.4
     _attackRange: 0
-  prefab: {fileID: 0}
+  prefab: {fileID: 6542749020257112806, guid: a25e00875a1545645b0cd199aef220b0, type: 3}
   attackType: 0
   attackRangeType: 0
   blockCount: 1
   projectilePrefab: {fileID: 0}
+  projectileTag: 
   defaultYPosition: 0.5
   meleeAttackEffectPrefab: {fileID: 2667795462971242445, guid: ab921526673becc4dba3450e1f02e066, type: 3}
   hitEffectPrefab: {fileID: 8008928503674968961, guid: 9e60a750274072b42bc151642e7195b2, type: 3}
+  hitEffectTag: 

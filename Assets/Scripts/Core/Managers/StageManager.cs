@@ -254,14 +254,14 @@ public class StageManager : MonoBehaviour
 
         int count = 0;
         IReadOnlyList<EnemySpawner> spawners = currentMap!.EnemySpawners;
-        //InstanceValidator.ValidateInstance(spawners);
 
-        foreach (var spawner in spawners!)
-        {
-            // Enemy만 전체 수량에 계산
-            count += spawner.spawnList.spawnedEnemies
-                .Count(spawnInfo => spawnInfo.spawnType is SpawnType.Enemy);
-        }
+        count += spawners! // spawners가 null이 아님을 가정
+            .Sum(spawner =>
+            spawner.spawnList?.spawnedEnemies?.Count(spawnInfo => spawnInfo.spawnType is SpawnType.Enemy) 
+            ?? 0 // spawnList나 spawnedEnemies가 null이면 0을 사용
+            );
+        
+
         return count;
     }
 

@@ -80,7 +80,11 @@ public class Map : MonoBehaviour
             EnemySpawner[] spawners = FindObjectsByType<EnemySpawner>(FindObjectsSortMode.None);
             foreach (EnemySpawner spawner in spawners)
             {
-                enemySpawners.Add(spawner);
+                // 테스트하는 경우가 있어서 추가
+                if (spawner != null)
+                {
+                    enemySpawners.Add(spawner);
+                }
             }
         }
     }
