@@ -12,13 +12,13 @@ public class ConfirmationReturnToLobbyPanel : MonoBehaviour
     [SerializeField] Button CancelButton = default!;
 
 
-
     private CanvasGroup canvasGroup = default!;
     private float animationSpeed = 0.01f; // DOFade의 실제 알파값에 영향을 준다. 왜 그런지는 모르겠음.
 
     private void Awake()
     {
         canvasGroup = GetComponent<CanvasGroup>();
+        gameObject.SetActive(false); // 편집 중에 띄워놓고 냅두는 경우 대비
     }
 
     public void Initialize()

@@ -1,5 +1,5 @@
 using System.Collections;
-using System.Collections.Generic;
+using System; 
 using UnityEngine;
 
 public class EnemySpawner : MonoBehaviour
@@ -40,7 +40,22 @@ public class EnemySpawner : MonoBehaviour
 
     private void Spawn(EnemySpawnData spawnData)
     {
-        if (spawnData.prefab == null) return;
+        // PathIndicator는 프리팹 자동 지정
+        if (spawnData.spawnType == SpawnType.PathIndicator)
+        {
+            spawnData.prefab = GameManagement.Instance.ResourceManager.PathIndicator;
+            if (spawnData.prefab == null)
+            {
+                throw new InvalidOperationException("스포너 : 경로 표시기를 찾을 수 없음");
+            }
+        }
+
+        // 일반 Enemy는 없으면 오류 상황
+        if (spawnData.prefab == null)
+        {
+            throw new InvalidOperationException("스포너 : 적 프리팹이 없음");
+        }
+
 
         GameObject spawnedObject = Instantiate(spawnData.prefab, transform.position, Quaternion.identity);
 
@@ -66,7 +81,6 @@ public class EnemySpawner : MonoBehaviour
         else
         {
             Debug.LogError("프리팹에 Enemy나 PathIndicator 컴포넌트가 없음");
-            Destroy(gameObject);
         }
     }
 }

@@ -19,7 +19,7 @@ MonoBehaviour:
       _defense: 150
       _magicResistance: 5
     _movementSpeed: 1
-    _attackPower: 420
+    _attackPower: 380
     _attackSpeed: 1.2
     _attackRange: 3
   prefab: {fileID: 6542749020257112806, guid: 36e1a276cfad1eb419f1e2aa2dbca3a4, type: 3}

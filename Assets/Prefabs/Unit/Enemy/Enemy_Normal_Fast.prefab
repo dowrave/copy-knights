@@ -165,7 +165,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 31653864dac50a04d9beb172b8ac5b21, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  enemyData: {fileID: 11400000, guid: 49fcc305b57e89e40a626d509522d79a, type: 2}
+  enemyData: {fileID: 11400000, guid: 397dc75b95a9a804c940fbf6530deaa0, type: 2}
   enemyBarUIPrefab: {fileID: 4850112300594543659, guid: f855a11e7f642eb4481495480ef1a6e8, type: 3}
   modelContainer: {fileID: 889998717351143953}
 --- !u!65 &5344802847794872972

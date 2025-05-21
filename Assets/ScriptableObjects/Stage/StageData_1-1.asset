@@ -18,7 +18,7 @@ MonoBehaviour:
   mapPrefab: {fileID: 2646383309755156810, guid: 2c63f41217f82c74ca660262898ef001, type: 3}
   startDeploymentCost: 20
   maxDeploymentCost: 99
-  costPerSecond: 1
+  costPerSecond: 1.5
   operatorMaxDeploymentCount: 5
   playerHealthMultiplier: 1
   enemyStatMultiplier: 1

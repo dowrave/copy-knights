@@ -604,10 +604,6 @@ public class PlayerDataManager : MonoBehaviour
         // 오퍼레이터들을 스쿼드에 배치하기
         for (int i = 0; i < 6; i++)
         {
-            // 2번 슬롯을 비움
-            if (i == 1) continue;
-
-            // 슬롯 추가 로직 필요
             GameManagement.Instance!.UserSquadManager.TryReplaceOperator(i, ownedOps[i], 0);
         }
     }

@@ -279,19 +279,20 @@ public class OperatorInventoryPanel : MonoBehaviour
             if (tempSquad[i] != null)
             {
                 SquadOperatorInfo opInfo = tempSquad[i];
-                Debug.Log($"idx : {i} : {tempSquad[i].op.operatorName}");
                 OperatorSlot slot = operatorSlots.FirstOrDefault(s => s.OwnedOperator == opInfo.op);
                 if (slot != null && slot.gameObject.activeSelf) // 활성화된 슬롯에 대해
                 {
                     // 슬롯을 선택된 상태로 만듦
                     slot.SetSelected(true, idx: i);
-                    Debug.Log($"{slot.OwnedOperator.operatorName} 선택됨 : {i}");
                     clickedSlots[i] = slot;
 
                     if (opInfo.skillIndex >= 0 && opInfo.skillIndex < slot.OwnedOperator.UnlockedSkills.Count)
                     {
                         slot.UpdateSelectedSkill(slot.OwnedOperator.UnlockedSkills[opInfo.skillIndex]);
                     }
+
+                    // 마지막으로 클릭된 슬롯에 대해 사이드뷰 활성화
+                    SelectedSlot = slot;
                 }
             }
         }

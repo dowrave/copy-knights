@@ -20,6 +20,8 @@ public class ResourceManager : MonoBehaviour
     [SerializeField] private Color onSkillColor = new Color(255, 134, 0, 255);
     [SerializeField] private Color offSkillColor = new Color(115, 219, 103, 255);
 
+    [Header("Enemy Path Indicator")]
+    [SerializeField] private GameObject pathIndicator = default!;
 
     private void Awake()
     {
@@ -60,11 +62,15 @@ public class ResourceManager : MonoBehaviour
     }
 
     // 읽기 전용 프로퍼티
-    public OperatorIconData IconData { get { return iconData; } }
-    public Sprite StageButtonStar1 { get { return stageButtonStar1; } }
-    public Sprite StageButtonStar2 { get { return stageButtonStar2; } }
-    public Sprite StageButtonStar3 { get { return stageButtonStar3; } }
-    public string TextUpdateColor { get { return textUpdateColor; } }
-    public Color OnSkillColor { get { return onSkillColor; } }
-    public Color OffSkillColor { get { return offSkillColor; } }
+    public OperatorIconData IconData => iconData; 
+    public Sprite StageButtonStar1 => stageButtonStar1; 
+    public Sprite StageButtonStar2 => stageButtonStar2;
+    public Sprite StageButtonStar3 => stageButtonStar3;
+    public string TextUpdateColor => textUpdateColor;
+
+    public Color OnSkillColor => onSkillColor;
+
+    public Color OffSkillColor => offSkillColor;
+
+    public GameObject PathIndicator => pathIndicator;
 }

@@ -13,8 +13,23 @@ MonoBehaviour:
   m_Name: 1-2 btm test
   m_EditorClassIdentifier: 
   spawnedEnemies:
+  - spawnType: 1
+    spawnTime: 17
+    pathData: {fileID: 11400000, guid: 42f2c1a4991a24d49a716fb019cbd07b, type: 2}
+    prefab: {fileID: 7620251311904048292, guid: 9aeab8e4aa50ac446ba479d0f93c4f56, type: 3}
+    enemyType: 0
   - spawnType: 0
-    spawnTime: 1
-    pathData: {fileID: 11400000, guid: ba65940cd6c600744b04658fbe9a7083, type: 2}
-    prefab: {fileID: 6542749020257112806, guid: 3cc57da195bbbd34b915e65d097837f1, type: 3}
+    spawnTime: 20
+    pathData: {fileID: 11400000, guid: 42f2c1a4991a24d49a716fb019cbd07b, type: 2}
+    prefab: {fileID: 6542749020257112806, guid: d84fe3f977be9b84e912ffd9bc726be9, type: 3}
+    enemyType: 0
+  - spawnType: 0
+    spawnTime: 23
+    pathData: {fileID: 11400000, guid: 42f2c1a4991a24d49a716fb019cbd07b, type: 2}
+    prefab: {fileID: 6542749020257112806, guid: d84fe3f977be9b84e912ffd9bc726be9, type: 3}
+    enemyType: 0
+  - spawnType: 0
+    spawnTime: 26
+    pathData: {fileID: 11400000, guid: 42f2c1a4991a24d49a716fb019cbd07b, type: 2}
+    prefab: {fileID: 6542749020257112806, guid: 2a2a3c1bb23375243ac41c98052f0501, type: 3}
     enemyType: 0

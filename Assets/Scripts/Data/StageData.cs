@@ -15,7 +15,7 @@ public class StageData : ScriptableObject
     [Header("Stage Configs")]
     public int startDeploymentCost = 20;
     public int maxDeploymentCost = 99;
-    public float costPerSecond = 1f; // 코스트 1을 올리는 데에 걸리는 시간(초)
+    public float costPerSecondModifier = 1f; // 코스트 회복속도 배율
 
     [Tooltip("최대로 배치할 수 있는 오퍼레이터의 수")]
     public int operatorMaxDeploymentCount = 5; // 오퍼레이터 최대 배치 수

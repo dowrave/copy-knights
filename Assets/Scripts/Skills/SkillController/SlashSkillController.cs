@@ -101,7 +101,6 @@ public class SlashSkillController : MonoBehaviour
         if (!isInitialized || mainEffect == null || !mainEffect.isPlaying) return;
 
         int numParticlesAlive = mainEffect.GetParticles(particles);
-        Debug.Log(numParticlesAlive);
 
         CheckParticleCollisions(numParticlesAlive);
     }
