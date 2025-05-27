@@ -35,7 +35,7 @@ public class CostParticleMotion : MonoBehaviour
 
     private void Start()
     {
-        iconWorldPosition = UIManager.Instance!.CostIconWorldPosition;
+        iconWorldPosition = StageUIManager.Instance!.CostIconWorldPosition;
     }
 
     private void LateUpdate()

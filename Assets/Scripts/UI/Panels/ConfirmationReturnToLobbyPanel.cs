@@ -29,7 +29,7 @@ public class ConfirmationReturnToLobbyPanel : MonoBehaviour
         }
 
         // 멈춤 오버레이가 활성화된 경우 비활성화
-        UIManager.Instance!.HidePauseOverlay();
+        StageUIManager.Instance!.HidePauseOverlay();
         gameObject.SetActive(true);
 
         if (canvasGroup != null)

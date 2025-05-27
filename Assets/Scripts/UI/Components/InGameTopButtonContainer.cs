@@ -72,7 +72,7 @@ public class InGameTopButtonContainer : MonoBehaviour
             StageManager.Instance!.SetGameState(GameState.Paused);
         }
 
-        UIManager.Instance!.InitializeReturnToLobbyPanel();
+        StageUIManager.Instance!.InitializeReturnToLobbyPanel();
     }
 
     private void OnDisable()

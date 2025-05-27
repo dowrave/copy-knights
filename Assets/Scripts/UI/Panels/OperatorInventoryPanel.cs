@@ -18,6 +18,7 @@ public class OperatorInventoryPanel : MonoBehaviour
     [SerializeField] private Button confirmButton = default!;
     [SerializeField] private Button setEmptyButton = default!; // 현재 슬롯을 비우는 버튼
     [SerializeField] private Button detailButton = default!; // OperatorDetailPanel로 가는 버튼
+    [SerializeField] private Button growthResetButton = default!;
 
     [Header("Attack Range Visualization")]
     [SerializeField] private RectTransform attackRangeContainer = default!;
@@ -89,6 +90,7 @@ public class OperatorInventoryPanel : MonoBehaviour
         confirmButton.onClick.AddListener(OnConfirmButtonClicked);
         setEmptyButton.onClick.AddListener(OnSetEmptyButtonClicked);
         detailButton.onClick.AddListener(OnDetailButtonClicked);
+        growthResetButton.onClick.AddListener(OnGrowthResetButtonClicked);
 
         for (int i = 0; i < skillIconBoxes.Count; i++)
         {
@@ -116,10 +118,6 @@ public class OperatorInventoryPanel : MonoBehaviour
 
             bool isEditing = isEditingSlot || isEditingBulk;
             SetSquadEditMode(isEditing);
-
-            Debug.Log($"isEditingSlotIndex : {GameManagement.Instance!.UserSquadManager.EditingSlotIndex}");
-            Debug.Log($"isEditingSlot : {isEditingSlot}");
-            Debug.Log($"isEditingBulk : {isEditingBulk}");
 
             if (isEditingSlot)
             {
@@ -157,7 +155,7 @@ public class OperatorInventoryPanel : MonoBehaviour
     // 보유한 모든 오퍼레이터들을 슬롯으로 초기화합니다.
     private void InitializeAllSlots()
     {
-        ownedOperators = GameManagement.Instance!.PlayerDataManager.GetOwnedOperators().ToList();
+        ownedOperators = GameManagement.Instance!.PlayerDataManager.OwnedOperators;
         InitializeOperatorSlots();
     }
 
@@ -381,12 +379,6 @@ public class OperatorInventoryPanel : MonoBehaviour
         List<OwnedOperator> displayOrder = new List<OwnedOperator>(squadOperatorsInOrder);
         displayOrder.AddRange(allOwnedOperatorsCopy);
 
-        //for (int i = 0; i < displayOrder.Count; i++)
-        //{
-        //    Debug.Log($"displayOrder[{i}] = {displayOrder[i].operatorName}");
-        //}
-
-
         return displayOrder;
     }
 
@@ -467,8 +459,6 @@ public class OperatorInventoryPanel : MonoBehaviour
         // 슬롯 클릭 상태 해제 로직
         if (clickedSlotCurrentIndex != -1)
         {
-            Debug.Log("벌크 상태 : 슬롯 해제 로직 동작");
-
             // tempSquad에서의 할당 해제
             tempSquad[clickedSlotCurrentIndex] = null;
             clickedSlots[clickedSlotCurrentIndex] = null;
@@ -485,8 +475,6 @@ public class OperatorInventoryPanel : MonoBehaviour
         // 클릭 상태 추가 로직
         else
         {
-            Debug.Log("벌크 상태 : 슬롯 할당 로직 동작");
-
             SetNowEditingIndexForBulk(); // nowEditingIndex 설정, 새 오퍼레이터를 리스트의 어디에 넣을 것인가를 결정한다.
 
             // 다른 오퍼레이터로 채워져 있던 슬롯이 있다면 선택 해제 - 필요할까?
@@ -508,10 +496,6 @@ public class OperatorInventoryPanel : MonoBehaviour
 
                 throw new System.InvalidOperationException("스쿼드가 꽉 찼음");
             }
-
-
-            //SelectedSlot = clickedSlot;
-            //UpdateSideView();
         }
 
         // 확인 버튼 UI 업데이트
@@ -576,6 +560,28 @@ public class OperatorInventoryPanel : MonoBehaviour
             MoveToDetailPanel(SelectedSlot);
             MainMenuManager.Instance.SetCurrentEditingOperator(SelectedSlot.OwnedOperator);
         }
+    }
+
+    private void OnGrowthResetButtonClicked()
+    {
+        // 정말 초기화할 것인지에 대한 경고 패널을 보여줌
+        ConfirmationPopup popup = PopupManager.Instance!.ShowConfirmationPopup("모든 오퍼레이터의 육성 상태가 0정예화 1레벨로 초기화됩니다.\n초기화를 진행하시겠습니까?", 
+            isCancelButton: true, 
+            blurAreaActivation: true,
+            onConfirm:  () => {
+                // 모든 오퍼레이터 성장 정보 초기화 
+                OperatorGrowthManager.Instance.ResetAllOperatorsGrowth();
+
+                // 슬롯 UI 갱신
+                foreach (OperatorSlot slot in operatorSlots)
+                {
+                    slot.UpdateActiveSlotVisuals();
+                }
+
+                // 우측 상단 알림 표시
+                MainMenuManager.Instance!.ShowNotification($"모든 오퍼레이터 레벨 초기화 및 육성 재화 회수 완료");
+            }
+            );
     }
 
     private void MoveToDetailPanel(OperatorSlot slot)

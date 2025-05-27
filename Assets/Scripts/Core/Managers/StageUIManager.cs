@@ -6,9 +6,9 @@ using UnityEngine;
 using UnityEngine.UI;
 
 // 스테이지 씬의 Canvas를 관리하는 UI Manager
-public class UIManager : MonoBehaviour
+public class StageUIManager : MonoBehaviour
 {
-    public static UIManager? Instance { get; private set; }
+    public static StageUIManager? Instance { get; private set; }
 
     [Header("Panels")]
     [SerializeField] private GameObject statsPanelObject = default!; // 통계 패널

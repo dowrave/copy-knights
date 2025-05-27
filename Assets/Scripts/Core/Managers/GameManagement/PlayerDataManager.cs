@@ -8,7 +8,7 @@ using UnityEngine;
 public class PlayerDataManager : MonoBehaviour
 {
     // 플레이어가 소유한 데이터 정보
-    [Serializable] 
+    [Serializable]
     private class PlayerData
     {
         public List<OwnedOperator> ownedOperators = new List<OwnedOperator>(); // 보유 오퍼레이터
@@ -20,9 +20,6 @@ public class PlayerDataManager : MonoBehaviour
         public bool isTutorialFinished = false;
         public List<TutorialStatus> tutorialDataStatus = new List<TutorialStatus>();
     }
-
-
-
     public enum TutorialStatus
     {
         NotStarted,
@@ -38,6 +35,8 @@ public class PlayerDataManager : MonoBehaviour
     [SerializeField] private int defaultMaxSquadSize = 6;
 
     private Dictionary<string, ItemData> itemDatabase = new Dictionary<string, ItemData>();
+
+    public List<OwnedOperator> OwnedOperators => playerData.ownedOperators;
 
     public event System.Action OnSquadUpdated = delegate { }; // nullable 경고문 회피
 
@@ -178,14 +177,6 @@ public class PlayerDataManager : MonoBehaviour
         return safePlayerData.ownedOperators.Find(op => op.operatorName == operatorName) ?? null;
     }
 
-    // 가지고 있는 오퍼레이터들 불러오기
-    public List<OwnedOperator> GetOwnedOperators()
-    {
-        InstanceValidator.ValidateInstance(playerData);
-        var safePlayerData = playerData!;
-
-        return new List<OwnedOperator>(safePlayerData.ownedOperators);
-    }
 
     private void TestAboutTutorial()
     {
@@ -267,7 +258,6 @@ public class PlayerDataManager : MonoBehaviour
 
             safePlayerData.ownedOperators.Add(newOp);
             SavePlayerData();
-            Debug.Log($"{newOp.operatorName}가 정상적으로 ownedOperator에 등록되었습니다");
         }
     }
 
@@ -599,7 +589,7 @@ public class PlayerDataManager : MonoBehaviour
     private void InitializeSquadForTest()
     {
         // 가지고 있는 오퍼레이터들 불러오기
-        List<OwnedOperator> ownedOps = GetOwnedOperators();
+        List<OwnedOperator> ownedOps = OwnedOperators;
 
         // 오퍼레이터들을 스쿼드에 배치하기
         for (int i = 0; i < 6; i++)
@@ -695,10 +685,6 @@ public class PlayerDataManager : MonoBehaviour
 
     public void GrantStageRewards(List<ItemWithCount> firstClearRewards, List<ItemWithCount> basicClearRewards)
     {
-        // IReadOnlyList 등은 제대로 직렬화되지 않을 수 있어서, List로 바꿔서 저장하는 게 안전하다.
-        //List<ItemWithCount> firstClearRewards = new List<ItemWithCount>(StageManager.Instance!.ActualFirstClearRewards);
-        //List<ItemWithCount> basicClearRewards = new List<ItemWithCount>(StageManager.Instance!.ActualBasicClearRewards);
-
         GrantItems(firstClearRewards);
         GrantItems(basicClearRewards);
 
@@ -721,6 +707,8 @@ public class PlayerDataManager : MonoBehaviour
             }
         }
     }
+
+
 
     // 아이템을 실질적으로 저장하는 메서드
     public void AddItems(string itemName, int itemCount)
@@ -747,6 +735,15 @@ public class PlayerDataManager : MonoBehaviour
         else
         {
             Debug.LogError($"{itemName}은 아이템 데이터베이스에 존재하지 않는 이름임");
+        }
+    }
+
+    // 오버로드 메서드
+    public void AddItems(Dictionary<ItemData, int> itemsDict)
+    {
+        foreach (var kvp in itemsDict)
+        {
+            AddItems(kvp.Key.itemName, kvp.Value);
         }
     }
 
@@ -809,6 +806,11 @@ public class PlayerDataManager : MonoBehaviour
         }
 
         return true;
+    }
+
+    public ItemData GetItemData(string itemName)
+    {
+        return itemDatabase[itemName];
     }
 
     // 아이템 데이터베이스를 이용해 초기 아이템 지급

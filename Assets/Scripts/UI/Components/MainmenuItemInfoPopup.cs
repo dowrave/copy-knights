@@ -101,7 +101,7 @@ public class MainmenuItemInfoPopup : MonoBehaviour
         {
             if (PopupManager.Instance! != null)
             {
-                PopupManager.Instance!.OnPopupClosed(this);
+                PopupManager.Instance!.OnItemInfoPopupClosed(this);
             }
 
             ClearData();

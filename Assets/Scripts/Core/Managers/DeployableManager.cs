@@ -280,7 +280,7 @@ public class DeployableManager : MonoBehaviour
 
             IsDeployableSelecting = true;
             
-            UIManager.Instance!.ShowUndeployedInfo(currentDeployableInfo);
+            StageUIManager.Instance!.ShowUndeployedInfo(currentDeployableInfo);
 
             // 박스 선택 상태
             currentDeployableBox.Select();
@@ -340,7 +340,7 @@ public class DeployableManager : MonoBehaviour
             else
             {
                 CancelDeployableSelection();
-                UIManager.Instance!.HideDeployableInfo();
+                StageUIManager.Instance!.HideDeployableInfo();
             }
         }
     }
@@ -586,7 +586,7 @@ public class DeployableManager : MonoBehaviour
     private void ResetPlacement()
     {
         InstanceValidator.ValidateInstance(StageManager.Instance);
-        InstanceValidator.ValidateInstance(UIManager.Instance);
+        InstanceValidator.ValidateInstance(StageUIManager.Instance);
 
         IsDeployableSelecting = false;
         IsDraggingDeployable = false;
@@ -611,7 +611,7 @@ public class DeployableManager : MonoBehaviour
         currentDeployablePrefab = null;
         currentDeployableInfo = null;
 
-        UIManager.Instance!.HideDeployableInfo();
+        StageUIManager.Instance!.HideDeployableInfo();
         GameManagement.Instance!.TimeManager.UpdateTimeScale();
         ResetHighlights();
 
@@ -646,7 +646,7 @@ public class DeployableManager : MonoBehaviour
     public void OnDeployableRemoved(DeployableUnitEntity deployable)
     {
         deployedItems.Remove(deployable);
-        UIManager.Instance!.HideDeployableInfo();
+        StageUIManager.Instance!.HideDeployableInfo();
         HideUIs();
         ResetHighlights();
 

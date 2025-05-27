@@ -1,11 +1,10 @@
 using System;
 using DG.Tweening;
 using TMPro;
-using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class ConfirmationPanel : MonoBehaviour
+public class ConfirmationPopup : MonoBehaviour
 {
     [Header("UI References")]
     [SerializeField] private TextMeshProUGUI textContent = default!;
@@ -13,8 +12,8 @@ public class ConfirmationPanel : MonoBehaviour
     public Button confirmButton = default!;
     public Button cancelButton = default!;
 
-    public event Action OnConfirm;
-    public event Action OnCancel;
+    private event Action OnConfirm;
+    private event Action OnCancel;
     private CanvasGroup canvasGroup = default!;
     private float animationSpeed = 0.01f;
 
@@ -45,8 +44,16 @@ public class ConfirmationPanel : MonoBehaviour
     /// <param name="text">메시지 내용</param>
     /// <param name="isCancelButton">취소 버튼 표시 여부</param>
     /// <param name="blurAreaActivation">배경 클릭 영역 활성화 여부</param>
-    public void Initialize(string text, bool isCancelButton, bool blurAreaActivation)
+    public void Initialize(string text, bool isCancelButton, bool blurAreaActivation, Action onConfirm = null, Action onCancel = null)
     {
+        // 이전 이벤트 정리
+        OnConfirm = null;
+        OnCancel = null;
+
+        // 이벤트에 동작시킬 함수도 인풋으로 받음
+        if (onConfirm != null) OnConfirm += onConfirm;
+        if (onCancel != null) OnCancel += onCancel;
+
         EnablePanelWithAnimation();
 
         // 취소 버튼 활성화 여부

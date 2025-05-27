@@ -12,7 +12,6 @@ public class TutorialManager : MonoBehaviour
 {
     // 여러 씬에서 쓰이기 때문에 프리팹 형태로 넣음
     [Header("References")]
-    [SerializeField] private ConfirmationPanel confirmPanelPrefab = default!;
     [SerializeField] private GameObject tutorialPanelPrefab = default!;
     [SerializeField] private List<TutorialData> tutorialDatas = new List<TutorialData>();
 
@@ -26,7 +25,7 @@ public class TutorialManager : MonoBehaviour
     private TutorialPanel? currentTutorialPanel;
     private Button? currentOverlay; // 현재 Step의 목표 버튼 위에 나타나는 투명한 버튼
 
-    private ConfirmationPanel confirmPanelInstance;
+    private ConfirmationPopup confirmationPopup;
     private Canvas? canvas;
 
     private void Awake()
@@ -52,25 +51,21 @@ public class TutorialManager : MonoBehaviour
     private void InitializeTutorialConfirmPanel()
     {
         Canvas canvas = FindObjectsByType<Canvas>(FindObjectsSortMode.None)[0];
-        confirmPanelInstance = Instantiate(confirmPanelPrefab, canvas.transform);
-        confirmPanelInstance.Initialize("최초 실행이 감지되었습니다. 튜토리얼을 진행하시겠습니까?", isCancelButton: true, blurAreaActivation: false);
-        confirmPanelInstance.OnConfirm += CheckStartTutorial;
-        confirmPanelInstance.OnCancel += CheckStopTutorial;
+
+        confirmationPopup = PopupManager.Instance!.ShowConfirmationPopup("최초 실행이 감지되었습니다. 튜토리얼을 진행하시겠습니까?", 
+            isCancelButton: true, 
+            blurAreaActivation: false,
+            onConfirm: CheckStartTutorial,
+            onCancel: CheckStopTutorial);
     }
 
     private void CheckStartTutorial()
     {
-        confirmPanelInstance.OnConfirm -= CheckStartTutorial;
-        confirmPanelInstance.OnCancel -= CheckStopTutorial;
-
         StartCoroutine(ShowTutorialStartPanel("튜토리얼을 시작합니다.", false, true));
     }
 
     private void CheckStopTutorial()
     {
-        confirmPanelInstance.OnConfirm -= CheckStartTutorial;
-        confirmPanelInstance.OnCancel -= CheckStopTutorial;
-
         GameManagement.Instance.PlayerDataManager.FinishAllTutorials();
     }
 
@@ -80,9 +75,7 @@ public class TutorialManager : MonoBehaviour
         yield return new WaitForSecondsRealtime(0.1f);
 
         // 동일한 인스턴스로 새 메시지 표시
-        confirmPanelInstance.Initialize(message, isCancelButton, blurAreaActivation);
-
-        confirmPanelInstance.OnConfirm += InitializeAndStartTutorial;
+        confirmationPopup = PopupManager.Instance!.ShowConfirmationPopup(message, isCancelButton, blurAreaActivation, onConfirm: InitializeAndStartTutorial);
     }
 
     // 0번 튜토리얼 데이터 실행
@@ -94,7 +87,6 @@ public class TutorialManager : MonoBehaviour
     private IEnumerator InitializeAndStartTutorialWithDelay()
     {
         yield return new WaitForSecondsRealtime(0.1f);
-        confirmPanelInstance.OnConfirm -= InitializeAndStartTutorial;
 
         // 1번째 튜토리얼을 실행시킴
         StartSpecificTutorial(0);

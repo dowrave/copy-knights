@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using Skills.Base;
+using System.Linq;
 
 
 // 실제로 보유한 오퍼레이터의 저장
@@ -18,9 +19,10 @@ public class OwnedOperator
     [System.NonSerialized] private List<Vector2Int> currentAttackableGridPos = new List<Vector2Int>();
     [System.NonSerialized] private List<BaseSkill> unlockedSkills = new List<BaseSkill>();
     [System.NonSerialized] private BaseSkill defaultSelectedSkill = default!;
-    //[System.NonSerialized] private BaseSkill stageSelectedSkill = default!;
-    //[System.NonSerialized] private int selectedSkillIndex; 
     [System.NonSerialized] private OperatorData baseData = default!;
+
+    // 성장에 사용된 아이템 저장 필드
+    [SerializeField] private List<ItemWithCount> usedItems = new List<ItemWithCount>();
 
     // 읽기 전용 프로퍼티
     public OperatorStats CurrentStats => currentStats;
@@ -41,23 +43,9 @@ public class OwnedOperator
             return baseData;
         }
     }
+    public List<ItemWithCount> UsedItems => usedItems;
 
-    //private int selectedSkillIndex;
     private int defaultSkillIndex; // 여기서 갖는 값
-
-    //public BaseSkill SelectedSkill
-    //{
-    //    get => unlockedSkills[selectedSkillIndex];
-    //}
-
-    //public BaseSkill StageSelectedSkill
-    //{
-    //    get => stageSelectedSkill ?? defaultSelectedSkill;
-    //}
-    //public BaseSkill StageSelectedSkill { get => unlockedSkills[SelectedSkillIndex] };
-
-    //public int SelectedSkillIndex { get; private set; }
-    
 
     public bool CanLevelUp => OperatorGrowthSystem.CanLevelUp(currentPhase, currentLevel);
     public bool CanPromote => OperatorGrowthSystem.CanPromote(currentPhase, currentLevel);
@@ -140,13 +128,51 @@ public class OwnedOperator
         Initialize();
     }
 
-    //public void SetStageSelectedSkillIndex(int index)
-    //{
-    //    SelectedSkillIndex = index;
-    //}
+    // 본 메서드 : 사용된 아이템 추가
+    public void AddUsedItem(ItemData item, int count)
+    {
+        var existingItem = usedItems.FirstOrDefault(x => x.itemData == item);
+        if (existingItem.itemData != null)
+        {
+            // 이미 있다면 해당 인덱스의 갯수만 추가
+            int index = usedItems.IndexOf(existingItem);
+            usedItems[index] = new ItemWithCount(item, existingItem.count + count);
+        }
+        else
+        {
+            // 새로 추가하는 거라면 만들어서 넣음
+            usedItems.Add(new ItemWithCount(item, count));
+        }
+    }
 
-    //public void SetStageSelectedSkill(BaseSkill newSkill)
-    //{
-    //    stageSelectedSkill = newSkill;
-    //}
+    // 아이템 이름, 숫자 오버로드
+    public void AddUsedItem(Dictionary<string, int> itemsDict)
+    {
+        foreach (var kvp in itemsDict)
+        {
+            ItemData itemData = GameManagement.Instance!.PlayerDataManager.GetItemData(kvp.Key);
+            AddUsedItem(itemData, kvp.Value);
+        }
+    }
+
+    // 아이템 데이터, 숫자 오버로드
+    public void AddUsedItem(Dictionary<ItemData, int> itemsDict)
+    {
+        foreach (var kvp in itemsDict)
+        {
+            AddUsedItem(kvp.Key, kvp.Value);
+        }
+    }
+
+    // 사용된 아이템 얻기
+    public List<ItemWithCount> GetUsedItemCount()
+    {
+        return new List<ItemWithCount>(usedItems);
+    }
+
+    // 사용된 아이템 리스트 초기화
+    public void ClearUsedItems()
+    {
+        usedItems.Clear();
+    }
 }

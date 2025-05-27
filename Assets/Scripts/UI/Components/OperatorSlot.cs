@@ -194,7 +194,7 @@ public class OperatorSlot : MonoBehaviour
     }
 
     // 패널을 오가면서 변할 수 있는 요소들에 대한 UI 업데이트
-    private void UpdateActiveSlotVisuals()
+    public void UpdateActiveSlotVisuals()
     {
         // 경험치 게이지, 레벨, 정예화 표시
         int remainingExp = OperatorGrowthSystem.GetMaxExpForNextLevel(OwnedOperator.currentPhase, OwnedOperator.currentLevel);

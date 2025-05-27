@@ -86,7 +86,6 @@
     <Compile Include="Assets\Scripts\CC\CrowdControl.cs" />
     <Compile Include="Assets\Scripts\Interfaces\ISkill.cs" />
     <Compile Include="Assets\Scripts\Core\Managers\GameManagement\TimeManager.cs" />
-    <Compile Include="Assets\Scripts\UI\Panels\ConfirmationPanel.cs" />
     <Compile Include="Assets\Scripts\Data\CCEffectDatabase.cs" />
     <Compile Include="Assets\Scripts\UI\Components\DiamondMask.cs" />
     <Compile Include="Assets\Scripts\Skills\Base(Abstract)\PassiveSkill.cs" />
@@ -110,11 +109,11 @@
     <Compile Include="Assets\Scripts\Data\StageData.cs" />
     <Compile Include="Assets\Scripts\UI\Panels\GameWinPanel.cs" />
     <Compile Include="Assets\Scripts\Entities\Player\OwnedOperator.cs" />
-    <Compile Include="Assets\Scripts\Core\Managers\UIManager.cs" />
     <Compile Include="Assets\Scripts\Data\OperatorLevelData.cs" />
     <Compile Include="Assets\Scripts\CC\Types\StunEffect.cs" />
     <Compile Include="Assets\Scripts\UI\Components\DirectionIndicator.cs" />
     <Compile Include="Assets\Scripts\Skills\OperatorSkills\CostRecoverySkill.cs" />
+    <Compile Include="Assets\Scripts\Core\Managers\StageUIManager.cs" />
     <Compile Include="Assets\Scripts\Entities\Combat\Projectile\Projectile.cs" />
     <Compile Include="Assets\Scripts\UI\Components\EnemyBarUI.cs" />
     <Compile Include="Assets\Scripts\Skills\OperatorSkills\SmashSkill.cs" />
@@ -145,6 +144,7 @@
     <Compile Include="Assets\Scripts\UI\Components\StageItemInfoPopup.cs" />
     <Compile Include="Assets\Scripts\UI\Panels\StageSelectPanel.cs" />
     <Compile Include="Assets\Scripts\Data\TileData.cs" />
+    <Compile Include="Assets\Scripts\UI\Components\ConfirmationPopup.cs" />
     <Compile Include="Assets\Scripts\Core\Managers\SpawnerManager.cs" />
     <Compile Include="Assets\Scripts\Core\Managers\CCEffectManager.cs" />
     <Compile Include="Assets\Scripts\Map\EnemySpawnerConfig.cs" />

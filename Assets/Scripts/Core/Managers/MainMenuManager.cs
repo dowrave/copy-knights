@@ -59,9 +59,6 @@ public class MainMenuManager : MonoBehaviour
     [Header("Notification")]
     [SerializeField] private GameObject? notificationPanelPrefab;
 
-    [Header("ConfirmationPanel")]
-    [SerializeField] private ConfirmationPanel confirmPanelPrefab = default!;
-
     // 패널로 오브젝트 조회하는 딕셔너리
     private Dictionary<MenuPanel, GameObject> panelMap = new Dictionary<MenuPanel, GameObject>();
 
@@ -494,9 +491,11 @@ public class MainMenuManager : MonoBehaviour
     {
         // 스쿼드 초기화를 할까를 알리는 확인 패널을 띄움. 
         // 실제 초기화는 확인 패널의 확인 버튼을 클릭했을 때 진행
-        ConfirmationPanel confirmPanelInstance = Instantiate(confirmPanelPrefab, mainCanvas.transform);
-        confirmPanelInstance.Initialize("현재 스쿼드를 초기화하겠습니까?", isCancelButton: true, blurAreaActivation: false);
-        confirmPanelInstance.OnConfirm += ClearSquad;
+
+        ConfirmationPopup popup = PopupManager.Instance!.ShowConfirmationPopup("현재 스쿼드를 초기화하겠습니까?", 
+            isCancelButton: true, 
+            blurAreaActivation: false,
+            onConfirm: ClearSquad);
     }
 
     private void ClearSquad()

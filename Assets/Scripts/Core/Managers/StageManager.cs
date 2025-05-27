@@ -16,7 +16,7 @@ public class StageManager : MonoBehaviour
     private Map? currentMap;
 
     // 배치 코스트
-    private float timeToFillCost = 1.5f; // 코스트 1 회복에 걸리는 시간
+    private float timeToFillCost = 0.5f; // 코스트 1 회복에 걸리는 시간
     private int currentDeploymentCost;
     private int maxDeploymentCost;
     private float currentCostGauge = 0f;
@@ -143,8 +143,8 @@ public class StageManager : MonoBehaviour
     private void Start()
     {
         // Awake에서 UIManager null 에러가 갑자기 떠서 Start로 옮겨놨음
-        UIManager.Instance!.UpdateSpeedUpButtonVisual(StageManager.Instance!.IsSpeedUp);
-        UIManager.Instance!.UpdatePauseButtonVisual();
+        StageUIManager.Instance!.UpdateSpeedUpButtonVisual(StageManager.Instance!.IsSpeedUp);
+        StageUIManager.Instance!.UpdatePauseButtonVisual();
 
         if (GameManagement.Instance != null)
         {
@@ -204,7 +204,7 @@ public class StageManager : MonoBehaviour
         CurrentLifePoints = MaxLifePoints;
 
         // UI 초기화
-        UIManager.Instance!.Initialize();
+        StageUIManager.Instance!.Initialize();
          
         OnPreparationCompleted?.Invoke();
     }
@@ -284,7 +284,7 @@ public class StageManager : MonoBehaviour
                 break;
         }
 
-        UIManager.Instance!.UpdatePauseButtonVisual();
+        StageUIManager.Instance!.UpdatePauseButtonVisual();
         OnGameStateChanged?.Invoke(gameState);
         // 다른 필요한 상태 관련 로직...
     }
@@ -338,7 +338,7 @@ public class StageManager : MonoBehaviour
     public void OnEnemyDefeated()
     {
         KilledEnemyCount++;
-        UIManager.Instance!.UpdateEnemyKillCountText();
+        StageUIManager.Instance!.UpdateEnemyKillCountText();
 
         // 사실 "생성된" 적을 포함하면 조건을 조금 더 다르게 줘야 함
         if (KilledEnemyCount + PassedEnemies >= TotalEnemyCount)
@@ -392,8 +392,8 @@ public class StageManager : MonoBehaviour
 
         GameManagement.Instance!.PlayerDataManager.RecordStageResult(stageData!.stageId, stars);
 
-        UIManager.Instance!.HidePauseOverlay();
-        UIManager.Instance!.ShowGameWinUI(stars);
+        StageUIManager.Instance!.HidePauseOverlay();
+        StageUIManager.Instance!.ShowGameWinUI(stars);
 
         OnGameEnded?.Invoke();
         OnGameCleared?.Invoke();
@@ -403,7 +403,7 @@ public class StageManager : MonoBehaviour
     private void GameOver()
     { 
         SetGameState(GameState.GameOver);
-        UIManager.Instance!.ShowGameOverUI();
+        StageUIManager.Instance!.ShowGameOverUI();
         OnGameEnded?.Invoke();
         OnGameFailed?.Invoke();
         StopAllCoroutines();
@@ -414,7 +414,7 @@ public class StageManager : MonoBehaviour
     {
         SetGameState(GameState.GameOver);
         StopAllCoroutines();
-        StartCoroutine(UIManager.Instance!.ShowResultAfterDelay(0));
+        StartCoroutine(StageUIManager.Instance!.ShowResultAfterDelay(0));
     }
 
     public void ReturnToMainMenu(bool isPerfectClear = false)
@@ -448,14 +448,14 @@ public class StageManager : MonoBehaviour
         if (currentState == GameState.Paused)
         {
             SetGameState(GameState.Battle);
-            UIManager.Instance!.HidePauseOverlay();
+            StageUIManager.Instance!.HidePauseOverlay();
         }
         else if (currentState == GameState.Battle)
         {
             SetGameState(GameState.Paused);
-            UIManager.Instance!.ShowPauseOverlay();
+            StageUIManager.Instance!.ShowPauseOverlay();
         }
-        UIManager.Instance!.UpdatePauseButtonVisual();
+        StageUIManager.Instance!.UpdatePauseButtonVisual();
     }
 
     public void RecoverDeploymentCost(int amount)

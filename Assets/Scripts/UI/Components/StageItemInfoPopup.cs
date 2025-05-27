@@ -185,6 +185,6 @@ public class StageItemInfoPopup : MonoBehaviour
 
     private void OnBackAreaClicked()
     {
-        UIManager.Instance!.HideItemPopup();
+        StageUIManager.Instance!.HideItemPopup();
     }
 }

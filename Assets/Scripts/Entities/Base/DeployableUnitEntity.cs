@@ -168,7 +168,7 @@ public abstract class DeployableUnitEntity: UnitEntity, IDeployable
             if (IsPreviewMode == false)
             {
                 //DebugDeployableInfo();
-                UIManager.Instance!.ShowDeployedInfo(this);
+                StageUIManager.Instance!.ShowDeployedInfo(this);
             }
 
             ShowActionUI();
@@ -183,7 +183,7 @@ public abstract class DeployableUnitEntity: UnitEntity, IDeployable
     protected virtual void ShowActionUI()
     {
         DeployableManager.Instance!.ShowActionUI(this);
-        UIManager.Instance!.ShowDeployedInfo(this);
+        StageUIManager.Instance!.ShowDeployedInfo(this);
     }
 
     protected override void InitializeHP()

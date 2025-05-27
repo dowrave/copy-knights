@@ -872,7 +872,7 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable,
     private void CreateDirectionIndicator()
     {
         // 자식 오브젝트로 들어감
-        DirectionIndicator indicator = Instantiate(UIManager.Instance!.directionIndicator, transform).GetComponent<DirectionIndicator>();
+        DirectionIndicator indicator = Instantiate(StageUIManager.Instance!.directionIndicator, transform).GetComponent<DirectionIndicator>();
         indicator.Initialize(this);
 
         // 오퍼레이터가 파괴될 때 함께 파괴되므로 전역변수로 설정하지 않아도 됨
