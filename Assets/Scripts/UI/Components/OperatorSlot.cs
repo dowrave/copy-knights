@@ -207,7 +207,7 @@ public class OperatorSlot : MonoBehaviour
         // 디테일에서 지정하는 건 "기본 스킬"이지 "현재 설정한 스킬"이 아니기 때문
     }
 
-    private void InitializeSkill()
+    public void InitializeSkill()
     {
         if (OwnedOperator == null) return;
 

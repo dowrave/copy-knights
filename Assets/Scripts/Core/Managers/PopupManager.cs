@@ -24,8 +24,6 @@ public class PopupManager : MonoBehaviour
         {
             itemInfoPopup.gameObject.SetActive(false);
         }
-        canvas = transform.parent.GetComponentInChildren<Canvas>();
-
     }
 
     public void ShowItemInfoPopup(ItemData itemData)

@@ -128,6 +128,7 @@ public class OperatorGrowthManager: MonoBehaviour
         }
 
         // 3. 오퍼레이터들의 성장 상태를 0정예화 1레벨로 만듦
+        List<SquadOperatorInfo?> currentSquad = GameManagement.Instance!.PlayerDataManager.GetCurrentSquadWithNull();
         foreach (var op in ownedOperators)
         {
             op.currentPhase = OperatorGrowthSystem.ElitePhase.Elite0;
@@ -135,10 +136,19 @@ public class OperatorGrowthManager: MonoBehaviour
             op.currentExp = 0;
             op.ClearUsedItems();
             op.Initialize();
+
+            // 현재 스쿼드에 해당 오퍼레이터가 있다면 스킬은 0번으로 설정
+            int squadIndex = currentSquad.FindIndex(member => member.op.operatorName == op.operatorName);
+            if (squadIndex != -1) // FindIndex는 해당하는 값이 없으면 -1을 반환
+            {
+                GameManagement.Instance!.UserSquadManager.TryReplaceOperator(squadIndex, op, 0);
+            }
         }
 
-        // 4. 2번에서 얻은 아이템을 현재 인벤토리 상태로 저장
+        // 5. 2번에서 얻은 아이템을 현재 인벤토리 상태로 저장
         GameManagement.Instance.PlayerDataManager.AddItems(refundItems);
+
+        // 최종 저장
         GameManagement.Instance.PlayerDataManager.SavePlayerData();
     }
 }

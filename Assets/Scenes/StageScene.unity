@@ -13626,14 +13626,14 @@ MonoBehaviour:
   m_GameObject: {fileID: 6120307199784636760}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 77bda755c9988654aa8ac0f206a28b9e, type: 3}
+  m_Script: {fileID: 11500000, guid: 3294d1c5328a9e841b90347c32e4d157, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   statsPanelObject: {fileID: 748492372}
   gameOverPanelObject: {fileID: 3027162035940749476}
   gameWinPanelObject: {fileID: 5570793338769630143}
   deploymentPanelObject: {fileID: 6113342262839863849}
-  topCenterPanelObject: {fileID: 1135821789638788412}
+  progressPanelObject: {fileID: 1135821789638788412}
   bottomPanelObject: {fileID: 6011077741214992891}
   infoPanelObject: {fileID: 5511222875299487828}
   stageResultPanelObject: {fileID: 81744719}
@@ -13804,7 +13804,7 @@ GameObject:
   - component: {fileID: 5923723715381499426}
   - component: {fileID: 1242623783193127883}
   m_Layer: 8
-  m_Name: PausePanel
+  m_Name: PauseOverlay
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

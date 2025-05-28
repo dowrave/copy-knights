@@ -15,7 +15,7 @@ public class StageUIManager : MonoBehaviour
     [SerializeField] private GameObject gameOverPanelObject = default!;
     [SerializeField] private GameObject gameWinPanelObject = default!; // 여기는 애니메이션이 들어가니까 일단 냅두기만 합니다
     [SerializeField] private GameObject deploymentPanelObject = default!;
-    [SerializeField] private GameObject topCenterPanelObject = default!; // 남은 적 수, 라이프 수
+    [SerializeField] private GameObject progressPanelObject = default!; // 남은 적 수, 라이프 수
     [SerializeField] private GameObject bottomPanelObject = default!;
     [SerializeField] private GameObject infoPanelObject = default!; // 선택된 오퍼레이터 정보 패널
     [SerializeField] private GameObject stageResultPanelObject = default!;
