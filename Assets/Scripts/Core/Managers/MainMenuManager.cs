@@ -227,7 +227,7 @@ public class MainMenuManager : MonoBehaviour
         {
             GameManagement.Instance!.UserSquadManager.CancelOperatorSelection();
         }
-        
+
     }
 
     public void NavigateToHome()
@@ -451,7 +451,7 @@ public class MainMenuManager : MonoBehaviour
         MenuPanel childPanel = reversePanelMap[childPanelObject];
 
         // 자식 패널에 있는 부모 패널들을 검사
-        if (parentMap.TryGetValue(childPanel, out List<MenuPanel> childsParentPanels)) 
+        if (parentMap.TryGetValue(childPanel, out List<MenuPanel> childsParentPanels))
         {
             // 부모 패널이 여러 개이고, parentPanel을 포함할 때
             if (childsParentPanels.Count > 1 && childsParentPanels.Contains(parentPanel))
@@ -492,8 +492,8 @@ public class MainMenuManager : MonoBehaviour
         // 스쿼드 초기화를 할까를 알리는 확인 패널을 띄움. 
         // 실제 초기화는 확인 패널의 확인 버튼을 클릭했을 때 진행
 
-        ConfirmationPopup popup = PopupManager.Instance!.ShowConfirmationPopup("현재 스쿼드를 초기화하겠습니까?", 
-            isCancelButton: true, 
+        ConfirmationPopup popup = PopupManager.Instance!.ShowConfirmationPopup("현재 스쿼드를 초기화하겠습니까?",
+            isCancelButton: true,
             blurAreaActivation: false,
             onConfirm: ClearSquad);
     }
@@ -533,4 +533,3 @@ public class MainMenuManager : MonoBehaviour
         }
     }
 }
- 

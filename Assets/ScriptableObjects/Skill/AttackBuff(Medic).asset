@@ -13,14 +13,14 @@ MonoBehaviour:
   m_Name: AttackBuff(Medic)
   m_EditorClassIdentifier: 
   skillName: HealUp
-  description: "<color=#179bff>5\uCD08</color> \uB3D9\uC548 \uACF5\uACA9\uB825\uC774
+  description: "<color=#179bff>10\uCD08</color> \uB3D9\uC548 \uACF5\uACA9\uB825\uC774
     <color=#179bff>50%</color> \uC62C\uB77C\uAC11\uB2C8\uB2E4."
   SPCost: 2
   skillIcon: {fileID: 21300000, guid: 4fa39009c0d75514a918c9b5fc0f5095, type: 3}
   autoRecover: 1
   autoActivate: 0
   modifiesAttackAction: 0
-  duration: 5
+  duration: 10
   skillVFXPrefab: {fileID: 2673592997991987600, guid: 71dcdfc208cb9544faefa0e237696144, type: 3}
   activeFromOperatorPosition: 1
   skillRangeOffset: []

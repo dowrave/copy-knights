@@ -1,7 +1,4 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
-using static UnityEngine.GraphicsBuffer;
 namespace Skills.Base
 {
     [CreateAssetMenu(fileName = "New Area Haste Heal Skill", menuName = "Skills/Area Haste Heal Skill")]
@@ -12,6 +9,7 @@ namespace Skills.Base
         [SerializeField] private float healPerTickRatio = 0.7f;
         [SerializeField] private float healInterval = 0.5f;
 
+        // 공격 영역을 만듦
         protected override GameObject CreateEffectField(Operator op, Vector2Int centerPos)
         {
             GameObject fieldObj = Instantiate(fieldEffectPrefab);
@@ -20,7 +18,16 @@ namespace Skills.Base
             if (controller != null && hitEffectPrefab != null)
             {
                 float actualHealPerTick = op.AttackPower * healPerTickRatio;
-                controller.Initialize(op, centerPos, actualSkillRange, duration, actualHealPerTick, healInterval, hitEffectPrefab, skillHitEffectTag);
+
+                controller.Initialize(caster: op,
+                    centerPosition: centerPos,
+                    affectedTiles: actualSkillRange,
+                    fieldDuration: duration,
+                    amountPerTick: actualHealPerTick,
+                    interval: healInterval,
+                    hitEffectPrefab: hitEffectPrefab,
+                    hitEffectTag: skillHitEffectTag
+                );
             }
 
             return fieldObj;

@@ -10,12 +10,16 @@ namespace Skills.Base
         [Header("AreaEffectSkill References")]
         [Tooltip("실제 효과를 담당하는 프리팹")]
         [SerializeField] protected GameObject fieldEffectPrefab = default!; // 실질적인 효과 프리팹
+
         [Tooltip("스킬 효과 범위의 시각적 이펙트를 담당하는 프리팹")]
         [SerializeField] protected GameObject skillRangeVFXPrefab = default!; // 시각 효과 프리팹
-        [SerializeField] protected string skillRangeEffectTag = string.Empty;
+
         [Tooltip("스킬의 타격 이펙트 프리팹")]
         [SerializeField] protected GameObject? hitEffectPrefab = default!;
-        [SerializeField] protected string skillHitEffectTag = string.Empty;
+
+        // 스킬 범위와 타격 이펙트 태그
+        protected string skillRangeEffectTag;
+        protected string skillHitEffectTag;
 
 
         protected UnitEntity? mainTarget;
@@ -26,12 +30,8 @@ namespace Skills.Base
         // 타겟 중복 가능성을 제거하기 위한 해쉬셋
         protected HashSet<int> enemyIdSet = new HashSet<int>();
 
-
-        
-
         public override void Activate(Operator op)
         {
-
             CreateHitEffectObjectPool(op);
             base.Activate(op);
         }
@@ -44,13 +44,13 @@ namespace Skills.Base
                 hitEffectPrefab = op.OperatorData.HitEffectPrefab;
             }
 
-            if (skillHitEffectTag == null)
-            {
-                skillHitEffectTag = "Skill_" + op.HitEffectTag;
-            }
+            // 스킬 범위와 타격 이펙트 태그를 설정
+            skillRangeEffectTag = $"{op.OperatorData.entityName}_SkillRangeVFX";
+            skillHitEffectTag = $"{op.OperatorData.entityName}_SkillHitEffect";
 
             ObjectPoolManager.Instance!.CreatePool(skillHitEffectTag, hitEffectPrefab, 10);
         }
+
 
         protected override void OnSkillStart(Operator op)
         {
@@ -78,7 +78,6 @@ namespace Skills.Base
         // 스킬의 기능적 효과와 시각적 이펙트 실행
         protected override void PlaySkillEffect(Operator op)
         {
-
             // 스킬 범위 계산
             Vector2Int centerPos = GetCenterPos(op);
             CalculateActualSkillRange(centerPos);
@@ -130,7 +129,7 @@ namespace Skills.Base
 
         public override void PerformChangedAttackAction(Operator op)
         {
-            // 빈 칸 
+            // 영역을 펼치는 스킬은 기본 공격 액션을 수행하지 않음
         }
 
         public override void InitializeSkillObjectPool()

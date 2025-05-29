@@ -1,6 +1,4 @@
-using System;
 using System.Collections;
-using NUnit.Framework.Interfaces;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;

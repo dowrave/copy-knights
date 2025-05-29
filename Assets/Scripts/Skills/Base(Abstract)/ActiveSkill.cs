@@ -16,6 +16,8 @@ namespace Skills.Base
         [Header("Optional) Skill Range")]
         [SerializeField] protected bool activeFromOperatorPosition = true; // UI에 사거리 표시할 때 중심이 되는 부분의 색을 변경하기 위한 기능적인 필드
         [SerializeField] protected List<Vector2Int> skillRangeOffset = new List<Vector2Int>();
+
+        [Tooltip("UI용 수평방향 오프셋. +값은 -x방향으로 이동함.")]
         [SerializeField] protected float rectOffset; // UI용 오프셋
 
         public IReadOnlyList<Vector2Int> SkillRangeOffset => skillRangeOffset;

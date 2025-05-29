@@ -345,6 +345,8 @@ public class DeployableManager : MonoBehaviour
         }
     }
 
+
+
     private void CreatePreviewDeployable()
     {
         InstanceValidator.ValidateInstance(currentDeployable);
@@ -363,7 +365,7 @@ public class DeployableManager : MonoBehaviour
         {
             currentDeployable!.Initialize(currentDeployableInfo!);
         }
-        
+
     }
 
     private void StartDirectionSelection(Tile tile)
@@ -488,6 +490,7 @@ public class DeployableManager : MonoBehaviour
         }
 
         Tile? hoveredTile = GetHoveredTile();
+        
         // 배치 가능한 타일 위라면 타일 위치로 스냅
         if (hoveredTile != null && highlightedTiles.Contains(hoveredTile))
         {

@@ -1,6 +1,7 @@
 
 using UnityEngine;
 
+// CC 효과를 위한 매니저 클래스
 public class CCEffectManager : MonoBehaviour
 {
     public static CCEffectManager? Instance { get; private set; }

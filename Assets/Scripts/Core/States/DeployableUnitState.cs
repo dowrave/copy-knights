@@ -59,10 +59,7 @@ public class DeployableUnitState
         return true;
     }
 
-
-    /// <summary>
-    /// 배치된 유닛이 제거될 때 호출되는 메서드
-    /// </summary>
+    // 배치된 유닛이 제거될 때 호출되는 메서드
     public void OnRemoved()
     {
         if (IsOperator)

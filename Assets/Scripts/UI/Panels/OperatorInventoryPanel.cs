@@ -569,7 +569,7 @@ public class OperatorInventoryPanel : MonoBehaviour
     private void OnGrowthResetButtonClicked()
     {
         // 정말 초기화할 것인지에 대한 경고 패널을 보여줌
-        ConfirmationPopup popup = PopupManager.Instance!.ShowConfirmationPopup("모든 오퍼레이터의 육성 상태가 0정예화 1레벨로 초기화됩니다.\n초기화를 진행하시겠습니까?", 
+        ConfirmationPopup popup = PopupManager.Instance!.ShowConfirmationPopup("모든 오퍼레이터의 육성 상태를 0정예화 1레벨로 초기화합니다.\n초기화를 진행하시겠습니까?", 
             isCancelButton: true, 
             blurAreaActivation: true,
             onConfirm:  () => {
