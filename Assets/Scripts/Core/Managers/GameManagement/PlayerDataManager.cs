@@ -115,7 +115,6 @@ public class PlayerDataManager : MonoBehaviour
                 playerData.tutorialDataStatus.Add(TutorialStatus.NotStarted);
             }
 
-
             // 초기 오퍼레이터를 ownedOperators에 추가
             if (startingOperators != null)
             {
@@ -132,7 +131,6 @@ public class PlayerDataManager : MonoBehaviour
         else
         {
             playerData = JsonUtility.FromJson<PlayerData>(savedData);
-            //playerData = JsonConvert.DeserializeObject<PlayerData>(savedData);
             ValidateSquadSize();
 
             // 정예화, 레벨에 따른 변경사항 반영
@@ -148,7 +146,6 @@ public class PlayerDataManager : MonoBehaviour
         safePlayerData.currentSquad.Clear();
         for (int i = 0; i < safePlayerData.maxSquadSize; i++)
         {
-            //safePlayerData.currentSquadOperatorNames.Add(string.Empty); // null 대신 빈 문자열 추가
             safePlayerData.currentSquad.Add(new SquadOperatorInfoForSave());
         }
     }
@@ -271,7 +268,6 @@ public class PlayerDataManager : MonoBehaviour
         string jsonData = JsonUtility.ToJson(safePlayerData);
 
         // Dictionary 직렬화를 위한 Newtonsoft.Json 사용
-        //string jsonData = JsonConvert.SerializeObject(safePlayerData, settings);
         PlayerPrefs.SetString("PlayerData", jsonData);
         PlayerPrefs.Save();
     }

@@ -45,6 +45,7 @@ public class OperatorData : ScriptableObject, ICombatData
     public GameObject HitEffectPrefab => hitEffectPrefab;
     public AttackType AttackType => attackType;
     public AttackRangeType AttackRangeType => attackRangeType;
+
     public enum OperatorClass
     {
         Vanguard,
@@ -52,7 +53,8 @@ public class OperatorData : ScriptableObject, ICombatData
         Defender,
         Caster,
         Sniper,
-        Medic
+        Medic,
+        Artillery // 포격사수
     }
 
     [System.Serializable]
@@ -89,7 +91,6 @@ public struct OperatorStats
     [SerializeField] private float _attackPower;
     [SerializeField] private float _attackSpeed;
     [SerializeField] private int _maxBlockableEnemies;
-    [SerializeField] private float _startSP;
     [SerializeField] private float _spRecoveryRate;
 
     public float AttackPower
@@ -109,13 +110,7 @@ public struct OperatorStats
         get => _maxBlockableEnemies;
         set => _maxBlockableEnemies = value;
     }
-
-    public float StartSP
-    {
-        get => _startSP;
-        set => _startSP = value;
-    }
-
+    
     public float SPRecoveryRate
     {
         get => _spRecoveryRate;

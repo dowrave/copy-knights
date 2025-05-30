@@ -162,8 +162,7 @@ public static class OperatorGrowthSystem
             DeploymentCost = baseStats.DeploymentCost,
             MaxBlockableEnemies = baseStats.MaxBlockableEnemies,
             RedeployTime = baseStats.RedeployTime,
-            SPRecoveryRate = baseStats.SPRecoveryRate,
-            StartSP = baseStats.StartSP
+            SPRecoveryRate = baseStats.SPRecoveryRate
         };
     }
 

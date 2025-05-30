@@ -120,7 +120,7 @@ GameObject:
   - component: {fileID: 1948338424727183985}
   - component: {fileID: 5373277552334241455}
   m_Layer: 6
-  m_Name: BaseCaster
+  m_Name: Caster
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

@@ -62,7 +62,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 9e4a3acedf625d3478ba98e2433d6f62, type: 2}
+  - {fileID: 2100000, guid: b42be09a18fa25f41946ef92557114c3, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -117,10 +117,10 @@ GameObject:
   m_Component:
   - component: {fileID: 2122139728292691929}
   - component: {fileID: 8846747372839674758}
-  - component: {fileID: 4163448615492591506}
-  - component: {fileID: 9151259883352533866}
+  - component: {fileID: 5805119495687587785}
+  - component: {fileID: -8582377441381328271}
   m_Layer: 6
-  m_Name: BaseGuard
+  m_Name: Defender
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -135,7 +135,7 @@ Transform:
   m_GameObject: {fileID: 5185628148525671535}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 8, y: 0.5, z: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -175,7 +175,7 @@ MonoBehaviour:
     _startSP: 0
     _spRecoveryRate: 0
   operatorUIPrefab: {fileID: 6495183925303149127, guid: c20d98f4d39f9d645a85f029e0911050, type: 3}
---- !u!65 &4163448615492591506
+--- !u!65 &5805119495687587785
 BoxCollider:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -196,7 +196,7 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 0.8, y: 1, z: 0.8}
   m_Center: {x: 0, y: 0, z: 0}
---- !u!54 &9151259883352533866
+--- !u!54 &-8582377441381328271
 Rigidbody:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}

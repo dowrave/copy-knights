@@ -171,11 +171,20 @@ public class Projectile : MonoBehaviour
         {
             AttackSource attackSource = new AttackSource(transform.position, true, hitEffectPrefab, hitEffectTag);
 
+            // 힐 상황
             if (isHealing)
             {
                 // 힐 이펙트도 피격 이펙트로 포함하겠음
                 target.TakeHeal(attacker, attackSource, value);
             }
+
+            // 범위 공격 상황
+            else if (attacker is Operator op && op.OperatorData.operatorClass == OperatorData.OperatorClass.Artillery)
+            {
+                CreateAreaOfDamage(transform.position, value, showValue, attackSource);
+            }
+
+            // 단일 공격
             else
             {
                 // 대미지는 보여야 하는 경우에만 보여줌
@@ -199,6 +208,33 @@ public class Projectile : MonoBehaviour
             ObjectPoolManager.Instance!.ReturnToPool(poolTag, gameObject);
         }
     }
+    
+    // 범위 공격을 하는 경우 이펙트와 콜라이더를 생성함
+    private void CreateAreaOfDamage(Vector3 position, float damage, bool showValue, AttackSource attackSource)
+    {
+        // 범위 공격 이펙트 생성
+        if (hitEffectPrefab != null)
+        {
+            GameObject effectInstance = Instantiate(hitEffectPrefab, position, Quaternion.identity);
+            Destroy(effectInstance, 2f); // 2초 후에 이펙트 제거
+        }
+
+        // 범위 공격 대상에게 대미지 적용
+        Collider[] hitColliders = Physics.OverlapSphere(position, 0.5f);
+        foreach (var hitCollider in hitColliders)
+        {
+            UnitEntity unit = hitCollider.GetComponent<UnitEntity>();
+            if (unit != null && unit.Faction != attacker.Faction) // 다른 세력일 때에만 대미지를 준다
+            {
+                if (showValue)
+                {
+                    ObjectPoolManager.Instance!.ShowFloatingText(unit.transform.position, damage, false);
+                }
+                
+                unit.TakeDamage(attacker, attackSource, damage);
+            }
+        }
+    }
 
     private void OnTargetDestroyed(UnitEntity unit)
     {
@@ -206,7 +242,7 @@ public class Projectile : MonoBehaviour
         {
             lastKnownPosition = target.transform.position;
             target.OnDestroyed -= OnTargetDestroyed;
-            target = null; 
+            target = null;
         }
     }
 

@@ -172,7 +172,6 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable,
                 throw new System.InvalidOperationException("인덱스가 없어서 CurrentSkill이 지정되지 않음");
             }
 
-            CurrentSP = ownedOp.CurrentStats.StartSP;
             MaxSP = CurrentSkill?.SPCost ?? 0f;
 
             ElitePhase = ownedOp.currentPhase;
@@ -584,7 +583,6 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable,
         UpdateAttackableTiles();
         CreateDirectionIndicator();
         CreateOperatorUI();
-        CurrentSP = currentOperatorStats.StartSP;
 
         // deployableInfo의 배치된 오퍼레이터를 이것으로 지정
         DeployableInfo.deployedOperator = this;
@@ -812,7 +810,6 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable,
            );
             if (effectObj != null)
             {
-                //VisualEffect vfx = effectObj.GetComponent<VisualEffect>();
                 CombatVFXController? combatVFXController = effectObj.GetComponent<CombatVFXController>();
                 if (combatVFXController != null)
                 {
