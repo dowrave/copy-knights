@@ -12,6 +12,9 @@ public class DeployableBarUI : MonoBehaviour
     private Camera mainCamera = default!;
     private Canvas canvas = default!;
 
+    public HealthBar HealthBar => healthBar;
+    public HealthBar SPBar => spBar;
+
     private void Awake()
     {
         if (healthBar == null)
@@ -92,6 +95,21 @@ public class DeployableBarUI : MonoBehaviour
         {
             spBar.SetColor(color);
         }
+    }
+
+    public void SwitchSPBarToAmmoMode(int maxAmmo, int currentAmmo)
+    {
+        spBar.SwitchToAmmoMode(maxAmmo, currentAmmo);
+    }
+
+    public void SwitchSPBarToNormalMode()
+    {
+        spBar.SwitchToNormalMode();
+    }
+
+    public void UpdateAmmoDisplay(int currentAmmo)
+    {
+        spBar.UpdateAmmoCount(currentAmmo);
     }
 
     private void UpdatePosition()

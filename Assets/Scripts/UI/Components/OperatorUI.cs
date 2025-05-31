@@ -9,6 +9,8 @@ public class OperatorUI : MonoBehaviour
 
     private DeployableBarUI deployableBarUIScript = default!;
 
+    public DeployableBarUI DeployableBarUI => deployableBarUIScript;
+
     private Operator op = default!;
 
     private Canvas canvas = default!;

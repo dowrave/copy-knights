@@ -15,7 +15,7 @@ namespace Skills.OperatorSkills
         }
 
         // 공격에 묻어나가는 로직
-        public override void OnAttack(Operator op, ref float damage, ref bool showDamage)
+        public override void OnBeforeAttack(Operator op, ref float damage, ref bool showDamage)
         {
             if (op.CurrentSP >= op.MaxSP) 
             {

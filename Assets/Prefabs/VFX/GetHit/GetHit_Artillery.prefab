@@ -19620,6 +19620,7 @@ GameObject:
   - component: {fileID: 2099484939688457996}
   - component: {fileID: 6464474205149907044}
   - component: {fileID: 1943494051969742863}
+  - component: {fileID: 5946149834048825582}
   m_Layer: 0
   m_Name: GetHit_Artillery
   m_TagString: Untagged
@@ -24446,3 +24447,15 @@ ParticleSystemRenderer:
   m_MeshWeighting2: 1
   m_MeshWeighting3: 1
   m_MaskInteraction: 0
+--- !u!114 &5946149834048825582
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8461901091398595130}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b7d2569bcf045ad4a9b4f6b572e4c677, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 

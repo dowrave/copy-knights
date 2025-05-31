@@ -15,12 +15,10 @@ public class CombatVFXController : MonoBehaviour
 
     public void Initialize(ICombatEntity.AttackSource attackSource, UnitEntity target, string effectTag, float effectDuration = 1f)
     {
-        
         this.attackSource = attackSource;
         this.target = target;
         this.effectTag = effectTag;
         this.effectDuration = effectDuration;
-
 
         ps = GetComponent<ParticleSystem>();
         vfx = GetComponent<VisualEffect>();

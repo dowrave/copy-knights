@@ -263,6 +263,7 @@ MonoBehaviour:
   healthFillColor: {r: 0.45416224, g: 0.8584906, b: 0.40899786, a: 0.9019608}
   shieldFillColor: {r: 0, g: 0, b: 0, a: 0}
   damageOverlayColor: {r: 0, g: 0, b: 0, a: 0}
+  ammoPadding: 0.02
 --- !u!222 &5210140273801304838
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -714,6 +715,7 @@ MonoBehaviour:
   healthFillColor: {r: 0, g: 0.8679245, b: 0.788391, a: 0.9019608}
   shieldFillColor: {r: 0, g: 0.5672978, b: 0.8666667, a: 0.9019608}
   damageOverlayColor: {r: 0.70598966, g: 0.8962264, b: 0.87757576, a: 0.9019608}
+  ammoPadding: 0.02
 --- !u!222 &2284489797956281936
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -852,7 +854,7 @@ MonoBehaviour:
   m_FallbackScreenDPI: 96
   m_DefaultSpriteDPI: 96
   m_DynamicPixelsPerUnit: 1
-  m_PresetInfoIsWorld: 1
+  m_PresetInfoIsWorld: 0
 --- !u!114 &-4599507656022332454
 MonoBehaviour:
   m_ObjectHideFlags: 0

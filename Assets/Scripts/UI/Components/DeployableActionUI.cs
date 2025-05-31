@@ -4,6 +4,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using NUnit.Framework.Constraints;
 using System;
+using Skills.Base;
 
 
 public class DeployableActionUI : MonoBehaviour
@@ -49,7 +50,6 @@ public class DeployableActionUI : MonoBehaviour
             currentOperator = deployable as Operator;
             if (currentOperator != null)
             {
-                Debug.LogWarning("배치요소는 operator");
                 skillButton.gameObject.SetActive(true);
 
                 UpdateSkillButton();
@@ -63,7 +63,6 @@ public class DeployableActionUI : MonoBehaviour
         }
         else
         {
-            Debug.LogWarning($"배치요소는 deployable : {deployable.DeployableUnitData.entityName}");
             skillButton.gameObject.SetActive(false);
         }
 
@@ -73,7 +72,6 @@ public class DeployableActionUI : MonoBehaviour
 
         // 버튼들에 이벤트 리스너 설정
         SetUpButtons();
-
 
         // 맵과 나란한 방향으로 설정
         transform.rotation = Quaternion.Euler(90, 0, 0);
@@ -112,7 +110,6 @@ public class DeployableActionUI : MonoBehaviour
         // 버튼 위치는 인스펙터에서 설정
         // 버튼 이벤트 설정
         retreatButton.onClick.AddListener(OnRetreatButtonClicked);
-        Debug.LogWarning("퇴각 버튼에 리스너 설정됨");
 
         if (deployable is Operator)
         {
@@ -124,11 +121,16 @@ public class DeployableActionUI : MonoBehaviour
     {
         if (deployable is Operator op)
         {
-            if (op.CurrentSkill.autoActivate == false)
+            if (op.CurrentSkill is AmmoBasedActiveSkill ammoSkill && op.IsSkillOn)
+            {
+                ammoSkill.TerminateSkill(op);
+            } 
+            else if (op.CurrentSkill.autoActivate == false)
             {
                 op.UseSkill();
                 UpdateSkillButton();
             }
+
             ClickDetectionSystem.Instance!.OnButtonClicked();
             Hide();
         }
@@ -153,7 +155,6 @@ public class DeployableActionUI : MonoBehaviour
 
     private void OnRetreatButtonClicked()
     {
-        Debug.LogWarning("퇴각 버튼 클릭됨");
         deployable.Retreat();
         ClickDetectionSystem.Instance!.OnButtonClicked();
         Hide();

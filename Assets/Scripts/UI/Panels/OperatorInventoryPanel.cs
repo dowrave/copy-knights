@@ -23,6 +23,7 @@ public class OperatorInventoryPanel : MonoBehaviour
     [Header("Attack Range Visualization")]
     [SerializeField] private RectTransform attackRangeContainer = default!;
     [SerializeField] private float centerPositionOffset = default!; // 타일 시각화 위치를 위한 중심 이동
+    [SerializeField] private float tileSize = default!; // 타일의 크기
     private UIHelper.AttackRangeHelper attackRangeHelper = default!;
 
     [Header("Operator Stat Boxes")]
@@ -310,7 +311,8 @@ public class OperatorInventoryPanel : MonoBehaviour
             // Awake에 둘 경우, 이 패널이 활성화된 채로 시작하면 오류 발생해서 OnEnable에서 동작하도록 수정
             attackRangeHelper = UIHelper.Instance.CreateAttackRangeHelper(
                 attackRangeContainer,
-                centerPositionOffset
+                centerPositionOffset,
+                tileSize // 타일 크기
             );
         }
 

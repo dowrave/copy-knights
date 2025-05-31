@@ -9,8 +9,8 @@ public class OperatorPromotionPanel : MonoBehaviour
 {
     [Header("Range Container")]
     [SerializeField] private RectTransform attackRangeContainer = default!;
-    private float attackRangecenterPositionOffset = 45f;
-    private float attackRangeTileSize = 25f;
+    private float attackRangecenterPositionOffset = 60f;
+    private float attackRangeTileSize = 20f;
     [SerializeField] private RectTransform skillRangeContainer = default!;
     private float skillRangecenterPositionOffset = 0f;
     private float skillRangeTileSize = 20f;

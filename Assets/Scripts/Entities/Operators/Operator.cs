@@ -123,6 +123,7 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable,
     [SerializeField] protected GameObject operatorUIPrefab = default!;
     protected GameObject operatorUIInstance = default!;
     protected OperatorUI? operatorUI;
+    public OperatorUI? OperatorUI => operatorUI;
 
     // 원거리 공격 오브젝트 풀 옵션
     protected string? projectileTag;
@@ -259,11 +260,12 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable,
 
     protected void PerformAttack(UnitEntity target, float damage, bool showDamagePopup)
     {
+        
         if (CurrentSkill != null)
         {
-            CurrentSkill.OnAttack(this, ref damage, ref showDamagePopup);    
+            CurrentSkill.OnBeforeAttack(this, ref damage, ref showDamagePopup);
         }
-
+    
         switch (OperatorData.attackRangeType)
         {
             case AttackRangeType.Melee:
@@ -272,6 +274,11 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable,
             case AttackRangeType.Ranged:
                 PerformRangedAttack(target, damage, showDamagePopup);
                 break;
+        }
+
+        if (CurrentSkill != null)
+        {
+            CurrentSkill.OnAfterAttack(this);
         }
     }
 

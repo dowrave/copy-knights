@@ -19,14 +19,22 @@ public class HealthBar : MonoBehaviour
     [SerializeField] private Color shieldFillColor; // 체력 게이지 전용
     [SerializeField] private Color damageOverlayColor;  // 체력 게이지 전용
 
+    [Header("Ammo Settings")]
+    [SerializeField] private float ammoPadding = 0.02f; // 탄환 칸 사이의 간격
+
     private float currentAmount;
     private float maxAmount; // Health, SP 등 게이지가 주로 나타내는 값의 최대 수치
     private float totalAmount; // 추가로 반영되는 값까지 포함한 수치
-    private Coroutine? damageCoroutine; 
+    private Coroutine? damageCoroutine;
+
+    // 탄환 모드 관련 변수
+    private bool isAmmoMode = false;
+    private int ammoCount = 0;
+    private int maxAmmoCount = 0;
 
     private void Awake()
     {
-        slider = GetComponent<Slider>(); 
+        slider = GetComponent<Slider>();
 
         if (showDamageEffect)
         {
@@ -102,6 +110,74 @@ public class HealthBar : MonoBehaviour
         {
             ShowDamageEffect(previousAmount);
         }
+    }
+
+    public void SwitchToAmmoMode(int maxAmmo, int currentAmmo)
+    {
+        isAmmoMode = true;
+        maxAmmoCount = maxAmmo;
+        ammoCount = currentAmmo;
+
+        // 다른 UI 요소들 비활성화
+        if (shieldFill != null) shieldFill.gameObject.SetActive(false);
+        if (damageOverlayImage != null) damageOverlayImage.gameObject.SetActive(false);
+
+        UpdateAmmoDisplay();
+    }
+
+    public void UpdateAmmoCount(int currentAmmo)
+    {
+        if (!isAmmoMode) return;
+
+        ammoCount = currentAmmo;
+        UpdateAmmoDisplay();
+    }
+
+    private void UpdateAmmoDisplay()
+    {
+        if (maxAmmoCount <= 0) return;
+
+        // 각 탄환 칸의 너비 계산
+        float totalPadding = ammoPadding * (maxAmmoCount - 1);
+        float availableWidth = 1f - totalPadding; // 전체 너비에서 패딩을 제외한 너비
+        float ammoSlotWidth = availableWidth / maxAmmoCount;
+
+        // 현재 탄환 수 만큼 표시
+        if (ammoCount > 0)
+        {
+            // fillAmount 는 전체에서 현재 탄환 수가 차지하는 비율
+            float totalAmmoWidth = (ammoSlotWidth * ammoCount) + (ammoPadding * (ammoCount - 1));
+            healthFill.fillAmount = totalAmmoWidth;
+
+            // anchor는 시작 ~ 끝까지
+            healthFill.rectTransform.anchorMin = new Vector2(0, 0);
+            healthFill.rectTransform.anchorMax = new Vector2(totalAmmoWidth, 1);
+        }
+        else
+        {
+            // 탄환이 없으면 완전히 숨김
+            healthFill.fillAmount = 0f;
+            healthFill.rectTransform.anchorMin = new Vector2(0, 0);
+            healthFill.rectTransform.anchorMax = new Vector2(0, 1);
+        }
+
+        // 이산적인 칸 효과 구현 : Image 타입을 Filled로 설정
+        if (healthFill.type != Image.Type.Filled)
+        {
+            healthFill.type = Image.Type.Filled;
+            healthFill.fillMethod = Image.FillMethod.Horizontal;
+            healthFill.fillOrigin = 0; // 왼쪽에서부터 채움
+        }
+    }
+
+    public void SwitchToNormalMode()
+    {
+        isAmmoMode = false;
+
+        // HealthFill 원래 상태로 복원
+        healthFill.fillAmount = currentAmount / totalAmount;
+        healthFill.rectTransform.anchorMin = new Vector2(0, 0);
+        healthFill.rectTransform.anchorMax = new Vector2(currentAmount / totalAmount, 1);
     }
 
     private void ShowDamageEffect(float previousAmount)

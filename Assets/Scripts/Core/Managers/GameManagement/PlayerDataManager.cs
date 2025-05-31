@@ -32,7 +32,7 @@ public class PlayerDataManager : MonoBehaviour
     private Dictionary<string, OperatorData> operatorDatabase = new Dictionary<string, OperatorData>();
 
     [SerializeField] private List<OperatorData> startingOperators = new List<OperatorData>(); //  nullable 경고문 회피: 할당이 없으면 빈 리스트
-    [SerializeField] private int defaultMaxSquadSize = 6;
+    [SerializeField] private int defaultMaxSquadSize = 7;
 
     private Dictionary<string, ItemData> itemDatabase = new Dictionary<string, ItemData>();
 
@@ -388,10 +388,10 @@ public class PlayerDataManager : MonoBehaviour
         squadForSave[squadIndex] = new SquadOperatorInfoForSave(operatorName, skillIndex);
 
         // 디버깅 - 스쿼드 수정마다 반복문 실행해서 점검
-        for (int i=0; i < squadForSave.Count; i++)
-        {
-            Debug.Log($"스쿼드 구성 : {i}번째 인덱스 - ({squadForSave[i].operatorName}, 스킬 인덱스 : {squadForSave[i].skillIndex})");
-        }
+        // for (int i=0; i < squadForSave.Count; i++)
+        // {
+        //     Debug.Log($"스쿼드 구성 : {i}번째 인덱스 - ({squadForSave[i].operatorName}, 스킬 인덱스 : {squadForSave[i].skillIndex})");
+        // }
 
         SavePlayerData();
         OnSquadUpdated?.Invoke();

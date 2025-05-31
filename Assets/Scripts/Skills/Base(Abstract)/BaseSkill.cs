@@ -14,16 +14,24 @@ namespace Skills.Base
 
         public bool autoRecover = false; // SP 자동회복 여부
         public bool autoActivate = false; // 자동발동 여부
-        public bool modifiesAttackAction = false; // 기본 공격이 다르게 나가는 스킬일 때 true
+        public bool modifiesAttackAction = false; // 공격 액션 변경 여부
 
         protected Operator caster = default!; // 스킬 시전자
 
-        protected abstract void SetDefaults(); // 인스펙터 bool 필드값들 초기 설정.
+        // 인스펙터 bool 필드값들 초기 설정.
+        protected abstract void SetDefaults(); 
 
-        // 동작이 필요할 때 구현
-        public virtual void Activate(Operator op) { } // 액티브 스킬을 켰을 때의 동작
-        public virtual void PerformChangedAttackAction(Operator op) { } // op.Attack() 대신 실행되는 동작 
-        public virtual void OnAttack(Operator op, ref float damage, ref bool showDamagePopup) { } // 공격에 효과를 추가하는 경우
+        // 액티브 스킬을 켰을 때의 동작
+        public virtual void Activate(Operator op) { } 
+
+         // modifiesAttackAction가 true일 때, 공격을 변경하는 액션
+        public virtual void PerformChangedAttackAction(Operator op) { }
+
+        // op.Attack()을 사용하고, 공격이 적용되기 전 효과 반영
+        public virtual void OnBeforeAttack(Operator op, ref float damage, ref bool showDamagePopup) { } 
+
+        // op.Attack()을 사용하고, 공격이 적용된 후 효과 반영
+        public virtual void OnAfterAttack(Operator op) { } 
 
         // 오브젝트 풀링을 사용할 경우
         public virtual void InitializeSkillObjectPool() { } // 오브젝트 풀 구현

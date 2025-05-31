@@ -111,7 +111,7 @@ namespace Skills.Base
         }
 
         // 스킬 지속시간 처리
-        protected IEnumerator HandleSkillDuration(Operator op)
+        protected virtual IEnumerator HandleSkillDuration(Operator op)
         {
             OnSkillStart(op);
             op.StartSkillDurationDisplay(duration);

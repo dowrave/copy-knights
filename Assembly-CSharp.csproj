@@ -66,6 +66,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Assets\Scripts\Utils\StageLoader.cs" />
+    <Compile Include="Assets\Scripts\Skills\OperatorSkills\SixBulletSkill.cs" />
     <Compile Include="Assets\Scripts\Core\Managers\ObjectPoolManager.cs" />
     <Compile Include="Assets\Scripts\Core\Systems\ExpCalculationSystem.cs" />
     <Compile Include="Assets\Scripts\UI\Components\DeployableBox.cs" />
@@ -131,6 +132,7 @@
     <Compile Include="Assets\Scripts\UI\Panels\ConfirmationReturnToLobbyPanel.cs" />
     <Compile Include="Assets\Scripts\Map\EnemySpawner.cs" />
     <Compile Include="Assets\Scripts\UI\Components\InGameTopButtonContainer.cs" />
+    <Compile Include="Assets\Scripts\Skills\Base(Abstract)\AmmoBasedActiveSkill.cs" />
     <Compile Include="Assets\Scripts\Entities\Enemy\Enemy.cs" />
     <Compile Include="Assets\Scripts\Utils\InstanceValidator.cs" />
     <Compile Include="Assets\Scripts\UI\Components\OperatorUI.cs" />
