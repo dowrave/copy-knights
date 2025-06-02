@@ -79,6 +79,7 @@
     <Compile Include="Assets\Scripts\Skills\SkillController\FieldEffectController.cs" />
     <Compile Include="Assets\Scripts\Data\OperatorIconData.cs" />
     <Compile Include="Assets\Scripts\Utils\OperatorIconHelper.cs" />
+    <Compile Include="Assets\Scripts\UI\Components\GaugeBar\HealthBar.cs" />
     <Compile Include="Assets\Scripts\UI\Components\DiamondOutline.cs" />
     <Compile Include="Assets\Scripts\Entities\Base\DeployableUnitEntity.cs" />
     <Compile Include="Assets\Scripts\Utils\ClickDetectionSystem.cs" />
@@ -96,6 +97,7 @@
     <Compile Include="Assets\Scripts\Skills\Base(Abstract)\PassiveSkill.cs" />
     <Compile Include="Assets\Scripts\Entities\PathIndicator.cs" />
     <Compile Include="Assets\Scripts\Core\Managers\GameManagement\RewardManager.cs" />
+    <Compile Include="Assets\Scripts\UI\Components\GaugeBar\SPBar.cs" />
     <Compile Include="Assets\Scripts\Interfaces\ITargettable.cs" />
     <Compile Include="Assets\Scripts\Skills\Base(Abstract)\BaseSkill.cs" />
     <Compile Include="Assets\Scripts\UI\Panels\OperatorInventoryPanel.cs" />
@@ -105,7 +107,6 @@
     <Compile Include="Assets\Scripts\Core\Managers\GameManagement\UserSquadManager.cs" />
     <Compile Include="Assets\Scripts\Core\Managers\GameManagement\TutorialManager.cs" />
     <Compile Include="Assets\Scripts\Skills\SkillController\SlashSkillController.cs" />
-    <Compile Include="Assets\Scripts\UI\Components\HealthBar.cs" />
     <Compile Include="Assets\Scripts\Entities\Operators\MedicOperator.cs" />
     <Compile Include="Assets\Scripts\Data\UserInventoryData.cs" />
     <Compile Include="Assets\Scripts\UI\Panels\DeploymentCostPanel.cs" />

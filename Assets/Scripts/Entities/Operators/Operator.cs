@@ -614,7 +614,7 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable,
     // ISkill ¸Þ¼­µå
     public bool CanUseSkill()
     {
-        return IsDeployed && CurrentSP >= MaxSP;
+        return IsDeployed && CurrentSP >= MaxSP && !IsSkillOn;
     }
 
     protected override void InitializeHP()

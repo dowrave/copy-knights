@@ -4,7 +4,7 @@ using UnityEngine;
 public class DeployableBarUI : MonoBehaviour
 {
     [SerializeField] private HealthBar healthBar = default!;
-    [SerializeField] private HealthBar spBar = default!;
+    [SerializeField] private SPBar spBar = default!;
 
     private float backOffset = 0; // UI의 높이 오프셋
     private Operator? op;
@@ -13,7 +13,7 @@ public class DeployableBarUI : MonoBehaviour
     private Canvas canvas = default!;
 
     public HealthBar HealthBar => healthBar;
-    public HealthBar SPBar => spBar;
+    public SPBar SpBar => spBar;
 
     private void Awake()
     {
@@ -23,7 +23,7 @@ public class DeployableBarUI : MonoBehaviour
         }
         if (spBar == null)
         {
-            spBar = transform.Find("SPBar").GetComponent<HealthBar>();
+            spBar = transform.Find("SPBar").GetComponent<SPBar>();
         }
 
         canvas = GetComponent<Canvas>();
@@ -72,13 +72,15 @@ public class DeployableBarUI : MonoBehaviour
 
     public void UpdateSPBar(float currentSP, float maxSP)
     {
-        spBar.UpdateHealthBar(currentSP, maxSP);
+        if (spBar.IsAmmoMode) return;
+        spBar.UpdateSPFill(currentSP, maxSP);
     }
 
     public Color GetHealthBarColor()
     {
         return healthBar.GetColor();
     }
+    
     public void SetHealthBarColor(Color color)
     {
         healthBar.SetColor(color);

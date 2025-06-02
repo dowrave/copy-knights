@@ -29,6 +29,9 @@ public class DeployableActionUI : MonoBehaviour
     [Header("Diamond Mask")]
     [SerializeField] private MaskedDiamondOverlay maskedOverlay = default!;
 
+    [Header("Manual Stop UI")]
+    [SerializeField] private GameObject manualStopUI = default!; // 수동 종료가 가능한 스킬에만 나타남
+
     private Canvas canvas = default!;
 
     private float darkPanelAlpha = 0f;
@@ -77,7 +80,7 @@ public class DeployableActionUI : MonoBehaviour
         transform.rotation = Quaternion.Euler(90, 0, 0);
 
         maskedOverlay.Initialize(darkPanelAlpha); // 알파 0으로 조정
-
+        manualStopUI.SetActive(false); // 수동 종료 UI는 기본적으로 비활성화
     }
 
     private void InitializeSkillIcon()
@@ -151,6 +154,22 @@ public class DeployableActionUI : MonoBehaviour
         UpdateInactivePanel();
         UpdateSPIndicator();
         UpdateSkillSPImage();
+        UpdateManualStopUI();
+    }
+
+    private void UpdateManualStopUI()
+    {
+        if (currentOperator == null || currentOperator.CurrentSkill == null) return;
+
+        // 수동 종료가 가능한 스킬이 켜져 있을 때
+        if (currentOperator.CurrentSkill is AmmoBasedActiveSkill && currentOperator.IsSkillOn)
+        {
+            manualStopUI.SetActive(true);
+        }
+        else
+        {
+            manualStopUI.SetActive(false);
+        }
     }
 
     private void OnRetreatButtonClicked()
@@ -185,6 +204,12 @@ public class DeployableActionUI : MonoBehaviour
                 {
                     spIndicatorImage.color = canActivateColor;
                     spIndicatorText.text = "Activate";
+                }
+                // 남은 탄환 표시 
+                else if (currentOperator.CurrentSkill is AmmoBasedActiveSkill ammoSkill && currentOperator.IsSkillOn)
+                {
+                    spIndicatorImage.color = normalColor;
+                    spIndicatorText.text = $"{ammoSkill.CurrentAmmo} / {ammoSkill.MaxAmmo}";
                 }
                 // 스킬이 켜졌을 때
                 else if (currentOperator.IsSkillOn)

@@ -1,17 +1,15 @@
+using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.EventSystems;
+using UnityEngine.UI;
 
 public class OperatorUI : MonoBehaviour
 {
     [Header("Components")]
-    [SerializeField] private GameObject deployableBarUI = default!;  // 기존에 할당된 Bar UI
+    [SerializeField] private DeployableBarUI deployableBarUI = default!;  // 기존에 할당된 Bar UI
     [SerializeField] private GameObject skillIconUI = default!;      // 스킬 아이콘 UI
 
-    private DeployableBarUI deployableBarUIScript = default!;
-
-    public DeployableBarUI DeployableBarUI => deployableBarUIScript;
-
     private Operator op = default!;
+    public DeployableBarUI DeployableBarUI => deployableBarUI;
 
     private Canvas canvas = default!;
     private Camera mainCamera = default!;
@@ -29,8 +27,7 @@ public class OperatorUI : MonoBehaviour
     {
         this.op = op;
 
-        deployableBarUIScript = deployableBarUI.GetComponent<DeployableBarUI>();
-        deployableBarUIScript.Initialize(op);
+        DeployableBarUI.Initialize(op);
 
         transform.position = op.transform.position;
 
@@ -59,11 +56,11 @@ public class OperatorUI : MonoBehaviour
     {
         if (op.IsSkillOn)
         {
-            deployableBarUIScript.SetSPBarColor(GameManagement.Instance!.ResourceManager.OnSkillColor);
+            DeployableBarUI.SetSPBarColor(GameManagement.Instance!.ResourceManager.OnSkillColor);
         }
         else
         {
-            deployableBarUIScript.SetSPBarColor(GameManagement.Instance!.ResourceManager.OffSkillColor);
+            DeployableBarUI.SetSPBarColor(GameManagement.Instance!.ResourceManager.OffSkillColor);
         }
 
         SetSkillIconVisibility(
@@ -73,9 +70,27 @@ public class OperatorUI : MonoBehaviour
         );
     }
 
+    // SP Bar를 탄환 모드로 전환
+    public void SwitchSPBarToAmmoMode(int maxAmmo, int currentAmmo)
+    {
+        DeployableBarUI.SwitchSPBarToAmmoMode(maxAmmo, currentAmmo);
+    }
+
+    // 탄환 모드에서 원래 모드로 전환
+    public void SwitchSPBarToNormalMode()
+    {
+        DeployableBarUI.SwitchSPBarToNormalMode();
+    }
+
+    // 탄환 업데이트
+    public void UpdateAmmoDisplay(int currentAmmo)
+    {
+        DeployableBarUI.UpdateAmmoDisplay(currentAmmo);
+    }
+
+
     private void DestroyThis(Operator op)
     {
-        Debug.Log("operatorUI 파괴 로직 동작");
         Destroy(gameObject);
     }
 }

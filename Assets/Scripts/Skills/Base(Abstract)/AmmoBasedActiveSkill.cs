@@ -18,7 +18,7 @@ namespace Skills.Base
         protected float originalAttackSpeed;
         protected float originalAttackDamage;
 
-        protected DeployableBarUI? deployableBarUI;
+        protected OperatorUI? operatorUI;
 
         public int CurrentAmmo => currentAmmo;
         public int MaxAmmo => maxAmmo;
@@ -26,7 +26,7 @@ namespace Skills.Base
         public override void Activate(Operator op)
         {
             caster = op;
-            deployableBarUI = op.OperatorUI.DeployableBarUI;
+            operatorUI = op.OperatorUI;
 
             if (!op.IsDeployed || !op.CanUseSkill()) return;
 
@@ -43,7 +43,7 @@ namespace Skills.Base
             op.AttackSpeed /= attackSpeedModifier;
 
             // SPbar UI 업데이트
-            deployableBarUI?.SwitchSPBarToAmmoMode(maxAmmo, currentAmmo);
+            operatorUI?.SwitchSPBarToAmmoMode(maxAmmo, currentAmmo);
 
             op.StartCoroutine(HandleSkillDuration(op)); // 코루틴은 MonoBehaviour에서만 사용 가능함
         }
@@ -52,7 +52,8 @@ namespace Skills.Base
         {
             if (!op.IsSkillOn) return; 
 
-            ConsumeAmmo(op);
+            // 공격 후 탄환 소모
+            ConsumeAmmo();
 
             // 탄환이 소진되면 스킬 종료
             if (CurrentAmmo <= 0)
@@ -62,12 +63,12 @@ namespace Skills.Base
             
         }
 
-        protected virtual void ConsumeAmmo(Operator op)
+        protected virtual void ConsumeAmmo()
         {
             currentAmmo = Mathf.Max(0, currentAmmo - 1);
 
             // 탄환 소모 후 UI 업데이트
-            UpdateAmmoUI(op);
+            UpdateAmmoUI();
         }
 
         protected override void OnSkillEnd(Operator op)
@@ -79,15 +80,15 @@ namespace Skills.Base
             base.OnSkillEnd(op);
         }
 
-        protected virtual void UpdateAmmoUI(Operator op)
+        protected virtual void UpdateAmmoUI()
         {
-            deployableBarUI?.UpdateAmmoDisplay(currentAmmo);
+            operatorUI?.UpdateAmmoDisplay(currentAmmo);
         }
 
         public virtual void TerminateSkill(Operator op)
         {
             OnSkillEnd(op);
-            deployableBarUI?.SwitchSPBarToNormalMode();
+            operatorUI?.SwitchSPBarToNormalMode();
         }
 
         protected override IEnumerator HandleSkillDuration(Operator op)

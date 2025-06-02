@@ -5,7 +5,7 @@ using UnityEngine.UI;
 public class HealthBar : MonoBehaviour
 {
     // 체력바 UI 관리
-    private Slider slider = default!;
+    [SerializeField] private Slider slider = default!;
     [SerializeField] private Image healthFill = default!;
     [SerializeField] private Image shieldFill = default!;
     [SerializeField] private Image damageOverlayImage = default!;
@@ -18,9 +18,6 @@ public class HealthBar : MonoBehaviour
     [SerializeField] private Color healthFillColor;
     [SerializeField] private Color shieldFillColor; // 체력 게이지 전용
     [SerializeField] private Color damageOverlayColor;  // 체력 게이지 전용
-
-    [Header("Ammo Settings")]
-    [SerializeField] private float ammoPadding = 0.02f; // 탄환 칸 사이의 간격
 
     private float currentAmount;
     private float maxAmount; // Health, SP 등 게이지가 주로 나타내는 값의 최대 수치
@@ -137,37 +134,16 @@ public class HealthBar : MonoBehaviour
     {
         if (maxAmmoCount <= 0) return;
 
-        // 각 탄환 칸의 너비 계산
-        float totalPadding = ammoPadding * (maxAmmoCount - 1);
-        float availableWidth = 1f - totalPadding; // 전체 너비에서 패딩을 제외한 너비
-        float ammoSlotWidth = availableWidth / maxAmmoCount;
-
-        // 현재 탄환 수 만큼 표시
-        if (ammoCount > 0)
-        {
-            // fillAmount 는 전체에서 현재 탄환 수가 차지하는 비율
-            float totalAmmoWidth = (ammoSlotWidth * ammoCount) + (ammoPadding * (ammoCount - 1));
-            healthFill.fillAmount = totalAmmoWidth;
-
-            // anchor는 시작 ~ 끝까지
-            healthFill.rectTransform.anchorMin = new Vector2(0, 0);
-            healthFill.rectTransform.anchorMax = new Vector2(totalAmmoWidth, 1);
-        }
-        else
-        {
-            // 탄환이 없으면 완전히 숨김
-            healthFill.fillAmount = 0f;
-            healthFill.rectTransform.anchorMin = new Vector2(0, 0);
-            healthFill.rectTransform.anchorMax = new Vector2(0, 1);
-        }
-
-        // 이산적인 칸 효과 구현 : Image 타입을 Filled로 설정
-        if (healthFill.type != Image.Type.Filled)
-        {
-            healthFill.type = Image.Type.Filled;
-            healthFill.fillMethod = Image.FillMethod.Horizontal;
-            healthFill.fillOrigin = 0; // 왼쪽에서부터 채움
-        }
+        // Sliced 타입으로 설정
+        healthFill.type = Image.Type.Sliced;
+        
+        // 현재 탄환 비율 계산
+        float ammoRatio = (float)ammoCount / maxAmmoCount;
+        
+        // 이산적인 효과를 위해 비율을 단계별로 조정
+        float discreteRatio = Mathf.Floor(ammoRatio * maxAmmoCount) / maxAmmoCount;
+        
+        healthFill.fillAmount = discreteRatio;
     }
 
     public void SwitchToNormalMode()

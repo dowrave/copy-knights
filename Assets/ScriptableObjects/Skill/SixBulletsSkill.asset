@@ -15,7 +15,8 @@ MonoBehaviour:
   skillName: SixBulletsSkill
   description: "\uB2E4\uC74C <color=#179bff>6\uBC88</color>\uC758 \uACF5\uACA9 \uB3D9\uC548
     \uACF5\uACA9\uB825\uC774 <color=#179bff>150%</color>\uC774 \uB418\uACE0 \uACF5\uACA9
-    \uC18D\uB3C4\uAC00 <color=#179bff>120%</color> \uBE68\uB77C\uC9D1\uB2C8\uB2E4. "
+    \uC18D\uB3C4\uAC00 <color=#179bff>300%</color> \uBE68\uB77C\uC9D1\uB2C8\uB2E4.
+    \uC218\uB3D9\uC73C\uB85C \uC885\uB8CC\uD560 \uC218 \uC788\uC2B5\uB2C8\uB2E4."
   SPCost: 1
   skillIcon: {fileID: 21300000, guid: 3a1d5eb5d1045ee4788c5329f5089175, type: 3}
   autoRecover: 1
@@ -27,5 +28,5 @@ MonoBehaviour:
   skillRangeOffset: []
   rectOffset: 0
   maxAmmo: 6
-  attackSpeedModifier: 1.2
+  attackSpeedModifier: 3
   attackDamageModifier: 1.5
