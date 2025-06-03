@@ -42,6 +42,10 @@ namespace Skills.Base
             op.AttackPower *= attackDamageModifier;
             op.AttackSpeed /= attackSpeedModifier;
 
+            // 스킬 사용 직후에는 공격 속도 / 모션 초기화
+            op.SetAttackDuration(0f);
+            op.SetAttackCooldown(0f);
+
             // SPbar UI 업데이트
             operatorUI?.SwitchSPBarToAmmoMode(maxAmmo, currentAmmo);
 

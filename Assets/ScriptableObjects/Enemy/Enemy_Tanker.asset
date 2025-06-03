@@ -16,7 +16,7 @@ MonoBehaviour:
   stats:
     _baseStats:
       _health: 5000
-      _defense: 400
+      _defense: 550
       _magicResistance: 10
     _movementSpeed: 0.8
     _attackPower: 350

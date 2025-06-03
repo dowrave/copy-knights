@@ -17,6 +17,7 @@ public class GameManagement : MonoBehaviour
     [SerializeField] private TimeManager? timeManager = null!;
     [SerializeField] private RewardManager? rewardManager = null!;
     [SerializeField] private StageDatabase? stageDatabase = null!;
+    [SerializeField] private TestManager? testManager = null!; // 추가
 
 
 
@@ -33,6 +34,7 @@ public class GameManagement : MonoBehaviour
     public TimeManager TimeManager => timeManager!;
     public RewardManager RewardManager => rewardManager!;
     public StageDatabase StageDatabase => stageDatabase!;
+    public TestManager TestManager => testManager!; // 추가
 
 
 

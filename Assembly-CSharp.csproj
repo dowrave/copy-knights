@@ -131,6 +131,7 @@
     <Compile Include="Assets\Scripts\Data\OperatorData.cs" />
     <Compile Include="Assets\Scripts\Interfaces\ICombatEntity.cs" />
     <Compile Include="Assets\Scripts\UI\Panels\ConfirmationReturnToLobbyPanel.cs" />
+    <Compile Include="Assets\Scripts\Core\Managers\GameManagement\TestManager.cs" />
     <Compile Include="Assets\Scripts\Map\EnemySpawner.cs" />
     <Compile Include="Assets\Scripts\UI\Components\InGameTopButtonContainer.cs" />
     <Compile Include="Assets\Scripts\Skills\Base(Abstract)\AmmoBasedActiveSkill.cs" />

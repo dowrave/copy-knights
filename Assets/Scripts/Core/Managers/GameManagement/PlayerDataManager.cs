@@ -38,7 +38,7 @@ public class PlayerDataManager : MonoBehaviour
 
     public List<OwnedOperator> OwnedOperators => playerData.ownedOperators;
 
-    public event System.Action OnSquadUpdated = delegate { }; // nullable 경고문 회피
+    public event Action OnSquadUpdated = delegate { }; // nullable 경고문 회피
 
 
     private void Awake()
@@ -203,43 +203,6 @@ public class PlayerDataManager : MonoBehaviour
         SavePlayerData();
     }
 
-    // 테스트용 초기화
-    private void InitializeForTest()
-    {
-        ////TestAboutTutorial();
-
-        //int targetLevel = 50;
-
-        //////오퍼레이터들 성장 반영
-        //foreach (var op in playerData.ownedOperators)
-        //{
-        //    InitializeOperatorLevelUp(op, targetLevel);
-        //    InitializeOperator1stPromotion(op);
-        //}
-
-        // 오퍼레이터들 슬롯에 배치
-        InitializeSquadForTest();
-
-        // 아이템 지급
-        //AddStartingItems();
-
-        // 스테이지 임의 클리어
-        StageClearAndGetRewards("1-0", 3);
-        StageClearAndGetRewards("1-1", 3);
-
-
-        SavePlayerData();
-    }
-
-    private void StageClearAndGetRewards(string stageId, int stars)
-    {
-        // 서순 중요) 보상 지급 후 기록
-        StageData stageData = GameManagement.Instance!.StageDatabase.GetDataById(stageId);
-        GameManagement.Instance!.RewardManager.SetAndGiveStageRewards(stageData, stars);
-        RecordStageResult(stageId, stars);
-    }
-
-
     // 유저가 오퍼레이터를 보유하게 함
     public void AddOperator(string operatorName)
     {
@@ -295,8 +258,6 @@ public class PlayerDataManager : MonoBehaviour
         PlayerPrefs.Save();
     }
 
-
-
     // 새로 만들 메서드 : <OwnedOperator, skillIndex>를 갖는 리스트를 반환함. 런타임에서만 사용.
     public List<SquadOperatorInfo> GetCurrentSquad()
     {
@@ -332,7 +293,7 @@ public class PlayerDataManager : MonoBehaviour
             {
                 if (savedInfo == null || string.IsNullOrEmpty(savedInfo.operatorName))
                 {
-                    return (SquadOperatorInfo?)null;
+                    return null;
                 }
                 else
                 {
@@ -341,7 +302,7 @@ public class PlayerDataManager : MonoBehaviour
                     if (ownedOp != null) return new SquadOperatorInfo(ownedOp, savedInfo.skillIndex);
                     else
                     {
-                        return (SquadOperatorInfo?)null;
+                        return null;
                     }
                 }
             })
@@ -471,7 +432,8 @@ public class PlayerDataManager : MonoBehaviour
 
     private void Start()
     {
-        InitializeForTest();
+        // InitializeForTest();
+        GameManagement.Instance!.TestManager.InitializeForTest();
     }
 
     public int GetMaxSquadSize() => playerData!.maxSquadSize;
@@ -582,31 +544,6 @@ public class PlayerDataManager : MonoBehaviour
         }
     }
 
-    private void InitializeSquadForTest()
-    {
-        // 가지고 있는 오퍼레이터들 불러오기
-        List<OwnedOperator> ownedOps = OwnedOperators;
-
-        // 오퍼레이터들을 스쿼드에 배치하기
-        for (int i = 0; i < 6; i++)
-        {
-            GameManagement.Instance!.UserSquadManager.TryReplaceOperator(i, ownedOps[i], 0);
-        }
-    }
-
-    private void InitializeOperatorLevelUp(OwnedOperator op, int level)
-    {
-        op.LevelUP(level, 0);
-    }
-
-    private void InitializeOperator1stPromotion(OwnedOperator op)
-    {
-        if (op.currentLevel == OperatorGrowthSystem.Elite0MaxLevel)
-        {
-            op.Promote();
-        }
-    }
-
     public bool IsStageCleared(string stageId)
     {
         InstanceValidator.ValidateInstance(playerData);
@@ -677,8 +614,6 @@ public class PlayerDataManager : MonoBehaviour
         }
     }
 
-
-
     public void GrantStageRewards(List<ItemWithCount> firstClearRewards, List<ItemWithCount> basicClearRewards)
     {
         GrantItems(firstClearRewards);
@@ -703,8 +638,6 @@ public class PlayerDataManager : MonoBehaviour
             }
         }
     }
-
-
 
     // 아이템을 실질적으로 저장하는 메서드
     public void AddItems(string itemName, int itemCount)
@@ -807,30 +740,6 @@ public class PlayerDataManager : MonoBehaviour
     public ItemData GetItemData(string itemName)
     {
         return itemDatabase[itemName];
-    }
-
-    // 아이템 데이터베이스를 이용해 초기 아이템 지급
-    // 이름은 itemData.name 필드의 그것(LoadItemDatabase 참조)
-    private void AddStartingItems()
-    {
-        InstanceValidator.ValidateInstance(playerData);
-        var safePlayerData = playerData!;
-
-        // 여기 들어가는 키값이 ItemData.name 값임 / 생성자
-        if (itemDatabase.TryGetValue("ExpSmall", out ItemData expSmall))
-        {
-            safePlayerData.inventory.items.Add(new UserInventoryData.ItemStack(expSmall.itemName, 99));
-        }
-
-        if (itemDatabase.TryGetValue("ExpMiddle", out ItemData expMiddle))
-        {
-            safePlayerData.inventory.items.Add(new UserInventoryData.ItemStack(expMiddle.itemName, 99));
-        }
-
-        if (itemDatabase.TryGetValue("ItemPromotion", out ItemData promotion))
-        {
-            safePlayerData.inventory.items.Add(new UserInventoryData.ItemStack(promotion.itemName, 1));
-        }
     }
 }
 

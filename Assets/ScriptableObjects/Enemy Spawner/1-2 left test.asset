@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   spawnedEnemies:
   - spawnType: 1
-    spawnTime: 2
+    spawnTime: 99
     pathData: {fileID: 11400000, guid: f8f1245447770794aad8c6921a75346d, type: 2}
     prefab: {fileID: 7620251311904048292, guid: 9aeab8e4aa50ac446ba479d0f93c4f56, type: 3}
     enemyType: 0
@@ -55,6 +55,11 @@ MonoBehaviour:
     enemyType: 0
   - spawnType: 0
     spawnTime: 49
+    pathData: {fileID: 11400000, guid: 52e731b87621416428eedd65454ea850, type: 2}
+    prefab: {fileID: 6542749020257112806, guid: 8286c7e86561fed45aa30aca892a27ce, type: 3}
+    enemyType: 0
+  - spawnType: 0
+    spawnTime: 51
     pathData: {fileID: 11400000, guid: 52e731b87621416428eedd65454ea850, type: 2}
     prefab: {fileID: 6542749020257112806, guid: 8286c7e86561fed45aa30aca892a27ce, type: 3}
     enemyType: 0

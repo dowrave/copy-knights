@@ -675,7 +675,7 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity, ICrowdControlTarget
         }
     }
 
-    public void SetAttackDuration()
+    public void SetAttackDuration(float? intentionalDuration = null)
     {
         AttackDuration = AttackSpeed / 3f;
     }

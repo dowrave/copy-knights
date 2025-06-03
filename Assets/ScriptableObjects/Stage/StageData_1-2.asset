@@ -18,8 +18,8 @@ MonoBehaviour:
   mapPrefab: {fileID: 3707257452706152924, guid: 6ebd6de17551a07479ef2e0154871137, type: 3}
   startDeploymentCost: 20
   maxDeploymentCost: 99
-  costPerSecond: 1.5
-  operatorMaxDeploymentCount: 5
+  costPerSecondModifier: 1
+  operatorMaxDeploymentCount: 6
   playerHealthMultiplier: 1
   enemyStatMultiplier: 1
   mapDeployables: []
@@ -32,6 +32,6 @@ MonoBehaviour:
     count: 3
   BasicClearRewardItems:
   - itemData: {fileID: 11400000, guid: 9b62d9bdc8111b845a020c11ae3e3646, type: 2}
-    count: 16
+    count: 20
   - itemData: {fileID: 11400000, guid: e5fa78c43c8bdd34f93ea46a391e758b, type: 2}
-    count: 8
+    count: 12

@@ -173,8 +173,6 @@ public class StageSelectPanel : MonoBehaviour
         var stageResultInfo = GameManagement.Instance!.PlayerDataManager.GetStageResultInfo(stageData.stageId);
         int prevStars = stageResultInfo != null ? stageResultInfo.stars : 0;
 
-        Debug.Log($"stageResultInfo : {stageResultInfo}");
-
         // 첫 클리어 보상 - 3성 클리어 기준, 남은 보상들을 보여준다.
         if (stageResultInfo == null || stageResultInfo.stars != 3)
         {
@@ -186,9 +184,9 @@ public class StageSelectPanel : MonoBehaviour
                 int fullCount = reward.count;
 
                 // 배율은 경험치 아이템에만 적용, 정예화 아이템은 1
-                int remainingCount = reward.itemData.type == ItemData.ItemType.EliteItem ? 1 
-                    : Mathf.FloorToInt(fullCount * firstItemRewardMultiplier);
-
+                int remainingCount = reward.itemData.type == ItemData.ItemType.EliteItem ?
+                    reward.count : // 정예화 아이템은 갯수 그대로
+                    Mathf.FloorToInt(fullCount * firstItemRewardMultiplier); // 경험치 아이템은 배율 적용
 
                 if (remainingCount > 0)
                 {

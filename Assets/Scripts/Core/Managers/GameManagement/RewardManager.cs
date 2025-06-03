@@ -97,17 +97,13 @@ public class RewardManager : MonoBehaviour
     // 이번에 3성으로 깨고, 이전에 깬 기록이 3성 미만이었으면 지급
     private float SetFirstClearPromotionItemRate(StageResultData.StageResultInfo? resultInfo, int stars)
     {
-        if (stars != 3)
-        {
-            return 0f;
-        }
-
+        // 이전에 3성 클리어를 한 적이 없으면 지급
         if (resultInfo == null || resultInfo.stars < 3)
         {
             return 1f;
         }
 
-        throw new InvalidOperationException("FirstClearPromotionItemRate의 예상치 못한 동작");
+        return 0f;
     }
 
     // n성으로 클리어했을 때의 아이템 지급 비율을 계산한다.
@@ -135,8 +131,13 @@ public class RewardManager : MonoBehaviour
         {
             return 0.5f;
         }
-
-        throw new InvalidOperationException("엉?");
-
+        else if (prevStars == 3)
+        {
+            return 0f;
+        }
+        else
+        {
+            throw new InvalidOperationException("GetResultFirstClearItemRate의 예상치 못한 동작");
+        }
     }
 }

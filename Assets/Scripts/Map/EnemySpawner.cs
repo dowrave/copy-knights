@@ -1,6 +1,7 @@
 using System.Collections;
 using System; 
 using UnityEngine;
+using System.Linq;
 
 public class EnemySpawner : MonoBehaviour
 {
@@ -17,8 +18,23 @@ public class EnemySpawner : MonoBehaviour
     {
         if (isInitialized)
         {
+            SortSpawnListByTime();
             StartCoroutine(SpawnEntities());
         }
+    }
+
+    private void SortSpawnListByTime()
+    {
+        if (spawnList.spawnedEnemies == null || spawnList.spawnedEnemies.Count == 0)
+        {
+            Debug.LogWarning("스폰 리스트가 비어있음");
+            return;
+        }
+
+        // 스폰 시간 기준으로 정렬
+        spawnList.spawnedEnemies = spawnList.spawnedEnemies
+            .OrderBy(spawnData => spawnData.spawnTime)
+            .ToList();
     }
 
     private IEnumerator SpawnEntities()

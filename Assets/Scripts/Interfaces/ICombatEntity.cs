@@ -1,7 +1,6 @@
 // 전투 관련 기능을 가진 엔티티를 위한 인터페이스
 //using System.Numerics;
 using UnityEngine;
-using UnityEngine.UIElements;
 
 public interface ICombatEntity
 {
@@ -18,8 +17,8 @@ public interface ICombatEntity
     void Attack(UnitEntity target, float damage);
     bool CanAttack(); // 공격 가능 여부 : 공격 범위 내에 적이 있는가 + 공격 쿨타임인가 로 결정
     void SetAttackCooldown(float? intentionalCooldown);
+    void SetAttackDuration(float? intentionalDuration);
     void UpdateAttackCooldown();
-    void SetAttackDuration();
     void UpdateAttackDuration();
     void SetCurrentTarget(); // 현재 공격 대상 설정
     void RemoveCurrentTarget(); // 현재 공격 대상 제거
