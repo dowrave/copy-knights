@@ -193,7 +193,7 @@ public class OperatorInventoryPanel : MonoBehaviour
             operatorToAutoSelect = existingOperator;
         }
 
-        // 우선 선택해야 할 오퍼레이터를 0번 인덱스로 보냄
+        // 선택해야 할 오퍼레이터를 0번 인덱스로 보냄
         if (operatorToAutoSelect != null)
         {
             if (operatorsToDisplay.Contains(operatorToAutoSelect))
@@ -211,13 +211,28 @@ public class OperatorInventoryPanel : MonoBehaviour
         int visibleSlotOrder = 0;
         foreach (OwnedOperator opToShow in operatorsToDisplay)
         {
+            // 자동으로 선택되는 오퍼레이터의 스킬은 현재 스쿼드에서 사용 중인 스킬로 선택됨
+            if (operatorToAutoSelect != null && opToShow == operatorToAutoSelect)
+            {
+                selectedSkillIndex = GameManagement.Instance!.UserSquadManager.GetCurrentSkillIndex(operatorToAutoSelect);
+            }
+            // 나머지는 오퍼레이터의 기본 선택 스킬을 사용
+            else
+            {
+                selectedSkillIndex = opToShow.DefaultSelectedSkillIndex;
+            }
+
             OperatorSlot slotToActivate = operatorSlots.FirstOrDefault(s => s.OwnedOperator == opToShow);
+
             if (slotToActivate != null)
             {
                 slotToActivate.gameObject.SetActive(true);
 
                 // 슬롯의 배치 순서 지정
                 slotToActivate.transform.SetSiblingIndex(visibleSlotOrder++);
+
+                // 슬롯의 스킬 선택 상태 초기화  
+                slotToActivate.UpdateSelectedSkill(opToShow.UnlockedSkills[selectedSkillIndex]);
             }
         }
 
@@ -809,7 +824,7 @@ public class OperatorInventoryPanel : MonoBehaviour
     {
         if (isEditingBulk)
         {
-            bool activeCondition = (tempSquad.Count > 0 && clickedSlots.Count > 0);
+            bool activeCondition = tempSquad.Count > 0 && clickedSlots.Count > 0;
             confirmButton.interactable = activeCondition;
         }
     }

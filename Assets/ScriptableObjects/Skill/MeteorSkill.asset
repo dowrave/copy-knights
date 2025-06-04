@@ -19,7 +19,7 @@ MonoBehaviour:
     \uD22C\uC0AC\uCCB4\uB97C <color=#179bff>2\uD68C</color> \uBC1C\uC0AC\uD558\uACE0,
     \uC2A4\uD0AC\uC744 \uC2DC\uC804\uD560 \uB54C <color=#179bff>\uBC30\uCE58 \uCF54\uC2A4\uD2B8
     10</color>\uC744 \uD68C\uBCF5\uD569\uB2C8\uB2E4."
-  SPCost: 10
+  SPCost: 1
   skillIcon: {fileID: 21300000, guid: 4a179113bbd75f746839d3712ae61746, type: 3}
   autoRecover: 1
   autoActivate: 0
@@ -44,9 +44,7 @@ MonoBehaviour:
   rectOffset: 0
   fieldEffectPrefab: {fileID: 0}
   skillRangeVFXPrefab: {fileID: 4360018886635934139, guid: ed9abc6ecd85fb24d811404da8d37ff1, type: 3}
-  skillRangeEffectTag: MeteorSkill_Range
-  hitEffectPrefab: {fileID: 0}
-  skillHitEffectTag: 
+  hitEffectPrefab: {fileID: 8008928503674968961, guid: 3a7bbca2a850efb4e9ec0752775126f5, type: 3}
   damageMultiplier: 0.75
   stunDuration: 2
   costRecovery: 10

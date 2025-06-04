@@ -1,0 +1,131 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 47caf4934c963354791fee71f7987050, type: 3}
+  m_Name: EffectDatabase
+  m_EditorClassIdentifier: 
+  effects:
+  - name: Skill_MeteorParticle
+    prefab: {fileID: 5367294480834238149, guid: 72548913df2272e41828031cffbc45c0, type: 3}
+    isVFXgraph: 0
+    isParticleSystem: 1
+  - name: CasterProjectile_VFX
+    prefab: {fileID: 2006450369027691450, guid: e62f08f8bafde934ba27d05d81495385, type: 3}
+    isVFXgraph: 1
+    isParticleSystem: 0
+  - name: FireBallVFX_EasyRanged
+    prefab: {fileID: 2265705452529792940, guid: dfde16b8edf06274c855a9e6428e39e0, type: 3}
+    isVFXgraph: 1
+    isParticleSystem: 0
+  - name: FireBallVFX_NormalRanged
+    prefab: {fileID: 2265705452529792940, guid: 02e0cea4be8652d44a5a73f40b6b34be, type: 3}
+    isVFXgraph: 1
+    isParticleSystem: 0
+  - name: Area_AreaFieldSkill
+    prefab: {fileID: 4360018886635934139, guid: fa3175149c04e4e42aec56b55c84b046, type: 3}
+    isVFXgraph: 0
+    isParticleSystem: 1
+  - name: Area_Caster2ndSkill
+    prefab: {fileID: 4360018886635934139, guid: 9ff6fcecb6f1c76469c6c95092aaeb21, type: 3}
+    isVFXgraph: 0
+    isParticleSystem: 1
+  - name: Area_Medic2ndSkill
+    prefab: {fileID: 4360018886635934139, guid: 81938680071d2294e815b70c7eac96a5, type: 3}
+    isVFXgraph: 0
+    isParticleSystem: 1
+  - name: Area_Vanguard2ndSkill
+    prefab: {fileID: 4360018886635934139, guid: ed9abc6ecd85fb24d811404da8d37ff1, type: 3}
+    isVFXgraph: 0
+    isParticleSystem: 1
+  - name: Attack_SlashEffect(Enemy)
+    prefab: {fileID: 2667795462971242445, guid: ab921526673becc4dba3450e1f02e066, type: 3}
+    isVFXgraph: 1
+    isParticleSystem: 0
+  - name: Attack_SlashEffect
+    prefab: {fileID: 2667795462971242445, guid: fb9cbd2d5e200f047a7c5ba30d7d8d35, type: 3}
+    isVFXgraph: 1
+    isParticleSystem: 0
+  - name: StunEffect
+    prefab: {fileID: 4972023296895345739, guid: 8454c4e68a23d804d9e1df5e128781c1, type: 3}
+    isVFXgraph: 0
+    isParticleSystem: 1
+  - name: Deploy_DeployEffect
+    prefab: {fileID: 6896400663674567924, guid: a391789893d1b154bb27df310ec61c06, type: 3}
+    isVFXgraph: 1
+    isParticleSystem: 0
+  - name: GetHit_Artillery
+    prefab: {fileID: 8461901091398595130, guid: ba624075d793b8c4b8377b461c77d51a, type: 3}
+    isVFXgraph: 0
+    isParticleSystem: 1
+  - name: GetHit_CasterEffect
+    prefab: {fileID: 8008928503674968961, guid: 14df7a92b256f2348a51359da469e5e9, type: 3}
+    isVFXgraph: 1
+    isParticleSystem: 0
+  - name: GetHit_EnemyAttackEffect
+    prefab: {fileID: 8008928503674968961, guid: 9e60a750274072b42bc151642e7195b2, type: 3}
+    isVFXgraph: 1
+    isParticleSystem: 0
+  - name: GetHit_EnemyEffect
+    prefab: {fileID: 610392011688501501, guid: f7af33fe8ce3ac14ba1eefd6c034cd3a, type: 3}
+    isVFXgraph: 1
+    isParticleSystem: 0
+  - name: GetHit_HealEffect
+    prefab: {fileID: 8148887100782903967, guid: 1a3d408d4acc3d040a21d2812050b1ed, type: 3}
+    isVFXgraph: 1
+    isParticleSystem: 0
+  - name: GetHit_Lightning
+    prefab: {fileID: 3203997605157756808, guid: b9e7f41b116042649aa38a9b2d325729, type: 3}
+    isVFXgraph: 1
+    isParticleSystem: 0
+  - name: GetHit_OperatorEffect
+    prefab: {fileID: 8008928503674968961, guid: 3a7bbca2a850efb4e9ec0752775126f5, type: 3}
+    isVFXgraph: 1
+    isParticleSystem: 0
+  - name: GetHit_SniperEffect
+    prefab: {fileID: 610392011688501501, guid: 97a9619bfb0bdb54b954e9b0b00769fb, type: 3}
+    isVFXgraph: 1
+    isParticleSystem: 0
+  - name: PS_WhirlAndScrollVFX
+    prefab: {fileID: 6269577316040313047, guid: 14c09b69b875bfd4685b35159457c9bc, type: 3}
+    isVFXgraph: 0
+    isParticleSystem: 1
+  - name: SmokeEffect
+    prefab: {fileID: 7379233591225924162, guid: ccb842327a6be28489a8f137f704c1cc, type: 3}
+    isVFXgraph: 1
+    isParticleSystem: 0
+  - name: Skill_BuffEffect(Attack)
+    prefab: {fileID: 2673592997991987600, guid: 381db8c2cd5da5649918316d5cfe2633, type: 3}
+    isVFXgraph: 1
+    isParticleSystem: 0
+  - name: Skill_BuffEffect(Basic)
+    prefab: {fileID: 2673592997991987600, guid: 1f581c04510d97e498e7583f7a4da654, type: 3}
+    isVFXgraph: 1
+    isParticleSystem: 0
+  - name: Skill_BuffEffect(Defense)
+    prefab: {fileID: 2673592997991987600, guid: 43f083d1a6e670d40a1998803b5a1140, type: 3}
+    isVFXgraph: 1
+    isParticleSystem: 0
+  - name: Skill_BuffEffect(Heal)
+    prefab: {fileID: 2673592997991987600, guid: 71dcdfc208cb9544faefa0e237696144, type: 3}
+    isVFXgraph: 1
+    isParticleSystem: 0
+  - name: Skill_CostEffect
+    prefab: {fileID: 8612932944827472003, guid: a405c8f0638cf9a4ea27226dab797412, type: 3}
+    isVFXgraph: 0
+    isParticleSystem: 1
+  - name: Skill_HealEffect
+    prefab: {fileID: 7525705040406820042, guid: 2ea7639541c834e4683cd0362b48e8ca, type: 3}
+    isVFXgraph: 1
+    isParticleSystem: 0
+  - name: Skill_ShieldEffect
+    prefab: {fileID: 3942765068865293202, guid: e6e0102b91655e847bfd5566b1f8f982, type: 3}
+    isVFXgraph: 1
+    isParticleSystem: 0

@@ -212,7 +212,7 @@ public abstract class UnitEntity : MonoBehaviour, ITargettable, IFactionMember
     }
 
 
-    public virtual void TakeDamage(UnitEntity attacker, AttackSource attackSource, float damage)
+    public virtual void TakeDamage(UnitEntity attacker, AttackSource attackSource, float damage, bool playGetHitEffect = true)
     {
         float actualDamage = 0f;
 
@@ -227,13 +227,16 @@ public abstract class UnitEntity : MonoBehaviour, ITargettable, IFactionMember
             // 체력 계산
             CurrentHealth = Mathf.Max(0, CurrentHealth - remainingDamage);
 
-            Debug.Log($"남은 체력 : {CurrentHealth}, 들어온 대미지 : {remainingDamage}");
             OnHealthChanged?.Invoke(CurrentHealth, MaxHealth, shieldSystem.CurrentShield);
 
-            PlayGetHitEffect(attacker, attackSource);
+            // 피격 이펙트 재생
+            if (playGetHitEffect)
+            {
+                PlayGetHitEffect(attacker, attackSource);
+            }
         }
 
-        OnDamageTaken(actualDamage);
+        OnDamageTaken(attacker, actualDamage);
 
         if (CurrentHealth <= 0)
         {
@@ -241,7 +244,7 @@ public abstract class UnitEntity : MonoBehaviour, ITargettable, IFactionMember
         }
     }
 
-    protected virtual void OnDamageTaken(float actualDamage) { }
+    protected virtual void OnDamageTaken(UnitEntity attacker, float actualDamage) { } // 피격 시에 추가로 실행할 게 있을 때 사용할 메서드 
 
     // 콜라이더의 활성화 여부 결정
     protected virtual void SetColliderState() { } // Enemy, DeployableUnitEntity에서 상세 구현(abstract으로 하면 반드시 말단에서 구현해야 함)

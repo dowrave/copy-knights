@@ -216,22 +216,25 @@ public class Projectile : MonoBehaviour
         if (hitEffectPrefab != null)
         {
             GameObject effectInstance = Instantiate(hitEffectPrefab, position, Quaternion.identity);
-            Destroy(effectInstance, 2f); // 2초 후에 이펙트 제거
+            Destroy(effectInstance, 2f); // 2초 후에 이펙트 제거. 아래의 코드는 이걸 기다리지 않고 잘 동작함.
         }
 
         // 범위 공격 대상에게 대미지 적용
         Collider[] hitColliders = Physics.OverlapSphere(position, 0.5f);
         foreach (var hitCollider in hitColliders)
         {
-            UnitEntity unit = hitCollider.GetComponent<UnitEntity>();
-            if (unit != null && unit.Faction != attacker.Faction) // 다른 세력일 때에만 대미지를 준다
+            UnitEntity target = hitCollider.GetComponent<UnitEntity>();
+            if (target != null &&
+                target.Faction != Faction.Neutral &&
+                target.Faction != attacker!.Faction) 
             {
                 if (showValue)
                 {
-                    ObjectPoolManager.Instance!.ShowFloatingText(unit.transform.position, damage, false);
+                    ObjectPoolManager.Instance!.ShowFloatingText(target.transform.position, damage, false);
                 }
                 
-                unit.TakeDamage(attacker, attackSource, damage);
+                // 피격 이펙트는 적용하지 않음
+                target.TakeDamage(attacker, attackSource, damage, playGetHitEffect: false);
             }
         }
     }

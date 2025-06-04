@@ -128,6 +128,21 @@ public class OwnedOperator
         Initialize();
     }
 
+    public void SetPromotionAndLevel(int targetPhase, int targetLevel)
+    {
+        if (targetPhase < (int)OperatorGrowthSystem.ElitePhase.Elite0 || 
+            targetPhase > (int)OperatorGrowthSystem.ElitePhase.Elite1) return;
+        
+        if (targetPhase == (int)OperatorGrowthSystem.ElitePhase.Elite1)
+        {
+            // 1정예화 필요 시 진행
+            LevelUP(50, 0);
+            Promote();
+        }
+
+        LevelUP(targetLevel, 0);
+    }
+
     // 본 메서드 : 사용된 아이템 추가
     public void AddUsedItem(ItemData item, int count)
     {

@@ -372,7 +372,6 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity, ICrowdControlTarget
         }
 
         StageManager.Instance!.OnEnemyDefeated(); // 사망한 적 수 +1
-        Debug.Log($"{BaseData.entityName} 사망, 사망 카운트 + 1");
 
         // 공격 이펙트 프리팹 제거
         if (BaseData.hitEffectPrefab != null)
@@ -389,36 +388,9 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity, ICrowdControlTarget
         base.Die();
     }
 
-    public override void TakeDamage(UnitEntity attacker, AttackSource attackSource, float damage)
+    public override void TakeDamage(UnitEntity attacker, AttackSource attackSource, float damage, bool playGetHitEffect = true)
     {
-        if (attacker is ICombatEntity iCombatEntity && CurrentHealth > 0) 
-        {
-            // 방어 / 마법 저항력이 고려된 실제 들어오는 대미지
-            float actualDamage = CalculateActualDamage(iCombatEntity.AttackType, damage);
-
-            // 쉴드를 깎고 남은 대미지
-            float remainingDamage = shieldSystem.AbsorbDamage(actualDamage);
-
-            // 체력 계산
-            CurrentHealth = Mathf.Max(0, CurrentHealth - remainingDamage);
-
-            // attacker가 null일 때에도 잘 동작합니다
-            if (attacker is Operator op)
-            {
-                StatisticsManager.Instance!.UpdateDamageDealt(op.OperatorData, actualDamage);
-
-                if (op.OperatorData.hitEffectPrefab != null)
-                {
-                    PlayGetHitEffect(attacker, attackSource);
-                }
-            }
-        }
-
-
-        if (CurrentHealth <= 0)
-        {
-            Die();
-        }
+        base.TakeDamage(attacker, attackSource, damage, playGetHitEffect);
 
         // UI 업데이트
         if (enemyBarUI != null)
@@ -426,6 +398,18 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity, ICrowdControlTarget
             enemyBarUI.UpdateUI();
         }
     }
+    protected override void OnDamageTaken(UnitEntity attacker, float actualDamage)
+    {
+        // 공격자가 Operator일 때 통계 패널 업데이트
+        if (attacker is Operator op)
+        {
+            OperatorData opData = op.OperatorData;
+            if (opData != null)
+            {
+                StatisticsManager.Instance!.UpdateDamageDealt(op.OperatorData, actualDamage);
+            }
+        }
+    } 
 
     public void UnblockFrom(Operator op)
     {
@@ -434,6 +418,7 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity, ICrowdControlTarget
             blockingOperator = null;
         }
     }
+
 
     // 마지막 타일의 월드 좌표 기준
     private bool CheckIfReachedDestination()

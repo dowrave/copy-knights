@@ -1,6 +1,4 @@
-using UnityEngine;
 using System;
-using System.Diagnostics.CodeAnalysis;
 
 public static class InstanceValidator
 {
@@ -8,7 +6,7 @@ public static class InstanceValidator
     {
         if (instance == null)
         {
-            throw new InvalidOperationException($"{nameof(instance)}가 null임");
+            throw new InvalidOperationException($"{nameof(instance)}이 null일 수 없습니다.");
         }
     }
 }

@@ -439,13 +439,13 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable,
         blockedEnemies.Clear();
     }
 
-    public override void TakeDamage(UnitEntity attacker, AttackSource attackSource, float damage)
+    public override void TakeDamage(UnitEntity attacker, AttackSource attackSource, float damage, bool playGetHitEffect = true)
     {
-        base.TakeDamage(attacker, attackSource, damage);
+        base.TakeDamage(attacker, attackSource, damage, playGetHitEffect);
     }
 
     // 부모 클래스에서 정의된 TakeDamage에서 사용됨
-    protected override void OnDamageTaken(float actualDamage)
+    protected override void OnDamageTaken(UnitEntity attacker, float actualDamage)
     {
         StatisticsManager.Instance!.UpdateDamageTaken(OperatorData, actualDamage);
     }

@@ -9,7 +9,6 @@ public class TestManager : MonoBehaviour
     [Header("Test Configuration")]
     [SerializeField] private bool enableTestInitialization = true; // 테스트 초기화 활성화 여부
     [SerializeField] private bool enableLevelUp = false;
-    [SerializeField] private int testOperatorLevel = 50;
     [SerializeField] private bool enableInitializeSquad = false;
     [SerializeField] private bool enableTutorialTest = false;
     [SerializeField] private bool enableStageClearing = true;
@@ -89,8 +88,8 @@ public class TestManager : MonoBehaviour
         var ownedOperators = playerDataManager.OwnedOperators;
         foreach (var op in ownedOperators)
         {
-            InitializeOperatorLevelUp(op, testOperatorLevel);
-            InitializeOperator1stPromotion(op);
+            // 1정예화 1레벨
+            op.SetPromotionAndLevel(1, 1);
         }
     }
 
@@ -101,7 +100,7 @@ public class TestManager : MonoBehaviour
 
         for (int i = 0; i < maxSquadSize && i < ownedOperators.Count; i++)
         {
-            userSquadManager.TryReplaceOperator(i, ownedOperators[i], 0);
+            userSquadManager.TryReplaceOperator(i, ownedOperators[i], 1);
         }
     }
 
@@ -110,6 +109,7 @@ public class TestManager : MonoBehaviour
     {
         StageClearAndGetRewards("1-0", 3);
         StageClearAndGetRewards("1-1", 3);
+        StageClearAndGetRewards("1-2", 3);
     }
 
     // 스테이지 클리어 및 보상 지급
@@ -127,63 +127,10 @@ public class TestManager : MonoBehaviour
         }
     }
 
-    private void InitializeOperatorLevelUp(OwnedOperator op, int level)
-    {
-        op.LevelUP(level, 0);
-    }
-
-    private void InitializeOperator1stPromotion(OwnedOperator op)
-    {
-        if (op.currentLevel == OperatorGrowthSystem.Elite0MaxLevel)
-        {
-            op.Promote();
-        }
-    }
-
     // 런타임에서 테스트 초기화 실행 (인스펙터 버튼용)
     [ContextMenu("Initialize Test Data")]
     public void ExecuteTestInitialization()
     {
         InitializeForTest();
-    }
-
-
-    // 테스트 데이터 리셋
-    [ContextMenu("Reset Test Data")]
-    public void ResetTestData()
-    {
-        Debug.Log("테스트 데이터 리셋 중...");
-        
-        // PlayerPrefs 클리어는 PlayerDataManager에서 처리
-        PlayerPrefs.DeleteKey("PlayerData");
-        PlayerPrefs.DeleteKey("SquadData");
-        PlayerPrefs.Save();
-
-        Debug.Log("테스트 데이터 리셋 완료. 게임을 재시작하세요.");
-    }
-
-    /// <summary>
-    /// 테스트 설정 변경
-    /// </summary>
-    public void SetTestConfiguration(bool enableInit, int operatorLevel, bool tutorialTest, bool itemGrant, bool stageClearing)
-    {
-        enableTestInitialization = enableInit;
-        testOperatorLevel = operatorLevel;
-        enableTutorialTest = tutorialTest;
-        enableStageClearing = stageClearing;
-    }
-
-    /// <summary>
-    /// 현재 테스트 설정 정보 출력
-    /// </summary>
-    [ContextMenu("Print Test Configuration")]
-    public void PrintTestConfiguration()
-    {
-        Debug.Log($"=== Test Manager Configuration ===");
-        Debug.Log($"Test Initialization: {enableTestInitialization}");
-        Debug.Log($"Test Operator Level: {testOperatorLevel}");
-        Debug.Log($"Tutorial Test: {enableTutorialTest}");
-        Debug.Log($"Stage Clearing: {enableStageClearing}");
-        Debug.Log($"================================");
     }
 }
