@@ -343,7 +343,6 @@ public class OperatorInventoryPanel : MonoBehaviour
         {
             OperatorSlot slot = Instantiate(slotButtonPrefab, operatorSlotContainer);
 
-            // 이름 변경 - 튜토리얼에서 버튼 이름 추적할 때 필요함
             slot.Initialize(true, op);
             operatorSlots.Add(slot);
             slot.OnSlotClicked.AddListener(HandleSlotClicked);

@@ -76,10 +76,12 @@ public class TestManager : MonoBehaviour
 
     private void TestAboutTutorial()
     {
+        playerDataManager.FinishAllTutorials(); // 모든 튜토리얼 완료
+        
         // 첫 번째와 두 번째 튜토리얼 완료, 세 번째는 NotStarted
-        playerDataManager.SetTutorialStatus(0, PlayerDataManager.TutorialStatus.Completed);
-        playerDataManager.SetTutorialStatus(1, PlayerDataManager.TutorialStatus.Completed);
-        playerDataManager.SetTutorialStatus(2, PlayerDataManager.TutorialStatus.NotStarted);
+        // playerDataManager.SetTutorialStatus(0, PlayerDataManager.TutorialStatus.Completed);
+        // playerDataManager.SetTutorialStatus(1, PlayerDataManager.TutorialStatus.Completed);
+        // playerDataManager.SetTutorialStatus(2, PlayerDataManager.TutorialStatus.NotStarted);
     }
 
 
@@ -108,8 +110,8 @@ public class TestManager : MonoBehaviour
     private void InitializeStageProgressForTest()
     {
         StageClearAndGetRewards("1-0", 3);
-        StageClearAndGetRewards("1-1", 3);
-        StageClearAndGetRewards("1-2", 3);
+        // StageClearAndGetRewards("1-1", 3);
+        // StageClearAndGetRewards("1-2", 3);
     }
 
     // 스테이지 클리어 및 보상 지급

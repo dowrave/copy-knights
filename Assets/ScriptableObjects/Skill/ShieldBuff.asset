@@ -16,11 +16,12 @@ MonoBehaviour:
   description: "<color=#179bff>15\uCD08</color> \uB3D9\uC548 \uBC29\uC5B4\uB825\uC774
     <color=#179bff>30%</color> \uC99D\uAC00\uD558\uACE0, <color=#179bff>1000</color>\uC758
     \uC274\uB4DC\uB97C \uAC16\uC2B5\uB2C8\uB2E4."
-  SPCost: 1
+  spCost: 12
   skillIcon: {fileID: 21300000, guid: e97a69ebd7acada478a6b0b7eedb978a, type: 3}
   autoRecover: 1
   autoActivate: 0
   modifiesAttackAction: 0
+  isOnTest: 0
   duration: 15
   skillVFXPrefab: {fileID: 2673592997991987600, guid: 43f083d1a6e670d40a1998803b5a1140, type: 3}
   activeFromOperatorPosition: 1

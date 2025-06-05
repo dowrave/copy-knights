@@ -7,6 +7,7 @@ public class StageData : ScriptableObject
     [Header("Stage Description")]
     public string stageId = string.Empty; // 1-1, 1-2, 1-3 등등
     public string stageName = string.Empty; // 스테이지 부제
+    [TextArea(3, 10)]
     public string stageDetail = string.Empty; // 스테이지 설명
 
     [Header("Map Settings")]

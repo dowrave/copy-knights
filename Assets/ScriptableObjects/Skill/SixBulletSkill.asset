@@ -17,11 +17,12 @@ MonoBehaviour:
     \uACF5\uACA9\uB825\uC774 <color=#179bff>150%</color>\uC774 \uB418\uACE0 \uACF5\uACA9
     \uC18D\uB3C4\uAC00 <color=#179bff>300%</color> \uBE68\uB77C\uC9D1\uB2C8\uB2E4.
     \uC218\uB3D9\uC73C\uB85C \uC885\uB8CC\uD560 \uC218 \uC788\uC2B5\uB2C8\uB2E4."
-  SPCost: 18
+  spCost: 14
   skillIcon: {fileID: 21300000, guid: 3a1d5eb5d1045ee4788c5329f5089175, type: 3}
   autoRecover: 1
   autoActivate: 0
   modifiesAttackAction: 0
+  isOnTest: 0
   duration: 0
   skillVFXPrefab: {fileID: 2673592997991987600, guid: 381db8c2cd5da5649918316d5cfe2633, type: 3}
   activeFromOperatorPosition: 1

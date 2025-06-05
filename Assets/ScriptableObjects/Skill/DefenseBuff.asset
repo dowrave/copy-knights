@@ -15,11 +15,12 @@ MonoBehaviour:
   skillName: DefenseUp
   description: "<color=#179bff>12\uCD08</color> \uB3D9\uC548 \uBC29\uC5B4\uB825\uC774
     <color=#179bff>50%</color> \uC62C\uB77C\uAC11\uB2C8\uB2E4."
-  SPCost: 12
+  spCost: 10
   skillIcon: {fileID: 21300000, guid: 14f991eff59402e4ebdd0ae55a640c3b, type: 3}
   autoRecover: 1
   autoActivate: 0
   modifiesAttackAction: 0
+  isOnTest: 0
   duration: 12
   skillVFXPrefab: {fileID: 2673592997991987600, guid: 43f083d1a6e670d40a1998803b5a1140, type: 3}
   activeFromOperatorPosition: 1

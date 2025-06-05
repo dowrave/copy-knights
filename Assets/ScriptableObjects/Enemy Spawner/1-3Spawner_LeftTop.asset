@@ -10,7 +10,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 27b28f2099ad3ba4c9f301873da05e13, type: 3}
-  m_Name: 1-3 LeftTop
+  m_Name: 1-3Spawner_LeftTop
   m_EditorClassIdentifier: 
   spawnedEnemies:
   - spawnType: 1
@@ -67,4 +67,29 @@ MonoBehaviour:
     spawnTime: 25.8
     pathData: {fileID: 11400000, guid: 4e1a404bc966f254192684e395c2f62e, type: 2}
     prefab: {fileID: 5757678546452218239, guid: 4a8686ea2411bd34eac7f54eb59d7e55, type: 3}
+    enemyType: 0
+  - spawnType: 0
+    spawnTime: 50
+    pathData: {fileID: 11400000, guid: 4e1a404bc966f254192684e395c2f62e, type: 2}
+    prefab: {fileID: 6542749020257112806, guid: 8286c7e86561fed45aa30aca892a27ce, type: 3}
+    enemyType: 0
+  - spawnType: 0
+    spawnTime: 52
+    pathData: {fileID: 11400000, guid: 4e1a404bc966f254192684e395c2f62e, type: 2}
+    prefab: {fileID: 6542749020257112806, guid: 8286c7e86561fed45aa30aca892a27ce, type: 3}
+    enemyType: 0
+  - spawnType: 0
+    spawnTime: 54
+    pathData: {fileID: 11400000, guid: 4e1a404bc966f254192684e395c2f62e, type: 2}
+    prefab: {fileID: 6542749020257112806, guid: 8286c7e86561fed45aa30aca892a27ce, type: 3}
+    enemyType: 0
+  - spawnType: 0
+    spawnTime: 56
+    pathData: {fileID: 11400000, guid: 4e1a404bc966f254192684e395c2f62e, type: 2}
+    prefab: {fileID: 6542749020257112806, guid: 8286c7e86561fed45aa30aca892a27ce, type: 3}
+    enemyType: 0
+  - spawnType: 0
+    spawnTime: 58
+    pathData: {fileID: 11400000, guid: 4e1a404bc966f254192684e395c2f62e, type: 2}
+    prefab: {fileID: 6542749020257112806, guid: 8286c7e86561fed45aa30aca892a27ce, type: 3}
     enemyType: 0

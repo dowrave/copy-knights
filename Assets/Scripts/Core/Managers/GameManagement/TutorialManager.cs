@@ -54,7 +54,7 @@ public class TutorialManager : MonoBehaviour
 
         confirmationPopup = PopupManager.Instance!.ShowConfirmationPopup("최초 실행이 감지되었습니다. 튜토리얼을 진행하시겠습니까?", 
             isCancelButton: true, 
-            blurAreaActivation: false,
+            blurAreaActivation: true,
             onConfirm: CheckStartTutorial,
             onCancel: CheckStopTutorial);
     }

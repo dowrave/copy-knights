@@ -53,8 +53,6 @@ public class SPBar : MonoBehaviour
         // 메인 게이지 비율 갱신
         float valueRatio = newValue / maxAmount;
         spFill.fillAmount = valueRatio;
-        spFill.rectTransform.anchorMin = new Vector2(0, 0);
-        spFill.rectTransform.anchorMax = new Vector2(valueRatio, 1);
     }
 
     public void SwitchToAmmoMode(int maxAmmo, int currentAmmo)

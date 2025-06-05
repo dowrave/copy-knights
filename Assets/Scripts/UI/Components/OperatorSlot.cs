@@ -56,10 +56,13 @@ public class OperatorSlot : MonoBehaviour
 
         if (ownedOp != null)
         {
+            // 이름 변경 - 튜토리얼에서 버튼 이름 추적할 때 필요함
+            gameObject.name = $"OperatorSlot({ownedOp.operatorName})";
             AssignOperator(ownedOp);
         }
         else
         {
+            gameObject.name = $"OperatorSlot(Empty)";
             InitializeEmptyOrDisabled(isActive);
         }
 
