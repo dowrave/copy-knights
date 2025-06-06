@@ -10,13 +10,13 @@ Material:
   m_Name: Guard
   m_Shader: {fileID: 4800000, guid: 933532a4fcc9baf4fa0491de14d08ed7, type: 3}
   m_Parent: {fileID: 2100000, guid: 963b18c036eccbc4d841e120c6be8887, type: 2}
-  m_ModifiedSerializedProperties: 0
+  m_ModifiedSerializedProperties: 16
   m_ValidKeywords: []
   m_InvalidKeywords: []
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 0
   m_DoubleSidedGI: 0
-  m_CustomRenderQueue: -1
+  m_CustomRenderQueue: 2000
   stringTagMap:
     RenderType: Opaque
   disabledShaderPasses:
@@ -27,10 +27,13 @@ Material:
     m_TexEnvs: []
     m_Ints: []
     m_Floats:
+    - _DstBlend: 0
+    - _DstBlendAlpha: 0
     - _GlossMapScale: 1
     - _Glossiness: 0.5
     - _GlossyReflections: 1
     - _Parallax: 0.02
+    - _ZWrite: 1
     m_Colors:
     - _BaseColor: {r: 0.21488765, g: 0.2196629, b: 0.85, a: 1}
     - _Color: {r: 0.21488759, g: 0.21966287, b: 0.85, a: 1}

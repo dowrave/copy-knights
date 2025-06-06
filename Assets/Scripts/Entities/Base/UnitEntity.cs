@@ -1,8 +1,9 @@
 using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.CompilerServices;
 using UnityEngine;
 using static ICombatEntity;
+using System.Collections;
+using DG.Tweening;
 
 // Operator, Enemy, Barricade 등의 타일 위의 유닛들과 관련된 엔티티
 public abstract class UnitEntity : MonoBehaviour, ITargettable, IFactionMember
@@ -77,10 +78,53 @@ public abstract class UnitEntity : MonoBehaviour, ITargettable, IFactionMember
 
     protected virtual void Die()
     {
+        PlayDeathAnimation();
+    }
 
-        OnDestroyed?.Invoke(this);
-        RemoveAllCrowdControls();
-        Destroy(gameObject);
+    protected void PlayDeathAnimation()
+    {
+        Renderer renderer = GetComponentInChildren<Renderer>();
+
+        // 동일한 머티리얼을 사용하는 모든 객체에 적용되는 걸 막고자 머티리얼 인스턴스를 만들고 진행한다.
+        if (renderer != null)
+        {
+            Material materialInstance = new Material(renderer.material);
+            renderer.material = materialInstance;
+
+            SetMaterialToTransparent(materialInstance);
+
+            // DOTween 사용하여 검정으로 변한 뒤 투명해지는 애니메이션 적용
+            // materialInstance.DOColor(Color.black, 0f);
+            materialInstance.DOFade(0f, 0.3f).OnComplete(() =>
+            {
+                Destroy(materialInstance); // 메모리 누수 방지
+                OnDestroyed?.Invoke(this);
+                RemoveAllCrowdControls();
+                Destroy(gameObject);
+            });
+        }
+    }
+
+    // 머티리얼을 투명하게 설정하는 메서드 (URP Lit을 쓴다고 가정)
+    private void SetMaterialToTransparent(Material material)
+    {
+        // URP Lit 셰이더를 Transparent 모드로 변경
+        material.SetFloat("_Surface", 1f);      // 1 = Transparent
+        material.SetFloat("_Blend", 0f);        // 0 = Alpha
+        material.SetFloat("_AlphaClip", 0f);    // 알파 클리핑 비활성화
+
+        // 블렌딩 모드 설정
+        material.SetFloat("_SrcBlend", (float)UnityEngine.Rendering.BlendMode.SrcAlpha);
+        material.SetFloat("_DstBlend", (float)UnityEngine.Rendering.BlendMode.OneMinusSrcAlpha);
+        material.SetFloat("_ZWrite", 0f);       // 깊이 쓰기 비활성화
+
+        // 렌더 큐를 투명 객체용으로 변경
+        material.renderQueue = (int)UnityEngine.Rendering.RenderQueue.Transparent;
+
+        // 키워드 설정
+        material.EnableKeyword("_SURFACE_TYPE_TRANSPARENT");
+        material.DisableKeyword("_SURFACE_TYPE_OPAQUE");
+        material.DisableKeyword("_ALPHATEST_ON");
     }
 
     protected abstract void InitializeHP();
@@ -88,14 +132,14 @@ public abstract class UnitEntity : MonoBehaviour, ITargettable, IFactionMember
     public virtual void TakeHeal(UnitEntity healer, AttackSource attackSource, float healAmount)
     {
         float oldHealth = CurrentHealth;
-        CurrentHealth += healAmount; 
+        CurrentHealth += healAmount;
         float actualHealAmount = Mathf.FloorToInt(CurrentHealth - oldHealth); // 실제 힐량
 
         if (healer is MedicOperator medic && medic.OperatorData.hitEffectPrefab != null)
         {
             PlayGetHitEffect(medic, attackSource);
         }
-        
+
         ObjectPoolManager.Instance!.ShowFloatingText(transform.position, actualHealAmount, true);
 
 
@@ -180,7 +224,7 @@ public abstract class UnitEntity : MonoBehaviour, ITargettable, IFactionMember
     // CC 효과 갱신
     protected virtual void UpdateCrowdControls()
     {
-        for (int i = activeCC.Count - 1; i>=0; i--)
+        for (int i = activeCC.Count - 1; i >= 0; i--)
         {
             var cc = activeCC[i];
             cc.Update();

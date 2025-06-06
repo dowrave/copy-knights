@@ -21,7 +21,7 @@ MonoBehaviour:
     _deploymentCost: 5
     _redeployTime: 3
   prefab: {fileID: 8875430263191699086, guid: 445bdcb62b7e4c84b9ac1f5d640cb325, type: 3}
-  icon: {fileID: 0}
+  icon: {fileID: 21300000, guid: 135624fffa6aac74b8640374d6835bde, type: 3}
   canDeployOnGround: 1
   canDeployOnHill: 0
   cooldownTime: 0

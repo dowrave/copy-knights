@@ -1877,7 +1877,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 03ec075d6f4da2049814fc3cf0d143e6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  enableTestInitialization: 0
+  enableTestInitialization: 1
   enableLevelUp: 0
   enableInitializeSquad: 1
   enableTutorialTest: 0

@@ -9,7 +9,7 @@ public abstract class DeployableUnitEntity: UnitEntity, IDeployable
     [HideInInspector]
     public DeployableUnitStats currentDeployableStats;
 
-    // IDeployable 인터페이스 관련
+
     public bool IsDeployed { get; protected set; }
     public int InitialDeploymentCost { get; protected set; } // 최초 배치 코스트 - DeploymentCost는 게임 중 증가할 수 있음
 
