@@ -181,6 +181,7 @@
     <Compile Include="Assets\Scripts\Skills\OperatorSkills\MeteorSkill.cs" />
     <Compile Include="Assets\Scripts\Core\Systems\OperatorGrowthSystem.cs" />
     <Compile Include="Assets\Scripts\Map\Tile.cs" />
+    <Compile Include="Assets\Scripts\Entities\Enemy\EnemyAttackRangeController.cs" />
     <Compile Include="Assets\Scripts\UI\Components\DeployableBarUI.cs" />
     <Compile Include="Assets\Scripts\UI\Components\StageButton.cs" />
     <Compile Include="Assets\Scripts\Core\Managers\GameManagement\ResourceManager.cs" />

@@ -9,8 +9,6 @@ public class Tile : MonoBehaviour
     [SerializeField] private Material highlightMaterial = default!;
     [SerializeField] private MeshRenderer attackRangeIndicator = default!;
 
-
-
     public TileData data = default!;
     public DeployableUnitEntity? OccupyingDeployable { get; private set; }
     public bool IsOccupied
@@ -21,6 +19,9 @@ public class Tile : MonoBehaviour
     public bool IsWalkable { get; private set; }
     private float tileScale = 0.98f;
     public Vector2 size2D;
+
+    // 이 타일을 공격 범위로 삼는 오퍼레이터 목록
+    private readonly List<Operator> listeningOperators = new List<Operator>();
 
     // 타일 위에 있는 적들을 저장하는 리스트, 오퍼레이터의 공격 범위가 타일이므로 유지함
     private List<Enemy> enemiesOnTile = new List<Enemy>();
@@ -270,6 +271,12 @@ public class Tile : MonoBehaviour
         if (!enemiesOnTile.Contains(enemy))
         {
             enemiesOnTile.Add(enemy);
+
+            // 이 타일을 공격범위로 하는 오퍼레이터에게 알림
+            foreach (var op in listeningOperators)
+            {
+                op.OnEnemyEnteredAttackRange(enemy);
+            }
         }
     }
 
@@ -277,6 +284,12 @@ public class Tile : MonoBehaviour
     public void EnemyExited(Enemy enemy)
     {
         enemiesOnTile.Remove(enemy);
+
+        // 이 타일을 공격범위로 하는 오퍼레이터에게 알림
+        foreach (var op in listeningOperators)
+        {
+            op.OnEnemyExitedAttackRange(enemy);
+        }
     }
 
 
@@ -284,6 +297,24 @@ public class Tile : MonoBehaviour
     public void ToggleWalkable(bool isWalkable)
     {
         IsWalkable = isWalkable;
+    }
+
+    // 오퍼레이터가 타일을 공격 범위로 등록
+    public void RegisterOperator(Operator op)
+    {
+        if (!listeningOperators.Contains(op))
+        {
+            listeningOperators.Add(op);
+        }
+    }
+
+    // 오퍼레이터가 타일을 공격 범위에서 해제
+    public void UnregisterOperator(Operator op)
+    {
+        if (listeningOperators.Contains(op))
+        {
+            listeningOperators.Remove(op);
+        }
     }
 
     /// <summary>

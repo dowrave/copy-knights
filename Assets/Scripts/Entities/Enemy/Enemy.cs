@@ -13,6 +13,8 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity, ICrowdControlTarget
     private EnemyData enemyData = default!;
     public EnemyData BaseData => enemyData;
 
+    [SerializeField] private EnemyAttackRangeController attackRangeController = default!; // 공격 범위 콜라이더
+
     private EnemyStats currentStats;
 
     public AttackType AttackType => enemyData.attackType;
@@ -78,6 +80,10 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity, ICrowdControlTarget
         Faction = Faction.Enemy;
 
         InitializeModelComponents();
+        if (attackRangeController == null)
+        {
+            attackRangeController = GetComponentInChildren<EnemyAttackRangeController>();
+        }
 
         base.Awake();
     }
@@ -106,6 +112,9 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity, ICrowdControlTarget
         CreateEnemyBarUI();
         UpdateNextNode();
         InitializeCurrentPath();
+
+        // 공격 범위 콜라이더 설정
+        attackRangeController.Initialize(this);
 
         // 최초에 설정한 경로가 막힌 상황일 때 동작
         if (PathfindingManager.Instance!.IsBarricadeDeployed && IsPathBlocked())
@@ -274,26 +283,21 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity, ICrowdControlTarget
         Destroy(gameObject);
     }
 
-    //  공격 범위 내의 오퍼레이터 리스트 업데이트
-    public void UpdateTargetsInRange()
+    public void OnTargetEnteredRange(DeployableUnitEntity target)
     {
-        targetsInRange.Clear();
+        if (target == null ||
+        target.Faction != Faction.Ally ||
+        !target.IsDeployed ||
+        targetsInRange.Contains(target)) return;
 
-        // 판정용 콜라이더 처리
-        Collider[] colliders = Physics.OverlapSphere(transform.position, AttackRange); 
-
-        foreach (var collider in colliders)
+        targetsInRange.Add(target);
+    }
+    
+    public void OnTargetExitedRange(DeployableUnitEntity target)
+    {
+        if (targetsInRange.Contains(target))
         {
-            DeployableUnitEntity? target = collider.transform.parent?.GetComponent<DeployableUnitEntity>(); // GetComponent : 해당 오브젝트부터 시작, 부모 오브젝트로 올라가며 컴포넌트를 찾는다.
-            if (target != null && target.IsDeployed && Faction.Ally == target.Faction)
-            {
-                // 실제 거리 계산
-                float actualDistance = Vector3.Distance(transform.position, target.transform.position);
-                if (actualDistance <= AttackRange)
-                {
-                    targetsInRange.Add(target);
-                }
-            }
+            targetsInRange.Remove(target);
         }
     }
 
@@ -362,7 +366,7 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity, ICrowdControlTarget
         // 공격 중인 개체의 현재 타겟 제거
         foreach (Operator op in attackingEntities.ToList())
         {
-            op.OnTargetLost(this);
+            op.OnTargetDied(this);
         }
 
         // 접촉 중인 타일들에서 이 개체 제거
@@ -445,14 +449,12 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity, ICrowdControlTarget
         }
 
         // 저지가 아니라면 공격 범위 내의 가장 마지막에 배치된 적 공격
-        UpdateTargetsInRange(); // 공격 범위 내의 Operator 리스트 갱신
-
         if (targetsInRange.Count > 0)
         {
             // 다른 오브젝트를 공격해야 할 수도 있는데 지금은 일단 오퍼레이터에 한정해서 구현함
             CurrentTarget = targetsInRange
                 .OfType<Operator>()
-                .OrderByDescending(o => o.DeploymentOrder)
+                .OrderByDescending(o => o.DeploymentOrder) // 더 나중에 배치된 오퍼레이터를 공격
                 .FirstOrDefault();
 
             NotifyTarget();
@@ -574,8 +576,7 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity, ICrowdControlTarget
                 return true;
             }
         }
-       
-
+        // 경로가 막히지 않은 경우
         return false;
     }
 

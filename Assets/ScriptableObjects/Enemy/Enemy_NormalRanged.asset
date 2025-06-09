@@ -21,7 +21,7 @@ MonoBehaviour:
     _movementSpeed: 1
     _attackPower: 380
     _attackSpeed: 1.2
-    _attackRange: 3
+    _attackRange: 2
   prefab: {fileID: 6542749020257112806, guid: 36e1a276cfad1eb419f1e2aa2dbca3a4, type: 3}
   attackType: 0
   attackRangeType: 1

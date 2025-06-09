@@ -92,7 +92,7 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable,
     private Vector2Int operatorGridPos;
     private List<Vector2Int> baseOffsets = new List<Vector2Int>(); // 기본 오프셋
     private List<Vector2Int> rotatedOffsets = new List<Vector2Int>(); // 회전 반영 오프셋
-    public List<Vector2Int> CurrentAttacakbleGridPos { get; set; } = new List<Vector2Int>(); // 회전 반영 공격 범위(gridPosition), public set은 스킬 때문에
+    public List<Vector2Int> CurrentAttackableGridPos { get; set; } = new List<Vector2Int>(); // 회전 반영 공격 범위(gridPosition), public set은 스킬 때문에
 
     // 공격 범위 내에 있는 적들 
     protected List<Enemy> enemiesInRange = new List<Enemy>();
@@ -317,25 +317,6 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable,
         }
     }
 
-    protected void GetEnemiesInAttackRange()
-    {
-        enemiesInRange.Clear();
-        Vector2Int operatorGridPos = MapManager.Instance!.CurrentMap!.WorldToGridPosition(transform.position);
-
-        // 공격 범위(타일들)에 있는 적들을 수집합니다
-        foreach (Vector2Int eachPos in CurrentAttacakbleGridPos)
-        {
-            Tile? targetTile = MapManager.Instance!.CurrentMap!.GetTile(eachPos.x, eachPos.y);
-            if (targetTile != null)
-            {
-                List<Enemy> enemiesOnTile = targetTile.GetEnemiesOnTile();
-                enemiesInRange.AddRange(enemiesOnTile);
-            }
-        }
-
-        enemiesInRange = enemiesInRange.Distinct().ToList();
-    }
-
     public void SetGridPosition()
     {
         operatorGridPos = MapManager.Instance!.CurrentMap!.WorldToGridPosition(transform.position);
@@ -460,9 +441,11 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable,
 
         // UI 파괴
         //DestroyOperatorUI();
-        
+
         // 필요한지 모르겠어서 일단 주석처리
         //OnSPChanged = null;
+
+        UnRegisterTiles(); // 배치된 타일들에서 오퍼레이터 등록 해제
 
         // 이펙트 풀 정리
         if (OperatorData.hitEffectPrefab != null)
@@ -492,7 +475,7 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable,
     }
 
     // 공격 대상인 적이 죽었을 때 작동함. 저지 해제와 별개로 구현
-    public void OnTargetLost(UnitEntity unit)
+    public void OnTargetDied(UnitEntity unit)
     {
         // 공격 대상에서 제거
         if (CurrentTarget == unit)
@@ -518,7 +501,7 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable,
         }
 
 
-        foreach (Vector2Int eachPos in CurrentAttacakbleGridPos)
+        foreach (Vector2Int eachPos in CurrentAttackableGridPos)
         {
             Tile? targetTile = MapManager.Instance!.CurrentMap!.GetTile(eachPos.x, eachPos.y);
             if (targetTile != null)
@@ -552,7 +535,7 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable,
     // Target이 공격 범위 내의 타일에 있는지 체크
     protected bool IsCurrentTargetInRange()
     {
-        foreach (Vector2Int eachPos in CurrentAttacakbleGridPos)
+        foreach (Vector2Int eachPos in CurrentAttackableGridPos)
         {
             Tile? eachTile = MapManager.Instance!.GetTile(eachPos.x, eachPos.y);
             if (eachTile != null && eachTile.EnemiesOnTile.Contains(CurrentTarget))
@@ -588,6 +571,7 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable,
         operatorGridPos = MapManager.Instance!.CurrentMap!.WorldToGridPosition(transform.position);
         SetDirection(FacingDirection);
         UpdateAttackableTiles();
+        RegisterTiles();
         CreateDirectionIndicator();
         CreateOperatorUI();
 
@@ -640,8 +624,6 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable,
             NotifyTarget();
             return;
         }
-
-        GetEnemiesInAttackRange(); // 공격 범위 내의 적을 얻음
 
         // 2. 저지 중이 아닐 때에는 공격 범위 내의 적 중에서 공격함
         if (enemiesInRange.Count > 0)
@@ -748,12 +730,13 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable,
         rotatedOffsets = new List<Vector2Int>(baseOffsets
             .Select(tile => DirectionSystem.RotateGridOffset(tile, FacingDirection))
             .ToList());
-        CurrentAttacakbleGridPos = new List<Vector2Int>();
+        CurrentAttackableGridPos = new List<Vector2Int>();
 
+        // 현재 오퍼레이터의 위치를 기반으로 한 공격 범위
         foreach (Vector2Int offset in rotatedOffsets)
         {
             Vector2Int inRangeGridPosition = operatorGridPos + offset;
-            CurrentAttacakbleGridPos.Add(inRangeGridPosition);
+            CurrentAttackableGridPos.Add(inRangeGridPosition);
         }
     }
 
@@ -909,6 +892,60 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable,
 
 
         return Mathf.Max(actualDamage, 0.05f * incomingDamage); // 들어온 대미지의 5%는 들어가게끔 보장
+    }
+
+    public void OnEnemyEnteredAttackRange(Enemy enemy)
+    {
+        if (!enemiesInRange.Contains(enemy))
+        {
+            enemiesInRange.Add(enemy);
+        }   
+    }
+
+    public void OnEnemyExitedAttackRange(Enemy enemy)
+    {
+        // 공격 범위 내에 해당 적이 있는가를 검사
+        foreach (var gridPos in CurrentAttackableGridPos)
+        {
+            Tile? targetTile = MapManager.Instance!.GetTile(gridPos.x, gridPos.y);
+            if (targetTile != null && targetTile.EnemiesOnTile.Contains(enemy))
+            {
+                return;
+            }
+        }
+
+        // 공격 범위 내에 없는 경우에는 리스트에서 제거한다.
+        enemiesInRange.Remove(enemy);
+        if (CurrentTarget == enemy)
+        {
+            CurrentTarget = null; // 현재 타겟이 나간 경우 null로 설정
+        }
+    }
+
+    // 공격 범위 타일들에 이 오퍼레이터를 등록
+    private void RegisterTiles()
+    {
+        foreach (Vector2Int eachPos in CurrentAttackableGridPos)
+        {
+            Tile? targetTile = MapManager.Instance!.GetTile(eachPos.x, eachPos.y);
+            if (targetTile != null)
+            {
+                targetTile.RegisterOperator(this);
+            }
+        }
+    }
+
+    // 공격 범위 타일들에 이 오퍼레이터를 등록 해제
+    private void UnRegisterTiles()
+    {
+        foreach (Vector2Int eachPos in CurrentAttackableGridPos)
+        {
+            Tile? targetTile = MapManager.Instance!.GetTile(eachPos.x, eachPos.y);
+            if (targetTile != null)
+            {
+                targetTile.UnregisterOperator(this);
+            }
+        }
     }
 
     protected void OnDestroy()
