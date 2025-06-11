@@ -500,16 +500,13 @@ public class DeployableManager : MonoBehaviour
 
     private Tile? GetHoveredTile()
     {
-
         Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
         RaycastHit hit;
 
         // 타일 레이어에 대한 레이캐스트
         if (Physics.Raycast(ray, out hit, Mathf.Infinity, tileLayerMask))
         {
-            // return hit.collider.GetComponentInParent<Tile>();
             return hit.collider.GetComponent<Tile>();
-
         }
 
         return null;
@@ -524,7 +521,6 @@ public class DeployableManager : MonoBehaviour
             highlightedTiles.Add(tile);
         }
     }
-
 
     private Vector3 DetermineDirection(Vector3 dragVector)
     {

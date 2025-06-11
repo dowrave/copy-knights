@@ -11,9 +11,6 @@ public class ClickDetectionSystem : MonoBehaviour
     private Camera mainCamera = default!;
     [SerializeField] private LayerMask clickableLayerMask = default!;  // Inspector에서 설정
 
-    //private bool isDraggingDiamond = false;
-    //private DiamondMask currentDiamondMask;
-
     private bool isTutorialMode = false;
     private string expectedButtonName = string.Empty;
 
@@ -42,7 +39,7 @@ public class ClickDetectionSystem : MonoBehaviour
     {
         if (Input.GetMouseButtonDown(0))
         {
-            HandleMouseDown();
+            HandleUIMouseDown();
             shouldSkipHandleClick = false; // 매 프레임 초기화
         }
         if (Input.GetMouseButtonUp(0))
@@ -65,7 +62,8 @@ public class ClickDetectionSystem : MonoBehaviour
         shouldSkipHandleClick = true; // 즉시 HandleClick이 호출되는 것을 방지
     }
 
-    private void HandleMouseDown()
+    //  UI요소들에 대한 마우스 버튼을 누르는 처리.
+    private void HandleUIMouseDown()
     {
         PointerEventData pointerData = new PointerEventData(EventSystem.current);
 
@@ -162,10 +160,8 @@ public class ClickDetectionSystem : MonoBehaviour
     private void ProcessClickMapObject()
     {
         // 1. 배치 중 드래깅 혹은 방향 선택 상태라면 클릭 처리 중단
-        // 꼭 필요하지 않은 부분일 수 있음 - Click이니까 마우스 떼는 시점에만 이 스크립트가 동작하는데
-        // 최소한 IsDraggingDeployable은 떼는 시점에 이미 false로 바뀌어 있음
-        if (DeployableManager.Instance!.IsSelectingDirection ||
-            DeployableManager.Instance!.IsDraggingDeployable)
+        // 배치 상황은 DeployableManager에서 처리한다. 여기서는 다른 오브젝트의 클릭 동작을 막기 위해 남겨둠.
+        if (DeployableManager.Instance!.IsSelectingDirection)
         {
             Debug.Log("HandleClick : 배치 중 드래깅 혹은 방향 선택 상태 - 클릭 처리 중단");
             return;
