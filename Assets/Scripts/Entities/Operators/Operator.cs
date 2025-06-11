@@ -567,11 +567,21 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable,
         }
 
         IsPreviewMode = false;
+
+        // 배치 순서 설정
         SetDeploymentOrder();
+
+        // 오퍼레이터의 그리드 상 위치와 방향 설정
         operatorGridPos = MapManager.Instance!.CurrentMap!.WorldToGridPosition(transform.position);
         SetDirection(FacingDirection);
+
+        // 공격 범위 설정
         UpdateAttackableTiles();
+
+        // 타일에 오퍼레이터 등록
         RegisterTiles();
+
+        // UI 생성
         CreateDirectionIndicator();
         CreateOperatorUI();
 

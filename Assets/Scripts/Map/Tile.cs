@@ -33,7 +33,8 @@ public class Tile : MonoBehaviour
      * 즉, 아래처럼 설정하는 건 각 타일이 스스로 gridPosition 정보를 갖게 하기 위함이다.
      * public Vector2Int GridPosition {get; set;} 만 설정하면, 프리팹을 저장했다가 불러올 때 각 타일의 그리드 좌표가 날아간다.
     */
-    [HideInInspector] [SerializeField] private Vector2Int gridPosition; 
+    [HideInInspector]
+    [SerializeField] private Vector2Int gridPosition; 
     public Vector2Int GridPosition
     {
         get { return gridPosition; }
@@ -96,7 +97,6 @@ public class Tile : MonoBehaviour
     {
         Initialize();
         InitializeGridPosition();
-
     }
 
     private void Initialize()
@@ -154,7 +154,7 @@ public class Tile : MonoBehaviour
             !data.isStartPoint && // 시작점 아님
             !data.isEndPoint && // 끝점 아님
             (OccupyingDeployable == null) &&  // 차지하고 있는 객체 없음
-            (data.isDeployable); // 이 타일이 배치 가능한지
+            data.isDeployable; // 이 타일이 배치 가능한지
     }
 
     public void SetOccupied(DeployableUnitEntity deployable)

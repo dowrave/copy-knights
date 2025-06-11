@@ -68,11 +68,11 @@ public class ClickDetectionSystem : MonoBehaviour
     private void HandleMouseDown()
     {
         PointerEventData pointerData = new PointerEventData(EventSystem.current);
+
+        // UI 요소에 대한 레이캐스트
         List<RaycastResult> results = PerformScreenRaycast();
         foreach (var result in results)
         {
-            //Debug.Log($"MouseButtonDown Raycast hit: {result.gameObject.name}");
-
             // ButtonDown 동작 1. 다이아몬드 내부 클릭 시 방향 설정
             DiamondMask diamondMask = result.gameObject.GetComponent<DiamondMask>();
             if (diamondMask != null)
@@ -97,56 +97,37 @@ public class ClickDetectionSystem : MonoBehaviour
 
 
 
-    // ** 클릭한 지점에 UI 요소(GrpahicRayCaster가 있는 Canvas)가 있다면 먼저 반응함(여기서의 처리가 아님) **
-    // 이후의 클릭 동작을 담당함
- 
+    // 클릭한 지점에 UI 요소(GrpahicRayCaster가 있는 Canvas)가 있다면 먼저 반응함(여기서의 처리가 아님)
+    // 마우스 버튼을 "뗀" 시점에 동작함
     private void HandleClick()
     {
         List<RaycastResult> results = PerformScreenRaycast();
 
-        foreach (RaycastResult result in results)
+        // UI 요소를 감지했고 그 UI가 클릭 이벤트를 처리했으면 멈춘다.
+        if (results.Count > 0 && ProcessClickUI(results))
         {
-            Debug.Log($"Raycast Hit: {result.gameObject.name}");
+            return;
         }
 
-        ProcessClickPriority(results);    
+        // UI가 없었거나 있어도 클릭을 처리하지 않았을 때 맵 오브젝트를 처리
+        ProcessClickMapObject();
     }
 
-    private void ProcessClickPriority(List<RaycastResult> results)
+    // UI 요소 처리: GraphicRaycaster 모듈이 있는 결과만 필터링
+    private bool ProcessClickUI(List<RaycastResult> results)
     {
-        // 1. UI 요소 처리: GraphicRaycaster 모듈이 있는 결과만 필터링
         var uiResults = results.Where(r => r.module is GraphicRaycaster).ToList();
-        if (uiResults.Count > 0 && HandleUIClick(uiResults))
+        if (uiResults.Count > 0)
         {
-            // UI 요소가 처리되었다면 더 이상 진행하지 않음
-            return;
+            return HandleUIClick(uiResults);
         }
-
-        // 2. 배치 중 드래깅 혹은 방향 선택 상태라면 클릭 처리 중단
-        if (DeployableManager.Instance!.IsSelectingDirection ||
-            DeployableManager.Instance!.IsDraggingDeployable)
-        {
-            return;
-        }
-
-        // 3. 3D 오브젝트 클릭 처리: 
-        Ray ray = mainCamera.ScreenPointToRay(Input.mousePosition);
-        if (Physics.Raycast(ray, out RaycastHit clickableHit, Mathf.Infinity, clickableLayerMask))
-        {
-            HandleObjectClick(clickableHit);
-        }
-        else
-        {
-            HandleEmptySpaceClick();
-        }
+        return false; // 처리할 UI가 없음
     }
 
     private bool HandleUIClick(List<RaycastResult> uiResults)
     {
         foreach (var result in uiResults)
         {
-            //Debug.Log($"ui 탐지: {result.gameObject.name}");
-
             // 1. 다이아몬드 외부 클릭 시 상태 해제
             DiamondMask diamondMask = result.gameObject.GetComponent<DiamondMask>();
             if (diamondMask != null)
@@ -176,7 +157,30 @@ public class ClickDetectionSystem : MonoBehaviour
     private void HandleDiamondInteriorClick(RaycastResult result)
     {
         // 마름모 내부 클릭 시 내부 동작 유지 - ActionUI나 DeployingUI 상태 유지
+    }
 
+    private void ProcessClickMapObject()
+    {
+        // 1. 배치 중 드래깅 혹은 방향 선택 상태라면 클릭 처리 중단
+        // 꼭 필요하지 않은 부분일 수 있음 - Click이니까 마우스 떼는 시점에만 이 스크립트가 동작하는데
+        // 최소한 IsDraggingDeployable은 떼는 시점에 이미 false로 바뀌어 있음
+        if (DeployableManager.Instance!.IsSelectingDirection ||
+            DeployableManager.Instance!.IsDraggingDeployable)
+        {
+            Debug.Log("HandleClick : 배치 중 드래깅 혹은 방향 선택 상태 - 클릭 처리 중단");
+            return;
+        }
+
+        // 2. 3D 오브젝트 클릭 처리
+        Ray ray = mainCamera.ScreenPointToRay(Input.mousePosition);
+        if (Physics.Raycast(ray, out RaycastHit clickableHit, Mathf.Infinity, clickableLayerMask))
+        {
+            HandleObjectClick(clickableHit);
+        }
+        else
+        {
+            HandleEmptySpaceClick();
+        }
     }
 
     private void HandleObjectClick(RaycastHit hit)
@@ -220,7 +224,6 @@ public class ClickDetectionSystem : MonoBehaviour
     
     private void HandleEmptySpaceClick()
     {
-        Debug.Log("빈 공간 클릭 - CancelCurrentAction 동작");
         DeployableManager.Instance!.CancelCurrentAction();
     }
 

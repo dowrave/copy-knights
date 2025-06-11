@@ -284,8 +284,6 @@ public class DeployableManager : MonoBehaviour
 
             // 박스 선택 상태
             currentDeployableBox.Select();
-
-
             HighlightAvailableTiles();
         }
     }
@@ -298,7 +296,6 @@ public class DeployableManager : MonoBehaviour
             IsDeployableSelecting = false;
             IsDraggingDeployable = true;
             CreatePreviewDeployable();
-            //StageManager.Instance!.SlowDownTime();
             GameManagement.Instance!.TimeManager.SetPlacementTimeScale();
         }
     }
@@ -352,7 +349,6 @@ public class DeployableManager : MonoBehaviour
         InstanceValidator.ValidateInstance(currentDeployable);
         InstanceValidator.ValidateInstance(currentDeployablePrefab);
         InstanceValidator.ValidateInstance(currentDeployableInfo);
-
 
         GameObject deployableObject = Instantiate(currentDeployablePrefab!);
         currentDeployable = deployableObject.GetComponent<DeployableUnitEntity>();
@@ -475,20 +471,6 @@ public class DeployableManager : MonoBehaviour
     {
         if (currentDeployable == null) throw new InvalidOperationException("currentDeployable이 null임");
 
-        // 항상 커서 위치에 대한 월드 좌표 계산
-        Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
-        Plane groundPlane = new Plane(Vector3.up, Vector3.zero);
-        Vector3 cursorWorldPosition;
-
-        if (groundPlane.Raycast(ray, out float distance))
-        {
-            cursorWorldPosition = ray.GetPoint(distance) + Vector3.up * 0.5f;
-        }
-        else
-        {
-            cursorWorldPosition = Camera.main.transform.position + Camera.main.transform.forward * 10f + Vector3.up * 0.5f;
-        }
-
         Tile? hoveredTile = GetHoveredTile();
         
         // 배치 가능한 타일 위라면 타일 위치로 스냅
@@ -496,21 +478,38 @@ public class DeployableManager : MonoBehaviour
         {
             SetAboveTilePosition(currentDeployable, hoveredTile);
         }
+        // 배치 불가능한 타일이라면 커서 위치에 표시
         else
         {
-            // 아니라면 커서 위치에만 표시
+            Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+            Plane groundPlane = new Plane(Vector3.up, Vector3.zero);
+            Vector3 cursorWorldPosition;
+
+            if (groundPlane.Raycast(ray, out float distance))
+            {
+                cursorWorldPosition = ray.GetPoint(distance) + Vector3.up * 0.5f;
+            }
+            else
+            {
+                cursorWorldPosition = Camera.main.transform.position + Camera.main.transform.forward * 10f + Vector3.up * 0.5f;
+            }
+            
             currentDeployable.transform.position = cursorWorldPosition;
         }
     }
 
     private Tile? GetHoveredTile()
     {
+
         Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
         RaycastHit hit;
 
-        if (Physics.Raycast(ray, out hit, Mathf.Infinity, LayerMask.GetMask("Tile")))
+        // 타일 레이어에 대한 레이캐스트
+        if (Physics.Raycast(ray, out hit, Mathf.Infinity, tileLayerMask))
         {
-            return hit.collider.GetComponentInParent<Tile>();
+            // return hit.collider.GetComponentInParent<Tile>();
+            return hit.collider.GetComponent<Tile>();
+
         }
 
         return null;
