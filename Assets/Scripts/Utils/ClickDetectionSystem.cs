@@ -42,7 +42,7 @@ public class ClickDetectionSystem : MonoBehaviour
     {
         if (Input.GetMouseButtonDown(0))
         {
-            HandleMouseDown();
+            HandleUIMouseDown();
             shouldSkipHandleClick = false; // 매 프레임 초기화
         }
         if (Input.GetMouseButtonUp(0))
@@ -65,9 +65,11 @@ public class ClickDetectionSystem : MonoBehaviour
         shouldSkipHandleClick = true; // 즉시 HandleClick이 호출되는 것을 방지
     }
 
-    private void HandleMouseDown()
+    private void HandleUIMouseDown()
     {
         PointerEventData pointerData = new PointerEventData(EventSystem.current);
+
+        // UI 요소에 대한 레이캐스트
         List<RaycastResult> results = PerformScreenRaycast();
         foreach (var result in results)
         {
@@ -104,32 +106,37 @@ public class ClickDetectionSystem : MonoBehaviour
     {
         List<RaycastResult> results = PerformScreenRaycast();
 
-        foreach (RaycastResult result in results)
+        if (results.Count > 0 && ProcessClickUI(results))
         {
-            Debug.Log($"Raycast Hit: {result.gameObject.name}");
+            return;
         }
 
-        ProcessClickPriority(results);    
+        ProcessClickMapObject();
     }
 
-    private void ProcessClickPriority(List<RaycastResult> results)
+    // UI 요소 처리: GraphicRaycaster 모듈이 있는 결과만 필터링
+    private bool ProcessClickUI(List<RaycastResult> results)
     {
-        // 1. UI 요소 처리: GraphicRaycaster 모듈이 있는 결과만 필터링
         var uiResults = results.Where(r => r.module is GraphicRaycaster).ToList();
-        if (uiResults.Count > 0 && HandleUIClick(uiResults))
+
+        if (uiResults.Count > 0)
         {
-            // UI 요소가 처리되었다면 더 이상 진행하지 않음
+            return HandleUIClick(uiResults);
+        }
+        return false; // 처리할 UI가 없음
+    }
+
+    private void ProcessClickMapObject()
+    {
+        // 1. 배치 중 드래깅 혹은 방향 선택 상태라면 클릭 처리 중단
+        // 배치 상황은 DeployableManager에서 처리한다. 여기서는 다른 오브젝트의 클릭 동작을 막기 위해 남겨둠.
+        if (DeployableManager.Instance!.IsSelectingDirection)
+        {
+            Debug.Log("HandleClick : 배치 중 드래깅 혹은 방향 선택 상태 - 클릭 처리 중단");
             return;
         }
 
-        // 2. 배치 중 드래깅 혹은 방향 선택 상태라면 클릭 처리 중단
-        if (DeployableManager.Instance!.IsSelectingDirection ||
-            DeployableManager.Instance!.IsDraggingDeployable)
-        {
-            return;
-        }
-
-        // 3. 3D 오브젝트 클릭 처리: 
+        // 2. 3D 오브젝트 클릭 처리Add commentMore actions
         Ray ray = mainCamera.ScreenPointToRay(Input.mousePosition);
         if (Physics.Raycast(ray, out RaycastHit clickableHit, Mathf.Infinity, clickableLayerMask))
         {

@@ -8198,6 +8198,7 @@ MonoBehaviour:
     m_Bits: 1024
   deployingUIPrefab: {fileID: 7577664815400135732, guid: d0becf2961a2e0743897718fb9275cb5, type: 3}
   actionUIPrefab: {fileID: 5904677274619804686, guid: d6d3aff9b4f3c4a4a81c032236bfe4dd, type: 3}
+  mainCamera: {fileID: 963194227}
   attackRangeTileColor: {r: 0.8, g: 0.79058826, b: 0.32, a: 0.5019608}
 --- !u!1 &1620609493
 GameObject:
