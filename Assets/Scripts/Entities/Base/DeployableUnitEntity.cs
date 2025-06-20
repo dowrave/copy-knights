@@ -135,7 +135,10 @@ public abstract class DeployableUnitEntity: UnitEntity, IDeployable
 
     private bool IsInvalidTile(Tile tile)
     {
-        return tile == null || tile.IsOccupied || tile.data.isStartPoint || tile.data.isEndPoint;
+        return tile == null ||
+        // tile.IsOccupied ||
+        tile.data.isStartPoint ||
+        tile.data.isEndPoint;
     }
 
     public void UpdatePreviewPosition(Vector3 position)

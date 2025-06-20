@@ -362,7 +362,7 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity, ICrowdControlTarget
         // 공격 중인 개체의 현재 타겟 제거
         foreach (Operator op in attackingEntities.ToList())
         {
-            op.OnTargetLost(this);
+            op.OnTargetDied(this);
         }
 
         // 접촉 중인 타일들에서 이 개체 제거

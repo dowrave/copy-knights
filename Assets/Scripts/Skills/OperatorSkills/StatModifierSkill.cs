@@ -64,7 +64,7 @@ namespace Skills.OperatorSkills
             originalDefense = op.currentOperatorStats.Defense;
             originalMagicResistance = op.currentOperatorStats.MagicResistance;
             originalBlockableEnemies = op.currentOperatorStats.MaxBlockableEnemies;
-            originalAttackableGridPos = new List<Vector2Int>(op.CurrentAttacakbleGridPos);
+            originalAttackableGridPos = new List<Vector2Int>(op.CurrentAttackableGridPos);
         }
 
         private void ApplyStatModifiers(Operator op)
@@ -105,12 +105,12 @@ namespace Skills.OperatorSkills
             op.Defense = originalDefense;
             op.MagicResistance = originalMagicResistance;
             op.MaxBlockableEnemies = originalBlockableEnemies;
-            op.CurrentAttacakbleGridPos = originalAttackableGridPos;
+            op.CurrentAttackableGridPos = originalAttackableGridPos;
         }
 
         private void UpdateAttackRange(Operator op)
         {
-            List<Vector2Int> newRange = new List<Vector2Int>(op.CurrentAttacakbleGridPos);
+            List<Vector2Int> newRange = new List<Vector2Int>(op.CurrentAttackableGridPos);
 
             foreach (Vector2Int additionalTile in modifiers.attackRangeModifier)
             {
@@ -125,7 +125,7 @@ namespace Skills.OperatorSkills
                 }
             }
 
-            op.CurrentAttacakbleGridPos = newRange;
+            op.CurrentAttackableGridPos = newRange;
         }
 
         private void RestoreOriginalHealth(Operator op)

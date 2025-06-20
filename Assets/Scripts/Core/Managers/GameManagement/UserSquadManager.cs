@@ -71,7 +71,6 @@ public class UserSquadManager : MonoBehaviour
         {
             if (skillIndex < 0 || skillIndex >= newOp.UnlockedSkills.Count)
             {
-                Debug.LogError("잘못된 스킬 인덱스에 접근 중. 기본 인덱스인 0번으로 지정하는 것으로 변경");
                 return GameManagement.Instance!.PlayerDataManager.TryUpdateSquad(squadIndex, newOp.operatorName, 0);
             }
             return GameManagement.Instance!.PlayerDataManager.TryUpdateSquad(squadIndex, newOp.operatorName, skillIndex);

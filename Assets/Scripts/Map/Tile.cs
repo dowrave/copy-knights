@@ -9,14 +9,15 @@ public class Tile : MonoBehaviour
     [SerializeField] private Material highlightMaterial = default!;
     [SerializeField] private MeshRenderer attackRangeIndicator = default!;
 
-
-
     public TileData data = default!;
     public DeployableUnitEntity? OccupyingDeployable { get; private set; }
-    public bool IsOccupied
-    {
-        get { return OccupyingDeployable != null; }
-    }
+    // public bool IsOccupied
+    // {
+    //     get { return OccupyingDeployable != null; }
+    // }
+
+    // 이 타일을 공격 범위로 삼는 오퍼레이터 목록
+    private readonly List<Operator> listeningOperators = new List<Operator>();
 
     public bool IsWalkable { get; private set; }
     private float tileScale = 0.98f;
@@ -32,7 +33,7 @@ public class Tile : MonoBehaviour
      * 즉, 아래처럼 설정하는 건 각 타일이 스스로 gridPosition 정보를 갖게 하기 위함이다.
      * public Vector2Int GridPosition {get; set;} 만 설정하면, 프리팹을 저장했다가 불러올 때 각 타일의 그리드 좌표가 날아간다.
     */
-    [HideInInspector] [SerializeField] private Vector2Int gridPosition; 
+    [HideInInspector][SerializeField] private Vector2Int gridPosition;
     public Vector2Int GridPosition
     {
         get { return gridPosition; }
@@ -149,7 +150,7 @@ public class Tile : MonoBehaviour
 
     public bool CanPlaceDeployable()
     {
-        return 
+        return
             !data.isStartPoint && // 시작점 아님
             !data.isEndPoint && // 끝점 아님
             (OccupyingDeployable == null) &&  // 차지하고 있는 객체 없음
@@ -270,6 +271,12 @@ public class Tile : MonoBehaviour
         if (!enemiesOnTile.Contains(enemy))
         {
             enemiesOnTile.Add(enemy);
+
+            // 이 타일을 공격범위로 하는 오퍼레이터에게 알림
+            foreach (var op in listeningOperators)
+            {
+                op.OnEnemyEnteredAttackRange(enemy);
+            }
         }
     }
 
@@ -277,6 +284,12 @@ public class Tile : MonoBehaviour
     public void EnemyExited(Enemy enemy)
     {
         enemiesOnTile.Remove(enemy);
+
+        // 이 타일을 공격범위로 하는 오퍼레이터에게 알림
+        foreach (var op in listeningOperators)
+        {
+            op.OnEnemyExitedAttackRange(enemy);
+        }
     }
 
 
@@ -296,6 +309,24 @@ public class Tile : MonoBehaviour
             return true;
         }
         return false;
+    }
+    
+    // 오퍼레이터가 타일을 공격 범위로 등록
+    public void RegisterOperator(Operator op)
+    {
+        if (!listeningOperators.Contains(op))
+        {
+            listeningOperators.Add(op);
+        }
+    }
+
+    // 오퍼레이터가 타일을 공격 범위에서 해제
+    public void UnregisterOperator(Operator op)
+    {
+        if (listeningOperators.Contains(op))
+        {
+            listeningOperators.Remove(op);
+        }
     }
 
 }
