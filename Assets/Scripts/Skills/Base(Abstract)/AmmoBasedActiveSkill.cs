@@ -49,7 +49,7 @@ namespace Skills.Base
             // SPbar UI 업데이트
             operatorUI?.SwitchSPBarToAmmoMode(maxAmmo, currentAmmo);
 
-            op.StartCoroutine(HandleSkillDuration(op)); // 코루틴은 MonoBehaviour에서만 사용 가능함
+            // op.StartCoroutine(HandleSkillDuration(op)); // 코루틴은 MonoBehaviour에서만 사용 가능함
         }
 
         public override void OnAfterAttack(Operator op)
@@ -95,7 +95,7 @@ namespace Skills.Base
             operatorUI?.SwitchSPBarToNormalMode();
         }
 
-        protected override IEnumerator HandleSkillDuration(Operator op)
+        public override IEnumerator Co_HandleSkillDuration(Operator op)
         {
             OnSkillStart(op);
             op.StartSkillDurationDisplay(duration);

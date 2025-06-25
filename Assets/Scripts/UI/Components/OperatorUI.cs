@@ -6,7 +6,7 @@ public class OperatorUI : MonoBehaviour
 {
     [Header("Components")]
     [SerializeField] private DeployableBarUI deployableBarUI = default!;  // 기존에 할당된 Bar UI
-    [SerializeField] private GameObject skillIconUI = default!;      // 스킬 아이콘 UI
+    [SerializeField] private GameObject skillIconUI = default!; // 스킬 아이콘 UI
 
     private Operator op = default!;
     public DeployableBarUI DeployableBarUI => deployableBarUI;
@@ -40,7 +40,7 @@ public class OperatorUI : MonoBehaviour
         }
 
         // 오퍼레이터 파괴 시 UI도 파괴하는 이벤트 등록
-        op.OnOperatorDied += DestroyThis;
+        // op.OnOperatorDied += DestroyThis;
     }
 
     // 스킬 아이콘 UI의 초기화 및 상태 업데이트
@@ -89,8 +89,8 @@ public class OperatorUI : MonoBehaviour
     }
 
 
-    private void DestroyThis(Operator op)
-    {
-        Destroy(gameObject);
-    }
+    // private void DestroyThis(Operator op)
+    // {
+    //     Destroy(gameObject);
+    // }
 }

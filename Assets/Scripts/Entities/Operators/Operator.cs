@@ -12,6 +12,8 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable,
     [HideInInspector] 
     public OperatorStats currentOperatorStats; // 일단 public으로 구현
 
+    public string EntityName => OperatorData.entityName;
+
     // ICombatEntity 필드
     public AttackType AttackType => OperatorData.attackType;
     public AttackRangeType AttackRangeType => OperatorData.attackRangeType;
@@ -100,8 +102,13 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable,
     public Vector3 FacingDirection { get; protected set; } = Vector3.left;
 
     // 저지 관련
-    protected List<Enemy> blockedEnemies = new List<Enemy>();
+    protected List<Enemy> blockedEnemies = new List<Enemy>(); // 실제로 저지 중인 적들
     public IReadOnlyList<Enemy> BlockedEnemies => blockedEnemies;
+    protected int currentBlockCount; // 현재 저지 수
+
+    protected List<Enemy> blockableEnemies = new List<Enemy>(); // 콜라이더가 겹쳐서 저지가 가능한 적들
+    public IReadOnlyList<Enemy> BlockableEnemies => blockableEnemies;
+
 
     public int DeploymentOrder { get; protected set; } = 0;// 배치 순서
 
@@ -136,6 +143,7 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable,
     // 스킬 관련
     public BaseSkill CurrentSkill { get; private set; } = default!;
     public bool IsSkillOn { get; private set; }
+    private Coroutine _activeSkillCoroutine; // 지속시간이 있는 스킬에 해당하는 코루틴
 
     // 현재 오퍼레이터의 육성 상태 - Current를 별도로 붙이지는 않겠음
     public OperatorGrowthSystem.ElitePhase ElitePhase { get; private set; }
@@ -206,7 +214,8 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable,
     
     protected void DestroyOperatorUI()
     {
-        Destroy(operatorUI);
+        // 컴포넌트를 파괴하는 게 아니라 오브젝트를 파괴해야 함
+        Destroy(operatorUI.gameObject);
     }
 
     protected void Update()
@@ -376,68 +385,94 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable,
 
     private void OnTriggerEnter(Collider other)
     {
-        ProcessEnemyCollision(other);
+        Enemy enemy = other.GetComponent<Enemy>();
+
+        if (enemy != null && !blockableEnemies.Contains(enemy))
+        {
+            blockableEnemies.Add(enemy);
+            TryBlockNextEnemy();
+        }
     }
 
-    private void OnTriggerStay(Collider other)
+    // 저지 가능한 슬롯이 있을 때 blockableEnemies에서 다음 적을 찾아 저지한다.
+    private void TryBlockNextEnemy()
     {
-        ProcessEnemyCollision(other);
-    }
+        // 여유가 없다면 리턴
+        if (currentBlockCount >= MaxBlockableEnemies) return;
 
-    // 적과 콜라이더 충돌 시 저지 처리
-    private void ProcessEnemyCollision(Collider other)
-    {
-        if (IsDeployed && blockedEnemies.Count < currentOperatorStats.MaxBlockableEnemies)
-        { 
-            Enemy collidedEnemy = other.GetComponent<Enemy>();
-
-            if (collidedEnemy != null &&
-                CanBlockEnemy(collidedEnemy.BlockCount) && // 이 오퍼레이터가 이 적을 저지할 수 있을 때 
-                collidedEnemy.BlockingOperator == null) // 해당 적을 저지 중인 아군 오퍼레이터가 없을 때 
+        // 저지 가능한 적 목록을 순회, 리스트 앞쪽 = 먼저 들어온 적
+        foreach (Enemy candidateEnemy in blockableEnemies)
+        {
+            // 이 적을 저지할 수 있는지 확인
+            if (CanBlockEnemy(candidateEnemy))
             {
-                BlockEnemy(collidedEnemy); // 적을 저지
-                collidedEnemy.SetBlockingOperator(this);
+                BlockEnemy(candidateEnemy);
+                candidateEnemy.UpdateBlockingOperator(this);
             }
         }
     }
 
     private void OnTriggerExit(Collider other)
     {
-        Enemy collidedEnemy = other.GetComponent<Enemy>();
-
-        if (collidedEnemy != null && collidedEnemy.BlockingOperator == this)
+        Enemy enemy = other.GetComponent<Enemy>();
+        if (enemy != null)
         {
-            UnblockEnemy(collidedEnemy);
-            collidedEnemy.RemoveBlockingOperator();
-            //Debug.Log($"{OperatorData.entityName}이 {collidedEnemy}을 저지 해제, 현재 저지 수 : {blockedEnemies.Count}");
+            blockableEnemies.Remove(enemy);
+
+            // 실제 저지 중이었다면 저지 해제
+            if (blockedEnemies.Contains(enemy))
+            {
+                UnblockEnemy(enemy);
+                enemy.UpdateBlockingOperator(null);
+            }
+
+            // 다른 적 저지 시도
+            TryBlockNextEnemy();
         }
     }
 
-    // --- 저지 관련 메서드들
-    // 지금 들어오는 Enemy가 차지하는 저지 수를 점검해야 해서 이렇게 구현함 (단일 개체 3저지인 적도 있을 거니까)
-    public bool CanBlockEnemy(int enemyBlockCount)
+    // 해당 적을 저지할 수 있는가
+    public bool CanBlockEnemy(Enemy enemy)
     {
-        return IsDeployed &&
-            blockedEnemies.Count + enemyBlockCount <= currentOperatorStats.MaxBlockableEnemies;
+        return enemy != null && 
+            IsDeployed &&
+            !blockedEnemies.Contains(enemy) && // 이미 저지 중인 적이 아님
+            enemy.BlockingOperator == null &&  // 적을 저지하고 있는 오퍼레이터가 없음
+            currentBlockCount + enemy.BlockCount <= MaxBlockableEnemies; // 이 적을 저지했을 때 최대 저지 수를 초과하지 않음
     }
 
     public void BlockEnemy(Enemy enemy)
     {
         blockedEnemies.Add(enemy);
+        currentBlockCount += enemy.BlockCount;
+        Debug.LogWarning($"{OperatorData.entityName}이 저지하고 있는 적의 수 : {currentBlockCount}");
     }
 
     public void UnblockEnemy(Enemy enemy)
     {
         blockedEnemies.Remove(enemy);
+        currentBlockCount -= enemy.BlockCount;
+        Debug.LogWarning($"{OperatorData.entityName}이 저지하고 있는 적의 수 : {currentBlockCount}");
     }
 
     public void UnblockAllEnemies()
     {
-        foreach (Enemy enemy in blockedEnemies)
+        // ToList를 쓰는 이유 : 반복문 안에서 리스트를 수정하면 오류가 발생할 수 있다 - 복사본을 순회하는 게 안전하다.
+        foreach (Enemy enemy in blockedEnemies.ToList())
         {
-            enemy.UnblockFrom(this);
+            enemy.UpdateBlockingOperator(null);
+            UnblockEnemy(enemy);
         }
-        blockedEnemies.Clear();
+        // blockedEnemies.Clear();
+    }
+
+    public void OnBlockedEnemyDied(Enemy deadEnemy)
+    {
+        // 적 저지 해제
+        UnblockEnemy(deadEnemy);
+
+        // 적 하나의 저지가 해제되었으므로 다른 적을 저지할 수 있는지 확인
+        TryBlockNextEnemy();
     }
 
     public override void TakeDamage(UnitEntity attacker, AttackSource attackSource, float damage, bool playGetHitEffect = true)
@@ -456,11 +491,18 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable,
         // 배치되어야 Die가 가능
         if (!IsDeployed) return;
 
+        // 스킬 유지 중이었다면 코루틴 취소 
+        if (_activeSkillCoroutine != null)
+        {
+            StopCoroutine(_activeSkillCoroutine);
+            _activeSkillCoroutine = null;
+        }
+
         // 사망 후 동작 로직
         UnblockAllEnemies();
 
         // UI 파괴
-        //DestroyOperatorUI();
+        DestroyOperatorUI();
         
         // 필요한지 모르겠어서 일단 주석처리
         //OnSPChanged = null;
@@ -643,12 +685,13 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable,
             return;
         }
 
-        // GetEnemiesInAttackRange(); // 공격 범위 내의 적을 얻음
-
         // 2. 저지 중이 아닐 때에는 공격 범위 내의 적 중에서 공격함
         if (enemiesInRange.Count > 0)
         {
-            CurrentTarget = enemiesInRange.OrderBy(E => E.GetRemainingPathDistance()).FirstOrDefault();
+            CurrentTarget = enemiesInRange
+                .Where(e => e != null && e.gameObject != null) // 파괴 검사 & null 검사 함께 수행
+                .OrderBy(E => E.GetRemainingPathDistance()) // 살아있는 객체 중 남은 거리가 짧은 순서로 정렬
+                .FirstOrDefault(); // 가장 짧은 거리의 객체를 가져옴
 
             if (CurrentTarget != null)
             {
@@ -739,7 +782,20 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable,
         if (CanUseSkill() && CurrentSkill != null)
         {
             CurrentSkill.Activate(this);
-            UpdateOperatorUI();
+
+            // 지속시간이 있는 액티브 스킬은 코루틴을 여기서 실행하고 관리함
+            if (CurrentSkill is ActiveSkill activeSkill && activeSkill.duration > 0)
+            {
+                // 기존 코루틴 종료
+                if (_activeSkillCoroutine != null)
+                {
+                    StopCoroutine(_activeSkillCoroutine);
+                }
+
+                _activeSkillCoroutine = StartCoroutine(activeSkill.Co_HandleSkillDuration(this));
+
+                UpdateOperatorUI();
+            }
         }
     }
 
@@ -972,8 +1028,16 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable,
 
     protected void OnDestroy()
     {
+        // 오브젝트 파괴 시 실행 중이던 스킬 코루틴을 중지시킨다
+        if (_activeSkillCoroutine != null)
+        {
+            StopCoroutine(_activeSkillCoroutine);
+            _activeSkillCoroutine = null;
+        }
+
         RemoveObjectPool();
     }
+
     public void SetMovementSpeed(float newMovementSpeed) { }
 
 }

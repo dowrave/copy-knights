@@ -36,6 +36,8 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity, ICrowdControlTarget
         }
     }
 
+    public string EntityName => enemyData.entityName;
+
     // 경로 관련
     private PathData? pathData;
     private List<Vector3> currentPath = new List<Vector3>();
@@ -49,7 +51,31 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity, ICrowdControlTarget
 
     private Operator? blockingOperator; // 자신을 저지 중인 오퍼레이터
     public Operator? BlockingOperator => blockingOperator;
-    public UnitEntity? CurrentTarget { get; private set; } // 공격 대상
+    private UnitEntity? _currentTarget;
+    public UnitEntity? CurrentTarget
+    {
+        get => _currentTarget;
+        private set
+        {
+            // 타겟이 기존 값과 동일하다면 세터 실행 X
+            if (_currentTarget == value) return;
+
+            // 기존 타겟의 이벤트 구독 해제
+            if (_currentTarget != null)
+            {
+                _currentTarget.OnDestroyed -= OnCurrentTargetDied;
+                _currentTarget.RemoveAttackingEntity(this);
+            }
+
+            _currentTarget = value;
+
+            if (_currentTarget != null)
+            {
+                _currentTarget.OnDestroyed += OnCurrentTargetDied;
+                NotifyTarget();
+            }
+        }
+    } // 공격 대상
 
     protected int initialPoolSize = 5;
     protected string? projectileTag;
@@ -169,7 +195,7 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity, ICrowdControlTarget
                 SetCurrentTarget();
 
                 // 저지당함 - 근거리 공격
-                if (blockingOperator != null)
+                if (blockingOperator != null && CurrentTarget == blockingOperator)
                 {
                     if (AttackCooldown <= 0)
                     {
@@ -285,29 +311,6 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity, ICrowdControlTarget
         Destroy(gameObject);
     }
 
-    //  공격 범위 내의 오퍼레이터 리스트 업데이트
-    // public void UpdateTargetsInRange()
-    // {
-    //     targetsInRange.Clear();
-
-    //     // 판정용 콜라이더 처리
-    //     Collider[] colliders = Physics.OverlapSphere(transform.position, AttackRange); 
-
-    //     foreach (var collider in colliders)
-    //     {
-    //         DeployableUnitEntity? target = collider.transform.parent?.GetComponent<DeployableUnitEntity>(); // GetComponent : 해당 오브젝트부터 시작, 부모 오브젝트로 올라가며 컴포넌트를 찾는다.
-    //         if (target != null && target.IsDeployed && Faction.Ally == target.Faction)
-    //         {
-    //             // 실제 거리 계산
-    //             float actualDistance = Vector3.Distance(transform.position, target.transform.position);
-    //             if (actualDistance <= AttackRange)
-    //             {
-    //                 targetsInRange.Add(target);
-    //             }
-    //         }
-    //     }
-    // }
-
     public void OnTargetEnteredRange(DeployableUnitEntity target)
     {
         if (target == null ||
@@ -385,7 +388,7 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity, ICrowdControlTarget
         // 저지 중인 오퍼레이터에게 저지를 해제시킴
         if (blockingOperator != null)
         {
-            blockingOperator.UnblockEnemy(this);
+            blockingOperator.OnBlockedEnemyDied(this);
         }
 
         // 공격 중인 개체의 현재 타겟 제거
@@ -439,16 +442,6 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity, ICrowdControlTarget
             }
         }
     } 
-
-    public void UnblockFrom(Operator op)
-    {
-        if (blockingOperator == op)
-        {
-            blockingOperator = null;
-        }
-    }
-
-
     // 마지막 타일의 월드 좌표 기준
     private bool CheckIfReachedDestination()
     {
@@ -462,39 +455,46 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity, ICrowdControlTarget
         return Vector3.Distance(transform.position, lastNodePosition) < 0.05f;
     }
 
-    // Enemy가 공격할 대상 지정
+    // Enemy가 공격할 대상 지정. Update에서 계속 돌아갈 필요가 있다.
     public void SetCurrentTarget()
     {
-        // 저지를 당할 때는 자신을 저지하는 객체를 타겟으로 지정
+        // 현재 타겟이 나를 저지 중인 오퍼레이터라면 변경할 필요 X
+        if (blockingOperator != null && CurrentTarget == blockingOperator) return;
+
+        // 1. 자신을 저지하는 오퍼레이터를 타겟으로 설정
         if (blockingOperator != null)
         {
             CurrentTarget = blockingOperator;
-            NotifyTarget();
             return;
         }
 
-        // 저지가 아니라면 공격 범위 내의 가장 마지막에 배치된 적 공격
-        // UpdateTargetsInRange(); // 공격 범위 내의 Operator 리스트 갱신
-
+        // 2. 공격 범위 내의 타겟
         if (targetsInRange.Count > 0)
         {
-            // 다른 오브젝트를 공격해야 할 수도 있는데 지금은 일단 오퍼레이터에 한정해서 구현함
-            CurrentTarget = targetsInRange
-                .OfType<Operator>()
-                .OrderByDescending(o => o.DeploymentOrder) // 더 나중에 배치된 오퍼레이터를 공격
+            // 타겟 선정
+            UnitEntity? newTarget = targetsInRange
+                .OfType<Operator>() // 오퍼레이터
+                .OrderByDescending(o => o.DeploymentOrder) // 가장 나중에 배치된 오퍼레이터 
                 .FirstOrDefault();
 
-            NotifyTarget();
+            // 타겟의 유효성 검사 : 공격 범위 내에 있고 null이 아닐 때
+            if (newTarget != null || targetsInRange.Contains(newTarget))
+            {
+                CurrentTarget = newTarget;
+            }
+
             return;
         }
 
-        // 저지당하고 있지 않고, 공격 범위 내에도 타겟이 없다면 
-        RemoveCurrentTarget();
+        // 3. 위의 두 조건에 해당하지 않는다면 타겟을 제거한다.
+        CurrentTarget = null;
     }
 
-    public void RemoveCurrentTarget()
+    // Enemy가 공격 대상으로 삼은 적이 죽었을 때 동작
+    public void OnCurrentTargetDied(UnitEntity destroyedTarget)
     {
-        if (CurrentTarget != null)
+        // 타겟이 파괴되었다는 의미이므로 CurrentTarget = null로만 설정해준다.
+        if (CurrentTarget == destroyedTarget)
         {
             CurrentTarget = null;
         }
@@ -798,17 +798,17 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity, ICrowdControlTarget
         CurrentHealth = Mathf.Floor(MaxHealth);
     }
 
-    public void SetBlockingOperator(Operator op)
+    public void UpdateBlockingOperator(Operator? op)
     {
-        if (blockingOperator == null)
+        blockingOperator = op;
+        if (op == null)
         {
-            blockingOperator = op;
+            Debug.LogWarning($"{enemyData.entityName}({GetInstanceID()})은 저지 해제됨");
         }
-    }
-
-    public void RemoveBlockingOperator()
-    {
-        blockingOperator = null;
+        else
+        {
+            Debug.LogWarning($"{enemyData.entityName}({GetInstanceID()})을 저지하고 있는 Operator : {op?.OperatorData.entityName}");
+        }
     }
 
     protected override float CalculateActualDamage(AttackType attacktype, float incomingDamage)

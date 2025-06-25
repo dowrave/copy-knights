@@ -41,24 +41,28 @@ namespace Skills.Base
             PlaySkillVFX(op);
             PlayAdditionalVFX(op);
 
-            // 지속 시간에 따른 처리
-            if (duration > 0)
+            // 즉발형 스킬은 여기서 처리
+            if (duration <= 0)
             {
-                op.StartCoroutine(HandleSkillDuration(op));
+                PlayInstantSkill(op);
             }
-            else  // 즉발형 스킬
-            {
-                OnSkillStart(op);
-                PlaySkillEffect(op);
-                OnSkillEnd(op);
-                op.CurrentSP = 0;
-            }
+
+            // 지속시간이 있는 스킬은 Operator에서 코루틴이 실행된다. Operator.UseSkill 참고.
         }
 
         // 추가 이펙트
         protected virtual void PlayAdditionalVFX(Operator op) { }
 
-        protected virtual void OnSkillStart(Operator op) 
+        // 지속 시간이 없는 (=즉발형) 스킬 실행
+        protected void PlayInstantSkill(Operator op)
+        {
+            OnSkillStart(op);
+            PlaySkillEffect(op);
+            OnSkillEnd(op);
+            op.CurrentSP = 0;
+        }
+
+        protected virtual void OnSkillStart(Operator op)
         {
             op.SetSkillOnState(true);
         }
@@ -107,11 +111,10 @@ namespace Skills.Base
                     VfxPs.Play();
                 }
             }
-
         }
 
         // 스킬 지속시간 처리
-        protected virtual IEnumerator HandleSkillDuration(Operator op)
+        public virtual IEnumerator Co_HandleSkillDuration(Operator op)
         {
             OnSkillStart(op);
             op.StartSkillDurationDisplay(duration);
@@ -120,9 +123,12 @@ namespace Skills.Base
             float elapsedTime = 0f;
             while (elapsedTime < duration)
             {
-                yield return null;
+                if (op == null) yield break; // 오퍼레이터 파괴 시에 동작을 멈춤
+                
                 elapsedTime += Time.deltaTime;
                 op.UpdateSkillDurationDisplay(1 - (elapsedTime / duration));
+
+                yield return null;
             }
 
             OnSkillEnd(op);

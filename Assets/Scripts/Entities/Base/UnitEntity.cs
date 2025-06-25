@@ -30,7 +30,7 @@ public abstract class UnitEntity : MonoBehaviour, ITargettable, IFactionMember
     // 인터페이스가 있는 경우에만 쓸 듯
     protected List<CrowdControl> activeCC = new List<CrowdControl>();
 
-    // 이 개체를 공격하는 엔티티 목록
+    // 이 개체를 공격하는 엔티티 목록 : 이 개체에 변화가 생겼을 때 알리기 위해 필요함(사망, 은신 등등)
     protected List<ICombatEntity> attackingEntities = new List<ICombatEntity>();
 
     // 박스 콜라이더
@@ -38,8 +38,8 @@ public abstract class UnitEntity : MonoBehaviour, ITargettable, IFactionMember
 
     // 이벤트
     public event System.Action<float, float, float> OnHealthChanged = delegate { };
-    public event System.Action<UnitEntity> OnDestroyed = delegate { };
     public event System.Action<CrowdControl, bool> OnCrowdControlChanged = delegate { };
+    public event System.Action<UnitEntity> OnDestroyed = delegate { };
 
     protected virtual void Awake()
     {
@@ -258,6 +258,10 @@ public abstract class UnitEntity : MonoBehaviour, ITargettable, IFactionMember
 
     public virtual void TakeDamage(UnitEntity attacker, AttackSource attackSource, float damage, bool playGetHitEffect = true)
     {
+        // 현재 체력이 0 이하라면 실행되지 않는다
+        // 중복해서 실행되는 경우를 방지함
+        if (CurrentHealth <= 0) return; 
+
         float actualDamage = 0f;
 
         if (attacker is ICombatEntity iCombatEntity && CurrentHealth > 0)
