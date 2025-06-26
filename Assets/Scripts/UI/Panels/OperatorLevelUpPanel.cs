@@ -462,13 +462,13 @@ public class OperatorLevelUpPanel : MonoBehaviour
             InitializeStatTexts();
             ClearItemDisplay();
             UpdateExpGauge();
-            MainMenuManager.Instance!.ShowNotification($"레벨업 완료 : 현재 레벨 {selectedLevel}");
+            NotificationToastManager.Instance!.ShowNotification($"레벨업 완료 : 현재 레벨 {selectedLevel}");
             UpdateLevelStrip(selectedLevel);
             UpdateConfirmButton();
         }
         else
         {
-            MainMenuManager.Instance!.ShowNotification("레벨업에 실패했습니다");
+            NotificationToastManager.Instance!.ShowNotification("레벨업에 실패했습니다");
         }
     }
 

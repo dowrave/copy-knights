@@ -25,7 +25,6 @@ MonoBehaviour:
     _attackPower: 244
     _attackSpeed: 1
     _maxBlockableEnemies: 1
-    _startSP: 0
     _spRecoveryRate: 1
   prefab: {fileID: 4844663318455565301, guid: d3dcd961b53c71f45b440db97cb72987, type: 3}
   icon: {fileID: 0}

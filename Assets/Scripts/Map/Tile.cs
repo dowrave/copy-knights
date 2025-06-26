@@ -11,10 +11,6 @@ public class Tile : MonoBehaviour
 
     public TileData data = default!;
     public DeployableUnitEntity? OccupyingDeployable { get; private set; }
-    // public bool IsOccupied
-    // {
-    //     get { return OccupyingDeployable != null; }
-    // }
 
     // 이 타일을 공격 범위로 삼는 오퍼레이터 목록
     private readonly List<Operator> listeningOperators = new List<Operator>();
@@ -23,9 +19,9 @@ public class Tile : MonoBehaviour
     private float tileScale = 0.98f;
     public Vector2 size2D;
 
-    // 타일 위에 있는 적들을 저장하는 리스트, 오퍼레이터의 공격 범위가 타일이므로 유지함
-    private List<Enemy> enemiesOnTile = new List<Enemy>();
-    public IReadOnlyList<Enemy> EnemiesOnTile => enemiesOnTile;
+    // 타일 위의 적들을 관리하는 해쉬셋.
+    private HashSet<Enemy> enemiesOnTile = new HashSet<Enemy>();
+    public IReadOnlyCollection<Enemy> EnemiesOnTile => enemiesOnTile;
 
     /* 
      * 중요! 프로퍼티만 설정하면 변수 저장은 불가능하다
@@ -61,6 +57,8 @@ public class Tile : MonoBehaviour
         PrepareHighlight();
         InitializeGridPosition();
         size2D = new Vector2(tileScale, tileScale);
+
+        Enemy.OnEnemyDestroyed += HandleEnemyDestroy;
     }
 
     // 자식 모델의 Mesh Renderer에 들어가는 머티리얼 배열을 2가지로 준비함
@@ -259,12 +257,6 @@ public class Tile : MonoBehaviour
         return enemyPosition2D.x >= minX && enemyPosition2D.x <= maxX && enemyPosition2D.y >= minY && enemyPosition2D.y <= maxY;
     }
 
-    // 타일 위의 모든 적 반환
-    public List<Enemy> GetEnemiesOnTile()
-    {
-        return enemiesOnTile;
-    }
-
     // 적이 타일에 진입
     public void EnemyEntered(Enemy enemy)
     {
@@ -292,16 +284,13 @@ public class Tile : MonoBehaviour
         }
     }
 
-
     // 타일에 올라간 적 관리하는 메서드들 끝 -------
     public void ToggleWalkable(bool isWalkable)
     {
         IsWalkable = isWalkable;
     }
 
-    /// <summary>
-    /// 바리케이드가 있는지 여부 판정
-    /// </summary>
+    // 바리케이드가 있는지 여부 판정
     public bool HasBarricade()
     {
         if (OccupyingDeployable is Barricade)
@@ -310,7 +299,7 @@ public class Tile : MonoBehaviour
         }
         return false;
     }
-    
+
     // 오퍼레이터가 타일을 공격 범위로 등록
     public void RegisterOperator(Operator op)
     {
@@ -327,6 +316,21 @@ public class Tile : MonoBehaviour
         {
             listeningOperators.Remove(op);
         }
+    }
+
+    // 적 사망 이벤트를 받아 실행
+    private void HandleEnemyDestroy(Enemy enemy)
+    {
+        // 타일 위에 적이 있다면 제거
+        if (enemiesOnTile.Contains(enemy))
+        {
+            EnemyExited(enemy);
+        }
+    }
+
+    void OnDestroy()
+    {
+        Enemy.OnEnemyDestroyed -= HandleEnemyDestroy;
     }
 
 }

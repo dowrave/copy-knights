@@ -269,7 +269,7 @@ public class OperatorDetailPanel : MonoBehaviour
             }
             else if (currentOperator.currentLevel == OperatorGrowthSystem.GetMaxLevel(currentOperator.currentPhase))
             {
-                MainMenuManager.Instance!.ShowNotification("현재 정예화에서의 최대 레벨입니다.");
+                NotificationToastManager.Instance!.ShowNotification("현재 정예화에서의 최대 레벨입니다.");
             }
         }
     }
@@ -287,7 +287,7 @@ public class OperatorDetailPanel : MonoBehaviour
         }
         else if (currentOperator.currentPhase == OperatorGrowthSystem.ElitePhase.Elite1)
         {
-            MainMenuManager.Instance!.ShowNotification($"최대 정예화에 도달했습니다.");
+            NotificationToastManager.Instance!.ShowNotification($"최대 정예화에 도달했습니다.");
         }
     }
 
@@ -390,7 +390,7 @@ public class OperatorDetailPanel : MonoBehaviour
     private void HandleDefaultButtonClicked()
     {
         currentOperator.SetDefaultSelectedSkill(currentSelectedSkillIndex);
-        MainMenuManager.Instance!.ShowNotification($"기본 설정 스킬이 {currentSelectedSkill.skillName}으로 변경되었습니다.");
+        NotificationToastManager.Instance!.ShowNotification($"기본 설정 스킬이 {currentSelectedSkill.skillName}으로 변경되었습니다.");
         UpdateSkillsUI();
     }
 

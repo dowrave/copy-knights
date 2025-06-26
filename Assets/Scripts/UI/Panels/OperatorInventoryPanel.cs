@@ -600,7 +600,7 @@ public class OperatorInventoryPanel : MonoBehaviour
                 }
 
                 // 우측 상단 알림 표시
-                MainMenuManager.Instance!.ShowNotification($"모든 오퍼레이터 레벨 초기화 및 육성 재화 회수 완료");
+                NotificationToastManager.Instance!.ShowNotification($"모든 오퍼레이터 레벨 초기화 및 육성 재화 회수 완료");
 
                 UpdateSideView();
             }

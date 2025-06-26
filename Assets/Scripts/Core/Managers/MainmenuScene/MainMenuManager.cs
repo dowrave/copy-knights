@@ -429,22 +429,7 @@ public class MainMenuManager : MonoBehaviour
             GameManagement.Instance.UserSquadManager.TryReplaceOperator(slotIndex, newOperator);
         }
     }
-
-    public void ShowNotification(string message)
-    {
-        // 저번 알림 패널이 2초 내에 떴다면 아무 것도 활성화하지 않음
-        if (DateTime.Now - LastNotificationTime < TimeSpan.FromSeconds(2)) return;
-
-        if (notificationPanelPrefab != null && mainCanvas != null)
-        {
-            GameObject notificationObj = Instantiate(notificationPanelPrefab, mainCanvas.transform);
-            NotificationPanel notificationPanel = notificationObj.GetComponent<NotificationPanel>();
-            notificationPanel?.Initialize(message);
-
-            LastNotificationTime = DateTime.Now;
-        }
-    }
-
+    
     private void SetConditionalParentPanel(GameObject parentPanelObject, GameObject childPanelObject)
     {
         MenuPanel parentPanel = reversePanelMap[parentPanelObject];

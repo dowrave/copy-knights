@@ -49,15 +49,16 @@ namespace Skills.Base
             // SPbar UI 업데이트
             operatorUI?.SwitchSPBarToAmmoMode(maxAmmo, currentAmmo);
 
-            // op.StartCoroutine(HandleSkillDuration(op)); // 코루틴은 MonoBehaviour에서만 사용 가능함
+            op.StartCoroutine(Co_HandleSkillDuration(op)); // 코루틴은 MonoBehaviour에서만 사용 가능함
         }
 
         public override void OnAfterAttack(Operator op)
         {
+            // 스킬이 켜졌을 때에만 동작
             if (!op.IsSkillOn) return; 
 
             // 공격 후 탄환 소모
-            ConsumeAmmo();
+            ConsumeAmmo(op);
 
             // 탄환이 소진되면 스킬 종료
             if (CurrentAmmo <= 0)
@@ -67,12 +68,12 @@ namespace Skills.Base
             
         }
 
-        protected virtual void ConsumeAmmo()
+        protected virtual void ConsumeAmmo(Operator op)
         {
             currentAmmo = Mathf.Max(0, currentAmmo - 1);
 
             // 탄환 소모 후 UI 업데이트
-            UpdateAmmoUI();
+            UpdateAmmoUI(op);
         }
 
         protected override void OnSkillEnd(Operator op)
@@ -84,9 +85,9 @@ namespace Skills.Base
             base.OnSkillEnd(op);
         }
 
-        protected virtual void UpdateAmmoUI()
+        protected virtual void UpdateAmmoUI(Operator op)
         {
-            operatorUI?.UpdateAmmoDisplay(currentAmmo);
+            op.OperatorUI?.UpdateAmmoDisplay(currentAmmo);
         }
 
         public virtual void TerminateSkill(Operator op)
@@ -103,17 +104,19 @@ namespace Skills.Base
 
             while (op.IsSkillOn)
             {
+                // 오퍼레이터 파괴 시 동작을 멈춤
+                if (op == null) yield break; 
+
                 // 탄환이 떨어지면 스킬 종료
                 if (currentAmmo <= 0)
                 {
-                    TerminateSkill(op);
+                    TerminateSkill(op); // 종료 로직은 이 안에 구현됨
                     yield break;
                 }
 
                 // 기본) 무한 지속
                 yield return null;
             }
-
         }
     }
 }

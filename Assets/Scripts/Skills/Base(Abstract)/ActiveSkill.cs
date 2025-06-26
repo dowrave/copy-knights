@@ -33,21 +33,22 @@ namespace Skills.Base
         public override void Activate(Operator op)
         {
             caster = op;
-
-            // 스킬 사용 가능 여부 체크
             if (!op.IsDeployed || !op.CanUseSkill()) return;
 
             // 기본 이펙트와 추가 이펙트 재생
             PlaySkillVFX(op);
             PlayAdditionalVFX(op);
 
-            // 즉발형 스킬은 여기서 처리
-            if (duration <= 0)
+            // 지속시간에 따른 구현
+            // 이외의 상황은 메서드 오버라이드 ㄱㄱ (ammoBased는 이미 그렇게 구현됨)
+            if (duration > 0 )
+            {
+                op.StartSkillCoroutine(Co_HandleSkillDuration(op));
+            }
+            else
             {
                 PlayInstantSkill(op);
             }
-
-            // 지속시간이 있는 스킬은 Operator에서 코루틴이 실행된다. Operator.UseSkill 참고.
         }
 
         // 추가 이펙트
@@ -59,7 +60,6 @@ namespace Skills.Base
             OnSkillStart(op);
             PlaySkillEffect(op);
             OnSkillEnd(op);
-            op.CurrentSP = 0;
         }
 
         protected virtual void OnSkillStart(Operator op)
@@ -80,6 +80,12 @@ namespace Skills.Base
 
             op.CurrentSP = 0;
             op.SetSkillOnState(false);
+            
+            // 지속시간이 있는 스킬은 오퍼레이터의 코루틴 초기화
+            if (duration > 0)
+            {
+                op.EndSkillCoroutine();
+            }
         }
 
         // 기본 이펙트 생성 및 재생

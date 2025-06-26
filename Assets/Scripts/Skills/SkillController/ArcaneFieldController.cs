@@ -45,7 +45,7 @@ public class ArcaneFieldController : FieldEffectController
             Tile? tile = MapManager.Instance!.GetTile(tilePos.x, tilePos.y);
             if (tile != null)
             {
-                foreach (Enemy enemy in tile.GetEnemiesOnTile())
+                foreach (Enemy enemy in tile.EnemiesOnTile)
                 {
                     // 여기서 중복이 이미 방지되고 있음
                     if (!affectedTargets.ContainsKey(enemy))

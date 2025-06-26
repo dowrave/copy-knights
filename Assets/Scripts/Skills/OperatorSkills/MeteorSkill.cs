@@ -26,7 +26,7 @@ namespace Skills.Base
                 Tile? tile = MapManager.Instance!.GetTile(pos.x, pos.y); 
                 if (tile != null) 
                 {
-                    foreach (Enemy enemy in tile.GetEnemiesOnTile())
+                    foreach (Enemy enemy in tile.EnemiesOnTile)
                     {
                         int enemyId = enemy.GetInstanceID();
                         if (enemyIdSet.Add(enemyId)) // 중복된 enemy가 아니어서 해쉬셋에 추가를 성공하면

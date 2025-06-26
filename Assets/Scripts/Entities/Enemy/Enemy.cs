@@ -100,6 +100,8 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity, ICrowdControlTarget
     // ICrowdControlTarget
     public Vector3 Position => transform.position;
 
+    // 스태틱 이벤트 테스트
+    public static event Action<Enemy> OnEnemyDestroyed; // 죽는 상황 + 목적지에 도달해서 사라지는 상황 모두 포함
 
     protected override void Awake()
     {
@@ -185,6 +187,7 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity, ICrowdControlTarget
             UpdateCrowdControls();
 
             if (pathData == null || pathData.nodes == null) return;
+            if (CurrentHealth <= 0) return;
 
             if (nextNodeIndex < pathData.nodes.Count)
             {
@@ -199,7 +202,7 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity, ICrowdControlTarget
                 {
                     if (AttackCooldown <= 0)
                     {
-                        PerformMeleeAttack(CurrentTarget!, AttackPower); 
+                        PerformMeleeAttack(CurrentTarget!, AttackPower);
                     }
                 }
                 else
@@ -385,24 +388,6 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity, ICrowdControlTarget
 
     protected override void Die()
     {
-        // 저지 중인 오퍼레이터에게 저지를 해제시킴
-        if (blockingOperator != null)
-        {
-            blockingOperator.OnBlockedEnemyDied(this);
-        }
-
-        // 공격 중인 개체의 현재 타겟 제거
-        foreach (Operator op in attackingEntities.ToList())
-        {
-            op.OnTargetDied(this);
-        }
-
-        // 접촉 중인 타일들에서 이 개체 제거
-        foreach (Tile tile in contactedTiles)
-        {
-            tile.EnemyExited(this);
-        }
-
         StageManager.Instance!.OnEnemyDefeated(); // 사망한 적 수 +1
 
         // 공격 이펙트 프리팹 제거
@@ -801,14 +786,6 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity, ICrowdControlTarget
     public void UpdateBlockingOperator(Operator? op)
     {
         blockingOperator = op;
-        if (op == null)
-        {
-            Debug.LogWarning($"{enemyData.entityName}({GetInstanceID()})은 저지 해제됨");
-        }
-        else
-        {
-            Debug.LogWarning($"{enemyData.entityName}({GetInstanceID()})을 저지하고 있는 Operator : {op?.OperatorData.entityName}");
-        }
     }
 
     protected override float CalculateActualDamage(AttackType attacktype, float incomingDamage)
@@ -840,7 +817,6 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity, ICrowdControlTarget
             tile.EnemyEntered(this);
         }
     }
-
 
     private void OnTriggerExit(Collider other)
     {
@@ -896,6 +872,8 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity, ICrowdControlTarget
 
     protected void OnDestroy()
     {
+        OnEnemyDestroyed?.Invoke(this);
+        
         RemoveObjectPool();
     }
 
