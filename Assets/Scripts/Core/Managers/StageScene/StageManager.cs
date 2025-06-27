@@ -128,9 +128,9 @@ public class StageManager : MonoBehaviour
     private void Awake()
     {
         // 싱글톤 보장
-       if (Instance! == null)
+        if (Instance! == null)
         {
-            Instance = this; 
+            Instance = this;
         }
         else
         {
@@ -138,6 +138,8 @@ public class StageManager : MonoBehaviour
         }
 
         DOTween.SetTweensCapacity(500, 50); // 동시에 실행될 애니메이션의 수 / 여러 애니메이션이 순차적으로 실행되는 수
+
+        Enemy.OnEnemyDespawned += HandleEnemyDespawned;
     }
 
     private void Start()
@@ -334,13 +336,30 @@ public class StageManager : MonoBehaviour
         return false; 
     }
 
+    private void HandleEnemyDespawned(Enemy enemy, DespawnReason reason)
+    {
+        switch (reason)
+        {
+            case DespawnReason.Defeated:
+                OnEnemyDefeated(enemy);
+                break;
+            case DespawnReason.ReachedGoal:
+                OnEnemyReachDestination(enemy);
+                break;
+            default:
+                Debug.LogError("처리되면 안되는 듯?");
+                break;
+        }
+    }
+
     // Enemy가 잡혔을 때마다 호출
-    public void OnEnemyDefeated()
+    public void OnEnemyDefeated(Enemy enemy)
     {
         KilledEnemyCount++;
         StageUIManager.Instance!.UpdateEnemyKillCountText();
 
         // 사실 "생성된" 적을 포함하면 조건을 조금 더 다르게 줘야 함
+        // 아직은 생성된 적이 없기 때문에 이렇게 구현.
         if (KilledEnemyCount + PassedEnemies >= TotalEnemyCount)
         {
             StartCoroutine(GameWinAfterDelay());
@@ -349,17 +368,17 @@ public class StageManager : MonoBehaviour
 
     private IEnumerator GameWinAfterDelay()
     {
-        yield return null;
+        yield return new WaitForSeconds(0.22f); // 적이 사라지는 시간이 0.2초니까 그거보다 조금 더 길게
         GameWin();
     }
 
     private IEnumerator GameOverAfterDelay()
     {
-        yield return null;
+        yield return new WaitForSeconds(0.22f); // 적이 사라지는 시간이 0.2초니까 그거보다 조금 더 길게
         GameOver();
     }
 
-    public void OnEnemyReachDestination()
+    public void OnEnemyReachDestination(Enemy enemy)
     {
         if (currentState == GameState.Battle)
         {
@@ -529,6 +548,7 @@ public class StageManager : MonoBehaviour
     private void OnDestroy()
     {
         stageLoadingScreen!.OnHideComplete -= StartStageCoroutine;
+        Enemy.OnEnemyDespawned -= HandleEnemyDespawned;
     }
 
 }

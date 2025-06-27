@@ -364,14 +364,22 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable,
         }
     }
 
-    private void OnTriggerEnter(Collider other)
+    public override void OnBodyTriggerEnter(Collider other)
     {
-        Enemy enemy = other.GetComponent<Enemy>();
+        // if (!IsDeployed) return;
+        // Enemy enemy = other.GetComponent<Enemy>();
 
-        if (enemy != null && !blockableEnemies.Contains(enemy))
+        // 저지 로직은 본체 콜라이더와 충돌할 때만 발생
+        BodyColliderController body = other.GetComponent<BodyColliderController>();
+
+        // Enemy일 때만 저지 로직 동작
+        if (body != null && body.GetComponentInParent<Enemy>() is Enemy enemy)
         {
-            blockableEnemies.Add(enemy);
-            TryBlockNextEnemy();
+            if (!blockableEnemies.Contains(enemy))
+            {
+                blockableEnemies.Add(enemy);
+                TryBlockNextEnemy();
+            }
         }
     }
 
@@ -393,10 +401,15 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable,
         }
     }
 
-    private void OnTriggerExit(Collider other)
+    // 사용되고 있으니 삭제 ㄴㄴ
+    private void OnBodyTriggerExit(Collider other)
     {
-        Enemy enemy = other.GetComponent<Enemy>();
-        if (enemy != null)
+        // if (!IsDeployed) return;
+        // 저지 로직은 본체 콜라이더와 충돌할 때만 발생
+        BodyColliderController body = other.GetComponent<BodyColliderController>();
+
+        // 적의 body일 때만 저지 로직 동작
+        if (body != null && body.GetComponentInParent<Enemy>() is Enemy enemy)
         {
             blockableEnemies.Remove(enemy);
 
@@ -492,7 +505,7 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable,
         OnOperatorDied?.Invoke(this);
 
         // 이벤트 구독 해제
-        Enemy.OnEnemyDestroyed -= HandleEnemyDestroy;
+        Enemy.OnEnemyDespawned -= HandleEnemyDespawn;
 
         base.Die();
     }
@@ -564,6 +577,8 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable,
 
     public override void Deploy(Vector3 position)
     {
+        ClearStates();
+
         base.Deploy(position);
 
         // 배치 VFX
@@ -589,21 +604,33 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable,
         SetDirection(FacingDirection);
         RegisterTiles();
         UpdateAttackableTiles();
+
         CreateDirectionIndicator();
         CreateOperatorUI();
 
         // deployableInfo의 배치된 오퍼레이터를 이것으로 지정
         DeployableInfo.deployedOperator = this;
 
+        SetColliderState(true);
+
         // 이펙트 오브젝트 풀 생성
         CreateObjectPool();
 
         // 적 사망 이벤트 구독
-        Enemy.OnEnemyDestroyed += HandleEnemyDestroy;
+        Enemy.OnEnemyDespawned += HandleEnemyDespawn;
+    }
+
+    private void ClearStates()
+    {
+        enemiesInRange.Clear();
+        blockedEnemies.Clear();
+        blockableEnemies.Clear();
+        currentBlockCount = 0;
+        CurrentTarget = null; 
     }
 
     // 테스트) 적 파괴 이벤트를 받아 오퍼레이터에서의 처리를 작업함
-    private void HandleEnemyDestroy(Enemy enemy)
+    private void HandleEnemyDespawn(Enemy enemy, DespawnReason reason)
     {
         // 1. 현재 타겟이라면 타겟 해제
         if (CurrentTarget == enemy)
@@ -967,6 +994,7 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable,
     {
         if (!enemiesInRange.Contains(enemy))
         {
+            Debug.Log($"[OPERATOR] {this.name}가 {enemy.name}를 공격 가능 리스트(enemiesInRange)에 추가함");
             enemiesInRange.Add(enemy);
         }   
     }
@@ -1020,7 +1048,7 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable,
     protected void OnDestroy()
     {
         // Die 메서드에도 만들어놨지만 안전하게
-        Enemy.OnEnemyDestroyed -= HandleEnemyDestroy;
+        Enemy.OnEnemyDespawned -= HandleEnemyDespawn;
 
         if (_activeSkillCoroutine != null)
         {

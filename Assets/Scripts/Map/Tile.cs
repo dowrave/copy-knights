@@ -58,7 +58,7 @@ public class Tile : MonoBehaviour
         InitializeGridPosition();
         size2D = new Vector2(tileScale, tileScale);
 
-        Enemy.OnEnemyDestroyed += HandleEnemyDestroy;
+        Enemy.OnEnemyDespawned += HandleEnemyDespawn;
     }
 
     // 자식 모델의 Mesh Renderer에 들어가는 머티리얼 배열을 2가지로 준비함
@@ -316,10 +316,11 @@ public class Tile : MonoBehaviour
         {
             listeningOperators.Remove(op);
         }
+
     }
 
     // 적 사망 이벤트를 받아 실행
-    private void HandleEnemyDestroy(Enemy enemy)
+    private void HandleEnemyDespawn(Enemy enemy, DespawnReason reason)
     {
         // 타일 위에 적이 있다면 제거
         if (enemiesOnTile.Contains(enemy))
@@ -330,7 +331,7 @@ public class Tile : MonoBehaviour
 
     void OnDestroy()
     {
-        Enemy.OnEnemyDestroyed -= HandleEnemyDestroy;
+        Enemy.OnEnemyDespawned -= HandleEnemyDespawn;
     }
 
 }

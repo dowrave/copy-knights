@@ -35,6 +35,8 @@ public class EnemyAttackRangeController : MonoBehaviour
 
         if (target != null)
         {
+            Debug.Log($"[ENEMY SPHERE] {owner.name}의 공격 범위(Sphere)에 {target.name}가 들어옴");
+
             owner.OnTargetEnteredRange(target);
         }
     }

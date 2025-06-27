@@ -31,7 +31,7 @@ public class MeteorController : MonoBehaviour
         }
         if (target != null)
         {
-            target.OnDestroyed += HandleTargetDeath;
+            target.OnDeathAnimationCompleted += HandleTargetDeath;
         }
 
         StageManager.Instance!.OnGameEnded += DestroySelf;
@@ -108,7 +108,7 @@ public class MeteorController : MonoBehaviour
         }
         if (target != null)
         {
-            target.OnDestroyed -= HandleTargetDeath;
+            target.OnDeathAnimationCompleted -= HandleTargetDeath;
         }
 
         StageManager.Instance!.OnGameEnded -= DestroySelf;

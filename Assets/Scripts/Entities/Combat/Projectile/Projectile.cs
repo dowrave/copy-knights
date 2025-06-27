@@ -60,8 +60,8 @@ public class Projectile : MonoBehaviour
         }
 
         // 이 시점의 target, attacker은 null이 아님
-        target.OnDestroyed += OnTargetDestroyed;
-        attacker.OnDestroyed += OnAttackerDestroyed;
+        target.OnDeathAnimationCompleted += OnTargetDestroyed;
+        attacker.OnDeathAnimationCompleted += OnAttackerDestroyed;
      
         // 공격자와 대상이 같다면 힐로 간주
         //if (attacker.Faction == target.Faction)
@@ -244,7 +244,7 @@ public class Projectile : MonoBehaviour
         if (target != null)
         {
             lastKnownPosition = target.transform.position;
-            target.OnDestroyed -= OnTargetDestroyed;
+            target.OnDeathAnimationCompleted -= OnTargetDestroyed;
             target = null;
         }
     }
@@ -254,7 +254,7 @@ public class Projectile : MonoBehaviour
         if (attacker != null)
         {
             shouldDestroy = true;
-            attacker.OnDestroyed -= OnAttackerDestroyed;
+            attacker.OnDeathAnimationCompleted -= OnAttackerDestroyed;
             attacker = null;
         }
     }
@@ -263,11 +263,11 @@ public class Projectile : MonoBehaviour
     {
         if (target != null)
         {
-            target.OnDestroyed -= OnTargetDestroyed;
+            target.OnDeathAnimationCompleted -= OnTargetDestroyed;
         }
         if (attacker != null)
         {
-            attacker.OnDestroyed -= OnAttackerDestroyed; 
+            attacker.OnDeathAnimationCompleted -= OnAttackerDestroyed; 
         }
     }
 

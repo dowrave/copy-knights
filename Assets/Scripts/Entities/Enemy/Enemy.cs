@@ -7,6 +7,13 @@ using static ICombatEntity;
 using System;
 
 
+public enum DespawnReason
+{
+    Null, // 디폴트
+    Defeated, // 처치됨
+    ReachedGoal // 목적지 도달
+}
+
 public class Enemy : UnitEntity, IMovable, ICombatEntity, ICrowdControlTarget
 {
     [SerializeField]
@@ -63,7 +70,7 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity, ICrowdControlTarget
             // 기존 타겟의 이벤트 구독 해제
             if (_currentTarget != null)
             {
-                _currentTarget.OnDestroyed -= OnCurrentTargetDied;
+                _currentTarget.OnDeathAnimationCompleted -= OnCurrentTargetDied;
                 _currentTarget.RemoveAttackingEntity(this);
             }
 
@@ -71,7 +78,7 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity, ICrowdControlTarget
 
             if (_currentTarget != null)
             {
-                _currentTarget.OnDestroyed += OnCurrentTargetDied;
+                _currentTarget.OnDeathAnimationCompleted += OnCurrentTargetDied;
                 NotifyTarget();
             }
         }
@@ -100,8 +107,11 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity, ICrowdControlTarget
     // ICrowdControlTarget
     public Vector3 Position => transform.position;
 
+    private DespawnReason currentDespawnReason = DespawnReason.Null;
+
     // 스태틱 이벤트 테스트
-    public static event Action<Enemy> OnEnemyDestroyed; // 죽는 상황 + 목적지에 도달해서 사라지는 상황 모두 포함
+    // public static event Action<Enemy> OnEnemyDestroyed; // 죽는 상황 + 목적지에 도달해서 사라지는 상황 모두 포함
+    public static event Action<Enemy, DespawnReason> OnEnemyDespawned = delegate { };
 
     protected override void Awake()
     {
@@ -116,6 +126,10 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity, ICrowdControlTarget
         }
 
         base.Awake();
+
+        SetColliderState(true); // base.Awake에서 false로 지정되므로 바꿔줌
+
+        // OnDeathAnimationCompleted += HandleDeathAnimationCompleted;
     }
 
     // 모델 회전 관련 로직을 쓸 일이 Enemy 뿐이라 여기에 구현해놓음.
@@ -180,7 +194,9 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity, ICrowdControlTarget
 
     protected void Update()
     {
-        if (StageManager.Instance!.currentState == GameState.Battle)
+        if (StageManager.Instance!.currentState == GameState.Battle && // 전투 중이면서
+            currentDespawnReason == DespawnReason.Null // 디스폰되고 있지 않을 때
+            )
         {
             UpdateAttackDuration();
             UpdateAttackCooldown();
@@ -227,7 +243,7 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity, ICrowdControlTarget
                 }
             }
         }
-        
+
     }
 
 
@@ -254,7 +270,7 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity, ICrowdControlTarget
             ReachDestination();
             return;
         }
-        
+
         Move(nextPosition);
         RotateModelTowardsMovementDirection();
 
@@ -303,16 +319,12 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity, ICrowdControlTarget
         if (nextNodeIndex < pathData.nodes.Count)
         {
             nextNode = pathData.nodes[nextNodeIndex];
-            nextPosition = MapManager.Instance!.ConvertToWorldPosition(nextNode.gridPosition) + 
+            nextPosition = MapManager.Instance!.ConvertToWorldPosition(nextNode.gridPosition) +
                 Vector3.up * BaseData.defaultYPosition;
         }
     }
 
-    private void ReachDestination()
-    {
-        StageManager.Instance!.OnEnemyReachDestination();
-        Destroy(gameObject);
-    }
+
 
     public void OnTargetEnteredRange(DeployableUnitEntity target)
     {
@@ -386,10 +398,9 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity, ICrowdControlTarget
         return Vector3.Distance(target.transform.position, transform.position) <= AttackRange;
     }
 
-    protected override void Die()
+    // 사라지는 로직 관리
+    private void Despawn()
     {
-        StageManager.Instance!.OnEnemyDefeated(); // 사망한 적 수 +1
-
         // 공격 이펙트 프리팹 제거
         if (BaseData.hitEffectPrefab != null)
         {
@@ -402,8 +413,55 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity, ICrowdControlTarget
             Destroy(enemyBarUI.gameObject);
         }
 
-        base.Die();
+        // 킬 카운트 / 도착 등은 바로 동작하게 수정
+        OnEnemyDespawned?.Invoke(this, currentDespawnReason);
+
+        PlayDeathAnimation(); // 내부 이벤트 발생으로 인해 HandleDeathAnimationCompleted도 실행됨.
     }
+
+    protected override void Die()
+    {
+        // 이미 처리 중인지 확인
+        if (currentDespawnReason != DespawnReason.Null) return;
+
+        // 사망 이벤트 처리
+        currentDespawnReason = DespawnReason.Defeated;
+        Despawn();
+    }
+
+    private void ReachDestination()
+    {
+        // 이미 처리 중인지 확인
+        if (currentDespawnReason != DespawnReason.Null) return;
+
+        currentDespawnReason = DespawnReason.ReachedGoal;
+        Despawn();
+
+        // 이전 코드
+        // StageManager.Instance!.OnEnemyReachDestination(this);
+        // Destroy(gameObject);
+    }
+
+    // protected override void Die()
+    // {
+    //     StageManager.Instance!.OnEnemyDefeated(this); // 사망한 적 수 +1
+
+    //     // 공격 이펙트 프리팹 제거
+    //     if (BaseData.hitEffectPrefab != null)
+    //     {
+    //         ObjectPoolManager.Instance!.RemovePool("Effect_" + BaseData.entityName);
+    //     }
+
+    //     // UI 제거
+    //     if (enemyBarUI != null)
+    //     {
+    //         Destroy(enemyBarUI.gameObject);
+    //     }
+
+    //     // OnEnemyDespawned(this, reason);
+
+    //     base.Die();
+    // }
 
     public override void TakeDamage(UnitEntity attacker, AttackSource attackSource, float damage, bool playGetHitEffect = true)
     {
@@ -426,7 +484,7 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity, ICrowdControlTarget
                 StatisticsManager.Instance!.UpdateDamageDealt(op.OperatorData, actualDamage);
             }
         }
-    } 
+    }
     // 마지막 타일의 월드 좌표 기준
     private bool CheckIfReachedDestination()
     {
@@ -531,7 +589,7 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity, ICrowdControlTarget
     private void OnBarricadePlaced(Barricade barricade)
     {
         // 내 타일과 같은 타일에 바리케이드가 배치된 경우
-        if (barricade.CurrentTile != null && 
+        if (barricade.CurrentTile != null &&
             barricade.CurrentTile.EnemiesOnTile.Contains(this))
         {
             targetBarricade = barricade;
@@ -553,10 +611,10 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity, ICrowdControlTarget
     private IEnumerator OnBarricadeRemoved(Barricade barricade)
     {
         // 바리케이드가 파괴될 시간 확보
-        yield return new WaitForSeconds(0.1f); 
-        
+        yield return new WaitForSeconds(0.1f);
+
         // 바리케이드와 관계 없던 Enemy는 경로를 다시 탐색
-        if (targetBarricade == null)  
+        if (targetBarricade == null)
         {
             FindPathToDestinationOrBarricade();
         }
@@ -575,7 +633,7 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity, ICrowdControlTarget
     private bool IsPathBlocked()
     {
         if (currentPath.Count == 0) throw new InvalidOperationException("currentPath가 비어 있음");
-        
+
         for (int i = nextNodeIndex; i <= currentPath.Count - 1; i++)
         {
             // 경로가 막힌 상황 : 기존 경로 데이터들을 정리한다
@@ -588,7 +646,7 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity, ICrowdControlTarget
                 return true;
             }
         }
-       
+
 
         return false;
     }
@@ -808,7 +866,7 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity, ICrowdControlTarget
         return Mathf.Max(actualDamage, 0.05f * incomingDamage); // 들어온 대미지의 5%는 들어가게끔 보장
     }
 
-    private void OnTriggerEnter(Collider other)
+    public override void OnBodyTriggerEnter(Collider other)
     {
         Tile tile = other.GetComponent<Tile>();
         if (tile != null)
@@ -818,7 +876,7 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity, ICrowdControlTarget
         }
     }
 
-    private void OnTriggerExit(Collider other)
+    public override void OnBodyTriggerExit(Collider other)
     {
         Tile tile = other.GetComponent<Tile>();
         if (tile != null && contactedTiles.Contains(tile))
@@ -826,12 +884,6 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity, ICrowdControlTarget
             tile.EnemyExited(this);
             contactedTiles.Remove(tile);
         }
-    }
-
-    // enemy는 콜라이더를 끌 상황이 없는 듯 하다
-    protected override void SetColliderState()
-    {
-        boxCollider.enabled = true;
     }
 
     public void SetMovementSpeed(float newSpeed)
@@ -846,10 +898,10 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity, ICrowdControlTarget
         if (modelContainer == null) return;
 
         Vector3 direction = nextPosition - transform.position;
-        direction.y = 0f; 
+        direction.y = 0f;
         if (direction != Vector3.zero)
         {
-            
+
             // 핵심 : LookRoation은 +z 방향을 바라보게 만든다
             // forward : 바라볼 방향 / up : 윗 방향
             Quaternion targetRotation = Quaternion.LookRotation(direction, Vector3.up);
@@ -869,12 +921,25 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity, ICrowdControlTarget
         }
     }
 
+    // // PlayDeathAnimation이 끝나고 호출되는 이벤트에 의해 실행되는 메서드
+    // protected void HandleDeathAnimationCompleted(UnitEntity unitEntity)
+    // {
+    //     // 자기 자신의 이벤트인지 확인
+    //     if (unitEntity == this)
+    //     {
+    //         OnEnemyDespawned?.Invoke(this, currentDespawnReason);
+    //     }
+
+    //     // 다른 로직도 추가 가능
+    // }
+
 
     protected void OnDestroy()
     {
-        OnEnemyDestroyed?.Invoke(this);
-        
+        // OnEnemyDestroyed?.Invoke(this);
         RemoveObjectPool();
+
+        // OnDeathAnimationCompleted -= HandleDeathAnimationCompleted;
     }
 
 }

@@ -340,7 +340,7 @@ public class DeployableManager : MonoBehaviour
                 // 방향 설정이 필요 없다면 바로 배치
                 else
                 {
-                    currentDeployable.Initialize(currentDeployableInfo);
+                    // currentDeployable.Initialize(currentDeployableInfo); // 중복인 듯?
                     DeployDeployable(hoveredTile);
                 }
             }

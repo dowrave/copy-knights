@@ -1,7 +1,7 @@
 #nullable enable
 using UnityEngine;
 
-public abstract class DeployableUnitEntity: UnitEntity, IDeployable
+public abstract class DeployableUnitEntity : UnitEntity, IDeployable
 {
     public DeployableManager.DeployableInfo DeployableInfo { get; protected set; } = default!;
     public DeployableUnitData DeployableUnitData { get; private set; } = default!;
@@ -13,7 +13,7 @@ public abstract class DeployableUnitEntity: UnitEntity, IDeployable
     public bool IsDeployed { get; protected set; }
     public int InitialDeploymentCost { get; protected set; } // 최초 배치 코스트 - DeploymentCost는 게임 중 증가할 수 있음
 
-
+    // [SerializeField] private Collider _mainCollider;
 
     // 미리보기 관련
     protected bool isPreviewMode = false;
@@ -29,7 +29,7 @@ public abstract class DeployableUnitEntity: UnitEntity, IDeployable
     protected Material previewMaterial = default!;
 
     // 배치 완료 후 커서를 뗀 위치가 오퍼레이터 위치일 때 ActionUI가 나타남을 방지하기 위한 변수들
-    private float preventInteractingTime = 0.1f; 
+    private float preventInteractingTime = 0.1f;
     private float lastDeployTime;
 
     public Tile? CurrentTile { get; protected set; } // "배치 중"이라는 과정이 있기 떄문에 nullable
@@ -74,6 +74,7 @@ public abstract class DeployableUnitEntity: UnitEntity, IDeployable
         if (!IsDeployed)
         {
             SetDeployState(true);
+            SetColliderState(true); // 콜라이더 켬
             UpdateCurrentTile();
             if (CurrentTile != null)
             {
@@ -160,7 +161,7 @@ public abstract class DeployableUnitEntity: UnitEntity, IDeployable
         }
 
         // 배치된 오퍼레이터 클릭 동작
-        if (IsDeployed && 
+        if (IsDeployed &&
             !IsPreviewMode &&
             StageManager.Instance!.currentState == GameState.Battle // 테스트 중)
             )
@@ -199,9 +200,6 @@ public abstract class DeployableUnitEntity: UnitEntity, IDeployable
     {
         IsDeployed = isDeployed;
         IsPreviewMode = !isDeployed;
-
-        // 콜라이더는 IsDeployed를 따라감
-        SetColliderState();
     }
 
     // 현재 위치한 타일 설정
@@ -214,11 +212,6 @@ public abstract class DeployableUnitEntity: UnitEntity, IDeployable
         {
             CurrentTile = newTile;
         }
-    }
-
-    protected override void SetColliderState()
-    {
-        boxCollider.enabled = IsDeployed;
     }
 }
 

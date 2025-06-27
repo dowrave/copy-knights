@@ -1,9 +1,11 @@
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using UnityEngine.Assertions;
 using static ICombatEntity;
 using System.Collections;
 using DG.Tweening;
+using System;
 
 // Operator, Enemy, Barricade 등의 타일 위의 유닛들과 관련된 엔티티
 public abstract class UnitEntity : MonoBehaviour, ITargettable, IFactionMember
@@ -34,22 +36,30 @@ public abstract class UnitEntity : MonoBehaviour, ITargettable, IFactionMember
     protected List<ICombatEntity> attackingEntities = new List<ICombatEntity>();
 
     // 박스 콜라이더
-    protected BoxCollider boxCollider = default!;
+    // [SerializeField] protected BoxCollider _mainCollider = default!;
+
+    // 콜라이더는 자식으로 분리
+    // 부모 오브젝트에서 콜라이더를 관리할 경우, 여러 개의 콜라이더 처리 시에 문제가 생긴다
+    // 콜라이더는 용도에 따라 자식 오브젝트로 따로 둬야 한다.
+    [SerializeField] protected BodyColliderController bodyColliderController;
 
     // 이벤트
-    public event System.Action<float, float, float> OnHealthChanged = delegate { };
-    public event System.Action<CrowdControl, bool> OnCrowdControlChanged = delegate { };
-    public event System.Action<UnitEntity> OnDestroyed = delegate { };
+    public event Action<float, float, float> OnHealthChanged = delegate { };
+    public event Action<CrowdControl, bool> OnCrowdControlChanged = delegate { };
+    // public event Action<UnitEntity> OnDestroyed = delegate { };
+    public event Action<UnitEntity> OnDeathAnimationCompleted = delegate { };
 
     protected virtual void Awake()
     {
         // 콜라이더 할당
-        boxCollider = GetComponent<BoxCollider>();
-        if (boxCollider == null)
-        {
-            Debug.LogError($"{gameObject.name}에 BoxCollider가 없음!");
-        }
-        SetColliderState();
+        // if (_mainCollider == null)
+        // {
+        //     _mainCollider = GetComponent<BoxCollider>();
+        //     Assert.IsNotNull(_mainCollider, $"[Operator] '{gameObject.name}'에 BoxCollider 컴포넌트가 없습니다. 프리팹을 확인해주세요.");
+        // }
+
+        // 콜라이더가 켜지는 시점은 자식 클래스들에서 수동으로 구현함
+        // SetColliderState(false);
 
         // 쉴드 시스템 설정
         shieldSystem = new ShieldSystem();
@@ -95,13 +105,22 @@ public abstract class UnitEntity : MonoBehaviour, ITargettable, IFactionMember
 
             // DOTween 사용하여 검정으로 변한 뒤 투명해지는 애니메이션 적용
             // materialInstance.DOColor(Color.black, 0f);
-            materialInstance.DOFade(0f, 0.3f).OnComplete(() =>
+            materialInstance.DOFade(0f, 0.2f).OnComplete(() =>
             {
+                OnDeathAnimationCompleted?.Invoke(this); // 사망할 것임을 알리는 이벤트
+                // OnDestroyed?.Invoke(this); // 위의 이벤트로 통합
                 Destroy(materialInstance); // 메모리 누수 방지
-                OnDestroyed?.Invoke(this);
                 RemoveAllCrowdControls();
                 Destroy(gameObject);
             });
+        }
+        else
+        {
+            // 렌더러가 없어도 콜백과 파괴는 실행된다.
+            OnDeathAnimationCompleted?.Invoke(this);
+            // OnDestroyed?.Invoke(this);
+            RemoveAllCrowdControls();
+            Destroy(gameObject);
         }
     }
 
@@ -295,7 +314,14 @@ public abstract class UnitEntity : MonoBehaviour, ITargettable, IFactionMember
     protected virtual void OnDamageTaken(UnitEntity attacker, float actualDamage) { } // 피격 시에 추가로 실행할 게 있을 때 사용할 메서드 
 
     // 콜라이더의 활성화 여부 결정
-    protected virtual void SetColliderState() { } // Enemy, DeployableUnitEntity에서 상세 구현(abstract으로 하면 반드시 말단에서 구현해야 함)
+    protected virtual void SetColliderState(bool enabled)
+    {
+        if (bodyColliderController != null) bodyColliderController.SetColliderState(enabled);
+    } 
+
+    public virtual void OnBodyTriggerEnter(Collider other) {}
+    public virtual void OnBodyTriggerExit(Collider other) {}
+
 
     protected abstract float CalculateActualDamage(AttackType attacktype, float incomingDamage);
     public void ActivateShield(float amount) => shieldSystem.ActivateShield(amount);

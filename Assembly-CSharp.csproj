@@ -160,6 +160,7 @@
     <Compile Include="Assets\Scripts\UI\Components\OperatorSlot.cs" />
     <Compile Include="Assets\Scripts\Skills\OperatorSkills\SlashSkill.cs" />
     <Compile Include="Assets\Scripts\UI\Panels\SquadEditPanel.cs" />
+    <Compile Include="Assets\Scripts\Entities\ColliderController\BodyColliderController.cs" />
     <Compile Include="Assets\Scripts\UI\Panels\ToLobbyPanel.cs" />
     <Compile Include="Assets\Scripts\UI\Panels\InStageInfoPanel.cs" />
     <Compile Include="Assets\Scripts\UI\Components\DeployableDeployingUI.cs" />

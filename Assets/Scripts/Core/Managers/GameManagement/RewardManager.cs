@@ -78,6 +78,7 @@ public class RewardManager : MonoBehaviour
 
         if (resultInfo.stars == 3) return 0f;
 
+        // 기존 기록보다 더 잘 클리어했을 때
         if (resultInfo.stars < stars)
         {
             if (resultInfo.stars == 1)
@@ -105,7 +106,8 @@ public class RewardManager : MonoBehaviour
             {
                 return 1f;
             }
-            throw new InvalidOperationException("FirstClearPromotionItemRate의 예상치 못한 동작");
+
+            return 0f;
         }
     }
 

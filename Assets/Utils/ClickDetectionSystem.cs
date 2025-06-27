@@ -169,6 +169,7 @@ public class ClickDetectionSystem : MonoBehaviour
             }
 
             // 2. OperatorUI 관련 요소 클릭 처리 - Deployable.OnClick이 동작하도록 수정
+            // 체력 바 같은 걸 클릭했을 때도 해당 배치 요소를 클릭하게끔 구현한 내용이다. 지우면 안됨.
             DeployableUnitEntity? associatedDeployable = GetAssociatedDeployableUnitEntity(result.gameObject);
             if (associatedDeployable != null )
             {
@@ -188,7 +189,9 @@ public class ClickDetectionSystem : MonoBehaviour
 
     private void HandleObjectClick(RaycastHit hit)
     {
-        DeployableUnitEntity? clickable = hit.collider.GetComponent<DeployableUnitEntity>();
+        // 레이캐스트를 맞은 콜라이더의 부모 오브젝트에서 DeployableUnitEntity를 찾도록 수정
+        // DeployableUnitEntity? clickable = hit.collider.GetComponent<DeployableUnitEntity>();
+        DeployableUnitEntity? clickable = hit.collider.GetComponentInParent<DeployableUnitEntity>();
 
         if (clickable != null && !DeployableManager.Instance!.IsClickingPrevented)
         {
