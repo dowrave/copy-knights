@@ -166,6 +166,7 @@
     <Compile Include="Assets\Scripts\UI\Components\DeployableDeployingUI.cs" />
     <Compile Include="Assets\Scripts\Data\StageResultData.cs" />
     <Compile Include="Assets\Scripts\CC\Types\SlowEffect.cs" />
+    <Compile Include="Assets\Scripts\Entities\Operators\DualBladeOperator.cs" />
     <Compile Include="Assets\Scripts\Skills\Base(Abstract)\ActiveSkill.cs" />
     <Compile Include="Assets\Scripts\UI\Panels\TutorialPanel.cs" />
     <Compile Include="Assets\Scripts\Core\Managers\GameManagement\PlayerDataManager.cs" />

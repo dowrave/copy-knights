@@ -221,20 +221,24 @@ public class Projectile : MonoBehaviour
 
         // 범위 공격 대상에게 대미지 적용
         Collider[] hitColliders = Physics.OverlapSphere(position, 0.5f);
+        
         foreach (var hitCollider in hitColliders)
         {
-            UnitEntity target = hitCollider.GetComponent<UnitEntity>();
-            if (target != null &&
-                target.Faction != Faction.Neutral &&
-                target.Faction != attacker!.Faction) 
+            BodyColliderController targetCollider = hitCollider.GetComponent<BodyColliderController>();
+            if (targetCollider != null)
             {
-                if (showValue)
+                UnitEntity target = targetCollider.GetComponentInParent<UnitEntity>();
+                if (target.Faction != Faction.Neutral &&
+                    target.Faction != attacker!.Faction)
                 {
-                    ObjectPoolManager.Instance!.ShowFloatingText(target.transform.position, damage, false);
+                    if (showValue)
+                    {
+                        ObjectPoolManager.Instance!.ShowFloatingText(target.transform.position, damage, false);
+                    }
+
+                    // 피격 이펙트는 적용하지 않음
+                    target.TakeDamage(attacker, attackSource, damage, playGetHitEffect: false);
                 }
-                
-                // 피격 이펙트는 적용하지 않음
-                target.TakeDamage(attacker, attackSource, damage, playGetHitEffect: false);
             }
         }
     }

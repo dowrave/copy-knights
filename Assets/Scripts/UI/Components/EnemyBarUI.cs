@@ -23,19 +23,25 @@ public class EnemyBarUI : MonoBehaviour
         healthBar = GetComponentInChildren<HealthBar>();
 
         mainCamera = Camera.main;
-        if (mainCamera != null)
-        {
-            transform.LookAt(transform.position + mainCamera.transform.rotation * Vector3.forward, mainCamera.transform.rotation * Vector3.up);
-        }
-
     }
 
     public void Initialize(Enemy enemy)
     {
         this.enemy = enemy;
-        UpdateUI();
-    }
 
+        UnsubscribeEvents();
+        SubscribeEvents();
+
+        if (mainCamera != null)
+        {
+            transform.LookAt(transform.position + mainCamera.transform.rotation * Vector3.forward, mainCamera.transform.rotation * Vector3.up);
+        }
+
+        UpdateHealthBar(enemy.CurrentHealth, enemy.MaxHealth, enemy.GetCurrentShield());
+    }
+ 
+
+    // Enemy의 이동보다 늦게 동작
     private void LateUpdate()
     {
         if (enemy != null)
@@ -48,17 +54,22 @@ public class EnemyBarUI : MonoBehaviour
         }
     }
 
-    public void UpdateUI()
+
+    protected void SubscribeEvents()
     {
-        if (enemy != null)
-        {
-            UpdateHealthBar(enemy.CurrentHealth, enemy.MaxHealth, enemy.GetCurrentShield());
-        }
+        enemy.OnHealthChanged += UpdateHealthBar;
     }
+
+    protected void UnsubscribeEvents()
+    {
+        enemy.OnHealthChanged -= UpdateHealthBar;
+    }
+
+
 
     public void UpdateHealthBar(float currentHealth, float maxHealth, float currentShield = 0)
     {
-        if (healthBar != null)
+        if (enemy != null && healthBar != null)
         {
             healthBar.UpdateHealthBar(currentHealth, maxHealth, currentShield);
         }
@@ -74,9 +85,9 @@ public class EnemyBarUI : MonoBehaviour
 
     public void SetHealthBarColor(Color color)
     {
-        if (healthBar != null) 
+        if (healthBar != null)
         {
-            healthBar.SetColor(color);  
+            healthBar.SetColor(color);
         }
     }
 
@@ -86,5 +97,10 @@ public class EnemyBarUI : MonoBehaviour
         {
             transform.position = enemy.transform.position + Vector3.back * backOffset;
         }
+    }
+
+    protected virtual void OnDestroy()
+    {
+        UnsubscribeEvents();
     }
 }

@@ -71,6 +71,12 @@ public class MedicOperator : Operator
     {
         float polishedDamage = Mathf.Floor(damage);
         Heal(target, polishedDamage);
+
+        // 공격 모션 시간 설정
+        SetAttackDuration();
+
+        // 공격 쿨다운 설정
+        SetAttackCooldown();
     }
 
     private void Heal(UnitEntity target,  float healValue)

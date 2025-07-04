@@ -436,42 +436,11 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity, ICrowdControlTarget
 
         currentDespawnReason = DespawnReason.ReachedGoal;
         Despawn();
-
-        // 이전 코드
-        // StageManager.Instance!.OnEnemyReachDestination(this);
-        // Destroy(gameObject);
     }
-
-    // protected override void Die()
-    // {
-    //     StageManager.Instance!.OnEnemyDefeated(this); // 사망한 적 수 +1
-
-    //     // 공격 이펙트 프리팹 제거
-    //     if (BaseData.hitEffectPrefab != null)
-    //     {
-    //         ObjectPoolManager.Instance!.RemovePool("Effect_" + BaseData.entityName);
-    //     }
-
-    //     // UI 제거
-    //     if (enemyBarUI != null)
-    //     {
-    //         Destroy(enemyBarUI.gameObject);
-    //     }
-
-    //     // OnEnemyDespawned(this, reason);
-
-    //     base.Die();
-    // }
 
     public override void TakeDamage(UnitEntity attacker, AttackSource attackSource, float damage, bool playGetHitEffect = true)
     {
         base.TakeDamage(attacker, attackSource, damage, playGetHitEffect);
-
-        // UI 업데이트
-        if (enemyBarUI != null)
-        {
-            enemyBarUI.UpdateUI();
-        }
     }
     protected override void OnDamageTaken(UnitEntity attacker, float actualDamage)
     {

@@ -23,10 +23,6 @@ namespace Skills.OperatorSkills
                 showDamage = true;
                 op.CurrentSP = 0;
             }
-            else
-            {
-                op.CurrentSP += 1;
-            }
         }
     }
 }

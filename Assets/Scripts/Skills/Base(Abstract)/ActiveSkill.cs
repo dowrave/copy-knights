@@ -38,10 +38,14 @@ namespace Skills.Base
             // 기본 이펙트와 추가 이펙트 재생
             PlaySkillVFX(op);
             PlayAdditionalVFX(op);
+            
+            // 스킬 사용 직후에는 공격 속도 / 모션 초기화
+            op.SetAttackDuration(0f);
+            op.SetAttackCooldown(0f);            
 
             // 지속시간에 따른 구현
             // 이외의 상황은 메서드 오버라이드 ㄱㄱ (ammoBased는 이미 그렇게 구현됨)
-            if (duration > 0 )
+            if (duration > 0)
             {
                 op.StartSkillCoroutine(Co_HandleSkillDuration(op));
             }
@@ -123,7 +127,7 @@ namespace Skills.Base
         public virtual IEnumerator Co_HandleSkillDuration(Operator op)
         {
             OnSkillStart(op);
-            op.StartSkillDurationDisplay(duration);
+            // op.StartSkillDurationDisplay(duration);
             PlaySkillEffect(op);
 
             float elapsedTime = 0f;
@@ -132,13 +136,18 @@ namespace Skills.Base
                 if (op == null) yield break; // 오퍼레이터 파괴 시에 동작을 멈춤
                 
                 elapsedTime += Time.deltaTime;
-                op.UpdateSkillDurationDisplay(1 - (elapsedTime / duration));
+
+                // 서서히 감소하는 SP 동작을 여기서 구현
+                // UI 업데이트는 op.CurrentSP의 세터에 의해 자동으로 이어짐.
+                op.CurrentSP = op.MaxSP * (1 - (elapsedTime / duration));
+
+                // op.UpdateSkillDurationDisplay(1 - (elapsedTime / duration));
 
                 yield return null;
             }
 
             OnSkillEnd(op);
-            op.EndSkillDurationDisplay();
+            // op.EndSkillDurationDisplay();
         }
 
         protected virtual void SafeDestroySkillVFX(GameObject vfxObject)

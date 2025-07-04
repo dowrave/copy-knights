@@ -12,7 +12,7 @@ namespace Skills.Base
         public float spCost = 0f;
         public Sprite skillIcon = default!;
 
-        public bool autoRecover = false; // SP 자동회복 여부
+        public bool autoRecover = false; // 활성화시 자동 회복, 비활성화 시 공격 시 회복
         public bool autoActivate = false; // 자동발동 여부
         public bool modifiesAttackAction = false; // 공격 액션 변경 여부
 
@@ -34,8 +34,8 @@ namespace Skills.Base
         public virtual void PerformChangedAttackAction(Operator op) { }
 
         // op.Attack()을 사용하고, 공격이 적용되기 전 효과 반영
-        public virtual void OnBeforeAttack(Operator op, ref float damage, ref bool showDamagePopup) { } 
-
+        public virtual void OnBeforeAttack(Operator op, ref float damage, ref bool showDamagePopup){ } 
+        
         // op.Attack()을 사용하고, 공격이 적용된 후 효과 반영
         public virtual void OnAfterAttack(Operator op) { } 
 

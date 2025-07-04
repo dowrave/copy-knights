@@ -1,0 +1,54 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3e9e80fd5f700b74fac5a82924257d05, type: 3}
+  m_Name: DualBlade
+  m_EditorClassIdentifier: 
+  entityName: DualBlade
+  operatorClass: 7
+  stats:
+    _deployableUnitStats:
+      _baseStats:
+        _health: 1089
+        _defense: 146
+        _magicResistance: 0
+      _deploymentCost: 18
+      _redeployTime: 70
+    _attackPower: 245
+    _attackSpeed: 1.3
+    _maxBlockableEnemies: 2
+    _spRecoveryRate: 1
+  prefab: {fileID: 5185628148525671535, guid: 81719ee7b084ab740915d07222eb2ab8, type: 3}
+  icon: {fileID: 0}
+  canDeployOnGround: 1
+  canDeployOnHill: 0
+  attackType: 0
+  attackRangeType: 0
+  attackableTiles:
+  - {x: -1, y: 0}
+  - {x: 0, y: 0}
+  elite0Skill: {fileID: 11400000, guid: 56285db420c7a9249a3a7967d3550fd4, type: 2}
+  initialSP: 0
+  deployEffectPrefab: {fileID: 6896400663674567924, guid: a391789893d1b154bb27df310ec61c06, type: 3}
+  meleeAttackEffectPrefab: {fileID: 2667795462971242445, guid: fb9cbd2d5e200f047a7c5ba30d7d8d35, type: 3}
+  hitEffectPrefab: {fileID: 8008928503674968961, guid: 3a7bbca2a850efb4e9ec0752775126f5, type: 3}
+  projectilePrefab: {fileID: 0}
+  levelStats:
+    healthPerLevel: 8.2
+    attackPowerPerLevel: 2.3
+    defensePerLevel: 1.3
+    magicResistancePerLevel: 0
+  elite1Unlocks:
+    additionalAttackTiles: []
+    unlockedSkill: {fileID: 11400000, guid: ac3a727da8a5b60449e689763ad2145a, type: 2}
+  promotionItems:
+  - itemData: {fileID: 11400000, guid: 2329af0554c87104bb26e072bb7d6935, type: 2}
+    count: 1

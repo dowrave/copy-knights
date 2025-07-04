@@ -10,53 +10,58 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 3e9e80fd5f700b74fac5a82924257d05, type: 3}
-  m_Name: CasterTest
+  m_Name: ArtilleryOriginal
   m_EditorClassIdentifier: 
-  entityName: Caster
-  operatorClass: 3
+  entityName: Artillery
+  operatorClass: 6
   stats:
     _deployableUnitStats:
       _baseStats:
-        _health: 651
-        _defense: 45
-        _magicResistance: 10
-      _deploymentCost: 1
-      _redeployTime: 1
-    _attackPower: 271
-    _attackSpeed: 1.6
+        _health: 770
+        _defense: 59
+        _magicResistance: 0
+      _deploymentCost: 24
+      _redeployTime: 70
+    _attackPower: 377
+    _attackSpeed: 2.8
     _maxBlockableEnemies: 1
     _spRecoveryRate: 1
-  prefab: {fileID: 4844663318455565301, guid: 879f1c8fa0d27a2409ac84cbd55119a4, type: 3}
+  prefab: {fileID: 4844663318455565301, guid: 31e73ca025e3495418e76e5305d4b673, type: 3}
   icon: {fileID: 0}
   canDeployOnGround: 0
   canDeployOnHill: 1
-  attackType: 1
+  attackType: 0
   attackRangeType: 1
   attackableTiles:
-  - {x: 0, y: 0}
-  - {x: 0, y: 1}
-  - {x: 0, y: -1}
-  - {x: -1, y: 0}
-  - {x: -1, y: 1}
-  - {x: -1, y: -1}
+  - {x: -3, y: -1}
+  - {x: -3, y: 0}
+  - {x: -3, y: 1}
+  - {x: -2, y: -1}
   - {x: -2, y: 0}
   - {x: -2, y: 1}
-  - {x: -2, y: -1}
-  - {x: -3, y: 0}
+  - {x: -1, y: -1}
+  - {x: -1, y: 0}
+  - {x: -1, y: 1}
+  - {x: 0, y: -1}
+  - {x: 0, y: 0}
+  - {x: 0, y: 1}
   elite0Skill: {fileID: 11400000, guid: 56285db420c7a9249a3a7967d3550fd4, type: 2}
   initialSP: 0
   deployEffectPrefab: {fileID: 6896400663674567924, guid: a391789893d1b154bb27df310ec61c06, type: 3}
   meleeAttackEffectPrefab: {fileID: 0}
-  hitEffectPrefab: {fileID: 8008928503674968961, guid: 14df7a92b256f2348a51359da469e5e9, type: 3}
-  projectilePrefab: {fileID: 2006450369027691450, guid: e62f08f8bafde934ba27d05d81495385, type: 3}
+  hitEffectPrefab: {fileID: 8461901091398595130, guid: ba624075d793b8c4b8377b461c77d51a, type: 3}
+  projectilePrefab: {fileID: 491002625568547402, guid: 242911767b11b7e47878ad612c5c8254, type: 3}
   levelStats:
-    healthPerLevel: 5.8
-    attackPowerPerLevel: 9.3
-    defensePerLevel: 0.7
+    healthPerLevel: 3.9
+    attackPowerPerLevel: 3.3
+    defensePerLevel: 0.4
     magicResistancePerLevel: 0
   elite1Unlocks:
-    additionalAttackTiles: []
-    unlockedSkill: {fileID: 11400000, guid: 7a622039d1d94804ea07e6d19c9c1f42, type: 2}
+    additionalAttackTiles:
+    - {x: -4, y: -1}
+    - {x: -4, y: 0}
+    - {x: -4, y: 1}
+    unlockedSkill: {fileID: 11400000, guid: 082db909dbe3df64dbe6f14ea3c230f0, type: 2}
   promotionItems:
   - itemData: {fileID: 11400000, guid: 2329af0554c87104bb26e072bb7d6935, type: 2}
     count: 1

@@ -99,7 +99,7 @@ namespace Skills.Base
         public override IEnumerator Co_HandleSkillDuration(Operator op)
         {
             OnSkillStart(op);
-            op.StartSkillDurationDisplay(duration);
+            // op.StartSkillDurationDisplay(duration?คน);
             PlaySkillEffect(op);
 
             while (op.IsSkillOn)

@@ -143,7 +143,19 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable,
 
     // 스킬 관련
     public BaseSkill CurrentSkill { get; private set; } = default!;
-    public bool IsSkillOn { get; private set; }
+    private bool _isSkillOn;
+    public bool IsSkillOn
+    {
+        get => _isSkillOn;
+        private set
+        {
+            if (_isSkillOn != value)
+            {
+                _isSkillOn = value;
+                OnSkillStateChanged?.Invoke();
+            }
+        }
+    }
     private Coroutine _activeSkillCoroutine; // 지속시간이 있는 스킬에 해당하는 코루틴
 
     // 현재 오퍼레이터의 육성 상태 - Current를 별도로 붙이지는 않겠음
@@ -154,6 +166,7 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable,
     public event System.Action<float, float> OnSPChanged = delegate { };
     public event System.Action OnStatsChanged = delegate { };
     public event System.Action<Operator> OnOperatorDied = delegate { };
+    public event System.Action OnSkillStateChanged = delegate { };
 
     public new virtual void Initialize(DeployableManager.DeployableInfo opInfo)
     {
@@ -223,13 +236,22 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable,
     {
         if (IsDeployed && StageManager.Instance!.currentState == GameState.Battle)
         {
+            // ----- 상태 갱신 로직. 행동 제약과 무관 -----
             UpdateAttackDuration();
             UpdateAttackCooldown();
-            RecoverSP();
+
+            HandleSPRecovery(); // SP 회복
             UpdateCrowdControls(); // CC 효과 갱신
 
-            if (activeCC.Any(cc => cc is StunEffect)) return;
-            if (AttackDuration > 0) return;
+            // 행동 불능 상태 체크
+            if (activeCC.Any(cc => cc is StunEffect)) return; // 스턴 효과 중일 때 아래 동작을 막음
+
+            // ----- 행동 가능 상태의 로직 -----
+            // 동작을 아예 못하는 상황과 구분한다. 예를 들면 기절 상태인데 스킬을 자동으로 켤 수는 없음.
+            HandleSkillAutoActivate();
+
+            if (AttackDuration > 0) return; // 공격 모션 중에는 타겟 변경/공격 불가능
+            // 참고) 공격 모션이 아니지만 쿨다운일 때도 타겟은 계속 설정한다. 그래서 AttackCooldown 조건은 달지 않음.
 
             SetCurrentTarget(); // CurrentTarget 설정
             ValidateCurrentTarget();
@@ -246,17 +268,16 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable,
                 {
                     Attack(CurrentTarget!, AttackPower);
                 }
-
-                SetAttackDuration();
-                SetAttackCooldown();
             }
+        }
+    }
 
-            if (CurrentSkill.autoActivate && CurrentSP == MaxSP)
+    protected virtual void HandleSkillAutoActivate()
+    {
+        if (CurrentSkill != null && CurrentSkill.autoActivate && CanUseSkill())
             {
                 UseSkill();
             }
-        }
-
     }
 
 
@@ -266,11 +287,18 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable,
         bool showDamagePopup = false;
         float polishedDamage = Mathf.Floor(damage);
         PerformAttack(target, polishedDamage, showDamagePopup);
+
+        // 공격 모션 중이라는 시간 설정
+        SetAttackDuration();
+
+        // 공격 쿨다운 설정
+        SetAttackCooldown();
     }
 
-    protected void PerformAttack(UnitEntity target, float damage, bool showDamagePopup)
+    protected virtual void PerformAttack(UnitEntity target, float damage, bool showDamagePopup)
     {
-        
+        float spBeforeAttack = CurrentSP;
+
         if (CurrentSkill != null)
         {
             CurrentSkill.OnBeforeAttack(this, ref damage, ref showDamagePopup);
@@ -289,6 +317,14 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable,
         if (CurrentSkill != null)
         {
             CurrentSkill.OnAfterAttack(this);
+
+            // SP 공격 시 회복 로직
+            if (!CurrentSkill.autoRecover && // 자동회복아 아니면서
+                    !IsSkillOn && 
+                    spBeforeAttack != MaxSP) // 스킬이 실려서 나간 공격일 때는 SP 회복 X
+            {
+                CurrentSP += 1; // 세터에 Clamp가 있으므로 여기서 하지 않아도 됨.
+            }
         }
     }
 
@@ -339,41 +375,29 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable,
     }
 
     // SP 자동회복 로직 추가
-    protected void RecoverSP()
+    protected void HandleSPRecovery()
     {
-        if (IsDeployed == false || CurrentSkill == null) { return;  }
+        if (IsDeployed == false || CurrentSkill == null) { return; }
 
-        float oldSP = CurrentSP;
-
+        // 자동회복일 때만 처리
         if (CurrentSkill.autoRecover)
         {
+            float oldSP = CurrentSP;
+
+            // 최대 SP 초과 방지 (이벤트는 자체 발생)
             CurrentSP = Mathf.Min(CurrentSP + currentOperatorStats.SPRecoveryRate * Time.deltaTime, MaxSP);
         }
-
-        if (CurrentSP != oldSP && operatorUI != null)
-        {
-            operatorUI.UpdateUI();
-            OnSPChanged?.Invoke(CurrentSP, MaxSP);
-
-            // 수동 발동인 스킬만 스킬 실행 가능 상태를 띄움
-            if (!CurrentSkill.autoActivate)
-            {
-                bool isSkillReady = CurrentSP >= MaxSP;
-                operatorUI.SetSkillIconVisibility(isSkillReady);
-            }
-        }
+        
+        // 수동회복 스킬은 공격 시에 회복되므로 여기서 처리하지 않음
     }
 
     public override void OnBodyTriggerEnter(Collider other)
     {
-        // if (!IsDeployed) return;
-        // Enemy enemy = other.GetComponent<Enemy>();
-
         // 저지 로직은 본체 콜라이더와 충돌할 때만 발생
         BodyColliderController body = other.GetComponent<BodyColliderController>();
 
         // Enemy일 때만 저지 로직 동작
-        if (body != null && body.GetComponentInParent<Enemy>() is Enemy enemy)
+        if (body != null && body.ParentUnit is Enemy enemy)
         {
             if (!blockableEnemies.Contains(enemy))
             {
@@ -401,15 +425,15 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable,
         }
     }
 
-    // 사용되고 있으니 삭제 ㄴㄴ
-    private void OnBodyTriggerExit(Collider other)
+
+    public override void OnBodyTriggerExit(Collider other)
     {
         // if (!IsDeployed) return;
         // 저지 로직은 본체 콜라이더와 충돌할 때만 발생
         BodyColliderController body = other.GetComponent<BodyColliderController>();
 
         // 적의 body일 때만 저지 로직 동작
-        if (body != null && body.GetComponentInParent<Enemy>() is Enemy enemy)
+        if (body != null && body.ParentUnit is Enemy enemy)
         {
             blockableEnemies.Remove(enemy);
 
@@ -581,23 +605,6 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable,
 
         base.Deploy(position);
 
-        // 배치 VFX
-        if (OperatorData.deployEffectPrefab != null)
-        {
-            GameObject deployEffect = Instantiate(
-                OperatorData.deployEffectPrefab,
-                transform.position,
-                Quaternion.identity
-            );
-
-            var vfx = deployEffect.GetComponent<VisualEffect>();
-            if (vfx != null)
-            {
-                vfx.Play();
-                Destroy(deployEffect, 1.2f); // 1초 후 파괴. 
-            }
-        }
-
         IsPreviewMode = false;
         SetDeploymentOrder();
         operatorGridPos = MapManager.Instance!.CurrentMap!.WorldToGridPosition(transform.position);
@@ -611,13 +618,29 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable,
         // deployableInfo의 배치된 오퍼레이터를 이것으로 지정
         DeployableInfo.deployedOperator = this;
 
-        SetColliderState(true);
-
         // 이펙트 오브젝트 풀 생성
         CreateObjectPool();
 
         // 적 사망 이벤트 구독
         Enemy.OnEnemyDespawned += HandleEnemyDespawn;
+
+        // 배치 VFX
+        if (OperatorData.deployEffectPrefab != null)
+        {
+            GameObject deployEffect = Instantiate(
+                OperatorData.deployEffectPrefab,
+                transform.position,
+                Quaternion.identity
+            );
+
+            var vfx = deployEffect.GetComponent<VisualEffect>();
+            if (vfx != null)
+            {
+                vfx.Play();
+                Destroy(deployEffect, 1.2f); // 1.2초 후 파괴, 아래의 동작을 막지 않는다.
+            }
+        }
+
     }
 
     private void ClearStates()
@@ -836,32 +859,6 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable,
         }
     }
 
-    // 스킬 사용 시 SP Bar 관련 설정
-    public void StartSkillDurationDisplay(float duration)
-    {
-        UpdateOperatorUI();
-    }
-
-    public void UpdateSkillDurationDisplay(float remainingPercentage)
-    {
-        CurrentSP = MaxSP * remainingPercentage;
-        UpdateOperatorUI();
-    }
-
-    public void EndSkillDurationDisplay()
-    {
-        UpdateOperatorUI();
-    }
-
-    protected void UpdateOperatorUI()
-    {
-        if (operatorUI != null)
-        {
-            operatorUI.UpdateUI();
-        }
-    }
-
-
     // 구현할 오브젝트 풀링이 있다면 여기다 넣음
     private void CreateObjectPool()
     {
@@ -986,7 +983,6 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable,
                 break;
         }
 
-
         return Mathf.Max(actualDamage, 0.05f * incomingDamage); // 들어온 대미지의 5%는 들어가게끔 보장
     }
 
@@ -994,7 +990,6 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable,
     {
         if (!enemiesInRange.Contains(enemy))
         {
-            Debug.Log($"[OPERATOR] {this.name}가 {enemy.name}를 공격 가능 리스트(enemiesInRange)에 추가함");
             enemiesInRange.Add(enemy);
         }   
     }

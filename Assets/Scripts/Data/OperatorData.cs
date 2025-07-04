@@ -54,7 +54,8 @@ public class OperatorData : ScriptableObject, ICombatData
         Caster,
         Sniper,
         Medic,
-        Artillery // 포격사수
+        Artillery, // 포격사수
+        DualBlade,
     }
 
     [System.Serializable]

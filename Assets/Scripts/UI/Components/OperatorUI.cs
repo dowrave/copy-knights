@@ -31,28 +31,41 @@ public class OperatorUI : MonoBehaviour
 
         transform.position = op.transform.position;
 
-        SetSkillIconVisibility(op.CurrentSP >= op.MaxSP);
+        UnsubscribeEvents();
+        SubscribeEvents();
+
+        // UI의 초기 모습 설정
+        HandleHealthChanged(op.CurrentHealth, op.MaxHealth, op.GetCurrentShield());
+        HandleSPChanged(op.CurrentSP, op.MaxSP);
+        HandleSkillStateChanged();
 
         // 배치 시점에 카메라를 봐야 함
         if (mainCamera != null)
         {
             transform.LookAt(transform.position + mainCamera.transform.rotation * Vector3.forward, mainCamera.transform.rotation * Vector3.up);
         }
-
-        // 오퍼레이터 파괴 시 UI도 파괴하는 이벤트 등록
-        // op.OnOperatorDied += DestroyThis;
     }
 
-    // 스킬 아이콘 UI의 초기화 및 상태 업데이트
-    public void SetSkillIconVisibility(bool isVisible)
+    private void SubscribeEvents()
     {
-        if (skillIconUI != null)
-        {
-            skillIconUI.SetActive(isVisible);
-        }
+        if (op == null) return;
+
+        op.OnHealthChanged += HandleHealthChanged;
+        op.OnSPChanged += HandleSPChanged;
+        op.OnSkillStateChanged += HandleSkillStateChanged;
     }
 
-    public void UpdateUI()
+    private void UnsubscribeEvents()
+    {
+        if (op == null) return;
+
+        op.OnHealthChanged -= HandleHealthChanged;
+        op.OnSPChanged -= HandleSPChanged;
+        op.OnSkillStateChanged -= HandleSkillStateChanged;
+    }
+
+    // 오퍼레이터 스킬 활성화 상태변화 이벤트 구독 메서드
+    private void HandleSkillStateChanged()
     {
         if (op.IsSkillOn)
         {
@@ -62,12 +75,33 @@ public class OperatorUI : MonoBehaviour
         {
             DeployableBarUI.SetSPBarColor(GameManagement.Instance!.ResourceManager.OffSkillColor);
         }
+    }
+
+    // 오퍼레이터 HP 변화 이벤트 구독 메서드
+    private void HandleHealthChanged(float currentHealth, float maxHealth, float currentShield)
+    {
+        DeployableBarUI.UpdateHealthBar(currentHealth, maxHealth, currentShield);
+    }
+
+    // 오퍼레이터 SP 변화 이벤트 구독 메서드
+    private void HandleSPChanged(float currentSP, float maxSP)
+    {
+        DeployableBarUI.UpdateSPBar(currentSP, maxSP);
 
         SetSkillIconVisibility(
-             op.CurrentSP >= op.MaxSP && 
-            !op.IsSkillOn && 
+             op.CurrentSP >= op.MaxSP &&
+            !op.IsSkillOn &&
             !op.CurrentSkill.autoActivate
         );
+    }
+
+    // 스킬 아이콘 UI의 초기화 및 상태 업데이트
+    private void SetSkillIconVisibility(bool isVisible)
+    {
+        if (skillIconUI != null)
+        {
+            skillIconUI.SetActive(isVisible);
+        }
     }
 
     // SP Bar를 탄환 모드로 전환
@@ -89,8 +123,8 @@ public class OperatorUI : MonoBehaviour
     }
 
 
-    // private void DestroyThis(Operator op)
-    // {
-    //     Destroy(gameObject);
-    // }
+    private void OnDestroy()
+    {
+        UnsubscribeEvents();
+    }
 }

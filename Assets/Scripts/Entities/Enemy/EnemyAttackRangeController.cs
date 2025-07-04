@@ -31,22 +31,27 @@ public class EnemyAttackRangeController : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
-        DeployableUnitEntity target = other.GetComponent<DeployableUnitEntity>();
+        BodyColliderController targetCollider = other.GetComponent<BodyColliderController>();
 
-        if (target != null)
+        if (targetCollider != null && targetCollider.ParentUnit is DeployableUnitEntity deployable)
         {
-            Debug.Log($"[ENEMY SPHERE] {owner.name}의 공격 범위(Sphere)에 {target.name}가 들어옴");
-
-            owner.OnTargetEnteredRange(target);
+            if (deployable != null && deployable.IsDeployed)
+            {
+                owner.OnTargetEnteredRange(deployable);
+            }
         }
     }
 
     private void OnTriggerExit(Collider other)
     {
-        DeployableUnitEntity target = other.GetComponent<DeployableUnitEntity>();
-        if (target != null)
+        BodyColliderController targetCollider = other.GetComponent<BodyColliderController>();
+
+        if (targetCollider != null && targetCollider.ParentUnit is DeployableUnitEntity deployable)
         {
-            owner.OnTargetExitedRange(target);
+            if (deployable != null)
+            {
+                owner.OnTargetExitedRange(deployable);
+            }
         }
     }
 }
