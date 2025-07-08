@@ -10500,7 +10500,8 @@ MonoBehaviour:
   - {fileID: 11400000, guid: fd7c511acd39574469c82a9d2c50281e, type: 2}
   - {fileID: 11400000, guid: 73590bc0d24bd1e49aaed5529cb7dee9, type: 2}
   - {fileID: 11400000, guid: 963d80d939117e544ab6c4ce4ee994e7, type: 2}
-  defaultMaxSquadSize: 7
+  - {fileID: 11400000, guid: 2a6e5dae95d0e4a4a86df911ec0573f4, type: 2}
+  defaultMaxSquadSize: 8
 --- !u!4 &920941512
 Transform:
   m_ObjectHideFlags: 0

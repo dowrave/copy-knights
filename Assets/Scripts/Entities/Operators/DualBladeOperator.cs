@@ -10,6 +10,12 @@ public class DualBladeOperator : Operator
     {
         // 2회 공격 로직을 코루틴으로 구현
         StartCoroutine(DoubleAttackCoroutine(target, damage));
+
+        // 공격 모션 중이라는 시간 설정
+        SetAttackDuration();
+
+        // 공격 쿨다운 설정
+        SetAttackCooldown();
     }
 
     private IEnumerator DoubleAttackCoroutine(UnitEntity target, float damage)

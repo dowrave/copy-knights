@@ -26,7 +26,7 @@ MonoBehaviour:
     _attackSpeed: 1.3
     _maxBlockableEnemies: 2
     _spRecoveryRate: 1
-  prefab: {fileID: 5185628148525671535, guid: 81719ee7b084ab740915d07222eb2ab8, type: 3}
+  prefab: {fileID: 5185628148525671535, guid: 25e96cf36f195c445831adbc906931c4, type: 3}
   icon: {fileID: 0}
   canDeployOnGround: 1
   canDeployOnHill: 0
@@ -35,7 +35,7 @@ MonoBehaviour:
   attackableTiles:
   - {x: -1, y: 0}
   - {x: 0, y: 0}
-  elite0Skill: {fileID: 11400000, guid: 56285db420c7a9249a3a7967d3550fd4, type: 2}
+  elite0Skill: {fileID: 11400000, guid: a282fb770a3e6a74b91bb698f9ff496e, type: 2}
   initialSP: 0
   deployEffectPrefab: {fileID: 6896400663674567924, guid: a391789893d1b154bb27df310ec61c06, type: 3}
   meleeAttackEffectPrefab: {fileID: 2667795462971242445, guid: fb9cbd2d5e200f047a7c5ba30d7d8d35, type: 3}
