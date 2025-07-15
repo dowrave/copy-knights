@@ -12,6 +12,6 @@ public interface ITargettable {
 
     void AddAttackingEntity(ICombatEntity attacker); // 나를 공격하는 적 추가
     void RemoveAttackingEntity(ICombatEntity attacker); // 나를 공격하는 적 제거
-    void TakeDamage(UnitEntity attacker, AttackSource attackSource, float damage, bool playGetHitEffect = true); // 공격을 받았을 때
+    void TakeDamage(AttackSource attackSource, bool playGetHitEffect = true); // 공격을 받았을 때
 
 }

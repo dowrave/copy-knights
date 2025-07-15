@@ -22,6 +22,7 @@ public class DualBladeOperator : Operator
     {
         bool showDamagePopup = false;
         float polishedDamage = Mathf.Floor(damage);
+        Vector3 targetPosition = target.transform.position;
 
         base.PerformAttack(target, polishedDamage, showDamagePopup);
 
@@ -30,6 +31,12 @@ public class DualBladeOperator : Operator
         if (target != null && target.CurrentHealth > 0)
         {
             base.PerformAttack(target, polishedDamage, showDamagePopup);
+        }
+        else
+        {
+            // 타겟이 죽었으면 헛스윙 - SP 회복 등의 동작은 이뤄지지 않음
+            ICombatEntity.AttackSource missAttackSource = new ICombatEntity.AttackSource(transform.position, false, null, null);
+            base.PlayMeleeAttackEffect(targetPosition, missAttackSource);
         }
     }
 }

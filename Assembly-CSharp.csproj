@@ -170,6 +170,7 @@
     <Compile Include="Assets\Scripts\Skills\Base(Abstract)\ActiveSkill.cs" />
     <Compile Include="Assets\Scripts\UI\Panels\TutorialPanel.cs" />
     <Compile Include="Assets\Scripts\Core\Managers\GameManagement\PlayerDataManager.cs" />
+    <Compile Include="Assets\Scripts\Core\Systems\Class\AttackSource.cs" />
     <Compile Include="Assets\Scripts\Entities\Barricade.cs" />
     <Compile Include="Assets\Scripts\Map\Map.cs" />
     <Compile Include="Assets\Scripts\Skills\SkillController\ArcaneFieldController.cs" />

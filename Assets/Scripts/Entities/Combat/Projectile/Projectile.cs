@@ -167,9 +167,18 @@ public class Projectile : MonoBehaviour
     private void OnReachTarget()
     {
         // 타겟이 살아있는 경우
-        if (target != null && attacker != null)
+        if (target != null && attacker != null && )
         {
-            AttackSource attackSource = new AttackSource(transform.position, true, hitEffectPrefab, hitEffectTag);
+
+            AttackSource attackSource = new AttackSource(
+                attacker: attacker,
+                position: transform.position,
+                damage: value,
+                type: attacker.AttackType,
+                isProjectile: false,
+                hitEffectPrefab: BaseData.HitEffectPrefab,
+                hitEffectTag: hitEffectTag
+            );
 
             // 힐 상황
             if (isHealing)
@@ -193,7 +202,7 @@ public class Projectile : MonoBehaviour
                     ObjectPoolManager.Instance!.ShowFloatingText(target.transform.position, value, false);
                 }
 
-                target.TakeDamage(attacker, attackSource, value);
+                target.TakeDamage(attackSource);
 
             }
         }
@@ -237,7 +246,7 @@ public class Projectile : MonoBehaviour
                     }
 
                     // 피격 이펙트는 적용하지 않음
-                    target.TakeDamage(attacker, attackSource, damage, playGetHitEffect: false);
+                    target.TakeDamage(source: attackSource, playGetHitEffect: false);
                 }
             }
         }

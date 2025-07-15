@@ -8,6 +8,9 @@ namespace Skills.OperatorSkills
     {
         [Header("Damage Settings")]
         public float damageMultiplier = 2f;
+        public AttackType attackType = AttackType.Physical;
+
+        private AttackType originalAttackType; // 원래 공격 타입 저장 변수
 
         protected override void SetDefaults()
         {

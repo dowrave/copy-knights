@@ -334,7 +334,7 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable,
 
         PlayMeleeAttackEffect(target, attackSource);
 
-        target.TakeDamage(this, attackSource, damage);
+        target.TakeDamage(attackSource);
         if (showDamagePopup)
         {
             ObjectPoolManager.Instance!.ShowFloatingText(target.transform.position, damage, false);
@@ -479,11 +479,6 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable,
             enemy.UpdateBlockingOperator(null);
             UnblockEnemy(enemy);
         }
-    }
-
-    public override void TakeDamage(UnitEntity attacker, AttackSource attackSource, float damage, bool playGetHitEffect = true)
-    {
-        base.TakeDamage(attacker, attackSource, damage, playGetHitEffect);
     }
 
     // 부모 클래스에서 정의된 TakeDamage에서 사용됨
@@ -889,22 +884,31 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable,
         CurrentSkill.InitializeSkillObjectPool();
     }
 
-    private void PlayMeleeAttackEffect(UnitEntity target, AttackSource attackSource)
+    protected virtual void PlayMeleeAttackEffect(UnitEntity target, AttackSource attackSource)
+    {
+        Vector3 targetPosition = target.transform.position;
+        PlayMeleeAttackEffect(targetPosition, attackSource);
+    }
+
+    protected virtual void PlayMeleeAttackEffect(Vector3 targetPosition, AttackSource attackSource)
     {
         // 이펙트 처리
         if (OperatorData.meleeAttackEffectPrefab != null && meleeAttackEffectTag != null)
         {
+            // 이펙트가 보는 방향은 combatVFXController에서 설정
+
             GameObject? effectObj = ObjectPoolManager.Instance!.SpawnFromPool(
                    meleeAttackEffectTag,
-                   transform.position,
+                   transform.position, // 이펙트 생성 위치
                    Quaternion.identity
            );
+           
             if (effectObj != null)
             {
                 CombatVFXController? combatVFXController = effectObj.GetComponent<CombatVFXController>();
                 if (combatVFXController != null)
                 {
-                    combatVFXController.Initialize(attackSource, target, meleeAttackEffectTag);
+                    combatVFXController.Initialize(attackSource, targetPosition, meleeAttackEffectTag);
                 }
             }
         }

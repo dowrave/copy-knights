@@ -51,15 +51,7 @@ public abstract class UnitEntity : MonoBehaviour, ITargettable, IFactionMember
 
     protected virtual void Awake()
     {
-        // 콜라이더 할당
-        // if (_mainCollider == null)
-        // {
-        //     _mainCollider = GetComponent<BoxCollider>();
-        //     Assert.IsNotNull(_mainCollider, $"[Operator] '{gameObject.name}'에 BoxCollider 컴포넌트가 없습니다. 프리팹을 확인해주세요.");
-        // }
-
         // 콜라이더가 켜지는 시점은 자식 클래스들에서 수동으로 구현함
-        // SetColliderState(false);
 
         // 쉴드 시스템 설정
         shieldSystem = new ShieldSystem();
@@ -156,7 +148,7 @@ public abstract class UnitEntity : MonoBehaviour, ITargettable, IFactionMember
 
         if (healer is MedicOperator medic && medic.OperatorData.hitEffectPrefab != null)
         {
-            PlayGetHitEffect(medic, attackSource);
+            PlayGetHitEffect(attackSource);
         }
 
         ObjectPoolManager.Instance!.ShowFloatingText(transform.position, actualHealAmount, true);
@@ -168,13 +160,13 @@ public abstract class UnitEntity : MonoBehaviour, ITargettable, IFactionMember
         }
     }
 
-    protected virtual void PlayGetHitEffect(UnitEntity attacker, AttackSource attackSource)
+    protected virtual void PlayGetHitEffect(AttackSource attackSource)
     {
         GameObject hitEffectPrefab = attackSource.HitEffectPrefab;
         string hitEffectTag = attackSource.HitEffectTag;
         string attackerName;
 
-        if (attacker is Operator op)
+        if (attackSource.Attacker is Operator op)
         {
             OperatorData opData = op.OperatorData;
             attackerName = opData.entityName;
@@ -183,7 +175,7 @@ public abstract class UnitEntity : MonoBehaviour, ITargettable, IFactionMember
                 hitEffectPrefab = opData.hitEffectPrefab;
             }
         }
-        else if (attacker is Enemy enemy)
+        else if (attackSource.Attacker is Enemy enemy)
         {
             EnemyData enemyData = enemy.BaseData;
             attackerName = enemyData.entityName;
@@ -275,40 +267,62 @@ public abstract class UnitEntity : MonoBehaviour, ITargettable, IFactionMember
     }
 
 
-    public virtual void TakeDamage(UnitEntity attacker, AttackSource attackSource, float damage, bool playGetHitEffect = true)
+    public virtual void TakeDamage(AttackSource source, bool playGetHitEffect = true)
     {
         // 현재 체력이 0 이하라면 실행되지 않는다
         // 중복해서 실행되는 경우를 방지함
-        if (CurrentHealth <= 0) return; 
+        if (CurrentHealth <= 0) return;
 
-        float actualDamage = 0f;
+        // 방어력 / 마법 저항력이 고려된 실제 들어오는 대미지
+        float actualDamage = Mathf.Floor(CalculateActualDamage(source.Type, source.Damage));
 
-        if (attacker is ICombatEntity iCombatEntity && CurrentHealth > 0)
+        // 쉴드를 깎고 남은 대미지
+        float remainingDamage = shieldSystem.AbsorbDamage(actualDamage);
+
+        // 체력 계산
+        CurrentHealth = Mathf.Max(0, CurrentHealth - remainingDamage);
+        OnHealthChanged?.Invoke(CurrentHealth, MaxHealth, shieldSystem.CurrentShield);
+
+        // 피격 이펙트 재생
+        if (playGetHitEffect)
         {
-            // 방어 / 마법 저항력이 고려된 실제 들어오는 대미지
-            actualDamage = Mathf.Floor(CalculateActualDamage(iCombatEntity.AttackType, damage));
-
-            // 쉴드를 깎고 남은 대미지
-            float remainingDamage = shieldSystem.AbsorbDamage(actualDamage);
-
-            // 체력 계산
-            CurrentHealth = Mathf.Max(0, CurrentHealth - remainingDamage);
-
-            OnHealthChanged?.Invoke(CurrentHealth, MaxHealth, shieldSystem.CurrentShield);
-
-            // 피격 이펙트 재생
-            if (playGetHitEffect)
-            {
-                PlayGetHitEffect(attacker, attackSource);
-            }
+            PlayGetHitEffect(source);
         }
 
-        OnDamageTaken(attacker, actualDamage);
+        OnDamageTaken(source.Attacker, actualDamage);
 
         if (CurrentHealth <= 0)
         {
-            Die(); // 오버라이드 메서드
+            Die();
         }
+
+
+        // if (attacker is ICombatEntity iCombatEntity && CurrentHealth > 0)
+        // {
+        //     // 방어 / 마법 저항력이 고려된 실제 들어오는 대미지
+        //     actualDamage = Mathf.Floor(CalculateActualDamage(iCombatEntity.AttackType, damage));
+
+        //     // 쉴드를 깎고 남은 대미지
+        //     float remainingDamage = shieldSystem.AbsorbDamage(actualDamage);
+
+        //     // 체력 계산
+        //     CurrentHealth = Mathf.Max(0, CurrentHealth - remainingDamage);
+
+        //     OnHealthChanged?.Invoke(CurrentHealth, MaxHealth, shieldSystem.CurrentShield);
+
+        //     // 피격 이펙트 재생
+        //     if (playGetHitEffect)
+        //     {
+        //         PlayGetHitEffect(attackSource);
+        //     }
+        // }
+
+        // OnDamageTaken(attacker, actualDamage);
+
+        // if (CurrentHealth <= 0)
+        // {
+        //     Die(); // 오버라이드 메서드
+        // }
     }
 
     protected virtual void OnDamageTaken(UnitEntity attacker, float actualDamage) { } // 피격 시에 추가로 실행할 게 있을 때 사용할 메서드 

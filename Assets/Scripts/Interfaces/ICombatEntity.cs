@@ -4,8 +4,8 @@ using UnityEngine;
 
 public interface ICombatEntity
 {
-    AttackType AttackType { get; }
-    AttackRangeType AttackRangeType { get; }
+    public AttackType AttackType { get; }
+    public AttackRangeType AttackRangeType { get; }
     float AttackPower { get; }
     float AttackSpeed { get; }
 
@@ -23,29 +23,6 @@ public interface ICombatEntity
     void SetCurrentTarget(); // 현재 공격 대상 설정
     // void RemoveCurrentTarget(); // 현재 공격 대상 제거
     void NotifyTarget(); // 공격 대상에게 자신이 공격하고 있음을 알림
-
-    public readonly struct AttackSource
-    {
-        public Vector3 Position { get; }
-        public bool IsProjectile { get; }
-        public GameObject? HitEffectPrefab { get; } // 공격 적중 시 발생할 이펙트
-        public string? HitEffectTag { get; }
-
-        public AttackSource(Vector3 position, bool isProjectile, GameObject? hitEffectPrefab, string? hitEffectTag)
-        {
-            Position = position;
-            IsProjectile = isProjectile;
-            HitEffectPrefab = hitEffectPrefab;
-            HitEffectTag = hitEffectTag;
-        }
-
-        //public static AttackSource FromMelee(Vector3 position, GameObject? hitEffectPrefab, string? hitEffectTag)
-        //    => new AttackSource(position, false, hitEffectPrefab, hitEffectTag);
-
-        //public static AttackSource FromRanged(Vector3 position, GameObject? hitEffectPrefab = null, string? hitEffectTag)
-        //    => new AttackSource(position, true, hitEffectPrefab, hitEffectTag);
-    }
-
 }
 
 public enum AttackType

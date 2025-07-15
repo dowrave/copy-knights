@@ -366,11 +366,19 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity, ICrowdControlTarget
     private void PerformMeleeAttack(UnitEntity target, float damage)
     {
         SetAttackTimings(); // 이걸 따로 호출하는 경우가 있어서 여기서 다시 설정
-        AttackSource attackSource = new AttackSource(transform.position, false, BaseData.HitEffectPrefab, hitEffectTag);
+
+        AttackSource attackSource = new AttackSource(
+            attacker: this,
+            position: transform.position,
+            damage: damage,
+            type: AttackType,
+            isProjectile: false,
+            hitEffectPrefab: BaseData.HitEffectPrefab,
+            hitEffectTag: hitEffectTag
+        );
 
         PlayMeleeAttackEffect(target, attackSource);
-
-        target.TakeDamage(this, attackSource, damage);
+        target.TakeDamage(attackSource);
     }
 
     private void PerformRangedAttack(UnitEntity target, float damage)
@@ -438,10 +446,6 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity, ICrowdControlTarget
         Despawn();
     }
 
-    public override void TakeDamage(UnitEntity attacker, AttackSource attackSource, float damage, bool playGetHitEffect = true)
-    {
-        base.TakeDamage(attacker, attackSource, damage, playGetHitEffect);
-    }
     protected override void OnDamageTaken(UnitEntity attacker, float actualDamage)
     {
         // 공격자가 Operator일 때 통계 패널 업데이트
