@@ -10,12 +10,13 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: e45f39a5fba8a404d98b17869ffcf595, type: 3}
-  m_Name: Smash
+  m_Name: SmashSkill
   m_EditorClassIdentifier: 
   skillName: Smash
   description: "SP\uAC00 \uAC00\uB4DD \uCC30 \uB54C\uB9C8\uB2E4 \uC790\uB3D9\uC73C\uB85C
     \uC2DC\uC804\uB418\uBA70, <color=#179bff>\uACF5\uACA9\uB825\uC758 200%</color>\uC5D0
-    \uD574\uB2F9\uD558\uB294 \uD53C\uD574\uB97C \uAC00\uD569\uB2C8\uB2E4."
+    \uD574\uB2F9\uD558\uB294 <color=#179bff>\uBB3C\uB9AC \uD53C\uD574</color>\uB97C
+    \uAC00\uD569\uB2C8\uB2E4."
   spCost: 4
   skillIcon: {fileID: 21300000, guid: 6764556c13d15cf48a165890668ca7f3, type: 3}
   autoRecover: 0
@@ -23,3 +24,4 @@ MonoBehaviour:
   modifiesAttackAction: 0
   isOnTest: 0
   damageMultiplier: 2
+  attackType: 0

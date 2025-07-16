@@ -3,8 +3,8 @@ using UnityEngine.VFX;
 
 public abstract class CrowdControl
 {
-    protected ICrowdControlTarget? target;
-    protected UnitEntity? source;
+    protected ICrowdControlTarget? target; // CC 피해자
+    protected UnitEntity? source; // CC 가해자
     protected float duration;
     protected float elapsedTime;
     protected bool isActive = false;

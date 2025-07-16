@@ -79,11 +79,13 @@ public class StageUIManager : MonoBehaviour
         // 비활성화 전에 참조를 넣어두기
         inStageInfoPanelScript = infoPanelObject.GetComponent<InStageInfoPanel>();
 
-        // 패널 비활성화
+        // 최초에 꺼져야 할 패널들 비활성화
         gameOverPanelObject.SetActive(false);
         gameWinPanelObject.SetActive(false);
         infoPanelObject.SetActive(false);
         stageResultPanelObject.SetActive(false);
+        confirmationReturnToLobbyPanel.gameObject.SetActive(false);
+
         HideItemPopup();
     }
 

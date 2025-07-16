@@ -78,8 +78,16 @@ public class MeteorController : MonoBehaviour
             target.AddCrowdControl(stunEffect);
 
             // 대미지 적용
-            ICombatEntity.AttackSource attackSource = new ICombatEntity.AttackSource(transform.position, false, hitEffectPrefab, hitEffectTag);
-            target.TakeDamage(caster, attackSource, damage);
+            AttackSource attackSource = new AttackSource(
+                attacker: caster,
+                position: transform.position,
+                damage: damage,
+                type: caster.AttackType,
+                isProjectile: true,
+                hitEffectPrefab: hitEffectPrefab,
+                hitEffectTag: hitEffectTag
+            );
+            target.TakeDamage(attackSource);
 
             hasDamageApplied = true;
         }

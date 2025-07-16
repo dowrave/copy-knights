@@ -123,9 +123,17 @@ public class SlashSkillController : MonoBehaviour
                     damagedEnemies.Add(enemy);
 
                     float damage = attacker.AttackPower * damageMultiplier;
-                    ICombatEntity.AttackSource attackSource = new ICombatEntity.AttackSource(particleWorldPos, true, hitEffectPrefab, hitEffectTag);
+                    AttackSource attackSource = new AttackSource(
+                        attacker: attacker,
+                        position: transform.position,
+                        damage: damage,
+                        type: attacker.AttackType,
+                        isProjectile: true,
+                        hitEffectPrefab: hitEffectPrefab,
+                        hitEffectTag: hitEffectTag
+                    );
 
-                    enemy.TakeDamage(attacker, attackSource, damage);
+                    enemy.TakeDamage(attackSource);
                 }
             }
         }

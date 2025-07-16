@@ -80,6 +80,7 @@ namespace Skills.Base
             if (VfxInstance != null)
             {
                 SafeDestroySkillVFX(VfxInstance);
+                Debug.Log("VfxInstance Á¦°ÅµÊ");
             }
 
             op.CurrentSP = 0;

@@ -78,9 +78,17 @@ public class ArcaneFieldController : FieldEffectController
         {
             if (target != null && target is Enemy enemy && caster != null)
             {
-                ICombatEntity.AttackSource attackSource =
-                    new ICombatEntity.AttackSource(transform.position, true, hitEffectPrefab, hitEffectTag);
-                enemy.TakeDamage(caster, attackSource, amountPerTick);
+                AttackSource attackSource = new AttackSource(
+                    attacker: caster,
+                    position: transform.position,
+                    damage: amountPerTick,
+                    type: caster.AttackType,
+                    isProjectile: true,
+                    hitEffectPrefab: hitEffectPrefab,
+                    hitEffectTag: hitEffectTag
+                );
+
+                enemy.TakeDamage(attackSource);
             }
         }
     }

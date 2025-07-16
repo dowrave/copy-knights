@@ -2,6 +2,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using DG.Tweening;
 using TMPro;
+using Unity.VisualScripting;
 
 public class ConfirmationReturnToLobbyPanel : MonoBehaviour
 {
@@ -18,11 +19,11 @@ public class ConfirmationReturnToLobbyPanel : MonoBehaviour
     private void Awake()
     {
         canvasGroup = GetComponent<CanvasGroup>();
-        gameObject.SetActive(false); // 편집 중에 띄워놓고 냅두는 경우 대비
     }
 
     public void Initialize()
     {
+        // 전투 중일 때 멈춤으로 전환
         if (StageManager.Instance!.currentState == GameState.Battle)
         {
             StageManager.Instance!.SetGameState(GameState.Paused);
@@ -44,6 +45,7 @@ public class ConfirmationReturnToLobbyPanel : MonoBehaviour
     private void OnConfirmButtonClicked()
     {
         StageManager.Instance!.RequestExit();
+        Destroy(gameObject);
     }
 
     private void OnCancelButtonClicked()
@@ -58,9 +60,11 @@ public class ConfirmationReturnToLobbyPanel : MonoBehaviour
             canvasGroup.alpha = 1f;
             canvasGroup.DOKill();
             canvasGroup.DOFade(0f, animationSpeed)
-                .SetUpdate(true);
-
-            gameObject.SetActive(false);
+                .SetUpdate(true)
+                .OnComplete(() =>
+                {
+                    gameObject.SetActive(false);
+                });
         }
 
         //UIManager.Instance.HidePauseOverlay();

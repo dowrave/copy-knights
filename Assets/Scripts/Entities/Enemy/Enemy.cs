@@ -14,7 +14,7 @@ public enum DespawnReason
     ReachedGoal // 목적지 도달
 }
 
-public class Enemy : UnitEntity, IMovable, ICombatEntity, ICrowdControlTarget
+public class Enemy : UnitEntity, IMovable, ICombatEntity
 {
     [SerializeField]
     private EnemyData enemyData = default!;
@@ -22,14 +22,14 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity, ICrowdControlTarget
 
     private EnemyStats currentStats;
 
-    public AttackType AttackType => enemyData.attackType;
+    public override AttackType AttackType => enemyData.attackType;
+    public override float AttackPower { get => currentStats.AttackPower; set => currentStats.AttackPower = value; }
+    public override float AttackSpeed { get => currentStats.AttackSpeed; set => currentStats.AttackSpeed = value; }
     public AttackRangeType AttackRangeType => enemyData.attackRangeType;
-    public float AttackPower { get => currentStats.AttackPower; private set => currentStats.AttackPower = value; }
-    public float AttackSpeed { get => currentStats.AttackSpeed; private set => currentStats.AttackSpeed = value; }
-    public float MovementSpeed { get => currentStats.MovementSpeed; }
+    public override float MovementSpeed { get => currentStats.MovementSpeed; }
     public int BlockCount { get => enemyData.blockCount; private set => enemyData.blockCount = value; } // Enemy가 차지하는 저지 수
-    public float AttackCooldown { get; private set; } // 다음 공격까지의 대기 시간
-    public float AttackDuration { get; private set; } // 공격 모션 시간. Animator가 추가될 때 수정 필요할 듯. 항상 Cooldown보다 짧아야 함.
+    public float AttackCooldown { get; set; } // 다음 공격까지의 대기 시간
+    public float AttackDuration { get; set; } // 공격 모션 시간. Animator가 추가될 때 수정 필요할 듯. 항상 Cooldown보다 짧아야 함.
 
     public float AttackRange
     {
@@ -192,7 +192,7 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity, ICrowdControlTarget
         }
     }
 
-    protected void Update()
+    protected override void Update()
     {
         if (StageManager.Instance!.currentState == GameState.Battle && // 전투 중이면서
             currentDespawnReason == DespawnReason.Null // 디스폰되고 있지 않을 때
@@ -201,6 +201,7 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity, ICrowdControlTarget
             UpdateAttackDuration();
             UpdateAttackCooldown();
             UpdateCrowdControls();
+            base.Update(); // 버프 효과 갱신
 
             if (pathData == null || pathData.nodes == null) return;
             if (CurrentHealth <= 0) return;
@@ -352,6 +353,14 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity, ICrowdControlTarget
 
     private void PerformAttack(UnitEntity target, float damage)
     {
+        AttackType finalAttackType = AttackType;
+        bool showDamagePopup = false;
+
+        foreach (var buff in activeBuffs)
+        {
+            buff.OnBeforeAttack(this, ref damage, ref finalAttackType, ref showDamagePopup);
+        }
+
         switch (AttackRangeType)
         {
             case AttackRangeType.Melee:
@@ -360,6 +369,11 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity, ICrowdControlTarget
             case AttackRangeType.Ranged:
                 PerformRangedAttack(target, damage);
                 break;
+        }
+        
+        foreach (var buff in activeBuffs)
+        {
+            buff.OnAfterAttack(this);
         }
     }
 
@@ -395,7 +409,7 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity, ICrowdControlTarget
                 Projectile? projectile = projectileObj.GetComponent<Projectile>();
                 if (projectile != null)
                 {
-                    projectile.Initialize(this, target, damage, false, projectileTag, BaseData.hitEffectPrefab, hitEffectTag);
+                    projectile.Initialize(this, target, damage, false, projectileTag, BaseData.hitEffectPrefab, hitEffectTag, AttackType);
                 }
             }
         }
@@ -615,7 +629,6 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity, ICrowdControlTarget
             {
                 pathData = null;
                 currentPath.Clear();
-                Debug.Log("현재 경로가 막힘");
                 return true;
             }
         }
@@ -724,13 +737,13 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity, ICrowdControlTarget
 
     private void CreateObjectPool()
     {
-        // 다른 객체는 다른 태그를 가져야 함
-        string id = GetInstanceID().ToString();
+        // 객체의 종류마다 풀을 공유함
+        string baseTag = BaseData.entityName;
 
         // 근접 공격 이펙트 풀 생성
         if (BaseData.meleeAttackEffectPrefab != null)
         {
-            meleeAttackEffectTag = id + BaseData.entityName + BaseData.meleeAttackEffectPrefab.name;
+            meleeAttackEffectTag = baseTag + BaseData.meleeAttackEffectPrefab.name;
             ObjectPoolManager.Instance!.CreatePool(
                 meleeAttackEffectTag,
                 BaseData.meleeAttackEffectPrefab
@@ -740,7 +753,7 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity, ICrowdControlTarget
         // 피격 이펙트 풀 생성
         if (BaseData.hitEffectPrefab != null)
         {
-            hitEffectTag = id + BaseData.entityName + BaseData.hitEffectPrefab.name;
+            hitEffectTag = baseTag + BaseData.hitEffectPrefab.name;
             ObjectPoolManager.Instance!.CreatePool(
                 hitEffectTag,
                 BaseData.hitEffectPrefab
@@ -782,30 +795,6 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity, ICrowdControlTarget
                 enemyBarUI.Initialize(this);
             }
         }
-    }
-
-
-    private void RemoveProjectilePool()
-    {
-        if (AttackRangeType == AttackRangeType.Ranged && !string.IsNullOrEmpty(projectileTag))
-        {
-            ObjectPoolManager.Instance!.RemovePool(projectileTag);
-        }
-    }
-
-    private void RemoveObjectPool()
-    {
-        if (meleeAttackEffectTag != null)
-        {
-            ObjectPoolManager.Instance!.RemovePool(meleeAttackEffectTag);
-        }
-
-        if (hitEffectTag != null)
-        {
-            ObjectPoolManager.Instance!.RemovePool(hitEffectTag);
-        }
-
-        RemoveProjectilePool();
     }
 
     protected override void InitializeHP()
@@ -859,7 +848,7 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity, ICrowdControlTarget
         }
     }
 
-    public void SetMovementSpeed(float newSpeed)
+    public override void SetMovementSpeed(float newSpeed)
     {
         currentStats.MovementSpeed = newSpeed;
     }
@@ -894,25 +883,8 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity, ICrowdControlTarget
         }
     }
 
-    // // PlayDeathAnimation이 끝나고 호출되는 이벤트에 의해 실행되는 메서드
-    // protected void HandleDeathAnimationCompleted(UnitEntity unitEntity)
-    // {
-    //     // 자기 자신의 이벤트인지 확인
-    //     if (unitEntity == this)
-    //     {
-    //         OnEnemyDespawned?.Invoke(this, currentDespawnReason);
-    //     }
-
-    //     // 다른 로직도 추가 가능
-    // }
-
-
     protected void OnDestroy()
     {
-        // OnEnemyDestroyed?.Invoke(this);
-        RemoveObjectPool();
-
-        // OnDeathAnimationCompleted -= HandleDeathAnimationCompleted;
     }
 
 }

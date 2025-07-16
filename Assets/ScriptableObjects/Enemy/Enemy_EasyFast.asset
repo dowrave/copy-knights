@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 277825dab463fe8469435119db921473, type: 3}
   m_Name: Enemy_EasyFast
   m_EditorClassIdentifier: 
-  entityName: 
+  entityName: Enemy_EasyFast
   stats:
     _baseStats:
       _health: 820

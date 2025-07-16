@@ -7,19 +7,27 @@ using Skills.Base;
 using static ICombatEntity;
 using Unity.VisualScripting;
 
-public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable, ICrowdControlTarget
+public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
 {
     public OperatorData OperatorData { get; protected set; } = default!;
     [HideInInspector] 
-    public OperatorStats currentOperatorStats; // ÀÏ´Ü publicÀ¸·Î ±¸Çö
+    public OperatorStats currentOperatorStats; // ì¼ë‹¨ publicìœ¼ë¡œ êµ¬í˜„
 
     public string EntityName => OperatorData.entityName;
 
-    // ICombatEntity ÇÊµå
-    public AttackType AttackType => OperatorData.attackType;
+    // ICombatEntity í•„ë“œ
+    private AttackType _currentAttackType;
+    public override AttackType AttackType
+    {
+        get { return _currentAttackType; }
+        set
+        {
+            _currentAttackType = value;
+        }
+    }
     public AttackRangeType AttackRangeType => OperatorData.attackRangeType;
 
-    public float AttackPower
+    public override float AttackPower
     {
         get => currentOperatorStats.AttackPower;
         set
@@ -31,7 +39,7 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable,
             }
         }
     }
-    public float AttackSpeed
+    public override float AttackSpeed
     {
         get => currentOperatorStats.AttackSpeed;
         set
@@ -45,7 +53,7 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable,
     }
 
 
-    public float Defense
+    public override float Defense
     {
         get => currentOperatorStats.Defense;
         set
@@ -58,7 +66,7 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable,
         }
     }
 
-    public float MagicResistance
+    public override float MagicResistance
     {
         get => currentOperatorStats.MagicResistance;
         set
@@ -84,34 +92,34 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable,
         }
     }
 
-    // ICrowdControlTarget ÇÊµå
+    // ICrowdControlTarget í•„ë“œ
     public float MovementSpeed => 0f;
     public Vector3 Position => transform.position;
 
     public float AttackCooldown { get; protected set; }
     public float AttackDuration { get; protected set; }
 
-    // À§Ä¡¿Í È¸Àü
+    // ìœ„ì¹˜ì™€ íšŒì „
     private Vector2Int operatorGridPos;
-    private List<Vector2Int> baseOffsets = new List<Vector2Int>(); // ±âº» ¿ÀÇÁ¼Â
-    private List<Vector2Int> rotatedOffsets = new List<Vector2Int>(); // È¸Àü ¹İ¿µ ¿ÀÇÁ¼Â
-    public List<Vector2Int> CurrentAttackableGridPos { get; set; } = new List<Vector2Int>(); // È¸Àü ¹İ¿µ °ø°İ ¹üÀ§(gridPosition), public setÀº ½ºÅ³ ¶§¹®¿¡
+    private List<Vector2Int> baseOffsets = new List<Vector2Int>(); // ê¸°ë³¸ ì˜¤í”„ì…‹
+    private List<Vector2Int> rotatedOffsets = new List<Vector2Int>(); // íšŒì „ ë°˜ì˜ ì˜¤í”„ì…‹
+    public List<Vector2Int> CurrentAttackableGridPos { get; set; } = new List<Vector2Int>(); // íšŒì „ ë°˜ì˜ ê³µê²© ë²”ìœ„(gridPosition), public setì€ ìŠ¤í‚¬ ë•Œë¬¸ì—
 
-    // °ø°İ ¹üÀ§ ³»¿¡ ÀÖ´Â Àûµé 
+    // ê³µê²© ë²”ìœ„ ë‚´ì— ìˆëŠ” ì ë“¤ 
     protected List<Enemy> enemiesInRange = new List<Enemy>();
 
     public Vector3 FacingDirection { get; protected set; } = Vector3.left;
 
-    // ÀúÁö °ü·Ã
-    protected List<Enemy> blockedEnemies = new List<Enemy>(); // ½ÇÁ¦·Î ÀúÁö ÁßÀÎ Àûµé
+    // ì €ì§€ ê´€ë ¨
+    protected List<Enemy> blockedEnemies = new List<Enemy>(); // ì‹¤ì œë¡œ ì €ì§€ ì¤‘ì¸ ì ë“¤
     public IReadOnlyList<Enemy> BlockedEnemies => blockedEnemies;
-    protected int currentBlockCount; // ÇöÀç ÀúÁö ¼ö
+    protected int currentBlockCount; // í˜„ì¬ ì €ì§€ ìˆ˜
 
-    protected List<Enemy> blockableEnemies = new List<Enemy>(); // Äİ¶óÀÌ´õ°¡ °ãÃÄ¼­ ÀúÁö°¡ °¡´ÉÇÑ Àûµé
+    protected List<Enemy> blockableEnemies = new List<Enemy>(); // ì½œë¼ì´ë”ê°€ ê²¹ì³ì„œ ì €ì§€ê°€ ê°€ëŠ¥í•œ ì ë“¤
     public IReadOnlyList<Enemy> BlockableEnemies => blockableEnemies;
 
 
-    public int DeploymentOrder { get; protected set; } = 0;// ¹èÄ¡ ¼ø¼­
+    public int DeploymentOrder { get; protected set; } = 0;// ë°°ì¹˜ ìˆœì„œ
 
     public UnitEntity? CurrentTarget { get; protected set; }
 
@@ -133,15 +141,15 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable,
     protected OperatorUI? operatorUI;
     public OperatorUI? OperatorUI => operatorUI;
 
-    // ¿ø°Å¸® °ø°İ ¿ÀºêÁ§Æ® Ç® ¿É¼Ç
+    // ì›ê±°ë¦¬ ê³µê²© ì˜¤ë¸Œì íŠ¸ í’€ ì˜µì…˜
     protected string? projectileTag;
 
-    // ÀÌÆåÆ® Ç® ÅÂ±×
+    // ì´í™íŠ¸ í’€ íƒœê·¸
     protected string? meleeAttackEffectTag;
     protected string hitEffectTag = string.Empty;
     public string HitEffectTag => hitEffectTag;
 
-    // ½ºÅ³ °ü·Ã
+    // ìŠ¤í‚¬ ê´€ë ¨
     public BaseSkill CurrentSkill { get; private set; } = default!;
     private bool _isSkillOn;
     public bool IsSkillOn
@@ -156,13 +164,13 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable,
             }
         }
     }
-    private Coroutine _activeSkillCoroutine; // Áö¼Ó½Ã°£ÀÌ ÀÖ´Â ½ºÅ³¿¡ ÇØ´çÇÏ´Â ÄÚ·çÆ¾
+    private Coroutine _activeSkillCoroutine; // ì§€ì†ì‹œê°„ì´ ìˆëŠ” ìŠ¤í‚¬ì— í•´ë‹¹í•˜ëŠ” ì½”ë£¨í‹´
 
-    // ÇöÀç ¿ÀÆÛ·¹ÀÌÅÍÀÇ À°¼º »óÅÂ - Current¸¦ º°µµ·Î ºÙÀÌÁö´Â ¾Ê°ÚÀ½
+    // í˜„ì¬ ì˜¤í¼ë ˆì´í„°ì˜ ìœ¡ì„± ìƒíƒœ - Currentë¥¼ ë³„ë„ë¡œ ë¶™ì´ì§€ëŠ” ì•Šê² ìŒ
     public OperatorGrowthSystem.ElitePhase ElitePhase { get; private set; }
     public int Level { get; private set; }
 
-    // ÀÌº¥Æ®µé
+    // ì´ë²¤íŠ¸ë“¤
     public event System.Action<float, float> OnSPChanged = delegate { };
     public event System.Action OnStatsChanged = delegate { };
     public event System.Action<Operator> OnOperatorDied = delegate { };
@@ -175,24 +183,24 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable,
         {
             OwnedOperator ownedOp = opInfo.ownedOperator;
 
-            // ±âº» µ¥ÀÌÅÍ ÃÊ±âÈ­
+            // ê¸°ë³¸ ë°ì´í„° ì´ˆê¸°í™”
             OperatorData = ownedOp.OperatorProgressData;
             CurrentSP = OperatorData.initialSP;
 
-            // ÇöÀç »óÅÂ ¹İ¿µ
+            // í˜„ì¬ ìƒíƒœ ë°˜ì˜
             currentOperatorStats = ownedOp.CurrentStats;
 
-            // È¸Àü ¹İ¿µ
-            baseOffsets = new List<Vector2Int>(ownedOp.CurrentAttackableGridPos); // ¿ŞÂÊ ¹æÇâ ±âÁØ
+            // íšŒì „ ë°˜ì˜
+            baseOffsets = new List<Vector2Int>(ownedOp.CurrentAttackableGridPos); // ì™¼ìª½ ë°©í–¥ ê¸°ì¤€
 
-            // ½ºÅ³ ¼³Á¤
+            // ìŠ¤í‚¬ ì„¤ì •
             if (opInfo.skillIndex.HasValue)
             {
                 CurrentSkill = ownedOp.UnlockedSkills[opInfo.skillIndex.Value];
             }
             else
             {
-                throw new System.InvalidOperationException("ÀÎµ¦½º°¡ ¾ø¾î¼­ CurrentSkillÀÌ ÁöÁ¤µÇÁö ¾ÊÀ½");
+                throw new System.InvalidOperationException("ì¸ë±ìŠ¤ê°€ ì—†ì–´ì„œ CurrentSkillì´ ì§€ì •ë˜ì§€ ì•ŠìŒ");
             }
 
             MaxSP = CurrentSkill?.SPCost ?? 0f;
@@ -204,7 +212,7 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable,
         }
         else
         {
-            Debug.LogError("¿ÀÆÛ·¹ÀÌÅÍÀÇ ownedOperator Á¤º¸°¡ ¾øÀ½!");
+            Debug.LogError("ì˜¤í¼ë ˆì´í„°ì˜ ownedOperator ì •ë³´ê°€ ì—†ìŒ!");
         }
     }
 
@@ -228,42 +236,45 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable,
     
     protected void DestroyOperatorUI()
     {
-        // ÄÄÆ÷³ÍÆ®¸¦ ÆÄ±«ÇÏ´Â °Ô ¾Æ´Ï¶ó ¿ÀºêÁ§Æ®¸¦ ÆÄ±«ÇØ¾ß ÇÔ
+        // ì»´í¬ë„ŒíŠ¸ë¥¼ íŒŒê´´í•˜ëŠ” ê²Œ ì•„ë‹ˆë¼ ì˜¤ë¸Œì íŠ¸ë¥¼ íŒŒê´´í•´ì•¼ í•¨
         Destroy(operatorUI.gameObject);
     }
 
-    protected void Update()
+    protected override void Update()
     {
         if (IsDeployed && StageManager.Instance!.currentState == GameState.Battle)
         {
-            // ----- »óÅÂ °»½Å ·ÎÁ÷. Çàµ¿ Á¦¾à°ú ¹«°ü -----
+            // ----- ìƒíƒœ ê°±ì‹  ë¡œì§. í–‰ë™ ì œì•½ê³¼ ë¬´ê´€ -----
             UpdateAttackDuration();
             UpdateAttackCooldown();
 
-            HandleSPRecovery(); // SP È¸º¹
-            UpdateCrowdControls(); // CC È¿°ú °»½Å
+            HandleSPRecovery(); // SP íšŒë³µ
+            UpdateCrowdControls(); // CC íš¨ê³¼ ê°±ì‹ 
 
-            // Çàµ¿ ºÒ´É »óÅÂ Ã¼Å©
-            if (activeCC.Any(cc => cc is StunEffect)) return; // ½ºÅÏ È¿°ú ÁßÀÏ ¶§ ¾Æ·¡ µ¿ÀÛÀ» ¸·À½
+            base.Update(); // ë²„í”„ íš¨ê³¼ì˜ ê°±ì‹ 
+            CurrentSkill.OnUpdate(this); // ìŠ¤í‚¬ì—ì„œë„ ê°ì‹œ
 
-            // ----- Çàµ¿ °¡´É »óÅÂÀÇ ·ÎÁ÷ -----
-            // µ¿ÀÛÀ» ¾Æ¿¹ ¸øÇÏ´Â »óÈ²°ú ±¸ºĞÇÑ´Ù. ¿¹¸¦ µé¸é ±âÀı »óÅÂÀÎµ¥ ½ºÅ³À» ÀÚµ¿À¸·Î ÄÓ ¼ö´Â ¾øÀ½.
+            // í–‰ë™ ë¶ˆëŠ¥ ìƒíƒœ ì²´í¬
+            if (activeCC.Any(cc => cc is StunEffect)) return; // ìŠ¤í„´ íš¨ê³¼ ì¤‘ì¼ ë•Œ ì•„ë˜ ë™ì‘ì„ ë§‰ìŒ
+
+            // ----- í–‰ë™ ê°€ëŠ¥ ìƒíƒœì˜ ë¡œì§ -----
+            // ë™ì‘ì„ ì•„ì˜ˆ ëª»í•˜ëŠ” ìƒí™©ê³¼ êµ¬ë¶„í•œë‹¤. ì˜ˆë¥¼ ë“¤ë©´ ê¸°ì ˆ ìƒíƒœì¸ë° ìŠ¤í‚¬ì„ ìë™ìœ¼ë¡œ ì¼¤ ìˆ˜ëŠ” ì—†ìŒ.
             HandleSkillAutoActivate();
 
-            if (AttackDuration > 0) return; // °ø°İ ¸ğ¼Ç Áß¿¡´Â Å¸°Ù º¯°æ/°ø°İ ºÒ°¡´É
-            // Âü°í) °ø°İ ¸ğ¼ÇÀÌ ¾Æ´ÏÁö¸¸ Äğ´Ù¿îÀÏ ¶§µµ Å¸°ÙÀº °è¼Ó ¼³Á¤ÇÑ´Ù. ±×·¡¼­ AttackCooldown Á¶°ÇÀº ´ŞÁö ¾ÊÀ½.
+            if (AttackDuration > 0) return; // ê³µê²© ëª¨ì…˜ ì¤‘ì—ëŠ” íƒ€ê²Ÿ ë³€ê²½/ê³µê²© ë¶ˆê°€ëŠ¥
+            // ì°¸ê³ ) ê³µê²© ëª¨ì…˜ì´ ì•„ë‹ˆì§€ë§Œ ì¿¨ë‹¤ìš´ì¼ ë•Œë„ íƒ€ê²Ÿì€ ê³„ì† ì„¤ì •í•œë‹¤. ê·¸ë˜ì„œ AttackCooldown ì¡°ê±´ì€ ë‹¬ì§€ ì•ŠìŒ.
 
-            SetCurrentTarget(); // CurrentTarget ¼³Á¤
+            SetCurrentTarget(); // CurrentTarget ì„¤ì •
             ValidateCurrentTarget();
 
             if (CanAttack())
             {
-                // °ø°İ Çü½ÄÀ» ¹Ù²ã¾ß ÇÏ´Â °æ¿ì ½ºÅ³ÀÇ µ¿ÀÛÀ» µû¶ó°¨
+                // ê³µê²© í˜•ì‹ì„ ë°”ê¿”ì•¼ í•˜ëŠ” ê²½ìš° ìŠ¤í‚¬ì˜ ë™ì‘ì„ ë”°ë¼ê°
                 if (ShouldModifyAttackAction())
                 {
                     CurrentSkill.PerformChangedAttackAction(this);
                 }
-                // ¾Æ´Ï¶ó¸é ÆòÅ¸
+                // ì•„ë‹ˆë¼ë©´ í‰íƒ€
                 else
                 {
                     Attack(CurrentTarget!, AttackPower);
@@ -281,71 +292,86 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable,
     }
 
 
-    // ÀÎÅÍÆäÀÌ½º¸¸ °è½Â, PerformAttackÀ¸·Î Àü´Ş
+    // ì¸í„°í˜ì´ìŠ¤ë§Œ ê³„ìŠ¹, PerformAttackìœ¼ë¡œ ì „ë‹¬
     public virtual void Attack(UnitEntity target, float damage)
     {
         bool showDamagePopup = false;
         float polishedDamage = Mathf.Floor(damage);
         PerformAttack(target, polishedDamage, showDamagePopup);
 
-        // °ø°İ ¸ğ¼Ç ÁßÀÌ¶ó´Â ½Ã°£ ¼³Á¤
+        // ê³µê²© ëª¨ì…˜ ì¤‘ì´ë¼ëŠ” ì‹œê°„ ì„¤ì •
         SetAttackDuration();
 
-        // °ø°İ Äğ´Ù¿î ¼³Á¤
+        // ê³µê²© ì¿¨ë‹¤ìš´ ì„¤ì •
         SetAttackCooldown();
     }
 
     protected virtual void PerformAttack(UnitEntity target, float damage, bool showDamagePopup)
     {
         float spBeforeAttack = CurrentSP;
+        AttackType finalAttackType = AttackType;
 
-        if (CurrentSkill != null)
+        // ìŠ¤í‚¬ ì‹œìŠ¤í…œì—ì„œ ë²„í”„ë¡œ ë³€í™˜ ì¤‘
+        // ê³µê²©ì—ë§Œ ì ìš©ë˜ëŠ” ë²„í”„ ì ìš©
+        foreach (var buff in activeBuffs)
         {
-            CurrentSkill.OnBeforeAttack(this, ref damage, ref showDamagePopup);
+            buff.OnBeforeAttack(this, ref damage, ref finalAttackType, ref showDamagePopup);
         }
-    
+
+        // ì‹¤ì œ ê³µê²© ìˆ˜í–‰
         switch (OperatorData.attackRangeType)
         {
             case AttackRangeType.Melee:
-                PerformMeleeAttack(target, damage, showDamagePopup);
+                PerformMeleeAttack(target, damage, showDamagePopup, finalAttackType);
                 break;
             case AttackRangeType.Ranged:
-                PerformRangedAttack(target, damage, showDamagePopup);
+                PerformRangedAttack(target, damage, showDamagePopup, finalAttackType);
                 break;
         }
 
-        if (CurrentSkill != null)
+        // ê³µê²© í›„ SP íšŒë³µ ë¡œì§
+        if (!CurrentSkill.autoRecover && // ìë™íšŒë³µì´ ì•„ë‹ˆë©´ì„œ
+            !IsSkillOn &&
+            spBeforeAttack != MaxSP) // ìŠ¤í‚¬ì´ ì‹¤ë ¤ì„œ ë‚˜ê°„ ê³µê²©ì¼ ë•ŒëŠ” SP íšŒë³µ X 
         {
-            CurrentSkill.OnAfterAttack(this);
-
-            // SP °ø°İ ½Ã È¸º¹ ·ÎÁ÷
-            if (!CurrentSkill.autoRecover && // ÀÚµ¿È¸º¹¾Æ ¾Æ´Ï¸é¼­
-                    !IsSkillOn && 
-                    spBeforeAttack != MaxSP) // ½ºÅ³ÀÌ ½Ç·Á¼­ ³ª°£ °ø°İÀÏ ¶§´Â SP È¸º¹ X
-            {
-                CurrentSP += 1; // ¼¼ÅÍ¿¡ Clamp°¡ ÀÖÀ¸¹Ç·Î ¿©±â¼­ ÇÏÁö ¾Ê¾Æµµ µÊ.
-            }
+            CurrentSP += 1;
         }
+
+        // ê³µê²© í›„ ë™ì‘
+        foreach (var buff in activeBuffs)
+        {
+            buff.OnAfterAttack(target);
+        }
+
     }
 
-    protected virtual void PerformMeleeAttack(UnitEntity target, float damage, bool showDamagePopup)
+    protected virtual void PerformMeleeAttack(UnitEntity target, float damage, bool showDamagePopup, AttackType attackType)
     {
-        AttackSource attackSource = new AttackSource(transform.position, false, OperatorData.HitEffectPrefab, hitEffectTag);
+        AttackSource attackSource = new AttackSource(
+            attacker: this,
+            position: transform.position,
+            damage: damage,
+            type: attackType,
+            isProjectile: false,
+            hitEffectPrefab: OperatorData.HitEffectPrefab,
+            hitEffectTag: hitEffectTag
+        );
 
         PlayMeleeAttackEffect(target, attackSource);
-
         target.TakeDamage(attackSource);
+
+        // ëŒ€ë¯¸ì§€ íŒì—… í‘œì‹œ
         if (showDamagePopup)
         {
             ObjectPoolManager.Instance!.ShowFloatingText(target.transform.position, damage, false);
         }
     }
 
-    protected virtual void PerformRangedAttack(UnitEntity target, float damage, bool showDamagePopup)
+    protected virtual void PerformRangedAttack(UnitEntity target, float damage, bool showDamagePopup, AttackType attackType)
     {
         if (OperatorData.projectilePrefab != null)
         {
-            // Åõ»çÃ¼ »ı¼º À§Ä¡
+            // íˆ¬ì‚¬ì²´ ìƒì„± ìœ„ì¹˜
             Vector3 spawnPosition = transform.position + Vector3.up * 0.5f;
 
             if (projectileTag != null)
@@ -356,7 +382,7 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable,
                     Projectile? projectile = projectileObj.GetComponent<Projectile>();
                     if (projectile != null)
                     {
-                        projectile.Initialize(this, target, damage, showDamagePopup, projectileTag, OperatorData.hitEffectPrefab, hitEffectTag);
+                        projectile.Initialize(this, target, damage, showDamagePopup, projectileTag, OperatorData.hitEffectPrefab, hitEffectTag, AttackType);
                     }
                 }
             }
@@ -374,29 +400,29 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable,
         DeployableManager.Instance!.UpdateDeploymentOrder();
     }
 
-    // SP ÀÚµ¿È¸º¹ ·ÎÁ÷ Ãß°¡
+    // SP ìë™íšŒë³µ ë¡œì§ ì¶”ê°€
     protected void HandleSPRecovery()
     {
         if (IsDeployed == false || CurrentSkill == null) { return; }
 
-        // ÀÚµ¿È¸º¹ÀÏ ¶§¸¸ Ã³¸®
+        // ìë™íšŒë³µì¼ ë•Œë§Œ ì²˜ë¦¬
         if (CurrentSkill.autoRecover)
         {
             float oldSP = CurrentSP;
 
-            // ÃÖ´ë SP ÃÊ°ú ¹æÁö (ÀÌº¥Æ®´Â ÀÚÃ¼ ¹ß»ı)
+            // ìµœëŒ€ SP ì´ˆê³¼ ë°©ì§€ (ì´ë²¤íŠ¸ëŠ” ìì²´ ë°œìƒ)
             CurrentSP = Mathf.Min(CurrentSP + currentOperatorStats.SPRecoveryRate * Time.deltaTime, MaxSP);
         }
         
-        // ¼öµ¿È¸º¹ ½ºÅ³Àº °ø°İ ½Ã¿¡ È¸º¹µÇ¹Ç·Î ¿©±â¼­ Ã³¸®ÇÏÁö ¾ÊÀ½
+        // ìˆ˜ë™íšŒë³µ ìŠ¤í‚¬ì€ ê³µê²© ì‹œì— íšŒë³µë˜ë¯€ë¡œ ì—¬ê¸°ì„œ ì²˜ë¦¬í•˜ì§€ ì•ŠìŒ
     }
 
     public override void OnBodyTriggerEnter(Collider other)
     {
-        // ÀúÁö ·ÎÁ÷Àº º»Ã¼ Äİ¶óÀÌ´õ¿Í Ãæµ¹ÇÒ ¶§¸¸ ¹ß»ı
+        // ì €ì§€ ë¡œì§ì€ ë³¸ì²´ ì½œë¼ì´ë”ì™€ ì¶©ëŒí•  ë•Œë§Œ ë°œìƒ
         BodyColliderController body = other.GetComponent<BodyColliderController>();
 
-        // EnemyÀÏ ¶§¸¸ ÀúÁö ·ÎÁ÷ µ¿ÀÛ
+        // Enemyì¼ ë•Œë§Œ ì €ì§€ ë¡œì§ ë™ì‘
         if (body != null && body.ParentUnit is Enemy enemy)
         {
             if (!blockableEnemies.Contains(enemy))
@@ -407,16 +433,16 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable,
         }
     }
 
-    // ÀúÁö °¡´ÉÇÑ ½½·ÔÀÌ ÀÖÀ» ¶§ blockableEnemies¿¡¼­ ´ÙÀ½ ÀûÀ» Ã£¾Æ ÀúÁöÇÑ´Ù.
+    // ì €ì§€ ê°€ëŠ¥í•œ ìŠ¬ë¡¯ì´ ìˆì„ ë•Œ blockableEnemiesì—ì„œ ë‹¤ìŒ ì ì„ ì°¾ì•„ ì €ì§€í•œë‹¤.
     private void TryBlockNextEnemy()
     {
-        // ¿©À¯°¡ ¾ø´Ù¸é ¸®ÅÏ
+        // ì—¬ìœ ê°€ ì—†ë‹¤ë©´ ë¦¬í„´
         if (currentBlockCount >= MaxBlockableEnemies) return;
 
-        // ÀúÁö °¡´ÉÇÑ Àû ¸ñ·ÏÀ» ¼øÈ¸, ¸®½ºÆ® ¾ÕÂÊ = ¸ÕÀú µé¾î¿Â Àû
+        // ì €ì§€ ê°€ëŠ¥í•œ ì  ëª©ë¡ì„ ìˆœíšŒ, ë¦¬ìŠ¤íŠ¸ ì•ìª½ = ë¨¼ì € ë“¤ì–´ì˜¨ ì 
         foreach (Enemy candidateEnemy in blockableEnemies)
         {
-            // ÀÌ ÀûÀ» ÀúÁöÇÒ ¼ö ÀÖ´ÂÁö È®ÀÎ
+            // ì´ ì ì„ ì €ì§€í•  ìˆ˜ ìˆëŠ”ì§€ í™•ì¸
             if (CanBlockEnemy(candidateEnemy))
             {
                 BlockEnemy(candidateEnemy);
@@ -429,34 +455,34 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable,
     public override void OnBodyTriggerExit(Collider other)
     {
         // if (!IsDeployed) return;
-        // ÀúÁö ·ÎÁ÷Àº º»Ã¼ Äİ¶óÀÌ´õ¿Í Ãæµ¹ÇÒ ¶§¸¸ ¹ß»ı
+        // ì €ì§€ ë¡œì§ì€ ë³¸ì²´ ì½œë¼ì´ë”ì™€ ì¶©ëŒí•  ë•Œë§Œ ë°œìƒ
         BodyColliderController body = other.GetComponent<BodyColliderController>();
 
-        // ÀûÀÇ bodyÀÏ ¶§¸¸ ÀúÁö ·ÎÁ÷ µ¿ÀÛ
+        // ì ì˜ bodyì¼ ë•Œë§Œ ì €ì§€ ë¡œì§ ë™ì‘
         if (body != null && body.ParentUnit is Enemy enemy)
         {
             blockableEnemies.Remove(enemy);
 
-            // ½ÇÁ¦ ÀúÁö ÁßÀÌ¾ú´Ù¸é ÀúÁö ÇØÁ¦
+            // ì‹¤ì œ ì €ì§€ ì¤‘ì´ì—ˆë‹¤ë©´ ì €ì§€ í•´ì œ
             if (blockedEnemies.Contains(enemy))
             {
                 UnblockEnemy(enemy);
                 enemy.UpdateBlockingOperator(null);
             }
 
-            // ´Ù¸¥ Àû ÀúÁö ½Ãµµ
+            // ë‹¤ë¥¸ ì  ì €ì§€ ì‹œë„
             TryBlockNextEnemy();
         }
     }
 
-    // ÇØ´ç ÀûÀ» ÀúÁöÇÒ ¼ö ÀÖ´Â°¡
+    // í•´ë‹¹ ì ì„ ì €ì§€í•  ìˆ˜ ìˆëŠ”ê°€
     private bool CanBlockEnemy(Enemy enemy)
     {
         return enemy != null && 
             IsDeployed &&
-            !blockedEnemies.Contains(enemy) && // ÀÌ¹Ì ÀúÁö ÁßÀÎ ÀûÀÌ ¾Æ´Ô
-            enemy.BlockingOperator == null &&  // ÀûÀ» ÀúÁöÇÏ°í ÀÖ´Â ¿ÀÆÛ·¹ÀÌÅÍ°¡ ¾øÀ½
-            currentBlockCount + enemy.BlockCount <= MaxBlockableEnemies; // ÀÌ ÀûÀ» ÀúÁöÇßÀ» ¶§ ÃÖ´ë ÀúÁö ¼ö¸¦ ÃÊ°úÇÏÁö ¾ÊÀ½
+            !blockedEnemies.Contains(enemy) && // ì´ë¯¸ ì €ì§€ ì¤‘ì¸ ì ì´ ì•„ë‹˜
+            enemy.BlockingOperator == null &&  // ì ì„ ì €ì§€í•˜ê³  ìˆëŠ” ì˜¤í¼ë ˆì´í„°ê°€ ì—†ìŒ
+            currentBlockCount + enemy.BlockCount <= MaxBlockableEnemies; // ì´ ì ì„ ì €ì§€í–ˆì„ ë•Œ ìµœëŒ€ ì €ì§€ ìˆ˜ë¥¼ ì´ˆê³¼í•˜ì§€ ì•ŠìŒ
     }
 
     private void BlockEnemy(Enemy enemy)
@@ -473,7 +499,7 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable,
 
     public void UnblockAllEnemies()
     {
-        // ToList¸¦ ¾²´Â ÀÌÀ¯ : ¹İº¹¹® ¾È¿¡¼­ ¸®½ºÆ®¸¦ ¼öÁ¤ÇÏ¸é ¿À·ù°¡ ¹ß»ıÇÒ ¼ö ÀÖ´Ù - º¹»çº»À» ¼øÈ¸ÇÏ´Â °Ô ¾ÈÀüÇÏ´Ù.
+        // ToListë¥¼ ì“°ëŠ” ì´ìœ  : ë°˜ë³µë¬¸ ì•ˆì—ì„œ ë¦¬ìŠ¤íŠ¸ë¥¼ ìˆ˜ì •í•˜ë©´ ì˜¤ë¥˜ê°€ ë°œìƒí•  ìˆ˜ ìˆë‹¤ - ë³µì‚¬ë³¸ì„ ìˆœíšŒí•˜ëŠ” ê²Œ ì•ˆì „í•˜ë‹¤.
         foreach (Enemy enemy in blockedEnemies.ToList())
         {
             enemy.UpdateBlockingOperator(null);
@@ -481,7 +507,7 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable,
         }
     }
 
-    // ºÎ¸ğ Å¬·¡½º¿¡¼­ Á¤ÀÇµÈ TakeDamage¿¡¼­ »ç¿ëµÊ
+    // ë¶€ëª¨ í´ë˜ìŠ¤ì—ì„œ ì •ì˜ëœ TakeDamageì—ì„œ ì‚¬ìš©ë¨
     protected override void OnDamageTaken(UnitEntity attacker, float actualDamage)
     {
         StatisticsManager.Instance!.UpdateDamageTaken(OperatorData, actualDamage);
@@ -489,41 +515,41 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable,
 
     protected override void Die()
     {
-        // ¹èÄ¡µÇ¾î¾ß Die°¡ °¡´É
+        // ë°°ì¹˜ë˜ì–´ì•¼ Dieê°€ ê°€ëŠ¥
         if (!IsDeployed) return;
 
-        // °ø°İ ¹üÀ§ Å¸ÀÏ ÇØÁ¦
+        // ê³µê²© ë²”ìœ„ íƒ€ì¼ í•´ì œ
         UnregisterTiles();
 
-        // ½ºÅ³ À¯Áö ÁßÀÌ¾ú´Ù¸é ÄÚ·çÆ¾ Ãë¼Ò 
+        // ìŠ¤í‚¬ ìœ ì§€ ì¤‘ì´ì—ˆë‹¤ë©´ ì½”ë£¨í‹´ ì·¨ì†Œ 
         if (_activeSkillCoroutine != null)
         {
             StopCoroutine(_activeSkillCoroutine);
             _activeSkillCoroutine = null;
         }
 
-        // »ç¸Á ÈÄ µ¿ÀÛ ·ÎÁ÷
+        // ì‚¬ë§ í›„ ë™ì‘ ë¡œì§
         UnblockAllEnemies();
 
-        // UI ÆÄ±«
+        // UI íŒŒê´´
         DestroyOperatorUI();
         
-        // ÇÊ¿äÇÑÁö ¸ğ¸£°Ú¾î¼­ ÀÏ´Ü ÁÖ¼®Ã³¸®
+        // í•„ìš”í•œì§€ ëª¨ë¥´ê² ì–´ì„œ ì¼ë‹¨ ì£¼ì„ì²˜ë¦¬
         //OnSPChanged = null;
 
-        // ÀÌÆåÆ® Ç® Á¤¸®
+        // ì´í™íŠ¸ í’€ ì •ë¦¬
         if (OperatorData.hitEffectPrefab != null)
         {
             ObjectPoolManager.Instance!.RemovePool("Effect_" + OperatorData.entityName);
         }
 
-        // ¹èÄ¡µÈ ¿ä¼Ò¿¡¼­ Á¦°Å
+        // ë°°ì¹˜ëœ ìš”ì†Œì—ì„œ ì œê±°
         DeployableInfo.deployedOperator = null;
 
-        // ¿ÀÆÛ·¹ÀÌÅÍ »ç¸Á ÀÌº¥Æ® ¹ß»ı
+        // ì˜¤í¼ë ˆì´í„° ì‚¬ë§ ì´ë²¤íŠ¸ ë°œìƒ
         OnOperatorDied?.Invoke(this);
 
-        // ÀÌº¥Æ® ±¸µ¶ ÇØÁ¦
+        // ì´ë²¤íŠ¸ êµ¬ë… í•´ì œ
         Enemy.OnEnemyDespawned -= HandleEnemyDespawn;
 
         base.Die();
@@ -566,13 +592,13 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable,
         DeployableManager.Instance!.HighlightAttackRanges(tiles, false);
     }
 
-    /// ÇöÀç Å¸°ÙÀÇ À¯È¿¼º °Ë»ç
+    /// í˜„ì¬ íƒ€ê²Ÿì˜ ìœ íš¨ì„± ê²€ì‚¬
     protected virtual void ValidateCurrentTarget()
     {
         if (CurrentTarget == null) return;
         if (blockedEnemies.Contains(CurrentTarget)) return;
 
-        // ¹üÀ§¿¡¼­ ¹ş¾î³­ °æ¿ì
+        // ë²”ìœ„ì—ì„œ ë²—ì–´ë‚œ ê²½ìš°
         if (!IsCurrentTargetInRange())
         {
             CurrentTarget.RemoveAttackingEntity(this);
@@ -580,7 +606,7 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable,
         }
     }
     
-    // TargetÀÌ °ø°İ ¹üÀ§ ³»ÀÇ Å¸ÀÏ¿¡ ÀÖ´ÂÁö Ã¼Å©
+    // Targetì´ ê³µê²© ë²”ìœ„ ë‚´ì˜ íƒ€ì¼ì— ìˆëŠ”ì§€ ì²´í¬
     protected bool IsCurrentTargetInRange()
     {
         foreach (Vector2Int eachPos in CurrentAttackableGridPos)
@@ -610,16 +636,16 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable,
         CreateDirectionIndicator();
         CreateOperatorUI();
 
-        // deployableInfoÀÇ ¹èÄ¡µÈ ¿ÀÆÛ·¹ÀÌÅÍ¸¦ ÀÌ°ÍÀ¸·Î ÁöÁ¤
+        // deployableInfoì˜ ë°°ì¹˜ëœ ì˜¤í¼ë ˆì´í„°ë¥¼ ì´ê²ƒìœ¼ë¡œ ì§€ì •
         DeployableInfo.deployedOperator = this;
 
-        // ÀÌÆåÆ® ¿ÀºêÁ§Æ® Ç® »ı¼º
+        // ì´í™íŠ¸ ì˜¤ë¸Œì íŠ¸ í’€ ìƒì„±
         CreateObjectPool();
 
-        // Àû »ç¸Á ÀÌº¥Æ® ±¸µ¶
+        // ì  ì‚¬ë§ ì´ë²¤íŠ¸ êµ¬ë…
         Enemy.OnEnemyDespawned += HandleEnemyDespawn;
 
-        // ¹èÄ¡ VFX
+        // ë°°ì¹˜ VFX
         if (OperatorData.deployEffectPrefab != null)
         {
             GameObject deployEffect = Instantiate(
@@ -632,7 +658,7 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable,
             if (vfx != null)
             {
                 vfx.Play();
-                Destroy(deployEffect, 1.2f); // 1.2ÃÊ ÈÄ ÆÄ±«, ¾Æ·¡ÀÇ µ¿ÀÛÀ» ¸·Áö ¾Ê´Â´Ù.
+                Destroy(deployEffect, 1.2f); // 1.2ì´ˆ í›„ íŒŒê´´, ì•„ë˜ì˜ ë™ì‘ì„ ë§‰ì§€ ì•ŠëŠ”ë‹¤.
             }
         }
 
@@ -647,23 +673,23 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable,
         CurrentTarget = null; 
     }
 
-    // Å×½ºÆ®) Àû ÆÄ±« ÀÌº¥Æ®¸¦ ¹Ş¾Æ ¿ÀÆÛ·¹ÀÌÅÍ¿¡¼­ÀÇ Ã³¸®¸¦ ÀÛ¾÷ÇÔ
+    // í…ŒìŠ¤íŠ¸) ì  íŒŒê´´ ì´ë²¤íŠ¸ë¥¼ ë°›ì•„ ì˜¤í¼ë ˆì´í„°ì—ì„œì˜ ì²˜ë¦¬ë¥¼ ì‘ì—…í•¨
     private void HandleEnemyDespawn(Enemy enemy, DespawnReason reason)
     {
-        // 1. ÇöÀç Å¸°ÙÀÌ¶ó¸é Å¸°Ù ÇØÁ¦
+        // 1. í˜„ì¬ íƒ€ê²Ÿì´ë¼ë©´ íƒ€ê²Ÿ í•´ì œ
         if (CurrentTarget == enemy)
         {
             CurrentTarget = null;
         }
 
-        // 2. °ø°İ ¹üÀ§ ³»¿¡ ÇØ´ç ´ë»óÀÌ ÀÖ´Ù¸é ¹üÀ§ ³»¿¡¼­ Á¦¿Ü
+        // 2. ê³µê²© ë²”ìœ„ ë‚´ì— í•´ë‹¹ ëŒ€ìƒì´ ìˆë‹¤ë©´ ë²”ìœ„ ë‚´ì—ì„œ ì œì™¸
         if (enemiesInRange.Contains(enemy))
         {
             enemiesInRange.Remove(enemy);
         }
 
-        // 3. ÀúÁö °¡´É ´ë»ó, ÀúÁö ÁßÀÎ ´ë»óÀÏ ¶§ Á¦¿Ü
-        // OnTriggerExitÀº °ãÄ£ »óÅÂ¿¡¼­ÀÇ ÆÄ±«¸¦ °¨ÁöÇÏÁö ¸øÇÏ¹Ç·Î º°µµÀÇ Ã³¸®°¡ ÇÊ¿äÇÔ
+        // 3. ì €ì§€ ê°€ëŠ¥ ëŒ€ìƒ, ì €ì§€ ì¤‘ì¸ ëŒ€ìƒì¼ ë•Œ ì œì™¸
+        // OnTriggerExitì€ ê²¹ì¹œ ìƒíƒœì—ì„œì˜ íŒŒê´´ë¥¼ ê°ì§€í•˜ì§€ ëª»í•˜ë¯€ë¡œ ë³„ë„ì˜ ì²˜ë¦¬ê°€ í•„ìš”í•¨
         if (blockableEnemies.Contains(enemy))
         {
             blockableEnemies.Remove(enemy);
@@ -681,14 +707,14 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable,
         Die();
     }
 
-    // ¼öµ¿ Åğ°¢ ½Ã ÃÖÃÊ ¹èÄ¡ ÄÚ½ºÆ®ÀÇ Àı¹İ È¸º¹
+    // ìˆ˜ë™ í‡´ê° ì‹œ ìµœì´ˆ ë°°ì¹˜ ì½”ìŠ¤íŠ¸ì˜ ì ˆë°˜ íšŒë³µ
     private void RecoverInitialCost()
     {
         int recoverCost = (int)Mathf.Round(currentOperatorStats.DeploymentCost / 2f);
         StageManager.Instance!.RecoverDeploymentCost(recoverCost);
     }
 
-    // ISkill ¸Ş¼­µå
+    // ISkill ë©”ì„œë“œ
     public bool CanUseSkill()
     {
         return IsDeployed && CurrentSP >= MaxSP && !IsSkillOn;
@@ -700,10 +726,10 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable,
         CurrentHealth = Mathf.Floor(MaxHealth);
     }
 
-    // °ø°İ ´ë»ó ¼³Á¤ ·ÎÁ÷
+    // ê³µê²© ëŒ€ìƒ ì„¤ì • ë¡œì§
     public virtual void SetCurrentTarget()
     {
-        // 1. ÀúÁö ÁßÀÏ ¶§ -> ÀúÁö ÁßÀÎ Àû
+        // 1. ì €ì§€ ì¤‘ì¼ ë•Œ -> ì €ì§€ ì¤‘ì¸ ì 
         if (blockedEnemies.Count > 0)
         {
             for (int i = 0; i < blockedEnemies.Count; i++)
@@ -718,13 +744,13 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable,
             return;
         }
 
-        // 2. ÀúÁö ÁßÀÌ ¾Æ´Ò ¶§¿¡´Â °ø°İ ¹üÀ§ ³»ÀÇ Àû Áß¿¡¼­ °ø°İÇÔ
+        // 2. ì €ì§€ ì¤‘ì´ ì•„ë‹ ë•Œì—ëŠ” ê³µê²© ë²”ìœ„ ë‚´ì˜ ì  ì¤‘ì—ì„œ ê³µê²©í•¨
         if (enemiesInRange.Count > 0)
         {
             CurrentTarget = enemiesInRange
-                .Where(e => e != null && e.gameObject != null) // ÆÄ±« °Ë»ç & null °Ë»ç ÇÔ²² ¼öÇà
-                .OrderBy(E => E.GetRemainingPathDistance()) // »ì¾ÆÀÖ´Â °´Ã¼ Áß ³²Àº °Å¸®°¡ ÂªÀº ¼ø¼­·Î Á¤·Ä
-                .FirstOrDefault(); // °¡Àå ÂªÀº °Å¸®ÀÇ °´Ã¼¸¦ °¡Á®¿È
+                .Where(e => e != null && e.gameObject != null) // íŒŒê´´ ê²€ì‚¬ & null ê²€ì‚¬ í•¨ê»˜ ìˆ˜í–‰
+                .OrderBy(E => E.GetRemainingPathDistance()) // ì‚´ì•„ìˆëŠ” ê°ì²´ ì¤‘ ë‚¨ì€ ê±°ë¦¬ê°€ ì§§ì€ ìˆœì„œë¡œ ì •ë ¬
+                .FirstOrDefault(); // ê°€ì¥ ì§§ì€ ê±°ë¦¬ì˜ ê°ì²´ë¥¼ ê°€ì ¸ì˜´
 
             if (CurrentTarget != null)
             {
@@ -733,12 +759,12 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable,
             return;
         }
 
-        // ÀúÁö ÁßÀÎ Àûµµ ¾ø°í, °ø°İ ¹üÀ§ ³»ÀÇ Àûµµ ¾ø´Ù¸é ÇöÀç Å¸°ÙÀº ¾øÀ½
+        // ì €ì§€ ì¤‘ì¸ ì ë„ ì—†ê³ , ê³µê²© ë²”ìœ„ ë‚´ì˜ ì ë„ ì—†ë‹¤ë©´ í˜„ì¬ íƒ€ê²Ÿì€ ì—†ìŒ
         CurrentTarget = null;
     }
 
 
-    // °ø°İ ´ë»ó Á¦°Å ·ÎÁ÷
+    // ê³µê²© ëŒ€ìƒ ì œê±° ë¡œì§
     public void RemoveCurrentTarget()
     {
         if (CurrentTarget != null)
@@ -748,7 +774,7 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable,
         }
     }
 
-    // ICombatEntity ¸Ş¼­µåµé
+    // ICombatEntity ë©”ì„œë“œë“¤
     public void NotifyTarget()
     {
         if (CurrentTarget != null)
@@ -757,7 +783,7 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable,
         }
     }
 
-    // °ø°İ ¸ğ¼Ç 
+    // ê³µê²© ëª¨ì…˜ 
     public void UpdateAttackDuration()
     {
         if (AttackDuration > 0f)
@@ -766,7 +792,7 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable,
         }
     }
 
-    // ´ÙÀ½ °ø°İ °¡´É ½Ã°£
+    // ë‹¤ìŒ ê³µê²© ê°€ëŠ¥ ì‹œê°„
     public void UpdateAttackCooldown()
     {
         if (AttackCooldown > 0f)
@@ -775,7 +801,7 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable,
         }
     }
 
-    // °ø°İ ¸ğ¼Ç
+    // ê³µê²© ëª¨ì…˜
     public void SetAttackDuration(float? intentionalCooldown = null)
     {
         if (intentionalCooldown.HasValue)
@@ -789,7 +815,7 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable,
        
     }
 
-    // ´ÙÀ½ °ø°İ±îÁöÀÇ ´ë±â ½Ã°£
+    // ë‹¤ìŒ ê³µê²©ê¹Œì§€ì˜ ëŒ€ê¸° ì‹œê°„
     public void SetAttackCooldown(float? intentionalCooldown = null)
     {
         if (intentionalCooldown.HasValue)
@@ -814,15 +840,15 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable,
     {
         if (CanUseSkill() && CurrentSkill != null)
         {
-            // ½ºÅ³ È°¼ºÈ­ ·ÎÁ÷Àº CurrentSkill¿¡ À§ÀÓÇÑ´Ù.
-            // Áö¼Ó ½Ã°£ÀÌ ÀÖ´Â ½ºÅ³Àº CurrentSkill¿¡¼­ StartSkillCoroutineÀ» ½ÇÇà½ÃÅ³ °ÍÀÌ´Ù.
+            // ìŠ¤í‚¬ í™œì„±í™” ë¡œì§ì€ CurrentSkillì— ìœ„ì„í•œë‹¤.
+            // ì§€ì† ì‹œê°„ì´ ìˆëŠ” ìŠ¤í‚¬ì€ CurrentSkillì—ì„œ StartSkillCoroutineì„ ì‹¤í–‰ì‹œí‚¬ ê²ƒì´ë‹¤.
             CurrentSkill.Activate(this);
         }
     }
 
     public void StartSkillCoroutine(IEnumerator skillCoroutine)
     {
-        // ±âÁ¸ ÄÚ·çÆ¾ Á¾·á
+        // ê¸°ì¡´ ì½”ë£¨í‹´ ì¢…ë£Œ
         if (_activeSkillCoroutine != null)
         {
             StopCoroutine(_activeSkillCoroutine);
@@ -833,20 +859,20 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable,
 
     public void EndSkillCoroutine()
     {
-        // ÄÚ·çÆ¾ÀÌ Á¤»óÀûÀ¸·Î ³¡³µ´Ù¸é StopCoroutineÀº ½ÇÇàµÉ ÇÊ¿ä ¾øÀ½
+        // ì½”ë£¨í‹´ì´ ì •ìƒì ìœ¼ë¡œ ëë‚¬ë‹¤ë©´ StopCoroutineì€ ì‹¤í–‰ë  í•„ìš” ì—†ìŒ
         _activeSkillCoroutine = null;
     }
 
-    // ¹èÄ¡ À§Ä¡¿Í È¸ÀüÀ» °í·ÁÇÑ °ø°İ ¹üÀ§ÀÇ gridPosÀ» ¼³Á¤ÇÔ
+    // ë°°ì¹˜ ìœ„ì¹˜ì™€ íšŒì „ì„ ê³ ë ¤í•œ ê³µê²© ë²”ìœ„ì˜ gridPosì„ ì„¤ì •í•¨
     protected void UpdateAttackableTiles()
     {
-        // ÃÊ±âÈ­¸¦ baseOffsetÀÇ ±íÀº º¹»ç·Î ÇßÀ½.
+        // ì´ˆê¸°í™”ë¥¼ baseOffsetì˜ ê¹Šì€ ë³µì‚¬ë¡œ í–ˆìŒ.
         rotatedOffsets = new List<Vector2Int>(baseOffsets
             .Select(tile => DirectionSystem.RotateGridOffset(tile, FacingDirection))
             .ToList());
         CurrentAttackableGridPos = new List<Vector2Int>();
 
-        // ÇöÀç ¿ÀÆÛ·¹ÀÌÅÍÀÇ À§Ä¡¸¦ ±â¹İÀ¸·Î ÇÑ °ø°İ ¹üÀ§
+        // í˜„ì¬ ì˜¤í¼ë ˆì´í„°ì˜ ìœ„ì¹˜ë¥¼ ê¸°ë°˜ìœ¼ë¡œ í•œ ê³µê²© ë²”ìœ„
         foreach (Vector2Int offset in rotatedOffsets)
         {
             Vector2Int inRangeGridPosition = operatorGridPos + offset;
@@ -854,33 +880,35 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable,
         }
     }
 
-    // ±¸ÇöÇÒ ¿ÀºêÁ§Æ® Ç®¸µÀÌ ÀÖ´Ù¸é ¿©±â´Ù ³ÖÀ½
+    // êµ¬í˜„í•  ì˜¤ë¸Œì íŠ¸ í’€ë§ì´ ìˆë‹¤ë©´ ì—¬ê¸°ë‹¤ ë„£ìŒ
     private void CreateObjectPool()
     {
-        // ±ÙÁ¢ °ø°İ ÀÌÆåÆ® Ç® »ı¼º
+        string baseTag = OperatorData.entityName;
+
+        // ê·¼ì ‘ ê³µê²© ì´í™íŠ¸ í’€ ìƒì„±
         if (OperatorData.meleeAttackEffectPrefab != null)
         {
-            meleeAttackEffectTag = OperatorData.entityName + OperatorData.meleeAttackEffectPrefab.name;
+            meleeAttackEffectTag = $"{baseTag}_{OperatorData.meleeAttackEffectPrefab.name}";
             ObjectPoolManager.Instance!.CreatePool(
                 meleeAttackEffectTag,
                 OperatorData.meleeAttackEffectPrefab
             );
         }
 
-        // ÇÇ°İ ÀÌÆåÆ® Ç® »ı¼º
+        // í”¼ê²© ì´í™íŠ¸ í’€ ìƒì„±
         if (OperatorData.hitEffectPrefab != null)
         {
-            hitEffectTag = OperatorData.entityName + OperatorData.hitEffectPrefab.name;
+            hitEffectTag = $"{baseTag}_{OperatorData.hitEffectPrefab.name}";
             ObjectPoolManager.Instance!.CreatePool(
                 hitEffectTag,
                 OperatorData.hitEffectPrefab
             );
         }
 
-        // ¿ø°Å¸®ÀÎ °æ¿ì Åõ»çÃ¼ Ç® »ı¼º
+        // ì›ê±°ë¦¬ì¸ ê²½ìš° íˆ¬ì‚¬ì²´ í’€ ìƒì„±
         InitializeProjectilePool();
 
-        // ½ºÅ³ ÀÌÆåÆ® Ç® »ı¼º
+        // ìŠ¤í‚¬ ì´í™íŠ¸ í’€ ìƒì„±
         CurrentSkill.InitializeSkillObjectPool();
     }
 
@@ -892,14 +920,14 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable,
 
     protected virtual void PlayMeleeAttackEffect(Vector3 targetPosition, AttackSource attackSource)
     {
-        // ÀÌÆåÆ® Ã³¸®
+        // ì´í™íŠ¸ ì²˜ë¦¬
         if (OperatorData.meleeAttackEffectPrefab != null && meleeAttackEffectTag != null)
         {
-            // ÀÌÆåÆ®°¡ º¸´Â ¹æÇâÀº combatVFXController¿¡¼­ ¼³Á¤
+            // ì´í™íŠ¸ê°€ ë³´ëŠ” ë°©í–¥ì€ combatVFXControllerì—ì„œ ì„¤ì •
 
             GameObject? effectObj = ObjectPoolManager.Instance!.SpawnFromPool(
                    meleeAttackEffectTag,
-                   transform.position, // ÀÌÆåÆ® »ı¼º À§Ä¡
+                   transform.position, // ì´í™íŠ¸ ìƒì„± ìœ„ì¹˜
                    Quaternion.identity
            );
            
@@ -912,22 +940,6 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable,
                 }
             }
         }
-    }
-
-    private void RemoveObjectPool()
-    {
-        if (meleeAttackEffectTag != null)
-        {
-            ObjectPoolManager.Instance!.RemovePool(meleeAttackEffectTag);
-        }
-
-        if (hitEffectTag != null)
-        {
-            ObjectPoolManager.Instance!.RemovePool(hitEffectTag);
-        }
-
-        RemoveProjectilePool();
-        CurrentSkill.CleanupSkill();
     }
 
     public void InitializeProjectilePool()
@@ -954,25 +966,25 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable,
         return CurrentSkill.modifiesAttackAction && IsSkillOn;
     }
 
-    // Áö¼Ó ½Ã°£ÀÌ ÀÖ´Â ½ºÅ³À» ÄÑ°Å³ª ²ø ¶§ È£ÃâµÊ
+    // ì§€ì† ì‹œê°„ì´ ìˆëŠ” ìŠ¤í‚¬ì„ ì¼œê±°ë‚˜ ëŒ ë•Œ í˜¸ì¶œë¨
     public void SetSkillOnState(bool skillOnState)
     {
         IsSkillOn = skillOnState;
     }
 
-    // ¹æÇâ Ç¥½Ã UI »ı¼º
+    // ë°©í–¥ í‘œì‹œ UI ìƒì„±
     private void CreateDirectionIndicator()
     {
-        // ÀÚ½Ä ¿ÀºêÁ§Æ®·Î µé¾î°¨
+        // ìì‹ ì˜¤ë¸Œì íŠ¸ë¡œ ë“¤ì–´ê°
         DirectionIndicator indicator = Instantiate(StageUIManager.Instance!.directionIndicator, transform).GetComponent<DirectionIndicator>();
         indicator.Initialize(this);
 
-        // ¿ÀÆÛ·¹ÀÌÅÍ°¡ ÆÄ±«µÉ ¶§ ÇÔ²² ÆÄ±«µÇ¹Ç·Î Àü¿ªº¯¼ö·Î ¼³Á¤ÇÏÁö ¾Ê¾Æµµ µÊ
+        // ì˜¤í¼ë ˆì´í„°ê°€ íŒŒê´´ë  ë•Œ í•¨ê»˜ íŒŒê´´ë˜ë¯€ë¡œ ì „ì—­ë³€ìˆ˜ë¡œ ì„¤ì •í•˜ì§€ ì•Šì•„ë„ ë¨
     }
 
     protected override float CalculateActualDamage(AttackType attacktype, float incomingDamage)
     {
-        float actualDamage = 0; // ÇÒ´ç±îÁö ÇÊ¼ö
+        float actualDamage = 0; // í• ë‹¹ê¹Œì§€ í•„ìˆ˜
 
         switch (attacktype)
         {
@@ -987,7 +999,7 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable,
                 break;
         }
 
-        return Mathf.Max(actualDamage, 0.05f * incomingDamage); // µé¾î¿Â ´ë¹ÌÁöÀÇ 5%´Â µé¾î°¡°Ô²û º¸Àå
+        return Mathf.Max(actualDamage, 0.05f * incomingDamage); // ë“¤ì–´ì˜¨ ëŒ€ë¯¸ì§€ì˜ 5%ëŠ” ë“¤ì–´ê°€ê²Œë” ë³´ì¥
     }
 
     public void OnEnemyEnteredAttackRange(Enemy enemy)
@@ -1000,7 +1012,7 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable,
 
     public void OnEnemyExitedAttackRange(Enemy enemy)
     {
-        // ¿©ÀüÈ÷ °ø°İ ¹üÀ§ ³»¿¡ ÇØ´ç ÀûÀÌ ÀÖ´Â°¡¸¦ °Ë»ç
+        // ì—¬ì „íˆ ê³µê²© ë²”ìœ„ ë‚´ì— í•´ë‹¹ ì ì´ ìˆëŠ”ê°€ë¥¼ ê²€ì‚¬
         foreach (var gridPos in CurrentAttackableGridPos)
         {
             Tile? targetTile = MapManager.Instance!.GetTile(gridPos.x, gridPos.y);
@@ -1010,15 +1022,15 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable,
             }
         }
 
-        // °ø°İ ¹üÀ§¿¡¼­ ¿ÏÀüÈ÷ ÀÌÅ»ÇÑ °æ¿ì¿¡ Á¦°Å
+        // ê³µê²© ë²”ìœ„ì—ì„œ ì™„ì „íˆ ì´íƒˆí•œ ê²½ìš°ì— ì œê±°
         enemiesInRange.Remove(enemy);
         if (CurrentTarget == enemy)
         {
-            CurrentTarget = null; // ÇöÀç Å¸°ÙÀÌ ³ª°£ °æ¿ì null·Î ¼³Á¤
+            CurrentTarget = null; // í˜„ì¬ íƒ€ê²Ÿì´ ë‚˜ê°„ ê²½ìš° nullë¡œ ì„¤ì •
         }
     }
 
-    // °ø°İ ¹üÀ§ Å¸ÀÏµé¿¡ ÀÌ ¿ÀÆÛ·¹ÀÌÅÍ¸¦ µî·Ï
+    // ê³µê²© ë²”ìœ„ íƒ€ì¼ë“¤ì— ì´ ì˜¤í¼ë ˆì´í„°ë¥¼ ë“±ë¡
     private void RegisterTiles()
     {
         foreach (Vector2Int eachPos in CurrentAttackableGridPos)
@@ -1031,7 +1043,7 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable,
         }
     }
 
-    // °ø°İ ¹üÀ§ Å¸ÀÏµé¿¡ ÀÌ ¿ÀÆÛ·¹ÀÌÅÍ¸¦ µî·Ï ÇØÁ¦
+    // ê³µê²© ë²”ìœ„ íƒ€ì¼ë“¤ì— ì´ ì˜¤í¼ë ˆì´í„°ë¥¼ ë“±ë¡ í•´ì œ
     private void UnregisterTiles()
     {
         foreach (Vector2Int eachPos in CurrentAttackableGridPos)
@@ -1046,12 +1058,12 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable,
 
     protected void OnDestroy()
     {
-        // Die ¸Ş¼­µå¿¡µµ ¸¸µé¾î³ùÁö¸¸ ¾ÈÀüÇÏ°Ô
+        // Die ë©”ì„œë“œì—ë„ ë§Œë“¤ì–´ë†¨ì§€ë§Œ ì•ˆì „í•˜ê²Œ
         Enemy.OnEnemyDespawned -= HandleEnemyDespawn;
 
         if (_activeSkillCoroutine != null)
         {
-            // ¿ÀºêÁ§Æ® ÆÄ±« ½Ã ½ÇÇà ÁßÀÌ´ø ½ºÅ³ ÄÚ·çÆ¾À» ÁßÁö½ÃÅ²´Ù
+            // ì˜¤ë¸Œì íŠ¸ íŒŒê´´ ì‹œ ì‹¤í–‰ ì¤‘ì´ë˜ ìŠ¤í‚¬ ì½”ë£¨í‹´ì„ ì¤‘ì§€ì‹œí‚¨ë‹¤
             StopCoroutine(_activeSkillCoroutine);
             _activeSkillCoroutine = null;
         }
@@ -1060,12 +1072,7 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable,
         {
             UnregisterTiles();
         }
-
-        if (ObjectPoolManager.Instance != null)
-        {
-            RemoveObjectPool();
-        }
-
+        
         if (operatorUIInstance != null)
         {
             Destroy(operatorUIInstance);

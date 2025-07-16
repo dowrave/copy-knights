@@ -16,6 +16,7 @@ public class Projectile : MonoBehaviour
     private string hitEffectTag = string.Empty;
     private GameObject hitEffectPrefab = default!;
     private bool shouldDestroy = false;
+    private AttackType attackType;
 
     private VisualEffect? vfx;
     private Vector3 vfxBaseDirection = new Vector3(0f, 0f, 0f);
@@ -30,7 +31,8 @@ public class Projectile : MonoBehaviour
         bool showValue, 
         string poolTag,
         GameObject hitEffectPrefab, 
-        string hitEffectTag)
+        string hitEffectTag,
+        AttackType attackType)
     {
         // 공격자(attacker)와 대상(target)은 Initialize 메서드의 인자로 반드시 전달되므로 null일 수 없다고 가정할 수 있습니다.
         // 따라서 null 확인 없이 바로 Faction을 비교할 수 있습니다.
@@ -46,6 +48,7 @@ public class Projectile : MonoBehaviour
         this.value = value;
         this.showValue = showValue;
         this.poolTag = poolTag;
+        this.attackType = attackType;
         lastKnownPosition = target.transform.position;
         shouldDestroy = false;
 
@@ -167,16 +170,16 @@ public class Projectile : MonoBehaviour
     private void OnReachTarget()
     {
         // 타겟이 살아있는 경우
-        if (target != null && attacker != null && )
+        if (target != null && attacker != null)
         {
 
             AttackSource attackSource = new AttackSource(
                 attacker: attacker,
                 position: transform.position,
                 damage: value,
-                type: attacker.AttackType,
-                isProjectile: false,
-                hitEffectPrefab: BaseData.HitEffectPrefab,
+                type: attackType,
+                isProjectile: true,
+                hitEffectPrefab: hitEffectPrefab,
                 hitEffectTag: hitEffectTag
             );
 
@@ -184,7 +187,7 @@ public class Projectile : MonoBehaviour
             if (isHealing)
             {
                 // 힐 이펙트도 피격 이펙트로 포함하겠음
-                target.TakeHeal(attacker, attackSource, value);
+                target.TakeHeal(attackSource);
             }
 
             // 범위 공격 상황

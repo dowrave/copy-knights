@@ -65,6 +65,7 @@
     <Analyzer Include="E:\Unity\6000.0.41f1\Editor\Data\Tools\Unity.SourceGenerators\Unity.UIToolkit.SourceGenerator.dll" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Assets\Scripts\Utils\StageLoader.cs" />
     <Compile Include="Assets\Scripts\Skills\OperatorSkills\SixBulletSkill.cs" />
     <Compile Include="Assets\Scripts\Core\Systems\ExpCalculationSystem.cs" />
     <Compile Include="Assets\Scripts\UI\Components\DeployableBox.cs" />
@@ -76,20 +77,20 @@
     <Compile Include="Assets\Scripts\Interfaces\IDeployable.cs" />
     <Compile Include="Assets\Scripts\Skills\SkillController\FieldEffectController.cs" />
     <Compile Include="Assets\Scripts\Data\OperatorIconData.cs" />
+    <Compile Include="Assets\Scripts\Utils\OperatorIconHelper.cs" />
     <Compile Include="Assets\Scripts\UI\Components\GaugeBar\HealthBar.cs" />
-    <Compile Include="Assets\Utils\OperatorIconHelper.cs" />
     <Compile Include="Assets\Scripts\UI\Components\DiamondOutline.cs" />
     <Compile Include="Assets\Scripts\Core\Managers\MainmenuScene\PopupManager.cs" />
     <Compile Include="Assets\Scripts\Entities\Base\DeployableUnitEntity.cs" />
+    <Compile Include="Assets\Scripts\Utils\ClickDetectionSystem.cs" />
     <Compile Include="Assets\Scripts\Skills\OperatorSkills\StatModifierSkill.cs" />
     <Compile Include="Assets\Scripts\Interfaces\IMovable.cs" />
-    <Compile Include="Assets\Utils\InstanceValidator.cs" />
     <Compile Include="Assets\Scripts\Core\Managers\GameManagement\GameManagement.cs" />
     <Compile Include="Assets\Scripts\Skills\SkillController\MeteorController.cs" />
     <Compile Include="Assets\Scripts\UI\Components\DeployableActionUI.cs" />
+    <Compile Include="Assets\Scripts\Core\Systems\Buff\SmashBuff.cs" />
     <Compile Include="Assets\Scripts\Core\Managers\MainmenuScene\NotificationToastManager.cs" />
     <Compile Include="Assets\Scripts\CC\CrowdControl.cs" />
-    <Compile Include="Assets\Utils\ClickDetectionSystem.cs" />
     <Compile Include="Assets\Scripts\Interfaces\ISkill.cs" />
     <Compile Include="Assets\Scripts\Core\Managers\GameManagement\TimeManager.cs" />
     <Compile Include="Assets\Scripts\Data\CCEffectDatabase.cs" />
@@ -136,13 +137,15 @@
     <Compile Include="Assets\Scripts\Skills\Base(Abstract)\AmmoBasedActiveSkill.cs" />
     <Compile Include="Assets\Scripts\Entities\Enemy\Enemy.cs" />
     <Compile Include="Assets\Scripts\UI\Components\OperatorUI.cs" />
+    <Compile Include="Assets\Scripts\Utils\InstanceValidator.cs" />
     <Compile Include="Assets\Scripts\Data\TutorialData.cs" />
+    <Compile Include="Assets\Scripts\Core\Systems\Buff\StatModifierBuff.cs" />
     <Compile Include="Assets\Scripts\UI\Panels\StageLoadingScreen.cs" />
     <Compile Include="Assets\Scripts\Skills\OperatorSkills\AreaHasteHealSkill.cs" />
-    <Compile Include="Assets\Utils\StageLoader.cs" />
     <Compile Include="Assets\Scripts\UI\Panels\OperatorPromotionPanel.cs" />
     <Compile Include="Assets\Scripts\Skills\VFXController\SkillRangeVFXController.cs" />
     <Compile Include="Assets\Scripts\UI\Components\NotificationToast.cs" />
+    <Compile Include="Assets\Scripts\Core\Systems\Buff\StunOnHitBuff.cs" />
     <Compile Include="Assets\Scripts\Skills\VFXController\CombatVFXController.cs" />
     <Compile Include="Assets\Scripts\UI\Panels\OperatorLevelUpPanel.cs" />
     <Compile Include="Assets\Scripts\UI\Components\MainmenuItemInfoPopup.cs" />
@@ -156,8 +159,10 @@
     <Compile Include="Assets\Scripts\Map\EnemySpawnerConfig.cs" />
     <Compile Include="Assets\Scripts\Core\Managers\StageScene\SpawnerManager.cs" />
     <Compile Include="Assets\Scripts\Entities\Operators\Operator.cs" />
+    <Compile Include="Assets\Scripts\Core\Systems\Buff\Buff.cs" />
     <Compile Include="Assets\Scripts\UI\Components\StatisticItem.cs" />
     <Compile Include="Assets\Scripts\UI\Components\OperatorSlot.cs" />
+    <Compile Include="Assets\Scripts\Utils\UIHelper.cs" />
     <Compile Include="Assets\Scripts\Skills\OperatorSkills\SlashSkill.cs" />
     <Compile Include="Assets\Scripts\UI\Panels\SquadEditPanel.cs" />
     <Compile Include="Assets\Scripts\Entities\ColliderController\BodyColliderController.cs" />
@@ -171,6 +176,7 @@
     <Compile Include="Assets\Scripts\UI\Panels\TutorialPanel.cs" />
     <Compile Include="Assets\Scripts\Core\Managers\GameManagement\PlayerDataManager.cs" />
     <Compile Include="Assets\Scripts\Core\Systems\Class\AttackSource.cs" />
+    <Compile Include="Assets\Scripts\Skills\OperatorSkills\StatModifierWithOnHitSkill.cs" />
     <Compile Include="Assets\Scripts\Entities\Barricade.cs" />
     <Compile Include="Assets\Scripts\Map\Map.cs" />
     <Compile Include="Assets\Scripts\Skills\SkillController\ArcaneFieldController.cs" />
@@ -189,7 +195,6 @@
     <Compile Include="Assets\Scripts\Core\Managers\StageScene\StatisticsManager.cs" />
     <Compile Include="Assets\Scripts\UI\Components\FloatingText.cs" />
     <Compile Include="Assets\Scripts\Data\EnemyData.cs" />
-    <Compile Include="Assets\Utils\UIHelper.cs" />
     <Compile Include="Assets\Scripts\UI\Components\MaskedDiamondOverlay.cs" />
     <Compile Include="Assets\Scripts\Data\DeployableUnitData.cs" />
     <Compile Include="Assets\Scripts\Interfaces\IRotatable.cs" />

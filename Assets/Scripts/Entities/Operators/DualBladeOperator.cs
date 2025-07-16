@@ -35,7 +35,16 @@ public class DualBladeOperator : Operator
         else
         {
             // 타겟이 죽었으면 헛스윙 - SP 회복 등의 동작은 이뤄지지 않음
-            ICombatEntity.AttackSource missAttackSource = new ICombatEntity.AttackSource(transform.position, false, null, null);
+            AttackSource missAttackSource = new AttackSource(
+                attacker: this,
+                position: transform.position,
+                damage: 0f,
+                type: AttackType,
+                isProjectile: false,
+                hitEffectPrefab: null,
+                hitEffectTag: null
+            );
+            
             base.PlayMeleeAttackEffect(targetPosition, missAttackSource);
         }
     }

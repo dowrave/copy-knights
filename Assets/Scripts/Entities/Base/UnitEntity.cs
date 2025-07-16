@@ -1,14 +1,11 @@
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
-using UnityEngine.Assertions;
-using static ICombatEntity;
-using System.Collections;
 using DG.Tweening;
 using System;
 
 // Operator, Enemy, Barricade 등의 타일 위의 유닛들과 관련된 엔티티
-public abstract class UnitEntity : MonoBehaviour, ITargettable, IFactionMember
+public abstract class UnitEntity : MonoBehaviour, ITargettable, IFactionMember, ICrowdControlTarget
 {
     public Faction Faction { get; protected set; }
 
@@ -35,13 +32,18 @@ public abstract class UnitEntity : MonoBehaviour, ITargettable, IFactionMember
     // 이 개체를 공격하는 엔티티 목록 : 이 개체에 변화가 생겼을 때 알리기 위해 필요함(사망, 은신 등등)
     protected List<ICombatEntity> attackingEntities = new List<ICombatEntity>();
 
-    // 박스 콜라이더
-    // [SerializeField] protected BoxCollider _mainCollider = default!;
-
     // 콜라이더는 자식으로 분리
     // 부모 오브젝트에서 콜라이더를 관리할 경우, 여러 개의 콜라이더 처리 시에 문제가 생긴다
     // 콜라이더는 용도에 따라 자식 오브젝트로 따로 둬야 한다.
     [SerializeField] protected BodyColliderController bodyColliderController;
+
+    // 버프 관련
+    protected List<Buff> activeBuffs = new List<Buff>();
+
+    // ICrowdControlTarget 인터페이스 구현
+    // public virtual 
+    public virtual float MovementSpeed { get; }
+    public virtual void SetMovementSpeed(float newMovementSpeed) {}
 
     // 이벤트
     public event Action<float, float, float> OnHealthChanged = delegate { };
@@ -68,6 +70,14 @@ public abstract class UnitEntity : MonoBehaviour, ITargettable, IFactionMember
         if (!attackingEntities.Contains(attacker))
         {
             attackingEntities.Add(attacker);
+        }
+    }
+
+    protected virtual void Update()
+    {
+        foreach (var buff in activeBuffs.ToArray())
+        {
+            buff.OnUpdate();
         }
     }
 
@@ -140,13 +150,13 @@ public abstract class UnitEntity : MonoBehaviour, ITargettable, IFactionMember
 
     protected abstract void InitializeHP();
 
-    public virtual void TakeHeal(UnitEntity healer, AttackSource attackSource, float healAmount)
+    public virtual void TakeHeal(AttackSource attackSource)
     {
         float oldHealth = CurrentHealth;
-        CurrentHealth += healAmount;
+        CurrentHealth += attackSource.Damage;
         float actualHealAmount = Mathf.FloorToInt(CurrentHealth - oldHealth); // 실제 힐량
 
-        if (healer is MedicOperator medic && medic.OperatorData.hitEffectPrefab != null)
+        if (attackSource.Attacker is MedicOperator medic && medic.OperatorData.hitEffectPrefab != null)
         {
             PlayGetHitEffect(attackSource);
         }
@@ -154,7 +164,7 @@ public abstract class UnitEntity : MonoBehaviour, ITargettable, IFactionMember
         ObjectPoolManager.Instance!.ShowFloatingText(transform.position, actualHealAmount, true);
 
 
-        if (healer is Operator healerOperator)
+        if (attackSource.Attacker is Operator healerOperator)
         {
             StatisticsManager.Instance!.UpdateHealingDone(healerOperator.OperatorData, actualHealAmount);
         }
@@ -266,6 +276,24 @@ public abstract class UnitEntity : MonoBehaviour, ITargettable, IFactionMember
         MaxHealth = Mathf.Floor(newMaxHealth);
     }
 
+    public void AddBuff(Buff buff)
+    {
+        activeBuffs.Add(buff);
+        buff.OnApply(this, buff.caster);
+    }
+
+    public void RemoveBuff(Buff buff)
+    {
+        buff.OnRemove();
+        activeBuffs.Remove(buff);
+    }
+
+    // 버프 중복 적용 방지를 위한 버프 타입 헬퍼 메서드 추가
+    public bool HasBuff<T>() where T : Buff
+    {
+        return activeBuffs.Any(b => b is T);
+    }
+
 
     public virtual void TakeDamage(AttackSource source, bool playGetHitEffect = true)
     {
@@ -295,34 +323,6 @@ public abstract class UnitEntity : MonoBehaviour, ITargettable, IFactionMember
         {
             Die();
         }
-
-
-        // if (attacker is ICombatEntity iCombatEntity && CurrentHealth > 0)
-        // {
-        //     // 방어 / 마법 저항력이 고려된 실제 들어오는 대미지
-        //     actualDamage = Mathf.Floor(CalculateActualDamage(iCombatEntity.AttackType, damage));
-
-        //     // 쉴드를 깎고 남은 대미지
-        //     float remainingDamage = shieldSystem.AbsorbDamage(actualDamage);
-
-        //     // 체력 계산
-        //     CurrentHealth = Mathf.Max(0, CurrentHealth - remainingDamage);
-
-        //     OnHealthChanged?.Invoke(CurrentHealth, MaxHealth, shieldSystem.CurrentShield);
-
-        //     // 피격 이펙트 재생
-        //     if (playGetHitEffect)
-        //     {
-        //         PlayGetHitEffect(attackSource);
-        //     }
-        // }
-
-        // OnDamageTaken(attacker, actualDamage);
-
-        // if (CurrentHealth <= 0)
-        // {
-        //     Die(); // 오버라이드 메서드
-        // }
     }
 
     protected virtual void OnDamageTaken(UnitEntity attacker, float actualDamage) { } // 피격 시에 추가로 실행할 게 있을 때 사용할 메서드 
@@ -342,5 +342,35 @@ public abstract class UnitEntity : MonoBehaviour, ITargettable, IFactionMember
     public void DeactivateShield() => shieldSystem.DeactivateShield();
     public float GetCurrentShield() => shieldSystem.CurrentShield;
 
+    // 자식 클래스에서 구현할 값들 
+    // 일일이 형변환시키지 않기 위해서 UnitEntity에서 구현해둠
+    public virtual float AttackPower
+    {
+        get => throw new NotImplementedException();
+        set => throw new NotImplementedException();
+    }
 
+    public virtual float AttackSpeed // 공격 쿨다운
+    {
+        get => throw new NotImplementedException();
+        set => throw new NotImplementedException();
+    }
+
+    public virtual float Defense
+    {
+        get => throw new NotImplementedException();
+        set => throw new NotImplementedException();
+    }
+
+    public virtual float MagicResistance
+    {
+        get => throw new NotImplementedException();
+        set => throw new NotImplementedException();
+    }
+
+    public virtual AttackType AttackType
+    {
+        get => throw new NotImplementedException();
+        set => throw new NotImplementedException();
+    }
 }

@@ -34,7 +34,10 @@ namespace Skills.Base
         public virtual void PerformChangedAttackAction(Operator op) { }
 
         // op.Attack()을 사용하고, 공격이 적용되기 전 효과 반영
-        public virtual void OnBeforeAttack(Operator op, ref float damage, ref bool showDamagePopup){ } 
+        public virtual void OnBeforeAttack(Operator op, ref float damage, ref AttackType finalAttackType, ref bool showDamagePopup){ }
+
+        // 스킬이 프레임 상태를 확인하도록 하는 훅 추가
+        public virtual void OnUpdate(Operator op) { }
         
         // op.Attack()을 사용하고, 공격이 적용된 후 효과 반영
         public virtual void OnAfterAttack(Operator op) { } 

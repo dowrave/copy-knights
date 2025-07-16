@@ -140,6 +140,7 @@ public class StageManager : MonoBehaviour
         DOTween.SetTweensCapacity(500, 50); // 동시에 실행될 애니메이션의 수 / 여러 애니메이션이 순차적으로 실행되는 수
 
         Enemy.OnEnemyDespawned += HandleEnemyDespawned;
+        OnGameEnded += ClearStageObjectPools;
     }
 
     private void Start()
@@ -431,9 +432,12 @@ public class StageManager : MonoBehaviour
     // 유저가 스테이지에서 빠져나가는 버튼을 눌렀을 때 동작
     public void RequestExit()
     {
-        SetGameState(GameState.GameOver);
-        StopAllCoroutines();
-        StartCoroutine(StageUIManager.Instance!.ShowResultAfterDelay(0));
+        // 게임이 끝난 상태의 중복 호출 방지
+        if (currentState == GameState.GameWin || currentState == GameState.GameOver) return;
+
+        // GameOver로 통합
+        GameOver();
+
     }
 
     public void ReturnToMainMenu(bool isPerfectClear = false)
@@ -544,11 +548,20 @@ public class StageManager : MonoBehaviour
     }
 
 
+    // 스테이지 종료 시에 모든 오브젝트 풀을 파괴합니다.
+    private void ClearStageObjectPools()
+    {
+        if (ObjectPoolManager.Instance != null)
+        {
+            ObjectPoolManager.Instance.ClearAllPools();
+        }
+    }
 
     private void OnDestroy()
     {
         stageLoadingScreen!.OnHideComplete -= StartStageCoroutine;
         Enemy.OnEnemyDespawned -= HandleEnemyDespawned;
+        OnGameEnded -= ClearStageObjectPools;
     }
 
 }

@@ -32,13 +32,8 @@ public class InGameTopButtonContainer : MonoBehaviour
 
     public void Initialize()
     {
-        currentSpeedButton.onClick.RemoveAllListeners(); // 기존 리스너 제거
-        pauseButton.onClick.RemoveAllListeners(); // 기존 리스너 제거
-        returnToLobbyButton.onClick.RemoveAllListeners();
-
-        currentSpeedButton.onClick.AddListener(StageManager.Instance!.ToggleSpeedUp);
-        pauseButton.onClick.AddListener(StageManager.Instance!.TogglePause);
-        returnToLobbyButton.onClick.AddListener(OnReturnToLobbyButtonClicked);
+        RemoveListeners();
+        AddListeners();
 
         StageManager.Instance!.OnPreparationCompleted += ActivateButtons;
     }
@@ -48,6 +43,20 @@ public class InGameTopButtonContainer : MonoBehaviour
         returnToLobbyButton.interactable = true;
         currentSpeedButton.interactable = true;
         pauseButton.interactable = true;
+    }
+
+    private void AddListeners()
+    {
+        currentSpeedButton.onClick.AddListener(StageManager.Instance!.ToggleSpeedUp);
+        pauseButton.onClick.AddListener(StageManager.Instance!.TogglePause);
+        returnToLobbyButton.onClick.AddListener(OnReturnToLobbyButtonClicked);
+    }
+
+    private void RemoveListeners()
+    {
+        currentSpeedButton.onClick.RemoveAllListeners(); // 기존 리스너 제거
+        pauseButton.onClick.RemoveAllListeners(); // 기존 리스너 제거
+        returnToLobbyButton.onClick.RemoveAllListeners();
     }
 
 
@@ -66,6 +75,8 @@ public class InGameTopButtonContainer : MonoBehaviour
 
     private void OnReturnToLobbyButtonClicked()
     {
+        Debug.Log("로비로 돌아가기 버튼이 클릭됨");
+
         // Pause패널이 나타났을 때에도 클릭될 수 있음
         if (StageManager.Instance!.currentState == GameState.Battle)
         {
@@ -78,5 +89,10 @@ public class InGameTopButtonContainer : MonoBehaviour
     private void OnDisable()
     {
         StageManager.Instance!.OnPreparationCompleted -= ActivateButtons;
+    }
+
+    private void OnDestroy()
+    {
+        RemoveListeners(); 
     }
 }

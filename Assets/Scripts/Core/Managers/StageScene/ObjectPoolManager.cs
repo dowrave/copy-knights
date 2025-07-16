@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 
@@ -10,7 +11,7 @@ public class ObjectPoolManager : MonoBehaviour
 {
     public static ObjectPoolManager? Instance;
 
-    [System.Serializable] 
+    [System.Serializable]
     public class Pool
     {
         public string? tag;
@@ -30,8 +31,8 @@ public class ObjectPoolManager : MonoBehaviour
         }
     }
 
-    private Dictionary<string, Pool> poolInfos = new Dictionary<string, Pool>();
-    public Dictionary<string, Queue<GameObject>> poolDictionary = new Dictionary<string, Queue<GameObject>>();
+    private Dictionary<string, Pool> poolInfos = new Dictionary<string, Pool>(); // 각 풀의 정보(설정, 메타데이터)
+    public Dictionary<string, Queue<GameObject>> poolDictionary = new Dictionary<string, Queue<GameObject>>(); // 실제 풀의 개별 오브젝트 인스턴스 관리
     private Dictionary<string, HashSet<GameObject>> activeObjects = new Dictionary<string, HashSet<GameObject>>(); // 현재 활성화된 오브젝트들 추적
 
     [Header("텍스트 관련")]
@@ -54,12 +55,14 @@ public class ObjectPoolManager : MonoBehaviour
 
 
     // 지정된 태그, 프리팹, 크기로 새로운 오브젝트 풀을 생성합니다.
-    public void CreatePool(string tag, GameObject prefab, int size = 5)
+    public void CreatePool(string tag, GameObject prefab, int size = 3)
     {
-        Queue<GameObject> objectPool = new Queue<GameObject>();
+        // 이미 풀이 존재한다면 생성하지 않음
+        if (IsPoolExist(tag)) return;
 
+        Queue<GameObject> objectPool = new Queue<GameObject>();
         poolInfos[tag] = new Pool { tag = tag, prefab = prefab, size = size };
-        
+
         for (int i = 0; i < size; i++)
         {
             GameObject obj = Instantiate(prefab);
@@ -70,11 +73,18 @@ public class ObjectPoolManager : MonoBehaviour
         poolDictionary[tag] = objectPool;
     }
 
+    // 지정된 태그의 풀이 있는지 확인
+    public bool IsPoolExist(string tag)
+    {
+        // poolDicitonary와 poolInfo가 함께 동기화되므로 하나의 조건만 체크함
+        return poolDictionary.ContainsKey(tag);
+    }
+
 
     // 지정된 태그의 풀에서 오브젝트를 가져와 활성화하고 위치와 회전을 설정합니다.
     public GameObject? SpawnFromPool(string tag, Vector3 position, Quaternion rotation)
     {
-        if (!poolDictionary.ContainsKey(tag) || !poolInfos.ContainsKey(tag)) return null;
+        if (!IsPoolExist(tag)) return null;
 
         if (!activeObjects.ContainsKey(tag))
         {
@@ -87,16 +97,18 @@ public class ObjectPoolManager : MonoBehaviour
         // (if) 풀을 모두 사용했다면 새로 생성 / (else) 풀의 내용 사용
         if (objectPool.Count == 0)
         {
-            Pool? poolInfo = poolInfos[tag];
 
+            Pool? poolInfo = poolInfos[tag];
             if (poolInfo == null || poolInfo.prefab == null)
             {
                 Debug.LogError($"poolInfo.prefab이 null임!!");
                 return null;
             }
-            
+
+            // 반응형 확장 로직으로 수정
             obj = Instantiate(poolInfo.prefab);
-            
+            poolInfo.size++; // 풀의 개념적 크기를 1 늘린다.
+            Debug.Log($"{tag}의 풀 크기 1 증가");
         }
         else
         {
@@ -150,6 +162,19 @@ public class ObjectPoolManager : MonoBehaviour
     {
         if (poolDictionary.TryGetValue(tag, out Queue<GameObject> objectPool))
         {
+            // 활성화된 오브젝트 파괴
+            if (activeObjects.TryGetValue(tag, out HashSet<GameObject> currentlyActive))
+            {
+                // 복사본을 만들어서 순회해야 안전하다
+                foreach (var activeObj in currentlyActive.ToArray())
+                {
+                    Destroy(activeObj);
+                }
+                activeObjects.Remove(tag);
+            }
+
+
+            // 큐의 비활성화 오브젝트 파괴
             while (objectPool.Count > 0)
             {
                 GameObject obj = objectPool.Dequeue();
@@ -173,6 +198,18 @@ public class ObjectPoolManager : MonoBehaviour
                 floatingText.SetValue(value, isHealing);
             }
         }
+    }
+
+    // 모든 풀을 정리하는 메서드. 스테이지 종료 시에 호출된다.
+    public void ClearAllPools()
+    {
+        foreach (var tag in poolDictionary.Keys.ToArray())
+        {
+            RemovePool(tag);
+        }
+
+        // 텍스트 풀은 게임 내내 유지할 수 있으므로 필요에 따라 예외 처리
+
     }
 }
 
