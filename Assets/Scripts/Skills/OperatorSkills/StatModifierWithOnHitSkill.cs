@@ -23,7 +23,7 @@ namespace Skills.OperatorSkills
             // 스턴 효과 추가
             if (stunChance > 0)
             {
-                stunBuffInstance = new StunOnHitBuff(stunChance, stunDuration);
+                stunBuffInstance = new StunOnHitBuff(duration, stunChance, stunDuration);
                 op.AddBuff(stunBuffInstance); // 버프를 추가하면 Buff.OnAfterAttack에 의해 기절 효과가 묻어나감
             }
         }

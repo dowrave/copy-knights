@@ -73,9 +73,9 @@ public class MeteorController : MonoBehaviour
         if (target != null && caster != null)
         {
             // 기절 효과 적용
-            StunEffect stunEffect = new StunEffect();
-            stunEffect.Initialize(target, caster, stunDuration);
-            target.AddCrowdControl(stunEffect);
+            StunBuff stunBuff = new StunBuff(stunDuration);
+            target.AddBuff(stunBuff);
+            stunBuff.OnApply(target, caster);
 
             // 대미지 적용
             AttackSource attackSource = new AttackSource(

@@ -2,11 +2,11 @@
 using UnityEngine;
 
 // CC 효과를 위한 매니저 클래스
-public class CCEffectManager : MonoBehaviour
+public class BuffEffectManager : MonoBehaviour
 {
-    public static CCEffectManager? Instance { get; private set; }
+    public static BuffEffectManager? Instance { get; private set; }
 
-    [SerializeField] private CCEffectDatabase? effectDatabase;
+    [SerializeField] private BuffEffectDatabase? effectDatabase;
 
     private void Awake()
     {
@@ -24,11 +24,12 @@ public class CCEffectManager : MonoBehaviour
         }
     }
 
-    public GameObject? CreateCCVFXObject(CrowdControl cc, Transform target)
+    public GameObject? CreateBuffVFXObject(Buff buff, Transform target)
     {
         if (effectDatabase == null) return null;
 
-        GameObject? prefab = effectDatabase.GetEffectPrefab(cc.GetType());
+        GameObject? prefab = effectDatabase.GetEffectPrefab(buff.GetType());
+        Debug.Log($"CreateBuffVFXObject - 타입 발견 : {buff.GetType()}, 프리팹 : {prefab}");
         if (prefab != null)
         {
             GameObject effectObj = Instantiate(prefab, target.position, Quaternion.identity, target);

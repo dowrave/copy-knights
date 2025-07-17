@@ -10,7 +10,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: dd75ae2c82a93b249a8e5571199facdd, type: 3}
-  m_Name: AttackBuff(Medic)
+  m_Name: AttackUpSkill(Medic)
   m_EditorClassIdentifier: 
   skillName: HealUp
   description: "<color=#179bff>10\uCD08</color> \uB3D9\uC548 \uACF5\uACA9\uB825\uC774

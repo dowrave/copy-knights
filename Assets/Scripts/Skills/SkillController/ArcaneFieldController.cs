@@ -33,7 +33,7 @@ public class ArcaneFieldController : FieldEffectController
             {
                 foreach (var effect in affectedTargets[target])
                 {
-                    target.RemoveCrowdControl(effect);
+                    target.RemoveBuff(effect);
                 }
                 affectedTargets.Remove(target);
             }
@@ -61,14 +61,13 @@ public class ArcaneFieldController : FieldEffectController
     {
         if (target is Enemy enemy)
         {
-            var slowEffect = new SlowEffect();
+            var slowBuff = new SlowBuff(fieldDuration, slowAmount);
             if (caster != null)
             {
-                slowEffect.Initialize(enemy, caster, fieldDuration - elapsedTime, slowAmount);
-                enemy.AddCrowdControl(slowEffect);
+                enemy.AddBuff(slowBuff);
             }
 
-            affectedTargets[enemy] = new List<CrowdControl> { slowEffect };
+            affectedTargets[enemy] = new List<Buff> { slowBuff };
         }
     }
 

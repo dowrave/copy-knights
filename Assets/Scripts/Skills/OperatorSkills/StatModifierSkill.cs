@@ -38,7 +38,7 @@ namespace Skills.OperatorSkills
         protected override void PlaySkillEffect(Operator op)
         {
             // 스탯 강화 버프 생성 및 적용
-            statBuffInstance = new StatModificationBuff(modifiers);
+            statBuffInstance = new StatModificationBuff(duration, modifiers);
             op.AddBuff(statBuffInstance);
         }
 

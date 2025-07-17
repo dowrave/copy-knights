@@ -26,9 +26,6 @@ public abstract class UnitEntity : MonoBehaviour, ITargettable, IFactionMember, 
 
     public float MaxHealth { get; protected set; }
 
-    // 인터페이스가 있는 경우에만 쓸 듯
-    protected List<CrowdControl> activeCC = new List<CrowdControl>();
-
     // 이 개체를 공격하는 엔티티 목록 : 이 개체에 변화가 생겼을 때 알리기 위해 필요함(사망, 은신 등등)
     protected List<ICombatEntity> attackingEntities = new List<ICombatEntity>();
 
@@ -40,6 +37,8 @@ public abstract class UnitEntity : MonoBehaviour, ITargettable, IFactionMember, 
     // 버프 관련
     protected List<Buff> activeBuffs = new List<Buff>();
 
+    public ActionRestriction Restrictions { get; private set; } = ActionRestriction.None;
+
     // ICrowdControlTarget 인터페이스 구현
     // public virtual 
     public virtual float MovementSpeed { get; }
@@ -47,8 +46,7 @@ public abstract class UnitEntity : MonoBehaviour, ITargettable, IFactionMember, 
 
     // 이벤트
     public event Action<float, float, float> OnHealthChanged = delegate { };
-    public event Action<CrowdControl, bool> OnCrowdControlChanged = delegate { };
-    // public event Action<UnitEntity> OnDestroyed = delegate { };
+    public event Action<Buff, bool> OnBuffChanged = delegate { }; // onCrowdControlChanged 대체 
     public event Action<UnitEntity> OnDeathAnimationCompleted = delegate { };
 
     protected virtual void Awake()
@@ -112,7 +110,6 @@ public abstract class UnitEntity : MonoBehaviour, ITargettable, IFactionMember, 
                 OnDeathAnimationCompleted?.Invoke(this); // 사망할 것임을 알리는 이벤트
                 // OnDestroyed?.Invoke(this); // 위의 이벤트로 통합
                 Destroy(materialInstance); // 메모리 누수 방지
-                RemoveAllCrowdControls();
                 Destroy(gameObject);
             });
         }
@@ -121,7 +118,6 @@ public abstract class UnitEntity : MonoBehaviour, ITargettable, IFactionMember, 
             // 렌더러가 없어도 콜백과 파괴는 실행된다.
             OnDeathAnimationCompleted?.Invoke(this);
             // OnDestroyed?.Invoke(this);
-            RemoveAllCrowdControls();
             Destroy(gameObject);
         }
     }
@@ -218,54 +214,6 @@ public abstract class UnitEntity : MonoBehaviour, ITargettable, IFactionMember, 
         }
     }
 
-    public virtual void AddCrowdControl(CrowdControl newCC)
-    {
-        // 같은 타입의 CC 확인
-        CrowdControl existingCC = activeCC.FirstOrDefault(cc => cc.GetType() == newCC.GetType());
-        if (existingCC != null)
-        {
-            RemoveCrowdControl(existingCC);
-        }
-
-        activeCC.Add(newCC);
-
-        // CC 추가 이벤트 -> UI 업데이트 등에 사용
-        OnCrowdControlChanged?.Invoke(newCC, true);
-    }
-
-    public virtual void RemoveCrowdControl(CrowdControl cc)
-    {
-        if (activeCC.Remove(cc))
-        {
-            cc.ForceRemove();
-            OnCrowdControlChanged?.Invoke(cc, false);
-        }
-    }
-
-    // CC 효과 갱신
-    protected virtual void UpdateCrowdControls()
-    {
-        for (int i = activeCC.Count - 1; i >= 0; i--)
-        {
-            var cc = activeCC[i];
-            cc.Update();
-
-            if (cc.IsExpired)
-            {
-                OnCrowdControlChanged?.Invoke(cc, false);
-                activeCC.RemoveAt(i);
-            }
-        }
-    }
-
-    protected virtual void RemoveAllCrowdControls()
-    {
-        foreach (var cc in activeCC.ToList())
-        {
-            RemoveCrowdControl(cc);
-        }
-    }
-
     // 스킬 등으로 인한 현재 체력 변경 시 이 메서드를 사용
     public void ChangeCurrentHealth(float newCurrentHealth)
     {
@@ -278,20 +226,45 @@ public abstract class UnitEntity : MonoBehaviour, ITargettable, IFactionMember, 
 
     public void AddBuff(Buff buff)
     {
+        Debug.Log($"{buff.buffName}이 {gameObject.name}에 추가됨");
+        
+        // 스턴의 경우 새로 걸리면 기존 스턴은 제거됨
+        if (buff is StunBuff stunBuff)
+        {
+            Debug.Log($"stunBuff가 {gameObject.name}에 추가됨");
+            Buff existingStun = activeBuffs.FirstOrDefault(b => b is StunBuff);
+            if (existingStun != null)
+            {
+                RemoveBuff(existingStun);
+            }
+        }
+
         activeBuffs.Add(buff);
         buff.OnApply(this, buff.caster);
+        OnBuffChanged?.Invoke(buff, true); // 이벤트 호출 
     }
 
     public void RemoveBuff(Buff buff)
     {
-        buff.OnRemove();
-        activeBuffs.Remove(buff);
+        if (activeBuffs.Remove(buff))
+        {
+            buff.OnRemove();
+            OnBuffChanged?.Invoke(buff, false);
+        }
     }
 
     // 버프 중복 적용 방지를 위한 버프 타입 헬퍼 메서드 추가
     public bool HasBuff<T>() where T : Buff
     {
         return activeBuffs.Any(b => b is T);
+    }
+
+    protected virtual void RemoveAllBuffs()
+    {
+        foreach (var buff in activeBuffs.ToList())
+        {
+            RemoveBuff(buff);
+        }
     }
 
 
@@ -331,9 +304,23 @@ public abstract class UnitEntity : MonoBehaviour, ITargettable, IFactionMember, 
     protected virtual void SetColliderState(bool enabled)
     {
         if (bodyColliderController != null) bodyColliderController.SetColliderState(enabled);
-    } 
+    }
 
-    public virtual void OnBodyTriggerEnter(Collider other) {}
+    public void AddRestriction(ActionRestriction restirction)
+    {
+        Restrictions |= restirction; // 비트 OR 연산으로 플래그 추가
+    }
+
+    public void RemoveRestriction(ActionRestriction restirction)
+    {
+        Restrictions &= ~restirction; // AND, NOT 연산으로 플래그 제거
+    }
+    public bool HasRestriction(ActionRestriction restirction)
+    {
+        return (Restrictions & restirction) != 0; // 겹치는 비트가 있으면 true, 없으면 false.
+    }
+
+    public virtual void OnBodyTriggerEnter(Collider other) { }
     public virtual void OnBodyTriggerExit(Collider other) {}
 
 

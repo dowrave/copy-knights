@@ -29,7 +29,17 @@ namespace Skills.OperatorSkills
             if (controller != null)
             {
                 float actualDamagePerTick = op.AttackPower * damagePerTickRatio;
-                controller.Initialize(op, centerPos, actualSkillRange, duration, actualDamagePerTick, damageInterval, hitEffectPrefab!, skillHitEffectTag, slowAmount);
+                controller.Initialize(
+                    op,
+                    centerPos,
+                    actualSkillRange,
+                    duration,
+                    actualDamagePerTick,
+                    damageInterval,
+                    hitEffectPrefab!,
+                    skillHitEffectTag,
+                    slowAmount
+                );
             }
 
             return fieldObj;

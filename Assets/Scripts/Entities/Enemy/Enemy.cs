@@ -198,17 +198,15 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity
             currentDespawnReason == DespawnReason.Null // 디스폰되고 있지 않을 때
             )
         {
+            // 행동이 불가능해도 동작해야 하는 효과
             UpdateAttackDuration();
             UpdateAttackCooldown();
-            UpdateCrowdControls();
             base.Update(); // 버프 효과 갱신
 
-            if (pathData == null || pathData.nodes == null) return;
-            if (CurrentHealth <= 0) return;
+            if (HasRestriction(ActionRestriction.CannotAction)) return;
 
             if (nextNodeIndex < pathData.nodes.Count)
             {
-                if (activeCC.Any(cc => cc is StunEffect)) return; // 스턴
                 if (AttackDuration > 0) return;  // 공격 모션 중
 
                 // 공격 범위 내의 적 리스트 & 현재 공격 대상 갱신
@@ -373,7 +371,7 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity
         
         foreach (var buff in activeBuffs)
         {
-            buff.OnAfterAttack(this);
+            buff.OnAfterAttack(this, target);
         }
     }
 
@@ -561,7 +559,7 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity
             // 첫 타일에 한해서만 현재 위치를 기반으로 계산(여러 Enemy가 같은 타일에 있을 수 있기 때문)
             if (i == nextNodeIndex)
             {
-                Vector3 nowPosition = new Vector3(transform.position.x, 0f, transform.position.z);
+                Vector3 nowPosition = new Vector3(transform.position.x, transform.position.y, transform.position.z);
                 distance += Vector3.Distance(nowPosition, currentPath[i + 1]);
             }
 

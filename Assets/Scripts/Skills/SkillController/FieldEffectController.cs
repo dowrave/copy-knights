@@ -19,7 +19,7 @@ public abstract class FieldEffectController : MonoBehaviour
     protected SkillRangeVFXController rangeVFXController = default!;
 
     // ¿µÇâ¹ÞÀº ´ë»ó µñ¼Å³Ê¸®
-    protected Dictionary<UnitEntity, List<CrowdControl>> affectedTargets = new Dictionary<UnitEntity, List<CrowdControl>>();
+    protected Dictionary<UnitEntity, List<Buff>> affectedTargets = new Dictionary<UnitEntity, List<Buff>>();
 
     public virtual void Initialize(
         Operator caster,
@@ -87,7 +87,7 @@ public abstract class FieldEffectController : MonoBehaviour
             {
                 foreach (var effect in pair.Value)
                 {
-                    pair.Key.RemoveCrowdControl(effect);
+                    pair.Key.RemoveBuff(effect);
                 }
             }
         }

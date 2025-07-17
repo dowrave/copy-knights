@@ -12,7 +12,7 @@ public class AreaHasteHealController: FieldEffectController
             {
                 foreach (var effect in affectedTargets[target])
                 {
-                    target.RemoveCrowdControl(effect);
+                    target.RemoveBuff(effect);
                 }
                 affectedTargets.Remove(target);
             }
@@ -41,7 +41,7 @@ public class AreaHasteHealController: FieldEffectController
         // 아군에게는 초기 효과 없음
         if (!affectedTargets.ContainsKey(target))
         {
-            affectedTargets[target] = new List<CrowdControl>();
+            affectedTargets[target] = new List<Buff>();
         }
     }
 

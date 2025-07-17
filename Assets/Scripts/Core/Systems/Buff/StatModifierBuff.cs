@@ -17,8 +17,9 @@ public class StatModificationBuff : Buff
     private List<Vector2Int> originalAttackableGridPos;
 
     // 스킬에 명세된 내용을 받아서 실행시키는 방식
-    public StatModificationBuff(StatModifierSkill.StatModifiers mods)
+    public StatModificationBuff(float duration, StatModifierSkill.StatModifiers mods)
     {
+        this.duration = duration;
         buffName = "Stat Boost";
         modifiers = mods;
     }

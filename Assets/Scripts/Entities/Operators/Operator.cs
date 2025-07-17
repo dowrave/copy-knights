@@ -249,13 +249,12 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
             UpdateAttackCooldown();
 
             HandleSPRecovery(); // SP 회복
-            UpdateCrowdControls(); // CC 효과 갱신
 
             base.Update(); // 버프 효과의 갱신
             CurrentSkill.OnUpdate(this); // 스킬에서도 감시
 
             // 행동 불능 상태 체크
-            if (activeCC.Any(cc => cc is StunEffect)) return; // 스턴 효과 중일 때 아래 동작을 막음
+            if (HasRestriction(ActionRestriction.CannotAction)) return;
 
             // ----- 행동 가능 상태의 로직 -----
             // 동작을 아예 못하는 상황과 구분한다. 예를 들면 기절 상태인데 스킬을 자동으로 켤 수는 없음.
@@ -338,9 +337,9 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
         }
 
         // 공격 후 동작
-        foreach (var buff in activeBuffs)
+        foreach (var buff in activeBuffs.ToList()) // buff가 제거될 수 있기 때문에 복사본으로 안전하게 진행
         {
-            buff.OnAfterAttack(target);
+            buff.OnAfterAttack(this, target);
         }
 
     }
@@ -752,6 +751,8 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
                 .OrderBy(E => E.GetRemainingPathDistance()) // 살아있는 객체 중 남은 거리가 짧은 순서로 정렬
                 .FirstOrDefault(); // 가장 짧은 거리의 객체를 가져옴
 
+            // Debug.Log($"");
+
             if (CurrentTarget != null)
             {
                 NotifyTarget();
@@ -830,6 +831,8 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
 
     public bool CanAttack()
     {
+        if (HasRestriction(ActionRestriction.CannotAttack)) return false;
+
         return IsDeployed &&
             CurrentTarget != null &&
             AttackCooldown <= 0 &&

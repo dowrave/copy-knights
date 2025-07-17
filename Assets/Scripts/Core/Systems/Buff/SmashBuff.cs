@@ -20,7 +20,7 @@ public class SmashBuff : Buff
         showDamagePopup = true;
     }
 
-    public override void OnAfterAttack(UnitEntity owner)
+    public override void OnAfterAttack(UnitEntity owner, UnitEntity target)
     {
         if (owner is Operator op)
         {
