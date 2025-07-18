@@ -268,10 +268,13 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
 
             if (CanAttack())
             {
+                // 공격 방식을 바꾸는 버프가 있는지 찾는다 
+                Buff? attackModifierBuff = activeBuffs.FirstOrDefault(b => b.ModifiesAttackAction);
+
                 // 공격 형식을 바꿔야 하는 경우 스킬의 동작을 따라감
-                if (ShouldModifyAttackAction())
+                if (attackModifierBuff != null)
                 {
-                    CurrentSkill.PerformChangedAttackAction(this);
+                    attackModifierBuff.PerformChangedAttackAction(this);
                 }
                 // 아니라면 평타
                 else
@@ -296,16 +299,18 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
     {
         bool showDamagePopup = false;
         float polishedDamage = Mathf.Floor(damage);
+
+        // 공격이 나가는 시점에 쿨타임이 돌게 수정
+        // 실제 공격을 수행할 때 어떻게 수행되는지가 다르므로 PerformAttack 밖에서 구현한다.
+        // 예시) DoubleShot의 경우 PerformAttack 안에서 구현하면 쿨타임이 있는데 스킬이 나가는 이상한 구현이 됨
+        SetAttackDuration();
+        SetAttackCooldown();
+
         PerformAttack(target, polishedDamage, showDamagePopup);
 
-        // 공격 모션 중이라는 시간 설정
-        SetAttackDuration();
-
-        // 공격 쿨다운 설정
-        SetAttackCooldown();
     }
 
-    protected virtual void PerformAttack(UnitEntity target, float damage, bool showDamagePopup)
+    public virtual void PerformAttack(UnitEntity target, float damage, bool showDamagePopup)
     {
         float spBeforeAttack = CurrentSP;
         AttackType finalAttackType = AttackType;
@@ -316,6 +321,8 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
         {
             buff.OnBeforeAttack(this, ref damage, ref finalAttackType, ref showDamagePopup);
         }
+
+
 
         // 실제 공격 수행
         switch (OperatorData.attackRangeType)
@@ -962,11 +969,6 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
         {
             ObjectPoolManager.Instance!.RemovePool(projectileTag);
         }
-    }
-
-    private bool ShouldModifyAttackAction()
-    {
-        return CurrentSkill.modifiesAttackAction && IsSkillOn;
     }
 
     // 지속 시간이 있는 스킬을 켜거나 끌 때 호출됨

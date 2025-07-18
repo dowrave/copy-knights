@@ -1,5 +1,7 @@
 using UnityEngine;
 using UnityEngine.VFX;
+using System.Collections.Generic;
+using System.Linq;
 
 // 스킬의 부속품이 되는 버프 시스템의 기초
 public abstract class Buff
@@ -12,9 +14,15 @@ public abstract class Buff
 
     public virtual bool IsDebuff => false; // 버프 종류 구분하는 프로퍼티
 
+    public virtual bool ModifiesAttackAction => false; // 공격 방법이 바뀌는가?
+
     protected GameObject? vfxInstance;
     protected ParticleSystem? vfxParticleSystem;
     protected VisualEffect? vfxGraph;
+
+    public System.Action OnRemovedCallback; // 버프 종료 시에 호출되는 콜백 함수
+
+    protected List<Buff> linkedBuffs = new List<Buff>(); // 연결된 버프들. 같이 관리되기를 원하는 버프가 있다면
 
     // owner.AddBuff에서 실행됨
     public virtual void OnApply(UnitEntity owner, UnitEntity caster)
@@ -28,8 +36,17 @@ public abstract class Buff
     }
 
     // 버프 제거 시에 호출
+    // UnitEntity.RemoveBuff : 버프 리스트에서 버프를 제거한 뒤 OnRemove가 동작하는 방식
     public virtual void OnRemove()
     {
+        // 연결된 버프들이 있다면 우선 제거함
+        foreach (var buff in linkedBuffs.ToList())
+        {
+            owner.RemoveBuff(buff);
+        }
+
+        // 스킬의 후처리 콜백 호출
+        OnRemovedCallback?.Invoke();
         RemoveVFX();
     }
 
@@ -49,13 +66,21 @@ public abstract class Buff
 
     public virtual void OnBeforeAttack(UnitEntity owner, ref float damage, ref AttackType attackType, ref bool showDamagePopup) { } // 공격 전 호출
     public virtual void OnAfterAttack(UnitEntity owner, UnitEntity target) { } // 공격 후 호출
+    public virtual void PerformChangedAttackAction(UnitEntity owner)
+    {
+        if (owner is Operator op)
+        {
+            op.SetAttackDuration();
+            op.SetAttackCooldown();
+        }
+    }
 
     protected virtual void PlayVFX()
     {
         if (BuffEffectManager.Instance != null && owner != null)
         {
             vfxInstance = BuffEffectManager.Instance.CreateBuffVFXObject(this, owner.transform);
-            
+
             if (vfxInstance != null)
             {
                 vfxParticleSystem = vfxInstance.GetComponent<ParticleSystem>();
@@ -81,7 +106,6 @@ public abstract class Buff
         if (vfxParticleSystem != null)
         {
             vfxParticleSystem.Stop();
-            
         }
         if (vfxGraph != null)
         {
@@ -93,6 +117,16 @@ public abstract class Buff
         vfxInstance = null;
         vfxParticleSystem = null;
         vfxGraph = null;
+    }
+
+    // 이 버프가 해제될 때 함께 해제되는 버프를 여기에 포함시킨다.
+    // 다른 버프들을 다 
+    public void LinkBuff(Buff buffToLink)
+    {
+        if (buffToLink != null)
+        {
+            linkedBuffs.Add(buffToLink);
+        }
     }
 
 }

@@ -32,16 +32,8 @@ namespace Skills.Base
 
         public override void Activate(Operator op)
         {
-            caster = op;
-            if (!op.IsDeployed || !op.CanUseSkill()) return;
 
-            // 기본 이펙트와 추가 이펙트 재생
-            PlaySkillVFX(op);
-            PlayAdditionalVFX(op);
-            
-            // 스킬 사용 직후에는 공격 속도 / 모션 초기화
-            op.SetAttackDuration(0f);
-            op.SetAttackCooldown(0f);            
+            CommonActivation(op);
 
             // 지속시간에 따른 구현
             // 이외의 상황은 메서드 오버라이드 ㄱㄱ (ammoBased는 이미 그렇게 구현됨)
@@ -55,20 +47,31 @@ namespace Skills.Base
             }
         }
 
+        // 시전자 지정, VFX 설정, 공격 초기화 등등 공통된 로직을 구현한다.
+        protected virtual void CommonActivation(Operator op)
+        {
+            caster = op;
+            if (!op.IsDeployed || !op.CanUseSkill()) return;
+
+            // 기본 이펙트와 추가 이펙트 재생
+            PlaySkillVFX(op);
+            PlayAdditionalVFX(op);
+
+            // 스킬 사용 직후에는 공격 속도 / 모션 초기화
+            op.SetAttackDuration(0f);
+            op.SetAttackCooldown(0f);
+
+            op.SetSkillOnState(true);
+        }
+
         // 추가 이펙트
         protected virtual void PlayAdditionalVFX(Operator op) { }
 
         // 지속 시간이 없는 (=즉발형) 스킬 실행
         protected void PlayInstantSkill(Operator op)
         {
-            OnSkillStart(op);
             PlaySkillEffect(op);
             OnSkillEnd(op);
-        }
-
-        protected virtual void OnSkillStart(Operator op)
-        {
-            op.SetSkillOnState(true);
         }
 
         // 실질적인 스킬 효과 실행.
@@ -80,11 +83,14 @@ namespace Skills.Base
             if (VfxInstance != null)
             {
                 SafeDestroySkillVFX(VfxInstance);
-                Debug.Log("VfxInstance 제거됨");
             }
 
             op.CurrentSP = 0;
             op.SetSkillOnState(false);
+
+            // 스킬이 꺼질 때도 공격 쿨다운 초기화 - 바로 때릴 수 있게끔
+            op.SetAttackDuration(0f);
+            op.SetAttackCooldown(0f);
             
             // 지속시간이 있는 스킬은 오퍼레이터의 코루틴 초기화
             if (duration > 0)
@@ -127,8 +133,6 @@ namespace Skills.Base
         // 스킬 지속시간 처리
         public virtual IEnumerator Co_HandleSkillDuration(Operator op)
         {
-            OnSkillStart(op);
-            // op.StartSkillDurationDisplay(duration);
             PlaySkillEffect(op);
 
             float elapsedTime = 0f;

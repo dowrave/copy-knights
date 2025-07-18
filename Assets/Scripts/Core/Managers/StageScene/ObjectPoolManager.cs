@@ -108,7 +108,6 @@ public class ObjectPoolManager : MonoBehaviour
             // 반응형 확장 로직으로 수정
             obj = Instantiate(poolInfo.prefab);
             poolInfo.size++; // 풀의 개념적 크기를 1 늘린다.
-            Debug.Log($"{tag}의 풀 크기 1 증가");
         }
         else
         {
@@ -130,7 +129,7 @@ public class ObjectPoolManager : MonoBehaviour
         IPooledObject pooledObj = obj.GetComponent<IPooledObject>();
         if (pooledObj != null)
         {
-            pooledObj.OnObjectSpawn();
+            pooledObj.OnObjectSpawn(tag);
         }
 
         return obj;
@@ -215,5 +214,5 @@ public class ObjectPoolManager : MonoBehaviour
 
 public interface IPooledObject
 {
-    void OnObjectSpawn();
+    void OnObjectSpawn(string tag);
 }

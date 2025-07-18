@@ -20,17 +20,23 @@ namespace SKills.OperatorSkills
         {
             if (op == null) return;
 
-            // 이펙트 생성
-            GameObject effect = Instantiate(skillEffectPrefab, op.transform.position, Quaternion.identity);
+            PlayEffect(op); // 이펙트
 
-            // 2초 후 이펙트 자동 제거
-            Destroy(effect, 2f); 
+            RecoverCost(costRecoveryAmount); // 기능
 
-            RecoverDeploymentCost(costRecoveryAmount);
-            op.CurrentSP = 0;
+            op.CurrentSP = 0; // SP 초기화
         }
 
-        private void RecoverDeploymentCost(float amount)
+        private void PlayEffect(Operator op)
+        {
+            if (skillEffectPrefab != null)
+            {
+                GameObject effect = Instantiate(skillEffectPrefab, op.transform.position, Quaternion.identity);
+                Destroy(effect, 2f);
+            }
+        }
+
+        private void RecoverCost(float amount)
         {
             if (StageManager.Instance != null)
             {

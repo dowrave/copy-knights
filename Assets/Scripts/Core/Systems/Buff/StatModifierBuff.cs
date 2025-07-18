@@ -41,14 +41,13 @@ public class StatModificationBuff : Buff
 
     private void StoreOriginalStats(UnitEntity owner)
     {
-        Debug.Log($"owner : {owner}");
-        Debug.Log($"owner.MaxHealth : {owner.MaxHealth}");
         originalMaxHealth = owner.MaxHealth;
         originalAttackPower = owner.AttackPower;
         originalAttackSpeed = owner.AttackSpeed;
         originalDefense = owner.Defense;
         originalMagicResistance = owner.MagicResistance;
         originalAttackType = owner.AttackType;
+        
         if (owner is Operator op)
         {
             originalBlockableEnemies = op.MaxBlockableEnemies;

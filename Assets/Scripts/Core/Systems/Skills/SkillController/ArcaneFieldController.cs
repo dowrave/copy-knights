@@ -10,17 +10,16 @@ public class ArcaneFieldController : FieldEffectController
 
     public virtual void Initialize(
         Operator caster,
-        Vector2Int centerPosition,
         HashSet<Vector2Int> affectedTiles,
         float fieldDuration,
         float amountPerTick,
-        float amountInterval,
+        float interval,
         GameObject hitEffectPrefab,
         string hitEffectTag,
         float slowAmount
         )
     {
-        base.Initialize(caster, centerPosition, affectedTiles, fieldDuration, amountPerTick, amountInterval, hitEffectPrefab, hitEffectTag);
+        base.Initialize(caster, affectedTiles, fieldDuration, amountPerTick, interval, hitEffectPrefab, hitEffectTag);
         this.slowAmount = slowAmount;
     }
 
@@ -59,14 +58,12 @@ public class ArcaneFieldController : FieldEffectController
 
     protected override void ApplyInitialEffect(UnitEntity target)
     {
-        if (target is Enemy enemy)
+        if (target is Enemy enemy && caster != null)
         {
-            var slowBuff = new SlowBuff(fieldDuration, slowAmount);
-            if (caster != null)
-            {
-                enemy.AddBuff(slowBuff);
-            }
-
+            // 슬로우 지속 시간은 장판이 사라지거나 벗어날 때까지
+            var slowBuff = new SlowBuff(float.PositiveInfinity, slowAmount);
+            enemy.AddBuff(slowBuff);
+  
             affectedTargets[enemy] = new List<Buff> { slowBuff };
         }
     }

@@ -15,12 +15,8 @@ public class StunOnHitBuff : Buff
     }
 
     public override void OnAfterAttack(UnitEntity owner, UnitEntity target)
-    {
-        Debug.Log("공격 후 기절 확률 계산");
-        float variation = Random.value;
-        Debug.Log($"variation : {variation}, stunChance : {stunChance}, variation <= stunChance : {variation <= stunChance}");
-        
-        if (variation <= stunChance) // 예를 들어 25%라고 하면 이 조건이 맞음
+    {        
+        if (Random.value <= stunChance) // 예를 들어 25%라고 하면 이 조건이 맞음
         {
             if (target != null && target.CurrentHealth > 0)
             {

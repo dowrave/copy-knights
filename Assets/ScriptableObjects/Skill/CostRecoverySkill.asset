@@ -10,7 +10,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 5438a935ea24a4e4e9b5cdd31bc627a8, type: 3}
-  m_Name: Cost_Recovery_8
+  m_Name: CostRecoverySkill
   m_EditorClassIdentifier: 
   skillName: CostRecovery
   description: "<color=#179bff>\uBC30\uCE58 \uCF54\uC2A4\uD2B8 8</color>\uC744 \uD68C\uBCF5\uD569\uB2C8\uB2E4."
@@ -18,7 +18,6 @@ MonoBehaviour:
   skillIcon: {fileID: 21300000, guid: f359d505cd84f8d4799e0b7a6c1430e3, type: 3}
   autoRecover: 1
   autoActivate: 1
-  modifiesAttackAction: 0
   isOnTest: 0
   costRecoveryAmount: 8
   skillEffectPrefab: {fileID: 8612932944827472003, guid: a405c8f0638cf9a4ea27226dab797412, type: 3}

@@ -226,12 +226,9 @@ public abstract class UnitEntity : MonoBehaviour, ITargettable, IFactionMember, 
 
     public void AddBuff(Buff buff)
     {
-        Debug.Log($"{buff.buffName}이 {gameObject.name}에 추가됨");
-        
         // 스턴의 경우 새로 걸리면 기존 스턴은 제거됨
         if (buff is StunBuff stunBuff)
         {
-            Debug.Log($"stunBuff가 {gameObject.name}에 추가됨");
             Buff existingStun = activeBuffs.FirstOrDefault(b => b is StunBuff);
             if (existingStun != null)
             {
@@ -246,10 +243,13 @@ public abstract class UnitEntity : MonoBehaviour, ITargettable, IFactionMember, 
 
     public void RemoveBuff(Buff buff)
     {
-        if (activeBuffs.Remove(buff))
+        if (activeBuffs.Contains(buff))
         {
-            buff.OnRemove();
-            OnBuffChanged?.Invoke(buff, false);
+            buff.OnRemove(); // 만약 연결된 다른 버프들이 있다면 여기서 먼저 제거됨
+            if (activeBuffs.Remove(buff))
+            {
+                OnBuffChanged?.Invoke(buff, false);
+            }
         }
     }
 
@@ -257,6 +257,11 @@ public abstract class UnitEntity : MonoBehaviour, ITargettable, IFactionMember, 
     public bool HasBuff<T>() where T : Buff
     {
         return activeBuffs.Any(b => b is T);
+    }
+
+    public T? GetBuff<T>() where T : Buff
+    {
+        return activeBuffs.FirstOrDefault(b => b is T) as T;
     }
 
     protected virtual void RemoveAllBuffs()

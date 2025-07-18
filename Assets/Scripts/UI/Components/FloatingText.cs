@@ -26,7 +26,7 @@ public class FloatingText : MonoBehaviour, IPooledObject
 
     }
 
-    public void OnObjectSpawn()
+    public void OnObjectSpawn(string tag)
     {
         timer = 0f;
     }

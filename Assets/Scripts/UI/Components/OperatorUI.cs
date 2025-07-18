@@ -14,6 +14,7 @@ public class OperatorUI : MonoBehaviour
     private Canvas canvas = default!;
     private Camera mainCamera = default!;
 
+
     private void Awake()
     {
         // OperatorUI에 할당된 Canvas 가져오기
@@ -53,6 +54,7 @@ public class OperatorUI : MonoBehaviour
         op.OnHealthChanged += HandleHealthChanged;
         op.OnSPChanged += HandleSPChanged;
         op.OnSkillStateChanged += HandleSkillStateChanged;
+        op.OnBuffChanged += HandleBuffChanged;
     }
 
     private void UnsubscribeEvents()
@@ -62,6 +64,7 @@ public class OperatorUI : MonoBehaviour
         op.OnHealthChanged -= HandleHealthChanged;
         op.OnSPChanged -= HandleSPChanged;
         op.OnSkillStateChanged -= HandleSkillStateChanged;
+        op.OnBuffChanged -= HandleBuffChanged;
     }
 
     // 오퍼레이터 스킬 활성화 상태변화 이벤트 구독 메서드
@@ -102,6 +105,28 @@ public class OperatorUI : MonoBehaviour
         {
             skillIconUI.SetActive(isVisible);
         }
+    }
+
+    private void HandleBuffChanged(Buff changedBuff, bool isAdded)
+    {
+        if (changedBuff is AttackCounterBuff counterBuff)
+        {
+            if (isAdded) // 버프가 추가됐을 때 
+            {
+                counterBuff.OnAmmoChanged += HandleAmmoChanged;
+                SwitchSPBarToAmmoMode(counterBuff.MaxAttacks, counterBuff.CurrentAttacks);
+            }
+            else
+            {
+                counterBuff.OnAmmoChanged -= HandleAmmoChanged;
+                SwitchSPBarToNormalMode();
+            }
+         }
+    }
+
+    private void HandleAmmoChanged(int currentAmmo, int maxAmmo)
+    {
+        DeployableBarUI.UpdateAmmoDisplay(currentAmmo);
     }
 
     // SP Bar를 탄환 모드로 전환

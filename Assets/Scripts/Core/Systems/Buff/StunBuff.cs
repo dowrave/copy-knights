@@ -13,7 +13,6 @@ public class StunBuff : Buff
     public override void OnApply(UnitEntity owner, UnitEntity caster)
     {
         base.OnApply(owner, caster);
-        Debug.Log("StunBuff 적용");
         owner.AddRestriction(ActionRestriction.Stunned);
     }
 

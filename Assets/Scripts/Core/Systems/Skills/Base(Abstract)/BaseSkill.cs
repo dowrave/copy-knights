@@ -14,7 +14,6 @@ namespace Skills.Base
 
         public bool autoRecover = false; // 활성화시 자동 회복, 비활성화 시 공격 시 회복
         public bool autoActivate = false; // 자동발동 여부
-        public bool modifiesAttackAction = false; // 공격 액션 변경 여부
 
         [Header("테스트 여부 설정 : 테스트 시에 SP = 1")]
         public bool isOnTest = false; // 현재 테스트 여부, 테스트 시 SP = 1로 설정
@@ -25,7 +24,7 @@ namespace Skills.Base
 
 
         // 인스펙터 bool 필드값들 초기 설정.
-        protected abstract void SetDefaults(); 
+        protected virtual void SetDefaults() { }
 
         // 액티브 스킬을 켰을 때의 동작
         public virtual void Activate(Operator op) { } 

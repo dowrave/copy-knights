@@ -18,19 +18,11 @@ public class SkillRangeVFXController : MonoBehaviour, IPooledObject
     [SerializeField] protected Image rightBoundary = default!;
     [SerializeField] protected Image floorImage = default!;
 
-    protected bool isInitialized = false;
-    protected float fieldDuration;
     protected Dictionary<Vector2Int, (ParticleSystem effect, Image boundary)> directionEffects = new Dictionary<Vector2Int, (ParticleSystem effect, Image boundary)>();
-    protected readonly Vector2Int[] directions = new[] 
-    {
-        // 그리드 좌표는 좌측 상단이 (0, 0)이므로 Y좌표는 특히 이렇게 정의함
-        Vector2Int.down,
-        Vector2Int.up,
-        Vector2Int.left,
-        Vector2Int.right
-    };
+    protected readonly Vector2Int[] directions = new[] { Vector2Int.down, Vector2Int.up, Vector2Int.left, Vector2Int.right };
 
     private string poolTag = string.Empty;
+    private Coroutine _lifeCycleCoroutine; // 생명주기 코루틴 추적 변수
 
     private void Awake()
     {
@@ -44,57 +36,66 @@ public class SkillRangeVFXController : MonoBehaviour, IPooledObject
         };
     }
 
-    public void OnObjectSpawn()
+    public void OnObjectSpawn(string tag)
     {
-        // 초기에는 모든 이펙트 중지
+        this.poolTag = tag;
+
+        // 초기 : 모든 이펙트 비활성화
         foreach (var pair in directionEffects.Values)
         {
-            pair.effect.Stop();
+            pair.effect.gameObject.SetActive(false);
             pair.boundary.gameObject.SetActive(false);
         }
 
         floorImage.gameObject.SetActive(false);
+        
+        // 초기에는 모든 이펙트 중지
+        // foreach (var pair in directionEffects.Values)
+        // {
+        //     pair.effect.Stop();
+        //     pair.boundary.gameObject.SetActive(false);
+        // }
+
+        // floorImage.gameObject.SetActive(false);
     }
-    private void Update()
+
+    // 시각 효과 설정 및 실행
+    public void Initialize(Vector2Int position, HashSet<Vector2Int> effectRange, float duration)
     {
-        if (isInitialized)
+        // 이전에 실행중인 코루틴 중지
+        if (_lifeCycleCoroutine != null) StopCoroutine(_lifeCycleCoroutine);
+
+        // 시각 효과 설정
+        SetUpVisuals(position, effectRange);
+
+        // 생명주기 코루틴 시작
+        // 즉발 스킬이라면 짧은 시간만 보여주고 사라짐
+        float lifeTime = (duration > 0f) ? duration : 1.0f;
+        _lifeCycleCoroutine = StartCoroutine(LifeCycle(lifeTime));
+    }
+
+    private void SetUpVisuals(Vector2Int position, HashSet<Vector2Int> effectRange)
+    {
+        // 유효하지 않은 위치는 아무것도 표시하지 않음
+        if (MapManager.Instance.CurrentMap == null || !MapManager.Instance.CurrentMap.IsTileAt(position.x, position.y))
         {
-            if (fieldDuration < 0f)
-            {
-                StopAllVFXs();
-                return;
-            }
-
-            fieldDuration -= Time.deltaTime;
+            return;
         }
-    }
 
-    public void Initialize(Vector2Int position, HashSet<Vector2Int> effectRange, float duration, string tag)
-    {
-        poolTag = tag;
-        isInitialized = true;
+        floorImage.gameObject.SetActive(false);
 
-        // 즉발 스킬의 경우 duration = 0일 수 있음 -> 디폴트 필드 값을 1초로 지정
-        fieldDuration = duration != 0f ? duration : 1f;
-
-        // 이 위치에 타일이 없으면 실행 X
-        if (MapManager.Instance!.CurrentMap == null) return;
-        if (!MapManager.Instance!.CurrentMap.IsTileAt(position.x, position.y)) return;
-
-        floorImage.gameObject.SetActive(true);
-
-        // 방향에 따른 타일 검사로 이펙트 실행 여부를 결정함
+        // 방향에 따른 타일 검사로 이펙트 실행 여부 결정
         foreach (var direction in directions)
         {
-            Vector2Int neighborPos = position + direction; 
-
-            // 방향에 대한 이펙트 표시 여부
-            bool showEffect = !effectRange.Contains(neighborPos) || // 스킬 범위 내에 있음
-                !MapManager.Instance!.CurrentMap.IsTileAt(neighborPos.x, neighborPos.y); // 실제로 타일이 있음
+            Vector2Int neighborPos = position + direction;
+            bool showEffect = !effectRange.Contains(neighborPos) || !MapManager.Instance.CurrentMap.IsTileAt(neighborPos.x, neighborPos.y);
 
             var (effect, boundary) = directionEffects[direction];
 
-            if (showEffect) 
+            effect.gameObject.SetActive(showEffect);
+            boundary.gameObject.SetActive(showEffect);
+
+            if (showEffect)
             {
                 PrewarmTrailAndPlayVFX(effect); // effect.Play() 포함
                 boundary.gameObject.SetActive(true);
@@ -106,15 +107,36 @@ public class SkillRangeVFXController : MonoBehaviour, IPooledObject
             }
         }
 
-        // 언덕에 이펙트 배치하는 상황
-        Tile? currentTile = MapManager.Instance!.GetTile(position.x, position.y);
+        // 언덕 타일 위치 보정
+        Tile? currentTile = MapManager.Instance.GetTile(position.x, position.y);
         if (currentTile != null && currentTile.data.terrain == TileData.TerrainType.Hill)
         {
             transform.position += Vector3.up * 0.2f;
         }
+    }
 
-        // 스테이지 종료 시 파괴를 위한 이벤트 구독
-        
+    // 생명 주기를 관리하는 단일 코루틴
+    private IEnumerator LifeCycle(float lifeTime)
+    {
+        yield return new WaitForSeconds(lifeTime);
+        ReturnToPool();
+    }
+
+
+    private void ReturnToPool()
+    {
+        _lifeCycleCoroutine = null;
+        // 오브젝트 풀 매니저에게 돌려보내달라고 요청
+        ObjectPoolManager.Instance?.ReturnToPool(poolTag, gameObject);
+    }
+
+    public void ForceRemove()
+    {
+        if (_lifeCycleCoroutine != null)
+        {
+            StopCoroutine(_lifeCycleCoroutine);
+        }
+        ReturnToPool();
     }
 
     // 스킬 범위 즉시 표현을 위한 스크립트
@@ -131,23 +153,5 @@ public class SkillRangeVFXController : MonoBehaviour, IPooledObject
         main.simulationSpeed = 100f;
         yield return new WaitForSeconds(0.01f);
         main.simulationSpeed = 1f;
-    }
-
-    public void StopAllVFXs()
-    {
-        foreach (var pair in directionEffects.Values)
-        {
-            pair.effect.Stop();
-            pair.boundary.gameObject.SetActive(false);
-        }
-
-        //floorImage.gameObject.SetActive(false);
-        ObjectPoolManager.Instance!.ReturnToPool(poolTag, gameObject);
-        isInitialized = false;
-    }
-
-    public void ForceRemove()
-    {
-        StopAllVFXs();
     }
 }

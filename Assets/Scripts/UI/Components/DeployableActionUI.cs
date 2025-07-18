@@ -199,17 +199,17 @@ public class DeployableActionUI : MonoBehaviour
             // 수동 발동 스킬 처리
             else
             {
+                AttackCounterBuff attackCounterbuff = currentOperator.GetBuff<AttackCounterBuff>();
+                if (attackCounterbuff != null)
+                {
+                    spIndicatorImage.color = normalColor;
+                    spIndicatorText.text = $"{attackCounterbuff.CurrentAttacks} / {attackCounterbuff.MaxAttacks}";
+                }
                 // 스킬을 쓸 수 있을 때
-                if (currentOperator.CanUseSkill())
+                else if (currentOperator.CanUseSkill())
                 {
                     spIndicatorImage.color = canActivateColor;
                     spIndicatorText.text = "Activate";
-                }
-                // 남은 탄환 표시 
-                else if (currentOperator.CurrentSkill is AmmoBasedActiveSkill ammoSkill && currentOperator.IsSkillOn)
-                {
-                    spIndicatorImage.color = normalColor;
-                    spIndicatorText.text = $"{ammoSkill.CurrentAmmo} / {ammoSkill.MaxAmmo}";
                 }
                 // 스킬이 켜졌을 때
                 else if (currentOperator.IsSkillOn)

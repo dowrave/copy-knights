@@ -1,29 +1,29 @@
 using System.Collections.Generic;
+using System.Collections;
 using UnityEngine;
 
 // 범위 효과 스킬 내용 구현
-public abstract class FieldEffectController : MonoBehaviour
+public abstract class FieldEffectController : MonoBehaviour, IPooledObject
 {
     protected Operator? caster; // 시전자
-    protected Vector2Int centerPosition; // 중심 위치
     protected HashSet<Vector2Int> affectedTiles = new HashSet<Vector2Int>(); // 실제 영향을 받는 타일들
-    protected float fieldDuration; // 지속 시간
     protected float amountPerTick; // 필드 위의 타겟들에 적용되는 수치 (공격, 힐 등)
-    protected float interval; // 틱이 적용되는 간격(초)
-
-    protected float elapsedTime; // 경과 시간
-    protected float lastTickTime; // 마지막 효과 적용 시간
-
     protected GameObject hitEffectPrefab = default!;
-    protected string hitEffectTag = default!;
-    protected SkillRangeVFXController rangeVFXController = default!;
+    protected string hitEffectTag = string.Empty;
+    protected string poolTag = string.Empty;
 
     // 영향받은 대상 딕셔너리
     protected Dictionary<UnitEntity, List<Buff>> affectedTargets = new Dictionary<UnitEntity, List<Buff>>();
 
+    public void OnObjectSpawn(string tag)
+    {
+        this.poolTag = tag;
+        affectedTargets.Clear();
+    }
+
+
     public virtual void Initialize(
         Operator caster,
-        Vector2Int centerPosition,
         HashSet<Vector2Int> affectedTiles,
         float fieldDuration,
         float amountPerTick,
@@ -33,35 +33,39 @@ public abstract class FieldEffectController : MonoBehaviour
         )
     {
         this.caster = caster;
-        this.centerPosition = centerPosition;
         this.affectedTiles = affectedTiles;
-        this.fieldDuration = fieldDuration;
         this.amountPerTick = amountPerTick;
-        this.interval = interval;
         this.hitEffectPrefab = hitEffectPrefab;
         this.hitEffectTag = hitEffectTag;
 
-        caster.OnOperatorDied += HandleOperatorDied; 
+        StartCoroutine(FieldRoutine(fieldDuration, interval));
     }
 
-    protected virtual void Update()
+    // Update 대신 모든 로직을 처리하는 메인 코루틴
+    private IEnumerator FieldRoutine(float duration, float interval)
     {
-        if (elapsedTime >= fieldDuration)
+        float elapsedTime = 0f;
+        float lastTickTime = -interval; // 시작하자마자 첫 틱이 발동
+
+        while (elapsedTime < duration)
         {
-            StopAndDestroyEffects();
+            // 시전자가 사라지면 종료
+            if (caster == null) break;
+
+            // 범위 내 대상 체크
+            CheckTargetsInField();
+
+            if (Time.time >= lastTickTime + interval)
+            {
+                ApplyPeriodicEffect();
+                lastTickTime = Time.time;
+            }
+
+            elapsedTime += Time.deltaTime;
+            yield return null;
         }
 
-        // 범위 내 대상 체크
-        CheckTargetsInField();
-
-        // 주기적 효과 적용
-        if (Time.time >= lastTickTime + interval)
-        {
-            ApplyPeriodicEffect();
-            lastTickTime = Time.time;
-        }
-
-        elapsedTime += Time.deltaTime;
+        CleanUpAndReturnToPool();
     }
 
     protected abstract void CheckTargetsInField();
@@ -79,7 +83,7 @@ public abstract class FieldEffectController : MonoBehaviour
         return affectedTiles.Contains(targetPos);
     }
 
-    protected virtual void StopAndDestroyEffects()
+    protected virtual void CleanUpAndReturnToPool()
     {
         foreach (var pair in affectedTargets)
         {
@@ -94,26 +98,6 @@ public abstract class FieldEffectController : MonoBehaviour
 
         affectedTargets.Clear();
 
-        if (caster != null) caster.OnOperatorDied -= HandleOperatorDied; 
-
         Destroy(gameObject);
-    }
-
-    public virtual void ForceRemove()
-    {
-        StopAndDestroyEffects();
-    }
-
-    protected virtual void HandleOperatorDied(Operator op)
-    {
-        StopAndDestroyEffects();
-    }
-
-    private void OnDisable()
-    {
-        if (caster != null)
-        {
-            caster.OnOperatorDied -= HandleOperatorDied;
-        }
     }
 }

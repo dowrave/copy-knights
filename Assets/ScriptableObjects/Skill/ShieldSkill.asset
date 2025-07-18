@@ -10,9 +10,9 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 6f7a9d3d7bb561f4191e8a6a8c0cf203, type: 3}
-  m_Name: ShieldBuff
+  m_Name: ShieldSkill
   m_EditorClassIdentifier: 
-  skillName: ShieldUp
+  skillName: Shield
   description: "<color=#179bff>15\uCD08</color> \uB3D9\uC548 \uBC29\uC5B4\uB825\uC774
     <color=#179bff>30%</color> \uC99D\uAC00\uD558\uACE0, <color=#179bff>1000</color>\uC758
     \uC274\uB4DC\uB97C \uAC16\uC2B5\uB2C8\uB2E4."
@@ -20,7 +20,6 @@ MonoBehaviour:
   skillIcon: {fileID: 21300000, guid: e97a69ebd7acada478a6b0b7eedb978a, type: 3}
   autoRecover: 1
   autoActivate: 0
-  modifiesAttackAction: 0
   isOnTest: 0
   duration: 15
   skillVFXPrefab: {fileID: 2673592997991987600, guid: 43f083d1a6e670d40a1998803b5a1140, type: 3}
@@ -28,7 +27,12 @@ MonoBehaviour:
   skillRangeOffset: []
   rectOffset: 0
   shieldAmount: 1000
-  statModifiers:
+  statMods:
+    healthModifier: 1
+    attackPowerModifier: 1
+    attackSpeedModifier: 1
     defenseModifier: 1.3
     magicResistanceModifier: 1
+    attackType: 0
+    attackRangeModifier: []
   shieldEffectPrefab: {fileID: 3942765068865293202, guid: e6e0102b91655e847bfd5566b1f8f982, type: 3}
