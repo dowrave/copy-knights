@@ -39,6 +39,7 @@ namespace Skills.OperatorSkills
         {
             // 스탯 강화 버프 생성 및 적용
             statBuffInstance = new StatModificationBuff(duration, modifiers);
+            statBuffInstance.SetAttackVFXOverrides(this); // 변경되는 이펙트가 있다면 반영함
             op.AddBuff(statBuffInstance);
         }
 

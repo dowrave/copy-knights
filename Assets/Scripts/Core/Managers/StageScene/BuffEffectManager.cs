@@ -29,7 +29,6 @@ public class BuffEffectManager : MonoBehaviour
         if (effectDatabase == null) return null;
 
         GameObject? prefab = effectDatabase.GetEffectPrefab(buff.GetType());
-        Debug.Log($"CreateBuffVFXObject - 타입 발견 : {buff.GetType()}, 프리팹 : {prefab}");
         if (prefab != null)
         {
             GameObject effectObj = Instantiate(prefab, target.position, Quaternion.identity, target);

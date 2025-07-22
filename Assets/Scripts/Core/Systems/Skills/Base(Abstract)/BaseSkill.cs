@@ -22,6 +22,9 @@ namespace Skills.Base
 
         protected Operator caster = default!; // 스킬 시전자
 
+        // 이펙트를 변경해야 하는 경우
+        [Header("Attack VFX Overrides(Optional)")]
+        public GameObject meleeAttackEffectOverride;
 
         // 인스펙터 bool 필드값들 초기 설정.
         protected virtual void SetDefaults() { }
@@ -35,15 +38,37 @@ namespace Skills.Base
         // op.Attack()을 사용하고, 공격이 적용되기 전 효과 반영
         public virtual void OnBeforeAttack(Operator op, ref float damage, ref AttackType finalAttackType, ref bool showDamagePopup){ }
 
-        // 스킬이 프레임 상태를 확인하도록 하는 훅 추가
+        // 스킬이 프레임 상태를 확인하도록 하는 훅
         public virtual void OnUpdate(Operator op) { }
         
         // op.Attack()을 사용하고, 공격이 적용된 후 효과 반영
-        public virtual void OnAfterAttack(Operator op) { } 
+        public virtual void OnAfterAttack(Operator op) { }
 
-        // 오브젝트 풀링을 사용할 경우
-        public virtual void InitializeSkillObjectPool() { } // 오브젝트 풀 구현
-        public virtual void CleanupSkill() { } // 스킬에 관련된 리소스 제거
+        // 스킬에서 사용되는 오브젝트 풀 생성(VFX 포함)
+        public virtual void InitializeSkillObjectPool(UnitEntity caster)
+        {
+            // 근접 공격 VFX 변경
+            if (meleeAttackEffectOverride != null)
+            {
+                string tag = GetVFXPoolTag(caster, meleeAttackEffectOverride);
+                if (!ObjectPoolManager.Instance.IsPoolExist(tag))
+                {
+                    ObjectPoolManager.Instance.CreatePool(tag, meleeAttackEffectOverride);
+                }
+            }
+        }
+
+        public virtual void CleanupSkillObjectPool() { } // 스킬에 관련된 리소스 제거
+
+        public string GetVFXPoolTag(UnitEntity caster, GameObject vfxPrefab)
+        {
+            if (vfxPrefab == null) return string.Empty;
+            if (caster is Operator op)
+            {
+                return $"{op.OperatorData.entityName}_{this.name}_{vfxPrefab.name}";
+            }
+            else return string.Empty; // 일단 비워둠
+        }
 
         protected void Reset()
         {

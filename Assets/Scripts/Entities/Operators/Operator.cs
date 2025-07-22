@@ -918,8 +918,8 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
         // 원거리인 경우 투사체 풀 생성
         InitializeProjectilePool();
 
-        // 스킬 이펙트 풀 생성
-        CurrentSkill.InitializeSkillObjectPool();
+        // 스킬에서 사용할 이펙트 풀 생성
+        CurrentSkill.InitializeSkillObjectPool(this);
     }
 
     protected virtual void PlayMeleeAttackEffect(UnitEntity target, AttackSource attackSource)
@@ -930,23 +930,34 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
 
     protected virtual void PlayMeleeAttackEffect(Vector3 targetPosition, AttackSource attackSource)
     {
+        GameObject effectPrefab = OperatorData.meleeAttackEffectPrefab;
+        string effectTag = meleeAttackEffectTag;
+
+        // [버프 이펙트 적용] 물리 공격 이펙트가 바뀌어야 한다면 바뀐 걸 적용함
+        var vfxBuff = activeBuffs.FirstOrDefault(b => b.MeleeAttackEffectOverride);
+        if (vfxBuff != null)
+        {
+            effectPrefab = vfxBuff.MeleeAttackEffectOverride;
+            effectTag = vfxBuff.SourceSkill.GetVFXPoolTag(this, effectPrefab);
+        }
+
         // 이펙트 처리
-        if (OperatorData.meleeAttackEffectPrefab != null && meleeAttackEffectTag != null)
+        if (effectPrefab != null && !string.IsNullOrEmpty(effectTag))
         {
             // 이펙트가 보는 방향은 combatVFXController에서 설정
 
             GameObject? effectObj = ObjectPoolManager.Instance!.SpawnFromPool(
-                   meleeAttackEffectTag,
+                   effectTag,
                    transform.position, // 이펙트 생성 위치
                    Quaternion.identity
            );
-           
+
             if (effectObj != null)
             {
                 CombatVFXController? combatVFXController = effectObj.GetComponent<CombatVFXController>();
                 if (combatVFXController != null)
                 {
-                    combatVFXController.Initialize(attackSource, targetPosition, meleeAttackEffectTag);
+                    combatVFXController.Initialize(attackSource, targetPosition, effectTag);
                 }
             }
         }

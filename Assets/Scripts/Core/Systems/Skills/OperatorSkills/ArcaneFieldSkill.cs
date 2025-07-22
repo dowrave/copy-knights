@@ -122,12 +122,15 @@ namespace Skills.OperatorSkills
         }
 
         // 오브젝트 풀 초기화
-        public override void InitializeSkillObjectPool()
+        public override void InitializeSkillObjectPool(UnitEntity caster)
         {
-            if (fieldEffectPrefab != null) ObjectPoolManager.Instance!.CreatePool($"{this.name}_Field", fieldEffectPrefab, 2);
-            if (skillRangeVFXPrefab != null) ObjectPoolManager.Instance!.CreatePool($"{this.name}_RangeVFX", skillRangeVFXPrefab, skillRangeOffset.Count);
-            if (hitEffectPrefab != null){ ObjectPoolManager.Instance!.CreatePool(hitEffectTag, hitEffectPrefab, 10); }
-
+            base.InitializeSkillObjectPool(caster);
+            if (caster is Operator op)
+            {
+                if (fieldEffectPrefab != null) ObjectPoolManager.Instance!.CreatePool($"{op.OperatorData.entityName}_{this.name}_Field", fieldEffectPrefab, 2);
+                if (skillRangeVFXPrefab != null) ObjectPoolManager.Instance!.CreatePool($"{op.OperatorData.entityName}_{this.name}_RangeVFX", skillRangeVFXPrefab, skillRangeOffset.Count);
+                if (hitEffectPrefab != null){ ObjectPoolManager.Instance!.CreatePool(hitEffectTag, hitEffectPrefab, 10); }
+            }
         }
     }
 }

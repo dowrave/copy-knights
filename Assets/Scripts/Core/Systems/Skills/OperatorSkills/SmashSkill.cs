@@ -21,6 +21,7 @@ namespace Skills.OperatorSkills
             {
                 // 조건 만족 시 일회성 SmashBuff를 부여함
                 SmashBuff buff = new SmashBuff(damageMultiplier, attackType, removeBuffAfterAttack: true);
+                buff.SetAttackVFXOverrides(this);
                 op.AddBuff(buff);
             }
         }

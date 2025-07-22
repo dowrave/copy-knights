@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.VFX;
+using Skills.Base;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -23,6 +24,10 @@ public abstract class Buff
     public System.Action OnRemovedCallback; // 버프 종료 시에 호출되는 콜백 함수
 
     protected List<Buff> linkedBuffs = new List<Buff>(); // 연결된 버프들. 같이 관리되기를 원하는 버프가 있다면
+
+    // 공격 이펙트 오버라이드 정보
+    public GameObject MeleeAttackEffectOverride { get; protected set; }
+    public BaseSkill SourceSkill { get; protected set; }
 
     // owner.AddBuff에서 실행됨
     public virtual void OnApply(UnitEntity owner, UnitEntity caster)
@@ -75,6 +80,17 @@ public abstract class Buff
         }
     }
 
+    // 스킬로부터 받은 VFX 오버라이드 정보를 넣는다
+    public virtual void SetAttackVFXOverrides(BaseSkill sourceSkill)
+    {
+        if (sourceSkill == null) return;
+
+        this.SourceSkill = sourceSkill;
+        this.MeleeAttackEffectOverride = sourceSkill.meleeAttackEffectOverride;
+    }
+
+    // 버프에 포함된 VFX 이펙트를 재생한다.
+    // 일단은 스턴 같은 효과에만 사용된다. 스킬 지속시간 같은 상황은 별도.
     protected virtual void PlayVFX()
     {
         if (BuffEffectManager.Instance != null && owner != null)

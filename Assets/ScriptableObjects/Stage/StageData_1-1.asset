@@ -36,11 +36,11 @@ MonoBehaviour:
     maxDeployCount: 3
   FirstClearRewardItems:
   - itemData: {fileID: 11400000, guid: 9b62d9bdc8111b845a020c11ae3e3646, type: 2}
-    count: 40
+    count: 60
   - itemData: {fileID: 11400000, guid: e5fa78c43c8bdd34f93ea46a391e758b, type: 2}
-    count: 24
+    count: 36
   - itemData: {fileID: 11400000, guid: 2329af0554c87104bb26e072bb7d6935, type: 2}
-    count: 2
+    count: 3
   BasicClearRewardItems:
   - itemData: {fileID: 11400000, guid: 9b62d9bdc8111b845a020c11ae3e3646, type: 2}
     count: 12

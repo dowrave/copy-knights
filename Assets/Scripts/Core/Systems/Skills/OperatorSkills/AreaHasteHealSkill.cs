@@ -107,11 +107,15 @@ namespace Skills.Base
             }
         }
 
-        public override void InitializeSkillObjectPool()
+        public override void InitializeSkillObjectPool(UnitEntity caster)
         {
-            if (fieldEffectPrefab != null) ObjectPoolManager.Instance!.CreatePool($"{this.name}_Field", fieldEffectPrefab, 2);
-            if (hitEffectPrefab != null) ObjectPoolManager.Instance!.CreatePool($"{this.name}_HitEffect", hitEffectPrefab, 10);
-            if (skillRangeVFXPrefab != null) ObjectPoolManager.Instance!.CreatePool($"{this.name}_RangeVFX", skillRangeVFXPrefab, skillRangeOffset.Count);
+            base.InitializeSkillObjectPool(caster);
+            if (caster is Operator op)
+            {
+                if (fieldEffectPrefab != null) ObjectPoolManager.Instance!.CreatePool($"{op.OperatorData.entityName}_{this.name}_Field", fieldEffectPrefab, 2);
+                if (hitEffectPrefab != null) ObjectPoolManager.Instance!.CreatePool($"{op.OperatorData.entityName}_{this.name}_HitEffect", hitEffectPrefab, 10);
+                if (skillRangeVFXPrefab != null) ObjectPoolManager.Instance!.CreatePool($"{op.OperatorData.entityName}_{this.name}_RangeVFX", skillRangeVFXPrefab, skillRangeOffset.Count);
+            }
         }
     }
 }

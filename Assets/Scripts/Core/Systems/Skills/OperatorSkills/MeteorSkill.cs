@@ -80,11 +80,15 @@ namespace Skills.Base
             }
         }
 
-        public override void InitializeSkillObjectPool()
+        public override void InitializeSkillObjectPool(UnitEntity caster)
         {
-            if (meteorPrefab != null) ObjectPoolManager.Instance!.CreatePool($"{this.name}_Meteor", meteorPrefab, 10);
-            if (hitEffectPrefab != null) ObjectPoolManager.Instance!.CreatePool($"{this.name}_HitEffect", hitEffectPrefab, 10);
-            if (skillRangeVFXPrefab != null) ObjectPoolManager.Instance!.CreatePool($"{this.name}_RangeVFX", skillRangeVFXPrefab, skillRangeOffset.Count);
+            base.InitializeSkillObjectPool(caster);
+            if (caster is Operator op)
+            {
+                if (meteorPrefab != null) ObjectPoolManager.Instance!.CreatePool($"{op.OperatorData.entityName}_{this.name}_Meteor", meteorPrefab, 10);
+                if (hitEffectPrefab != null) ObjectPoolManager.Instance!.CreatePool($"{op.OperatorData.entityName}_{this.name}_HitEffect", hitEffectPrefab, 10);
+                if (skillRangeVFXPrefab != null) ObjectPoolManager.Instance!.CreatePool($"{op.OperatorData.entityName}_{this.name}_RangeVFX", skillRangeVFXPrefab, skillRangeOffset.Count);
+            }
         }
 
         private void VisualizeSkillRange(Operator op, HashSet<Vector2Int> range)
