@@ -26,6 +26,8 @@ namespace Skills.Base
         [Header("Attack VFX Overrides(Optional)")]
         public GameObject meleeAttackEffectOverride;
 
+        protected string MELEE_ATTACK_OVERRIDE_TAG;
+
         // 인스펙터 bool 필드값들 초기 설정.
         protected virtual void SetDefaults() { }
 
@@ -44,21 +46,29 @@ namespace Skills.Base
         // op.Attack()을 사용하고, 공격이 적용된 후 효과 반영
         public virtual void OnAfterAttack(Operator op) { }
 
-        // 스킬에서 사용되는 오브젝트 풀 생성(VFX 포함)
+        /// <summary>
+        /// 스킬에서 사용되는 오브젝트 풀 생성(VFX 포함)
+        /// </summary>
         public virtual void InitializeSkillObjectPool(UnitEntity caster)
         {
             // 근접 공격 VFX 변경
             if (meleeAttackEffectOverride != null)
             {
-                string tag = GetVFXPoolTag(caster, meleeAttackEffectOverride);
-                if (!ObjectPoolManager.Instance.IsPoolExist(tag))
-                {
-                    ObjectPoolManager.Instance.CreatePool(tag, meleeAttackEffectOverride);
-                }
+                MELEE_ATTACK_OVERRIDE_TAG = RegisterPool(caster, meleeAttackEffectOverride);
             }
         }
 
-        public virtual void CleanupSkillObjectPool() { } // 스킬에 관련된 리소스 제거
+        /// <summary>
+        /// 스킬과 관련된 오브젝트 풀을 등록한다. 태그를 반환한다.
+        /// </summary>
+        protected virtual string RegisterPool(UnitEntity caster, GameObject prefab, int initialSize = 5)
+        {
+            if (prefab == null) return null;
+
+            string poolTag = GetVFXPoolTag(caster, prefab);
+            ObjectPoolManager.Instance.CreatePool(poolTag, prefab, initialSize);
+            return poolTag;
+        }
 
         public string GetVFXPoolTag(UnitEntity caster, GameObject vfxPrefab)
         {

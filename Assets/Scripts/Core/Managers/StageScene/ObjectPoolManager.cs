@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using UnityEngine.Rendering;
 
 
 /// <summary>
@@ -80,7 +81,6 @@ public class ObjectPoolManager : MonoBehaviour
         return poolDictionary.ContainsKey(tag);
     }
 
-
     // 지정된 태그의 풀에서 오브젝트를 가져와 활성화하고 위치와 회전을 설정합니다.
     public GameObject? SpawnFromPool(string tag, Vector3 position, Quaternion rotation)
     {
@@ -97,7 +97,6 @@ public class ObjectPoolManager : MonoBehaviour
         // (if) 풀을 모두 사용했다면 새로 생성 / (else) 풀의 내용 사용
         if (objectPool.Count == 0)
         {
-
             Pool? poolInfo = poolInfos[tag];
             if (poolInfo == null || poolInfo.prefab == null)
             {
@@ -141,7 +140,7 @@ public class ObjectPoolManager : MonoBehaviour
         if (poolDictionary.TryGetValue(tag, out Queue<GameObject> objectPool))
         {
             // 큐에 넣은 뒤 비활성화
-            poolDictionary[tag].Enqueue(obj);
+            objectPool.Enqueue(obj);
             if (activeObjects.ContainsKey(tag))
             {
                 activeObjects[tag].Remove(obj);
@@ -171,7 +170,6 @@ public class ObjectPoolManager : MonoBehaviour
                 }
                 activeObjects.Remove(tag);
             }
-
 
             // 큐의 비활성화 오브젝트 파괴
             while (objectPool.Count > 0)

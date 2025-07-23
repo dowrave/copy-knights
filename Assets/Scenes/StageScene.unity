@@ -234,7 +234,7 @@ GameObject:
   - component: {fileID: 13770537}
   - component: {fileID: 13770538}
   m_Layer: 0
-  m_Name: BuffEffectManager
+  m_Name: BuffVFXManager
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -267,7 +267,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a62fcac583b1c6f4abea26ab36816b8f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  effectDatabase: {fileID: 11400000, guid: 693ce918d81416c47b286cc2db4403b0, type: 2}
+  VFXDatabase: {fileID: 11400000, guid: 693ce918d81416c47b286cc2db4403b0, type: 2}
 --- !u!1 &26455943
 GameObject:
   m_ObjectHideFlags: 0

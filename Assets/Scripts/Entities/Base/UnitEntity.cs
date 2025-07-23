@@ -47,7 +47,8 @@ public abstract class UnitEntity : MonoBehaviour, ITargettable, IFactionMember, 
     // 이벤트
     public event Action<float, float, float> OnHealthChanged = delegate { };
     public event Action<Buff, bool> OnBuffChanged = delegate { }; // onCrowdControlChanged 대체 
-    public event Action<UnitEntity> OnDeathAnimationCompleted = delegate { };
+    public event Action<UnitEntity> OnDeathAnimationCompleted = delegate { }; // 체력이 다해 죽었을 때 정상적인 이벤트 실행 
+    public event Action<UnitEntity> OnDestroyed = delegate { }; // 어떤 경로로든 이 객체가 파괴될 때 실행, 위와 같이 쓰겠다면 중첩을 방지할 플래그를 쓰자.
 
     protected virtual void Awake()
     {
@@ -108,7 +109,6 @@ public abstract class UnitEntity : MonoBehaviour, ITargettable, IFactionMember, 
             materialInstance.DOFade(0f, 0.2f).OnComplete(() =>
             {
                 OnDeathAnimationCompleted?.Invoke(this); // 사망할 것임을 알리는 이벤트
-                // OnDestroyed?.Invoke(this); // 위의 이벤트로 통합
                 Destroy(materialInstance); // 메모리 누수 방지
                 Destroy(gameObject);
             });
@@ -117,7 +117,6 @@ public abstract class UnitEntity : MonoBehaviour, ITargettable, IFactionMember, 
         {
             // 렌더러가 없어도 콜백과 파괴는 실행된다.
             OnDeathAnimationCompleted?.Invoke(this);
-            // OnDestroyed?.Invoke(this);
             Destroy(gameObject);
         }
     }
@@ -333,6 +332,11 @@ public abstract class UnitEntity : MonoBehaviour, ITargettable, IFactionMember, 
     public void ActivateShield(float amount) => shieldSystem.ActivateShield(amount);
     public void DeactivateShield() => shieldSystem.DeactivateShield();
     public float GetCurrentShield() => shieldSystem.CurrentShield;
+
+    public void OnDestroy()
+    {
+        OnDestroyed?.Invoke(this);
+    }
 
     // 자식 클래스에서 구현할 값들 
     // 일일이 형변환시키지 않기 위해서 UnitEntity에서 구현해둠

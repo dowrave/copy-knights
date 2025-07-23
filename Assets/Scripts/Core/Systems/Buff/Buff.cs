@@ -3,6 +3,7 @@ using UnityEngine.VFX;
 using Skills.Base;
 using System.Collections.Generic;
 using System.Linq;
+using System;
 
 // 스킬의 부속품이 되는 버프 시스템의 기초
 public abstract class Buff
@@ -29,6 +30,9 @@ public abstract class Buff
     public GameObject MeleeAttackEffectOverride { get; protected set; }
     public BaseSkill SourceSkill { get; protected set; }
 
+    // 파괴 중인지에 대한 플래그
+    private bool isBeingRemoved = false;
+
     // owner.AddBuff에서 실행됨
     public virtual void OnApply(UnitEntity owner, UnitEntity caster)
     {
@@ -44,15 +48,24 @@ public abstract class Buff
     // UnitEntity.RemoveBuff : 버프 리스트에서 버프를 제거한 뒤 OnRemove가 동작하는 방식
     public virtual void OnRemove()
     {
+        if (isBeingRemoved) return;
+        isBeingRemoved = true;
+
+        // 재진입 방지 : 메서드 동작 중 재호출을 방지하기 위해, 구독 해제는 시작 지점에 넣어두는 게 좋다.
+        owner.OnDeathAnimationCompleted -= HandleOwnerTermination;
+        owner.OnDestroyed -= HandleOwnerTermination;
+    
         // 연결된 버프들이 있다면 우선 제거함
         foreach (var buff in linkedBuffs.ToList())
         {
             owner.RemoveBuff(buff);
         }
 
+        // 이펙트 제거
+        RemoveVFX();
+
         // 스킬의 후처리 콜백 호출
         OnRemovedCallback?.Invoke();
-        RemoveVFX();
     }
 
     // 매 프레임마다 업데이트가 필요하면 호출
@@ -67,7 +80,6 @@ public abstract class Buff
             }
         }
     }
-
 
     public virtual void OnBeforeAttack(UnitEntity owner, ref float damage, ref AttackType attackType, ref bool showDamagePopup) { } // 공격 전 호출
     public virtual void OnAfterAttack(UnitEntity owner, UnitEntity target) { } // 공격 후 호출
@@ -90,49 +102,65 @@ public abstract class Buff
     }
 
     // 버프에 포함된 VFX 이펙트를 재생한다.
-    // 일단은 스턴 같은 효과에만 사용된다. 스킬 지속시간 같은 상황은 별도.
+    // 일단은 스턴 같은 효과에만 사용된다. 스킬의 VFX는 스킬에서 구현함.
     protected virtual void PlayVFX()
     {
-        if (BuffEffectManager.Instance != null && owner != null)
+        // 이미 활성화된 VFX가 있다면 실행되지 않음
+        if (vfxInstance != null) return; 
+
+        // 필요한 인스턴스 확인
+        if (BuffVFXManager.Instance == null || owner == null) return;
+
+        vfxInstance = BuffVFXManager.Instance.GetBuffVFXObject(this, owner.transform);
+
+        if (vfxInstance != null)
         {
-            vfxInstance = BuffEffectManager.Instance.CreateBuffVFXObject(this, owner.transform);
-
-            if (vfxInstance != null)
+            vfxParticleSystem = vfxInstance.GetComponent<ParticleSystem>();
+            if (vfxParticleSystem != null)
             {
-                vfxParticleSystem = vfxInstance.GetComponent<ParticleSystem>();
-                if (vfxParticleSystem != null)
-                {
-                    vfxParticleSystem.Play();
-                    return;
-                }
-
+                vfxParticleSystem.Play();
+            }
+            else
+            {
                 vfxGraph = vfxInstance.GetComponent<VisualEffect>();
                 if (vfxGraph != null)
                 {
                     vfxGraph.Play();
-                    return;
                 }
             }
-        }
 
+            owner.OnDeathAnimationCompleted += HandleOwnerTermination;
+            owner.OnDestroyed += HandleOwnerTermination;
+        }
+    }
+
+    // 이벤트 구독용 래퍼 함수
+    protected void HandleOwnerTermination(UnitEntity owner)
+    {
+        OnRemove();
     }
 
     protected virtual void RemoveVFX()
     {
+        // Buff의 VFX가 없는 경우도 있을 수 있으니 조용히 종료함
+        if (vfxInstance == null) return;
+
         if (vfxParticleSystem != null)
         {
-            vfxParticleSystem.Stop();
+            vfxParticleSystem.Stop();// 새로운 파티클 생성 중지
+            vfxParticleSystem.Clear(); // 기존 파티클 제거
         }
         if (vfxGraph != null)
         {
-            vfxGraph.Stop();
+            vfxGraph.Stop(); // 새로운 파티클 생성 중지
+            vfxGraph.Reinit(); // 이펙트 초기 상태로 리셋 - 현재 활성화된 모든 파티클 제거
         }
 
-        GameObject.Destroy(vfxInstance);
+        BuffVFXManager.Instance.ReleaseBuffVFXObject(this, vfxInstance);
 
-        vfxInstance = null;
         vfxParticleSystem = null;
         vfxGraph = null;
+        vfxInstance = null;
     }
 
     // 이 버프가 해제될 때 함께 해제되는 버프를 여기에 포함시킨다.
@@ -144,5 +172,4 @@ public abstract class Buff
             linkedBuffs.Add(buffToLink);
         }
     }
-
 }

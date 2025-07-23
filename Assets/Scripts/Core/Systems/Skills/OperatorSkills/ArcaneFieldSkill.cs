@@ -13,7 +13,6 @@ namespace Skills.OperatorSkills
         [SerializeField] private GameObject fieldEffectPrefab = default!;
         [SerializeField] private GameObject skillRangeVFXPrefab = default!;
         [SerializeField] private GameObject hitEffectPrefab = default!;
-        private string hitEffectTag = "ArcaneHit";
 
         [Header("Damage Settings")]
         [SerializeField] private float damagePerTickRatio = 0.7f; // 대미지 배율
@@ -21,6 +20,10 @@ namespace Skills.OperatorSkills
         [SerializeField] private float damageInterval = 0.5f; // 대미지 간격
 
         private CannotAttackBuff? _cannotAttackBuff;
+
+        string FIELD_EFFECT_TAG; // 실제 필드 효과 태그
+        string SKILL_RANGE_VFX_TAG; // 필드 범위 VFX 태그
+        string HIT_EFFECT_TAG; // 타격 이펙트 태그
 
         protected override void SetDefaults()
         {
@@ -87,7 +90,7 @@ namespace Skills.OperatorSkills
                     actualDamagePerTick,
                     damageInterval,
                     hitEffectPrefab!,
-                    hitEffectTag,
+                    HIT_EFFECT_TAG,
                     slowAmount
                 );
             }
@@ -95,8 +98,6 @@ namespace Skills.OperatorSkills
 
         private void VisualizeSkillRange(Operator op, HashSet<Vector2Int> range)
         {
-            string vfxPoolTag = $"{this.name}_RangeVFX";
-
             foreach (Vector2Int pos in range)
             {
                 if (MapManager.Instance!.CurrentMap!.IsValidGridPosition(pos.x, pos.y))
@@ -104,7 +105,7 @@ namespace Skills.OperatorSkills
                     Vector3 worldPos = MapManager.Instance!.ConvertToWorldPosition(pos);
 
                     // 오브젝트 풀에서 VFX 객체를 가져옴
-                    GameObject? vfxObj = ObjectPoolManager.Instance?.SpawnFromPool(vfxPoolTag, worldPos, Quaternion.identity);
+                    GameObject? vfxObj = ObjectPoolManager.Instance?.SpawnFromPool(SKILL_RANGE_VFX_TAG, worldPos, Quaternion.identity);
 
                     if (vfxObj != null)
                     {
@@ -121,15 +122,26 @@ namespace Skills.OperatorSkills
             }
         }
 
-        // 오브젝트 풀 초기화
+        // 오브젝트 풀 초기화.
+        // 오퍼레이터라면 배치되는 시점에 실행된다. 
         public override void InitializeSkillObjectPool(UnitEntity caster)
         {
             base.InitializeSkillObjectPool(caster);
+
             if (caster is Operator op)
             {
-                if (fieldEffectPrefab != null) ObjectPoolManager.Instance!.CreatePool($"{op.OperatorData.entityName}_{this.name}_Field", fieldEffectPrefab, 2);
-                if (skillRangeVFXPrefab != null) ObjectPoolManager.Instance!.CreatePool($"{op.OperatorData.entityName}_{this.name}_RangeVFX", skillRangeVFXPrefab, skillRangeOffset.Count);
-                if (hitEffectPrefab != null){ ObjectPoolManager.Instance!.CreatePool(hitEffectTag, hitEffectPrefab, 10); }
+                if (fieldEffectPrefab != null)
+                {
+                    FIELD_EFFECT_TAG = RegisterPool(op, fieldEffectPrefab, 2);
+                }
+                if (skillRangeVFXPrefab != null)
+                {
+                    SKILL_RANGE_VFX_TAG = RegisterPool(op, skillRangeVFXPrefab, skillRangeOffset.Count);
+                }
+                if (hitEffectPrefab != null)
+                {
+                    HIT_EFFECT_TAG = RegisterPool(op, hitEffectPrefab, 10);
+                }
             }
         }
     }

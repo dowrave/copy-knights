@@ -10,10 +10,10 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 5408e8630233d12439d768bcb04c3e3a, type: 3}
-  m_Name: BuffEffectDatabase
+  m_Name: BuffVFXDatabase
   m_EditorClassIdentifier: 
-  effectMappings:
-  - buffClassName: StunBuff
+  vfxMappings:
+  - exactBuffClassName: StunBuff
     vfxPrefab: {fileID: 4972023296895345739, guid: 8454c4e68a23d804d9e1df5e128781c1, type: 3}
-  - buffClassName: SlowBuff
-    vfxPrefab: {fileID: 0}
+    initialPoolSize: 10
+    vfxOffset: {x: 0, y: 0.2, z: 0}

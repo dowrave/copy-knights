@@ -88,7 +88,6 @@
     <Compile Include="Assets\Scripts\Core\Systems\Skills\Base(Abstract)\BaseSkill.cs" />
     <Compile Include="Assets\Scripts\Interfaces\IMovable.cs" />
     <Compile Include="Assets\Scripts\Core\Systems\Skills\VFXController\CostParticleMotion.cs" />
-    <Compile Include="Assets\Scripts\Core\Managers\StageScene\BuffEffectManager.cs" />
     <Compile Include="Assets\Scripts\Core\Systems\Skills\OperatorSkills\SmashSkill.cs" />
     <Compile Include="Assets\Scripts\Core\Managers\GameManagement\GameManagement.cs" />
     <Compile Include="Assets\Scripts\Core\Systems\Skills\VFXController\CombatVFXController.cs" />
@@ -165,13 +164,13 @@
     <Compile Include="Assets\Scripts\UI\Components\ConfirmationPopup.cs" />
     <Compile Include="Assets\Scripts\Map\EnemySpawnerConfig.cs" />
     <Compile Include="Assets\Scripts\Core\Managers\StageScene\SpawnerManager.cs" />
+    <Compile Include="Assets\Scripts\Core\Managers\StageScene\BuffVFXManager.cs" />
     <Compile Include="Assets\Scripts\Entities\Operators\Operator.cs" />
     <Compile Include="Assets\Scripts\Core\Systems\Buff\Buff.cs" />
     <Compile Include="Assets\Scripts\UI\Components\StatisticItem.cs" />
     <Compile Include="Assets\Scripts\Core\Systems\Skills\SkillController\ArcaneFieldController.cs" />
     <Compile Include="Assets\Scripts\Utils\UIHelper.cs" />
     <Compile Include="Assets\Scripts\UI\Components\OperatorSlot.cs" />
-    <Compile Include="Assets\Scripts\Data\BuffEffectDatabase.cs" />
     <Compile Include="Assets\Scripts\UI\Panels\SquadEditPanel.cs" />
     <Compile Include="Assets\Scripts\Entities\ColliderController\BodyColliderController.cs" />
     <Compile Include="Assets\Scripts\UI\Panels\ToLobbyPanel.cs" />
@@ -187,6 +186,7 @@
     <Compile Include="Assets\Scripts\Entities\Barricade.cs" />
     <Compile Include="Assets\Scripts\Map\Map.cs" />
     <Compile Include="Assets\Scripts\UI\Components\ItemUIElement.cs" />
+    <Compile Include="Assets\Scripts\Data\BuffVFXDatabase.cs" />
     <Compile Include="Assets\Scripts\Core\Systems\OperatorGrowthSystem.cs" />
     <Compile Include="Assets\Scripts\Map\Tile.cs" />
     <Compile Include="Assets\Scripts\Entities\Enemy\EnemyAttackRangeController.cs" />

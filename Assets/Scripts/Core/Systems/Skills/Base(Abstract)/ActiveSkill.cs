@@ -32,7 +32,6 @@ namespace Skills.Base
 
         public override void Activate(Operator op)
         {
-
             CommonActivation(op);
 
             // 지속시간에 따른 구현

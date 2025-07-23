@@ -12,11 +12,15 @@ namespace Skills.Base
         [SerializeField] private float stunDuration = 2f;
         [SerializeField] private int costRecovery = 10;
         [SerializeField] private GameObject meteorPrefab = default!; // 떨어지는 메쉬 자체
-        [SerializeField] private Vector2 meteorHeights = new Vector2(4f, 5f); // 두 오브젝트의 높이
-        [SerializeField] private float meteorDelay = 0.5f;
+        [SerializeField] private Vector2 meteorHeights = new Vector2(); // 두 오브젝트의 높이
         [SerializeField] private GameObject hitEffectPrefab = default!;
         [SerializeField] private GameObject skillRangeVFXPrefab = default!;
-        private string hitEffectTag = "MeteorHit";
+
+        private float meteorDelay = 0.5f;
+
+        string METEOR_TAG; // 메테오 효과 태그
+        string SKILL_RANGE_VFX_TAG; // 필드 범위 VFX 태그
+        string HIT_EFFECT_TAG; // 타격 이펙트 태그
 
         protected override void SetDefaults()
         {
@@ -38,6 +42,8 @@ namespace Skills.Base
             Vector2Int centerPos = MapManager.Instance!.ConvertToGridPosition(op.transform.position);
             actualSkillRange.Clear();
             CalculateActualSkillRange(centerPos);
+
+
             VisualizeSkillRange(op, actualSkillRange);
 
             // 중복 타격 방지를 위한 ID 세트
@@ -76,7 +82,7 @@ namespace Skills.Base
             if (controller != null)
             {
                 float actualDamage = op.AttackPower * damageMultiplier;
-                controller.Initialize(op, target, actualDamage, delayTime, stunDuration, hitEffectPrefab, hitEffectTag);
+                controller.Initialize(op, target, actualDamage, delayTime, stunDuration, hitEffectPrefab, HIT_EFFECT_TAG);
             }
         }
 
@@ -85,22 +91,29 @@ namespace Skills.Base
             base.InitializeSkillObjectPool(caster);
             if (caster is Operator op)
             {
-                if (meteorPrefab != null) ObjectPoolManager.Instance!.CreatePool($"{op.OperatorData.entityName}_{this.name}_Meteor", meteorPrefab, 10);
-                if (hitEffectPrefab != null) ObjectPoolManager.Instance!.CreatePool($"{op.OperatorData.entityName}_{this.name}_HitEffect", hitEffectPrefab, 10);
-                if (skillRangeVFXPrefab != null) ObjectPoolManager.Instance!.CreatePool($"{op.OperatorData.entityName}_{this.name}_RangeVFX", skillRangeVFXPrefab, skillRangeOffset.Count);
+                if (meteorPrefab != null)
+                {
+                    METEOR_TAG = RegisterPool(op, meteorPrefab, 10);
+                }
+                if (skillRangeVFXPrefab != null)
+                {
+                    SKILL_RANGE_VFX_TAG = RegisterPool(op, skillRangeVFXPrefab, skillRangeOffset.Count);
+                }
+                if (hitEffectPrefab != null)
+                {
+                    HIT_EFFECT_TAG = RegisterPool(op, hitEffectPrefab, 10);
+                }
             }
         }
 
         private void VisualizeSkillRange(Operator op, HashSet<Vector2Int> range)
         {
-            string vfxPoolTag = $"{this.name}_RangeVFX";
-
             foreach (Vector2Int pos in range)
             {
                 if (MapManager.Instance!.CurrentMap!.IsValidGridPosition(pos.x, pos.y))
                 {
                     Vector3 worldPos = MapManager.Instance!.ConvertToWorldPosition(pos);
-                    GameObject? vfxObj = ObjectPoolManager.Instance?.SpawnFromPool(vfxPoolTag, worldPos, Quaternion.identity);
+                    GameObject? vfxObj = ObjectPoolManager.Instance?.SpawnFromPool(SKILL_RANGE_VFX_TAG, worldPos, Quaternion.identity);
 
                     if (vfxObj != null)
                     {

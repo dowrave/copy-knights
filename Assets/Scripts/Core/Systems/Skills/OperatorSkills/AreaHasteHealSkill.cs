@@ -11,13 +11,16 @@ namespace Skills.Base
         [SerializeField] private GameObject fieldEffectPrefab = default!; // 힐 장판 프리팹
         [SerializeField] private GameObject hitEffectPrefab = default!;
         [SerializeField] private GameObject skillRangeVFXPrefab = default!;
-        string hitEffectTag = "AreaHealHit";
 
         [Header("Skill Settings")]
         [SerializeField] private float healPerTickRatio = 0.7f;
         [SerializeField] private float healInterval = 0.5f;
 
         private CannotAttackBuff? _cannotAttackBuff;
+
+        string FIELD_EFFECT_TAG; // 실제 필드 효과 태그
+        string SKILL_RANGE_VFX_TAG; // 필드 범위 VFX 태그
+        string HIT_EFFECT_TAG; // 타격 이펙트 태그
 
         protected override void PlaySkillEffect(Operator op)
         {
@@ -72,7 +75,7 @@ namespace Skills.Base
                     amountPerTick: actualHealPerTick,
                     interval: healInterval,
                     hitEffectPrefab: hitEffectPrefab,
-                    hitEffectTag: hitEffectTag
+                    hitEffectTag: HIT_EFFECT_TAG
                 );
             }
 
@@ -82,14 +85,12 @@ namespace Skills.Base
         // 시각화 헬퍼 메서드 (이전 AreaEffectSkill의 로직을 가져옴)
         private void VisualizeSkillRange(Operator op, HashSet<Vector2Int> range)
         {
-            string vfxPoolTag = $"{this.name}_RangeVFX";
-
             foreach (Vector2Int pos in range)
             {
                 if (MapManager.Instance!.CurrentMap!.IsValidGridPosition(pos.x, pos.y))
                 {
                     Vector3 worldPos = MapManager.Instance!.ConvertToWorldPosition(pos);
-                    GameObject? vfxObj = ObjectPoolManager.Instance?.SpawnFromPool(vfxPoolTag, worldPos, Quaternion.identity);
+                    GameObject? vfxObj = ObjectPoolManager.Instance?.SpawnFromPool(SKILL_RANGE_VFX_TAG, worldPos, Quaternion.identity);
 
                     if (vfxObj != null)
                     {
@@ -112,9 +113,18 @@ namespace Skills.Base
             base.InitializeSkillObjectPool(caster);
             if (caster is Operator op)
             {
-                if (fieldEffectPrefab != null) ObjectPoolManager.Instance!.CreatePool($"{op.OperatorData.entityName}_{this.name}_Field", fieldEffectPrefab, 2);
-                if (hitEffectPrefab != null) ObjectPoolManager.Instance!.CreatePool($"{op.OperatorData.entityName}_{this.name}_HitEffect", hitEffectPrefab, 10);
-                if (skillRangeVFXPrefab != null) ObjectPoolManager.Instance!.CreatePool($"{op.OperatorData.entityName}_{this.name}_RangeVFX", skillRangeVFXPrefab, skillRangeOffset.Count);
+                if (fieldEffectPrefab != null)
+                {
+                    FIELD_EFFECT_TAG = RegisterPool(op, fieldEffectPrefab, 2);
+                }
+                if (skillRangeVFXPrefab != null)
+                {
+                    SKILL_RANGE_VFX_TAG = RegisterPool(op, skillRangeVFXPrefab, skillRangeOffset.Count);
+                }
+                if (hitEffectPrefab != null)
+                {
+                    HIT_EFFECT_TAG = RegisterPool(op, hitEffectPrefab, 10);
+                }
             }
         }
     }

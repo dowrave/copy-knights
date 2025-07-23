@@ -47,7 +47,6 @@ MonoBehaviour:
   stunDuration: 2
   costRecovery: 10
   meteorPrefab: {fileID: 5367294480834238149, guid: 72548913df2272e41828031cffbc45c0, type: 3}
-  meteorHeights: {x: 1, y: 2}
-  meteorDelay: 0.5
+  meteorHeights: {x: 1.5, y: 2}
   hitEffectPrefab: {fileID: 8008928503674968961, guid: 3a7bbca2a850efb4e9ec0752775126f5, type: 3}
   skillRangeVFXPrefab: {fileID: 4360018886635934139, guid: ed9abc6ecd85fb24d811404da8d37ff1, type: 3}

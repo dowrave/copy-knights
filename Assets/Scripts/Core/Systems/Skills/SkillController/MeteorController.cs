@@ -71,7 +71,6 @@ public class MeteorController : MonoBehaviour, IPooledObject
             // 기절 효과 적용
             StunBuff stunBuff = new StunBuff(stunDuration);
             target.AddBuff(stunBuff);
-            stunBuff.OnApply(target, caster);
 
             // 대미지 적용
             AttackSource attackSource = new AttackSource(
