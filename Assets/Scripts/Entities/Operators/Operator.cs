@@ -144,11 +144,6 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
     // 원거리 공격 오브젝트 풀 옵션
     protected string? projectileTag;
 
-    // 이펙트 풀 태그
-    protected string? meleeAttackEffectTag;
-    protected string hitEffectTag = string.Empty;
-    public string HitEffectTag => hitEffectTag;
-
     // 스킬 관련
     public BaseSkill CurrentSkill { get; private set; } = default!;
     private bool _isSkillOn;
@@ -648,10 +643,16 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
         // 이펙트 오브젝트 풀 생성
         CreateObjectPool();
 
+        // 배치 이펙트 실행
+        PlayDeployVFX();
+
         // 적 사망 이벤트 구독
         Enemy.OnEnemyDespawned += HandleEnemyDespawn;
+    }
 
-        // 배치 VFX
+    private void PlayDeployVFX()
+    {
+        // 배치 VFX 실행 
         if (OperatorData.deployEffectPrefab != null)
         {
             GameObject deployEffect = Instantiate(
@@ -667,7 +668,6 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
                 Destroy(deployEffect, 1.2f); // 1.2초 후 파괴, 아래의 동작을 막지 않는다.
             }
         }
-
     }
 
     private void ClearStates()
@@ -676,7 +676,7 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
         blockedEnemies.Clear();
         blockableEnemies.Clear();
         currentBlockCount = 0;
-        CurrentTarget = null; 
+        CurrentTarget = null;
     }
 
     // 테스트) 적 파괴 이벤트를 받아 오퍼레이터에서의 처리를 작업함
@@ -905,7 +905,7 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
             );
         }
 
-        // 피격 이펙트 풀 생성
+        // 타격 이펙트 풀 생성
         if (OperatorData.hitEffectPrefab != null)
         {
             hitEffectTag = $"{baseTag}_{OperatorData.hitEffectPrefab.name}";

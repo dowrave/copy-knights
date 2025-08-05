@@ -103,8 +103,7 @@ namespace Skills.Base
         {
             if (skillVFXPrefab == null) return;
 
-            // 오퍼레이터 위치에 약간 띄워서 이펙트 생성
-            Vector3 effectPosition = op.transform.position + Vector3.up * 0.05f;
+            Vector3 effectPosition = op.transform.position;
             VfxInstance = Instantiate(
                 skillVFXPrefab,
                 effectPosition,

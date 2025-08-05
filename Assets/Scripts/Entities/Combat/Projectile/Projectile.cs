@@ -53,6 +53,7 @@ public class Projectile : MonoBehaviour
         shouldDestroy = false;
 
         this.hitEffectPrefab = hitEffectPrefab;
+        this.hitEffectTag = hitEffectTag;
 
         vfx = GetComponentInChildren<VisualEffect>();
 

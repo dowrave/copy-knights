@@ -30,5 +30,5 @@ MonoBehaviour:
   projectileTag: 
   defaultYPosition: 0.5
   meleeAttackEffectPrefab: {fileID: 2667795462971242445, guid: ab921526673becc4dba3450e1f02e066, type: 3}
-  hitEffectPrefab: {fileID: 8008928503674968961, guid: 9e60a750274072b42bc151642e7195b2, type: 3}
+  hitEffectPrefab: {fileID: 7245273522019326439, guid: 7efd1727cc772f140a02a7da68da0b49, type: 3}
   hitEffectTag: 

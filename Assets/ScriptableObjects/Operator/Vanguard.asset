@@ -25,7 +25,6 @@ MonoBehaviour:
     _attackPower: 273
     _attackSpeed: 1.05
     _maxBlockableEnemies: 2
-    _startSP: 0
     _spRecoveryRate: 1
   prefab: {fileID: 5185628148525671535, guid: f6133e5c81658dc40ba3a9ece027c15e, type: 3}
   icon: {fileID: 0}
@@ -40,7 +39,7 @@ MonoBehaviour:
   initialSP: 0
   deployEffectPrefab: {fileID: 6896400663674567924, guid: a391789893d1b154bb27df310ec61c06, type: 3}
   meleeAttackEffectPrefab: {fileID: 2667795462971242445, guid: fb9cbd2d5e200f047a7c5ba30d7d8d35, type: 3}
-  hitEffectPrefab: {fileID: 8008928503674968961, guid: 3a7bbca2a850efb4e9ec0752775126f5, type: 3}
+  hitEffectPrefab: {fileID: 7245273522019326439, guid: a7ce6bb72f5ed9145aeb0e54505f25fd, type: 3}
   projectilePrefab: {fileID: 0}
   levelStats:
     healthPerLevel: 5.5

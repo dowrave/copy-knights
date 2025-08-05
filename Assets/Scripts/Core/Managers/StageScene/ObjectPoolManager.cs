@@ -84,7 +84,11 @@ public class ObjectPoolManager : MonoBehaviour
     // 지정된 태그의 풀에서 오브젝트를 가져와 활성화하고 위치와 회전을 설정합니다.
     public GameObject? SpawnFromPool(string tag, Vector3 position, Quaternion rotation)
     {
-        if (!IsPoolExist(tag)) return null;
+        if (!IsPoolExist(tag))
+        {
+            Debug.LogError($"{tag}라는 이름을 가진 태그가 풀 목록에 존재하지 않음");
+            return null; 
+        }
 
         if (!activeObjects.ContainsKey(tag))
         {

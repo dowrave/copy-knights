@@ -44,6 +44,11 @@ public abstract class UnitEntity : MonoBehaviour, ITargettable, IFactionMember, 
     public virtual float MovementSpeed { get; }
     public virtual void SetMovementSpeed(float newMovementSpeed) {}
 
+    // 이펙트 태그
+    protected string? meleeAttackEffectTag;
+    protected string hitEffectTag = string.Empty;
+    public string HitEffectTag => hitEffectTag;
+
     // 이벤트
     public event Action<float, float, float> OnHealthChanged = delegate { };
     public event Action<Buff, bool> OnBuffChanged = delegate { }; // onCrowdControlChanged 대체 
@@ -167,26 +172,26 @@ public abstract class UnitEntity : MonoBehaviour, ITargettable, IFactionMember, 
 
     protected virtual void PlayGetHitEffect(AttackSource attackSource)
     {
-        GameObject hitEffectPrefab = attackSource.HitEffectPrefab;
-        string hitEffectTag = attackSource.HitEffectTag;
+        GameObject sourceHitEffectPrefab = attackSource.HitEffectPrefab;
+        string sourceHitEffectTag = attackSource.HitEffectTag;
         string attackerName;
 
         if (attackSource.Attacker is Operator op)
         {
             OperatorData opData = op.OperatorData;
             attackerName = opData.entityName;
-            if (hitEffectPrefab == null)
+            if (sourceHitEffectPrefab == null)
             {
-                hitEffectPrefab = opData.hitEffectPrefab;
+                sourceHitEffectPrefab = opData.hitEffectPrefab;
             }
         }
         else if (attackSource.Attacker is Enemy enemy)
         {
             EnemyData enemyData = enemy.BaseData;
             attackerName = enemyData.entityName;
-            if (hitEffectPrefab == null)
+            if (sourceHitEffectPrefab == null)
             {
-                hitEffectPrefab = enemyData.hitEffectPrefab;
+                sourceHitEffectPrefab = enemyData.hitEffectPrefab;
             }
         }
         else
@@ -195,20 +200,22 @@ public abstract class UnitEntity : MonoBehaviour, ITargettable, IFactionMember, 
             return;
         }
 
-        if (hitEffectPrefab != null)
+        if (sourceHitEffectPrefab != null)
         {
             Vector3 effectPosition = transform.position;
 
             // 풀에서 이펙트 오브젝트 가져오기
-            if (hitEffectTag == string.Empty)
+            if (sourceHitEffectTag == string.Empty)
             {
-                hitEffectTag = attackerName + hitEffectPrefab.name;
+                Debug.LogWarning("[TakeDamage] hitEffectTag 값이 null임");
             }
-            GameObject? hitEffect = ObjectPoolManager.Instance!.SpawnFromPool(hitEffectTag, effectPosition, Quaternion.identity);
+
+            GameObject? hitEffect = ObjectPoolManager.Instance!.SpawnFromPool(sourceHitEffectTag, effectPosition, Quaternion.identity);
+
             if (hitEffect != null)
             {
                 CombatVFXController hitVFXController = hitEffect.GetComponent<CombatVFXController>();
-                hitVFXController.Initialize(attackSource, this, hitEffectTag);
+                hitVFXController.Initialize(attackSource, this, sourceHitEffectTag);
             }
         }
     }

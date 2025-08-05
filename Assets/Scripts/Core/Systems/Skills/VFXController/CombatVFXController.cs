@@ -11,8 +11,15 @@ public class CombatVFXController : MonoBehaviour
     private string effectTag = string.Empty;
     private float effectDuration;
 
-    ParticleSystem? ps; 
-    VisualEffect? vfx;
+    [Header("Assign One")]
+    [SerializeField] private ParticleSystem? ps; 
+    [SerializeField] private VisualEffect? vfx;
+
+    private void Awake()
+    {
+        // ps = GetComponent<ParticleSystem>();
+        vfx = GetComponent<VisualEffect>(); // ps로 구현 시 직접 할당
+    }
 
     // 타겟이 있을 때 - 위치 정보만 뽑아낸다.
     public void Initialize(AttackSource attackSource, UnitEntity target, string effectTag, float effectDuration = 1f)
@@ -28,9 +35,6 @@ public class CombatVFXController : MonoBehaviour
         this.target = target; 
         this.effectTag = effectTag;
         this.effectDuration = effectDuration;
-
-        ps = GetComponent<ParticleSystem>();
-        vfx = GetComponent<VisualEffect>();
 
         if (vfx != null)
         {
@@ -78,7 +82,24 @@ public class CombatVFXController : MonoBehaviour
     {
         if (ps != null)
         {
-            ps.Play();
+            //공격 이펙트의 방향을 설정 - 기본 +Z축으로 향한다고 가정
+            Vector3 baseDirection = Vector3.forward;
+            Vector3 attackDirection = (targetPosition - transform.position).normalized;
+
+            if (attackDirection != Vector3.zero)
+            {
+                Quaternion rotation = Quaternion.FromToRotation(baseDirection, attackDirection);
+                transform.rotation = rotation; // 게임 오브젝트 자체의 회전으로 방향을 맞춤
+            }
+
+            // 이펙트의 방향을 공격이 날아온 반대 방향으로 설정함
+            Vector3 hitDirection = (transform.position - attackSource.Position).normalized;
+
+            if (hitDirection != Vector3.zero)
+            {
+                transform.rotation = Quaternion.LookRotation(hitDirection);
+            }
+            ps.Play(true); // true 시 모든 자식 이펙트까지 한꺼번에 재생함
         }
     }
 

@@ -87,11 +87,6 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity
     protected int initialPoolSize = 5;
     protected string? projectileTag;
 
-    // 이펙트 풀 태그
-    string? meleeAttackEffectTag;
-    string hitEffectTag = string.Empty;
-    public string HitEffectTag => hitEffectTag;
-
     [SerializeField] private GameObject enemyBarUIPrefab = default!;
     private EnemyBarUI? enemyBarUI;
 
