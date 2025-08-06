@@ -287,7 +287,7 @@ ParticleSystem:
     startSize:
       serializedVersion: 2
       minMaxState: 0
-      scalar: 0.8
+      scalar: 0.75
       minScalar: 1
       maxCurve:
         serializedVersion: 2
@@ -4902,7 +4902,7 @@ GameObject:
   - component: {fileID: 183749791649884333}
   - component: {fileID: 6769144367030206332}
   m_Layer: 11
-  m_Name: vfx_hit_Smash_Enemy_v1
+  m_Name: vfx_Enemy_Hit_Impact_v1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -4938,6 +4938,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   ps: {fileID: 3784110781752270689}
   vfx: {fileID: 0}
+  rotationType: 2
 --- !u!1 &1640576888043239738
 GameObject:
   m_ObjectHideFlags: 0

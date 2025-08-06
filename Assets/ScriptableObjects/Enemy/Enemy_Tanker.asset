@@ -20,7 +20,7 @@ MonoBehaviour:
       _magicResistance: 10
     _movementSpeed: 0.8
     _attackPower: 350
-    _attackSpeed: 0.8
+    _attackSpeed: 1.7
     _attackRange: 0
   prefab: {fileID: 6542749020257112806, guid: 3cc57da195bbbd34b915e65d097837f1, type: 3}
   attackType: 0
@@ -29,6 +29,6 @@ MonoBehaviour:
   projectilePrefab: {fileID: 0}
   projectileTag: 
   defaultYPosition: 0.5
-  meleeAttackEffectPrefab: {fileID: 2667795462971242445, guid: ab921526673becc4dba3450e1f02e066, type: 3}
+  meleeAttackEffectPrefab: {fileID: 8508828635353196231, guid: f08c9e8b57eef8348a930bc560783600, type: 3}
   hitEffectPrefab: {fileID: 666637002290319158, guid: f81444b50caf57a4e96672ccb105383f, type: 3}
   hitEffectTag: 

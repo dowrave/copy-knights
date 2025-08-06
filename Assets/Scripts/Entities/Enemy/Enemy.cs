@@ -761,11 +761,13 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity
         // ¿Ã∆Â∆Æ √≥∏Æ
         if (meleeAttackEffectTag != null && BaseData.meleeAttackEffectPrefab != null)
         {
+            
             GameObject? effectObj = ObjectPoolManager.Instance!.SpawnFromPool(
                    meleeAttackEffectTag,
                    transform.position,
                    Quaternion.identity
             );
+
             if (effectObj != null)
             {
                 CombatVFXController? combatVFXController = effectObj.GetComponent<CombatVFXController>();

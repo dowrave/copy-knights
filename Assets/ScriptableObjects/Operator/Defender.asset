@@ -37,7 +37,7 @@ MonoBehaviour:
   elite0Skill: {fileID: 11400000, guid: 56faa0a8b9215bf43a3fabf75602a487, type: 2}
   initialSP: 0
   deployEffectPrefab: {fileID: 6896400663674567924, guid: a391789893d1b154bb27df310ec61c06, type: 3}
-  meleeAttackEffectPrefab: {fileID: 0}
+  meleeAttackEffectPrefab: {fileID: 1878176885182270282, guid: f571c8d7fe2ef274a8f763f91b1442d9, type: 3}
   hitEffectPrefab: {fileID: 666637002290319158, guid: 06a15051e0339b445869f8f1b8a6bee6, type: 3}
   projectilePrefab: {fileID: 0}
   levelStats:

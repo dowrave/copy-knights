@@ -80,7 +80,7 @@ MeshRenderer:
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: -335978105
-  m_SortingLayer: 4
+  m_SortingLayer: 5
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
 --- !u!114 &2471861215602643798
@@ -130,8 +130,8 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 2.5
-  m_fontSizeBase: 2.5
+  m_fontSize: 2
+  m_fontSizeBase: 2
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
@@ -197,5 +197,5 @@ MonoBehaviour:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
-  attackColor: {r: 1, g: 0.1168831, b: 0.1168831, a: 1}
-  healColor: {r: 0.11304349, g: 1, b: 0.11304349, a: 1}
+  attackColor: {r: 1, g: 0.1168831, b: 0.1168831, a: 0.69803923}
+  healColor: {r: 0.11304349, g: 1, b: 0.11304349, a: 0.69803923}

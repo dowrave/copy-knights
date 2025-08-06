@@ -52,7 +52,7 @@ ParticleSystem:
   prewarm: 0
   playOnAwake: 1
   useUnscaledTime: 0
-  autoRandomSeed: 0
+  autoRandomSeed: 1
   startDelay:
     serializedVersion: 2
     minMaxState: 0
@@ -222,8 +222,8 @@ ParticleSystem:
     startColor:
       serializedVersion: 2
       minMaxState: 2
-      minColor: {r: 0.19215685, g: 0.279985, b: 0.94509804, a: 0.29803923}
-      maxColor: {r: 0.3019608, g: 0.5921569, b: 0.99215686, a: 0.69803923}
+      minColor: {r: 0.93333334, g: 0.40964723, b: 0.17254901, a: 0.5019608}
+      maxColor: {r: 0.8666667, g: 0.20392157, b: 0.18431373, a: 0.69803923}
       maxGradient:
         serializedVersion: 2
         key0: {r: 1, g: 1, b: 1, a: 1}
@@ -4922,7 +4922,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 8533124075449292513}
+  m_Father: {fileID: 1770414362533083112}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!198 &3733045546791255012
 ParticleSystem:
@@ -5114,7 +5114,7 @@ ParticleSystem:
       serializedVersion: 2
       minMaxState: 0
       minColor: {r: 1, g: 1, b: 1, a: 1}
-      maxColor: {r: 0, g: 0, b: 0, a: 0.69803923}
+      maxColor: {r: 0, g: 0, b: 0, a: 0.5019608}
       maxGradient:
         serializedVersion: 2
         key0: {r: 1, g: 1, b: 1, a: 1}
@@ -14706,7 +14706,6 @@ Transform:
   m_Children:
   - {fileID: 5009782999415761658}
   - {fileID: 1770414362533083112}
-  - {fileID: 1509962848786549271}
   - {fileID: 3186680807898093405}
   - {fileID: 6049703341942917829}
   m_Father: {fileID: 5998593079746869780}
@@ -14901,7 +14900,7 @@ ParticleSystem:
       serializedVersion: 2
       minMaxState: 0
       minColor: {r: 1, g: 1, b: 1, a: 1}
-      maxColor: {r: 0.30196083, g: 0.5905259, b: 0.99215686, a: 1}
+      maxColor: {r: 0.8679245, g: 0.20510547, b: 0.18422928, a: 1}
       maxGradient:
         serializedVersion: 2
         key0: {r: 1, g: 1, b: 1, a: 1}
@@ -24471,7 +24470,7 @@ GameObject:
   - component: {fileID: 5998593079746869780}
   - component: {fileID: 1511503781609469826}
   m_Layer: 11
-  m_Name: vfx_hit_Slash_Ally_v1
+  m_Name: vfx_Enemy_Hit_Slash_v1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -24507,6 +24506,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   ps: {fileID: 6223243371315430865}
   vfx: {fileID: 0}
+  rotationType: 2
 --- !u!1 &8294624144204568271
 GameObject:
   m_ObjectHideFlags: 0
@@ -24537,7 +24537,8 @@ Transform:
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
-  m_Children: []
+  m_Children:
+  - {fileID: 1509962848786549271}
   m_Father: {fileID: 8533124075449292513}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!198 &63332435960686910
@@ -24622,8 +24623,8 @@ ParticleSystem:
     enabled: 1
     startLifetime:
       serializedVersion: 2
-      minMaxState: 3
-      scalar: 0.07
+      minMaxState: 0
+      scalar: 0.1
       minScalar: 0.05
       maxCurve:
         serializedVersion: 2
@@ -24730,7 +24731,7 @@ ParticleSystem:
       serializedVersion: 2
       minMaxState: 0
       minColor: {r: 1, g: 1, b: 1, a: 1}
-      maxColor: {r: 0.3013044, g: 0.59086955, b: 0.99, a: 0.69803923}
+      maxColor: {r: 0.8666667, g: 0.20392157, b: 0.18431373, a: 0.5019608}
       maxGradient:
         serializedVersion: 2
         key0: {r: 1, g: 1, b: 1, a: 1}
@@ -28379,9 +28380,9 @@ ParticleSystem:
     enabled: 1
     subEmitters:
     - serializedVersion: 3
-      emitter: {fileID: 0}
+      emitter: {fileID: 3733045546791255012}
       type: 0
-      properties: 2
+      properties: 10
       emitProbability: 1
   LightsModule:
     enabled: 0

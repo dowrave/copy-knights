@@ -15,6 +15,9 @@ public class CombatVFXController : MonoBehaviour
     [SerializeField] private ParticleSystem? ps; 
     [SerializeField] private VisualEffect? vfx;
 
+    [Header("Particle System Options")]
+    [SerializeField] private VFXRotationType rotationType = VFXRotationType.None;
+
     private void Awake()
     {
         // ps = GetComponent<ParticleSystem>();
@@ -82,23 +85,35 @@ public class CombatVFXController : MonoBehaviour
     {
         if (ps != null)
         {
-            //공격 이펙트의 방향을 설정 - 기본 +Z축으로 향한다고 가정
-            Vector3 baseDirection = Vector3.forward;
-            Vector3 attackDirection = (targetPosition - transform.position).normalized;
-
-            if (attackDirection != Vector3.zero)
+            Vector3 baseDirection = Vector3.forward; // 모든 이펙트는 +Z축으로 진행된다고 가정함
+            switch (rotationType)
             {
-                Quaternion rotation = Quaternion.FromToRotation(baseDirection, attackDirection);
-                transform.rotation = rotation; // 게임 오브젝트 자체의 회전으로 방향을 맞춤
+                // 옵션 1) 피격자 -> 공격자 방향의 이펙트 진행
+                case VFXRotationType.targetToSource:
+
+                    Vector3 directionToSource = (attackSource.Position - targetPosition).normalized;
+                    if (directionToSource != Vector3.zero)
+                    {
+                        Quaternion rotation = Quaternion.FromToRotation(baseDirection, directionToSource);
+                        transform.rotation = rotation;
+                    }                
+                    break;
+
+                // 옵션 2) 공격자 -> 피격자 방향의 이펙트 진행
+                case VFXRotationType.sourceToTarget:
+                    Vector3 directionToTarget = (targetPosition - attackSource.Position).normalized;
+                    if (directionToTarget != Vector3.zero)
+                    {
+                        Quaternion rotation = Quaternion.FromToRotation(baseDirection, directionToTarget);
+                        transform.rotation = rotation;
+                    }
+                    break;
+
+                // 옵션 3) 별도 설정 필요 없음
+                case VFXRotationType.None:
+                    break;
             }
 
-            // 이펙트의 방향을 공격이 날아온 반대 방향으로 설정함
-            Vector3 hitDirection = (transform.position - attackSource.Position).normalized;
-
-            if (hitDirection != Vector3.zero)
-            {
-                transform.rotation = Quaternion.LookRotation(hitDirection);
-            }
             ps.Play(true); // true 시 모든 자식 이펙트까지 한꺼번에 재생함
         }
     }
@@ -111,9 +126,20 @@ public class CombatVFXController : MonoBehaviour
         {
             ObjectPoolManager.Instance!.ReturnToPool(effectTag, gameObject);
         }
-        else
-        {
-            Destroy(gameObject);
-        }
+        // else문은 필요 없음 - null이면 Destroy 호출 불가능
     }
+}
+
+
+// 이펙트의 방향 설정
+// 일반적으로 부모 오브젝트의 방향을 따르기 때문에 필요 없는 경우가 대부분일 거임! 
+// 일단 피격 이펙트에서의 파티클 방향을 설정하기 위해 구현했음
+// +Z 방향으로 이펙트가 진행된다고 가정했을 때
+// targetToSource : 피격자 -> 공격자 방향으로 이펙트가 진행됨
+// sourceToTarget : 공격자 -> 피격자 방향으로 이펙트가 진행됨
+public enum VFXRotationType
+{
+    None,
+    targetToSource,
+    sourceToTarget,
 }

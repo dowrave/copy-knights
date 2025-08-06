@@ -413,7 +413,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   bodyColliderController: {fileID: 2787751714957209555}
-  enemyData: {fileID: 11400000, guid: 9edfea3de3a432d4bb9347cfe328c2af, type: 2}
+  enemyData: {fileID: 11400000, guid: 19e9eea7c1a681241b80af864a1b620d, type: 2}
   enemyBarUIPrefab: {fileID: 4850112300594543659, guid: f855a11e7f642eb4481495480ef1a6e8, type: 3}
   modelContainer: {fileID: 879292670743782935}
   attackRangeController: {fileID: 3990271006590202836}

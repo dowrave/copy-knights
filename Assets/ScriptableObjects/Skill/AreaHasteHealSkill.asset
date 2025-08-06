@@ -41,7 +41,7 @@ MonoBehaviour:
   - {x: 0, y: 1}
   rectOffset: 37
   fieldEffectPrefab: {fileID: 1289097755909381850, guid: 0a6d06047b202fd4fa9053260fe97aa0, type: 3}
-  hitEffectPrefab: {fileID: 8148887100782903967, guid: 1a3d408d4acc3d040a21d2812050b1ed, type: 3}
+  hitEffectPrefab: {fileID: 7245273522019326439, guid: c1c4fecbba041bb45b0a5ea56fb659f0, type: 3}
   skillRangeVFXPrefab: {fileID: 4360018886635934139, guid: 81938680071d2294e815b70c7eac96a5, type: 3}
   healPerTickRatio: 0.7
   healInterval: 0.5
