@@ -24198,7 +24198,7 @@ GameObject:
   m_Component:
   - component: {fileID: 8469363495346159252}
   m_Layer: 11
-  m_Name: vfx_buffOn_Defense_v1 1
+  m_Name: vfx_buffOn_Defense_v1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

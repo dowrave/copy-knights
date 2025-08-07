@@ -24505,9 +24505,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b7d2569bcf045ad4a9b4f6b572e4c677, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  ps: {fileID: 6223243371315430865}
+  mainPs: {fileID: 6223243371315430865}
   vfx: {fileID: 0}
   rotationType: 2
+  billboardParticles: []
 --- !u!1 &8294624144204568271
 GameObject:
   m_ObjectHideFlags: 0

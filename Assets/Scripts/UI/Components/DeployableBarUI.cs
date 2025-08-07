@@ -37,7 +37,7 @@ public class DeployableBarUI : MonoBehaviour
 
     private void Update()
     {   
-        UpdatePosition();
+        UpdateRotation();
     }
 
     public void UpdateHealthBar(float currentHealth, float maxHealth, float currentShield)
@@ -89,7 +89,7 @@ public class DeployableBarUI : MonoBehaviour
         spBar.UpdateAmmoCount(currentAmmo);
     }
 
-    private void UpdatePosition()
+    private void UpdateRotation()
     {
         // Canvas가 항상 카메라를 향하도록 회전 설정 - 삐딱하게 나타나는 거 방지해줌
         if (mainCamera != null)

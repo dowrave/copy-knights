@@ -1,4 +1,5 @@
 using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.VFX;
 
@@ -12,11 +13,14 @@ public class CombatVFXController : MonoBehaviour
     private float effectDuration;
 
     [Header("Assign One")]
-    [SerializeField] private ParticleSystem? ps; 
+    [SerializeField] private ParticleSystem? mainPs; 
     [SerializeField] private VisualEffect? vfx;
 
     [Header("Particle System Options")]
     [SerializeField] private VFXRotationType rotationType = VFXRotationType.None;
+    [Tooltip("Billboard의 회전이 반영되어야 하는 파티클 시스템들을 여기에 할당합니다.")]
+    // 추가 설명 : 텍스쳐에 방향성이 있는 경우에만 쓰면 됩니다.
+    [SerializeField] private List<ParticleSystem> billboardParticles = new List<ParticleSystem>();
 
     private void Awake()
     {
@@ -43,7 +47,7 @@ public class CombatVFXController : MonoBehaviour
         {
             PlayVFXGraph();
         }
-        else if (ps != null)
+        else if (mainPs != null)
         {
             PlayPS();
         }
@@ -83,38 +87,60 @@ public class CombatVFXController : MonoBehaviour
 
     private void PlayPS()
     {
-        if (ps != null)
+        if (mainPs != null)
         {
             Vector3 baseDirection = Vector3.forward; // 모든 이펙트는 +Z축으로 진행된다고 가정함
-            switch (rotationType)
+
+            // 이펙트 오브젝트 자체의 회전 설정
+            SetVFXObjectRotation(baseDirection);
+
+            mainPs.Play(true); // true 시 모든 자식 이펙트까지 한꺼번에 재생함
+        }
+    }
+
+    private void SetVFXObjectRotation(Vector3 baseDirection)
+    {
+        Vector3 direction = Vector3.zero;
+
+        switch (rotationType)
+        {
+            // 옵션 1) 피격자 -> 공격자 방향의 이펙트 진행
+            case VFXRotationType.targetToSource:
+
+                direction = (attackSource.Position - targetPosition).normalized;
+                break;
+
+            // 옵션 2) 공격자 -> 피격자 방향의 이펙트 진행
+            case VFXRotationType.sourceToTarget:
+                direction = (targetPosition - attackSource.Position).normalized;
+                break;
+
+            // 옵션 3) 별도 설정 필요 없음
+            case VFXRotationType.None:
+                return;
+        }
+
+        if (direction != Vector3.zero)
+        {
+            // 파티클 시스템 오브젝트의 회전
+            // Quaternion objectRotation = Quaternion.FromToRotation(baseDirection, direction);
+            Quaternion objectRotation = Quaternion.LookRotation(direction); // 테스트
+            transform.rotation = objectRotation;
+
+            // 빌보드 파티클의 회전
+            // 오브젝트의 Y축 회전값을 라디안으로 변환, startRotationZ값을 업데이트한다. 
+            float billboardRotationInRadians = objectRotation.eulerAngles.y * Mathf.Deg2Rad;
+
+            // 캐싱된 모든 모듈의 startRotation에 반영
+            for (int i = 0; i < billboardParticles.Count; i++)
             {
-                // 옵션 1) 피격자 -> 공격자 방향의 이펙트 진행
-                case VFXRotationType.targetToSource:
-
-                    Vector3 directionToSource = (attackSource.Position - targetPosition).normalized;
-                    if (directionToSource != Vector3.zero)
-                    {
-                        Quaternion rotation = Quaternion.FromToRotation(baseDirection, directionToSource);
-                        transform.rotation = rotation;
-                    }                
-                    break;
-
-                // 옵션 2) 공격자 -> 피격자 방향의 이펙트 진행
-                case VFXRotationType.sourceToTarget:
-                    Vector3 directionToTarget = (targetPosition - attackSource.Position).normalized;
-                    if (directionToTarget != Vector3.zero)
-                    {
-                        Quaternion rotation = Quaternion.FromToRotation(baseDirection, directionToTarget);
-                        transform.rotation = rotation;
-                    }
-                    break;
-
-                // 옵션 3) 별도 설정 필요 없음
-                case VFXRotationType.None:
-                    break;
+                if (billboardParticles[i] != null)
+                {
+                    var ps = billboardParticles[i];
+                    var mainModule = ps.main;
+                    mainModule.startRotationZ = new ParticleSystem.MinMaxCurve(billboardRotationInRadians);
+                }
             }
-
-            ps.Play(true); // true 시 모든 자식 이펙트까지 한꺼번에 재생함
         }
     }
 

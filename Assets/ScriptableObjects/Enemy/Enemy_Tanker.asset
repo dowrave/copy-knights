@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 277825dab463fe8469435119db921473, type: 3}
   m_Name: Enemy_Tanker
   m_EditorClassIdentifier: 
-  entityName: Tanker
+  entityName: Enemy_Tanker
   stats:
     _baseStats:
       _health: 5000
@@ -30,5 +30,5 @@ MonoBehaviour:
   projectileTag: 
   defaultYPosition: 0.5
   meleeAttackEffectPrefab: {fileID: 8508828635353196231, guid: f08c9e8b57eef8348a930bc560783600, type: 3}
-  hitEffectPrefab: {fileID: 666637002290319158, guid: f81444b50caf57a4e96672ccb105383f, type: 3}
+  hitEffectPrefab: {fileID: 5543080949794851885, guid: f7941bd92adb91443911da757cb4ad0e, type: 3}
   hitEffectTag: 
