@@ -1,10 +1,16 @@
 using UnityEngine;
 using UnityEngine.VFX;
 using static ICombatEntity;
+using System.Collections;
 
 // 투사체 관리 클래스
 public class Projectile : MonoBehaviour
 {
+    // 이펙트 할당
+    [Header("Assign One of These")]
+    [SerializeField] private VisualEffect? vfxGraph;
+    [SerializeField] private ParticleSystem? ps; 
+
     public float speed = 5f;
     private float value; // 대미지 or 힐값
     private bool showValue;
@@ -18,19 +24,34 @@ public class Projectile : MonoBehaviour
     private bool shouldDestroy = false;
     private AttackType attackType;
 
-    private VisualEffect? vfx;
     private Vector3 vfxBaseDirection = new Vector3(0f, 0f, 0f);
+
+    // 파괴되거나 풀로 돌아가기 전 대기 시간 - 이펙트가 바로 사라지지 않게 해서 보기 어색하지 않게끔 함
+    [SerializeField] private float WAIT_DISAPPEAR_TIME = 0.5f;
 
     // VFX에서 자체 회전을 가질 때에만 사용
     private float rotationSpeed = 360f; // 초당 회전 각도 (도 단위)
     private float currentRotation = 0f;
 
+    private void Awake()
+    {
+        // 둘 다 없을 때 찾아봄
+        if (vfxGraph == null && ps == null)
+        {
+            ps = GetComponentInChildren<ParticleSystem>();
+            if (ps == null)
+            {
+                vfxGraph = GetComponentInChildren<VisualEffect>();   
+            }
+        }   
+    }
+
     public void Initialize(UnitEntity attacker,
-        UnitEntity target, 
-        float value, 
-        bool showValue, 
+        UnitEntity target,
+        float value,
+        bool showValue,
         string poolTag,
-        GameObject hitEffectPrefab, 
+        GameObject hitEffectPrefab,
         string hitEffectTag,
         AttackType attackType)
     {
@@ -55,18 +76,14 @@ public class Projectile : MonoBehaviour
         this.hitEffectPrefab = hitEffectPrefab;
         this.hitEffectTag = hitEffectTag;
 
-        vfx = GetComponentInChildren<VisualEffect>();
 
-        if (vfx != null)
-        {
-            InitializeVFXDirection(); // 방향이 있는 VFX는 초기 방향을 설정함
-            vfx.Play();
-        }
+        InitializeVFXDirection(); // 방향이 있는 VFX는 초기 방향을 설정함
+
 
         // 이 시점의 target, attacker은 null이 아님
         target.OnDeathAnimationCompleted += OnTargetDestroyed;
         attacker.OnDeathAnimationCompleted += OnAttackerDestroyed;
-     
+
         // 공격자와 대상이 같다면 힐로 간주
         //if (attacker.Faction == target.Faction)
         //{
@@ -74,7 +91,6 @@ public class Projectile : MonoBehaviour
         //    this.showValue = true;
         //}
     }
-
     private void Update()
     {
         // 공격자가 사라졌고 아직 감지하지 못한 상태
@@ -102,11 +118,11 @@ public class Projectile : MonoBehaviour
     }
 
     // 방향이 있는 VFX의 초기 방향 설정
-    private void InitializeVFXDirection() 
+    private void InitializeVFXDirection()
     {
-        if (vfx != null && vfx.HasVector3("BaseDirection"))
+        if (vfxGraph != null && vfxGraph.HasVector3("BaseDirection"))
         {
-            vfxBaseDirection = vfx.GetVector3("BaseDirection").normalized;
+            vfxBaseDirection = vfxGraph.GetVector3("BaseDirection").normalized;
 
             // 초기 방향 계산
             Vector3 initialDirection = (lastKnownPosition - transform.position).normalized;
@@ -116,14 +132,25 @@ public class Projectile : MonoBehaviour
             Vector3 eulerAngles = rotation.eulerAngles;
 
             // VFX에 초기 회전 적용
-            if (vfx.HasVector3("EulerAngle"))
+            if (vfxGraph.HasVector3("EulerAngle"))
             {
-                vfx.SetVector3("EulerAngle", eulerAngles);
+                vfxGraph.SetVector3("EulerAngle", eulerAngles);
             }
-            if (vfx.HasVector3("FlyingDirection"))
+            if (vfxGraph.HasVector3("FlyingDirection"))
             {
-                vfx.SetVector3("FlyingDirection", initialDirection);
+                vfxGraph.SetVector3("FlyingDirection", initialDirection);
             }
+
+            vfxGraph.Play();
+        }
+        else
+        {
+            // Update에 통합되어 있지만 초기화에서도 한 번 잡아주겠음
+            Vector3 direction = (lastKnownPosition - transform.position).normalized;
+            Quaternion objectRotation = Quaternion.LookRotation(direction); // 이펙트가 +Z축을 향한다고 가정
+            transform.rotation = objectRotation;
+
+            ps.Play(true);
         }
     }
 
@@ -131,11 +158,11 @@ public class Projectile : MonoBehaviour
     // 방향 벡터를 받아 VFX에 오일러 각으로 변환해 전달한다
     private void UpdateVFXDirection(Vector3 directionVector)
     {
-        if (vfx != null)
+        if (vfxGraph != null)
         {
-            if (vfx.HasVector3("FlyingDirection"))
+            if (vfxGraph.HasVector3("FlyingDirection"))
             {
-                vfx.SetVector3("FlyingDirection", directionVector);
+                vfxGraph.SetVector3("FlyingDirection", directionVector);
             }
 
             // 이펙트의 방향에 따른 회전
@@ -145,7 +172,7 @@ public class Projectile : MonoBehaviour
                 Vector3 eulerAngles = directionRotation.eulerAngles;
 
                 // 자체적인 회전을 갖는 이펙트라면
-                if (vfx.HasBool("SelfRotation"))
+                if (vfxGraph.HasBool("SelfRotation"))
                 {
                     currentRotation += rotationSpeed * Time.deltaTime;
                     currentRotation %= 360f; // 360도를 넘지 않는 정규화
@@ -159,11 +186,17 @@ public class Projectile : MonoBehaviour
                 }
 
 
-                if (vfx.HasVector3("EulerAngle"))
+                if (vfxGraph.HasVector3("EulerAngle"))
                 {
-                    vfx.SetVector3("EulerAngle", eulerAngles);
+                    vfxGraph.SetVector3("EulerAngle", eulerAngles);
                 }
             }
+        }
+        else if (ps != null)
+        {
+            Vector3 direction = (lastKnownPosition - transform.position).normalized;
+            Quaternion objectRotation = Quaternion.LookRotation(direction); // 테스트
+            transform.rotation = objectRotation;
         }
     }
 
@@ -207,19 +240,36 @@ public class Projectile : MonoBehaviour
                 }
 
                 target.TakeDamage(attackSource);
-
             }
         }
 
         // 공격자가 사라졌거나, 풀이 제거 예정인 경우
         if (shouldDestroy)
         {
-            Destroy(gameObject);
+            Destroy(gameObject, WAIT_DISAPPEAR_TIME);
         }
         else
         {
+            // ps.Stop();
             ObjectPoolManager.Instance!.ReturnToPool(poolTag, gameObject);
+            // ReturnToPoolAfterSeconds(WAIT_DISAPPEAR_TIME);
         }
+    }
+
+    private IEnumerator ReturnToPoolAfterSeconds(float seconds)
+    {
+        yield return new WaitForSeconds(seconds);
+
+        if (vfxGraph != null)
+        {
+            vfxGraph.Reinit(); 
+        }
+        else if (ps != null)
+        {
+            ps.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
+        }
+
+        ObjectPoolManager.Instance!.ReturnToPool(poolTag, gameObject);
     }
     
     // 범위 공격을 하는 경우 이펙트와 콜라이더를 생성함
@@ -234,7 +284,7 @@ public class Projectile : MonoBehaviour
 
         // 범위 공격 대상에게 대미지 적용
         Collider[] hitColliders = Physics.OverlapSphere(position, 0.5f);
-        
+
         foreach (var hitCollider in hitColliders)
         {
             BodyColliderController targetCollider = hitCollider.GetComponent<BodyColliderController>();
@@ -290,7 +340,7 @@ public class Projectile : MonoBehaviour
 
     private void OnEnable()
     {
-        vfx = GetComponentInChildren<VisualEffect>();
+        vfxGraph = GetComponentInChildren<VisualEffect>();
     }
 
     // 풀에서 재사용될 때 호출될 메서드
@@ -298,9 +348,9 @@ public class Projectile : MonoBehaviour
     {
         UnSubscribeFromEvents();
 
-        if (vfx != null)
+        if (vfxGraph != null)
         {
-            vfx.Stop();
+            vfxGraph.Stop();
         }
 
         target = null;

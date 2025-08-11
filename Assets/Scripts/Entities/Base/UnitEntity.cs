@@ -47,6 +47,7 @@ public abstract class UnitEntity : MonoBehaviour, ITargettable, IFactionMember, 
     // 이펙트 태그
     protected string? meleeAttackEffectTag;
     protected string hitEffectTag = string.Empty;
+    protected string muzzleTag = string.Empty;
     public string HitEffectTag => hitEffectTag;
 
     // 이벤트

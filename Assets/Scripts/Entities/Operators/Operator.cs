@@ -383,10 +383,22 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
                     Projectile? projectile = projectileObj.GetComponent<Projectile>();
                     if (projectile != null)
                     {
+                        PlayMuzzleVFX();
                         projectile.Initialize(this, target, damage, showDamagePopup, projectileTag, OperatorData.hitEffectPrefab, hitEffectTag, AttackType);
                     }
                 }
             }
+        }
+    }
+
+    // 원거리인 경우에만 사용. Muzzle 이펙트를 실행한다.
+    private void PlayMuzzleVFX()
+    {
+        if (OperatorData.muzzleVFXPrefab != null && muzzleTag != string.Empty)
+        {
+            GameObject muzzleVFXObject = ObjectPoolManager.Instance!.SpawnFromPool(muzzleTag, transform.position, transform.rotation);
+            ParticleSystem muzzlePs = muzzleVFXObject.GetComponentInChildren<ParticleSystem>();
+            muzzlePs.Play(true);
         }
     }
 
@@ -660,12 +672,20 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
                 transform.position,
                 Quaternion.identity
             );
-
-            var vfx = deployEffect.GetComponent<VisualEffect>();
-            if (vfx != null)
+            var ps = deployEffect.GetComponent<ParticleSystem>();
+            if (ps != null)
             {
-                vfx.Play();
-                Destroy(deployEffect, 1.2f); // 1.2초 후 파괴, 아래의 동작을 막지 않는다.
+                ps.Play(true);
+                Destroy(deployEffect, 1.5f);
+            }
+            else
+            {
+                var vfx = deployEffect.GetComponent<VisualEffect>();
+                if (vfx != null)
+                {
+                    vfx.Play();
+                    Destroy(deployEffect, 1.5f);
+                }
             }
         }
     }
@@ -916,7 +936,7 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
         }
 
         // 원거리인 경우 투사체 풀 생성
-        InitializeProjectilePool();
+        InitializeRangedPool();
 
         // 스킬에서 사용할 이펙트 풀 생성
         CurrentSkill.InitializeSkillObjectPool(this);
@@ -963,23 +983,38 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
         }
     }
 
-    public void InitializeProjectilePool()
+    public void InitializeRangedPool()
     {
-        if (AttackRangeType == AttackRangeType.Ranged && 
+        if (AttackRangeType == AttackRangeType.Ranged &&
             OperatorData.projectilePrefab != null)
         {
             projectileTag = $"{OperatorData.entityName}_Projectile";
             ObjectPoolManager.Instance!.CreatePool(projectileTag, OperatorData.projectilePrefab, 5);
         }
+
+        if (OperatorData.muzzleVFXPrefab != null)
+        {
+            muzzleTag = $"{OperatorData.entityName}_Muzzle";
+            ObjectPoolManager.Instance!.CreatePool(muzzleTag, OperatorData.muzzleVFXPrefab, 5);
+            Debug.Log("muzzle 오브젝트 풀 생성됨");
+        }
     }
 
     protected void RemoveProjectilePool()
     {
-        if (AttackRangeType == AttackRangeType.Ranged 
-            && projectileTag != null)
+        if (AttackRangeType == AttackRangeType.Ranged)
         {
-            ObjectPoolManager.Instance!.RemovePool(projectileTag);
+            if (projectileTag != null)
+            {
+                ObjectPoolManager.Instance!.RemovePool(projectileTag);
+            }
+
+            if (muzzleTag != null)
+            {
+                ObjectPoolManager.Instance!.RemovePool(muzzleTag);
+            }
         }
+        
     }
 
     // 지속 시간이 있는 스킬을 켜거나 끌 때 호출됨

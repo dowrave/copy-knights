@@ -32,6 +32,7 @@ public class OperatorData : ScriptableObject, ICombatData
 
     [Header("For Ranged")]
     public GameObject? projectilePrefab;
+    public GameObject muzzleVFXPrefab = default!; // 원거리 공격일 때 발사하는 객체에서 나오는 총구 효과
 
     [Header("Level Up Stats")]
     public OperatorLevelStats levelStats = default!; // 레벨 1이 올라갈 때마다 상승하는 스탯량
