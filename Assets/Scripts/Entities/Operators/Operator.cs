@@ -373,7 +373,10 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
         if (OperatorData.projectilePrefab != null)
         {
             // 투사체 생성 위치
-            Vector3 spawnPosition = transform.position + Vector3.up * 0.5f;
+            // Vector3 spawnPosition = transform.position + Vector3.up * 0.5f;
+            Vector3 spawnPosition = transform.position + transform.forward * 0.5f;
+
+            // Debug.Log($"[Operator]Projectile의 생성 위치 : {spawnPosition}");
 
             if (projectileTag != null)
             {
@@ -397,8 +400,8 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
         if (OperatorData.muzzleVFXPrefab != null && muzzleTag != string.Empty)
         {
             GameObject muzzleVFXObject = ObjectPoolManager.Instance!.SpawnFromPool(muzzleTag, transform.position, transform.rotation);
-            ParticleSystem muzzlePs = muzzleVFXObject.GetComponentInChildren<ParticleSystem>();
-            muzzlePs.Play(true);
+            MuzzleVFXController muzzleVFXController = muzzleVFXObject.GetComponentInChildren<MuzzleVFXController>();
+            muzzleVFXController.Initialize(muzzleTag);
         }
     }
 

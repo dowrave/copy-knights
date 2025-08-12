@@ -97,6 +97,7 @@
     <Compile Include="Assets\Scripts\Core\Systems\Buff\DoubleShotBuff.cs" />
     <Compile Include="Assets\Scripts\Interfaces\ISkill.cs" />
     <Compile Include="Assets\Scripts\Core\Managers\GameManagement\TimeManager.cs" />
+    <Compile Include="Assets\Scripts\Entities\Controller\BodyColliderController.cs" />
     <Compile Include="Assets\Scripts\UI\Components\DiamondMask.cs" />
     <Compile Include="Assets\Scripts\Core\Managers\StageScene\MapManager.cs" />
     <Compile Include="Assets\Scripts\Entities\PathIndicator.cs" />
@@ -142,6 +143,7 @@
     <Compile Include="Assets\Scripts\UI\Components\OperatorUI.cs" />
     <Compile Include="Assets\Scripts\Data\TutorialData.cs" />
     <Compile Include="Assets\Scripts\Core\Systems\Buff\StatModifierBuff.cs" />
+    <Compile Include="Assets\Scripts\Entities\Controller\MuzzleVFXController.cs" />
     <Compile Include="Assets\Scripts\UI\Panels\StageLoadingScreen.cs" />
     <Compile Include="Assets\Scripts\Core\Systems\Buff\StunBuff.cs" />
     <Compile Include="Assets\Scripts\UI\Panels\OperatorPromotionPanel.cs" />
@@ -172,7 +174,6 @@
     <Compile Include="Assets\Scripts\Utils\UIHelper.cs" />
     <Compile Include="Assets\Scripts\UI\Components\OperatorSlot.cs" />
     <Compile Include="Assets\Scripts\UI\Panels\SquadEditPanel.cs" />
-    <Compile Include="Assets\Scripts\Entities\ColliderController\BodyColliderController.cs" />
     <Compile Include="Assets\Scripts\UI\Panels\ToLobbyPanel.cs" />
     <Compile Include="Assets\Scripts\Core\Systems\Buff\ShieldBuff.cs" />
     <Compile Include="Assets\Scripts\UI\Panels\InStageInfoPanel.cs" />

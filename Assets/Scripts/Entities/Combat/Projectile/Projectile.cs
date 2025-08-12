@@ -2,14 +2,16 @@ using UnityEngine;
 using UnityEngine.VFX;
 using static ICombatEntity;
 using System.Collections;
+using System.Collections.Generic;
 
 // 투사체 관리 클래스
 public class Projectile : MonoBehaviour
 {
     // 이펙트 할당
-    [Header("Assign One of These")]
+    [Header("VFX")]
     [SerializeField] private VisualEffect? vfxGraph;
-    [SerializeField] private ParticleSystem? ps; 
+    [SerializeField] private ParticleSystem? mainParticle;
+    [SerializeField] private List<ParticleSystem> remainingParticles; // mainParticle이 사라지더라도 표시되는 파티클
 
     public float speed = 5f;
     private float value; // 대미지 or 힐값
@@ -26,6 +28,10 @@ public class Projectile : MonoBehaviour
 
     private Vector3 vfxBaseDirection = new Vector3(0f, 0f, 0f);
 
+    private bool isReachedTarget = false;
+
+    private SphereCollider sphereCollider;
+
     // 파괴되거나 풀로 돌아가기 전 대기 시간 - 이펙트가 바로 사라지지 않게 해서 보기 어색하지 않게끔 함
     [SerializeField] private float WAIT_DISAPPEAR_TIME = 0.5f;
 
@@ -36,14 +42,19 @@ public class Projectile : MonoBehaviour
     private void Awake()
     {
         // 둘 다 없을 때 찾아봄
-        if (vfxGraph == null && ps == null)
+        if (vfxGraph == null && mainParticle == null)
         {
-            ps = GetComponentInChildren<ParticleSystem>();
-            if (ps == null)
+            mainParticle = GetComponentInChildren<ParticleSystem>();
+            if (mainParticle == null)
             {
-                vfxGraph = GetComponentInChildren<VisualEffect>();   
+                vfxGraph = GetComponentInChildren<VisualEffect>();
             }
-        }   
+        }
+
+        if (sphereCollider == null)
+        {
+            sphereCollider = GetComponent<SphereCollider>();
+        }
     }
 
     public void Initialize(UnitEntity attacker,
@@ -78,7 +89,7 @@ public class Projectile : MonoBehaviour
 
 
         InitializeVFXDirection(); // 방향이 있는 VFX는 초기 방향을 설정함
-
+        isReachedTarget = false;
 
         // 이 시점의 target, attacker은 null이 아님
         target.OnDeathAnimationCompleted += OnTargetDestroyed;
@@ -93,6 +104,9 @@ public class Projectile : MonoBehaviour
     }
     private void Update()
     {
+
+        if (isReachedTarget) return;
+
         // 공격자가 사라졌고 아직 감지하지 못한 상태
         if (attacker == null && !shouldDestroy)
         {
@@ -111,9 +125,16 @@ public class Projectile : MonoBehaviour
         UpdateVFXDirection(direction);
 
         // 목표 지점 도달 확인
-        if (Vector3.Distance(transform.position, lastKnownPosition) < 0.1f)
+        // if (Vector3.Distance(transform.position, lastKnownPosition) < 0.1f)
+        // 이제 타겟이 사라졌을 때에만 실행됨
+        if (target == null)
         {
-            OnReachTarget();
+            Debug.Log("[Projectile]Update : target이 null일 때의 동작 수행");
+            float reachDistance = sphereCollider.radius;
+            if ((transform.position - lastKnownPosition).sqrMagnitude < reachDistance * reachDistance) // 이게 더 가볍단다
+            {
+                HandleHit(lastKnownPosition);
+            }
         }
     }
 
@@ -150,7 +171,7 @@ public class Projectile : MonoBehaviour
             Quaternion objectRotation = Quaternion.LookRotation(direction); // 이펙트가 +Z축을 향한다고 가정
             transform.rotation = objectRotation;
 
-            ps.Play(true);
+            mainParticle.Play(true);
         }
     }
 
@@ -192,7 +213,7 @@ public class Projectile : MonoBehaviour
                 }
             }
         }
-        else if (ps != null)
+        else if (mainParticle != null)
         {
             Vector3 direction = (lastKnownPosition - transform.position).normalized;
             Quaternion objectRotation = Quaternion.LookRotation(direction); // 테스트
@@ -201,15 +222,18 @@ public class Projectile : MonoBehaviour
     }
 
     // 목표 위치에 도달 시에 동작
-    private void OnReachTarget()
+    private void HandleHit(Vector3 hitPosition)
     {
+        if (isReachedTarget) return;
+        isReachedTarget = true;
+
         // 타겟이 살아있는 경우
         if (target != null && attacker != null)
         {
-
             AttackSource attackSource = new AttackSource(
                 attacker: attacker,
-                position: transform.position,
+                // position: transform.position,
+                position: hitPosition,
                 damage: value,
                 type: attackType,
                 isProjectile: true,
@@ -217,28 +241,25 @@ public class Projectile : MonoBehaviour
                 hitEffectTag: hitEffectTag
             );
 
-            // 힐 상황
+
             if (isHealing)
             {
-                // 힐 이펙트도 피격 이펙트로 포함하겠음
+                // 힐 상황
                 target.TakeHeal(attackSource);
             }
-
-            // 범위 공격 상황
             else if (attacker is Operator op && op.OperatorData.operatorClass == OperatorData.OperatorClass.Artillery)
             {
+                // 범위 공격 상황
                 CreateAreaOfDamage(transform.position, value, showValue, attackSource);
             }
-
-            // 단일 공격
             else
             {
+                // 단일 공격
                 // 대미지는 보여야 하는 경우에만 보여줌
                 if (showValue == true)
                 {
                     ObjectPoolManager.Instance!.ShowFloatingText(target.transform.position, value, false);
                 }
-
                 target.TakeDamage(attackSource);
             }
         }
@@ -250,28 +271,42 @@ public class Projectile : MonoBehaviour
         }
         else
         {
-            // ps.Stop();
-            ObjectPoolManager.Instance!.ReturnToPool(poolTag, gameObject);
-            // ReturnToPoolAfterSeconds(WAIT_DISAPPEAR_TIME);
+            StartCoroutine(ReturnToPoolAfterSeconds(WAIT_DISAPPEAR_TIME));
         }
     }
 
     private IEnumerator ReturnToPoolAfterSeconds(float seconds)
     {
-        yield return new WaitForSeconds(seconds);
 
         if (vfxGraph != null)
         {
-            vfxGraph.Reinit(); 
+            vfxGraph.Reinit();
         }
-        else if (ps != null)
+        else if (mainParticle != null)
         {
-            ps.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
+            // 부모-자식 관계를 일시적으로 끊어서 부모 파티클의 실행을 멈춰도 자식 파티클은 계속 재생되게 함
+            foreach (var ps in remainingParticles)
+            {
+                ps.transform.parent = null;
+                ps.Stop(true, ParticleSystemStopBehavior.StopEmitting); // 파티클의 추가 생성을 막음
+                // ps.Play() // 굳이 필요 없어서 주석 처리해봄
+            }
+
+            // 남기지 않아도 되는 파티클들 모두 제거
+            mainParticle.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
+        }
+
+        yield return new WaitForSeconds(seconds);
+
+        // 다시 부모 파티클에 할당
+        foreach (var ps in remainingParticles)
+        {
+            ps.transform.parent = mainParticle.transform;
         }
 
         ObjectPoolManager.Instance!.ReturnToPool(poolTag, gameObject);
     }
-    
+
     // 범위 공격을 하는 경우 이펙트와 콜라이더를 생성함
     private void CreateAreaOfDamage(Vector3 position, float damage, bool showValue, AttackSource attackSource)
     {
@@ -334,7 +369,7 @@ public class Projectile : MonoBehaviour
         }
         if (attacker != null)
         {
-            attacker.OnDeathAnimationCompleted -= OnAttackerDestroyed; 
+            attacker.OnDeathAnimationCompleted -= OnAttackerDestroyed;
         }
     }
 
@@ -362,5 +397,22 @@ public class Projectile : MonoBehaviour
     private void OnDestroy()
     {
         UnSubscribeFromEvents();
+    }
+    
+    private void OnTriggerEnter(Collider other)
+    {
+        Debug.Log($"other : {other.gameObject.name}의 트리거 동작");
+        // 이미 목표에 도달했거나, 타겟이 없으면 무시
+        if (isReachedTarget || target == null) return;
+
+        // 충돌한 오브젝트가 내 타겟인지 확인
+        BodyColliderController hitUnitCollider = other.GetComponent<BodyColliderController>();
+        
+        if (hitUnitCollider.ParentUnit == target)
+        {
+            // OnReachTarget() 대신 새로운 공용 함수 호출
+            HandleHit(target.transform.position);
+        }
+        
     }
 }
