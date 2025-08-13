@@ -1,6 +1,6 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
---- !u!114 &-9072114433283063308
+--- !u!114 &-6058811296827460445
 MonoBehaviour:
   m_ObjectHideFlags: 11
   m_CorrespondingSourceObject: {fileID: 0}
@@ -20,13 +20,13 @@ Material:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: Opaque_vfxScene_Plane
-  m_Shader: {fileID: -6465566751694194690, guid: 9d272d31c740913488f9a40eef48b745, type: 3}
+  m_Name: Orb01
+  m_Shader: {fileID: -6465566751694194690, guid: c5dacf79d91cdc64bbfc7e35949cfb48, type: 3}
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0
   m_ValidKeywords: []
   m_InvalidKeywords: []
-  m_LightmapFlags: 2
+  m_LightmapFlags: 4
   m_EnableInstancingVariants: 0
   m_DoubleSidedGI: 0
   m_CustomRenderQueue: -1
@@ -37,10 +37,6 @@ Material:
   m_SavedProperties:
     serializedVersion: 3
     m_TexEnvs:
-    - _MainTex:
-        m_Texture: {fileID: 0}
-        m_Scale: {x: 1, y: 1}
-        m_Offset: {x: 0, y: 0}
     - unity_Lightmaps:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
@@ -55,9 +51,14 @@ Material:
         m_Offset: {x: 0, y: 0}
     m_Ints: []
     m_Floats:
+    - _Clip: 0.216
     - _QueueControl: 0
     - _QueueOffset: 0
+    - _VoronoiPower: 2.28
     m_Colors:
-    - _Color: {r: 0.09433961, g: 0.09433961, b: 0.09433961, a: 1}
+    - _BackColor: {r: 0.33610108, g: 0.33610108, b: 0.33610108, a: 1}
+    - _FrontColor: {r: 4.571241, g: 4.571241, b: 4.571241, a: 1}
+    - _TextureScrollSpeed: {r: 0.3, g: 0.3, b: 0, a: 0}
+    - _VoronoiTiling: {r: 0.44, g: 1.99, b: 0, a: 0}
   m_BuildTextureStacks: []
   m_AllowLocking: 1

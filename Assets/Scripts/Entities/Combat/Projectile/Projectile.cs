@@ -13,7 +13,16 @@ public class Projectile : MonoBehaviour
     [SerializeField] private ParticleSystem? mainParticle;
     [SerializeField] private List<ParticleSystem> remainingParticles; // mainParticle이 사라지더라도 표시되는 파티클
 
+    [Header("Check if VFX needs Rotation")]
+    [SerializeField] private bool needToRotate; // 방향이 정해진 파티클의 경우 체크
+
+    [Header("Speed")]
     public float speed = 5f;
+
+    [Header("Wait Time Before VFX Stop")]
+    // 파괴되거나 풀로 돌아가기 전 대기 시간 - 이펙트가 바로 사라지지 않게 해서 보기 어색하지 않게끔 함
+    [SerializeField] private float WAIT_DISAPPEAR_TIME = 0.5f;
+
     private float value; // 대미지 or 힐값
     private bool showValue;
     private bool isHealing = false;
@@ -32,8 +41,7 @@ public class Projectile : MonoBehaviour
 
     private SphereCollider sphereCollider;
 
-    // 파괴되거나 풀로 돌아가기 전 대기 시간 - 이펙트가 바로 사라지지 않게 해서 보기 어색하지 않게끔 함
-    [SerializeField] private float WAIT_DISAPPEAR_TIME = 0.5f;
+
 
     // VFX에서 자체 회전을 가질 때에만 사용
     private float rotationSpeed = 360f; // 초당 회전 각도 (도 단위)
@@ -87,8 +95,10 @@ public class Projectile : MonoBehaviour
         this.hitEffectPrefab = hitEffectPrefab;
         this.hitEffectTag = hitEffectTag;
 
-
-        InitializeVFXDirection(); // 방향이 있는 VFX는 초기 방향을 설정함
+        if (needToRotate)
+        {
+            InitializeVFXDirection(); // 방향이 있는 VFX는 초기 방향을 설정함
+        }
         isReachedTarget = false;
 
         // 이 시점의 target, attacker은 null이 아님
@@ -122,7 +132,11 @@ public class Projectile : MonoBehaviour
         Vector3 direction = (lastKnownPosition - transform.position).normalized;
         transform.position += direction * speed * Time.deltaTime;
 
-        UpdateVFXDirection(direction);
+        // 회전 설정 반영
+        if (needToRotate)
+        {
+            UpdateVFXDirection(direction);
+        }
 
         // 목표 지점 도달 확인
         // if (Vector3.Distance(transform.position, lastKnownPosition) < 0.1f)
@@ -401,14 +415,14 @@ public class Projectile : MonoBehaviour
     
     private void OnTriggerEnter(Collider other)
     {
-        Debug.Log($"other : {other.gameObject.name}의 트리거 동작");
         // 이미 목표에 도달했거나, 타겟이 없으면 무시
         if (isReachedTarget || target == null) return;
 
         // 충돌한 오브젝트가 내 타겟인지 확인
         BodyColliderController hitUnitCollider = other.GetComponent<BodyColliderController>();
         
-        if (hitUnitCollider.ParentUnit == target)
+        if (hitUnitCollider != null && // 다른 콜라이더는 거름
+            hitUnitCollider.ParentUnit == target)
         {
             // OnReachTarget() 대신 새로운 공용 함수 호출
             HandleHit(target.transform.position);

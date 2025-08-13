@@ -47,7 +47,7 @@ MonoBehaviour:
   initialSP: 0
   deployEffectPrefab: {fileID: 856940111582043208, guid: bec65663e4fb6004ebef9ec4aab1b61f, type: 3}
   meleeAttackEffectPrefab: {fileID: 1878176885182270282, guid: f571c8d7fe2ef274a8f763f91b1442d9, type: 3}
-  hitEffectPrefab: {fileID: 666637002290319158, guid: 06a15051e0339b445869f8f1b8a6bee6, type: 3}
+  hitEffectPrefab: {fileID: 7123518906928767680, guid: 333299d2b81bb9d469a04cc61b4bc617, type: 3}
   projectilePrefab: {fileID: 3371440682512832820, guid: cfb3d740a24b900408f9c8da335efa69, type: 3}
   muzzleVFXPrefab: {fileID: 4823786267193984290, guid: eafc2191f0694e249b5781bcdfbc5b94, type: 3}
   levelStats:
