@@ -1,18 +1,5 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
---- !u!114 &-8556141169643392442
-MonoBehaviour:
-  m_ObjectHideFlags: 11
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d0353a89b1f911e48b9e16bdc9f2e058, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  version: 9
 --- !u!21 &2100000
 Material:
   serializedVersion: 8
@@ -20,7 +7,7 @@ Material:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: Trail01_AB
+  m_Name: Trail04_AB
   m_Shader: {fileID: -6465566751694194690, guid: 4b9036e449e840d4682b6d4ce5bbcbdc, type: 3}
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0
@@ -38,7 +25,11 @@ Material:
     serializedVersion: 3
     m_TexEnvs:
     - _MainTex:
-        m_Texture: {fileID: 2800000, guid: 305ed73f1f819584b9fc91a1ab85a9bb, type: 3}
+        m_Texture: {fileID: 2800000, guid: 4d8aebf6ed8e6844c80140af8acabc62, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _MainTexture:
+        m_Texture: {fileID: 2800000, guid: d1cb17e58a293e3498c6136b8e395d4b, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - unity_Lightmaps:
@@ -55,14 +46,30 @@ Material:
         m_Offset: {x: 0, y: 0}
     m_Ints: []
     m_Floats:
-    - _Float: -0.3
+    - _DistortionAmount: 0.126
     - _NoiseScale: 100
     - _QueueControl: 0
     - _QueueOffset: 0
+    - _TrailLength_AlphaClip: 0.121
     m_Colors:
-    - _Color1: {r: 1, g: 1, b: 1, a: 1}
-    - _Color2: {r: 1, g: 1, b: 1, a: 1}
-    - _MainTexSpeed: {r: -1, g: 0, b: 0, a: 0}
-    - _NoiseSpeed: {r: 1, g: 0.1, b: 0, a: 0}
+    - _Color: {r: 5.2395535, g: 5.2395535, b: 5.2395535, a: 0.5019608}
+    - _Color1: {r: 0.3207547, g: 0.3207547, b: 0.3207547, a: 0.5019608}
+    - _Color2: {r: 0.16981131, g: 0.16981131, b: 0.16981131, a: 0.29803923}
+    - _MainTexSpeed: {r: -1.5, g: 0, b: 0, a: 0}
+    - _NoiseSpeed: {r: -2, g: 1, b: 0, a: 0}
+    - _TexScrollSpeed: {r: -2, g: 0, b: 0, a: 0}
   m_BuildTextureStacks: []
   m_AllowLocking: 1
+--- !u!114 &5659912871010809585
+MonoBehaviour:
+  m_ObjectHideFlags: 11
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d0353a89b1f911e48b9e16bdc9f2e058, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  version: 9

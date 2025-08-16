@@ -1,5 +1,6 @@
 #nullable enable
 using UnityEngine;
+using System;
 
 public abstract class DeployableUnitEntity : UnitEntity, IDeployable
 {
@@ -33,6 +34,8 @@ public abstract class DeployableUnitEntity : UnitEntity, IDeployable
     private float lastDeployTime;
 
     public Tile? CurrentTile { get; protected set; } // "배치 중"이라는 과정이 있기 떄문에 nullable
+
+    public static event Action<DeployableUnitEntity> OnDeployed = delegate { };
 
     protected override void Awake()
     {
@@ -83,6 +86,9 @@ public abstract class DeployableUnitEntity : UnitEntity, IDeployable
             SetPosition(position);
             InitializeHP();
             lastDeployTime = Time.time;
+
+            OnDeployed?.Invoke(this);
+            Debug.Log("OnDeployed 이벤트 발생");
         }
     }
 

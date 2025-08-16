@@ -391,10 +391,11 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity
     private void PerformRangedAttack(UnitEntity target, float damage)
     {
         SetAttackTimings();
+        
         if (BaseData.projectilePrefab != null && projectileTag != null)
         {
             // 투사체 생성 위치
-            Vector3 spawnPosition = transform.position + Vector3.up * 0.5f;
+            Vector3 spawnPosition = transform.position;
             GameObject? projectileObj = ObjectPoolManager.Instance!.SpawnFromPool(projectileTag, spawnPosition, Quaternion.identity);
 
             if (projectileObj != null)

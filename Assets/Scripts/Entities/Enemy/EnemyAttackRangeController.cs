@@ -27,6 +27,8 @@ public class EnemyAttackRangeController : MonoBehaviour
             // 콜라이더를 비활성화하는 게 답이다.
             attackRangeCollider.gameObject.SetActive(false);
         }
+
+        DeployableUnitEntity.OnDeployed += HandleNewlyDeployed;
     }
 
     private void OnTriggerEnter(Collider other)
@@ -53,5 +55,37 @@ public class EnemyAttackRangeController : MonoBehaviour
                 owner.OnTargetExitedRange(deployable);
             }
         }
+    }
+
+    // 공격 범위 내에 새롭게 배치된 요소가 있을 경우, 공격 범위 내에 넣을 수 있는지 체크
+    private void HandleNewlyDeployed(DeployableUnitEntity target)
+    {
+        if (owner == null || !enabled) return;
+
+        BodyColliderController targetColliderController = target.GetComponentInChildren<BodyColliderController>();
+        if (targetColliderController != null)
+        {
+            Collider targetCollider = targetColliderController.BodyCollider;
+
+            if (targetCollider != null)
+            {
+                // 두 콜라이더가 겹치는지 검사 수행
+                bool isOverlapping = Physics.ComputePenetration(
+                    attackRangeCollider, transform.position, transform.rotation, // 이 콜라이더의 정보
+                    targetCollider, targetCollider.transform.position, targetCollider.transform.rotation, // 타겟 콜라이더의 정보
+                    out Vector3 direction, out float dist // 출력 변수 : 사용하지 않음
+                );
+
+                if (isOverlapping)
+                {
+                    owner.OnTargetEnteredRange(target);
+                }
+            }
+        }
+    }
+
+    private void OnDisable()
+    {
+        DeployableUnitEntity.OnDeployed -= HandleNewlyDeployed;
     }
 }

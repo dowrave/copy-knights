@@ -374,7 +374,7 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
         {
             // 투사체 생성 위치
             // Vector3 spawnPosition = transform.position + Vector3.up * 0.5f;
-            Vector3 spawnPosition = transform.position + transform.forward * 0.5f;
+            Vector3 spawnPosition = transform.position + transform.forward * 0.25f;
 
             // Debug.Log($"[Operator]Projectile의 생성 위치 : {spawnPosition}");
 

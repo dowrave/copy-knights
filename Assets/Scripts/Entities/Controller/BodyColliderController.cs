@@ -8,6 +8,7 @@ public class BodyColliderController : MonoBehaviour
     [SerializeField] private Collider bodyCollider;
 
     public UnitEntity ParentUnit { get; private set; }
+    public Collider BodyCollider => bodyCollider;
 
     void Awake()
     {
@@ -39,7 +40,7 @@ public class BodyColliderController : MonoBehaviour
         }
     }
 
-    // 콜라이더가 활성화된 시점에 겹쳐져 있는 코라이더를 찾아 `OnTriggerEnter`처럼 owner에게 전달한다.
+    // 콜라이더가 활성화된 시점에 겹쳐져 있는 콜라이더를 찾아 `OnTriggerEnter`처럼 owner에게 전달한다.
     private void CheckForInitialOverlaps()
     {
         if (owner == null) return;

@@ -26,7 +26,7 @@ MonoBehaviour:
   attackType: 0
   attackRangeType: 1
   blockCount: 1
-  projectilePrefab: {fileID: 2265705452529792940, guid: dfde16b8edf06274c855a9e6428e39e0, type: 3}
+  projectilePrefab: {fileID: 6902083529392315599, guid: b8f6967fc739a37458f0ebfd8871b6be, type: 3}
   projectileTag: 
   defaultYPosition: 0.5
   meleeAttackEffectPrefab: {fileID: 2667795462971242445, guid: ab921526673becc4dba3450e1f02e066, type: 3}
