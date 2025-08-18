@@ -8,17 +8,17 @@ using UnityEngine.UI;
 public class SkillRangeVFXController : MonoBehaviour, IPooledObject
 {
     [Header("Effect Reference")]
-    [SerializeField] protected ParticleSystem topEffect = default!;
-    [SerializeField] protected ParticleSystem bottomEffect = default!;
-    [SerializeField] protected ParticleSystem leftEffect = default!;
-    [SerializeField] protected ParticleSystem rightEffect = default!;
+    [SerializeField] protected GameObject topEffectObject = default!;
+    [SerializeField] protected GameObject bottomEffectObject = default!;
+    [SerializeField] protected GameObject leftEffectObject = default!;
+    [SerializeField] protected GameObject rightEffectObject = default!;
     [SerializeField] protected Image topBoundary = default!;
     [SerializeField] protected Image bottomBoundary = default!;
     [SerializeField] protected Image leftBoundary = default!;
     [SerializeField] protected Image rightBoundary = default!;
     [SerializeField] protected Image floorImage = default!;
 
-    protected Dictionary<Vector2Int, (ParticleSystem effect, Image boundary)> directionEffects = new Dictionary<Vector2Int, (ParticleSystem effect, Image boundary)>();
+    protected Dictionary<Vector2Int, (GameObject effect, Image boundary)> directionEffects = new Dictionary<Vector2Int, (GameObject effect, Image boundary)>();
     protected readonly Vector2Int[] directions = new[] { Vector2Int.down, Vector2Int.up, Vector2Int.left, Vector2Int.right };
 
     private string poolTag = string.Empty;
@@ -27,12 +27,12 @@ public class SkillRangeVFXController : MonoBehaviour, IPooledObject
     private void Awake()
     {
         // 방향별 파티클 시스템 매핑
-        directionEffects = new Dictionary<Vector2Int, (ParticleSystem, Image)>
+        directionEffects = new Dictionary<Vector2Int, (GameObject, Image)>
         {
-            { Vector2Int.down, (topEffect, topBoundary) },
-            { Vector2Int.up, (bottomEffect, bottomBoundary) },
-            { Vector2Int.left, (leftEffect, leftBoundary) },
-            { Vector2Int.right, (rightEffect, rightBoundary) }
+            { Vector2Int.down, (topEffectObject, topBoundary) },
+            { Vector2Int.up, (bottomEffectObject, bottomBoundary) },
+            { Vector2Int.left, (leftEffectObject, leftBoundary) },
+            { Vector2Int.right, (rightEffectObject, rightBoundary) }
         };
     }
 
@@ -90,20 +90,16 @@ public class SkillRangeVFXController : MonoBehaviour, IPooledObject
             Vector2Int neighborPos = position + direction;
             bool showEffect = !effectRange.Contains(neighborPos) || !MapManager.Instance.CurrentMap.IsTileAt(neighborPos.x, neighborPos.y);
 
-            var (effect, boundary) = directionEffects[direction];
+            var (effectObject, boundary) = directionEffects[direction];
 
-            effect.gameObject.SetActive(showEffect);
+            effectObject.SetActive(showEffect);
             boundary.gameObject.SetActive(showEffect);
 
-            if (showEffect)
+            // 파티클 시스템으로 구현된 경우 파티클 시스템을 실행시킴
+            ParticleSystem directionParticleSystem = effectObject.GetComponent<ParticleSystem>();
+            if (directionParticleSystem != null)
             {
-                PrewarmTrailAndPlayVFX(effect); // effect.Play() 포함
-                boundary.gameObject.SetActive(true);
-            }
-            else
-            {
-                effect.Stop();
-                boundary.gameObject.SetActive(false);
+                PrewarmTrailAndPlayVFX(directionParticleSystem);
             }
         }
 

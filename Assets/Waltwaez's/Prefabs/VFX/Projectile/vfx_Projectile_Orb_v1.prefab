@@ -9887,6 +9887,7 @@ MonoBehaviour:
   mainParticle: {fileID: 9218274557427299200}
   remainingParticles:
   - {fileID: 7130959133065853525}
+  needToRotate: 0
   speed: 10
   WAIT_DISAPPEAR_TIME: 0.5
 --- !u!54 &6634220014454552778
@@ -9935,7 +9936,7 @@ SphereCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Radius: 0.25
+  m_Radius: 0.01
   m_Center: {x: 0, y: 0, z: 0}
 --- !u!1 &3055601309655613379
 GameObject:
