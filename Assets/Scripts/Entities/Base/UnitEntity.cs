@@ -100,31 +100,76 @@ public abstract class UnitEntity : MonoBehaviour, ITargettable, IFactionMember, 
 
     protected void PlayDeathAnimation()
     {
-        Renderer renderer = GetComponentInChildren<Renderer>();
-
+        // Renderer renderer = GetComponentInChildren<Renderer>();
         // 동일한 머티리얼을 사용하는 모든 객체에 적용되는 걸 막고자 머티리얼 인스턴스를 만들고 진행한다.
-        if (renderer != null)
-        {
-            Material materialInstance = new Material(renderer.material);
-            renderer.material = materialInstance;
+        // if (renderer != null)
+        // {
+        //     Material materialInstance = new Material(renderer.material);
+        //     renderer.material = materialInstance;
 
-            SetMaterialToTransparent(materialInstance);
+        //     SetMaterialToTransparent(materialInstance);
 
-            // DOTween 사용하여 검정으로 변한 뒤 투명해지는 애니메이션 적용
-            // materialInstance.DOColor(Color.black, 0f);
-            materialInstance.DOFade(0f, 0.2f).OnComplete(() =>
-            {
-                OnDeathAnimationCompleted?.Invoke(this); // 사망할 것임을 알리는 이벤트
-                Destroy(materialInstance); // 메모리 누수 방지
-                Destroy(gameObject);
-            });
-        }
-        else
+        //     // DOTween 사용하여 검정으로 변한 뒤 투명해지는 애니메이션 적용
+        //     // materialInstance.DOColor(Color.black, 0f);
+        //     materialInstance.DOFade(0f, 0.2f).OnComplete(() =>
+        //     {
+        //         OnDeathAnimationCompleted?.Invoke(this); // 사망할 것임을 알리는 이벤트
+        //         Destroy(materialInstance); // 메모리 누수 방지
+        //         Destroy(gameObject);
+        //     });
+        // }
+        // else
+        // {
+        //     // 렌더러가 없어도 콜백과 파괴는 실행된다.
+        //     OnDeathAnimationCompleted?.Invoke(this);
+        //     Destroy(gameObject);
+        // }
+
+        Renderer[] renderers = GetComponentsInChildren<Renderer>();
+
+        if (renderers == null || renderers.Length == 0)
         {
-            // 렌더러가 없어도 콜백과 파괴는 실행된다.
             OnDeathAnimationCompleted?.Invoke(this);
             Destroy(gameObject);
+            return;
         }
+
+        // 시퀀스로 만들어 여러 개의 애니메이션을 하나의 그룹으로 묶어서 관리한다
+        Sequence deathSequence = DOTween.Sequence();
+
+        List<Material> materialInstances = new List<Material>();
+
+        foreach (Renderer renderer in renderers)
+        {
+            // 1. 머티리얼 인스턴스로 만들어 동일한 머티리얼을 사용하는 다른 객체에 영향을 주지 않게 한다
+            Material materialInstance = new Material(renderer.material);
+            renderer.material = materialInstance;
+            materialInstances.Add(materialInstance);
+
+            // 2. 투명 렌더링 모드로 전환
+            SetMaterialToTransparent(materialInstance);
+
+            // 3. 각 렌더러의 머티리얼에 대한 페이드 아웃 트윈을 생성
+            Tween fadeTween = materialInstance.DOFade(0f, 0.2f);
+
+            // 4. 시퀀스에 조인함. 
+            deathSequence.Join(fadeTween);
+        }
+
+        deathSequence.OnComplete(() =>
+        {
+            OnDeathAnimationCompleted?.Invoke(this);
+
+            foreach (Material mat in materialInstances)
+            {
+                Destroy(mat);
+            }
+
+            Destroy(gameObject);
+        });
+
+        // 시퀀스의 실행 시점은 위에서 모든 애니메이션이 등록됨 -> DOTween이 시퀀스를 감지함 -> 실행시킴이라서
+        // 이 메서드가 호출되면 별도로 실행시킬 필요 없이 다음 프레임부터 시작된다.
     }
 
     // 머티리얼을 투명하게 설정하는 메서드 (URP Lit을 쓴다고 가정)

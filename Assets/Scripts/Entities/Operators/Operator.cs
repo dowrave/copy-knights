@@ -646,8 +646,8 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
         SetDeploymentOrder();
         operatorGridPos = MapManager.Instance!.CurrentMap!.WorldToGridPosition(transform.position);
         SetDirection(FacingDirection);
-        RegisterTiles();
-        UpdateAttackableTiles();
+        UpdateAttackableTiles(); // 방향에 따른 공격 범위 타일들 업데이트
+        RegisterTiles(); // 타일들에 이 오퍼레이터가 공격 타일로 선정했음을 알림
 
         CreateDirectionIndicator();
         CreateOperatorUI();
@@ -1093,6 +1093,12 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
             if (targetTile != null)
             {
                 targetTile.RegisterOperator(this);
+
+                // 타일 등록 시점에 그 타일에 있는 적의 정보도 Operator에게 전달함
+                foreach (Enemy enemy in targetTile.EnemiesOnTile)
+                {
+                    OnEnemyEnteredAttackRange(enemy);
+                }
             }
         }
     }
@@ -1106,6 +1112,7 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
             if (targetTile != null)
             {
                 targetTile.UnregisterOperator(this);
+
             }
         }
     }
