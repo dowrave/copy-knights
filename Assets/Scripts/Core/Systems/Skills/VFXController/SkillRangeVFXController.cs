@@ -79,10 +79,11 @@ public class SkillRangeVFXController : MonoBehaviour, IPooledObject
         // 유효하지 않은 위치는 아무것도 표시하지 않음
         if (MapManager.Instance.CurrentMap == null || !MapManager.Instance.CurrentMap.IsTileAt(position.x, position.y))
         {
+            floorImage.gameObject.SetActive(false);
             return;
         }
 
-        floorImage.gameObject.SetActive(false);
+        floorImage.gameObject.SetActive(true);
 
         // 방향에 따른 타일 검사로 이펙트 실행 여부 결정
         foreach (var direction in directions)

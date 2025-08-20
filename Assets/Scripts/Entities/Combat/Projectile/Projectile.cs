@@ -3,6 +3,7 @@ using UnityEngine.VFX;
 using static ICombatEntity;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 
 // 투사체 관리 클래스
 public class Projectile : MonoBehaviour
@@ -22,6 +23,9 @@ public class Projectile : MonoBehaviour
     [Header("Wait Time Before VFX Stop")]
     // 파괴되거나 풀로 돌아가기 전 대기 시간 - 이펙트가 바로 사라지지 않게 해서 보기 어색하지 않게끔 함
     [SerializeField] private float WAIT_DISAPPEAR_TIME = 0.5f;
+
+    [Header("Mesh Renderers")]
+    [SerializeField] private List<MeshRenderer> renderers;
 
     private float value; // 대미지 or 힐값
     private bool showValue;
@@ -94,6 +98,15 @@ public class Projectile : MonoBehaviour
 
         this.hitEffectPrefab = hitEffectPrefab;
         this.hitEffectTag = hitEffectTag;
+
+        // 메쉬로 구현된 요소가 있다면 활성화
+        if (renderers != null)
+        {
+            foreach (MeshRenderer renderer in renderers)
+            {
+                renderer.enabled = true;
+            }
+        }
 
         if (needToRotate)
         {
@@ -308,6 +321,15 @@ public class Projectile : MonoBehaviour
 
             // 남기지 않아도 되는 파티클들 모두 제거
             mainParticle.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
+
+            // 메쉬 렌더러로 구현된 요소들이 있다면 이들을 모두 비활성화
+            if (renderers != null)
+            {
+                foreach (MeshRenderer renderer in renderers)
+                {
+                    renderer.enabled = false;
+                }
+            }
         }
 
         yield return new WaitForSeconds(seconds);
