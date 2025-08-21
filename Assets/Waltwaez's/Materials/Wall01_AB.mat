@@ -1,6 +1,6 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
---- !u!114 &-949709520908409535
+--- !u!114 &-1194251218957904171
 MonoBehaviour:
   m_ObjectHideFlags: 11
   m_CorrespondingSourceObject: {fileID: 0}
@@ -20,13 +20,13 @@ Material:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: Wall01_AddScroll
-  m_Shader: {fileID: -6465566751694194690, guid: 8ae30c677a4ce0e4cab3ddd16fffec68, type: 3}
+  m_Name: Wall01_AB
+  m_Shader: {fileID: -6465566751694194690, guid: 6de58811802fd834f946b5ae46d43678, type: 3}
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0
   m_ValidKeywords: []
   m_InvalidKeywords: []
-  m_LightmapFlags: 4
+  m_LightmapFlags: 2
   m_EnableInstancingVariants: 0
   m_DoubleSidedGI: 0
   m_CustomRenderQueue: -1
@@ -38,11 +38,7 @@ Material:
     serializedVersion: 3
     m_TexEnvs:
     - _MainTex:
-        m_Texture: {fileID: 2800000, guid: c6d52b3ecfbca31449550da25cc57f0f, type: 3}
-        m_Scale: {x: 1, y: 1}
-        m_Offset: {x: 0, y: 0}
-    - _MainTexture:
-        m_Texture: {fileID: 2800000, guid: cd388267ffb74f849af86e67019dfa75, type: 3}
+        m_Texture: {fileID: 2800000, guid: 2cbc82b7594c5144797f7bd8269c94d2, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - unity_Lightmaps:
@@ -59,18 +55,17 @@ Material:
         m_Offset: {x: 0, y: 0}
     m_Ints: []
     m_Floats:
-    - _ClippingValue: 0
-    - _DistortionAmount: 0.01
-    - _NoiseScale: 10
+    - _NoiseHeight: -0.5
+    - _NoiseScale: 15
     - _QueueControl: 0
     - _QueueOffset: 0
-    - _TrailLength_AlphaClip: 0
+    - _Ratio: 0.8
+    - _SmoothStepEdge: 0.64
+    - _edge1: 0
+    - _edge2: 0.5
     m_Colors:
-    - _Color: {r: 0.41774288, g: 0, b: 3.396227, a: 1}
-    - _Color1: {r: 0.27804154, g: 0.09531862, b: 0.9622642, a: 1}
-    - _Color2: {r: 0.7310146, g: 0.15566039, b: 1, a: 1}
-    - _MainTexSpeed: {r: 1, g: 0, b: 0, a: 0}
-    - _NoiseSpeed: {r: 0, g: 5, b: 0, a: 0}
-    - _TexScrollSpeed: {r: 0, g: 0, b: 0, a: 0}
+    - _Color: {r: 0.6131109, g: 0.13449705, b: 0.80277944, a: 1}
+    - _NoiseSpeed: {r: 0, g: -1, b: 0, a: 0}
+    - _TextureSpeed: {r: 0.1, g: 0, b: 0, a: 0}
   m_BuildTextureStacks: []
   m_AllowLocking: 1

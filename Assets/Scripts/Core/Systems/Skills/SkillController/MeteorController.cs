@@ -8,6 +8,7 @@ public class MeteorController : MonoBehaviour, IPooledObject
     private Enemy? target;
     private float damage;
     private float stunDuration;
+    private float fallSpeed;
     private GameObject hitEffectPrefab = default!;
     private string hitEffectTag = string.Empty;
     private string poolTag = string.Empty;
@@ -17,26 +18,21 @@ public class MeteorController : MonoBehaviour, IPooledObject
         this.poolTag = tag;
     }
 
-    public void Initialize(Operator op, Enemy target, float damage, float delayTime, float stunDuration, GameObject hitEffectPrefab, string hitEffectTag)
+    public void Initialize(Operator op, Enemy target, float damage, float fallSpeed, float stunDuration, GameObject hitEffectPrefab, string hitEffectTag)
     {
         this.caster = op;
         this.target = target;
         this.damage = damage;
+        this.fallSpeed = fallSpeed;
         this.stunDuration = stunDuration;
         this.hitEffectPrefab = hitEffectPrefab;
         this.hitEffectTag = hitEffectTag;
 
-        StartCoroutine(DelayedFallRoutine(delayTime));
-    }
-    private IEnumerator DelayedFallRoutine(float delay)
-    {
-        yield return new WaitForSeconds(delay);
-        yield return StartCoroutine(FallRoutine());
+        StartCoroutine(FallRoutine());
     }
 
     private IEnumerator FallRoutine()
     {
-        float fallSpeed = 5f;
         bool hasDamageApplied = false;
 
         while (target != null &&
@@ -51,14 +47,15 @@ public class MeteorController : MonoBehaviour, IPooledObject
                 targetPos.z
             );
 
-            // 타겟 충돌 판정
-            if (Vector3.Distance(transform.position, target.transform.position) < 0.5f)
-            {
-                ApplyDamage();
-                hasDamageApplied = true;
-            }
-
             yield return null;
+
+            // 타겟 충돌 판정 -> 콜라이더 기반으로 수정
+            // if (Vector3.Distance(transform.position, target.transform.position) < 0.5f)
+            // {
+            //     ApplyDamage();
+            //     hasDamageApplied = true;
+            // }
+
         }
 
         ReturnToPool();
@@ -83,6 +80,18 @@ public class MeteorController : MonoBehaviour, IPooledObject
                 hitEffectTag: hitEffectTag
             );
             target.TakeDamage(attackSource);
+        }
+    }
+
+    private void OnTriggerEnter(Collider other)
+    {
+        UnitEntity tempTarget = other.GetComponentInParent<UnitEntity>();
+
+        // 목표에 닿으면 실행
+        if (tempTarget != null && tempTarget == target)
+        {
+            ApplyDamage();
+            ReturnToPool();
         }
     }
 

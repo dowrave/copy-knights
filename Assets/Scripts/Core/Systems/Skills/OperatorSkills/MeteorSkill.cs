@@ -1,4 +1,5 @@
 using UnityEngine;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -15,6 +16,7 @@ namespace Skills.Base
         [SerializeField] private Vector2 meteorHeights = new Vector2(); // 두 오브젝트의 높이
         [SerializeField] private GameObject hitEffectPrefab = default!;
         [SerializeField] private GameObject skillRangeVFXPrefab = default!;
+        [SerializeField] private float fallSpeed = 10f;
 
         private float meteorDelay = 0.5f;
 
@@ -59,30 +61,38 @@ namespace Skills.Base
                     {
                         if (enemyIdSet.Add(enemy.GetInstanceID()))
                         {
-                            CreateMeteorSequence(op, enemy);
+                            // 코루틴은 Monobehaviour을 받는 객체에서만 실행 가능
+                            // 이 스크립트는 ScriptableObject의 상속임. 실행 가능한 객체에게 요청한다.
+                            op.StartCoroutine(CreateMeteorSequence(op, enemy));
                         }
                     }
                 }
             }
         }
 
-        private void CreateMeteorSequence(Operator op, Enemy target)
+        private IEnumerator CreateMeteorSequence(Operator op, Enemy target)
         {
-            CreateMeteor(op, target, meteorHeights.x, 0f);
-            CreateMeteor(op, target, meteorHeights.y, meteorDelay);
+            CreateMeteor(op, target, meteorHeights.x);
+
+            yield return new WaitForSeconds(meteorDelay);
+
+            CreateMeteor(op, target, meteorHeights.y);
         }
 
-        private void CreateMeteor(Operator op, Enemy target, float height, float delayTime)
+        private void CreateMeteor(Operator op, Enemy target, float height)
         {
-            Vector3 spawnPos = target.transform.position + Vector3.up * height;
-            GameObject meteorObj = Instantiate(meteorPrefab, spawnPos, Quaternion.Euler(90, 0, 0), target.transform);
-
-            MeteorController? controller = meteorObj.GetComponent<MeteorController>();
-
-            if (controller != null)
+            if (target != null)
             {
-                float actualDamage = op.AttackPower * damageMultiplier;
-                controller.Initialize(op, target, actualDamage, delayTime, stunDuration, hitEffectPrefab, HIT_EFFECT_TAG);
+                Vector3 spawnPos = target.transform.position + Vector3.up * height;
+                GameObject meteorObj = Instantiate(meteorPrefab, spawnPos, Quaternion.Euler(90, 0, 0), target.transform);
+
+                MeteorController? controller = meteorObj.GetComponent<MeteorController>();
+
+                if (controller != null)
+                {
+                    float actualDamage = op.AttackPower * damageMultiplier;
+                    controller.Initialize(op, target, actualDamage, fallSpeed, stunDuration, hitEffectPrefab, HIT_EFFECT_TAG);
+                }
             }
         }
 

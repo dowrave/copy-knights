@@ -9750,10 +9750,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: edd239765d674f340930a7f229d3f28c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  topEffect: {fileID: 5063176555555090124}
-  bottomEffect: {fileID: 3388644221159487024}
-  leftEffect: {fileID: 3498405925210438299}
-  rightEffect: {fileID: 8226566665571950619}
+  topEffectObject: {fileID: 2874971481368727066}
+  bottomEffectObject: {fileID: 7772923446594727688}
+  leftEffectObject: {fileID: 3363359020944030566}
+  rightEffectObject: {fileID: 4937293580493373107}
   topBoundary: {fileID: 954486327180617237}
   bottomBoundary: {fileID: 6214544546975993826}
   leftBoundary: {fileID: 2038773641964836386}
@@ -14525,7 +14525,7 @@ ParticleSystemRenderer:
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 19170391
-  m_SortingLayer: 3
+  m_SortingLayer: 4
   m_SortingOrder: 0
   m_RenderMode: 0
   m_MeshDistribution: 0
