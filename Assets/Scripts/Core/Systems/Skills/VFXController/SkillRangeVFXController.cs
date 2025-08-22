@@ -45,18 +45,16 @@ public class SkillRangeVFXController : MonoBehaviour, IPooledObject
         {
             pair.effect.gameObject.SetActive(false);
             pair.boundary.gameObject.SetActive(false);
+
+            // 파티클 시스템 초기화
+            ParticleSystem ps = pair.effect.GetComponent<ParticleSystem>();
+            if (ps != null)
+            {
+                ps.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear); 
+            }
         }
-
-        floorImage.gameObject.SetActive(false);
         
-        // 초기에는 모든 이펙트 중지
-        // foreach (var pair in directionEffects.Values)
-        // {
-        //     pair.effect.Stop();
-        //     pair.boundary.gameObject.SetActive(false);
-        // }
-
-        // floorImage.gameObject.SetActive(false);
+        floorImage.gameObject.SetActive(false);
     }
 
     // 시각 효과 설정 및 실행
@@ -100,7 +98,7 @@ public class SkillRangeVFXController : MonoBehaviour, IPooledObject
             ParticleSystem directionParticleSystem = effectObject.GetComponent<ParticleSystem>();
             if (directionParticleSystem != null)
             {
-                PrewarmTrailAndPlayVFX(directionParticleSystem);
+                directionParticleSystem.Play();
             }
         }
 
@@ -134,21 +132,5 @@ public class SkillRangeVFXController : MonoBehaviour, IPooledObject
             StopCoroutine(_lifeCycleCoroutine);
         }
         ReturnToPool();
-    }
-
-    // 스킬 범위 즉시 표현을 위한 스크립트
-    private void PrewarmTrailAndPlayVFX(ParticleSystem ps)
-    {
-        ParticleSystem.MainModule main = ps.main;
-        ps.Play();
-
-        StartCoroutine(ShowEffectAfterPrewarm(main));
-    }
-
-    private IEnumerator ShowEffectAfterPrewarm(ParticleSystem.MainModule main)
-    {
-        main.simulationSpeed = 100f;
-        yield return new WaitForSeconds(0.01f);
-        main.simulationSpeed = 1f;
     }
 }

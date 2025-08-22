@@ -85,10 +85,12 @@ public class MeteorController : MonoBehaviour, IPooledObject
 
     private void OnTriggerEnter(Collider other)
     {
-        UnitEntity tempTarget = other.GetComponentInParent<UnitEntity>();
-
+        // 몸통에 닿은 콜라이더에 대해서만 실행되어야 함. 이게 없으면 사거리 콜라이더와 충돌했을 때도 동작함
+        // 이 부분은 레이어 & 충돌 매트릭스를 이용하면 
+        BodyColliderController bodyCollider = other.GetComponent<BodyColliderController>();
+        
         // 목표에 닿으면 실행
-        if (tempTarget != null && tempTarget == target)
+        if (bodyCollider != null && bodyCollider.ParentUnit == target)
         {
             ApplyDamage();
             ReturnToPool();

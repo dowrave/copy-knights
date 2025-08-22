@@ -84,7 +84,7 @@ namespace Skills.Base
             if (target != null)
             {
                 Vector3 spawnPos = target.transform.position + Vector3.up * height;
-                GameObject meteorObj = Instantiate(meteorPrefab, spawnPos, Quaternion.Euler(90, 0, 0), target.transform);
+                GameObject meteorObj = Instantiate(meteorPrefab, spawnPos, Quaternion.identity, target.transform);
 
                 MeteorController? controller = meteorObj.GetComponent<MeteorController>();
 
