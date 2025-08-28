@@ -1,153 +1,124 @@
 using System.Collections.Generic;
-using System.Linq;
+using System.Collections;
 using UnityEngine;
+using Skills.Base;
 
 public class SlashSkillController : MonoBehaviour
 {
     private Operator attacker = default!; // 죽은 경우에 대한 별도 처리가 없어서 일단 이렇게 구현
     private float effectDuration;
-    private float effectSpeed;
-    private Vector3 opDirection;
-    private float damageMultiplier;
-    private List<Vector2Int> baseAttackRange = new List<Vector2Int>();
+    private float firstDamageMultiplier;
+    private float secondDamageMultiplier;
     private GameObject hitEffectPrefab = default!;
     private string hitEffectTag = string.Empty;
+    private string skillPoolTag = string.Empty; // 풀로 되돌릴 때 사용
+    private BaseSkill baseSkill;
+
+    private float firstDelay = 0.3f;
+    private float secondDelay = 0.1f;
 
     // 파티클 시스템 관련
     [SerializeField] private ParticleSystem mainEffect = default!;
-    private ParticleSystem.Particle[] particles = System.Array.Empty<ParticleSystem.Particle>();
 
-    // 대미지 적용 적 추적
+    // 대미지 적용된 적 추적
     private HashSet<Enemy> damagedEnemies = new HashSet<Enemy>();
 
     // 공격 가능 타일 좌표
-    private HashSet<Vector2Int> attackableGridPositions = new HashSet<Vector2Int>();
+    private HashSet<Vector2Int> skillRange = new HashSet<Vector2Int>();
 
-    private bool isInitialized = false;
-
-    public void Initialize(Operator op, Vector3 dir, float spd, float duration, float dmgMult, List<Vector2Int> attackRange, GameObject hitEffectPrefab, string hitEffectTag)
+    public void Initialize(Operator op, float duration, HashSet<Vector2Int> attackableGridPositions, float firstDmg, float secondDmg, GameObject hitEffectPrefab, string hitEffectTag, string skillPoolTag, BaseSkill baseSkill)
     {
         attacker = op;
         effectDuration = duration;
-        effectSpeed = spd;
-        damageMultiplier = dmgMult;
-        opDirection = dir;
-        baseAttackRange = attackRange;
+        this.skillRange = attackableGridPositions;
+        firstDamageMultiplier = firstDmg;
+        secondDamageMultiplier = secondDmg;
         this.hitEffectPrefab = hitEffectPrefab;
         this.hitEffectTag = hitEffectTag;
+        this.skillPoolTag = skillPoolTag;
+        this.baseSkill = baseSkill;
 
-        InitializeParticleSystem();
-        SetRotationByDirection();
-        CalculateAttackableGridPositions();
+        mainEffect.Play(true);
 
-        Destroy(gameObject, effectDuration);
+        StartCoroutine(SkillSequenceCoroutine());
     }
 
-    private void InitializeParticleSystem()
+    private IEnumerator SkillSequenceCoroutine()
     {
-        if (mainEffect == null)
+        // 1번째 타격
+        ApplyDamageInRange(firstDamageMultiplier);
+        yield return new WaitForSeconds(firstDelay);
+
+        // 2번째 타격 : 3번에 걸쳐 들어감. 간격은 0.15초.
+        ApplyDamageInRange(secondDamageMultiplier);
+        yield return new WaitForSeconds(secondDelay);
+        ApplyDamageInRange(secondDamageMultiplier);
+        yield return new WaitForSeconds(secondDelay);
+        ApplyDamageInRange(secondDamageMultiplier);
+
+        // 스킬 판정 후에는 공격 바로 가능하도록 공격 불가 버프 해제
+        attacker.RemoveBuffFromSourceSkill(baseSkill);
+
+        // --- 스킬 종료 및 정리 ---
+        // 남은 vfxDuration 만큼 기다렸다가 비활성화 (오브젝트 풀링)
+        // 위에서 0.3 + 0.2 = 0.5초를 사용했으므로 남은 시간만 기다림
+        float remainingTime = effectDuration - 0.6f;
+        if (remainingTime > 0)
         {
-            mainEffect = GetComponentInChildren<ParticleSystem>();
+            yield return new WaitForSeconds(remainingTime);
         }
 
-        particles = new ParticleSystem.Particle[mainEffect.main.maxParticles];
+        mainEffect.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
+        ObjectPoolManager.Instance.ReturnToPool(skillPoolTag, gameObject);
+    }
 
-        SetParticleDurationAndSpeed();
 
-        if (!mainEffect.isPlaying)
+    // 지정된 범위 내의 모든 적에게 데미지를 적용하는 헬퍼 함수
+    private void ApplyDamageInRange(float damageMultiplier)
+    {
+        // 1. 범위 내의 모든 적을 찾습니다 (중복 제거를 위해 HashSet 사용).
+        HashSet<Enemy> enemiesInRange = new HashSet<Enemy>();
+        foreach (Vector2Int gridPos in skillRange)
         {
-            mainEffect.Play(); // 이거 없으면 파티클 충돌 감지 안됨
-        }
-
-        isInitialized = true;
-    }
-
-    private void SetParticleDurationAndSpeed()
-    {
-        var mainModule = mainEffect.main;
-        var velocityModule = mainEffect.velocityOverLifetime;
-
-        mainModule.startLifetime = effectDuration;
-        velocityModule.enabled = true;
-        velocityModule.speedModifier = effectSpeed;
-    }
-
-    private void SetRotationByDirection()
-    {
-        float yRotation = 0f;
-        if (opDirection == Vector3.forward) yRotation = 270f;
-        else if (opDirection == Vector3.right) yRotation = 0f;
-        else if (opDirection == Vector3.back) yRotation = 90f;
-        else if (opDirection == Vector3.left) yRotation = 180f;
-
-        transform.rotation = Quaternion.Euler(0f, yRotation, 0f);
-    }
-
-    private void CalculateAttackableGridPositions()
-    {
-        Vector2Int operatorGridPos = MapManager.Instance!.ConvertToGridPosition(attacker.transform.position);
-        attackableGridPositions.Add(operatorGridPos);
-
-        foreach (Vector2Int baseOffset in baseAttackRange)
-        {
-            Vector2Int rotatedOffset = DirectionSystem.RotateGridOffset(baseOffset, opDirection);
-            Vector2Int targetPos = operatorGridPos + rotatedOffset;
-            attackableGridPositions.Add(targetPos);
-        }
-    }
-
-    private void LateUpdate()
-    {
-        if (!isInitialized || mainEffect == null || !mainEffect.isPlaying) return;
-
-        int numParticlesAlive = mainEffect.GetParticles(particles);
-
-        CheckParticleCollisions(numParticlesAlive);
-    }
-
-    private void CheckParticleCollisions(int particleCount)
-    {
-        for (int i = 0; i < particleCount; i++)
-        {
-            // 파티클의 월드 좌표
-            Vector3 particleWorldPos = transform.TransformPoint(particles[i].position);
-
-            // 파티클 주변 영역 체크
-            Collider[] colliders = Physics.OverlapSphere(particleWorldPos, 0.5f);
-
-            foreach (Collider col in colliders)
+            Debug.Log($"스킬 범위 : {gridPos.x}, {gridPos.y}");
+            Tile tile = MapManager.Instance.GetTile(gridPos.x, gridPos.y);
+            if (tile != null)
             {
-                Enemy enemy = col.GetComponent<Enemy>();
-                if (enemy != null && !damagedEnemies.Contains(enemy) && IsEnemyInRangeTile(enemy))
+                // 타일 위의 모든 적을 순회하며 enemiesInRange에 추가
+                foreach (Enemy enemy in tile.EnemiesOnTile)
                 {
-                    damagedEnemies.Add(enemy);
-
-                    float damage = attacker.AttackPower * damageMultiplier;
-                    AttackSource attackSource = new AttackSource(
-                        attacker: attacker,
-                        position: transform.position,
-                        damage: damage,
-                        type: attacker.AttackType,
-                        isProjectile: true,
-                        hitEffectPrefab: hitEffectPrefab,
-                        hitEffectTag: hitEffectTag
-                    );
-
-                    enemy.TakeDamage(attackSource);
+                    enemiesInRange.Add(enemy);
                 }
             }
         }
-    }
 
-    private bool IsEnemyInRangeTile(Enemy enemy)
-    {
-        foreach (Vector2Int gridPos in attackableGridPositions)
-        {
-            Tile? eachTile = MapManager.Instance!.GetTile(gridPos.x, gridPos.y);
-            if (eachTile != null && eachTile.EnemiesOnTile.Contains(enemy))
-                return true;
+        // 2. 찾은 적들에게 데미지를 적용합니다. - 나중에 수를 제한할 수도 있음
+        foreach (Enemy enemy in enemiesInRange)
+        {            
+            if (enemy != null)
+            {
+                // 데미지 처리 로직...
+                AttackSource attackSource = new AttackSource(
+                    attacker: attacker,
+                    position: attacker.transform.position,
+                    damage: attacker.AttackPower * damageMultiplier,
+                    type: attacker.AttackType,
+                    isProjectile: false,
+                    hitEffectPrefab: hitEffectPrefab,
+                    hitEffectTag: hitEffectTag
+                );
+
+                enemy.TakeDamage(attackSource, true);
+
+                // enemy.TakeDamage(...);
+                Debug.Log($"{enemy.name}에게 {attackSource}의 데미지 적용!");
+
+                // 피격 이펙트 생성 등...
+
+                // 처리된 적으로 등록
+                // alreadyHitEnemies.Add(enemy);
+            }
         }
-        return false;
     }
 
     private void OnDestroy()

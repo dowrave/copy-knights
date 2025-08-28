@@ -13,6 +13,7 @@ public abstract class Buff
     protected float elapsedTime; // 지속 시간 체크용
     public UnitEntity owner; // 버프 적용 대상
     public UnitEntity caster; // 버프 시전자
+    public BaseSkill SourceSkill { get; protected set; } // 이 버프를 적용한 스킬
 
     public virtual bool IsDebuff => false; // 버프 종류 구분하는 프로퍼티
 
@@ -28,10 +29,14 @@ public abstract class Buff
 
     // 공격 이펙트 오버라이드 정보
     public GameObject MeleeAttackEffectOverride { get; protected set; }
-    public BaseSkill SourceSkill { get; protected set; }
+    
 
     // 파괴 중인지에 대한 플래그
     private bool isBeingRemoved = false;
+
+    // 생성자 관련 : 매개변수가 없는 기본적인 생성자를 생성함
+    // 명시적인 생성자가 있는게 나은데, 자식 버프에서 Base를 받아서 다시 써야 하는 점 등이 지저분한 것 같아서
+    // 생성자는 자식에 배치해둠. SourceSkill 같은 요소를 필요로 한다면, 필요로 하는 곳에서만 생성한다.
 
     // owner.AddBuff에서 실행됨
     public virtual void OnApply(UnitEntity owner, UnitEntity caster)

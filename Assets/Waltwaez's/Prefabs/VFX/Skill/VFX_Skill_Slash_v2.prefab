@@ -24537,7 +24537,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &8485487584891923240
 Transform:
   m_ObjectHideFlags: 0
@@ -78657,7 +78657,7 @@ ParticleSystem:
     startLifetime:
       serializedVersion: 2
       minMaxState: 0
-      scalar: 0.3
+      scalar: 0.2
       minScalar: 5
       maxCurve:
         serializedVersion: 2
@@ -78710,8 +78710,8 @@ ParticleSystem:
     startSpeed:
       serializedVersion: 2
       minMaxState: 3
-      scalar: -3
-      minScalar: -2
+      scalar: -5
+      minScalar: -5
       maxCurve:
         serializedVersion: 2
         m_Curve:
@@ -79520,15 +79520,15 @@ ParticleSystem:
       time: 0
       countCurve:
         serializedVersion: 2
-        minMaxState: 3
-        scalar: 15
-        minScalar: 10
+        minMaxState: 0
+        scalar: 20
+        minScalar: 20
         maxCurve:
           serializedVersion: 2
           m_Curve:
           - serializedVersion: 3
-            time: 0
-            value: 1
+            time: 0.004585266
+            value: 0.009584427
             inSlope: 0
             outSlope: 0
             tangentMode: 0
@@ -83418,13 +83418,13 @@ ParticleSystemRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
-  m_RenderMode: 1
+  m_RenderMode: 0
   m_MeshDistribution: 0
   m_SortMode: 0
   m_MinParticleSize: 0
   m_MaxParticleSize: 3
   m_CameraVelocityScale: 0
-  m_VelocityScale: 0.2
+  m_VelocityScale: 0.1
   m_LengthScale: 1
   m_SortingFudge: 0
   m_NormalDirection: 1
@@ -93271,7 +93271,7 @@ GameObject:
   - component: {fileID: 4998716935524275763}
   - component: {fileID: 1977649421368836726}
   m_Layer: 6
-  m_Name: Version2
+  m_Name: Beam
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -93325,7 +93325,7 @@ ParticleSystem:
   startDelay:
     serializedVersion: 2
     minMaxState: 0
-    scalar: 0
+    scalar: 0.3
     minScalar: 0
     maxCurve:
       serializedVersion: 2
@@ -93385,7 +93385,7 @@ ParticleSystem:
     startLifetime:
       serializedVersion: 2
       minMaxState: 0
-      scalar: 0.0001
+      scalar: 0.2
       minScalar: 5
       maxCurve:
         serializedVersion: 2

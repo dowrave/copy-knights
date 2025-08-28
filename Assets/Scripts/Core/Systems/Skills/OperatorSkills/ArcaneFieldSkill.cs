@@ -19,7 +19,7 @@ namespace Skills.OperatorSkills
         [SerializeField] private float slowAmount = 0.3f; // 이동속도 감소율
         [SerializeField] private float damageInterval = 0.5f; // 대미지 간격
 
-        private CannotAttackBuff? _cannotAttackBuff;
+        // private CannotAttackBuff? _cannotAttackBuff;
 
         string FIELD_EFFECT_TAG; // 실제 필드 효과 태그
         string SKILL_RANGE_VFX_TAG; // 필드 범위 VFX 태그
@@ -33,7 +33,7 @@ namespace Skills.OperatorSkills
         protected override void PlaySkillEffect(Operator op)
         {
             // 1. 자신에게 공격 불가 버프 적용
-            _cannotAttackBuff = new CannotAttackBuff(duration);
+            CannotAttackBuff _cannotAttackBuff = new CannotAttackBuff(duration, this);
             op.AddBuff(_cannotAttackBuff);
 
             // 2. 장판과 VFX 생성
@@ -57,11 +57,7 @@ namespace Skills.OperatorSkills
 
         protected override void OnSkillEnd(Operator op)
         {
-            if (_cannotAttackBuff != null)
-            {
-                op.RemoveBuff(_cannotAttackBuff);
-                _cannotAttackBuff = null;
-            }
+            op.RemoveBuffFromSourceSkill(this);
 
             base.OnSkillEnd(op);
         }

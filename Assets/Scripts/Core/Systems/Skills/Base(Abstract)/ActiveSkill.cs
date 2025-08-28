@@ -15,8 +15,9 @@ namespace Skills.Base
 
         [Header("Optional) Skill Range")]
         [SerializeField] protected bool activeFromOperatorPosition = true; // UI에 사거리 표시할 때 중심이 되는 부분의 색을 변경하기 위한 기능적인 필드
-        [SerializeField] protected List<Vector2Int> skillRangeOffset = new List<Vector2Int>();
+        [SerializeField] protected List<Vector2Int> skillRangeOffset = new List<Vector2Int>(); // 공격 범위
 
+        [Header("For UI")]
         [Tooltip("UI용 수평방향 오프셋. +값은 -x방향으로 이동함.")]
         [SerializeField] protected float rectOffset; // UI용 오프셋
 
@@ -90,6 +91,8 @@ namespace Skills.Base
             // 스킬이 꺼질 때도 공격 쿨다운 초기화 - 바로 때릴 수 있게끔
             op.SetAttackDuration(0f);
             op.SetAttackCooldown(0f);
+
+            // 버프 해제는 여기서 구현하지 않겠음 - 자식에서 각자!
             
             // 지속시간이 있는 스킬은 오퍼레이터의 코루틴 초기화
             if (duration > 0)

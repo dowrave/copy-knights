@@ -7,32 +7,74 @@ namespace Skills.OperatorSkills
     [CreateAssetMenu(fileName = "New Slash Skill", menuName = "Skills/SlashSkill")]
     public class SlashSkill : ActiveSkill
     {
-        [Header("Damage Settings")]
-        [SerializeField] private float damageMultiplier = 2f;
+        [SerializeField] private float effectDuration = 0.5f; // 마지막 대미지 판정이 발생하는 시점
 
-        [Header("Skill Settings")]
+        [Header("Damage Settings")]
+        [SerializeField] private float firstDamageMultiplier = 2f; // 1타 때 들어가는 대미지
+        [SerializeField] private float secondDamageMultiplier = 1.25f; // 여러 틱에 걸쳐 들어가는 대미지 
+
+        [Header("VFX Settings")]
+        [SerializeField] private float vfxDuration = 2f;
         [SerializeField] private GameObject slashEffectPrefab = default!;
-        [SerializeField] private float effectSpeed = 8f;
-        [SerializeField] private float effectLifetime = 0.5f;
+
+        private string skillPoolTag; 
 
         protected override void SetDefaults()
         {
             duration = 0f;
         }
 
+        public override void InitializeSkillObjectPool(UnitEntity caster)
+        {
+            base.InitializeSkillObjectPool(caster);
+
+            if (caster is Operator op)
+            {
+                if (slashEffectPrefab != null)
+                {
+                    skillPoolTag = RegisterPool(caster, slashEffectPrefab, 3);
+                }
+            }
+        }
+
         protected override void PlaySkillEffect(Operator op)
         {
             if (slashEffectPrefab == null) return;
 
-            Vector3 spawnPosition = op.transform.position + op.transform.forward * 0.5f;
-            Quaternion spawnRotation = Quaternion.LookRotation(op.FacingDirection);
-            GameObject effectObj = Instantiate(slashEffectPrefab, spawnPosition, spawnRotation);
+            // 스킬 중에는 버프 (공격 불가 버프 해제는 컨트롤러에서 공격 판정 끝나면 진행)
+            op.AddBuff(new CannotAttackBuff(effectDuration, this));
 
+            // 풀에서 오브젝트 생성
+            GameObject effectObj = ObjectPoolManager.Instance.SpawnFromPool(skillPoolTag, caster.transform.position, caster.transform.rotation);
+
+            // 스킬 범위 정의
+            HashSet<Vector2Int> skillRange = SetSkillRange(op);
+
+            // 컨트롤러를 이용한 초기화
             SlashSkillController controller = effectObj.GetComponent<SlashSkillController>();
             if (controller != null)
             {
-                controller.Initialize(op, op.FacingDirection, effectSpeed, effectLifetime, damageMultiplier, skillRangeOffset, op.OperatorData.HitEffectPrefab, op.HitEffectTag);
+                controller.Initialize(op, vfxDuration, skillRange, firstDamageMultiplier, secondDamageMultiplier, op.OperatorData.HitEffectPrefab, op.HitEffectTag, skillPoolTag, this);
             }
+        }
+
+        private HashSet<Vector2Int> SetSkillRange(Operator op)
+        {
+            HashSet<Vector2Int> skillRangeTiles = new HashSet<Vector2Int>();
+
+            // 오퍼레이터의 위치 포함
+            Vector2Int operatorGridPos = MapManager.Instance!.ConvertToGridPosition(op.transform.position);
+            skillRangeTiles.Add(operatorGridPos);
+
+            // 오퍼레이터의 방향을 고려해 스킬 범위 추가
+            foreach (Vector2Int baseOffset in skillRangeOffset)
+            {
+                Vector2Int rotatedOffset = DirectionSystem.RotateGridOffset(baseOffset, op.FacingDirection);
+                Vector2Int targetPos = operatorGridPos + rotatedOffset;
+                skillRangeTiles.Add(targetPos);
+            }
+
+            return skillRangeTiles;
         }
     }
 }

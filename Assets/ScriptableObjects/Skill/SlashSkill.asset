@@ -9,30 +9,34 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: a1135d3d187b47d46bae0876f086965a, type: 3}
+  m_Script: {fileID: 11500000, guid: d0e8c34e52499dd4c9892b8b56e37aff, type: 3}
   m_Name: SlashSkill
   m_EditorClassIdentifier: 
-  skillName: Slash
+  skillName: SlashSkill
   description: "\uC624\uD37C\uB808\uC774\uD130\uAC00 \uBCF4\uB294 \uBC29\uD5A5\uC73C\uB85C
-    <color=#179bff>\uC804\uBC29 3\uCE78</color>\uC5D0 \uAC80\uACA9\uC744 \uB0A0\uB9BD\uB2C8\uB2E4.
-    \uAC80\uACA9\uC5D0 \uB2FF\uC740 \uC801\uC5D0\uAC8C <color=#179bff>\uC624\uD37C\uB808\uC774\uD130\uC758
-    \uACF5\uACA9\uB825\uC758 200%</color>\uC5D0 \uD574\uB2F9\uD558\uB294 \uD53C\uD574\uB97C
-    \uC785\uD799\uB2C8\uB2E4."
+    <color=#179bff>\uC804\uBC29 3\uCE78</color>\uC744 \uCC0C\uB978 \uD6C4 \uBCB1\uB2C8\uB2E4.
+    \uCC0C\uB974\uAE30\uB294 \uAC80\uACA9\uC5D0 \uB2FF\uC740 \uC801\uC5D0\uAC8C <color=#179bff>\uC624\uD37C\uB808\uC774\uD130\uC758
+    \uACF5\uACA9\uB825\uC758 200%</color>\uC5D0 \uD574\uB2F9\uD558\uB294 \uBB3C\uB9AC
+    \uD53C\uD574\uB97C, \uBCA0\uAE30\uB294 3\uBC88\uC5D0 \uAC78\uCCD0 \uAC01\uAC01<color=#179bff>\uC624\uD37C\uB808\uC774\uD130\uC758
+    \uACF5\uACA9\uB825\uC758 125%</color>\uC5D0 \uD574\uB2F9\uD558\uB294 \uBB3C\uB9AC
+    \uD53C\uD574\uB97C \uC785\uD799\uB2C8\uB2E4."
   spCost: 12
   skillIcon: {fileID: 21300000, guid: 572f34cab38095646b3aa4a624b4ac71, type: 3}
   autoRecover: 1
   autoActivate: 0
-  isOnTest: 0
+  isOnTest: 1
+  meleeAttackEffectOverride: {fileID: 0}
   duration: 0
   skillVFXPrefab: {fileID: 0}
-  activeFromOperatorPosition: 1
+  activeFromOperatorPosition: 0
   skillRangeOffset:
+  - {x: 0, y: 0}
   - {x: -1, y: 0}
   - {x: -2, y: 0}
   - {x: -3, y: 0}
-  - {x: 0, y: 0}
   rectOffset: 40
-  damageMultiplier: 2
-  slashEffectPrefab: {fileID: 2616778333904927978, guid: a1b5a5fdd4e11c54e916725d4c24d68b, type: 3}
-  effectSpeed: 0.4
-  effectLifetime: 0.9
+  effectDuration: 0.6
+  firstDamageMultiplier: 2
+  secondDamageMultiplier: 1.25
+  vfxDuration: 2
+  slashEffectPrefab: {fileID: 1520095671981588855, guid: 58926a1656f0cf04dae7bc9cc440dc00, type: 3}

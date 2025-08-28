@@ -3,6 +3,7 @@ using System.Linq;
 using UnityEngine;
 using DG.Tweening;
 using System;
+using Skills.Base;
 
 // Operator, Enemy, Barricade 등의 타일 위의 유닛들과 관련된 엔티티
 public abstract class UnitEntity : MonoBehaviour, ITargettable, IFactionMember, ICrowdControlTarget
@@ -318,6 +319,15 @@ public abstract class UnitEntity : MonoBehaviour, ITargettable, IFactionMember, 
 
     protected virtual void RemoveAllBuffs()
     {
+        foreach (var buff in activeBuffs.ToList())
+        {
+            RemoveBuff(buff);
+        }
+    }
+
+    public virtual void RemoveBuffFromSourceSkill(BaseSkill sourceSkill)
+    {
+        var buffsToRemove = activeBuffs.Where(b => b.SourceSkill == sourceSkill).ToList();
         foreach (var buff in activeBuffs.ToList())
         {
             RemoveBuff(buff);

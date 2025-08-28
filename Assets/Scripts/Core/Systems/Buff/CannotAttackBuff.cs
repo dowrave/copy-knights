@@ -1,8 +1,11 @@
+using Skills.Base;
+
 public class CannotAttackBuff : Buff
 {
-    public CannotAttackBuff(float duration)
+    public CannotAttackBuff(float duration, BaseSkill baseSkill)
     {
         this.buffName = "Cannot Attack";
+        SourceSkill = baseSkill;
         this.duration = duration;
     }
 

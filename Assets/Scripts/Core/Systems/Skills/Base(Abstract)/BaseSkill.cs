@@ -61,7 +61,7 @@ namespace Skills.Base
         /// <summary>
         /// 스킬과 관련된 오브젝트 풀을 등록한다. 태그를 반환한다.
         /// </summary>
-        protected virtual string RegisterPool(UnitEntity caster, GameObject prefab, int initialSize = 5)
+        protected string RegisterPool(UnitEntity caster, GameObject prefab, int initialSize = 5)
         {
             if (prefab == null) return null;
 

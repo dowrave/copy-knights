@@ -16,8 +16,6 @@ namespace Skills.Base
         [SerializeField] private float healPerTickRatio = 0.7f;
         [SerializeField] private float healInterval = 0.5f;
 
-        private CannotAttackBuff? _cannotAttackBuff;
-
         string FIELD_EFFECT_TAG; // 실제 필드 효과 태그
         string SKILL_RANGE_VFX_TAG; // 필드 범위 VFX 태그
         string HIT_EFFECT_TAG; // 타격 이펙트 태그
@@ -29,8 +27,7 @@ namespace Skills.Base
                 hitEffectPrefab = op.OperatorData.HitEffectPrefab;
             }
 
-            _cannotAttackBuff = new CannotAttackBuff(this.duration);
-            op.AddBuff(_cannotAttackBuff);
+            op.AddBuff(new CannotAttackBuff(duration, this));
 
             caster = op;
             Vector2Int centerPos = MapManager.Instance!.ConvertToGridPosition(op.transform.position);
@@ -44,11 +41,8 @@ namespace Skills.Base
 
         protected override void OnSkillEnd(Operator op)
         {
-            if (_cannotAttackBuff != null)
-            {
-                op.RemoveBuff(_cannotAttackBuff);
-                _cannotAttackBuff = null;
-            }
+            op.RemoveBuffFromSourceSkill(this);
+        
             base.OnSkillEnd(op);
         }
 
