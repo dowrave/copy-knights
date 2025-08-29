@@ -21,7 +21,7 @@ MonoBehaviour:
     \uACF5\uACA9\uB825\uC758 125%</color>\uC5D0 \uD574\uB2F9\uD558\uB294 \uBB3C\uB9AC
     \uD53C\uD574\uB97C \uC785\uD799\uB2C8\uB2E4."
   spCost: 12
-  skillIcon: {fileID: 21300000, guid: 572f34cab38095646b3aa4a624b4ac71, type: 3}
+  skillIcon: {fileID: 21300000, guid: 97d5ea9fec1507c4998e41947329be81, type: 3}
   autoRecover: 1
   autoActivate: 0
   isOnTest: 1
