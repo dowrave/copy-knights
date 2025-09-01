@@ -145,7 +145,7 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
     protected string? projectileTag;
 
     // 스킬 관련
-    public BaseSkill CurrentSkill { get; private set; } = default!;
+    public OperatorSkill CurrentSkill { get; private set; } = default!;
     private bool _isSkillOn;
     public bool IsSkillOn
     {
@@ -182,6 +182,8 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
             OperatorData = ownedOp.OperatorProgressData;
             CurrentSP = OperatorData.initialSP;
 
+            SetPrefab();
+            
             // 현재 상태 반영
             currentOperatorStats = ownedOp.CurrentStats;
 
@@ -209,6 +211,11 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
         {
             Debug.LogError("오퍼레이터의 ownedOperator 정보가 없음!");
         }
+    }
+    
+    public override void SetPrefab()
+    {
+        prefab = OperatorData.prefab;
     }
 
     public void SetDirection(Vector3 direction)

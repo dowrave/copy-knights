@@ -16,7 +16,7 @@ public class SkillIconBox : MonoBehaviour
     [Header("No Skill Sprite")]
     [SerializeField] private Sprite noSkillIconSprite;
 
-    private BaseSkill skillData;
+    private OperatorSkill skillData;
 
     public event Action OnButtonClicked;
 
@@ -30,7 +30,7 @@ public class SkillIconBox : MonoBehaviour
         button.onClick.AddListener(HandleButtonClick);
     }
 
-    public void Initialize(BaseSkill skillData, bool showDurationBox = false, bool showSkillName = false)
+    public void Initialize(OperatorSkill skillData, bool showDurationBox = false, bool showSkillName = false)
     {
         
         this.skillData = skillData;

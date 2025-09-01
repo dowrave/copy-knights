@@ -10,7 +10,8 @@ public abstract class UnitEntity : MonoBehaviour, ITargettable, IFactionMember, 
 {
     public Faction Faction { get; protected set; }
 
-    public GameObject Prefab { get; protected set; } = default!;
+    protected GameObject prefab;
+    public GameObject Prefab => prefab;
     public ShieldSystem shieldSystem = default!;
 
     // ½ºÅÈ °ü·Ã
@@ -70,6 +71,7 @@ public abstract class UnitEntity : MonoBehaviour, ITargettable, IFactionMember, 
 
     }
 
+    public virtual void SetPrefab() {}
 
     public virtual void AddAttackingEntity(ICombatEntity attacker)
     {
@@ -325,7 +327,7 @@ public abstract class UnitEntity : MonoBehaviour, ITargettable, IFactionMember, 
         }
     }
 
-    public virtual void RemoveBuffFromSourceSkill(BaseSkill sourceSkill)
+    public virtual void RemoveBuffFromSourceSkill(OperatorSkill sourceSkill)
     {
         var buffsToRemove = activeBuffs.Where(b => b.SourceSkill == sourceSkill).ToList();
         foreach (var buff in activeBuffs.ToList())

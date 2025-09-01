@@ -22,7 +22,7 @@ public class OperatorData : ScriptableObject, ICombatData
     public AttackType attackType;
     public AttackRangeType attackRangeType;
     public List<Vector2Int> attackableTiles = new List<Vector2Int>{ Vector2Int.zero };
-    public BaseSkill elite0Skill = default!; // 최초 스킬
+    public OperatorSkill elite0Skill = default!; // 최초 스킬
     public float initialSP = 0f;
 
     [Header("VisualEffects")] 
@@ -75,7 +75,7 @@ public class OperatorData : ScriptableObject, ICombatData
         public List<Vector2Int>? additionalAttackTiles;
 
         [Header("New Skills")]
-        public BaseSkill? unlockedSkill;
+        public OperatorSkill? unlockedSkill;
     }
 
     [System.Serializable]

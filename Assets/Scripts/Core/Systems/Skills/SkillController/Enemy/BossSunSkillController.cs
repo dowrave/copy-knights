@@ -1,0 +1,52 @@
+using UnityEngine;
+using System.Collections;
+
+public class BossSunSkillController : MonoBehaviour
+{
+    [Header("Sun Particle Settings")]
+    [SerializeField] private ParticleSystem mainParticle;
+    [SerializeField] private GameObject sunObject;
+    [SerializeField] private float sunSpeed = 1f; // 일단 이렇게 구현. ScriptableObject를 받아서 구현해야 할 수도 있음.
+    [SerializeField] private float sunDuration = 3f; // 파티클이 내려오는 시간.
+
+    [SerializeField] private float startYPos = 3f;
+
+    // 테스트용. 실제로 쓸 때는 끄자.
+    private void Start()
+    {
+        Initialize();
+    }
+
+    // 파티클 시스템 실행 및 효과 재생
+    public void Initialize()
+    {
+        StopAllCoroutines();
+
+        // 위치 초기화
+        sunObject.transform.localPosition = new Vector3(0f, startYPos, 0f);
+
+        // 파티클 시스템 재생
+        mainParticle.Play(true);
+
+        // Sun 파티클 위치 변화 코루틴 시작
+        StartCoroutine(FallSunParticle());
+    }
+
+    public IEnumerator FallSunParticle()
+    {
+        float elapsedTime = 0f;
+
+        while (elapsedTime <= sunDuration)
+        {
+            sunObject.transform.localPosition = new Vector3(
+                sunObject.transform.localPosition.x,
+                sunObject.transform.localPosition.y - sunSpeed * Time.deltaTime,
+                sunObject.transform.localPosition.z
+            );
+
+            elapsedTime += Time.deltaTime;
+
+            yield return null;
+        }        
+    }
+}

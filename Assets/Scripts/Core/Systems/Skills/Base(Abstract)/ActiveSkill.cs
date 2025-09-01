@@ -5,7 +5,7 @@ using UnityEngine;
 using UnityEngine.VFX;
 namespace Skills.Base
 {
-    public abstract class ActiveSkill : BaseSkill
+    public abstract class ActiveSkill : OperatorSkill
     {
         [Header("Skill Duration")]
         public float duration = 0f;
@@ -189,7 +189,7 @@ namespace Skills.Base
         {
             foreach (Vector2Int offset in skillRangeOffset)
             {
-                Vector2Int rotatedOffset = DirectionSystem.RotateGridOffset(offset, caster.FacingDirection);
+                Vector2Int rotatedOffset = DirectionSystem.RotateGridOffset(offset, Caster.FacingDirection);
                 actualSkillRange.Add(center + rotatedOffset);
             }
         }

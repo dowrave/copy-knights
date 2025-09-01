@@ -60,7 +60,7 @@ public class OperatorInventoryPanel : MonoBehaviour
 
     private List<OwnedOperator> ownedOperators = new List<OwnedOperator>();
 
-    private BaseSkill? selectedSkill;
+    private OperatorSkill? selectedSkill;
     private int selectedSkillIndex;
     private Sprite noSkillSprite = default!;
 
@@ -774,7 +774,7 @@ public class OperatorInventoryPanel : MonoBehaviour
         OwnedOperator op = SelectedSlot.OwnedOperator;
 
         Transform targetButtonTransform = null;
-        List<BaseSkill> unlockedSkills = op.UnlockedSkills;
+        List<OperatorSkill> unlockedSkills = op.UnlockedSkills;
 
         // 인디케이터의 Transform 지정
         // 첫 번째 스킬이 기본 선택 스킬과 같으면 skillIconBox1의 버튼을 대상으로 함

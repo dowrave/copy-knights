@@ -51,7 +51,7 @@ public abstract class DeployableUnitEntity : UnitEntity, IDeployable
             DeployableUnitData = deployableInfo.deployableUnitData!;
 
             currentDeployableStats = DeployableUnitData.stats;
-            Prefab = DeployableUnitData.prefab;
+            SetPrefab();
 
             InitializeDeployableProperties();
             UpdateCurrentTile();
@@ -63,6 +63,10 @@ public abstract class DeployableUnitEntity : UnitEntity, IDeployable
         }
     }
 
+    public override void SetPrefab()
+    {
+        prefab = DeployableUnitData.prefab;
+    }
 
 
     // 자식 오브젝트에 시각화를 담당하는 Model이 있다는 전제

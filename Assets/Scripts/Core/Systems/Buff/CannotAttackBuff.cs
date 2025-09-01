@@ -2,10 +2,10 @@ using Skills.Base;
 
 public class CannotAttackBuff : Buff
 {
-    public CannotAttackBuff(float duration, BaseSkill baseSkill)
+    public CannotAttackBuff(float duration, OperatorSkill OperatorSkill)
     {
         this.buffName = "Cannot Attack";
-        SourceSkill = baseSkill;
+        SourceSkill = OperatorSkill;
         this.duration = duration;
     }
 

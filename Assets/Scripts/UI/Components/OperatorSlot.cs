@@ -36,7 +36,7 @@ public class OperatorSlot : MonoBehaviour
     public OperatorData? opData => OwnedOperator?.OperatorProgressData;
 
     public bool IsSelected { get; private set; } = false;
-    public BaseSkill? SelectedSkill { get; private set; } // 슬롯이니까 null일 수 있음
+    public OperatorSkill? SelectedSkill { get; private set; } // 슬롯이니까 null일 수 있음
 
     // OperatorSlotButton 타입의 파라미터를 받는 이벤트 정의
     public UnityEvent<OperatorSlot> OnSlotClicked = new UnityEvent<OperatorSlot>();
@@ -253,7 +253,7 @@ public class OperatorSlot : MonoBehaviour
         }
     }
 
-    public void UpdateSelectedSkill(BaseSkill skill)
+    public void UpdateSelectedSkill(OperatorSkill skill)
     {
         SelectedSkill = skill;
 

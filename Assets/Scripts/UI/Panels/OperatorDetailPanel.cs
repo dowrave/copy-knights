@@ -57,7 +57,7 @@ public class OperatorDetailPanel : MonoBehaviour
     [SerializeField] private RectTransform? defaultSkillIndicatorRect = default!;
 
 
-    private BaseSkill currentSelectedSkill = default!; // UI상에서 선택되고 있는 스킬
+    private OperatorSkill currentSelectedSkill = default!; // UI상에서 선택되고 있는 스킬
     private int currentSelectedSkillIndex;
     private OperatorData operatorData = default!;
     private OwnedOperator? currentOperator;

@@ -13,7 +13,7 @@ public abstract class Buff
     protected float elapsedTime; // 지속 시간 체크용
     public UnitEntity owner; // 버프 적용 대상
     public UnitEntity caster; // 버프 시전자
-    public BaseSkill SourceSkill { get; protected set; } // 이 버프를 적용한 스킬
+    public OperatorSkill SourceSkill { get; protected set; } // 이 버프를 적용한 스킬
 
     public virtual bool IsDebuff => false; // 버프 종류 구분하는 프로퍼티
 
@@ -98,7 +98,7 @@ public abstract class Buff
     }
 
     // 스킬로부터 받은 VFX 오버라이드 정보를 넣는다
-    public virtual void SetAttackVFXOverrides(BaseSkill sourceSkill)
+    public virtual void SetAttackVFXOverrides(OperatorSkill sourceSkill)
     {
         if (sourceSkill == null) return;
 

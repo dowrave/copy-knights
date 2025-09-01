@@ -17,8 +17,8 @@ public class OwnedOperator
     // 런타임에만 존재하는 계산된 필드들
     [System.NonSerialized] private OperatorStats currentStats;
     [System.NonSerialized] private List<Vector2Int> currentAttackableGridPos = new List<Vector2Int>();
-    [System.NonSerialized] private List<BaseSkill> unlockedSkills = new List<BaseSkill>();
-    [System.NonSerialized] private BaseSkill defaultSelectedSkill = default!;
+    [System.NonSerialized] private List<OperatorSkill> unlockedSkills = new List<OperatorSkill>();
+    [System.NonSerialized] private OperatorSkill defaultSelectedSkill = default!;
     [System.NonSerialized] private OperatorData baseData = default!;
 
     // 성장에 사용된 아이템 저장 필드
@@ -26,8 +26,8 @@ public class OwnedOperator
 
     // 읽기 전용 프로퍼티
     public OperatorStats CurrentStats => currentStats;
-    public List<BaseSkill> UnlockedSkills => unlockedSkills;
-    public BaseSkill DefaultSelectedSkill => defaultSelectedSkill;
+    public List<OperatorSkill> UnlockedSkills => unlockedSkills;
+    public OperatorSkill DefaultSelectedSkill => defaultSelectedSkill;
     public int DefaultSelectedSkillIndex => UnlockedSkills.IndexOf(defaultSelectedSkill);
     public List<Vector2Int> CurrentAttackableGridPos => currentAttackableGridPos;
     public OperatorData OperatorProgressData
@@ -94,7 +94,7 @@ public class OwnedOperator
 
     private void InitializeSkills()
     {
-        unlockedSkills = new List<BaseSkill> { baseData.elite0Skill };
+        unlockedSkills = new List<OperatorSkill> { baseData.elite0Skill };
 
         if (currentPhase > OperatorGrowthSystem.ElitePhase.Elite0 && 
             baseData.elite1Unlocks.unlockedSkill != null)

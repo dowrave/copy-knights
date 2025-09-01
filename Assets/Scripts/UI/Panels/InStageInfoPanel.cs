@@ -42,7 +42,7 @@ public class InStageInfoPanel : MonoBehaviour
 
     // 오퍼레이터에서만 사용
     private Operator? currentOperator;
-    private BaseSkill operatorSkill = default!;
+    private OperatorSkill operatorSkill = default!;
 
     private void Awake()
     {

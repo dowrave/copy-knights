@@ -6,7 +6,6 @@ using UnityEngine;
 using static ICombatEntity;
 using System;
 
-
 public enum DespawnReason
 {
     Null, // 디폴트
@@ -17,17 +16,17 @@ public enum DespawnReason
 public class Enemy : UnitEntity, IMovable, ICombatEntity
 {
     [SerializeField]
-    private EnemyData enemyData = default!;
-    public EnemyData BaseData => enemyData;
+    protected EnemyData enemyData = default!;
+    public virtual EnemyData BaseData => enemyData;
 
-    private EnemyStats currentStats;
+    protected EnemyStats currentStats;
 
     public override AttackType AttackType => enemyData.attackType;
     public override float AttackPower { get => currentStats.AttackPower; set => currentStats.AttackPower = value; }
     public override float AttackSpeed { get => currentStats.AttackSpeed; set => currentStats.AttackSpeed = value; }
     public AttackRangeType AttackRangeType => enemyData.attackRangeType;
     public override float MovementSpeed { get => currentStats.MovementSpeed; }
-    public int BlockCount { get => enemyData.blockCount; private set => enemyData.blockCount = value; } // Enemy가 차지하는 저지 수
+    public int BlockCount { get => enemyData.blockCount; protected set => enemyData.blockCount = value; } // Enemy가 차지하는 저지 수
     public float AttackCooldown { get; set; } // 다음 공격까지의 대기 시간
     public float AttackDuration { get; set; } // 공격 모션 시간. Animator가 추가될 때 수정 필요할 듯. 항상 Cooldown보다 짧아야 함.
 
@@ -37,7 +36,7 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity
         {
             return enemyData.attackRangeType == AttackRangeType.Melee ? 0f : currentStats.AttackRange;
         }
-        private set
+        protected set
         {
             currentStats.AttackRange = value;
         }
@@ -46,23 +45,23 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity
     public string EntityName => enemyData.entityName;
 
     // 경로 관련
-    private PathData? pathData;
-    private List<Vector3> currentPath = new List<Vector3>();
-    private List<UnitEntity> targetsInRange = new List<UnitEntity>();
-    private PathNode nextNode = default!;
-    private int nextNodeIndex = 0; // 시작하자마자 1이 됨
-    private Vector3 nextPosition; // 다음 노드의 좌표
-    private Vector3 destinationPosition; // 목적지
-    private bool isWaiting = false;
-    private Barricade? targetBarricade;
+    protected PathData? pathData;
+    protected List<Vector3> currentPath = new List<Vector3>();
+    protected List<UnitEntity> targetsInRange = new List<UnitEntity>();
+    protected PathNode nextNode = default!;
+    protected int nextNodeIndex = 0; // 시작하자마자 1이 됨
+    protected Vector3 nextPosition; // 다음 노드의 좌표
+    protected Vector3 destinationPosition; // 목적지
+    protected bool isWaiting = false;
+    protected Barricade? targetBarricade;
 
-    private Operator? blockingOperator; // 자신을 저지 중인 오퍼레이터
+    protected Operator? blockingOperator; // 자신을 저지 중인 오퍼레이터
     public Operator? BlockingOperator => blockingOperator;
-    private UnitEntity? _currentTarget;
+    protected UnitEntity? _currentTarget;
     public UnitEntity? CurrentTarget
     {
         get => _currentTarget;
-        private set
+        protected set
         {
             // 타겟이 기존 값과 동일하다면 세터 실행 X
             if (_currentTarget == value) return;
@@ -87,22 +86,22 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity
     protected int initialPoolSize = 5;
     protected string? projectileTag;
 
-    [SerializeField] private GameObject enemyBarUIPrefab = default!;
-    private EnemyBarUI? enemyBarUI;
+    [SerializeField] protected GameObject enemyBarUIPrefab = default!;
+    protected EnemyBarUI? enemyBarUI;
 
     // 접촉 중인 타일 관리
-    private List<Tile> contactedTiles = new List<Tile>();
+    protected List<Tile> contactedTiles = new List<Tile>();
 
     // 메쉬의 회전 관련해서 모델 관리
     [Header("Model Components")]
     [SerializeField] protected GameObject modelContainer = default!;
 
-    [SerializeField] private EnemyAttackRangeController attackRangeController = default!;
+    [SerializeField] protected EnemyAttackRangeController attackRangeController = default!;
 
     // ICrowdControlTarget
     public Vector3 Position => transform.position;
 
-    private DespawnReason currentDespawnReason = DespawnReason.Null;
+    protected DespawnReason currentDespawnReason = DespawnReason.Null;
 
     // 스태틱 이벤트 테스트
     // public static event Action<Enemy> OnEnemyDestroyed; // 죽는 상황 + 목적지에 도달해서 사라지는 상황 모두 포함
@@ -136,21 +135,20 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity
         }
     }
 
-    public void Initialize(EnemyData enemyData, PathData pathData)
+    public virtual void Initialize(EnemyData enemyData, PathData pathData)
     {
         this.enemyData = enemyData;
+        SetPrefab();
         currentStats = enemyData.stats;
         this.pathData = pathData;
 
         InitializeHP();
 
-        // 프리팹 설정
-        Prefab = enemyData.prefab;
-
         SetupInitialPosition();
         CreateEnemyBarUI();
         UpdateNextNode();
         InitializeCurrentPath();
+
 
         // 공격 범위 콜라이더 설정
         attackRangeController.Initialize(this);
@@ -164,19 +162,24 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity
         CreateObjectPool();
     }
 
-    private void OnEnable()
+    public override void SetPrefab()
+    {
+        prefab = enemyData.prefab;
+    }
+
+    protected void OnEnable()
     {
         Barricade.OnBarricadeDeployed += OnBarricadePlaced;
         Barricade.OnBarricadeRemoved += OnBarricadeRemovedWithDelay;
     }
 
-    private void OnDisable()
+    protected void OnDisable()
     {
         Barricade.OnBarricadeDeployed -= OnBarricadePlaced;
         Barricade.OnBarricadeRemoved -= OnBarricadeRemovedWithDelay;
     }
 
-    private void SetupInitialPosition()
+    protected void SetupInitialPosition()
     {
         if (pathData == null || pathData.nodes == null) return;
 
@@ -200,49 +203,55 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity
 
             if (HasRestriction(ActionRestriction.CannotAction)) return;
 
-            if (nextNodeIndex < pathData.nodes.Count)
+            // 판단하고 행동하는 로직을 가상 메서드로 분리, 자식 클래스에서 별개로 구현할 수 있도록 함
+            // 이를 템플릿 메서드 패턴이라고 한다.
+            DecideAndPerformAction();
+        }
+    }
+
+    // 행동 규칙.
+    protected virtual void DecideAndPerformAction()
+    {
+        if (nextNodeIndex < pathData.nodes.Count)
+        {
+            if (AttackDuration > 0) return;  // 공격 모션 중
+
+            // 공격 범위 내의 적 리스트 & 현재 공격 대상 갱신
+            SetCurrentTarget();
+
+            // 저지당함 - 근거리 공격
+            if (blockingOperator != null && CurrentTarget == blockingOperator)
             {
-                if (AttackDuration > 0) return;  // 공격 모션 중
-
-                // 공격 범위 내의 적 리스트 & 현재 공격 대상 갱신
-                SetCurrentTarget();
-
-                // 저지당함 - 근거리 공격
-                if (blockingOperator != null && CurrentTarget == blockingOperator)
+                if (AttackCooldown <= 0)
                 {
-                    if (AttackCooldown <= 0)
-                    {
-                        PerformMeleeAttack(CurrentTarget!, AttackPower);
-                    }
+                    PerformMeleeAttack(CurrentTarget!, AttackPower);
                 }
-                else
+            }
+            else
+            {
+                // 바리케이트가 타겟일 경우
+                if (targetBarricade != null && Vector3.Distance(transform.position, targetBarricade.transform.position) < 0.5f)
                 {
-                    // 바리케이트가 타겟일 경우
-                    if (targetBarricade != null && Vector3.Distance(transform.position, targetBarricade.transform.position) < 0.5f)
-                    {
-                        PerformMeleeAttack(targetBarricade, AttackPower);
-                    }
+                    PerformMeleeAttack(targetBarricade, AttackPower);
+                }
 
-                    // 타겟이 있고, 공격이 가능한 상태
-                    if (CanAttack())
-                    {
-                        Attack(CurrentTarget!, AttackPower);
-                    }
+                // 타겟이 있고, 공격이 가능한 상태
+                if (CanAttack())
+                {
+                    Attack(CurrentTarget!, AttackPower);
+                }
 
-                    // 이동 관련 로직.
-                    else if (!isWaiting)
-                    {
-                        MoveAlongPath(); // 이동
-                    }
+                // 이동 관련 로직.
+                else if (!isWaiting)
+                {
+                    MoveAlongPath(); // 이동
                 }
             }
         }
-
     }
 
-
     // pathData.nodes를 이용해 currentPath 초기화
-    private void InitializeCurrentPath()
+    protected void InitializeCurrentPath()
     {
         if (pathData == null || pathData.nodes == null) throw new InvalidOperationException("null인 변수가 존재");
 
@@ -255,7 +264,7 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity
     }
 
     // 경로를 따라 이동
-    private void MoveAlongPath()
+    protected void MoveAlongPath()
     {
         if (nextPosition == null || destinationPosition == null) throw new InvalidOperationException("다음/목적지 노드가 설정되어있지 않음");
 
@@ -295,7 +304,7 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity
     }
 
     // 대기 중일 때 실행
-    private IEnumerator WaitAtNode(float waitTime)
+    protected IEnumerator WaitAtNode(float waitTime)
     {
         isWaiting = true;
         yield return new WaitForSeconds(waitTime);
@@ -305,7 +314,7 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity
     }
 
     // 다음 노드 인덱스를 설정하고 현재 목적지로 지정함
-    private void UpdateNextNode()
+    protected void UpdateNextNode()
     {
         if (pathData == null || pathData.nodes == null) return;
 
@@ -344,7 +353,7 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity
         PerformAttack(target, polishedDamage);
     }
 
-    private void PerformAttack(UnitEntity target, float damage)
+    protected void PerformAttack(UnitEntity target, float damage)
     {
         AttackType finalAttackType = AttackType;
         bool showDamagePopup = false;
@@ -370,7 +379,7 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity
         }
     }
 
-    private void PerformMeleeAttack(UnitEntity target, float damage)
+    protected void PerformMeleeAttack(UnitEntity target, float damage)
     {
         SetAttackTimings(); // 이걸 따로 호출하는 경우가 있어서 여기서 다시 설정
 
@@ -388,7 +397,7 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity
         target.TakeDamage(attackSource);
     }
 
-    private void PerformRangedAttack(UnitEntity target, float damage)
+    protected void PerformRangedAttack(UnitEntity target, float damage)
     {
         SetAttackTimings();
         
@@ -415,7 +424,7 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity
     }
 
     // 사라지는 로직 관리
-    private void Despawn()
+    protected void Despawn()
     {
         // 공격 이펙트 프리팹 제거
         if (BaseData.hitEffectPrefab != null)
@@ -445,7 +454,7 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity
         Despawn();
     }
 
-    private void ReachDestination()
+    protected void ReachDestination()
     {
         // 이미 처리 중인지 확인
         if (currentDespawnReason != DespawnReason.Null) return;
@@ -467,7 +476,7 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity
         }
     }
     // 마지막 타일의 월드 좌표 기준
-    private bool CheckIfReachedDestination()
+    protected bool CheckIfReachedDestination()
     {
         if (pathData == null || pathData.nodes == null) throw new InvalidOperationException("pathData, pathData.nodes가 없음");
 
@@ -567,7 +576,7 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity
 
 
     // Barricade 설치 시 현재 경로가 막혔다면 재계산
-    private void OnBarricadePlaced(Barricade barricade)
+    protected void OnBarricadePlaced(Barricade barricade)
     {
         // 내 타일과 같은 타일에 바리케이드가 배치된 경우
         if (barricade.CurrentTile != null &&
@@ -583,13 +592,13 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity
         }
     }
 
-    private void OnBarricadeRemovedWithDelay(Barricade barricade)
+    protected void OnBarricadeRemovedWithDelay(Barricade barricade)
     {
         StartCoroutine(OnBarricadeRemoved(barricade));
     }
 
     // 바리케이드 제거 시 동작
-    private IEnumerator OnBarricadeRemoved(Barricade barricade)
+    protected IEnumerator OnBarricadeRemoved(Barricade barricade)
     {
         // 바리케이드가 파괴될 시간 확보
         yield return new WaitForSeconds(0.1f);
@@ -611,7 +620,7 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity
     }
 
     // 현재 pathData를 사용하는 경로가 막혔는지를 점검한다
-    private bool IsPathBlocked()
+    protected bool IsPathBlocked()
     {
         if (currentPath.Count == 0) throw new InvalidOperationException("currentPath가 비어 있음");
 
@@ -633,7 +642,7 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity
 
 
     // CalculatePath로 탐색된 경로를 받아와 pathData와 currentPath 초기화
-    private void SetNewPath(List<PathNode> newPathNodes)
+    protected void SetNewPath(List<PathNode> newPathNodes)
     {
         if (newPathNodes != null && newPathNodes.Count > 0)
         {
@@ -649,7 +658,7 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity
     }
 
     // targetPosition으로 향하는 경로를 계산하고, 경로가 있다면 새로운 pathData와 currentPath로 설정함
-    private bool CalculateAndSetPath(Vector3 currentPosition, Vector3 targetPosition)
+    protected bool CalculateAndSetPath(Vector3 currentPosition, Vector3 targetPosition)
     {
         List<PathNode>? tempPathNodes = PathfindingManager.Instance!.FindPathAsNodes(currentPosition, targetPosition);
 
@@ -660,7 +669,7 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity
     }
 
     // 현재 위치에서 가장 가까운 바리케이드를 설정하고, 바리케이드로 향하는 경로를 설정함
-    private void SetBarricadePath()
+    protected void SetBarricadePath()
     {
         targetBarricade = PathfindingManager.Instance!.GetNearestBarricade(transform.position);
 
@@ -671,7 +680,7 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity
     }
 
     // 목적지로 향하는 경로를 찾고, 없다면 가장 가까운 바리케이드로 향하는 경로를 설정함
-    private void FindPathToDestinationOrBarricade()
+    protected void FindPathToDestinationOrBarricade()
     {
         if (!CalculateAndSetPath(transform.position, destinationPosition))
         {
@@ -729,7 +738,7 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity
             AttackDuration <= 0;
     }
 
-    private void CreateObjectPool()
+    protected virtual void CreateObjectPool()
     {
         // 객체의 종류마다 풀을 공유함
         string baseTag = BaseData.entityName;
@@ -757,7 +766,7 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity
         InitializeProjectilePool();
     }
 
-    private void PlayMeleeAttackEffect(UnitEntity target, AttackSource attackSource)
+    protected void PlayMeleeAttackEffect(UnitEntity target, AttackSource attackSource)
     {
         // 이펙트 처리
         if (meleeAttackEffectTag != null && BaseData.meleeAttackEffectPrefab != null)
@@ -780,7 +789,7 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity
         }
     }
 
-    private void CreateEnemyBarUI()
+    protected void CreateEnemyBarUI()
     {
         if (enemyBarUIPrefab != null)
         {
@@ -851,7 +860,7 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity
 
     // 모델을 이동 방향으로 회전시킴
     // 참고) 프리팹 기준 +z 방향으로 이동한다고 가정했을 때 작동함
-    private void RotateModelTowardsMovementDirection()
+    protected void RotateModelTowardsMovementDirection()
     {
         if (modelContainer == null) return;
 

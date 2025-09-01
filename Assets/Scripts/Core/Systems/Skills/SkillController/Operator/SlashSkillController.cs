@@ -12,7 +12,7 @@ public class SlashSkillController : MonoBehaviour
     private GameObject hitEffectPrefab = default!;
     private string hitEffectTag = string.Empty;
     private string skillPoolTag = string.Empty; // 풀로 되돌릴 때 사용
-    private BaseSkill baseSkill;
+    private OperatorSkill OperatorSkill;
 
     private float firstDelay = 0.3f;
     private float secondDelay = 0.1f;
@@ -26,7 +26,7 @@ public class SlashSkillController : MonoBehaviour
     // 공격 가능 타일 좌표
     private HashSet<Vector2Int> skillRange = new HashSet<Vector2Int>();
 
-    public void Initialize(Operator op, float duration, HashSet<Vector2Int> attackableGridPositions, float firstDmg, float secondDmg, GameObject hitEffectPrefab, string hitEffectTag, string skillPoolTag, BaseSkill baseSkill)
+    public void Initialize(Operator op, float duration, HashSet<Vector2Int> attackableGridPositions, float firstDmg, float secondDmg, GameObject hitEffectPrefab, string hitEffectTag, string skillPoolTag, OperatorSkill OperatorSkill)
     {
         attacker = op;
         effectDuration = duration;
@@ -36,7 +36,7 @@ public class SlashSkillController : MonoBehaviour
         this.hitEffectPrefab = hitEffectPrefab;
         this.hitEffectTag = hitEffectTag;
         this.skillPoolTag = skillPoolTag;
-        this.baseSkill = baseSkill;
+        this.OperatorSkill = OperatorSkill;
 
         mainEffect.Play(true);
 
@@ -57,7 +57,7 @@ public class SlashSkillController : MonoBehaviour
         ApplyDamageInRange(secondDamageMultiplier);
 
         // 스킬 판정 후에는 공격 바로 가능하도록 공격 불가 버프 해제
-        attacker.RemoveBuffFromSourceSkill(baseSkill);
+        attacker.RemoveBuffFromSourceSkill(OperatorSkill);
 
         // --- 스킬 종료 및 정리 ---
         // 남은 vfxDuration 만큼 기다렸다가 비활성화 (오브젝트 풀링)

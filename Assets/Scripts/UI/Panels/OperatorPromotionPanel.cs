@@ -115,7 +115,7 @@ public class OperatorPromotionPanel : MonoBehaviour
     // 새로 업데이트되는 스킬 정보 업데이트 
     private void ShowNewSkill()
     {
-        BaseSkill? unlockedSkill = opData.elite1Unlocks.unlockedSkill;
+        OperatorSkill? unlockedSkill = opData.elite1Unlocks.unlockedSkill;
 
         if (unlockedSkill != null)
         {
@@ -209,8 +209,6 @@ public class OperatorPromotionPanel : MonoBehaviour
             // 아이템 갯수 계산 - 가지고 있는 아이템이 요구 조건에 미달하는지 여부를 판단
             int ownedCount = GameManagement.Instance!.PlayerDataManager.GetItemCount(promotionItem.itemData.itemName);
             bool showNotEnough = ownedCount < promotionItem.count;
-
-            Debug.Log($"ShowNotEnough : {showNotEnough}");
 
             // 갯수는 필요 갯수를 띄우고, 부족한 건 showNotEnough로 들어가야 함
             itemUIElements[i].gameObject.SetActive(true);
