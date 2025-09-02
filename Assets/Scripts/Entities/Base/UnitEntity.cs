@@ -103,31 +103,6 @@ public abstract class UnitEntity : MonoBehaviour, ITargettable, IFactionMember, 
 
     protected void PlayDeathAnimation()
     {
-        // Renderer renderer = GetComponentInChildren<Renderer>();
-        // 동일한 머티리얼을 사용하는 모든 객체에 적용되는 걸 막고자 머티리얼 인스턴스를 만들고 진행한다.
-        // if (renderer != null)
-        // {
-        //     Material materialInstance = new Material(renderer.material);
-        //     renderer.material = materialInstance;
-
-        //     SetMaterialToTransparent(materialInstance);
-
-        //     // DOTween 사용하여 검정으로 변한 뒤 투명해지는 애니메이션 적용
-        //     // materialInstance.DOColor(Color.black, 0f);
-        //     materialInstance.DOFade(0f, 0.2f).OnComplete(() =>
-        //     {
-        //         OnDeathAnimationCompleted?.Invoke(this); // 사망할 것임을 알리는 이벤트
-        //         Destroy(materialInstance); // 메모리 누수 방지
-        //         Destroy(gameObject);
-        //     });
-        // }
-        // else
-        // {
-        //     // 렌더러가 없어도 콜백과 파괴는 실행된다.
-        //     OnDeathAnimationCompleted?.Invoke(this);
-        //     Destroy(gameObject);
-        // }
-
         Renderer[] renderers = GetComponentsInChildren<Renderer>();
 
         if (renderers == null || renderers.Length == 0)

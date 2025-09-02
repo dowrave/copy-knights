@@ -8,6 +8,8 @@ public class EnemyBossSkill : UnitSkill
     [SerializeField] private EnemyBossSkillType skillType;
 
     public EnemyBoss Caster => caster as EnemyBoss;
+    public float CoolTime => coolTime;
+    public EnemyBossSkillType SkillType => skillType;
 
 
     public virtual void Activate(EnemyBoss caster) { }

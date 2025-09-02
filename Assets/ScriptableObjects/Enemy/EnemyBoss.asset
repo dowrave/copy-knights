@@ -15,21 +15,22 @@ MonoBehaviour:
   entityName: Boss
   stats:
     _baseStats:
-      _health: 0
-      _defense: 0
-      _magicResistance: 0
-    _movementSpeed: 0
-    _attackPower: 0
-    _attackSpeed: 0
+      _health: 8000
+      _defense: 450
+      _magicResistance: 10
+    _movementSpeed: 0.5
+    _attackPower: 700
+    _attackSpeed: 1.5
     _attackRange: 0
-  prefab: {fileID: 0}
+  prefab: {fileID: 6542749020257112806, guid: 8129b049079fed4449893bee2bfab041, type: 3}
   attackType: 0
   attackRangeType: 0
   blockCount: 1
-  projectilePrefab: {fileID: 0}
-  projectileTag: 
   defaultYPosition: 0.5
-  meleeAttackEffectPrefab: {fileID: 0}
-  hitEffectPrefab: {fileID: 0}
-  hitEffectTag: 
-  skills: []
+  projectilePrefab: {fileID: 0}
+  meleeAttackEffectPrefab: {fileID: 1249516511906949688, guid: cef22a28277d49547b34e0ada40550fc, type: 3}
+  hitEffectPrefab: {fileID: 7245273522019326439, guid: 7efd1727cc772f140a02a7da68da0b49, type: 3}
+  meleeSkills:
+  - {fileID: 0}
+  rangedSkills:
+  - {fileID: 0}

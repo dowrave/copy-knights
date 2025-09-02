@@ -15,18 +15,17 @@ public enum DespawnReason
 
 public class Enemy : UnitEntity, IMovable, ICombatEntity
 {
-    [SerializeField]
-    protected EnemyData enemyData = default!;
+    [SerializeField] protected EnemyData enemyData = default!;
     public virtual EnemyData BaseData => enemyData;
 
     protected EnemyStats currentStats;
 
-    public override AttackType AttackType => enemyData.attackType;
+    public override AttackType AttackType => BaseData.attackType;
     public override float AttackPower { get => currentStats.AttackPower; set => currentStats.AttackPower = value; }
     public override float AttackSpeed { get => currentStats.AttackSpeed; set => currentStats.AttackSpeed = value; }
-    public AttackRangeType AttackRangeType => enemyData.attackRangeType;
+    public AttackRangeType AttackRangeType => BaseData.attackRangeType;
     public override float MovementSpeed { get => currentStats.MovementSpeed; }
-    public int BlockCount { get => enemyData.blockCount; protected set => enemyData.blockCount = value; } // Enemy가 차지하는 저지 수
+    public int BlockCount { get => BaseData.blockCount; protected set => BaseData.blockCount = value; } // Enemy가 차지하는 저지 수
     public float AttackCooldown { get; set; } // 다음 공격까지의 대기 시간
     public float AttackDuration { get; set; } // 공격 모션 시간. Animator가 추가될 때 수정 필요할 듯. 항상 Cooldown보다 짧아야 함.
 
@@ -34,7 +33,7 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity
     {
         get
         {
-            return enemyData.attackRangeType == AttackRangeType.Melee ? 0f : currentStats.AttackRange;
+            return BaseData.attackRangeType == AttackRangeType.Melee ? 0f : currentStats.AttackRange;
         }
         protected set
         {
@@ -42,7 +41,7 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity
         }
     }
 
-    public string EntityName => enemyData.entityName;
+    public string EntityName => BaseData.entityName;
 
     // 경로 관련
     protected PathData? pathData;
@@ -197,8 +196,7 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity
             )
         {
             // 행동이 불가능해도 동작해야 하는 효과
-            UpdateAttackDuration();
-            UpdateAttackCooldown();
+            UpdateAllCooldowns();
             base.Update(); // 버프 효과 갱신
 
             if (HasRestriction(ActionRestriction.CannotAction)) return;
@@ -207,6 +205,12 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity
             // 이를 템플릿 메서드 패턴이라고 한다.
             DecideAndPerformAction();
         }
+    }
+
+    protected virtual void UpdateAllCooldowns()
+    {
+        UpdateAttackDuration();
+        UpdateAttackCooldown();
     }
 
     // 행동 규칙.

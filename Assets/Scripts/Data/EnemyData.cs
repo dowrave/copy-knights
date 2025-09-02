@@ -13,9 +13,10 @@ public class EnemyData : ScriptableObject, ICombatData
     public AttackType attackType;
     public AttackRangeType attackRangeType;
     public int blockCount = 1;
-    public GameObject? projectilePrefab;
-
     public float defaultYPosition = 0.5f;
+
+    [Header("For Ranged")]
+    public GameObject? projectilePrefab;
 
     [Header("VFX Effects")]
     public GameObject? meleeAttackEffectPrefab; // 근접 공격 이펙트

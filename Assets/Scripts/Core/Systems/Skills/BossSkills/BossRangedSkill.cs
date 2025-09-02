@@ -2,9 +2,20 @@ using UnityEngine;
 
 namespace Skills.Base
 {
+    [CreateAssetMenu(fileName = "New Boss Ranged Skill", menuName = "Skills/Boss/Ranged Skill")]
     public class BossRangedSkill : EnemyBossSkill
     {
-        [SerializeField] ParticleSystem castVFX = default!; 
+        [SerializeField] GameObject castVFXPrefab = default!;
+
+        ParticleSystem castVFX;
+
+        private void Awake()
+        {
+            if (castVFXPrefab != null)
+            {
+                castVFX = castVFXPrefab.GetComponent<ParticleSystem>();
+            }
+        }
 
         public override void Activate(EnemyBoss boss)
         {
