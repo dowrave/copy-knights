@@ -5,8 +5,6 @@ namespace Skills.Base
 {
     public abstract class OperatorSkill : UnitSkill
     {
-        public Operator Caster => caster as Operator;
-
         [Header("Operator Base Skill Properties")]
         [TextArea(3, 10)]
         public string description = string.Empty;

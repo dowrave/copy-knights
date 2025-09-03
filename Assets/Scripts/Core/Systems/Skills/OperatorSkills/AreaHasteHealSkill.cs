@@ -20,53 +20,47 @@ namespace Skills.Base
         string SKILL_RANGE_VFX_TAG; // 필드 범위 VFX 태그
         string HIT_EFFECT_TAG; // 타격 이펙트 태그
 
-        protected override void PlaySkillEffect(Operator op)
+        protected override void PlaySkillEffect(Operator caster)
         {
             if (hitEffectPrefab == null)
             {
-                hitEffectPrefab = op.OperatorData.HitEffectPrefab;
+                hitEffectPrefab = caster.OperatorData.HitEffectPrefab;
             }
 
-            op.AddBuff(new CannotAttackBuff(duration, this));
+            caster.AddBuff(new CannotAttackBuff(duration, this));
 
-            caster = op;
-            Vector2Int centerPos = MapManager.Instance!.ConvertToGridPosition(op.transform.position);
-            actualSkillRange.Clear();
-            CalculateActualSkillRange(centerPos);
+            Vector2Int centerPos = GetCenterGridPos(caster);
+            if (centerPos != caster.LastSkillCenter)
+            {
+                HashSet<Vector2Int> skillRange = PositionCalculationSystem.CalculateRange(skillRangeOffset, centerPos, caster.FacingDirection);
+                caster.SetCurrentSkillRange(skillRange);
+            }
 
-            CreateHealField(op);
+            CreateHealField(caster);
 
-            VisualizeSkillRange(op, actualSkillRange);
+            VisualizeSkillRange(caster, caster.GetCurrentSkillRange());
         }
 
-        protected override void OnSkillEnd(Operator op)
+        protected override void OnSkillEnd(Operator caster)
         {
-            op.RemoveBuffFromSourceSkill(this);
+            caster.RemoveBuffFromSourceSkill(this);
         
-            base.OnSkillEnd(op);
+            base.OnSkillEnd(caster);
         }
 
         // 공격 영역을 만듦
-        protected GameObject CreateHealField(Operator op)
+        protected GameObject CreateHealField(Operator caster)
         {
-            // 범위 계산
-            caster = op;
-            Vector2Int centerPos = MapManager.Instance!.ConvertToGridPosition(op.transform.position);
-            actualSkillRange.Clear();
-            CalculateActualSkillRange(centerPos);
-
             // 힐 장판 오브젝트 생성 및 초기화
-            GameObject fieldObj = Instantiate(fieldEffectPrefab, op.transform);
+            GameObject fieldObj = Instantiate(fieldEffectPrefab, caster.transform);
             AreaHasteHealController? controller = fieldObj.GetComponent<AreaHasteHealController>();
 
             if (controller != null && hitEffectPrefab != null)
-            {
-                float actualHealPerTick = op.AttackPower * healPerTickRatio;
-                
-                controller.Initialize(caster: op,
-                    affectedTiles: actualSkillRange,
+            {   
+                controller.Initialize(caster: caster,
+                    skillRangeGridPositions: caster.GetCurrentSkillRange(),
                     fieldDuration: duration,
-                    amountPerTick: actualHealPerTick,
+                    tickDamageRatio: healPerTickRatio,
                     interval: healInterval,
                     hitEffectPrefab: hitEffectPrefab,
                     hitEffectTag: HIT_EFFECT_TAG
@@ -77,7 +71,7 @@ namespace Skills.Base
         }
 
         // 시각화 헬퍼 메서드 (이전 AreaEffectSkill의 로직을 가져옴)
-        private void VisualizeSkillRange(Operator op, HashSet<Vector2Int> range)
+        private void VisualizeSkillRange(Operator caster, IReadOnlyCollection<Vector2Int> range)
         {
             foreach (Vector2Int pos in range)
             {
@@ -89,7 +83,7 @@ namespace Skills.Base
                     if (vfxObj != null)
                     {
                         // 부모를 op로 설정하여 생명주기 동기화
-                        vfxObj.transform.SetParent(op.transform);
+                        vfxObj.transform.SetParent(caster.transform);
 
                         var controller = vfxObj.GetComponent<SkillRangeVFXController>();
                         if (controller != null)
@@ -104,21 +98,26 @@ namespace Skills.Base
 
         public override void InitializeSkillObjectPool(UnitEntity caster)
         {
-            base.InitializeSkillObjectPool(caster);
-            if (caster is Operator op)
+            if (caster is Operator opCaster)
             {
-                if (fieldEffectPrefab != null)
-                {
-                    FIELD_EFFECT_TAG = RegisterPool(op, fieldEffectPrefab, 2);
-                }
-                if (skillRangeVFXPrefab != null)
-                {
-                    SKILL_RANGE_VFX_TAG = RegisterPool(op, skillRangeVFXPrefab, skillRangeOffset.Count);
-                }
-                if (hitEffectPrefab != null)
-                {
-                    HIT_EFFECT_TAG = RegisterPool(op, hitEffectPrefab, 10);
-                }
+                base.InitializeSkillObjectPool(opCaster);
+                InitializeSkillObjectPool(opCaster);
+            }
+        }
+
+        public void InitializeSkillObjectPool(Operator caster)
+        {
+            if (fieldEffectPrefab != null)
+            {
+                FIELD_EFFECT_TAG = RegisterPool(caster, fieldEffectPrefab, 2);
+            }
+            if (skillRangeVFXPrefab != null)
+            {
+                SKILL_RANGE_VFX_TAG = RegisterPool(caster, skillRangeVFXPrefab, skillRangeOffset.Count);
+            }
+            if (hitEffectPrefab != null)
+            {
+                HIT_EFFECT_TAG = RegisterPool(caster, hitEffectPrefab, 10);
             }
         }
     }

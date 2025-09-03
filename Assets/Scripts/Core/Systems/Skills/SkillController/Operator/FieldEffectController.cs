@@ -1,13 +1,16 @@
 using System.Collections.Generic;
 using System.Collections;
 using UnityEngine;
+using System.Linq;
 
 // 범위 효과 스킬 내용 구현
 public abstract class FieldEffectController : MonoBehaviour, IPooledObject
 {
-    protected Operator? caster; // 시전자
-    protected HashSet<Vector2Int> affectedTiles = new HashSet<Vector2Int>(); // 실제 영향을 받는 타일들
-    protected float amountPerTick; // 필드 위의 타겟들에 적용되는 수치 (공격, 힐 등)
+    protected UnitEntity? caster; // 시전자
+    protected IReadOnlyCollection<Vector2Int> skillRangeGridPositions = new HashSet<Vector2Int>(); // 실제 영향을 받는 타일들
+    protected float fieldDuration; // 필드 지속 시간
+    protected float tickDamageRatio; // 도트 대미지 배율
+    protected float interval; // 도트 대미지 간격
     protected GameObject hitEffectPrefab = default!;
     protected string hitEffectTag = string.Empty;
     protected string poolTag = string.Empty;
@@ -23,26 +26,26 @@ public abstract class FieldEffectController : MonoBehaviour, IPooledObject
 
 
     public virtual void Initialize(
-        Operator caster,
-        HashSet<Vector2Int> affectedTiles,
+        UnitEntity caster,
+        IReadOnlyCollection<Vector2Int> skillRangeGridPositions,
         float fieldDuration,
-        float amountPerTick,
+        float tickDamageRatio,
         float interval,
         GameObject hitEffectPrefab,
         string hitEffectTag
         )
     {
         this.caster = caster;
-        this.affectedTiles = affectedTiles;
-        this.amountPerTick = amountPerTick;
+        this.skillRangeGridPositions = skillRangeGridPositions;
+        this.fieldDuration = fieldDuration;
+        this.interval = interval;
+        this.tickDamageRatio = tickDamageRatio;
         this.hitEffectPrefab = hitEffectPrefab;
         this.hitEffectTag = hitEffectTag;
-
-        StartCoroutine(FieldRoutine(fieldDuration, interval));
     }
 
     // Update 대신 모든 로직을 처리하는 메인 코루틴
-    private IEnumerator FieldRoutine(float duration, float interval)
+    protected virtual IEnumerator FieldRoutine(float duration, float interval)
     {
         float elapsedTime = 0f;
         float lastTickTime = -interval; // 시작하자마자 첫 틱이 발동
@@ -80,7 +83,7 @@ public abstract class FieldEffectController : MonoBehaviour, IPooledObject
         if (target == null) return false;
 
         Vector2Int targetPos = MapManager.Instance!.ConvertToGridPosition(target.transform.position);
-        return affectedTiles.Contains(targetPos);
+        return skillRangeGridPositions.Contains(targetPos);
     }
 
     protected virtual void CleanUpAndReturnToPool()
@@ -98,6 +101,7 @@ public abstract class FieldEffectController : MonoBehaviour, IPooledObject
 
         affectedTargets.Clear();
 
-        Destroy(gameObject);
+        // Destroy(gameObject);
+        gameObject.SetActive(false);
     }
 }

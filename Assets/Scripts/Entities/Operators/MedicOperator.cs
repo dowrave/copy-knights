@@ -43,7 +43,7 @@ public class MedicOperator : Operator
 
             foreach (Vector2Int offset in OperatorData.attackableTiles)
             {
-                Vector2Int rotatedOffset = DirectionSystem.RotateGridOffset(offset, FacingDirection);
+                Vector2Int rotatedOffset = PositionCalculationSystem.RotateGridOffset(offset, FacingDirection);
                 Vector2Int targetGridPos = operatorGridPos + rotatedOffset;
 
                 Tile? targetTile = CurrentMap.GetTile(targetGridPos.x, targetGridPos.y);

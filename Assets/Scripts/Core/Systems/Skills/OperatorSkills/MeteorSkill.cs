@@ -29,30 +29,34 @@ namespace Skills.Base
             duration = 0f; // 즉발성 스킬 명시
         }
 
-        protected override void PlaySkillEffect(Operator op)
+        protected override void PlaySkillEffect(Operator caster)
         {
             if (hitEffectPrefab == null)
             {
-                hitEffectPrefab = op.OperatorData.HitEffectPrefab;
+                hitEffectPrefab = caster.OperatorData.HitEffectPrefab;
             }
 
             // 코스트 회복
             StageManager.Instance!.RecoverDeploymentCost(costRecovery);
 
             // 범위 계산
-            caster = op;
-            Vector2Int centerPos = MapManager.Instance!.ConvertToGridPosition(op.transform.position);
-            actualSkillRange.Clear();
-            CalculateActualSkillRange(centerPos);
+            Vector2Int centerPos = GetCenterGridPos(caster);
 
+            // 이전 스킬과 중심 위치가 달라진 경우에는 새로 범위를 계산함
+            if (centerPos != caster.LastSkillCenter)
+            {
+                HashSet<Vector2Int> skillRange = PositionCalculationSystem.CalculateRange(skillRangeOffset, centerPos, caster.FacingDirection);
+                caster.SetCurrentSkillRange(skillRange);
+                caster.SetLastSkillCenter(centerPos);
+            }
 
-            VisualizeSkillRange(op, actualSkillRange);
+            VisualizeSkillRange(caster, caster.GetCurrentSkillRange());
 
             // 중복 타격 방지를 위한 ID 세트
             var enemyIdSet = new HashSet<int>();
 
             // 범위 내의 모든 적에게 메테오 소환
-            foreach (Vector2Int pos in actualSkillRange)
+            foreach (Vector2Int pos in caster.GetCurrentSkillRange())
             {
                 Tile? tile = MapManager.Instance!.GetTile(pos.x, pos.y);
                 if (tile != null)
@@ -63,23 +67,25 @@ namespace Skills.Base
                         {
                             // 코루틴은 Monobehaviour을 받는 객체에서만 실행 가능
                             // 이 스크립트는 ScriptableObject의 상속임. 실행 가능한 객체에게 요청한다.
-                            op.StartCoroutine(CreateMeteorSequence(op, enemy));
+                            caster.StartCoroutine(CreateMeteorSequence(caster, enemy));
                         }
                     }
                 }
             }
+            
+            
         }
 
-        private IEnumerator CreateMeteorSequence(Operator op, Enemy target)
+        private IEnumerator CreateMeteorSequence(Operator caster, Enemy target)
         {
-            CreateMeteor(op, target, meteorHeights.x);
+            CreateMeteor(caster, target, meteorHeights.x);
 
             yield return new WaitForSeconds(meteorDelay);
 
-            CreateMeteor(op, target, meteorHeights.y);
+            CreateMeteor(caster, target, meteorHeights.y);
         }
 
-        private void CreateMeteor(Operator op, Enemy target, float height)
+        private void CreateMeteor(Operator caster, Enemy target, float height)
         {
             if (target != null)
             {
@@ -90,15 +96,23 @@ namespace Skills.Base
 
                 if (controller != null)
                 {
-                    float actualDamage = op.AttackPower * damageMultiplier;
-                    controller.Initialize(op, target, actualDamage, fallSpeed, stunDuration, hitEffectPrefab, HIT_EFFECT_TAG);
+                    float actualDamage = caster.AttackPower * damageMultiplier;
+                    controller.Initialize(caster, target, actualDamage, fallSpeed, stunDuration, hitEffectPrefab, HIT_EFFECT_TAG);
                 }
             }
         }
 
         public override void InitializeSkillObjectPool(UnitEntity caster)
         {
-            base.InitializeSkillObjectPool(caster);
+            if (caster is Operator op)
+            {
+                base.InitializeSkillObjectPool(caster);
+                InitializeSkillObjectPool(op);
+            }
+        }
+
+        public void InitializeSkillObjectPool(Operator caster)
+        {
             if (caster is Operator op)
             {
                 if (meteorPrefab != null)
@@ -116,7 +130,7 @@ namespace Skills.Base
             }
         }
 
-        private void VisualizeSkillRange(Operator op, HashSet<Vector2Int> range)
+        protected void VisualizeSkillRange(Operator op, IReadOnlyCollection<Vector2Int> range)
         {
             foreach (Vector2Int pos in range)
             {
@@ -140,6 +154,14 @@ namespace Skills.Base
                         }
                     }
                 }
+            }
+        }
+
+        protected void VisualizeSkillRange(UnitEntity caster, IReadOnlyCollection<Vector2Int> range)
+        {
+            if (caster is Operator op)
+            {
+                VisualizeSkillRange(op, range);
             }
         }
     }

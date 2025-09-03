@@ -87,7 +87,7 @@ public class StatModificationBuff : Buff
 
                 foreach (Vector2Int additionalTile in modifiers.attackRangeModifier)
                 {
-                    Vector2Int rotatedTile = DirectionSystem.RotateGridOffset(
+                    Vector2Int rotatedTile = PositionCalculationSystem.RotateGridOffset(
                         additionalTile,
                         op.FacingDirection
                     );

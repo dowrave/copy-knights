@@ -90,7 +90,7 @@ public class LegacySlashSkillController : MonoBehaviour
 
         foreach (Vector2Int baseOffset in baseAttackRange)
         {
-            Vector2Int rotatedOffset = DirectionSystem.RotateGridOffset(baseOffset, opDirection);
+            Vector2Int rotatedOffset = PositionCalculationSystem.RotateGridOffset(baseOffset, opDirection);
             Vector2Int targetPos = operatorGridPos + rotatedOffset;
             attackableGridPositions.Add(targetPos);
         }

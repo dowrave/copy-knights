@@ -1,3 +1,4 @@
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -45,6 +46,10 @@ public abstract class UnitEntity : MonoBehaviour, ITargettable, IFactionMember, 
     // public virtual 
     public virtual float MovementSpeed { get; }
     public virtual void SetMovementSpeed(float newMovementSpeed) {}
+
+    // 스킬 관련
+    protected HashSet<Vector2Int> currentSkillRange = new HashSet<Vector2Int>(); // 스킬 범위
+    public Vector2Int LastSkillCenter { get; protected set; } // 마지막으로 사용한 스킬의 중심 위치. 범위 재계산 여부를 결정하기 위한 필드.
 
     // 이펙트 태그
     protected string? meleeAttackEffectTag;
@@ -364,6 +369,28 @@ public abstract class UnitEntity : MonoBehaviour, ITargettable, IFactionMember, 
         return (Restrictions & restirction) != 0; // 겹치는 비트가 있으면 true, 없으면 false.
     }
 
+    // 해쉬 셋으로 받겠다는 약속이 있다면 굳이 인터페이스로 인풋을 받을 필요는 없다
+    public void SetCurrentSkillRange(HashSet<Vector2Int> range)
+    {
+        this.currentSkillRange = new HashSet<Vector2Int>(range);
+    }
+
+    public void SetLastSkillCenter(Vector2Int center)
+    {
+        LastSkillCenter = center;
+    }
+
+    public IReadOnlyCollection<Vector2Int> GetCurrentSkillRange()
+    {
+        return currentSkillRange;
+    }
+
+    public void ExecuteSkillSequence(IEnumerator skillCoroutine)
+    {
+        StartCoroutine(skillCoroutine);
+    }
+
+
     public virtual void OnBodyTriggerEnter(Collider other) { }
     public virtual void OnBodyTriggerExit(Collider other) {}
 
@@ -373,7 +400,7 @@ public abstract class UnitEntity : MonoBehaviour, ITargettable, IFactionMember, 
     public void DeactivateShield() => shieldSystem.DeactivateShield();
     public float GetCurrentShield() => shieldSystem.CurrentShield;
 
-    public void OnDestroy()
+    protected virtual void OnDestroy()
     {
         OnDestroyed?.Invoke(this);
     }

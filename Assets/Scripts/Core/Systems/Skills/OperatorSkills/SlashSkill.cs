@@ -37,39 +37,39 @@ namespace Skills.OperatorSkills
             }
         }
 
-        protected override void PlaySkillEffect(Operator op)
+        protected override void PlaySkillEffect(Operator caster)
         {
             if (slashEffectPrefab == null) return;
 
             // 스킬 중에는 버프 (공격 불가 버프 해제는 컨트롤러에서 공격 판정 끝나면 진행)
-            op.AddBuff(new CannotAttackBuff(effectDuration, this));
+            caster.AddBuff(new CannotAttackBuff(effectDuration, this));
 
             // 풀에서 오브젝트 생성
             GameObject effectObj = ObjectPoolManager.Instance.SpawnFromPool(skillPoolTag, caster.transform.position, caster.transform.rotation);
 
             // 스킬 범위 정의
-            HashSet<Vector2Int> skillRange = SetSkillRange(op);
+            HashSet<Vector2Int> skillRange = SetSkillRange(caster);
 
             // 컨트롤러를 이용한 초기화
             SlashSkillController controller = effectObj.GetComponent<SlashSkillController>();
             if (controller != null)
             {
-                controller.Initialize(op, vfxDuration, skillRange, firstDamageMultiplier, secondDamageMultiplier, op.OperatorData.HitEffectPrefab, op.HitEffectTag, skillPoolTag, this);
+                controller.Initialize(caster, vfxDuration, skillRange, firstDamageMultiplier, secondDamageMultiplier, caster.OperatorData.HitEffectPrefab, caster.HitEffectTag, skillPoolTag, this);
             }
         }
 
-        private HashSet<Vector2Int> SetSkillRange(Operator op)
+        private HashSet<Vector2Int> SetSkillRange(Operator caster)
         {
             HashSet<Vector2Int> skillRangeTiles = new HashSet<Vector2Int>();
 
             // 오퍼레이터의 위치 포함
-            Vector2Int operatorGridPos = MapManager.Instance!.ConvertToGridPosition(op.transform.position);
+            Vector2Int operatorGridPos = MapManager.Instance!.ConvertToGridPosition(caster.transform.position);
             skillRangeTiles.Add(operatorGridPos);
 
             // 오퍼레이터의 방향을 고려해 스킬 범위 추가
             foreach (Vector2Int baseOffset in skillRangeOffset)
             {
-                Vector2Int rotatedOffset = DirectionSystem.RotateGridOffset(baseOffset, op.FacingDirection);
+                Vector2Int rotatedOffset = PositionCalculationSystem.RotateGridOffset(baseOffset, caster.FacingDirection);
                 Vector2Int targetPos = operatorGridPos + rotatedOffset;
                 skillRangeTiles.Add(targetPos);
             }

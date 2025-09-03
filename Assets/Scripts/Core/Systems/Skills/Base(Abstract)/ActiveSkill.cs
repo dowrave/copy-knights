@@ -29,75 +29,72 @@ namespace Skills.Base
         protected VisualEffect? VfxComponent;
         protected ParticleSystem? VfxPs;
 
-        protected HashSet<Vector2Int> actualSkillRange = new HashSet<Vector2Int>();
-
-        public override void Activate(Operator op)
+        public override void Activate(Operator caster)
         {
-            CommonActivation(op);
+            CommonActivation(caster);
 
             // 지속시간에 따른 구현
             // 이외의 상황은 메서드 오버라이드 ㄱㄱ (ammoBased는 이미 그렇게 구현됨)
             if (duration > 0)
             {
-                op.StartSkillCoroutine(Co_HandleSkillDuration(op));
+                caster.StartSkillCoroutine(Co_HandleSkillDuration(caster));
             }
             else
             {
-                PlayInstantSkill(op);
+                PlayInstantSkill(caster);
             }
         }
 
         // 시전자 지정, VFX 설정, 공격 초기화 등등 공통된 로직을 구현한다.
-        protected virtual void CommonActivation(Operator op)
+        protected virtual void CommonActivation(Operator caster)
         {
-            caster = op;
-            if (!op.IsDeployed || !op.CanUseSkill()) return;
+            if (!caster.IsDeployed || !caster.CanUseSkill()) return;
 
             // 기본 이펙트와 추가 이펙트 재생
-            PlaySkillVFX(op);
-            PlayAdditionalVFX(op);
+            PlaySkillVFX(caster);
+            PlayAdditionalVFX(caster);
 
             // 스킬 사용 직후에는 공격 속도 / 모션 초기화
-            op.SetAttackDuration(0f);
-            op.SetAttackCooldown(0f);
+            caster.SetAttackDuration(0f);
+            caster.SetAttackCooldown(0f);
 
-            op.SetSkillOnState(true);
+            caster.SetSkillOnState(true);
         }
 
         // 추가 이펙트
-        protected virtual void PlayAdditionalVFX(Operator op) { }
+        protected virtual void PlayAdditionalVFX(Operator caster) { }
 
         // 지속 시간이 없는 (=즉발형) 스킬 실행
-        protected void PlayInstantSkill(Operator op)
+        protected void PlayInstantSkill(Operator caster)
         {
-            PlaySkillEffect(op);
-            OnSkillEnd(op);
+            PlaySkillEffect(caster);
+            OnSkillEnd(caster);
         }
 
         // 실질적인 스킬 효과 실행.
         // 무조건 OnSkillStart와 OnSkillEnd 사이에 들어감
-        protected virtual void PlaySkillEffect(Operator op) { }
+        protected virtual void PlaySkillEffect(Operator caster) { }
 
-        protected virtual void OnSkillEnd(Operator op)
+        protected virtual void OnSkillEnd(Operator caster)
         {
             if (VfxInstance != null)
             {
                 SafeDestroySkillVFX(VfxInstance);
             }
 
-            op.CurrentSP = 0;
-            op.SetSkillOnState(false);
+            caster.CurrentSP = 0;
+            caster.SetSkillOnState(false);
 
             // 스킬이 꺼질 때도 공격 쿨다운 초기화 - 바로 때릴 수 있게끔
-            op.SetAttackDuration(0f);
-            op.SetAttackCooldown(0f);
+            caster.SetAttackDuration(0f);
+            caster.SetAttackCooldown(0f);
 
             // 버프 해제는 여기서 구현하지 않겠음 - 자식에서 각자!
-            
+
             // 지속시간이 있는 스킬은 오퍼레이터의 코루틴 초기화
             if (duration > 0)
             {
-                op.EndSkillCoroutine();
+                caster.EndSkillCoroutine();
             }
         }
 
@@ -140,7 +137,7 @@ namespace Skills.Base
             while (elapsedTime < duration)
             {
                 if (op == null) yield break; // 오퍼레이터 파괴 시에 동작을 멈춤
-                
+
                 elapsedTime += Time.deltaTime;
 
                 // 서서히 감소하는 SP 동작을 여기서 구현
@@ -183,15 +180,6 @@ namespace Skills.Base
 
             // 그 외의 경우 즉시 제거
             Destroy(vfxObject);
-        }
-
-        protected void CalculateActualSkillRange(Vector2Int center)
-        {
-            foreach (Vector2Int offset in skillRangeOffset)
-            {
-                Vector2Int rotatedOffset = DirectionSystem.RotateGridOffset(offset, Caster.FacingDirection);
-                actualSkillRange.Add(center + rotatedOffset);
-            }
         }
     }
 }

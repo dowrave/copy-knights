@@ -7,7 +7,6 @@ public class EnemyBossSkill : UnitSkill
     [SerializeField] private float coolTime;
     [SerializeField] private EnemyBossSkillType skillType;
 
-    public EnemyBoss Caster => caster as EnemyBoss;
     public float CoolTime => coolTime;
     public EnemyBossSkillType SkillType => skillType;
 

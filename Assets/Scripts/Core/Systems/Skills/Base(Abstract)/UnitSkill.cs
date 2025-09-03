@@ -1,4 +1,5 @@
 using UnityEngine;
+using System.Collections.Generic;
 
 namespace Skills.Base
 {
@@ -6,8 +7,6 @@ namespace Skills.Base
     {
         [Header("Unit Skill Properties")]
         public string skillName = string.Empty;
-
-        protected UnitEntity caster = default!;
 
         // 스킬 활성화 시에 호출
         public virtual void Activate(UnitEntity caster) { }
@@ -45,6 +44,14 @@ namespace Skills.Base
         public virtual string GetVFXPoolTag(UnitEntity caster, GameObject vfxPrefab)
         {
             return string.Empty;
+        }
+
+        /// <summary>
+        /// 범위가 있는 스킬의 중심 위치. 기본적으로 시전자의 위치로 설정되어 있습니다.
+        /// </summary>
+        protected virtual Vector2Int GetCenterGridPos(UnitEntity caster)
+        {
+            return MapManager.Instance.ConvertToGridPosition(caster.transform.position);
         }
     }
 }

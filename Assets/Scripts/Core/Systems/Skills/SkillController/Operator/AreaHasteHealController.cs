@@ -19,7 +19,7 @@ public class AreaHasteHealController: FieldEffectController
         }
 
         // 새로 범위에 들어온 아군 찾기
-        foreach (Vector2Int tilePos in affectedTiles)
+        foreach (Vector2Int tilePos in skillRangeGridPositions)
         {
             Tile? tile = MapManager.Instance!.GetTile(tilePos.x, tilePos.y);
             
@@ -54,7 +54,7 @@ public class AreaHasteHealController: FieldEffectController
                 AttackSource healSource = new AttackSource(
                     attacker: caster,
                     position: transform.position,
-                    damage: amountPerTick,
+                    damage: caster.AttackPower * tickDamageRatio,
                     type: caster.AttackType,
                     isProjectile: true,
                     hitEffectPrefab: hitEffectPrefab,

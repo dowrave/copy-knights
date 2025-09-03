@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using System.Linq;
 
 
 // 스킬 범위의 시각적 효과를 관리
@@ -58,7 +59,7 @@ public class SkillRangeVFXController : MonoBehaviour, IPooledObject
     }
 
     // 시각 효과 설정 및 실행
-    public void Initialize(Vector2Int position, HashSet<Vector2Int> effectRange, float duration)
+    public void Initialize(Vector2Int position, IReadOnlyCollection<Vector2Int> effectRange, float duration)
     {
         // 이전에 실행중인 코루틴 중지
         if (_lifeCycleCoroutine != null) StopCoroutine(_lifeCycleCoroutine);
@@ -72,7 +73,7 @@ public class SkillRangeVFXController : MonoBehaviour, IPooledObject
         _lifeCycleCoroutine = StartCoroutine(LifeCycle(lifeTime));
     }
 
-    private void SetUpVisuals(Vector2Int position, HashSet<Vector2Int> effectRange)
+    private void SetUpVisuals(Vector2Int position, IReadOnlyCollection<Vector2Int> effectRange)
     {
         // 유효하지 않은 위치는 아무것도 표시하지 않음
         if (MapManager.Instance.CurrentMap == null || !MapManager.Instance.CurrentMap.IsTileAt(position.x, position.y))

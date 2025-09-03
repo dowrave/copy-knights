@@ -1,8 +1,13 @@
 using UnityEngine;
 using System.Collections;
+using Skills.Base;
 
-public class BossSunSkillController : MonoBehaviour
+// 보스 스킬에서 떨어지는 태양 VFX의 움직임을 제어하는 컴포넌트.
+public class FallingSunVFXController : MonoBehaviour
 {
+    private EnemyBoss caster;
+    private BossExplosionSkill skillData;
+
     [Header("Sun Particle Settings")]
     [SerializeField] private ParticleSystem mainParticle;
     [SerializeField] private GameObject sunObject;
@@ -47,6 +52,6 @@ public class BossSunSkillController : MonoBehaviour
             elapsedTime += Time.deltaTime;
 
             yield return null;
-        }        
+        }
     }
 }

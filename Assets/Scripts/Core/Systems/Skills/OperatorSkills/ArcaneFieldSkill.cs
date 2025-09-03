@@ -30,60 +30,62 @@ namespace Skills.OperatorSkills
             autoRecover = true;
         }
 
-        protected override void PlaySkillEffect(Operator op)
+        protected override void PlaySkillEffect(Operator caster)
         {
             // 1. 자신에게 공격 불가 버프 적용
             CannotAttackBuff _cannotAttackBuff = new CannotAttackBuff(duration, this);
-            op.AddBuff(_cannotAttackBuff);
+            caster.AddBuff(_cannotAttackBuff);
 
             // 2. 장판과 VFX 생성
-            UnitEntity? target = op.CurrentTarget;
+            UnitEntity? target = caster.CurrentTarget;
             if (target == null) return;
 
+            // 목표를 중심으로 범위를 계산
             Vector2Int centerPos = MapManager.Instance!.ConvertToGridPosition(target.transform.position);
-
-            caster = op;
-            actualSkillRange.Clear();
-            CalculateActualSkillRange(centerPos);
+            if (caster.LastSkillCenter != centerPos)
+            {
+                HashSet<Vector2Int> skillRange = PositionCalculationSystem.CalculateRange(skillRangeOffset, centerPos, caster.FacingDirection);
+                caster.SetCurrentSkillRange(skillRange);
+                caster.SetLastSkillCenter(centerPos);
+            }
 
             // 실제 효과 장판 생성
-            CreateEffectField(op);
+            CreateEffectField(caster);
 
             // 장판 시각적 효과 생성
-            VisualizeSkillRange(op, actualSkillRange);
+            VisualizeSkillRange(caster, caster.GetCurrentSkillRange());
 
-            base.PlaySkillEffect(op);
+            base.PlaySkillEffect(caster);
         }
 
-        protected override void OnSkillEnd(Operator op)
+        protected override void OnSkillEnd(Operator caster)
         {
-            op.RemoveBuffFromSourceSkill(this);
+            caster.RemoveBuffFromSourceSkill(this);
 
-            base.OnSkillEnd(op);
+            base.OnSkillEnd(caster);
         }
 
 
-        protected void CreateEffectField(Operator op)
+        protected void CreateEffectField(Operator caster)
         {
             if (hitEffectPrefab == null)
             {
-                hitEffectPrefab = op.OperatorData.HitEffectPrefab;
+                hitEffectPrefab = caster.OperatorData.HitEffectPrefab;
             }
 
 
             // 부모를 오퍼레이터로 설정해서 생명주기를 동기화한다
             // 즉 Operator가 파괴될 때 이 장판도 함께 파괴시키기 위한 것이라고 생각하면 됨
-            GameObject fieldObj = Instantiate(fieldEffectPrefab, op.transform);
+            GameObject fieldObj = Instantiate(fieldEffectPrefab, caster.transform);
             ArcaneFieldController? controller = fieldObj.GetComponent<ArcaneFieldController>();
 
             if (controller != null)
             {
-                float actualDamagePerTick = op.AttackPower * damagePerTickRatio;
                 controller.Initialize(
-                    op,
-                    actualSkillRange,
+                    caster,
+                    caster.GetCurrentSkillRange(),
                     duration,
-                    actualDamagePerTick,
+                    damagePerTickRatio,
                     damageInterval,
                     hitEffectPrefab!,
                     HIT_EFFECT_TAG,
@@ -92,7 +94,7 @@ namespace Skills.OperatorSkills
             }
         }
 
-        private void VisualizeSkillRange(Operator op, HashSet<Vector2Int> range)
+        private void VisualizeSkillRange(Operator caster, IReadOnlyCollection<Vector2Int> range)
         {
             foreach (Vector2Int pos in range)
             {
@@ -105,7 +107,7 @@ namespace Skills.OperatorSkills
 
                     if (vfxObj != null)
                     {
-                        vfxObj.transform.SetParent(op.transform);
+                        vfxObj.transform.SetParent(caster.transform);
 
                         var controller = vfxObj.GetComponent<SkillRangeVFXController>();
                         if (controller != null)

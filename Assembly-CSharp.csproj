@@ -127,6 +127,7 @@
     <Compile Include="Assets\Scripts\Data\OperatorLevelData.cs" />
     <Compile Include="Assets\Scripts\Core\Systems\Skills\OperatorSkills\DoubleShotSkill.cs" />
     <Compile Include="Assets\Scripts\UI\Components\DirectionIndicator.cs" />
+    <Compile Include="Assets\Scripts\Core\Systems\Skills\SkillController\Enemy\BossRangedSkillController.cs" />
     <Compile Include="Assets\Scripts\Entities\Combat\Projectile\Projectile.cs" />
     <Compile Include="Assets\Scripts\UI\Components\EnemyBarUI.cs" />
     <Compile Include="Assets\Scripts\Core\Systems\Skills\SkillController\Operator\SlashSkillController.cs" />
@@ -141,7 +142,7 @@
     <Compile Include="Assets\Scripts\Map\EnemySpawner.cs" />
     <Compile Include="Assets\Scripts\UI\Components\InGameTopButtonContainer.cs" />
     <Compile Include="Assets\Scripts\Core\Managers\StageScene\PathfindingManager.cs" />
-    <Compile Include="Assets\Scripts\Core\Systems\Skills\BossSkills\BossRangedSkill.cs" />
+    <Compile Include="Assets\Scripts\Core\Systems\PositionCalculationSystem.cs" />
     <Compile Include="Assets\Scripts\Entities\Enemy\Enemy.cs" />
     <Compile Include="Assets\Scripts\Utils\InstanceValidator.cs" />
     <Compile Include="Assets\Scripts\UI\Components\OperatorUI.cs" />
@@ -151,6 +152,7 @@
     <Compile Include="Assets\Scripts\Entities\Enemy\EnemyBoss.cs" />
     <Compile Include="Assets\Scripts\UI\Panels\StageLoadingScreen.cs" />
     <Compile Include="Assets\Scripts\Core\Systems\Buff\StunBuff.cs" />
+    <Compile Include="Assets\Scripts\Core\Systems\Skills\BossSkills\BossExplosionSkill.cs" />
     <Compile Include="Assets\Scripts\Core\Systems\Skills\SkillController\Operator\MeteorController.cs" />
     <Compile Include="Assets\Scripts\UI\Panels\OperatorPromotionPanel.cs" />
     <Compile Include="Assets\Scripts\UI\Components\NotificationToast.cs" />
@@ -168,7 +170,6 @@
     <Compile Include="Assets\Scripts\Core\Systems\Buff\CannotAttackBuff.cs" />
     <Compile Include="Assets\Scripts\Core\Systems\Skills\Base(Abstract)\AmmoBasedActiveSkill.cs" />
     <Compile Include="Assets\Scripts\Core\Systems\Skills\Base(Abstract)\OperatorSkill.cs" />
-    <Compile Include="Assets\Scripts\Core\Systems\Skills\SkillController\Enemy\BossSunSkillController.cs" />
     <Compile Include="Assets\Scripts\Core\Systems\Skills\Base(Abstract)\ActiveSkill.cs" />
     <Compile Include="Assets\Scripts\Data\TileData.cs" />
     <Compile Include="Assets\Scripts\UI\Components\ConfirmationPopup.cs" />
@@ -186,6 +187,7 @@
     <Compile Include="Assets\Scripts\UI\Panels\InStageInfoPanel.cs" />
     <Compile Include="Assets\Scripts\UI\Components\DeployableDeployingUI.cs" />
     <Compile Include="Assets\Scripts\Core\Enums\ActionRestrictions.cs" />
+    <Compile Include="Assets\Scripts\Core\Systems\Skills\SkillController\Enemy\FallingSunVFXController.cs" />
     <Compile Include="Assets\Scripts\Core\Systems\Skills\Base(Abstract)\UnitSkill.cs" />
     <Compile Include="Assets\Scripts\Data\StageResultData.cs" />
     <Compile Include="Assets\Scripts\Entities\Operators\DualBladeOperator.cs" />
@@ -216,7 +218,6 @@
     <Compile Include="Assets\Scripts\Core\Managers\MainmenuScene\OperatorGrowthManager.cs" />
     <Compile Include="Assets\Scripts\Interfaces\ICrowdControlTarget.cs" />
     <Compile Include="Assets\Scripts\UI\Panels\OperatorDetailPanel.cs" />
-    <Compile Include="Assets\Scripts\Core\Systems\DirectionSystem.cs" />
     <Compile Include="Assets\Scripts\UI\Panels\StatsPanel.cs" />
     <Compile Include="Assets\Scripts\UI\Components\ExpandableButton.cs" />
     <Compile Include="Assets\Scripts\Data\UnitData.cs" />

@@ -10,7 +10,7 @@ public class ArcaneFieldController : FieldEffectController
 
     public virtual void Initialize(
         Operator caster,
-        HashSet<Vector2Int> affectedTiles,
+        IReadOnlyCollection<Vector2Int> affectedTiles,
         float fieldDuration,
         float amountPerTick,
         float interval,
@@ -21,6 +21,8 @@ public class ArcaneFieldController : FieldEffectController
     {
         base.Initialize(caster, affectedTiles, fieldDuration, amountPerTick, interval, hitEffectPrefab, hitEffectTag);
         this.slowAmount = slowAmount;
+
+        StartCoroutine(FieldRoutine(fieldDuration, interval));
     }
 
     protected override void CheckTargetsInField()
@@ -39,7 +41,7 @@ public class ArcaneFieldController : FieldEffectController
         }
 
         // 货肺 柳涝茄 利 贸府
-        foreach (Vector2Int tilePos in affectedTiles)
+        foreach (Vector2Int tilePos in skillRangeGridPositions)
         {
             Tile? tile = MapManager.Instance!.GetTile(tilePos.x, tilePos.y);
             if (tile != null)
@@ -77,7 +79,7 @@ public class ArcaneFieldController : FieldEffectController
                 AttackSource attackSource = new AttackSource(
                     attacker: caster,
                     position: transform.position,
-                    damage: amountPerTick,
+                    damage: caster.AttackPower * tickDamageRatio,
                     type: caster.AttackType,
                     isProjectile: true,
                     hitEffectPrefab: hitEffectPrefab,
