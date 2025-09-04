@@ -6,7 +6,8 @@ namespace Skills.Base
     public abstract class UnitSkill : ScriptableObject
     {
         [Header("Unit Skill Properties")]
-        public string skillName = string.Empty;
+        [SerializeField] protected string skillName = string.Empty;
+        public string SkillName => skillName;
 
         // 스킬 활성화 시에 호출
         public virtual void Activate(UnitEntity caster) { }

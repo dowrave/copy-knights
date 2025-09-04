@@ -86,6 +86,7 @@
     <Compile Include="Assets\Scripts\Core\Managers\MainmenuScene\PopupManager.cs" />
     <Compile Include="Assets\Scripts\Entities\Base\DeployableUnitEntity.cs" />
     <Compile Include="Assets\Scripts\Utils\ClickDetectionSystem.cs" />
+    <Compile Include="Assets\Scripts\Core\Systems\Skills\SkillController\Enemy\BossExplosionSkillController.cs" />
     <Compile Include="Assets\Scripts\Interfaces\IMovable.cs" />
     <Compile Include="Assets\Scripts\Core\Systems\Skills\VFXController\CostParticleMotion.cs" />
     <Compile Include="Assets\Scripts\Core\Systems\Skills\OperatorSkills\SmashSkill.cs" />
@@ -127,7 +128,6 @@
     <Compile Include="Assets\Scripts\Data\OperatorLevelData.cs" />
     <Compile Include="Assets\Scripts\Core\Systems\Skills\OperatorSkills\DoubleShotSkill.cs" />
     <Compile Include="Assets\Scripts\UI\Components\DirectionIndicator.cs" />
-    <Compile Include="Assets\Scripts\Core\Systems\Skills\SkillController\Enemy\BossRangedSkillController.cs" />
     <Compile Include="Assets\Scripts\Entities\Combat\Projectile\Projectile.cs" />
     <Compile Include="Assets\Scripts\UI\Components\EnemyBarUI.cs" />
     <Compile Include="Assets\Scripts\Core\Systems\Skills\SkillController\Operator\SlashSkillController.cs" />

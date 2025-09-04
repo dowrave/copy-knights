@@ -31,7 +31,8 @@ public class EnemyBoss : Enemy
         SetSkills();
     }
 
-    protected void SetSkills()
+    // 스킬을 초기화함
+    protected override void SetSkills()
     {
         foreach (EnemyBossSkill skill in BossData.MeleeSkills)
         {
@@ -56,6 +57,17 @@ public class EnemyBoss : Enemy
             {
                 Debug.LogError("Ranged 스킬이 아닌 스킬이 들어가 있음!!!!");
             }
+        }
+    }
+
+    protected override void CreateObjectPool()
+    {
+        base.CreateObjectPool();
+
+        // 스킬 오브젝트 풀 생성 - 전체 스킬이 skillCooldowns에 들어간 상태이므로 반복문을 2번 쓰지 않기 위해 이런 식으로 구현
+        foreach (var skill in skillCooldowns.Keys)
+        {
+            skill.InitializeSkillObjectPool(this);
         }
     }
 

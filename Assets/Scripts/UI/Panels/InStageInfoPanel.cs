@@ -189,7 +189,7 @@ public class InStageInfoPanel : MonoBehaviour
             }
 
             skillIconImage.sprite = operatorSkill.skillIcon;
-            skillNameText.text = operatorSkill.skillName;
+            skillNameText.text = operatorSkill.SkillName;
             skillDetailText.text = operatorSkill.description;
         }
     }

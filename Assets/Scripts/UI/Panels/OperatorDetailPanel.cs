@@ -390,7 +390,7 @@ public class OperatorDetailPanel : MonoBehaviour
     private void HandleDefaultButtonClicked()
     {
         currentOperator.SetDefaultSelectedSkill(currentSelectedSkillIndex);
-        NotificationToastManager.Instance!.ShowNotification($"기본 설정 스킬이 {currentSelectedSkill.skillName}으로 변경되었습니다.");
+        NotificationToastManager.Instance!.ShowNotification($"기본 설정 스킬이 {currentSelectedSkill.SkillName}으로 변경되었습니다.");
         UpdateSkillsUI();
     }
 

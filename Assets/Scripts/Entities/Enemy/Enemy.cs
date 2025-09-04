@@ -158,6 +158,10 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity
             FindPathToDestinationOrBarricade();
         }
 
+        // 스킬 설정 
+        SetSkills();
+
+        // 오브젝트 풀 생성
         CreateObjectPool();
     }
 
@@ -757,7 +761,7 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity
             );
         }
 
-        // 피격 이펙트 풀 생성
+        // 적 타격 이펙트 풀 생성
         if (BaseData.hitEffectPrefab != null)
         {
             hitEffectTag = baseTag + BaseData.hitEffectPrefab.name;
@@ -891,6 +895,8 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity
             //    );
         }
     }
+
+    protected virtual void SetSkills() { }
 
     protected void OnDestroy()
     {

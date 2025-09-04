@@ -120,7 +120,7 @@ public class OperatorPromotionPanel : MonoBehaviour
         if (unlockedSkill != null)
         {
             // 스킬 이름 정보
-            skillNameText.text = $"- 스킬 사용 가능 : <color=#179bff>{unlockedSkill.skillName}</color>";
+            skillNameText.text = $"- 스킬 사용 가능 : <color=#179bff>{unlockedSkill.SkillName}</color>";
 
             // 스킬 아이콘 정보
             skillIconImage.sprite = unlockedSkill.skillIcon;

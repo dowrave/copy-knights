@@ -10,7 +10,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 50fda232ad4a8b041a0c622ad3fa8de9, type: 3}
-  m_Name: BossRangedSkill
+  m_Name: BossExplosionSkill
   m_EditorClassIdentifier: 
   skillName: Explosion
   coolTime: 15

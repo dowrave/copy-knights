@@ -4,8 +4,8 @@ using Skills.Base;
 public class EnemyBossSkill : UnitSkill
 {
     [Header("Boss Skill Configs")]
-    [SerializeField] private float coolTime;
-    [SerializeField] private EnemyBossSkillType skillType;
+    [SerializeField] protected float coolTime;
+    [SerializeField] protected EnemyBossSkillType skillType;
 
     public float CoolTime => coolTime;
     public EnemyBossSkillType SkillType => skillType;

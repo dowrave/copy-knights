@@ -62,7 +62,7 @@ public class SkillIconBox : MonoBehaviour
         if (showSkillName)
         {
             skillNameText.gameObject.SetActive(true);
-            skillNameText.text = skillData.skillName;
+            skillNameText.text = skillData.SkillName;
         }
         else
         {
