@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 5083893647679318098}
   - component: {fileID: 5867923064884359503}
   m_Layer: 0
-  m_Name: VFX_BossSkill_Sun
+  m_Name: VFX_BossSkill_Sun_v1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

@@ -102,6 +102,8 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity
 
     protected DespawnReason currentDespawnReason = DespawnReason.Null;
 
+    protected bool isInitialized = false; 
+
     // 스태틱 이벤트 테스트
     // public static event Action<Enemy> OnEnemyDestroyed; // 죽는 상황 + 목적지에 도달해서 사라지는 상황 모두 포함
     public static event Action<Enemy, DespawnReason> OnEnemyDespawned = delegate { };
@@ -163,6 +165,8 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity
 
         // 오브젝트 풀 생성
         CreateObjectPool();
+
+        isInitialized = true;
     }
 
     public override void SetPrefab()
@@ -196,7 +200,8 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity
     protected override void Update()
     {
         if (StageManager.Instance!.currentState == GameState.Battle && // 전투 중이면서
-            currentDespawnReason == DespawnReason.Null // 디스폰되고 있지 않을 때
+            currentDespawnReason == DespawnReason.Null && // 디스폰되고 있지 않을 때
+            isInitialized
             )
         {
             // 행동이 불가능해도 동작해야 하는 효과
@@ -335,9 +340,7 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity
         }
     }
 
-
-
-    public void OnTargetEnteredRange(DeployableUnitEntity target)
+    public virtual void OnTargetEnteredRange(DeployableUnitEntity target)
     {
         if (target == null ||
         target.Faction != Faction.Ally || // Ally만 공격함
@@ -347,7 +350,7 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity
         targetsInRange.Add(target);
     }
 
-    public void OnTargetExitedRange(DeployableUnitEntity target)
+    public virtual void OnTargetExitedRange(DeployableUnitEntity target)
     {
         if (targetsInRange.Contains(target))
         {

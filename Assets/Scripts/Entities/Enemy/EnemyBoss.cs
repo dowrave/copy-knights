@@ -1,22 +1,28 @@
 using UnityEngine;
 using System.Collections.Generic;
 using System;
+using System.Linq;
 
 public class EnemyBoss : Enemy
 {
     [NonSerialized] protected new EnemyData enemyData; // 부모의 enemyData와 충돌 방지, 이 필드는 직렬화에서 무시됨
     [SerializeField] EnemyBossData bossData = default!;
+    [SerializeField] protected EnemyBossSkillRangeController skillRangeController;
+
 
     public override EnemyData BaseData => bossData;
     public EnemyBossData BossData => bossData;
 
-    private List<EnemyBossSkill> meleeSkills;
-    private List<EnemyBossSkill> rangedSkills;
+    private List<EnemyBossSkill> meleeSkills = new List<EnemyBossSkill>();
+    private List<EnemyBossSkill> rangedSkills = new List<EnemyBossSkill>();
 
     private Dictionary<EnemyBossSkill, float> skillCooldowns = new Dictionary<EnemyBossSkill, float>();
     // 여러 스킬을 한꺼번에 사용하는 걸 방지하기 위해 모든 스킬이 체크하는 쿨타임. 
     private float globalSkillCooldownDuration = 5f;
-    private float currentGlobalCooldown = 0f; 
+    private float currentGlobalCooldown = 0f;
+
+    private HashSet<Operator> operatorsInSkillRange = new HashSet<Operator>();
+    public IReadOnlyCollection<Operator> OperatorsInSkillRange => operatorsInSkillRange;
 
     public override void SetPrefab()
     {
@@ -27,8 +33,7 @@ public class EnemyBoss : Enemy
     {
         base.Initialize(bossData, pathData);
 
-        // 스킬 초기화
-        SetSkills();
+        skillRangeController.Initialize(this);
     }
 
     // 스킬을 초기화함
@@ -39,7 +44,7 @@ public class EnemyBoss : Enemy
             if (skill.SkillType == EnemyBossSkillType.Melee)
             {
                 meleeSkills.Add(skill);
-                skillCooldowns.Add(skill, skill.CoolTime);
+                skillCooldowns.Add(skill, 0);
             }
             else
             {
@@ -51,7 +56,7 @@ public class EnemyBoss : Enemy
             if (skill.SkillType == EnemyBossSkillType.Ranged)
             {
                 rangedSkills.Add(skill);
-                skillCooldowns.Add(skill, skill.CoolTime);
+                skillCooldowns.Add(skill, 0);
             }
             else
             {
@@ -109,15 +114,19 @@ public class EnemyBoss : Enemy
         if (currentGlobalCooldown > 0f) return false;
 
         // 저지를 당할 때는 근거리 스킬 중에서 설정, 아니라면 원거리 중에서 설정
-        // 이 경우는 참조 데이터를 "읽기"만 하기 때문에 별도의 리스트를 사용할 필요는 없다.
+        // 이 경우는 참조 데이터를 "읽기"만 하므로 별도의 리스트를 사용할 필요는 없다.
         List<EnemyBossSkill> skillsToCheck = (BlockingOperator != null) ? meleeSkills : rangedSkills;
 
-        // 근접 스킬에 넣은 스킬 순서대로 돌아감
+        // 스킬에 넣은 스킬 순서대로 돌아감
         foreach (EnemyBossSkill bossSkill in skillsToCheck)
         {
+            Operator mainTarget = skillsToCheck == rangedSkills ?
+                operatorsInSkillRange.OrderByDescending(op => op.DeploymentOrder).FirstOrDefault() : // 원거리 : 사거리 내에 가장 나중에 배치된 오퍼레이터
+                BlockingOperator; // 근거리 : 자신을 저지 중인 오퍼레이터
+
             if (skillCooldowns[bossSkill] <= 0 && bossSkill.CanActivate(this))
             {
-                bossSkill.Activate(this);
+                bossSkill.Activate(this, mainTarget);
 
                 // 쿨다운 설정
                 currentGlobalCooldown = globalSkillCooldownDuration;
@@ -126,13 +135,26 @@ public class EnemyBoss : Enemy
                 return true;
             }
         }
-        
+
         return false;
     }
 
-    
-    
+    public override void OnTargetEnteredRange(DeployableUnitEntity target)
+    {
+        if (target is Operator op && op.IsDeployed)
+        {
+            Debug.LogWarning($"스킬 범위에 {op}가 들어옴");
+            operatorsInSkillRange.Add(op);
+        }
+    }
 
+    public override void OnTargetExitedRange(DeployableUnitEntity target)
+    {
+        if (target is Operator op && op.IsDeployed)
+        {
+            operatorsInSkillRange.Remove(op);
+        }
+    }
     // 연결 구현
     public override void Initialize(EnemyData enemyData, PathData pathData)
     {

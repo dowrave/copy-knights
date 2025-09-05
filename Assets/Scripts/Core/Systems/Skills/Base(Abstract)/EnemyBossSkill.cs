@@ -11,7 +11,7 @@ public class EnemyBossSkill : UnitSkill
     public EnemyBossSkillType SkillType => skillType;
 
 
-    public virtual void Activate(EnemyBoss caster) { }
+    public virtual void Activate(EnemyBoss caster, UnitEntity target) { }
 
     public override string GetVFXPoolTag(UnitEntity caster, GameObject vfxPrefab)
     {
@@ -30,6 +30,16 @@ public class EnemyBossSkill : UnitSkill
             Debug.LogError("[EnemyBossSkill.GetVFXPoolTag] caster가 Enemy가 아님!!");
             return string.Empty;
         }
+    }
+
+    public override bool CanActivate(UnitEntity caster)
+    {
+        if (caster is EnemyBoss boss)
+        {
+            return boss.OperatorsInSkillRange.Count > 0;
+        }
+        
+        return false;
     }
 
     public sealed override void Activate(UnitEntity caster)

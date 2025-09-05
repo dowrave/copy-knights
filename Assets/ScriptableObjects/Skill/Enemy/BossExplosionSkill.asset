@@ -15,4 +15,19 @@ MonoBehaviour:
   skillName: Explosion
   coolTime: 15
   skillType: 2
+  castTime: 0.5
+  fallDuration: 3
+  explosionDamageRatio: 3
+  lingeringDuration: 5
+  tickInterval: 0.5
+  tickDamageRatio: 0.5
+  rangeOffset: []
+  damageMultiplier: 3
+  dotDamageMultiplier: 0.3
+  skillControllerPrefab: {fileID: 1246316691890282099, guid: 928ea2a4ce6bfb74c9edfd46bb8d596e, type: 3}
   castVFXPrefab: {fileID: 698653763066334350, guid: e038207b6a3cfc545b4c4b6fc09cdfa8, type: 3}
+  hitVFXPrefab: {fileID: 5543080949794851885, guid: f7941bd92adb91443911da757cb4ad0e, type: 3}
+  fallingSunVFXPrefab: {fileID: 144786645971712206, guid: 7cd8defe16825104088b7c6b5955a996, type: 3}
+  skillRangeVFXPrefab: {fileID: 4360018886635934139, guid: b9c57268af45969499c8f5b19c797d5d, type: 3}
+  crackedGroundVFXPrefab: {fileID: 3605300188270822406, guid: d2d07ce2b4c8fd445b578498f8ea1b7f, type: 3}
+  explosionVFXPrefab: {fileID: 3605300188270822406, guid: b59472707066874428f24ae9c4bf6d7c, type: 3}

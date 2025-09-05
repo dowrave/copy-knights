@@ -119,10 +119,10 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 7654303437229567964}
-  - component: {fileID: 6104406972538619893}
   - component: {fileID: 3236293898124892713}
+  - component: {fileID: 4353039095607318831}
   m_Layer: 0
-  m_Name: AttackRangeController
+  m_Name: SkillRangeController
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -143,19 +143,6 @@ Transform:
   m_Children: []
   m_Father: {fileID: 3016627707267361288}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &6104406972538619893
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 403736922395741435}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 1cd191ffba174ba4db1af57dcbafc32d, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  attackRangeCollider: {fileID: 3236293898124892713}
 --- !u!135 &3236293898124892713
 SphereCollider:
   m_ObjectHideFlags: 0
@@ -177,6 +164,19 @@ SphereCollider:
   serializedVersion: 3
   m_Radius: 2
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &4353039095607318831
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 403736922395741435}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6382add348369c64eb13b7e42f268d2c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  skillRangeCollider: {fileID: 3236293898124892713}
 --- !u!1 &785511109058552978
 GameObject:
   m_ObjectHideFlags: 0
@@ -277,6 +277,73 @@ Transform:
   - {fileID: 5290581671415651632}
   m_Father: {fileID: 3016627707267361288}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &4979987659619330013
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 7386346727046048292}
+  - component: {fileID: 1372326536265054341}
+  - component: {fileID: 6276210478676473632}
+  m_Layer: 0
+  m_Name: AttackRangeController
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &7386346727046048292
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4979987659619330013}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 3016627707267361288}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!135 &1372326536265054341
+SphereCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4979987659619330013}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 1
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Radius: 2
+  m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &6276210478676473632
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4979987659619330013}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1cd191ffba174ba4db1af57dcbafc32d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  attackRangeCollider: {fileID: 1372326536265054341}
 --- !u!1 &6542749020257112806
 GameObject:
   m_ObjectHideFlags: 0
@@ -310,6 +377,7 @@ Transform:
   m_Children:
   - {fileID: 3187680590257089580}
   - {fileID: 7081949664518545277}
+  - {fileID: 7386346727046048292}
   - {fileID: 7654303437229567964}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -356,5 +424,6 @@ MonoBehaviour:
   enemyData: {fileID: 0}
   enemyBarUIPrefab: {fileID: 4850112300594543659, guid: f855a11e7f642eb4481495480ef1a6e8, type: 3}
   modelContainer: {fileID: 879292670743782935}
-  attackRangeController: {fileID: 6104406972538619893}
+  attackRangeController: {fileID: 6276210478676473632}
   bossData: {fileID: 11400000, guid: aee059c035a64e948aa8548c35ec914a, type: 2}
+  skillRangeController: {fileID: 4353039095607318831}

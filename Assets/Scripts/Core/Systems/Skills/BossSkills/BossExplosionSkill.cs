@@ -12,7 +12,7 @@ namespace Skills.Base
         [SerializeField] private float fallDuration = 3f; // 해 파티클 떨어지는 시간
         [SerializeField] private float explosionDamageRatio = 3f;
         [SerializeField] private float lingeringDuration = 5f; // 지속 피해 유지 시간
-        [SerializeField] private float damageInterval = 0.5f; // 지속 피해 간격
+        [SerializeField] private float tickInterval = 0.5f; // 지속 피해 간격
         [SerializeField] private float tickDamageRatio = 0.5f; // 지속 피해 배율
 
         [Header("Actual Effect")]
@@ -34,7 +34,8 @@ namespace Skills.Base
 
         // 여기서 상태를 갖지 않는 게 베스트이기 떄문에 Stateless 패턴으로 만들어봄
         // 상태를 갖는 게 아니라 고정된 값을 반환하는 메서드를 구현한다는 개념임
-        public string GetSkillEffectTag(UnitEntity caster) => $"{caster.name}_{skillName}_skillEffect";
+        // 참고) 필드로 $"{caster}" 를 구현하지 못한다고 나옴
+        public string GetSkillControllerTag(UnitEntity caster) => $"{caster.name}_{skillName}_skillController";
         public string GetHitVFXTag(UnitEntity caster) => $"{caster.name}_{skillName}_hit";
         public string GetCastVFXTag(UnitEntity caster) => $"{caster.name}_{skillName}_cast";
         public string GetFallingSunVFXTag(UnitEntity caster) => $"{caster.name}_{skillName}_fallingSun";
@@ -42,12 +43,8 @@ namespace Skills.Base
         public string GetCrackedGroundVFXTag(UnitEntity caster) => $"{caster.name}_{skillName}_crackedGround";
         public string GetExplosionVFXTag(UnitEntity caster) => $"{caster.name}_{skillName}_explosion";
 
-        public override void Activate(EnemyBoss caster)
+        public override void Activate(EnemyBoss caster, UnitEntity target)
         {
-            UnitEntity target = caster.CurrentTarget; // 수정 필요할 수 있음
-
-            if (target == null) return;
-
             IEnumerator sequence = ActivateSequence(caster, target);
             caster.ExecuteSkillSequence(sequence);
         }
@@ -66,24 +63,27 @@ namespace Skills.Base
             }
 
             // 범위를 기반으로 스킬 컨트롤러 생성, 스킬의 재생은 모두 여기서 담당함
-            // GameObject fieldObj = Instantiate(skillControllerPrefab, caster.transform);
-            GameObject fieldObj = ObjectPoolManager.Instance.SpawnFromPool(GetSkillEffectTag(caster), target.transform.position, Quaternion.identity);
-            BossExplosionSkillController? controller = fieldObj.GetComponent<BossExplosionSkillController>();
+            GameObject controllerObject = ObjectPoolManager.Instance.SpawnFromPool(GetSkillControllerTag(caster), target.transform.position, Quaternion.identity);
+            BossExplosionSkillController? controller = controllerObject.GetComponent<BossExplosionSkillController>();
 
             if (controller != null)
             {
-                // Caster 위치에 Cast 이펙트를 실행함
+                controllerObject.transform.SetParent(caster.gameObject.transform);
+
+                // 1. Caster 위치에 Cast 이펙트를 실행함
                 GameObject castVFXObject = ObjectPoolManager.Instance.SpawnFromPool(GetCastVFXTag(caster), caster.transform.position, Quaternion.identity);
-                ParticleSystem castVFX = castVFXObject.GetComponent<ParticleSystem>();
+                castVFXObject.transform.SetParent(caster.gameObject.transform);
+                SelfReturnVFXController castVFX = castVFXObject.GetComponent<SelfReturnVFXController>();
                 if (castVFX != null)
                 {
-                    castVFX.Play(true);
+                    castVFX.Initialize(castTime);
                 }
-
                 // 시전 동작 중에는 대기 - 이거 기다리는 중에 비활성화되면 그 아래는 실행되지 않음
                 yield return new WaitForSeconds(castTime);
 
                 ObjectPoolManager.Instance.ReturnToPool(GetCastVFXTag(caster), castVFXObject);
+                
+                // 2. 스킬 시작
                 controller.Initialize(caster, caster.GetCurrentSkillRange(), target);
             }
         }
@@ -96,7 +96,7 @@ namespace Skills.Base
             // 얘는 사실 null이면 안됨
             if (skillControllerPrefab != null)
             {
-                ObjectPoolManager.Instance.CreatePool(GetSkillEffectTag(caster), skillControllerPrefab, 1);
+                ObjectPoolManager.Instance.CreatePool(GetSkillControllerTag(caster), skillControllerPrefab, 1);
             }
 
             if (hitVFXPrefab != null)
@@ -136,7 +136,7 @@ namespace Skills.Base
         public float CastTime => castTime;
         public float FallDuration => fallDuration;
         public float LingeringDuration => lingeringDuration;
-        public float DamageInterval => damageInterval;
+        public float TickInterval => tickInterval;
         public float TickDamageRatio => tickDamageRatio;
         public float ExplosionDamageRatio => explosionDamageRatio;
 
