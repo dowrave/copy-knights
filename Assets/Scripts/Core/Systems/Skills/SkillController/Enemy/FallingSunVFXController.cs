@@ -5,7 +5,7 @@ using Skills.Base;
 // 보스 스킬에서 떨어지는 태양 VFX의 움직임을 제어하는 컴포넌트.
 public class FallingSunVFXController : MonoBehaviour
 {
-    private EnemyBoss caster;
+    private UnitEntity caster;
     private BossExplosionSkill skillData;
 
     [Header("Sun Particle Settings")]
@@ -23,10 +23,12 @@ public class FallingSunVFXController : MonoBehaviour
     // }
 
     // 파티클 시스템 실행 및 효과 재생
-    public void Initialize(float duration)
+    public void Initialize(UnitEntity caster, BossExplosionSkill skillData, float duration)
     {
         StopAllCoroutines();
 
+        this.caster = caster;
+        this.skillData = skillData;
         this.duration = duration;
 
         // 위치 초기화
@@ -55,5 +57,7 @@ public class FallingSunVFXController : MonoBehaviour
 
             yield return null;
         }
+
+        ObjectPoolManager.Instance.ReturnToPool(skillData.GetFallingSunVFXTag(caster), gameObject);
     }
 }

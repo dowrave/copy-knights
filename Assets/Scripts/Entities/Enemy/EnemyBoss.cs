@@ -9,7 +9,6 @@ public class EnemyBoss : Enemy
     [SerializeField] EnemyBossData bossData = default!;
     [SerializeField] protected EnemyBossSkillRangeController skillRangeController;
 
-
     public override EnemyData BaseData => bossData;
     public EnemyBossData BossData => bossData;
 
@@ -20,6 +19,8 @@ public class EnemyBoss : Enemy
     // 여러 스킬을 한꺼번에 사용하는 걸 방지하기 위해 모든 스킬이 체크하는 쿨타임. 
     private float globalSkillCooldownDuration = 5f;
     private float currentGlobalCooldown = 0f;
+
+    
 
     private HashSet<Operator> operatorsInSkillRange = new HashSet<Operator>();
     public IReadOnlyCollection<Operator> OperatorsInSkillRange => operatorsInSkillRange;
@@ -143,7 +144,6 @@ public class EnemyBoss : Enemy
     {
         if (target is Operator op && op.IsDeployed)
         {
-            Debug.LogWarning($"스킬 범위에 {op}가 들어옴");
             operatorsInSkillRange.Add(op);
         }
     }

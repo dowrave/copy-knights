@@ -102,7 +102,7 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity
 
     protected DespawnReason currentDespawnReason = DespawnReason.Null;
 
-    protected bool isInitialized = false; 
+    protected bool isInitialized = false;
 
     // 스태틱 이벤트 테스트
     // public static event Action<Enemy> OnEnemyDestroyed; // 죽는 상황 + 목적지에 도달해서 사라지는 상황 모두 포함
@@ -319,9 +319,9 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity
     // 대기 중일 때 실행
     protected IEnumerator WaitAtNode(float waitTime)
     {
-        isWaiting = true;
+        SetIsWaiting(true);
         yield return new WaitForSeconds(waitTime);
-        isWaiting = false;
+        SetIsWaiting(false);
 
         UpdateNextNode();
     }
@@ -897,6 +897,11 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity
             //    rotationSpeed * Time.deltaTime
             //    );
         }
+    }
+
+    public void SetIsWaiting(bool isWaiting)
+    {
+        this.isWaiting = isWaiting;
     }
 
     protected virtual void SetSkills() { }

@@ -35,6 +35,7 @@ public class SelfReturnVFXController : MonoBehaviour, IPooledObject
 
         // 생명주기 코루틴 시작
         // 즉발 스킬이라면 짧은 시간만 보여주고 사라짐
+        ps.Play(true);
         float lifeTime = (duration > 0f) ? duration : 1.0f;
         _lifeCycleCoroutine = StartCoroutine(LifeCycle(lifeTime));
     }

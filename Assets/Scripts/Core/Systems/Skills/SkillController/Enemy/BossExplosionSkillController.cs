@@ -11,8 +11,6 @@ public class BossExplosionSkillController : FieldEffectController
 
     private float casterAttackPower; // 스킬 시전 시점의 캐스터 공격력
     private UnitEntity mainTarget;
-    private float fallDuration; // 해 파티클 낙하 시간
-    private float lingeringDuration; // 폭발 후 틱 대미지 효과 지속 시간 
 
     private void Awake()
     {
@@ -35,6 +33,7 @@ public class BossExplosionSkillController : FieldEffectController
         this.skillRangeGridPositions = skillRangeGridPositions;
         mainTarget = target;
 
+        StopAllCoroutines();
         StartCoroutine(PlaySkillCoroutine());
     }
 
@@ -48,9 +47,10 @@ public class BossExplosionSkillController : FieldEffectController
         FallingSunVFXController sunParticleSystem = sunParticleObj.GetComponent<FallingSunVFXController>();
         if (sunParticleSystem != null)
         {
-            sunParticleSystem.Initialize(fallDuration);
+            sunParticleSystem.Initialize(caster, skillData, skillData.FallDuration);
         }
-        yield return new WaitForSeconds(fallDuration); // 낙하시간 동안 대기
+
+        yield return new WaitForSeconds(skillData.FallDuration); // 낙하시간 동안 대기
 
         // 3. 낙하 후에 폭발 이펙트 실행, 대미지를 가함
         PlayExplosionVFX();
@@ -60,14 +60,15 @@ public class BossExplosionSkillController : FieldEffectController
         PlayPeriodicVFX();
         StartCoroutine(PeriodicEffectCoroutine());
 
-        yield return new WaitForSeconds(lingeringDuration); // 필드 지속시간 동안 대기
+        yield return new WaitForSeconds(skillData.LingeringDuration); // 필드 지속시간 동안 대기
 
+
+        Debug.Log($"[BossExplosionSkillController]오브젝트가 풀로 돌아감");
         ObjectPoolManager.Instance.ReturnToPool(skillData.GetSkillControllerTag(caster), gameObject); // 풀로 되돌림
     }
 
     private void VisualizeSkillRange(UnitEntity caster)
     {
-        Debug.LogWarning($"caster : {caster}");
         if (skillData.GetSkillRangeVFXTag(caster) == string.Empty)
         {
             Debug.LogError("[BossExplosionSkillController]스킬 범위 프리팹이 할당되지 않은 듯");
@@ -93,7 +94,7 @@ public class BossExplosionSkillController : FieldEffectController
                     {
                         // 실행 주기는 컨트롤러 자체에서 관리됨
                         // 떨어지는 동안만 범위 표시 이펙트를 보여줌
-                        controller.Initialize(pos, skillRangeGridPositions, fallDuration); 
+                        controller.Initialize(pos, skillRangeGridPositions, skillData.FallDuration); 
                     }
                 }
             }
@@ -148,7 +149,7 @@ public class BossExplosionSkillController : FieldEffectController
     private IEnumerator PeriodicEffectCoroutine()
     {
         float elapsedTime = 0f;
-        while (elapsedTime < lingeringDuration)
+        while (elapsedTime < skillData.LingeringDuration)
         {
             // 폭발 이후에 바로 대미지가 들어가지 않게 함
             yield return new WaitForSeconds(skillData.TickInterval);
@@ -190,7 +191,7 @@ public class BossExplosionSkillController : FieldEffectController
                     SelfReturnVFXController groundVFX = vfxObj.GetComponent<SelfReturnVFXController>();
                     if (groundVFX != null)
                     {
-                        groundVFX.Initialize(lingeringDuration);
+                        groundVFX.Initialize(skillData.LingeringDuration);
                     }
                 }
             }

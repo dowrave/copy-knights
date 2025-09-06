@@ -68,19 +68,23 @@ namespace Skills.Base
 
             if (controller != null)
             {
-                controllerObject.transform.SetParent(caster.gameObject.transform);
+                // controllerObject.transform.SetParent(caster.gameObject.transform);
 
                 // 1. Caster 위치에 Cast 이펙트를 실행함
                 GameObject castVFXObject = ObjectPoolManager.Instance.SpawnFromPool(GetCastVFXTag(caster), caster.transform.position, Quaternion.identity);
-                castVFXObject.transform.SetParent(caster.gameObject.transform);
+                // castVFXObject.transform.SetParent(caster.gameObject.transform);
                 SelfReturnVFXController castVFX = castVFXObject.GetComponent<SelfReturnVFXController>();
                 if (castVFX != null)
                 {
+                    Debug.Log("[BossExplosionSkill]스킬 시전 이펙트 시작");
                     castVFX.Initialize(castTime);
                 }
+                caster.SetIsWaiting(true);
+
                 // 시전 동작 중에는 대기 - 이거 기다리는 중에 비활성화되면 그 아래는 실행되지 않음
                 yield return new WaitForSeconds(castTime);
 
+                caster.SetIsWaiting(false);
                 ObjectPoolManager.Instance.ReturnToPool(GetCastVFXTag(caster), castVFXObject);
                 
                 // 2. 스킬 시작

@@ -15,7 +15,7 @@ MonoBehaviour:
   skillName: Explosion
   coolTime: 15
   skillType: 2
-  castTime: 0.5
+  castTime: 0.7
   fallDuration: 3
   explosionDamageRatio: 3
   lingeringDuration: 5
