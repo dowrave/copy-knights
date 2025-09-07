@@ -265,7 +265,8 @@ public class Projectile : MonoBehaviour
                 type: attackType,
                 isProjectile: true,
                 hitEffectPrefab: hitEffectPrefab,
-                hitEffectTag: hitEffectTag
+                hitEffectTag: hitEffectTag,
+                showDamagePopup: showValue
             );
 
 
@@ -371,7 +372,7 @@ public class Projectile : MonoBehaviour
                     }
 
                     // 피격 이펙트는 적용하지 않음
-                    target.TakeDamage(source: attackSource, playGetHitEffect: false);
+                    target.TakeDamage(source: attackSource);
                 }
             }
         }

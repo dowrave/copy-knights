@@ -58,7 +58,8 @@ public class AreaHasteHealController: FieldEffectController
                     type: caster.AttackType,
                     isProjectile: true,
                     hitEffectPrefab: hitEffectPrefab,
-                    hitEffectTag: hitEffectTag
+                    hitEffectTag: hitEffectTag,
+                    showDamagePopup: true
                 );
 
                 target.TakeHeal(healSource);

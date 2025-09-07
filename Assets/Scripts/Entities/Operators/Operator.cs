@@ -316,16 +316,14 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
             buff.OnBeforeAttack(this, ref damage, ref finalAttackType, ref showDamagePopup);
         }
 
-
-
         // 실제 공격 수행
         switch (OperatorData.attackRangeType)
         {
             case AttackRangeType.Melee:
-                PerformMeleeAttack(target, damage, showDamagePopup, finalAttackType);
+                PerformMeleeAttack(target, damage, finalAttackType, showDamagePopup);
                 break;
             case AttackRangeType.Ranged:
-                PerformRangedAttack(target, damage, showDamagePopup, finalAttackType);
+                PerformRangedAttack(target, damage, finalAttackType, showDamagePopup);
                 break;
         }
 
@@ -345,7 +343,7 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
 
     }
 
-    protected virtual void PerformMeleeAttack(UnitEntity target, float damage, bool showDamagePopup, AttackType attackType)
+    protected virtual void PerformMeleeAttack(UnitEntity target, float damage, AttackType attackType, bool showDamagePopup = false)
     {
         AttackSource attackSource = new AttackSource(
             attacker: this,
@@ -354,20 +352,15 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
             type: attackType,
             isProjectile: false,
             hitEffectPrefab: OperatorData.HitEffectPrefab,
-            hitEffectTag: hitEffectTag
+            hitEffectTag: hitEffectTag,
+            showDamagePopup: showDamagePopup
         );
 
         PlayMeleeAttackEffect(target, attackSource);
         target.TakeDamage(attackSource);
-
-        // 대미지 팝업 표시
-        if (showDamagePopup)
-        {
-            ObjectPoolManager.Instance!.ShowFloatingText(target.transform.position, damage, false);
-        }
     }
 
-    protected virtual void PerformRangedAttack(UnitEntity target, float damage, bool showDamagePopup, AttackType attackType)
+    protected virtual void PerformRangedAttack(UnitEntity target, float damage, AttackType attackType, bool showDamagePopup = false)
     {
         if (OperatorData.projectilePrefab != null)
         {

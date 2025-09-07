@@ -401,7 +401,8 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity
             type: AttackType,
             isProjectile: false,
             hitEffectPrefab: BaseData.HitEffectPrefab,
-            hitEffectTag: hitEffectTag
+            hitEffectTag: hitEffectTag,
+            showDamagePopup: false
         );
 
         PlayMeleeAttackEffect(target, attackSource);

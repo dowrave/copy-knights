@@ -18,10 +18,23 @@ MonoBehaviour:
   castTime: 0.7
   fallDuration: 3
   explosionDamageRatio: 3
-  lingeringDuration: 5
+  lingeringDuration: 3
   tickInterval: 0.5
   tickDamageRatio: 0.5
-  rangeOffset: []
+  rangeOffset:
+  - {x: -2, y: 0}
+  - {x: -1, y: -1}
+  - {x: -1, y: 0}
+  - {x: -1, y: 1}
+  - {x: 0, y: 2}
+  - {x: 0, y: 1}
+  - {x: 0, y: 0}
+  - {x: 0, y: -1}
+  - {x: 0, y: -2}
+  - {x: 1, y: 1}
+  - {x: 1, y: 0}
+  - {x: 1, y: -1}
+  - {x: 2, y: 0}
   damageMultiplier: 3
   dotDamageMultiplier: 0.3
   skillControllerPrefab: {fileID: 1246316691890282099, guid: 928ea2a4ce6bfb74c9edfd46bb8d596e, type: 3}

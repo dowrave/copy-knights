@@ -42,7 +42,8 @@ public class DualBladeOperator : Operator
                 type: AttackType,
                 isProjectile: false,
                 hitEffectPrefab: null,
-                hitEffectTag: null
+                hitEffectTag: null,
+                showDamagePopup: false
             );
             
             base.PlayMeleeAttackEffect(targetPosition, missAttackSource);

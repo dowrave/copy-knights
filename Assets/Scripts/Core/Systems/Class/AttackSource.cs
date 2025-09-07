@@ -10,8 +10,9 @@ public readonly struct AttackSource
     public float Damage { get; }
     public AttackType Type { get; }
     public UnitEntity Attacker { get; } 
+    public bool ShowDamagePopup { get; }
 
-    public AttackSource(UnitEntity attacker, Vector3 position, float damage, AttackType type, bool isProjectile, GameObject? hitEffectPrefab, string? hitEffectTag)
+    public AttackSource(UnitEntity attacker, Vector3 position, float damage, AttackType type, bool isProjectile, GameObject? hitEffectPrefab, string? hitEffectTag, bool showDamagePopup)
     {
         Attacker = attacker;
         Position = position;
@@ -20,5 +21,6 @@ public readonly struct AttackSource
         IsProjectile = isProjectile;
         HitEffectPrefab = hitEffectPrefab;
         HitEffectTag = hitEffectTag;
+        ShowDamagePopup = showDamagePopup;
     }
 }

@@ -83,7 +83,8 @@ public class ArcaneFieldController : FieldEffectController
                     type: caster.AttackType,
                     isProjectile: true,
                     hitEffectPrefab: hitEffectPrefab,
-                    hitEffectTag: hitEffectTag
+                    hitEffectTag: hitEffectTag,
+                    showDamagePopup: false
                 );
 
                 enemy.TakeDamage(attackSource);

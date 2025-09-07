@@ -188,9 +188,13 @@ public abstract class UnitEntity : MonoBehaviour, ITargettable, IFactionMember, 
         if (attackSource.Attacker is MedicOperator medic && medic.OperatorData.hitEffectPrefab != null)
         {
             PlayGetHitEffect(attackSource);
+            
+            if (actualHealAmount > 0)
+            {
+                ObjectPoolManager.Instance!.ShowFloatingText(transform.position, actualHealAmount, true);
+            }
         }
 
-        ObjectPoolManager.Instance!.ShowFloatingText(transform.position, actualHealAmount, true);
 
 
         if (attackSource.Attacker is Operator healerOperator)
@@ -203,6 +207,9 @@ public abstract class UnitEntity : MonoBehaviour, ITargettable, IFactionMember, 
     {
         GameObject sourceHitEffectPrefab = attackSource.HitEffectPrefab;
         string sourceHitEffectTag = attackSource.HitEffectTag;
+
+        if (sourceHitEffectPrefab == null || sourceHitEffectTag == string.Empty) return;
+
         string attackerName;
 
         if (attackSource.Attacker is Operator op)
@@ -317,7 +324,7 @@ public abstract class UnitEntity : MonoBehaviour, ITargettable, IFactionMember, 
     }
 
 
-    public virtual void TakeDamage(AttackSource source, bool playGetHitEffect = true)
+    public virtual void TakeDamage(AttackSource source)
     {
         // 현재 체력이 0 이하라면 실행되지 않는다
         // 중복해서 실행되는 경우를 방지함
@@ -333,12 +340,16 @@ public abstract class UnitEntity : MonoBehaviour, ITargettable, IFactionMember, 
         CurrentHealth = Mathf.Max(0, CurrentHealth - remainingDamage);
         OnHealthChanged?.Invoke(CurrentHealth, MaxHealth, shieldSystem.CurrentShield);
 
-        // 피격 이펙트 재생
-        if (playGetHitEffect)
+        // 피격 이펙트 재생 - 프리팹, 태그 모두 있을 때만 실행됨
+        PlayGetHitEffect(source);
+
+        // 대미지 팝업
+        if (source.ShowDamagePopup)
         {
-            PlayGetHitEffect(source);
+            ObjectPoolManager.Instance.ShowFloatingText(transform.position, remainingDamage, false);
         }
 
+        // 피격 시의 추가 동작
         OnDamageTaken(source.Attacker, actualDamage);
 
         if (CurrentHealth <= 0)

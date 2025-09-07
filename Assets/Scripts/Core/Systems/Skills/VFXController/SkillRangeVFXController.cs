@@ -8,11 +8,14 @@ using System.Linq;
 // 스킬 범위의 시각적 효과를 관리
 public class SkillRangeVFXController : MonoBehaviour, IPooledObject
 {
-    [Header("Effect Reference")]
+    [Header("Effect Reference(Nullable)")]
     [SerializeField] protected GameObject topEffectObject = default!;
     [SerializeField] protected GameObject bottomEffectObject = default!;
     [SerializeField] protected GameObject leftEffectObject = default!;
     [SerializeField] protected GameObject rightEffectObject = default!;
+    [SerializeField] protected GameObject floorEffectObject = default!;
+
+    [Header("Canvas Image Reference(Nullable)")]
     [SerializeField] protected Image topBoundary = default!;
     [SerializeField] protected Image bottomBoundary = default!;
     [SerializeField] protected Image leftBoundary = default!;
@@ -42,20 +45,40 @@ public class SkillRangeVFXController : MonoBehaviour, IPooledObject
         this.poolTag = tag;
 
         // 초기 : 모든 이펙트 비활성화
+
+        // 방향에 따른 파티클 시스템 / 이미지 비활성화
         foreach (var pair in directionEffects.Values)
         {
-            pair.effect.gameObject.SetActive(false);
-            pair.boundary.gameObject.SetActive(false);
-
-            // 파티클 시스템 초기화
-            ParticleSystem ps = pair.effect.GetComponent<ParticleSystem>();
-            if (ps != null)
+            if (pair.effect != null)
             {
-                ps.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear); 
+                InitializeParticleSystem(pair.effect);
             }
+
+            pair.boundary?.gameObject.SetActive(false);
         }
-        
-        floorImage.gameObject.SetActive(false);
+
+        // 바닥의 파티클 시스템 / 이미지 비활성화
+        InitializeParticleSystem(floorEffectObject);
+        floorImage?.gameObject.SetActive(false);
+    }
+
+    // 파티클 시스템 초기화
+    private void InitializeParticleSystem(GameObject psObject)
+    {
+        if (psObject != null)
+        {
+            psObject.SetActive(false);
+            psObject.GetComponent<ParticleSystem>()?.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
+        }
+    }
+
+    private void PlayParticleSystem(GameObject psObject)
+    {
+        if (psObject != null)
+        {
+            psObject.SetActive(true);
+            psObject.GetComponent<ParticleSystem>()?.Play(true);
+        }
     }
 
     // 시각 효과 설정 및 실행
@@ -78,11 +101,12 @@ public class SkillRangeVFXController : MonoBehaviour, IPooledObject
         // 유효하지 않은 위치는 아무것도 표시하지 않음
         if (MapManager.Instance.CurrentMap == null || !MapManager.Instance.CurrentMap.IsTileAt(position.x, position.y))
         {
-            floorImage.gameObject.SetActive(false);
+            floorImage?.gameObject.SetActive(false);
             return;
         }
 
-        floorImage.gameObject.SetActive(true);
+        floorImage?.gameObject.SetActive(true);
+        PlayParticleSystem(floorEffectObject);
 
         // 방향에 따른 타일 검사로 이펙트 실행 여부 결정
         foreach (var direction in directions)
@@ -92,15 +116,12 @@ public class SkillRangeVFXController : MonoBehaviour, IPooledObject
 
             var (effectObject, boundary) = directionEffects[direction];
 
-            effectObject.SetActive(showEffect);
-            boundary.gameObject.SetActive(showEffect);
-
-            // 파티클 시스템으로 구현된 경우 파티클 시스템을 실행시킴
-            ParticleSystem directionParticleSystem = effectObject.GetComponent<ParticleSystem>();
-            if (directionParticleSystem != null)
+            if (effectObject != null)
             {
-                directionParticleSystem.Play();
+                PlayParticleSystem(effectObject);
             }
+
+            boundary?.gameObject.SetActive(showEffect);
         }
 
         // 언덕 타일 위치 보정

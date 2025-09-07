@@ -110,15 +110,16 @@ public class BossExplosionSkillController : FieldEffectController
             type: AttackType.Magical,
             isProjectile: false,
             hitEffectPrefab: skillData.HitVFXPrefab,
-            hitEffectTag: skillData.GetHitVFXTag(caster)
+            hitEffectTag: skillData.GetHitVFXTag(caster),
+            showDamagePopup: true
         );
 
         foreach (Vector2Int gridPos in skillRangeGridPositions)
         {
             Tile tile = MapManager.Instance.GetTile(gridPos.x, gridPos.y);
-            if (tile.OccupyingDeployable is Operator op)
+            if (tile?.OccupyingDeployable is Operator op)
             {
-                op.TakeDamage(attackSource, true);
+                op.TakeDamage(attackSource);
             }
         }
     }
@@ -133,15 +134,16 @@ public class BossExplosionSkillController : FieldEffectController
             type: AttackType.Magical,
             isProjectile: false,
             hitEffectPrefab: skillData.HitVFXPrefab,
-            hitEffectTag: skillData.GetHitVFXTag(caster)
+            hitEffectTag: skillData.GetHitVFXTag(caster),
+            showDamagePopup: false
         );
 
         foreach (Vector2Int gridPos in skillRangeGridPositions)
         {
             Tile tile = MapManager.Instance.GetTile(gridPos.x, gridPos.y);
-            if (tile.OccupyingDeployable is Operator op)
+            if (tile?.OccupyingDeployable is Operator op)
             {
-                op.TakeDamage(attackSource, true);
+                op.TakeDamage(attackSource);
             }
         }
     }
@@ -188,10 +190,10 @@ public class BossExplosionSkillController : FieldEffectController
 
                 if (vfxObj != null)
                 {
-                    SelfReturnVFXController groundVFX = vfxObj.GetComponent<SelfReturnVFXController>();
+                    SkillRangeVFXController groundVFX = vfxObj.GetComponent<SkillRangeVFXController>();
                     if (groundVFX != null)
                     {
-                        groundVFX.Initialize(skillData.LingeringDuration);
+                        groundVFX.Initialize(pos, skillRangeGridPositions, skillData.LingeringDuration);
                     }
                 }
             }

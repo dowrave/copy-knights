@@ -85,7 +85,7 @@ public class MedicOperator : Operator
         // 즉 Melee여도 원거리를 가질 수 있음 -- 사정거리랑 공격 타입을 별도로 구현했기 때문에 이런 현상이 발생했다.
         if (OperatorData.attackRangeType == AttackRangeType.Ranged)
         {
-            base.PerformRangedAttack(target, healValue, true, AttackType);
+            base.PerformRangedAttack(target, healValue, AttackType);
         }
         else
         {
@@ -96,7 +96,8 @@ public class MedicOperator : Operator
                 type: AttackType,
                 isProjectile: true,
                 hitEffectPrefab: OperatorData.hitEffectPrefab,
-                hitEffectTag: hitEffectTag
+                hitEffectTag: hitEffectTag,
+                showDamagePopup: false
             );
             target.TakeHeal(attackSource);
         }

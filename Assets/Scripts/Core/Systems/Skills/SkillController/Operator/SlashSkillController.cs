@@ -105,13 +105,13 @@ public class SlashSkillController : MonoBehaviour
                     type: attacker.AttackType,
                     isProjectile: false,
                     hitEffectPrefab: hitEffectPrefab,
-                    hitEffectTag: hitEffectTag
+                    hitEffectTag: hitEffectTag,
+                    showDamagePopup: false
                 );
 
-                enemy.TakeDamage(attackSource, true);
+                enemy.TakeDamage(attackSource);
 
                 // enemy.TakeDamage(...);
-                Debug.Log($"{enemy.name}에게 {attackSource}의 데미지 적용!");
 
                 // 피격 이펙트 생성 등...
 
