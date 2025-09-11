@@ -4902,7 +4902,7 @@ GameObject:
   m_Component:
   - component: {fileID: 6191846525181953743}
   m_Layer: 0
-  m_Name: VFX_BossSkill_Explosion_v1
+  m_Name: VFX_BossSkill_Explosion_Explosion
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

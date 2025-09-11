@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 8322499404933615350}
   - component: {fileID: 972874770594168502}
   m_Layer: 0
-  m_Name: Skill_Boss_Explosion
+  m_Name: BossSkill_Explosion
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

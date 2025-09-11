@@ -4846,7 +4846,7 @@ GameObject:
   - component: {fileID: 1949359504468249977}
   - component: {fileID: 8934747139861471517}
   m_Layer: 0
-  m_Name: vfx_Skill_Meteor
+  m_Name: VFX_Skill_Meteor
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

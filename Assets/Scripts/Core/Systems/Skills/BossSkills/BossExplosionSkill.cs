@@ -32,6 +32,12 @@ namespace Skills.Base
         [SerializeField] private GameObject crackedGroundVFXPrefab = default!;
         [SerializeField] private GameObject explosionVFXPrefab = default!;
 
+        [Header("VFX Duration")]
+        [SerializeField] private float castVFXDuration = 0.5f;
+        [SerializeField] private float fallingSunVFXDuration = 3f;
+        [SerializeField] private float skillRangeVFXDuration = 3f;
+        [SerializeField] private float lingeringVFXDuration = 3f;
+
         // 여기서 상태를 갖지 않는 게 베스트이기 떄문에 Stateless 패턴으로 만들어봄
         // 상태를 갖는 게 아니라 고정된 값을 반환하는 메서드를 구현한다는 개념임
         // 참고) 필드로 $"{caster}" 를 구현하지 못한다고 나옴
@@ -77,7 +83,7 @@ namespace Skills.Base
                 if (castVFX != null)
                 {
                     Debug.Log("[BossExplosionSkill]스킬 시전 이펙트 시작");
-                    castVFX.Initialize(castTime);
+                    castVFX.Initialize(castVFXDuration);
                 }
                 caster.SetIsWaiting(true);
 
@@ -86,7 +92,7 @@ namespace Skills.Base
 
                 caster.SetIsWaiting(false);
                 ObjectPoolManager.Instance.ReturnToPool(GetCastVFXTag(caster), castVFXObject);
-                
+
                 // 2. 스킬 시작
                 controller.Initialize(caster, caster.GetCurrentSkillRange(), target);
             }
@@ -155,5 +161,11 @@ namespace Skills.Base
         // VFX Prefab
         public GameObject CastVFXPrefab => castVFXPrefab;
         public GameObject HitVFXPrefab => hitVFXPrefab;
+
+        // VFX Duration 
+        public float CastVFXDuration => castVFXDuration;
+        public float FallingSunVFXDuration => fallingSunVFXDuration;
+        public float SkillRangeVFXDuration => skillRangeVFXDuration;
+        public float LingeringVFXDuration => lingeringVFXDuration;
     }
 }

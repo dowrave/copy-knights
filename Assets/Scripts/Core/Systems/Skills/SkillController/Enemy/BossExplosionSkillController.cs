@@ -21,11 +21,6 @@ public class BossExplosionSkillController : FieldEffectController
         }
     }
 
-    // private void Start()
-    // {
-    //     StartCoroutine(PlaySkillCoroutine());
-    // }
-
     public void Initialize(UnitEntity caster, IReadOnlyCollection<Vector2Int> skillRangeGridPositions, UnitEntity target)
     {
         this.caster = caster;
@@ -47,7 +42,7 @@ public class BossExplosionSkillController : FieldEffectController
         FallingSunVFXController sunParticleSystem = sunParticleObj.GetComponent<FallingSunVFXController>();
         if (sunParticleSystem != null)
         {
-            sunParticleSystem.Initialize(caster, skillData, skillData.FallDuration);
+            sunParticleSystem.Initialize(caster, skillData, skillData.FallingSunVFXDuration);
         }
 
         yield return new WaitForSeconds(skillData.FallDuration); // 낙하시간 동안 대기
@@ -193,7 +188,7 @@ public class BossExplosionSkillController : FieldEffectController
                     SkillRangeVFXController groundVFX = vfxObj.GetComponent<SkillRangeVFXController>();
                     if (groundVFX != null)
                     {
-                        groundVFX.Initialize(pos, skillRangeGridPositions, skillData.LingeringDuration);
+                        groundVFX.Initialize(pos, skillRangeGridPositions, skillData.LingeringVFXDuration);
                     }
                 }
             }

@@ -10,7 +10,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 50fda232ad4a8b041a0c622ad3fa8de9, type: 3}
-  m_Name: BossExplosionSkill
+  m_Name: BossSkill_Explosion
   m_EditorClassIdentifier: 
   skillName: Explosion
   coolTime: 15
@@ -44,3 +44,7 @@ MonoBehaviour:
   skillRangeVFXPrefab: {fileID: 4360018886635934139, guid: b9c57268af45969499c8f5b19c797d5d, type: 3}
   crackedGroundVFXPrefab: {fileID: 3605300188270822406, guid: d2d07ce2b4c8fd445b578498f8ea1b7f, type: 3}
   explosionVFXPrefab: {fileID: 3605300188270822406, guid: b59472707066874428f24ae9c4bf6d7c, type: 3}
+  castVFXDuration: 0.7
+  fallingSunVFXDuration: 3
+  skillRangeVFXDuration: 3
+  lingeringVFXDuration: 4

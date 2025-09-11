@@ -13,7 +13,7 @@ public class SkillRangeVFXController : MonoBehaviour, IPooledObject
     [SerializeField] protected GameObject bottomEffectObject = default!;
     [SerializeField] protected GameObject leftEffectObject = default!;
     [SerializeField] protected GameObject rightEffectObject = default!;
-    [SerializeField] protected GameObject floorEffectObject = default!;
+    [SerializeField] protected GameObject floorEffectObject = default!; // 바닥에 오는 파티클 시스템
 
     [Header("Canvas Image Reference(Nullable)")]
     [SerializeField] protected Image topBoundary = default!;
@@ -58,7 +58,9 @@ public class SkillRangeVFXController : MonoBehaviour, IPooledObject
         }
 
         // 바닥의 파티클 시스템 / 이미지 비활성화
+
         InitializeParticleSystem(floorEffectObject);
+        
         floorImage?.gameObject.SetActive(false);
     }
 
@@ -106,7 +108,9 @@ public class SkillRangeVFXController : MonoBehaviour, IPooledObject
         }
 
         floorImage?.gameObject.SetActive(true);
+
         PlayParticleSystem(floorEffectObject);
+    
 
         // 방향에 따른 타일 검사로 이펙트 실행 여부 결정
         foreach (var direction in directions)
