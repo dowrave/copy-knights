@@ -94,7 +94,7 @@ namespace Skills.Base
                 ObjectPoolManager.Instance.ReturnToPool(GetCastVFXTag(caster), castVFXObject);
 
                 // 2. 스킬 시작
-                controller.Initialize(caster, caster.GetCurrentSkillRange(), target);
+                controller.Initialize(caster, caster.GetCurrentSkillRange(), target.transform.position);
             }
         }
 

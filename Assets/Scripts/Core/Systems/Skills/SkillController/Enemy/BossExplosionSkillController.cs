@@ -11,6 +11,7 @@ public class BossExplosionSkillController : FieldEffectController
 
     private float casterAttackPower; // 스킬 시전 시점의 캐스터 공격력
     private UnitEntity mainTarget;
+    private Vector3 centerPosition;
 
     private void Awake()
     {
@@ -21,12 +22,12 @@ public class BossExplosionSkillController : FieldEffectController
         }
     }
 
-    public void Initialize(UnitEntity caster, IReadOnlyCollection<Vector2Int> skillRangeGridPositions, UnitEntity target)
+    public void Initialize(UnitEntity caster, IReadOnlyCollection<Vector2Int> skillRangeGridPositions, Vector3 centerPosition)
     {
         this.caster = caster;
         casterAttackPower = caster.AttackPower;
         this.skillRangeGridPositions = skillRangeGridPositions;
-        mainTarget = target;
+        this.centerPosition = centerPosition;
 
         StopAllCoroutines();
         StartCoroutine(PlaySkillCoroutine());
@@ -38,7 +39,7 @@ public class BossExplosionSkillController : FieldEffectController
         VisualizeSkillRange(caster);
 
         // 2. 해 파티클 목표 위치에 떨어지는 효과 실행
-        GameObject sunParticleObj = ObjectPoolManager.Instance.SpawnFromPool(skillData.GetFallingSunVFXTag(caster), mainTarget.transform.position, Quaternion.identity);
+        GameObject sunParticleObj = ObjectPoolManager.Instance.SpawnFromPool(skillData.GetFallingSunVFXTag(caster), centerPosition, Quaternion.identity);
         FallingSunVFXController sunParticleSystem = sunParticleObj.GetComponent<FallingSunVFXController>();
         if (sunParticleSystem != null)
         {
@@ -157,7 +158,7 @@ public class BossExplosionSkillController : FieldEffectController
 
     private void PlayExplosionVFX()
     {
-        GameObject explosionObject = ObjectPoolManager.Instance.SpawnFromPool(skillData.GetExplosionVFXTag(caster), mainTarget.transform.position, Quaternion.identity);
+        GameObject explosionObject = ObjectPoolManager.Instance.SpawnFromPool(skillData.GetExplosionVFXTag(caster), centerPosition, Quaternion.identity);
 
         ParticleSystem explosionVFX = explosionObject.GetComponent<ParticleSystem>();
         if (explosionVFX != null)
