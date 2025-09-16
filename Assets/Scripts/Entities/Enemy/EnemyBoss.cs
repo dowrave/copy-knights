@@ -98,18 +98,8 @@ public class EnemyBoss : Enemy
         }
     }
 
-
-    protected override void DecideAndPerformAction()
-    {
-        if (TryUseSkill())
-        {
-            return;
-        }
-
-        base.DecideAndPerformAction();
-    }
-
-    private bool TryUseSkill()
+    // Enemy.DecideAndPerformAction에서 사용
+    protected override bool TryUseSkill()
     {
         // 공통 쿨다운일 때는 실행되지 않음
         if (currentGlobalCooldown > 0f) return false;

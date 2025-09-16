@@ -86,12 +86,12 @@ namespace Skills.Base
                     castVFX.Initialize(castVFXDuration);
                 }
                 caster.SetIsWaiting(true);
+                caster.SetStopAttacking(true);
 
                 // 시전 동작 중에는 대기 - 이거 기다리는 중에 비활성화되면 그 아래는 실행되지 않음
                 yield return new WaitForSeconds(castTime);
-
                 caster.SetIsWaiting(false);
-                ObjectPoolManager.Instance.ReturnToPool(GetCastVFXTag(caster), castVFXObject);
+                caster.SetStopAttacking(false);
 
                 // 2. 스킬 시작
                 controller.Initialize(caster, caster.GetCurrentSkillRange(), target.transform.position);

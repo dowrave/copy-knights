@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: BossSkill_Explosion
   m_EditorClassIdentifier: 
   skillName: Explosion
-  coolTime: 15
+  coolTime: 30
   skillType: 2
   castTime: 0.7
   fallDuration: 3

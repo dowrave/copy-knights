@@ -109,6 +109,7 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
     protected Vector2Int operatorGridPos;
     protected List<Vector2Int> baseOffsets = new List<Vector2Int>(); // 기본 오프셋
     protected List<Vector2Int> rotatedOffsets = new List<Vector2Int>(); // 회전 반영 오프셋
+    public Vector2Int OperatorGridPos => operatorGridPos;
     public List<Vector2Int> CurrentAttackableGridPos { get; set; } = new List<Vector2Int>(); // 회전 반영 공격 범위(gridPosition), public set은 스킬 때문에
     public Vector3 FacingDirection { get; protected set; } = Vector3.left;
     

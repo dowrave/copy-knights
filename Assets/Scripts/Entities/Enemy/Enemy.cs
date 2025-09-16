@@ -49,10 +49,16 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity
     protected List<UnitEntity> targetsInRange = new List<UnitEntity>();
     protected PathNode nextNode = default!;
     protected int nextNodeIndex = 0; // 시작하자마자 1이 됨
-    protected Vector3 nextPosition; // 다음 노드의 좌표
+    protected Vector3 nextNodeWorldPosition; // 다음 노드의 좌표
     protected Vector3 destinationPosition; // 목적지
-    protected bool isWaiting = false;
+    protected bool isWaiting = false; // 단순히 위치에서 기다리는 상태
+    protected bool stopAttacking = false; // 인위적으로 넣은 공격 가능 / 불가능 상태
     protected Barricade? targetBarricade;
+
+    public PathNode NextNode => nextNode;
+    public Vector3 NextNodeWorldPosition => nextNodeWorldPosition; 
+    public Vector3 DestinationPosition => DestinationPosition; 
+    
 
     protected Operator? blockingOperator; // 자신을 저지 중인 오퍼레이터
     public Operator? BlockingOperator => blockingOperator;
@@ -232,10 +238,12 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity
             // 공격 범위 내의 적 리스트 & 현재 공격 대상 갱신
             SetCurrentTarget();
 
+            if (TryUseSkill()) return;
+
             // 저지당함 - 근거리 공격
             if (blockingOperator != null && CurrentTarget == blockingOperator)
             {
-                if (AttackCooldown <= 0)
+                if (CanAttack())
                 {
                     PerformMeleeAttack(CurrentTarget!, AttackPower);
                 }
@@ -263,6 +271,9 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity
         }
     }
 
+    // 보스에서 사용
+    protected virtual bool TryUseSkill() { return false; }
+
     // pathData.nodes를 이용해 currentPath 초기화
     protected void InitializeCurrentPath()
     {
@@ -279,7 +290,7 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity
     // 경로를 따라 이동
     protected void MoveAlongPath()
     {
-        if (nextPosition == null || destinationPosition == null) throw new InvalidOperationException("다음/목적지 노드가 설정되어있지 않음");
+        if (nextNodeWorldPosition == null || destinationPosition == null) throw new InvalidOperationException("다음/목적지 노드가 설정되어있지 않음");
 
         if (CheckIfReachedDestination())
         {
@@ -287,11 +298,11 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity
             return;
         }
 
-        Move(nextPosition);
+        Move(nextNodeWorldPosition);
         RotateModelTowardsMovementDirection();
 
         // 노드 도달 확인
-        if (Vector3.Distance(transform.position, nextPosition) < 0.05f)
+        if (Vector3.Distance(transform.position, nextNodeWorldPosition) < 0.05f)
         {
             // 목적지 도달
             if (Vector3.Distance(transform.position, destinationPosition) < 0.05f)
@@ -326,16 +337,19 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity
         UpdateNextNode();
     }
 
+    // 노드를 갱신해야 하는 상황에 호출
     // 다음 노드 인덱스를 설정하고 현재 목적지로 지정함
-    protected void UpdateNextNode()
+    // 스킬에서 접근할 수 있게 public으로 변경
+    public void UpdateNextNode()
     {
-        if (pathData == null || pathData.nodes == null) return;
+        // pathData 관련 데이터 항목이 없거나, 도달할 노드가 마지막 노드인 경우는 실행되지 않음
+        if (pathData == null || pathData.nodes == null || nextNodeIndex >= pathData.nodes.Count - 1) return;
 
         nextNodeIndex++;
         if (nextNodeIndex < pathData.nodes.Count)
         {
             nextNode = pathData.nodes[nextNodeIndex];
-            nextPosition = MapManager.Instance!.ConvertToWorldPosition(nextNode.gridPosition) +
+            nextNodeWorldPosition = MapManager.Instance!.ConvertToWorldPosition(nextNode.gridPosition) +
                 Vector3.up * BaseData.defaultYPosition;
         }
     }
@@ -747,7 +761,8 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity
     {
         return CurrentTarget != null &&
             AttackCooldown <= 0 &&
-            AttackDuration <= 0;
+            AttackDuration <= 0 &&
+            !stopAttacking; 
     }
 
     protected virtual void CreateObjectPool()
@@ -876,7 +891,7 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity
     {
         if (modelContainer == null) return;
 
-        Vector3 direction = nextPosition - transform.position;
+        Vector3 direction = nextNodeWorldPosition - transform.position;
         direction.y = 0f;
         if (direction != Vector3.zero)
         {
@@ -903,6 +918,11 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity
     public void SetIsWaiting(bool isWaiting)
     {
         this.isWaiting = isWaiting;
+    }
+
+    public void SetStopAttacking(bool isAttacking)
+    {
+        this.stopAttacking = isAttacking;
     }
 
     protected virtual void SetSkills() { }

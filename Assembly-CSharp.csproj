@@ -158,6 +158,7 @@
     <Compile Include="Assets\Scripts\Core\Systems\Skills\SkillController\Operator\MeteorController.cs" />
     <Compile Include="Assets\Scripts\UI\Panels\OperatorPromotionPanel.cs" />
     <Compile Include="Assets\Scripts\UI\Components\NotificationToast.cs" />
+    <Compile Include="Assets\Scripts\Core\Systems\Skills\BossSkills\BossSlashThroughSkill.cs" />
     <Compile Include="Assets\Scripts\Core\Systems\Buff\StunOnHitBuff.cs" />
     <Compile Include="Assets\Scripts\Core\Systems\Skills\SkillController\Operator\FieldEffectController.cs" />
     <Compile Include="Assets\Scripts\UI\Panels\OperatorLevelUpPanel.cs" />

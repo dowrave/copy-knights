@@ -3,6 +3,7 @@ using UnityEngine;
 
 // 코루틴에 의한 동작에서, 부모 오브젝트가 파괴되거나 비활성화됐을 때 파티클 시스템이 실행 중이었다면 풀 반환이 되지 않는 상황이 발생함
 // 이 스크립트는 생성된 파티클 시스템이 시간이 지나면 스스로 풀로 돌아가도록 구현됨
+// 비슷한 게 SkillRangeVFXController나 CombatVFXController에도 있는데 얘가 가장 간소화된 버전
 public class SelfReturnVFXController : MonoBehaviour, IPooledObject
 {
     [Header("Effect(Image) Reference")]
