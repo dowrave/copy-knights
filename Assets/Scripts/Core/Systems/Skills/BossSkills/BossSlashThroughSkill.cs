@@ -1,6 +1,7 @@
 using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Skills.Base
 {
@@ -32,7 +33,7 @@ namespace Skills.Base
         public IEnumerator ActivateSequence(EnemyBoss caster, UnitEntity target)
         {
             // 시전 이펙트 실행
-            // PlayVFX(GetCastVFXTag(caster), caster.transform.position, Quaternion.identity, RETURN_POOL_WAIT_TIME);
+            PlayVFX(GetCastVFXTag(caster), caster.transform.position, Quaternion.identity, RETURN_POOL_WAIT_TIME);
             caster.SetIsWaiting(true); // 시전 시간 동안 대기
             caster.SetStopAttacking(true);
             yield return new WaitForSeconds(castTime);
@@ -83,7 +84,14 @@ namespace Skills.Base
             Vector3 moveDirection = GetSlashMoveDirection(caster, target);
 
             // 계산된 방향으로 위치를 이동시킨다.
-            caster.transform.position = target.transform.position + moveDirection * moveDistance; 
+            caster.transform.position = target.transform.position + moveDirection * moveDistance;
+
+            // 지나간 후 저지 상태 수정
+            caster.UpdateBlockingOperator(null);
+            if (target.BlockableEnemies.Contains(caster))
+            {
+                target.UnblockEnemy(caster);
+            }
         }
 
         // 보스가 오퍼레이터를 뚫고 지나갈 때의 이동 방향을 계산함

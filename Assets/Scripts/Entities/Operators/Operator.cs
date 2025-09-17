@@ -494,13 +494,13 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
             currentBlockCount + enemy.BlockCount <= MaxBlockableEnemies; // 이 적을 저지했을 때 최대 저지 수를 초과하지 않음
     }
 
-    protected void BlockEnemy(Enemy enemy)
+    public void BlockEnemy(Enemy enemy)
     {
         blockedEnemies.Add(enemy);
         currentBlockCount += enemy.BlockCount;
     }
 
-    protected void UnblockEnemy(Enemy enemy)
+    public void UnblockEnemy(Enemy enemy)
     {
         blockedEnemies.Remove(enemy);
         currentBlockCount -= enemy.BlockCount;

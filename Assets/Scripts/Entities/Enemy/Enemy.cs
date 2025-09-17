@@ -59,7 +59,6 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity
     public Vector3 NextNodeWorldPosition => nextNodeWorldPosition; 
     public Vector3 DestinationPosition => DestinationPosition; 
     
-
     protected Operator? blockingOperator; // 자신을 저지 중인 오퍼레이터
     public Operator? BlockingOperator => blockingOperator;
     protected UnitEntity? _currentTarget;
