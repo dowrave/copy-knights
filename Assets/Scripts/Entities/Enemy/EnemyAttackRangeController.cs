@@ -18,7 +18,7 @@ public class EnemyAttackRangeController : MonoBehaviour
         // 콜라이더 = 공격 범위 반경 설정
         if (enemyData.AttackRangeType == AttackRangeType.Ranged)
         {
-            attackRangeCollider.radius = enemyData.stats.AttackRange;
+            attackRangeCollider.radius = enemyData.Stats.AttackRange;
         }
         else
         {

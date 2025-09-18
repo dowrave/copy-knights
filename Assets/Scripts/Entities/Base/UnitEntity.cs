@@ -224,10 +224,10 @@ public abstract class UnitEntity : MonoBehaviour, ITargettable, IFactionMember, 
         else if (attackSource.Attacker is Enemy enemy)
         {
             EnemyData enemyData = enemy.BaseData;
-            attackerName = enemyData.entityName;
+            attackerName = enemyData.EntityName;
             if (sourceHitEffectPrefab == null)
             {
-                sourceHitEffectPrefab = enemyData.hitEffectPrefab;
+                sourceHitEffectPrefab = enemyData.HitEffectPrefab;
             }
         }
         else

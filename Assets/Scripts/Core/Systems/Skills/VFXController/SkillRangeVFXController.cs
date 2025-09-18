@@ -119,13 +119,13 @@ public class SkillRangeVFXController : MonoBehaviour, IPooledObject
             bool showEffect = !effectRange.Contains(neighborPos) || !MapManager.Instance.CurrentMap.IsTileAt(neighborPos.x, neighborPos.y);
 
             var (effectObject, boundary) = directionEffects[direction];
+            
+            boundary?.gameObject.SetActive(showEffect);
 
-            if (effectObject != null)
+            if (showEffect && effectObject != null)
             {
                 PlayParticleSystem(effectObject);
             }
-
-            boundary?.gameObject.SetActive(showEffect);
         }
 
         // 언덕 타일 위치 보정

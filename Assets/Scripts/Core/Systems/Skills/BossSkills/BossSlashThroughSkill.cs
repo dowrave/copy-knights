@@ -43,12 +43,19 @@ namespace Skills.Base
             {
                 // 보스가 타겟을 통과해 지나감
                 // op가 죽으면 참조되지 않으니까 이걸 앞에 구현
-                SlashThrough(caster, op);
 
+                // 뚫고 지나갈 방향을 계산한다.
+                Vector3 moveDirection = GetSlashMoveDirection(caster, op);
+
+                // 캐스팅 중에 때리는 위치를 저장함
+                Vector3 beforePosition = caster.transform.position;
+
+                // 뚫고 지나가는 효과 실행
+                SlashThrough(caster, op, moveDirection);
 
                 AttackSource attackSource = new AttackSource(
                     attacker: caster,
-                    position: caster.transform.position, // 크게 상관 없음
+                    position: beforePosition, // Hit 이펙트의 파티클 튀는 방향 때문에 방향 설정이 중요함(지나가면서 때린다는 설정이므로 이전 위치로 설정)
                     damage: caster.AttackPower * damageMultiplier,
                     type: AttackType.Physical,
                     isProjectile: false,
@@ -60,14 +67,15 @@ namespace Skills.Base
                 op.TakeDamage(attackSource);
 
                 // 베고 지나가는 이펙트
-                // PlayVFX(GetSlashVFXTag(caster), caster.transform.position, Quaternion.identity, RETURN_POOL_WAIT_TIME);
+                Quaternion rot = Quaternion.LookRotation(moveDirection);
+                PlayVFX(GetSlashVFXTag(caster), target.transform.position, rot, RETURN_POOL_WAIT_TIME);
             }
 
             caster.SetIsWaiting(false);
             caster.SetStopAttacking(false);
         }
 
-        private void PlayVFX(string vfxTag, Vector3 pos, Quaternion rot, float duration = 1f)
+        private void PlayVFX(string vfxTag, Vector3 pos, Quaternion rot, float duration = 2f)
         {
             GameObject obj = ObjectPoolManager.Instance!.SpawnFromPool(vfxTag, pos, rot);
             SelfReturnVFXController ps = obj.GetComponent<SelfReturnVFXController>();
@@ -78,11 +86,8 @@ namespace Skills.Base
         }
 
         // "뚫고 지나가는 동작"만 구현, 대미지 처리는 별도
-        private void SlashThrough(EnemyBoss caster, Operator target)
+        private void SlashThrough(EnemyBoss caster, Operator target, Vector3 moveDirection)
         {
-            // 뚫고 지나갈 방향을 계산한다.
-            Vector3 moveDirection = GetSlashMoveDirection(caster, target);
-
             // 계산된 방향으로 위치를 이동시킨다.
             caster.transform.position = target.transform.position + moveDirection * moveDistance;
 

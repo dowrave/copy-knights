@@ -19,5 +19,5 @@ MonoBehaviour:
   castTime: 1
   moveDistance: 0.8
   castVFXPrefab: {fileID: 3921939515736912445, guid: cbf1ac6c5f53d2c48bdd57f64c68f45d, type: 3}
-  slashVFXPrefab: {fileID: 0}
+  slashVFXPrefab: {fileID: 5896688173422719362, guid: 840d64780675f99498030869bccec8d5, type: 3}
   hitVFXPrefab: {fileID: 7245273522019326439, guid: 49f1f802a2eb7cc468fa55cfd534274b, type: 3}

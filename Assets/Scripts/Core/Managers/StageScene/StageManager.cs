@@ -383,8 +383,8 @@ public class StageManager : MonoBehaviour
     {
         if (currentState == GameState.Battle)
         {
-            CurrentLifePoints--; // OnLifePointsChanged : 생명력이 깎이면 자동으로 UI 업데이트 발생
-            PassedEnemies++;
+            CurrentLifePoints -= enemy.BaseData.PlayerDamage; // OnLifePointsChanged : 생명력이 깎이면 자동으로 UI 업데이트 발생
+            PassedEnemies += enemy.BaseData.PlayerDamage; 
 
             if (CurrentLifePoints <= 0)
             {

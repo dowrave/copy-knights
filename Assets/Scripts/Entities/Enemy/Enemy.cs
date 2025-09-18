@@ -20,12 +20,12 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity
 
     protected EnemyStats currentStats;
 
-    public override AttackType AttackType => BaseData.attackType;
+    public override AttackType AttackType => BaseData.AttackType;
     public override float AttackPower { get => currentStats.AttackPower; set => currentStats.AttackPower = value; }
     public override float AttackSpeed { get => currentStats.AttackSpeed; set => currentStats.AttackSpeed = value; }
-    public AttackRangeType AttackRangeType => BaseData.attackRangeType;
+    public AttackRangeType AttackRangeType => BaseData.AttackRangeType;
     public override float MovementSpeed { get => currentStats.MovementSpeed; }
-    public int BlockCount { get => BaseData.blockCount; protected set => BaseData.blockCount = value; } // Enemy가 차지하는 저지 수
+    public int BlockCount { get => BaseData.BlockCount; } // Enemy가 차지하는 저지 수, 저지 수 자체가 변하는 로직은 없으니 게터만 구현
     public float AttackCooldown { get; set; } // 다음 공격까지의 대기 시간
     public float AttackDuration { get; set; } // 공격 모션 시간. Animator가 추가될 때 수정 필요할 듯. 항상 Cooldown보다 짧아야 함.
 
@@ -33,7 +33,7 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity
     {
         get
         {
-            return BaseData.attackRangeType == AttackRangeType.Melee ? 0f : currentStats.AttackRange;
+            return BaseData.AttackRangeType == AttackRangeType.Melee ? 0f : currentStats.AttackRange;
         }
         protected set
         {
@@ -41,7 +41,7 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity
         }
     }
 
-    public string EntityName => BaseData.entityName;
+    public string EntityName => BaseData.EntityName;
 
     // 경로 관련
     protected PathData? pathData;
@@ -145,7 +145,7 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity
     {
         this.enemyData = enemyData;
         SetPrefab();
-        currentStats = enemyData.stats;
+        currentStats = enemyData.Stats;
         this.pathData = pathData;
 
         InitializeHP();
@@ -176,7 +176,7 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity
 
     public override void SetPrefab()
     {
-        prefab = enemyData.prefab;
+        prefab = enemyData.Prefab;
     }
 
     protected void OnEnable()
@@ -198,7 +198,7 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity
         if (pathData!.nodes!.Count > 0)
         {
             transform.position = MapManager.Instance!.ConvertToWorldPosition(pathData.nodes![0].gridPosition) +
-                Vector3.up * BaseData.defaultYPosition;
+                Vector3.up * BaseData.DefaultYPosition;
         }
     }
 
@@ -280,7 +280,7 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity
 
         foreach (var node in pathData.nodes)
         {
-            currentPath.Add(MapManager.Instance!.ConvertToWorldPosition(node.gridPosition) + Vector3.up * BaseData.defaultYPosition);
+            currentPath.Add(MapManager.Instance!.ConvertToWorldPosition(node.gridPosition) + Vector3.up * BaseData.DefaultYPosition);
         }
 
         destinationPosition = currentPath[currentPath.Count - 1]; // 목적지 설정
@@ -349,7 +349,7 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity
         {
             nextNode = pathData.nodes[nextNodeIndex];
             nextNodeWorldPosition = MapManager.Instance!.ConvertToWorldPosition(nextNode.gridPosition) +
-                Vector3.up * BaseData.defaultYPosition;
+                Vector3.up * BaseData.DefaultYPosition;
         }
     }
 
@@ -426,7 +426,7 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity
     {
         SetAttackTimings();
         
-        if (BaseData.projectilePrefab != null && projectileTag != null)
+        if (BaseData.ProjectilePrefab != null && projectileTag != null)
         {
             // 투사체 생성 위치
             Vector3 spawnPosition = transform.position;
@@ -437,7 +437,7 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity
                 Projectile? projectile = projectileObj.GetComponent<Projectile>();
                 if (projectile != null)
                 {
-                    projectile.Initialize(this, target, damage, false, projectileTag, BaseData.hitEffectPrefab, hitEffectTag, AttackType);
+                    projectile.Initialize(this, target, damage, false, projectileTag, BaseData.HitEffectPrefab, hitEffectTag, AttackType);
                 }
             }
         }
@@ -452,9 +452,9 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity
     protected void Despawn()
     {
         // 공격 이펙트 프리팹 제거
-        if (BaseData.hitEffectPrefab != null)
+        if (BaseData.HitEffectPrefab != null)
         {
-            ObjectPoolManager.Instance!.RemovePool("Effect_" + BaseData.entityName);
+            ObjectPoolManager.Instance!.RemovePool("Effect_" + BaseData.EntityName);
         }
 
         // UI 제거
@@ -567,10 +567,10 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity
 
     public void InitializeProjectilePool()
     {
-        if (AttackRangeType == AttackRangeType.Ranged && BaseData.projectilePrefab != null)
+        if (AttackRangeType == AttackRangeType.Ranged && BaseData.ProjectilePrefab != null)
         {
-            projectileTag = $"{BaseData.entityName}_Projectile";
-            ObjectPoolManager.Instance!.CreatePool(projectileTag, BaseData.projectilePrefab, initialPoolSize);
+            projectileTag = $"{BaseData.EntityName}_Projectile";
+            ObjectPoolManager.Instance!.CreatePool(projectileTag, BaseData.ProjectilePrefab, initialPoolSize);
         }
     }
 
@@ -767,25 +767,25 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity
     protected virtual void CreateObjectPool()
     {
         // 객체의 종류마다 풀을 공유함
-        string baseTag = BaseData.entityName;
+        string baseTag = BaseData.EntityName;
 
         // 근접 공격 이펙트 풀 생성
-        if (BaseData.meleeAttackEffectPrefab != null)
+        if (BaseData.MeleeAttackEffectPrefab != null)
         {
-            meleeAttackEffectTag = baseTag + BaseData.meleeAttackEffectPrefab.name;
+            meleeAttackEffectTag = baseTag + BaseData.MeleeAttackEffectPrefab.name;
             ObjectPoolManager.Instance!.CreatePool(
                 meleeAttackEffectTag,
-                BaseData.meleeAttackEffectPrefab
+                BaseData.MeleeAttackEffectPrefab
             );
         }
 
         // 적 타격 이펙트 풀 생성
-        if (BaseData.hitEffectPrefab != null)
+        if (BaseData.HitEffectPrefab != null)
         {
-            hitEffectTag = baseTag + BaseData.hitEffectPrefab.name;
+            hitEffectTag = baseTag + BaseData.HitEffectPrefab.name;
             ObjectPoolManager.Instance!.CreatePool(
                 hitEffectTag,
-                BaseData.hitEffectPrefab
+                BaseData.HitEffectPrefab
             );
         }
 
@@ -795,7 +795,7 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity
     protected void PlayMeleeAttackEffect(UnitEntity target, AttackSource attackSource)
     {
         // 이펙트 처리
-        if (meleeAttackEffectTag != null && BaseData.meleeAttackEffectPrefab != null)
+        if (meleeAttackEffectTag != null && BaseData.MeleeAttackEffectPrefab != null)
         {
             
             GameObject? effectObj = ObjectPoolManager.Instance!.SpawnFromPool(

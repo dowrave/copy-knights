@@ -27,7 +27,7 @@ public class EnemyBoss : Enemy
 
     public override void SetPrefab()
     {
-        prefab = bossData.prefab;
+        prefab = bossData.Prefab;
     }
 
     public void Initialize(EnemyBossData bossData, PathData pathData)

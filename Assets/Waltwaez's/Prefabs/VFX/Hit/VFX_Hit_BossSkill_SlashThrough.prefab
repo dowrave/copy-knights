@@ -39157,7 +39157,7 @@ GameObject:
   - component: {fileID: 5998593079746869780}
   - component: {fileID: 1511503781609469826}
   m_Layer: 11
-  m_Name: vfx_Enemy_Boss_Hit_SlashThrough_v1
+  m_Name: VFX_Hit_BossSkill_SlashThrough
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

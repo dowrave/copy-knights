@@ -5,26 +5,42 @@ using UnityEngine;
 public class EnemyData : ScriptableObject, ICombatData
 {
     // UnitData
-    public string entityName = string.Empty;
-    public EnemyStats stats;
-    public GameObject prefab = default!;
+    [SerializeField] protected string entityName = string.Empty;
+    [SerializeField] protected EnemyStats stats;
+    [SerializeField] protected GameObject prefab = default!;
 
     // EnemyData
-    public AttackType attackType;
-    public AttackRangeType attackRangeType;
-    public int blockCount = 1;
-    public float defaultYPosition = 0.5f;
+    [SerializeField] protected AttackType attackType;
+    [SerializeField] protected AttackRangeType attackRangeType;
+    [SerializeField] protected int blockCount = 1;
+    [SerializeField] protected float defaultYPosition = 0.5f;
+    [SerializeField] protected int playerDamage = 1; // 도착 지점에 도착했을 때 차감할 라이프 포인트 수
 
     [Header("For Ranged")]
-    public GameObject? projectilePrefab;
+    [SerializeField] protected GameObject? projectilePrefab;
 
     [Header("VFX Effects")]
-    public GameObject? meleeAttackEffectPrefab; // 근접 공격 이펙트
-    public GameObject hitEffectPrefab = default!; // 공격이 적중했을 때의 이펙트
+    [SerializeField] protected GameObject? meleeAttackEffectPrefab; // 근접 공격 이펙트
+    [SerializeField] protected GameObject hitEffectPrefab = default!; // 공격이 적중했을 때의 이펙트
 
-    public GameObject HitEffectPrefab => hitEffectPrefab;
+    // UnitData 관련 프로퍼티
+    public string EntityName => entityName;
+    public EnemyStats Stats => stats;
+    public GameObject Prefab => prefab;
+
+    // EnemyData 관련 프로퍼티
     public AttackType AttackType => attackType;
     public AttackRangeType AttackRangeType => attackRangeType;
+    public int BlockCount => blockCount;
+    public float DefaultYPosition => defaultYPosition;
+    public int PlayerDamage => playerDamage;
+    
+    // 원거리 공격 관련 프로퍼티
+    public GameObject? ProjectilePrefab => projectilePrefab;
+
+    // 이펙트 관련 프로퍼티
+    public GameObject? MeleeAttackEffectPrefab => meleeAttackEffectPrefab;
+    public GameObject HitEffectPrefab => hitEffectPrefab;
 }
 
 
