@@ -12,12 +12,13 @@ namespace Skills.Base
         [Header("Skill Configuration")]
         [SerializeField] private float damageMultiplier = 1.5f;
         [SerializeField] private float castTime = 1f;
-        [SerializeField] private float moveDistance = .8f; // 오퍼레이터가 위치한 타일에서 벗어나게 하기 위한 이동거리
+        [SerializeField] private float moveDistance = .8f; // 오퍼레이터가 위치한 타일에서 벗어나게 하기 위한 이동
 
         [Header("VFX")]
         [SerializeField] private GameObject castVFXPrefab = default!;
         [SerializeField] private GameObject slashVFXPrefab = default!;
         [SerializeField] private GameObject hitVFXPrefab = default!; // 타격 시 적에게 나타날 이펙트 프리팹
+        [SerializeField] private GameObject crossVFXPrefab = default!; // 뚫기 시작 -> 도착 후에 시전자에게 잠깐 나타나는 이펙트
 
         // VFX 자체가 실행되는 시간은 파티클 시스템에 있고
         // 오브젝트가 풀로 돌아가기까지 걸리는 시간은 기본 2초로 설정(대부분이 이를 넘기지 않을 것 같음)
@@ -32,11 +33,19 @@ namespace Skills.Base
         // 스킬 실행 시의 동작.
         public IEnumerator ActivateSequence(EnemyBoss caster, UnitEntity target)
         {
+
+            float crossVFXStartTime = 0.8f;
+
             // 시전 이펙트 실행
             PlayVFX(GetCastVFXTag(caster), caster.transform.position, Quaternion.identity, RETURN_POOL_WAIT_TIME);
             caster.SetIsWaiting(true); // 시전 시간 동안 대기
             caster.SetStopAttacking(true);
-            yield return new WaitForSeconds(castTime);
+            yield return new WaitForSeconds(crossVFXStartTime);
+
+            // 시전 
+            GameObject crossVFXObj = PlayVFX(GetCrossVFXTag(caster), caster.transform.position, Quaternion.identity, RETURN_POOL_WAIT_TIME);
+            crossVFXObj.transform.SetParent(caster.transform);
+            yield return new WaitForSeconds(castTime - crossVFXStartTime);
 
             // 시전 시간 후에도 타겟이 살아있다면 대미지를 주고 이동
             if (target != null && target is Operator op)
@@ -71,17 +80,28 @@ namespace Skills.Base
                 PlayVFX(GetSlashVFXTag(caster), target.transform.position, rot, RETURN_POOL_WAIT_TIME);
             }
 
+            
+
             caster.SetIsWaiting(false);
             caster.SetStopAttacking(false);
         }
 
-        private void PlayVFX(string vfxTag, Vector3 pos, Quaternion rot, float duration = 2f)
+        private GameObject PlayVFX(string vfxTag, Vector3 pos, Quaternion rot, float duration = 2f)
         {
             GameObject obj = ObjectPoolManager.Instance!.SpawnFromPool(vfxTag, pos, rot);
-            SelfReturnVFXController ps = obj.GetComponent<SelfReturnVFXController>();
-            if (ps != null)
+            if (obj != null)
             {
-                ps.Initialize(duration);
+                SelfReturnVFXController ps = obj.GetComponent<SelfReturnVFXController>();
+                if (ps != null)
+                {
+                    ps.Initialize(duration);
+                }
+
+                return obj;
+            }
+            else
+            {
+                return null;
             }
         }
 
@@ -138,7 +158,7 @@ namespace Skills.Base
             return false;
         }
 
-                public override void InitializeSkillObjectPool(UnitEntity caster)
+        public override void InitializeSkillObjectPool(UnitEntity caster)
         {
             base.InitializeSkillObjectPool(caster);
 
@@ -156,6 +176,11 @@ namespace Skills.Base
             {
                 ObjectPoolManager.Instance.CreatePool(GetCastVFXTag(caster), castVFXPrefab, 1);
             }
+
+            if (crossVFXPrefab != null)
+            {
+                ObjectPoolManager.Instance.CreatePool(GetCrossVFXTag(caster), crossVFXPrefab, 1);
+            }
         }
 
         public float DamageMultiplier => damageMultiplier;
@@ -165,6 +190,8 @@ namespace Skills.Base
         public string GetHitVFXTag(UnitEntity caster) => $"{caster.name}_{skillName}_hit";
         public string GetSlashVFXTag(UnitEntity caster) => $"{caster.name}_{skillName}_slash";
         public string GetCastVFXTag(UnitEntity caster) => $"{caster.name}_{skillName}_cast";
+        public string GetCrossVFXTag(UnitEntity caster) => $"{caster.name}_{skillName}_cross";
+
     }
 
     
