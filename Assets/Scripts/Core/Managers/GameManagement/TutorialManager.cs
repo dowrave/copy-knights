@@ -52,7 +52,7 @@ public class TutorialManager : MonoBehaviour
     {
         Canvas canvas = FindObjectsByType<Canvas>(FindObjectsSortMode.None)[0];
 
-        confirmationPopup = PopupManager.Instance!.ShowConfirmationPopup("최초 실행이 감지되었습니다. 튜토리얼을 진행하시겠습니까?", 
+        confirmationPopup = PopupManager.Instance!.ShowConfirmationPopup("튜토리얼을 진행하시겠습니까?", 
             isCancelButton: true, 
             blurAreaActivation: true,
             onConfirm: CheckStartTutorial,

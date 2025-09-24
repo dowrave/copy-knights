@@ -2682,8 +2682,8 @@
     "m_ObjectId": "6110dd5c31e34ebe840c4033de8d0a01",
     "m_Title": "Moving Noise(Mask)",
     "m_Position": {
-        "x": -2054.000244140625,
-        "y": 326.00006103515627
+        "x": -2054.0,
+        "y": 326.0
     }
 }
 

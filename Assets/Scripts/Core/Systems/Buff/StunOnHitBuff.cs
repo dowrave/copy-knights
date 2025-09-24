@@ -16,7 +16,7 @@ public class StunOnHitBuff : Buff
 
     public override void OnAfterAttack(UnitEntity owner, UnitEntity target)
     {        
-        if (Random.value <= stunChance) // 예를 들어 25%라고 하면 이 조건이 맞음
+        if (Random.value <= stunChance) // x% 확률 = 랜덤값(0~1)이 확률보다 작다 로 구현
         {
             if (target != null && target.CurrentHealth > 0)
             {
