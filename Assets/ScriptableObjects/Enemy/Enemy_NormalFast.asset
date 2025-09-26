@@ -23,12 +23,13 @@ MonoBehaviour:
     _attackSpeed: 0.9
     _attackRange: 0
   prefab: {fileID: 6542749020257112806, guid: d84fe3f977be9b84e912ffd9bc726be9, type: 3}
+  primaryColor: {r: 0.20784314, g: 0.20784314, b: 0.20784314, a: 1}
+  secondaryColor: {r: 0, g: 0, b: 0, a: 0}
   attackType: 0
   attackRangeType: 0
   blockCount: 1
-  projectilePrefab: {fileID: 0}
-  projectileTag: 
   defaultYPosition: 0.5
+  playerDamage: 1
+  projectilePrefab: {fileID: 0}
   meleeAttackEffectPrefab: {fileID: 1249516511906949688, guid: cef22a28277d49547b34e0ada40550fc, type: 3}
   hitEffectPrefab: {fileID: 7245273522019326439, guid: 7efd1727cc772f140a02a7da68da0b49, type: 3}
-  hitEffectTag: 

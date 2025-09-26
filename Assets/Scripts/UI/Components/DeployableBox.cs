@@ -166,15 +166,14 @@ public class DeployableBox : MonoBehaviour, IPointerDownHandler, IBeginDragHandl
         // 아니라면 deployable 모델의 설정을 가져옴
         else if (deployablePrefab != null)
         {
-            Renderer modelRenderer = deployablePrefab.GetComponentInChildren<Renderer>();
-            if (modelRenderer != null && modelRenderer.sharedMaterial != null)
+            if (deployableComponent is Operator && deployableInfo.operatorData != null)
             {
-                operatorIllustImage.color = modelRenderer.sharedMaterial.color;
+                operatorIllustImage.color = deployableInfo.operatorData.PrimaryColor;
             }
         }
 
         // 좌측 하단 정예화 아이콘 활성화 여부
-        if (deployableComponent is Operator op && deployableInfo.ownedOperator.currentPhase == OperatorGrowthSystem.ElitePhase.Elite1)
+        if (deployableComponent is Operator && deployableInfo.ownedOperator.currentPhase == OperatorGrowthSystem.ElitePhase.Elite1)
         {
             promotionIconImage.gameObject.SetActive(true);
         }

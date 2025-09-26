@@ -120,7 +120,9 @@ public class StageUIManager : MonoBehaviour
 
         passedEnemiesBox.gameObject.SetActive(false);
 
-        InitializeListeners();
+        // DeployableManager.Instance.InitializeDeployableUI();
+
+        InitializeListeners();   
     }
 
     public void ShowGameOverUI()

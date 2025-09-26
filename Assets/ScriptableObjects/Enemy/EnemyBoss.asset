@@ -23,6 +23,8 @@ MonoBehaviour:
     _attackSpeed: 1.5
     _attackRange: 0
   prefab: {fileID: 6542749020257112806, guid: 8129b049079fed4449893bee2bfab041, type: 3}
+  primaryColor: {r: 0.8862745, g: 0, b: 0.007843138, a: 1}
+  secondaryColor: {r: 0, g: 0, b: 0, a: 0}
   attackType: 0
   attackRangeType: 0
   blockCount: 1

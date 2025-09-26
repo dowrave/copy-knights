@@ -132,6 +132,11 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity
         // OnDeathAnimationCompleted += HandleDeathAnimationCompleted;
     }
 
+    protected virtual void Start()
+    {
+        AssignColorToRenderers(enemyData.PrimaryColor, enemyData.SecondaryColor);
+    }
+
     // 모델 회전 관련 로직을 쓸 일이 Enemy 뿐이라 여기에 구현해놓음.
     protected void InitializeModelComponents()
     {

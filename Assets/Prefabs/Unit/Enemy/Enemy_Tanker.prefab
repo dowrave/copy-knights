@@ -64,7 +64,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: cde3c34fe458a6f49a899934b8c2fc0d, type: 2}
+  - {fileID: 2100000, guid: db920696042dafd488ac39f460712b15, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -318,7 +318,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: c6fb233832921a34db22bd7621f94862, type: 2}
+  - {fileID: 2100000, guid: db920696042dafd488ac39f460712b15, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -389,6 +389,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   bodyColliderController: {fileID: 2787751714957209555}
+  primaryRenderer: {fileID: 1295280524214356052}
+  secondaryRenderer: {fileID: 3085902501778941878}
   enemyData: {fileID: 11400000, guid: 19e9eea7c1a681241b80af864a1b620d, type: 2}
   enemyBarUIPrefab: {fileID: 4850112300594543659, guid: f855a11e7f642eb4481495480ef1a6e8, type: 3}
   modelContainer: {fileID: 879292670743782935}

@@ -27,6 +27,8 @@ MonoBehaviour:
     _maxBlockableEnemies: 1
     _spRecoveryRate: 1
   prefab: {fileID: 4844663318455565301, guid: 31e73ca025e3495418e76e5305d4b673, type: 3}
+  primaryColor: {r: 0.65882355, g: 0.3372549, b: 0, a: 1}
+  secondaryColor: {r: 0, g: 0, b: 0, a: 0}
   icon: {fileID: 0}
   canDeployOnGround: 0
   canDeployOnHill: 1

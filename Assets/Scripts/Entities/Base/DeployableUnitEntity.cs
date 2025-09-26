@@ -43,6 +43,11 @@ public abstract class DeployableUnitEntity : UnitEntity, IDeployable
         base.Awake();
     }
 
+    protected virtual void Start()
+    {
+        AssignColorToRenderers(DeployableUnitData.PrimaryColor, DeployableUnitData.SecondaryColor);
+    }
+
     public void Initialize(DeployableManager.DeployableInfo deployableInfo)
     {
         DeployableInfo = deployableInfo;

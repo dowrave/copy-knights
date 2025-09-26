@@ -8,6 +8,8 @@ public class EnemyData : ScriptableObject, ICombatData
     [SerializeField] protected string entityName = string.Empty;
     [SerializeField] protected EnemyStats stats;
     [SerializeField] protected GameObject prefab = default!;
+    [SerializeField] protected Color primaryColor;
+    [SerializeField] protected Color secondaryColor; // 필요한 경우만 사용
 
     // EnemyData
     [SerializeField] protected AttackType attackType;
@@ -27,6 +29,8 @@ public class EnemyData : ScriptableObject, ICombatData
     public string EntityName => entityName;
     public EnemyStats Stats => stats;
     public GameObject Prefab => prefab;
+    public Color PrimaryColor => primaryColor;
+    public Color SecondaryColor => secondaryColor;
 
     // EnemyData 관련 프로퍼티
     public AttackType AttackType => attackType;

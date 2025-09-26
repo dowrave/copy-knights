@@ -88,7 +88,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 963b18c036eccbc4d841e120c6be8887, type: 2}
+  - {fileID: 2100000, guid: db920696042dafd488ac39f460712b15, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -158,6 +158,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   bodyColliderController: {fileID: 5374186811871594957}
+  primaryRenderer: {fileID: 5031761690942785426}
+  secondaryRenderer: {fileID: 0}
   currentDeployableStats:
     _baseStats:
       _health: 0

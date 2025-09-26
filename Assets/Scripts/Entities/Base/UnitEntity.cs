@@ -29,13 +29,18 @@ public abstract class UnitEntity : MonoBehaviour, ITargettable, IFactionMember, 
 
     public float MaxHealth { get; protected set; }
 
-    // 이 개체를 공격하는 엔티티 목록 : 이 개체에 변화가 생겼을 때 알리기 위해 필요함(사망, 은신 등등)
+    // 이 개체를 공격하는 엔티티 목록
     protected List<ICombatEntity> attackingEntities = new List<ICombatEntity>();
 
     // 콜라이더는 자식으로 분리
     // 부모 오브젝트에서 콜라이더를 관리할 경우, 여러 개의 콜라이더 처리 시에 문제가 생긴다
     // 콜라이더는 용도에 따라 자식 오브젝트로 따로 둬야 한다.
     [SerializeField] protected BodyColliderController bodyColliderController;
+
+    // 이 객체가 갖고 있는 메쉬 렌더러들
+    [SerializeField] protected Renderer primaryRenderer; 
+    [SerializeField] protected Renderer secondaryRenderer; 
+    protected MaterialPropertyBlock propBlock; // 모든 렌더러에 재사용 가능
 
     // 버프 관련
     protected List<Buff> activeBuffs = new List<Buff>();
@@ -65,7 +70,8 @@ public abstract class UnitEntity : MonoBehaviour, ITargettable, IFactionMember, 
 
     protected virtual void Awake()
     {
-        // 콜라이더가 켜지는 시점은 자식 클래스들에서 수동으로 구현함
+        // 메쉬 색상 설정
+        propBlock = new MaterialPropertyBlock();
 
         // 쉴드 시스템 설정
         shieldSystem = new ShieldSystem();
@@ -74,9 +80,10 @@ public abstract class UnitEntity : MonoBehaviour, ITargettable, IFactionMember, 
             OnHealthChanged?.Invoke(CurrentHealth, MaxHealth, shield);
         };
 
+        // 콜라이더가 켜지는 시점은 자식 클래스들에서 수동으로 구현함
     }
 
-    public virtual void SetPrefab() {}
+    public virtual void SetPrefab() { }
 
     public virtual void AddAttackingEntity(ICombatEntity attacker)
     {
@@ -108,9 +115,7 @@ public abstract class UnitEntity : MonoBehaviour, ITargettable, IFactionMember, 
 
     protected void PlayDeathAnimation()
     {
-        Renderer[] renderers = GetComponentsInChildren<Renderer>();
-
-        if (renderers == null || renderers.Length == 0)
+        if (primaryRenderer == null)
         {
             OnDeathAnimationCompleted?.Invoke(this);
             Destroy(gameObject);
@@ -121,6 +126,9 @@ public abstract class UnitEntity : MonoBehaviour, ITargettable, IFactionMember, 
         Sequence deathSequence = DOTween.Sequence();
 
         List<Material> materialInstances = new List<Material>();
+        List<Renderer> renderers = new List<Renderer>();
+        if (primaryRenderer != null) renderers.Add(primaryRenderer);
+        if (secondaryRenderer != null) renderers.Add(secondaryRenderer);
 
         foreach (Renderer renderer in renderers)
         {
@@ -200,6 +208,23 @@ public abstract class UnitEntity : MonoBehaviour, ITargettable, IFactionMember, 
         if (attackSource.Attacker is Operator healerOperator)
         {
             StatisticsManager.Instance!.UpdateHealingDone(healerOperator.OperatorData, actualHealAmount);
+        }
+    }
+
+    protected virtual void AssignColorToRenderers(Color primaryColor, Color secondaryColor)
+    {
+        if (primaryRenderer != null)
+        {
+            primaryRenderer.GetPropertyBlock(propBlock);
+            propBlock.SetColor("_BaseColor", primaryColor); // URP Lit 기준
+            primaryRenderer.SetPropertyBlock(propBlock);
+        }
+            
+        if (secondaryRenderer != null)
+        {
+            secondaryRenderer.GetPropertyBlock(propBlock);
+            propBlock.SetColor("_BaseColor", secondaryColor); // URP Lit 기준
+            secondaryRenderer.SetPropertyBlock(propBlock);
         }
     }
 

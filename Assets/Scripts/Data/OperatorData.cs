@@ -11,6 +11,8 @@ public class OperatorData : ScriptableObject, ICombatData
     public OperatorClass operatorClass;
     public OperatorStats stats; // 초기값 할당이 없어도 nullable과 상관 없나봄
     public GameObject prefab = default!;
+    [SerializeField] protected Color primaryColor;
+    [SerializeField] protected Color secondaryColor; // 필요한 경우만 사용
 
     // DeployableUnitData
     public Sprite? icon; // 오퍼레이터에 사용될 그림. null일 수 있다고 하겠음
@@ -41,8 +43,10 @@ public class OperatorData : ScriptableObject, ICombatData
     public ElitePhaseUnlocks elite1Unlocks = default!;
 
     [Header("Promotion Required Items")]
-    public List<PromotionItems> promotionItems = default!; 
+    public List<PromotionItems> promotionItems = default!;
 
+    public Color PrimaryColor => primaryColor; 
+    public Color SecondaryColor => secondaryColor; 
     public GameObject HitEffectPrefab => hitEffectPrefab;
     public AttackType AttackType => attackType;
     public AttackRangeType AttackRangeType => attackRangeType;

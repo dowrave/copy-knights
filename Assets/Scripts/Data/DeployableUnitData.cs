@@ -8,6 +8,8 @@ public class DeployableUnitData : ScriptableObject
     public string entityName = string.Empty;
     public DeployableUnitStats stats;
     public GameObject prefab = default!;
+    [SerializeField] protected Color primaryColor;
+    [SerializeField] protected Color secondaryColor; // 필요한 경우만 사용
 
     // DeployableUnitData
     public Sprite? icon; // null일 수 있다고 하겠음
@@ -18,6 +20,8 @@ public class DeployableUnitData : ScriptableObject
 
     // IDeployableUnitData 인터페이스 구현
     public Sprite? Icon => icon;
+    public Color PrimaryColor => primaryColor;
+    public Color SecondaryColor => secondaryColor;
 }
 
 [System.Serializable]

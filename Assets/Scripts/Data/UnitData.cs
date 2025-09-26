@@ -6,6 +6,8 @@ public class UnitData : ScriptableObject
     public string entityName = string.Empty;
     public UnitStats stats = default!;
     public GameObject prefab = default!;
+    [SerializeField] protected Color primaryColor;
+    [SerializeField] protected Color secondaryColor; // 필요한 경우만 사용
 }
 
 [System.Serializable]

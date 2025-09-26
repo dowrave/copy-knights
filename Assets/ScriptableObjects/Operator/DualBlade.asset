@@ -27,6 +27,8 @@ MonoBehaviour:
     _maxBlockableEnemies: 2
     _spRecoveryRate: 1
   prefab: {fileID: 5185628148525671535, guid: 25e96cf36f195c445831adbc906931c4, type: 3}
+  primaryColor: {r: 1, g: 0.4392157, b: 0, a: 1}
+  secondaryColor: {r: 0, g: 0, b: 0, a: 0}
   icon: {fileID: 0}
   canDeployOnGround: 1
   canDeployOnHill: 0
@@ -41,6 +43,7 @@ MonoBehaviour:
   meleeAttackEffectPrefab: {fileID: 1249516511906949688, guid: 2be72af12fb6ab14297a81756f04ff0c, type: 3}
   hitEffectPrefab: {fileID: 7245273522019326439, guid: a7ce6bb72f5ed9145aeb0e54505f25fd, type: 3}
   projectilePrefab: {fileID: 0}
+  muzzleVFXPrefab: {fileID: 0}
   levelStats:
     healthPerLevel: 8.2
     attackPowerPerLevel: 2.3

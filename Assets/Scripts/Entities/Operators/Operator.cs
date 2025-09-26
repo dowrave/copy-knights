@@ -164,6 +164,11 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
     public event System.Action<Operator> OnOperatorDied = delegate { };
     public event System.Action OnSkillStateChanged = delegate { };
 
+    protected override void Start()
+    {
+        AssignColorToRenderers(OperatorData.PrimaryColor, OperatorData.SecondaryColor);
+    }
+
     public new virtual void Initialize(DeployableManager.DeployableInfo opInfo)
     {
         DeployableInfo = opInfo;
@@ -176,7 +181,7 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
             CurrentSP = OperatorData.initialSP;
 
             SetPrefab();
-            
+
             // 현재 상태 반영
             currentOperatorStats = ownedOp.CurrentStats;
 
