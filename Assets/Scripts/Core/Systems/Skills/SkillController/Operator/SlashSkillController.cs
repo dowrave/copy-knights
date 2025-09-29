@@ -80,7 +80,6 @@ public class SlashSkillController : MonoBehaviour
         HashSet<Enemy> enemiesInRange = new HashSet<Enemy>();
         foreach (Vector2Int gridPos in skillRange)
         {
-            Debug.Log($"스킬 범위 : {gridPos.x}, {gridPos.y}");
             Tile tile = MapManager.Instance.GetTile(gridPos.x, gridPos.y);
             if (tile != null)
             {

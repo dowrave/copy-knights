@@ -60,7 +60,7 @@ ParticleSystemRenderer:
   m_RendererPriority: 0
   m_Materials:
   - {fileID: 2100000, guid: ced857d23e421144e82fde99bee0f357, type: 2}
-  - {fileID: 2100000, guid: c201895710d17a544857676abef394fb, type: 2}
+  - {fileID: 2100000, guid: 52d6b6542d499244591f65c4ac3199f9, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -4952,7 +4952,7 @@ ParticleSystemRenderer:
   m_RendererPriority: 0
   m_Materials:
   - {fileID: 2100000, guid: ced857d23e421144e82fde99bee0f357, type: 2}
-  - {fileID: 2100000, guid: c201895710d17a544857676abef394fb, type: 2}
+  - {fileID: 2100000, guid: 52d6b6542d499244591f65c4ac3199f9, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -24523,7 +24523,7 @@ ParticleSystemRenderer:
   m_RendererPriority: 0
   m_Materials:
   - {fileID: 2100000, guid: ced857d23e421144e82fde99bee0f357, type: 2}
-  - {fileID: 2100000, guid: c201895710d17a544857676abef394fb, type: 2}
+  - {fileID: 2100000, guid: 52d6b6542d499244591f65c4ac3199f9, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -39385,8 +39385,8 @@ ParticleSystem:
     startSpeed:
       serializedVersion: 2
       minMaxState: 3
-      scalar: 3
-      minScalar: 2
+      scalar: 15
+      minScalar: 10
       maxCurve:
         serializedVersion: 2
         m_Curve:
@@ -41687,7 +41687,7 @@ ParticleSystem:
       m_Bits: 4294967295
     influenceList: []
   ClampVelocityModule:
-    enabled: 0
+    enabled: 1
     x:
       serializedVersion: 2
       minMaxState: 0
@@ -41904,7 +41904,7 @@ ParticleSystem:
     inWorldSpace: 0
     multiplyDragByParticleSize: 1
     multiplyDragByParticleVelocity: 1
-    dampen: 0
+    dampen: 0.5
     drag:
       serializedVersion: 2
       minMaxState: 0

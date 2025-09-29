@@ -50,7 +50,7 @@ public class StatisticItem : MonoBehaviour
         }
         else
         {
-            operatorIcon.color = opData.prefab.GetComponentInChildren<Renderer>().sharedMaterial.color;
+            operatorIcon.color = opData.PrimaryColor;
         }
 
         // 클래스 아이콘 할당, 없다면 검은색으로 표시

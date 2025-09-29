@@ -136,11 +136,13 @@ public class ClickDetectionSystem : MonoBehaviour
             return;
         }
 
-        // 2. 3D 오브젝트 클릭 처리Add commentMore actions
+        // 2. 3D 오브젝트 클릭 처리
         Ray ray = mainCamera.ScreenPointToRay(Input.mousePosition);
-        if (Physics.Raycast(ray, out RaycastHit clickableHit, Mathf.Infinity, clickableLayerMask))
+        RaycastHit[] hits = Physics.RaycastAll(ray, Mathf.Infinity, clickableLayerMask);
+
+        if (hits.Length > 0)
         {
-            HandleObjectClick(clickableHit);
+            HandleObjectClick(hits);
         }
         else
         {
@@ -187,45 +189,87 @@ public class ClickDetectionSystem : MonoBehaviour
 
     }
 
-    private void HandleObjectClick(RaycastHit hit)
+    private void HandleObjectClick(RaycastHit[] hits)
     {
-        // 레이캐스트를 맞은 콜라이더의 부모 오브젝트에서 DeployableUnitEntity를 찾도록 수정
-        // DeployableUnitEntity? clickable = hit.collider.GetComponent<DeployableUnitEntity>();
-        DeployableUnitEntity? clickable = hit.collider.GetComponentInParent<DeployableUnitEntity>();
-
-        if (clickable != null && !DeployableManager.Instance!.IsClickingPrevented)
+        // 디버깅용 : 모든 오브젝트 출력
+        foreach (var hit in hits)
         {
-            clickable.OnClick();
+            Debug.Log($"RaycastAll hit: {hit.collider.name}");
         }
 
-        else
+        // 1. DeployableUnitEntity를 먼저 찾음
+        foreach (var hit in hits.OrderBy(h => h.distance)) // 카메라에서 가까운 순서
         {
-            Tile? clickedTile = hit.collider.GetComponent<Tile>();
-            if (clickedTile != null)
+            DeployableUnitEntity? clickable = hit.collider.GetComponentInParent<DeployableUnitEntity>();
+            if (clickable != null && !DeployableManager.Instance!.IsClickingPrevented)
             {
-                DeployableUnitEntity? clickedDeployable = clickedTile.OccupyingDeployable;
-                if (clickedDeployable != null)
-                {
-                    if (clickedDeployable is Operator op)
-                    {
-                        op.OnClick();
-                    }
-
-                    else
-                    {
-                        clickedDeployable.OnClick();
-                    }
-                    // Operator가 아닐 때에도 퇴각 버튼은 나타나야 함 
-                }
-                else
-                {
-                    // clickedTile이 null일 때도 현재 액션 취소
-                    Debug.Log("클릭된 배치 요소 없음 - CancelCurrentAction 동작");
-
-                    DeployableManager.Instance!.CancelCurrentAction();
-                }
+                clickable.OnClick();
+                Debug.Log("DeployableUnitEntity 콜라이더 감지 및 클릭됨");
+                return;
             }
         }
+
+        // 2. 타일에 배치된 유닛이 있는지 확인
+        foreach (var hit in hits.OrderBy(h => h.distance))
+        {
+            Tile? clickedTile = hit.collider.GetComponent<Tile>();
+            if (clickedTile != null && clickedTile.OccupyingDeployable != null)
+            {
+                clickedTile.OccupyingDeployable.OnClick();
+                Debug.Log("타일이 클릭되어서 그 위의 Deployable을 클릭함");
+                return;
+            }
+        }
+
+        // 3. 타일이 있다면 빈 타일을 클릭한 것으로 간주
+        if (hits.Any(h => h.collider.GetComponent<Tile>() != null))
+        {
+            DeployableManager.Instance!.CancelCurrentAction();
+            Debug.Log("빈 타일을 클릭함");
+            return;
+        }
+
+        // 4. 위의 조건에 다 해당하지 않으면 빈 공간 클릭으로 처리
+        HandleEmptySpaceClick();
+
+
+        // 레이캐스트를 맞은 콜라이더의 부모 오브젝트에서 DeployableUnitEntity를 찾도록 수정
+        // DeployableUnitEntity? clickable = hit.collider.GetComponent<DeployableUnitEntity>();
+        // DeployableUnitEntity? clickable = hit.collider.GetComponentInParent<DeployableUnitEntity>();
+
+        // if (clickable != null && !DeployableManager.Instance!.IsClickingPrevented)
+        // {
+        //     clickable.OnClick();
+        // }
+
+        // else
+        // {
+        //     Tile? clickedTile = hit.collider.GetComponent<Tile>();
+        //     if (clickedTile != null)
+        //     {
+        //         DeployableUnitEntity? clickedDeployable = clickedTile.OccupyingDeployable;
+        //         if (clickedDeployable != null)
+        //         {
+        //             if (clickedDeployable is Operator op)
+        //             {
+        //                 op.OnClick();
+        //             }
+
+        //             else
+        //             {
+        //                 clickedDeployable.OnClick();
+        //             }
+        //             // Operator가 아닐 때에도 퇴각 버튼은 나타나야 함 
+        //         }
+        //         else
+        //         {
+        //             // clickedTile이 null일 때도 현재 액션 취소
+        //             Debug.Log("클릭된 배치 요소 없음 - CancelCurrentAction 동작");
+
+        //             DeployableManager.Instance!.CancelCurrentAction();
+        //         }
+        //     }
+        // }
     }
     
     private void HandleEmptySpaceClick()

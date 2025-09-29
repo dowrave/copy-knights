@@ -37,7 +37,7 @@ MonoBehaviour:
   attackableTiles:
   - {x: -1, y: 0}
   - {x: 0, y: 0}
-  elite0Skill: {fileID: 11400000, guid: ac3a727da8a5b60449e689763ad2145a, type: 2}
+  elite0Skill: {fileID: 11400000, guid: f9dcb9384b651304b894435411ad821c, type: 2}
   initialSP: 0
   deployEffectPrefab: {fileID: 856940111582043208, guid: bec65663e4fb6004ebef9ec4aab1b61f, type: 3}
   meleeAttackEffectPrefab: {fileID: 1249516511906949688, guid: 2be72af12fb6ab14297a81756f04ff0c, type: 3}

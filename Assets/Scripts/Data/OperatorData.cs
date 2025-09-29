@@ -16,25 +16,25 @@ public class OperatorData : ScriptableObject, ICombatData
 
     // DeployableUnitData
     public Sprite? icon; // 오퍼레이터에 사용될 그림. null일 수 있다고 하겠음
-    public Sprite? Icon => icon;
     public bool canDeployOnGround = false;
     public bool canDeployOnHill = false;
 
     // OperatorData
-    public AttackType attackType;
-    public AttackRangeType attackRangeType;
+    [SerializeField] protected AttackType attackType;
+    [SerializeField] protected AttackRangeType attackRangeType;
     public List<Vector2Int> attackableTiles = new List<Vector2Int>{ Vector2Int.zero };
     public OperatorSkill elite0Skill = default!; // 최초 스킬
     public float initialSP = 0f;
 
-    [Header("VisualEffects")] 
+    [Header("VFXs")] 
     public GameObject deployEffectPrefab = default!; // 배치 이펙트
     public GameObject? meleeAttackEffectPrefab; // 근접 공격 이펙트(공격 시도 시 발생)
     public GameObject hitEffectPrefab = default!; // 공격이 적중했을 때의 이펙트
+    [Tooltip("원거리 공격일 때 발사하는 객체에서 나오는 총구 효과. 거의 안 쓸 듯")]
+    public GameObject muzzleVFXPrefab = default!; 
 
     [Header("For Ranged")]
     public GameObject? projectilePrefab;
-    public GameObject muzzleVFXPrefab = default!; // 원거리 공격일 때 발사하는 객체에서 나오는 총구 효과
 
     [Header("Level Up Stats")]
     public OperatorLevelStats levelStats = default!; // 레벨 1이 올라갈 때마다 상승하는 스탯량
@@ -50,6 +50,7 @@ public class OperatorData : ScriptableObject, ICombatData
     public GameObject HitEffectPrefab => hitEffectPrefab;
     public AttackType AttackType => attackType;
     public AttackRangeType AttackRangeType => attackRangeType;
+    public Sprite? Icon => icon;
 
     public enum OperatorClass
     {

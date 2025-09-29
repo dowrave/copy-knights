@@ -24,7 +24,7 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
             _currentAttackType = value;
         }
     }
-    public AttackRangeType AttackRangeType => OperatorData.attackRangeType;
+    public AttackRangeType AttackRangeType => OperatorData.AttackRangeType;
 
     public override float AttackPower
     {
@@ -323,7 +323,7 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
         }
 
         // 실제 공격 수행
-        switch (OperatorData.attackRangeType)
+        switch (OperatorData.AttackRangeType)
         {
             case AttackRangeType.Melee:
                 PerformMeleeAttack(target, damage, finalAttackType, showDamagePopup);
