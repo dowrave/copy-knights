@@ -27,14 +27,13 @@ public class InStageInfoPanel : MonoBehaviour
     //[SerializeField] private Button SkillTab = default!; // 아마 이것만 쓸 것 같긴 한데
 
     [Header("Ability Panel")]
-    [SerializeField] private GameObject abilityContainer = default!; 
+    [SerializeField] private GameObject abilityContainer = default!;
     [SerializeField] private Image skillIconImage = default!;
     [SerializeField] private TextMeshProUGUI skillNameText = default!;
     [SerializeField] private TextMeshProUGUI skillDetailText = default!;
 
     [Header("Cancel Panel")]
     [SerializeField] private Button cancelPanel = default!;
-
 
     // 배치 요소 정보
     private DeployableManager.DeployableInfo currentDeployableInfo = default!;
@@ -43,6 +42,8 @@ public class InStageInfoPanel : MonoBehaviour
     // 오퍼레이터에서만 사용
     private Operator? currentOperator;
     private OperatorSkill operatorSkill = default!;
+
+    public DeployableManager.DeployableInfo CurrentDeployableInfo => currentDeployableInfo;
 
     private void Awake()
     {
@@ -97,7 +98,6 @@ public class InStageInfoPanel : MonoBehaviour
     private void UpdateDeployableInfo()
     {
         HideOperatorPanels();
-
         nameText.text = currentDeployableInfo.deployableUnitData?.entityName ?? string.Empty;
     }
 
@@ -194,6 +194,25 @@ public class InStageInfoPanel : MonoBehaviour
         }
     }
 
+    public bool IsCurrentlyDisplaying(DeployableUnitEntity entity)
+    {
+        // 패널이 비활성화거나, 표시중인 정보가 없거나, 표시 중인 배치된 유닛이 없다면 false
+        if (!gameObject.activeSelf ||
+            CurrentDeployableInfo == null ||
+            CurrentDeployableInfo.deployedDeployable == null ||
+            CurrentDeployableInfo.deployedOperator == null)
+        {
+            return false;
+        }
+
+        if (entity is Operator op)
+        {
+            return CurrentDeployableInfo.deployedOperator == op;
+        }
+
+        return CurrentDeployableInfo.deployedDeployable == entity;
+    }
+
     private void OnCancelPanelClicked()
     {
         if (DeployableManager.Instance!.IsDeployableSelecting)
@@ -211,6 +230,7 @@ public class InStageInfoPanel : MonoBehaviour
             currentOperator = null;
         }
 
+        currentDeployableInfo = null;
         cancelPanel.onClick.RemoveAllListeners();
         cancelPanel.gameObject.SetActive(false);
     }

@@ -62,7 +62,7 @@ public class StageUIManager : MonoBehaviour
     }
 
     private InStageInfoPanel inStageInfoPanelScript = default!;
-
+    public InStageInfoPanel InStageInfoPanel => inStageInfoPanelScript;
 
     // Awake는 모든 오브젝트의 초기화 전에 실행되어서 다른 스크립트가 참조할 수 있도록 한다. 특히 UI는 Awake를 쓸 것.
     private void Awake()
@@ -70,7 +70,7 @@ public class StageUIManager : MonoBehaviour
         if (Instance == null)
         {
             Instance = this;
-        } 
+        }
         else
         {
             Destroy(gameObject);
@@ -305,6 +305,14 @@ public class StageUIManager : MonoBehaviour
 
         passedEnemiesBox.gameObject.SetActive(true);
         passedEnemiesText.text = $"-{passedEnemies}";
+    }
+
+    public void HideInfoPanelIfDisplaying(DeployableUnitEntity entity)
+    {
+        if (inStageInfoPanelScript.IsCurrentlyDisplaying(entity))
+        {
+            HideDeployableInfo();
+        }
     }
 
     private void OnDisable()

@@ -391,7 +391,7 @@ public class DeployableManager : MonoBehaviour
     {
         InstanceValidator.ValidateInstance(actionUIPrefab);
 
-        HideUIs();
+        HideOperatorUIs();
 
         // 일관된 위치 구현하기
         Vector3 ActionUIPosition = new Vector3(deployable.transform.position.x, 1f, deployable.transform.position.z);
@@ -405,7 +405,7 @@ public class DeployableManager : MonoBehaviour
         InstanceValidator.ValidateInstance(currentDeployable);
         InstanceValidator.ValidateInstance(deployingUIPrefab);
 
-        HideUIs();
+        HideOperatorUIs();
         currentDeployingUI = Instantiate(deployingUIPrefab!, position, Quaternion.identity);
         currentDeployingUI.Initialize(currentDeployable!);
         currentUIState = UIState.OperatorDeploying;
@@ -413,7 +413,7 @@ public class DeployableManager : MonoBehaviour
 
 
     // 오퍼레이터 주위에 나타난 UI 제거
-    private void HideUIs()
+    private void HideOperatorUIs()
     {
         // null이어도 상관 없음
 
@@ -626,7 +626,7 @@ public class DeployableManager : MonoBehaviour
         GameManagement.Instance!.TimeManager.UpdateTimeScale();
         ResetHighlights();
 
-        HideUIs();
+        HideOperatorUIs();
     }
 
     public void CancelPlacement()
@@ -657,8 +657,11 @@ public class DeployableManager : MonoBehaviour
     public void OnDeployableRemoved(DeployableUnitEntity deployable)
     {
         deployedItems.Remove(deployable);
-        StageUIManager.Instance!.HideDeployableInfo();
-        HideUIs();
+
+        // 현재 나타나고 있는 InstageInfoPanel의 정보가 제거된 deployable이라면 정보를 가림
+        StageUIManager.Instance.HideInfoPanelIfDisplaying(deployable);
+        
+        HideOperatorUIs();
         ResetHighlights();
 
         // 박스 재생성. 전투 중일 때에만 동작
@@ -688,7 +691,6 @@ public class DeployableManager : MonoBehaviour
                 }
             }
         }
-
     }
 
     public void SetActiveActionUI(DeployableActionUI ui)
@@ -721,7 +723,7 @@ public class DeployableManager : MonoBehaviour
     {
         if (currentUIState != UIState.None) // Action이거나 Deploying일 때
         {
-            HideUIs();
+            HideOperatorUIs();
             ResetPlacement();
             ResetHighlights();
 
