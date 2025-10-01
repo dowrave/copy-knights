@@ -35,7 +35,7 @@ public class DeployableActionUI : MonoBehaviour
     private Canvas canvas = default!;
 
     private float darkPanelAlpha = 0f;
-    private IDeployable deployable = default!;
+    
     private Operator? currentOperator;
     private bool isSPImageActive;
 
@@ -43,9 +43,11 @@ public class DeployableActionUI : MonoBehaviour
     private Color skillOnColorWithAlpha;
     private Color skillOffColorWithAlpha;
 
+    private DeployableUnitEntity deployable = default!;
+    public DeployableUnitEntity Deployable => deployable;
+
     public void Initialize(DeployableUnitEntity deployable)
     {
-        gameObject.SetActive(true);
         this.deployable = deployable;
 
         if (deployable is Operator)

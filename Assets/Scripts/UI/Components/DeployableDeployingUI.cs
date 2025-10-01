@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -12,8 +13,14 @@ public class DeployableDeployingUI : MonoBehaviour
     private Camera mainCamera = default!;
     private RectTransform cancelButtonRect = default!;
 
-    public void Initialize(IDeployable deployable)
+    private DeployableUnitEntity deployable;
+    public DeployableUnitEntity Deployable => deployable;
+
+
+    public void Initialize(DeployableUnitEntity deployable)
     {
+        this.deployable = deployable;
+
         mainCamera = Camera.main;
         cancelButtonRect = cancelButton.GetComponent<RectTransform>();
 

@@ -52,10 +52,10 @@ public class DeployableManager : MonoBehaviour
     private Dictionary<DeployableInfo, DeployableUnitState> unitStates = new Dictionary<DeployableInfo, DeployableUnitState>();
     public Dictionary<DeployableInfo, DeployableUnitState> UnitStates => unitStates;
 
+    [Header("References")]
     [SerializeField] private LayerMask tileLayerMask = default!;
-    [SerializeField] private DeployableDeployingUI deployingUIPrefab = default!;
-    [SerializeField] private DeployableActionUI actionUIPrefab = default!;
-
+    [SerializeField] private DeployableDeployingUI? currentDeployingUI;
+    [SerializeField] private DeployableActionUI? currentActionUI;
     [SerializeField] private Camera mainCamera; 
 
     [Header("Highlight Color")]
@@ -75,8 +75,7 @@ public class DeployableManager : MonoBehaviour
 
     private float minDirectionDistance;
 
-    private DeployableDeployingUI? currentDeployingUI;
-    private DeployableActionUI? currentActionUI;
+
 
     private List<DeployableUnitEntity> deployedItems = new List<DeployableUnitEntity>();
 
@@ -389,25 +388,30 @@ public class DeployableManager : MonoBehaviour
 
     public void ShowActionUI(DeployableUnitEntity deployable)
     {
-        InstanceValidator.ValidateInstance(actionUIPrefab);
-
         HideOperatorUIs();
 
-        // 일관된 위치 구현하기
+        // 위치 설정 후 활성화
         Vector3 ActionUIPosition = new Vector3(deployable.transform.position.x, 1f, deployable.transform.position.z);
-        currentActionUI = Instantiate(actionUIPrefab, ActionUIPosition, Quaternion.identity);
+        // currentActionUI = Instantiate(actionUIPrefab, ActionUIPosition, Quaternion.identity);
+        currentActionUI.transform.position = ActionUIPosition;
+        currentActionUI.gameObject.SetActive(true);
+        Debug.Log("ShowActionUI 동작");
         currentActionUI.Initialize(deployable);
+
         currentUIState = UIState.OperatorAction;
     }
 
     public void ShowDeployingUI(Vector3 position)
     {
         InstanceValidator.ValidateInstance(currentDeployable);
-        InstanceValidator.ValidateInstance(deployingUIPrefab);
+        // InstanceValidator.ValidateInstance(deployingUIPrefab);
 
         HideOperatorUIs();
-        currentDeployingUI = Instantiate(deployingUIPrefab!, position, Quaternion.identity);
-        currentDeployingUI.Initialize(currentDeployable!);
+
+        currentDeployingUI.transform.position = position;
+        currentDeployingUI.gameObject.SetActive(true);
+        currentDeployingUI.Initialize(currentDeployable);
+
         currentUIState = UIState.OperatorDeploying;
     }
 
@@ -419,18 +423,33 @@ public class DeployableManager : MonoBehaviour
 
         if (currentActionUI != null)
         {
-            Destroy(currentActionUI.gameObject);
-            currentActionUI = null;
+            Debug.Log("ActionUI 비활성화");
+            currentActionUI.gameObject.SetActive(false);
         }
 
         if (currentDeployingUI != null)
         {
-            Destroy(currentDeployingUI.gameObject);
-            currentDeployingUI = null;
+            currentDeployingUI.gameObject.SetActive(false);
         }
 
         currentUIState = UIState.None;
     }
+
+    private void HideOperatorUIsOnCondition(DeployableUnitEntity deployable)
+    {
+        if  (currentActionUI != null && currentActionUI.Deployable == deployable)
+        {
+            currentActionUI.gameObject.SetActive(false);
+        }
+
+        if (currentDeployingUI != null && currentDeployingUI.Deployable == deployable)
+        {
+            currentDeployingUI.gameObject.SetActive(false);
+        }
+    
+        currentUIState = UIState.None;
+    }
+
 
     // 방향 설정 관련 로직
     public void HandleDirectionSelection()
@@ -658,10 +677,10 @@ public class DeployableManager : MonoBehaviour
     {
         deployedItems.Remove(deployable);
 
-        // 현재 나타나고 있는 InstageInfoPanel의 정보가 제거된 deployable이라면 정보를 가림
+        // 현재 deployable에 대한 정보를 보여주고 있다면 숨김
         StageUIManager.Instance.HideInfoPanelIfDisplaying(deployable);
-        
-        HideOperatorUIs();
+        HideOperatorUIsOnCondition(deployable);
+
         ResetHighlights();
 
         // 박스 재생성. 전투 중일 때에만 동작

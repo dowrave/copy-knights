@@ -156,7 +156,6 @@ public class Projectile : MonoBehaviour
         // 이제 타겟이 사라졌을 때에만 실행됨
         if (target == null)
         {
-            Debug.Log("[Projectile]Update : target이 null일 때의 동작 수행");
             float reachDistance = sphereCollider.radius;
             if ((transform.position - lastKnownPosition).sqrMagnitude < reachDistance * reachDistance) // 이게 더 가볍단다
             {
