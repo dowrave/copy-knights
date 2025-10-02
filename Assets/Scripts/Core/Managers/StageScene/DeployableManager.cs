@@ -75,8 +75,6 @@ public class DeployableManager : MonoBehaviour
 
     private float minDirectionDistance;
 
-
-
     private List<DeployableUnitEntity> deployedItems = new List<DeployableUnitEntity>();
 
     // 엔티티 이름과 deployableInfo를 매핑하는 딕셔너리

@@ -2,11 +2,10 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-[ExecuteAlways] // 에디터, 런타임 모두에서 스크립트 실행
+// [ExecuteAlways] // 에디터, 런타임 모두에서 스크립트 실행
 public class Tile : MonoBehaviour
 {
     [Header("Highlight References")]
-    [SerializeField] private Material highlightMaterial = default!;
     [SerializeField] private MeshRenderer attackRangeIndicator = default!;
 
     public TileData data = default!;
@@ -36,15 +35,15 @@ public class Tile : MonoBehaviour
         private set { gridPosition = value; }
     }
 
+    // 색상 설정을 위한 MaterialPropertyBlock
     private MeshRenderer meshRenderer = default!;
     private MaterialPropertyBlock propBlock = default!; // 머티리얼 속성을 오버라이드하는 경량 객체. 모든 타일이 동일한 머티리얼을 공유하되 색을 개별적으로 설정할 수 있다.
-    private Material[] originalMaterials;
-    private Material[] highlightMaterials;
+    private MaterialPropertyBlock indicatorPropBlock = default!;
 
-    // attackRange의 색깔들
+    // 타일에 나타나는 UI 색깔들
+    private Color tileHighlightColor = new Color(0f, 0.25f, 0f);
     private Color defaultIndicatorColor = new Color(0.94f, 0.56f, 0.12f);
     private Color medicIndicatorColor = new Color(0.12f, 0.65f, 0.95f);
-
 
     // 길찾기 알고리즘을 위한 속성들
     public int GCost { get; set; }
@@ -61,27 +60,14 @@ public class Tile : MonoBehaviour
         Enemy.OnEnemyDespawned += HandleEnemyDespawn;
     }
 
-    // 자식 모델의 Mesh Renderer에 들어가는 머티리얼 배열을 2가지로 준비함
-    // 1. 기본 머티리얼만 들어간 상태
-    // 2. 기본 머티리얼 + 하이라이트 머티리얼이 들어간 상태
-
     private void PrepareHighlight()
     {
         meshRenderer = GetComponentInChildren<MeshRenderer>();
+        propBlock = new MaterialPropertyBlock();
+        indicatorPropBlock = new MaterialPropertyBlock(); // 초기화
 
-        originalMaterials = meshRenderer.sharedMaterials;
-
-        // 하이라이트 머티리얼 배열 준비
-        highlightMaterials = new Material[originalMaterials.Length + 1];
-
-        for (int i = 0; i < originalMaterials.Length; i++)
-        {
-            highlightMaterials[i] = originalMaterials[i];
-        }
-
-        highlightMaterials[highlightMaterials.Length - 1] = highlightMaterial;
+        ResetHighlight();
     }
-
 
     private void OnValidate()
     {
@@ -99,7 +85,6 @@ public class Tile : MonoBehaviour
 
     private void Initialize()
     {
-        propBlock = new MaterialPropertyBlock();
         InitializeVisuals();
         InitializeIndicatorPosition();
     }
@@ -168,16 +153,11 @@ public class Tile : MonoBehaviour
 
     public void ShowAttackRange(bool isMedic)
     {
-        // 색 설정
-        if (isMedic)
-        {
-            attackRangeIndicator.material.color = medicIndicatorColor;
-        }
-        else
-        {
-            attackRangeIndicator.material.color = defaultIndicatorColor;
-        }
+        Color targetColor = isMedic ? medicIndicatorColor : defaultIndicatorColor;
 
+        attackRangeIndicator.GetPropertyBlock(indicatorPropBlock);
+        indicatorPropBlock.SetColor("_Color", targetColor); // URP Lit과 달리, attackRange라는 별도의 셰이더가 있고 Color라는 프로퍼티가 있음
+        attackRangeIndicator.SetPropertyBlock(indicatorPropBlock);
 
         attackRangeIndicator.gameObject.SetActive(true);
     }
@@ -189,13 +169,21 @@ public class Tile : MonoBehaviour
 
     public void Highlight()
     {
-        meshRenderer.sharedMaterials = highlightMaterials;
-    }
+        // materialInstance.EnableKeyword("_EMISSION");
 
+        meshRenderer.GetPropertyBlock(propBlock);
+        propBlock.SetColor("_EmissionColor", tileHighlightColor);
+        meshRenderer.SetPropertyBlock(propBlock);
+    }
 
     public void ResetHighlight()
     {
-        meshRenderer.sharedMaterials = originalMaterials;
+        // materialInstance.DisableKeyword("_EMISSION");
+
+        meshRenderer.GetPropertyBlock(propBlock);
+        // _EmissionColor 속성을 검은색으로 설정하여 효과를 끕니다.
+        propBlock.SetColor("_EmissionColor", Color.black);
+        meshRenderer.SetPropertyBlock(propBlock);
     }
 
     public EnemySpawner GetSpawner()

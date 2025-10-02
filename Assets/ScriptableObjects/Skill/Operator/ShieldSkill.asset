@@ -20,9 +20,10 @@ MonoBehaviour:
   skillIcon: {fileID: 21300000, guid: e97a69ebd7acada478a6b0b7eedb978a, type: 3}
   autoRecover: 1
   autoActivate: 0
-  isOnTest: 0
+  isOnTest: 1
+  meleeAttackEffectOverride: {fileID: 0}
   duration: 15
-  skillVFXPrefab: {fileID: 2673592997991987600, guid: 43f083d1a6e670d40a1998803b5a1140, type: 3}
+  skillVFXPrefab: {fileID: 8208081831452339212, guid: 0e9f1339b7327704f934757a82252e69, type: 3}
   activeFromOperatorPosition: 1
   skillRangeOffset: []
   rectOffset: 0
@@ -35,4 +36,4 @@ MonoBehaviour:
     magicResistanceModifier: 1
     attackType: 0
     attackRangeModifier: []
-  shieldEffectPrefab: {fileID: 3942765068865293202, guid: e6e0102b91655e847bfd5566b1f8f982, type: 3}
+  shieldVFXPrefab: {fileID: 8783295642088826150, guid: 42eeb230d06735f46b6ca4a546eb8039, type: 3}

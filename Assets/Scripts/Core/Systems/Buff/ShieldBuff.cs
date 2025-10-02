@@ -10,11 +10,10 @@ public class ShieldBuff : Buff
     // 재진입 방지 플래그
     private bool isRemoving = false; 
 
-    public ShieldBuff(float amount, float duration, GameObject vfxPrefab)
+    public ShieldBuff(float amount, float duration)
     {
         this.shieldAmount = amount;
         this.duration = duration;
-        this.shieldEffectPrefab = vfxPrefab;
         this.buffName = "Shield";
     }
 
@@ -25,7 +24,6 @@ public class ShieldBuff : Buff
         {
             op.shieldSystem.OnShieldChanged += HandleShieldChanged;
             op.ActivateShield(shieldAmount);
-            PlayShieldVFX(op);
         }
     }
 
@@ -38,30 +36,12 @@ public class ShieldBuff : Buff
         if (owner is Operator op)
         {
             // 재진입 방지 패턴 2 : 이벤트 구독 먼저 해제
-            // DeactivateShield로 인한 이벤트를 받지 않도록 연결을 끊으
+            // DeactivateShield로 인한 이벤트를 받지 않도록 연결을 끊음
             op.shieldSystem.OnShieldChanged -= HandleShieldChanged;
             op.DeactivateShield();
-            RemoveShieldVFX();
         }
+        
         base.OnRemove();
-    }
-
-    private void PlayShieldVFX(Operator op)
-    {
-        if (shieldEffectPrefab != null)
-        {
-            currentShieldEffect = GameObject.Instantiate(shieldEffectPrefab, op.transform.position, Quaternion.identity, op.transform);
-            currentShieldEffect.GetComponent<VisualEffect>().Play();
-        }
-    }
-
-    private void RemoveShieldVFX()
-    {
-        if (currentShieldEffect != null)
-        {
-            currentShieldEffect.GetComponent<VisualEffect>()?.Stop();
-            GameObject.Destroy(currentShieldEffect, 1f);
-        }
     }
 
     private void HandleShieldChanged(float currentShield, bool isShieldDepleted)

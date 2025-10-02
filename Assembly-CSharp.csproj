@@ -72,6 +72,7 @@
     <Compile Include="Assets\Scripts\Core\Systems\ExpCalculationSystem.cs" />
     <Compile Include="Assets\Scripts\Core\Systems\Skills\OperatorSkills\ShieldSkill.cs" />
     <Compile Include="Assets\Scripts\UI\Components\DeployableBox.cs" />
+    <Compile Include="Assets\Scripts\Core\Systems\Skills\VFXController\ShieldVFXController.cs" />
     <Compile Include="Assets\Scripts\Data\PathData.cs" />
     <Compile Include="Assets\Scripts\Interfaces\IFactionMember.cs" />
     <Compile Include="Assets\Scripts\Core\Systems\Skills\OperatorSkills\MeteorSkill.cs" />

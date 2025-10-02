@@ -10,8 +10,8 @@ public class SelfReturnVFXController : MonoBehaviour, IPooledObject
     [SerializeField] ParticleSystem ps = default!;
     [SerializeField] bool isGroundVFX = false;
 
-    private string poolTag = string.Empty;
-    private Coroutine _lifeCycleCoroutine; // 생명주기 코루틴 추적 변수
+    protected string poolTag = string.Empty;
+    protected Coroutine _lifeCycleCoroutine; // 생명주기 코루틴 추적 변수
 
     public void OnObjectSpawn(string tag)
     {
@@ -21,13 +21,14 @@ public class SelfReturnVFXController : MonoBehaviour, IPooledObject
     }
 
     // 시각 효과 설정 및 실행
-    public void Initialize(float duration)
+    public virtual void Initialize(float duration)
     {
         Vector2Int nowGridPosition = MapManager.Instance.ConvertToGridPosition(transform.position);
 
         // 유효하지 않은 위치는 아무것도 표시하지 않음
         if (MapManager.Instance.CurrentMap == null || !MapManager.Instance.CurrentMap.IsTileAt(nowGridPosition.x, nowGridPosition.y))
         {
+            Debug.LogWarning("파티클 시스템 플레이되지 않음");
             ps.gameObject.SetActive(false);
             return;
         }
@@ -37,11 +38,12 @@ public class SelfReturnVFXController : MonoBehaviour, IPooledObject
         // 생명주기 코루틴 시작
         // 즉발 스킬이라면 짧은 시간만 보여주고 사라짐
         ps.Play(true);
+        Debug.Log($"{poolTag} 파티클 시스템 플레이됨");
         float lifeTime = (duration > 0f) ? duration : 1.0f;
         _lifeCycleCoroutine = StartCoroutine(LifeCycle(lifeTime));
     }
 
-    private void FixVisuals(Vector2Int position)
+    protected void FixVisuals(Vector2Int position)
     {
         // 언덕 타일 위치 보정
         Tile? currentTile = MapManager.Instance.GetTile(position.x, position.y);
@@ -52,14 +54,14 @@ public class SelfReturnVFXController : MonoBehaviour, IPooledObject
     }
 
     // 생명 주기를 관리하는 단일 코루틴
-    private IEnumerator LifeCycle(float lifeTime)
+    protected IEnumerator LifeCycle(float lifeTime)
     {
         yield return new WaitForSeconds(lifeTime);
         ReturnToPool();
     }
 
 
-    private void ReturnToPool()
+    protected virtual void ReturnToPool()
     {
         _lifeCycleCoroutine = null;
         // 오브젝트 풀 매니저에게 돌려보내달라고 요청
