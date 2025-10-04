@@ -37,13 +37,13 @@ namespace Skills.Base
             float crossVFXStartTime = 0.8f;
 
             // 시전 이펙트 실행
-            PlayVFX(GetCastVFXTag(caster), caster.transform.position, Quaternion.identity, RETURN_POOL_WAIT_TIME);
+            PlayVFX(caster, GetCastVFXTag(caster), caster.transform.position, Quaternion.identity, RETURN_POOL_WAIT_TIME);
             caster.SetIsWaiting(true); // 시전 시간 동안 대기
             caster.SetStopAttacking(true);
             yield return new WaitForSeconds(crossVFXStartTime);
 
             // 시전 
-            GameObject crossVFXObj = PlayVFX(GetCrossVFXTag(caster), caster.transform.position, Quaternion.identity, RETURN_POOL_WAIT_TIME);
+            GameObject crossVFXObj = PlayVFX(caster, GetCrossVFXTag(caster), caster.transform.position, Quaternion.identity, RETURN_POOL_WAIT_TIME);
             crossVFXObj.transform.SetParent(caster.transform);
             yield return new WaitForSeconds(castTime - crossVFXStartTime);
 
@@ -77,32 +77,11 @@ namespace Skills.Base
 
                 // 베고 지나가는 이펙트
                 Quaternion rot = Quaternion.LookRotation(moveDirection);
-                PlayVFX(GetSlashVFXTag(caster), target.transform.position, rot, RETURN_POOL_WAIT_TIME);
+                PlayVFX(caster, GetSlashVFXTag(caster), target.transform.position, rot, RETURN_POOL_WAIT_TIME);
             }
-
-            
 
             caster.SetIsWaiting(false);
             caster.SetStopAttacking(false);
-        }
-
-        private GameObject PlayVFX(string vfxTag, Vector3 pos, Quaternion rot, float duration = 2f)
-        {
-            GameObject obj = ObjectPoolManager.Instance!.SpawnFromPool(vfxTag, pos, rot);
-            if (obj != null)
-            {
-                SelfReturnVFXController ps = obj.GetComponent<SelfReturnVFXController>();
-                if (ps != null)
-                {
-                    ps.Initialize(duration);
-                }
-
-                return obj;
-            }
-            else
-            {
-                return null;
-            }
         }
 
         // "뚫고 지나가는 동작"만 구현, 대미지 처리는 별도

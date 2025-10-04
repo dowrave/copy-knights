@@ -19,5 +19,6 @@ MonoBehaviour:
   autoRecover: 1
   autoActivate: 1
   isOnTest: 0
+  meleeAttackEffectOverride: {fileID: 0}
   costRecoveryAmount: 8
-  skillEffectPrefab: {fileID: 8612932944827472003, guid: a405c8f0638cf9a4ea27226dab797412, type: 3}
+  costVFXPrefab: {fileID: 8612932944827472003, guid: a405c8f0638cf9a4ea27226dab797412, type: 3}

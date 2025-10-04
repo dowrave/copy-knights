@@ -6,7 +6,7 @@ public class ShieldVFXController : SelfReturnVFXController
 {
     private UnitEntity owner;
 
-    public void Initialize(UnitEntity owner, float duration)
+    new public void Initialize(float duration, UnitEntity owner)
     {
         Debug.LogWarning("[ShieldVFXController] Initialize 실행됨");
         this.owner = owner;
@@ -17,7 +17,7 @@ public class ShieldVFXController : SelfReturnVFXController
             op.shieldSystem.OnShieldChanged += HandleShieldChanged;
         }
 
-        base.Initialize(duration);
+        base.Initialize(duration, owner);
     }
 
     protected override void ReturnToPool()

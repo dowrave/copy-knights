@@ -37,13 +37,13 @@ MonoBehaviour:
   attackableTiles:
   - {x: -1, y: 0}
   - {x: 0, y: 0}
-  elite0Skill: {fileID: 11400000, guid: f9dcb9384b651304b894435411ad821c, type: 2}
+  elite0Skill: {fileID: 11400000, guid: 56285db420c7a9249a3a7967d3550fd4, type: 2}
   initialSP: 0
   deployEffectPrefab: {fileID: 856940111582043208, guid: bec65663e4fb6004ebef9ec4aab1b61f, type: 3}
   meleeAttackEffectPrefab: {fileID: 1249516511906949688, guid: 2be72af12fb6ab14297a81756f04ff0c, type: 3}
   hitEffectPrefab: {fileID: 7245273522019326439, guid: a7ce6bb72f5ed9145aeb0e54505f25fd, type: 3}
-  projectilePrefab: {fileID: 0}
   muzzleVFXPrefab: {fileID: 0}
+  projectilePrefab: {fileID: 0}
   levelStats:
     healthPerLevel: 12.6
     attackPowerPerLevel: 4

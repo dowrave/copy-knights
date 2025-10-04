@@ -421,7 +421,6 @@ public class DeployableManager : MonoBehaviour
 
         if (currentActionUI != null)
         {
-            Debug.Log("ActionUI 비활성화");
             currentActionUI.gameObject.SetActive(false);
         }
 

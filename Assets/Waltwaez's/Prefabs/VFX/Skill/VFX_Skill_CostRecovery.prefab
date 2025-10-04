@@ -49,7 +49,7 @@ ParticleSystem:
   ringBufferMode: 0
   ringBufferLoopRange: {x: 0, y: 1}
   emitterVelocityMode: 1
-  looping: 1
+  looping: 0
   prewarm: 0
   playOnAwake: 1
   useUnscaledTime: 0
@@ -4914,6 +4914,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fc1acf9c50333ab4f9508a24b4997e48, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  ps: {fileID: 7144937329101160706}
+  isGroundVFX: 0
   initialDuration: 0.5
   moveSpeed: 12
   turnSpeed: 5

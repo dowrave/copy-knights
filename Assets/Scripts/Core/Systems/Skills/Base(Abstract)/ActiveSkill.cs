@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.VFX;
+
 namespace Skills.Base
 {
     public abstract class ActiveSkill : OperatorSkill
@@ -11,7 +12,7 @@ namespace Skills.Base
         public float duration = 0f;
 
         [Header("Skill Duration Effects")]
-        [SerializeField] protected GameObject skillVFXPrefab = default!;
+        [SerializeField] protected GameObject durationVFXPrefab = default!;
 
         [Header("Optional) Skill Range")]
         [SerializeField] protected bool activeFromOperatorPosition = true; // UI에 사거리 표시할 때 중심이 되는 부분의 색을 변경하기 위한 기능적인 필드
@@ -24,10 +25,6 @@ namespace Skills.Base
         public IReadOnlyList<Vector2Int> SkillRangeOffset => skillRangeOffset;
         public bool ActiveFromOperatorPosition => activeFromOperatorPosition;
         public float RectOffset => rectOffset;
-
-        protected GameObject? VfxInstance;
-        protected VisualEffect? VfxComponent;
-        protected ParticleSystem? VfxPs;
 
         public override void Activate(Operator caster)
         {
@@ -51,7 +48,7 @@ namespace Skills.Base
             if (!caster.IsDeployed || !caster.CanUseSkill()) return;
 
             // 기본 이펙트와 추가 이펙트 재생
-            PlaySkillVFX(caster);
+            PlayDurationVFX(caster);
             PlayAdditionalVFX(caster);
 
             // 스킬 사용 직후에는 공격 속도 / 모션 초기화
@@ -77,10 +74,10 @@ namespace Skills.Base
 
         protected virtual void OnSkillEnd(Operator caster)
         {
-            if (VfxInstance != null)
-            {
-                SafeDestroySkillVFX(VfxInstance);
-            }
+            // if (VfxInstance != null)
+            // {
+            //     SafeDestroySkillVFX(VfxInstance);
+            // }
 
             caster.CurrentSP = 0;
             caster.SetSkillOnState(false);
@@ -99,33 +96,11 @@ namespace Skills.Base
         }
 
         // 기본 이펙트 생성 및 재생
-        protected virtual void PlaySkillVFX(Operator op)
+        protected virtual void PlayDurationVFX(Operator op)
         {
-            if (skillVFXPrefab == null) return;
+            if (durationVFXPrefab == null) return;
 
-            Vector3 effectPosition = op.transform.position;
-            VfxInstance = Instantiate(
-                skillVFXPrefab,
-                effectPosition,
-                Quaternion.identity,
-                op.transform    // 오퍼레이터의 자식으로 생성
-            );
-
-            if (VfxInstance != null)
-            {
-                // VFX 또는 파티클 시스템 컴포넌트 검색 및 재생
-                VfxComponent = VfxInstance.GetComponent<VisualEffect>();
-                if (VfxComponent != null)
-                {
-                    VfxComponent.Play();
-                }
-
-                VfxPs = VfxInstance.GetComponent<ParticleSystem>();
-                if (VfxPs != null)
-                {
-                    VfxPs.Play();
-                }
-            }
+            PlayVFX(op, GetDurationVFXTag(op), op.transform.position, Quaternion.identity, duration);
         }
 
         // 스킬 지속시간 처리
@@ -181,5 +156,17 @@ namespace Skills.Base
             // 그 외의 경우 즉시 제거
             Destroy(vfxObject);
         }
+
+        public override void InitializeSkillObjectPool(UnitEntity caster)
+        {
+            if (durationVFXPrefab != null)
+            {
+                ObjectPoolManager.Instance.CreatePool(GetDurationVFXTag(caster), durationVFXPrefab, 1);
+            }
+        }
+
+        public string GetDurationVFXTag(UnitEntity caster) => $"{caster.name}_{skillName}_durationVFX";
     }
 }
+
+

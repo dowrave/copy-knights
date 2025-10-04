@@ -24,9 +24,9 @@ MonoBehaviour:
   autoRecover: 0
   autoActivate: 0
   isOnTest: 0
-  meleeAttackEffectOverride: {fileID: 2571013666979862085, guid: b2d579cd718fd1a4f8ce7fc7de02155b, type: 3}
+  meleeAttackEffectOverride: {fileID: 1249516511906949688, guid: a35bd5c623b9ddf4c8a665484ca72fac, type: 3}
   duration: 10
-  skillVFXPrefab: {fileID: 8208081831452339212, guid: 9041f43c8afec3d4a9c9b44ebd8937d4, type: 3}
+  durationVFXPrefab: {fileID: 8208081831452339212, guid: 9041f43c8afec3d4a9c9b44ebd8937d4, type: 3}
   activeFromOperatorPosition: 1
   skillRangeOffset: []
   rectOffset: 0

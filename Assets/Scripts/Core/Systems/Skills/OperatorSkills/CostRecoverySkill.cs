@@ -8,7 +8,7 @@ namespace SKills.OperatorSkills
     {
         [Header("Cost Recovery Settings")]
         [SerializeField] private int costRecoveryAmount = 8;
-        [SerializeField] private GameObject skillEffectPrefab = default!;
+        [SerializeField] private GameObject costVFXPrefab = default!;
 
         protected override void SetDefaults()
         {
@@ -20,19 +20,17 @@ namespace SKills.OperatorSkills
         {
             if (op == null) return;
 
-            PlayEffect(op); // 이펙트
-
             RecoverCost(costRecoveryAmount); // 기능
+            PlayEffect(op); // 이펙트
 
             op.CurrentSP = 0; // SP 초기화
         }
 
         private void PlayEffect(Operator op)
         {
-            if (skillEffectPrefab != null)
+            if (costVFXPrefab != null)
             {
-                GameObject effect = Instantiate(skillEffectPrefab, op.transform.position, Quaternion.identity);
-                Destroy(effect, 2f);
+                PlayVFX(op, GetCostVFXTag(op), op.transform.position, Quaternion.identity, 1);
             }
         }
 
@@ -43,5 +41,19 @@ namespace SKills.OperatorSkills
                 StageManager.Instance.RecoverDeploymentCost(Mathf.RoundToInt(amount));
             }
         }
+
+
+        public override void InitializeSkillObjectPool(UnitEntity caster)
+        {
+            if (costVFXPrefab != null)
+            {
+                ObjectPoolManager.Instance.CreatePool(GetCostVFXTag(caster), costVFXPrefab, 1);
+            }
+        }
+
+        public string GetCostVFXTag(UnitEntity caster) => $"{caster.name}_{skillName}_costVFX";
+        
     }
+
+
 }

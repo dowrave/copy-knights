@@ -30,6 +30,25 @@ namespace Skills.Base
         // RegisterPool할 요소들을 이것저것 넣는 메서드
         public virtual void InitializeSkillObjectPool(UnitEntity caster) { }
 
+        protected virtual GameObject PlayVFX(UnitEntity caster, string vfxTag, Vector3 pos, Quaternion rot, float duration = 2f)
+        {
+            GameObject obj = ObjectPoolManager.Instance!.SpawnFromPool(vfxTag, pos, rot);
+            if (obj != null)
+            {
+                SelfReturnVFXController ps = obj.GetComponent<SelfReturnVFXController>();
+                if (ps != null)
+                {
+                    ps.Initialize(duration, caster);
+                }
+
+                return obj;
+            }
+            else
+            {
+                return null;
+            }
+        }
+
         protected string RegisterPool(UnitEntity caster, GameObject prefab, int initialSize = 5)
         {
             if (prefab == null) return string.Empty;

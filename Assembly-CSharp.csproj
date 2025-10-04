@@ -90,7 +90,6 @@
     <Compile Include="Assets\Scripts\Utils\ClickDetectionSystem.cs" />
     <Compile Include="Assets\Scripts\Core\Systems\Skills\SkillController\Enemy\BossExplosionSkillController.cs" />
     <Compile Include="Assets\Scripts\Interfaces\IMovable.cs" />
-    <Compile Include="Assets\Scripts\Core\Systems\Skills\VFXController\CostParticleMotion.cs" />
     <Compile Include="Assets\Scripts\Core\Systems\Skills\OperatorSkills\SmashSkill.cs" />
     <Compile Include="Assets\Scripts\Core\Managers\GameManagement\GameManagement.cs" />
     <Compile Include="Assets\Scripts\Core\Systems\Skills\VFXController\CombatVFXController.cs" />
@@ -208,6 +207,7 @@
     <Compile Include="Assets\Scripts\Entities\Enemy\EnemyAttackRangeController.cs" />
     <Compile Include="Assets\Scripts\UI\Components\DeployableBarUI.cs" />
     <Compile Include="Assets\Scripts\Core\Systems\Skills\OperatorSkills\SixBulletSkill.cs" />
+    <Compile Include="Assets\Scripts\Core\Systems\Skills\VFXController\CostParticleMotionVFXController.cs" />
     <Compile Include="Assets\Scripts\UI\Components\StageButton.cs" />
     <Compile Include="Assets\Scripts\Core\Managers\GameManagement\ResourceManager.cs" />
     <Compile Include="Assets\Scripts\Core\Managers\StageScene\DeployableManager.cs" />

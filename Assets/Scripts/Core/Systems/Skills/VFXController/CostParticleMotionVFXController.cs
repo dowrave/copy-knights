@@ -1,21 +1,20 @@
 using UnityEngine;
 using System.Collections.Generic;
 
-// 코스트 획득 시 파티클이 코스트 아이콘으로 날아가는 처리
-public class CostParticleMotion : MonoBehaviour
+public class CostParticleMotionVFXController : SelfReturnVFXController
 {
-    private new ParticleSystem particleSystem = default!;
-    private ParticleSystem.Particle[] particles = System.Array.Empty<ParticleSystem.Particle>();
-    private float elapsed = 0f;
-
-    private Vector2 iconScreenPosition;
-    private Vector3 iconWorldPosition;
-
     [Header("Movement Settings")]
     [SerializeField] private float initialDuration = 1f;
     [SerializeField] private float moveSpeed = 10f;
     [SerializeField] private float turnSpeed = 5f;
     [SerializeField] private float arrivalThreshold = 2f;
+
+    // private new ParticleSystem particleSystem = default!;
+    private ParticleSystem.Particle[] particles = System.Array.Empty<ParticleSystem.Particle>();
+    private float elapsed = 0f;
+
+    private Vector3 iconWorldPosition;
+    // private bool isReturningToPool;
 
     private RectTransform deploymentCostIconTransform = default!;
     private Dictionary<uint, Vector3> particleVelocities = new Dictionary<uint, Vector3>();
@@ -23,8 +22,12 @@ public class CostParticleMotion : MonoBehaviour
 
     private void Awake()
     {
-        particleSystem = GetComponent<ParticleSystem>();
-        particles = new ParticleSystem.Particle[particleSystem.main.maxParticles];
+        if (ps == null)
+        {
+            ps = GetComponent<ParticleSystem>();
+        }
+
+        particles = new ParticleSystem.Particle[ps.main.maxParticles];
 
         if (deploymentCostIconTransform == null)
         {
@@ -33,15 +36,38 @@ public class CostParticleMotion : MonoBehaviour
         }
     }
 
-    private void Start()
+    public new void OnObjectSpawn(string tag)
     {
-        iconWorldPosition = StageUIManager.Instance!.CostIconWorldPosition;
+        base.OnObjectSpawn(tag); 
+        
+        elapsed = 0f;
+        // isReturningToPool = false;
+        particleVelocities.Clear();
+    }
+
+    // 오버라이드해서 부모의 시간 기반 LifeCycle 코루틴을 막음 - 여기선 파티클이 모두 제거된 다음에 풀로 돌아가도록 함
+    public override void Initialize(float duration, UnitEntity caster = null)
+    {
+        if (StageUIManager.Instance != null)
+        {
+            iconWorldPosition = StageUIManager.Instance.CostIconWorldPosition;
+        }
+        else
+        {
+            Debug.LogError("StageUIManager.Instance is not available!");
+            ReturnToPool(); // 초기화 실패 시 즉시 반환
+            return;
+        }
+
+        ps.Play(true);
     }
 
     private void LateUpdate()
     {
+        // if (isReturningToPool) return;
+
         elapsed += Time.deltaTime;
-        int numAliveParticles = particleSystem.GetParticles(particles);
+        int numAliveParticles = ps.GetParticles(particles);
 
         if (elapsed >= initialDuration)
         {
@@ -51,28 +77,33 @@ public class CostParticleMotion : MonoBehaviour
             }
         }
 
-        particleSystem.SetParticles(particles, numAliveParticles);
+        ps.SetParticles(particles, numAliveParticles);
+
+        // 모든 파티클이 사라지면 풀로 돌아감
+        // 앞의 조건은 파티클이 생성되기 전에 numAliveParticles == 0이 되는 경우를 막음
+        if (elapsed > initialDuration && numAliveParticles == 0)
+        {
+            // isReturningToPool = true;
+            ReturnToPool();
+        }
     }
 
     private void MoveParticleTowardsTarget(ref ParticleSystem.Particle particle)
     {
-        // 파티클 시스템의 좌표는 로컬 기준으로 처리되므로, 월드 좌표로 변환
-        Vector3 particleWorldPosition = particleSystem.transform.TransformPoint(particle.position);
+        Vector3 particleWorldPosition = GetComponent<ParticleSystem>().transform.TransformPoint(particle.position);
         Vector3 projectedParticlePosition = new Vector3(particleWorldPosition.x, 0f, particleWorldPosition.z);
 
         float distanceToTarget = Vector3.Distance(projectedParticlePosition, iconWorldPosition);
 
-        // 목표 지점 근처 도달 시 파티클 제거
         if (distanceToTarget < arrivalThreshold)
         {
-            //particle.remainingLifetime = 0f; // 이걸로 쓰면 파티클이 다시 생김
-            Destroy(particleSystem.gameObject, 0.1f);
+            particle.remainingLifetime = 0f;
+            // Destroy(GetComponent<ParticleSystem>().gameObject, 0.1f);
             return;
         }
 
         uint particleId = particle.randomSeed;
 
-        // 초기 속도 설정 - 랜덤한 방향으로 약간 퍼지게 함
         if (!particleVelocities.ContainsKey(particleId))
         {
             Vector3 initialVelocity = new Vector3(
@@ -83,21 +114,17 @@ public class CostParticleMotion : MonoBehaviour
             particleVelocities[particleId] = initialVelocity;
         }
 
-        // 월드 좌표에서의 방향 계산
         Vector3 directionToTarget = (iconWorldPosition - particleWorldPosition).normalized;
         Vector3 targetVelocity = directionToTarget * moveSpeed;
 
-        // 월드 공간 속도 -> 로컬 공간 속도로 변환 : 나중에 적용할 particle.velocity는 로컬 좌표계에서 동작하기 때문에 이 작업을 거친다
-        Vector3 localTargetVelocity = particleSystem.transform.InverseTransformDirection(targetVelocity);
+        Vector3 localTargetVelocity = GetComponent<ParticleSystem>().transform.InverseTransformDirection(targetVelocity);
 
-        // 부드러운 방향 전환
         Vector3 newVelocity = Vector3.Lerp(
             particleVelocities[particleId],
             localTargetVelocity,
             Time.deltaTime * turnSpeed
         );
 
-        // 새로운 속도 적용
         particleVelocities[particleId] = newVelocity;
         particle.velocity = newVelocity;
     }

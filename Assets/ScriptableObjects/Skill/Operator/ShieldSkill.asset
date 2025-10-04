@@ -23,7 +23,7 @@ MonoBehaviour:
   isOnTest: 1
   meleeAttackEffectOverride: {fileID: 0}
   duration: 15
-  skillVFXPrefab: {fileID: 8208081831452339212, guid: 0e9f1339b7327704f934757a82252e69, type: 3}
+  durationVFXPrefab: {fileID: 8208081831452339212, guid: 0e9f1339b7327704f934757a82252e69, type: 3}
   activeFromOperatorPosition: 1
   skillRangeOffset: []
   rectOffset: 0

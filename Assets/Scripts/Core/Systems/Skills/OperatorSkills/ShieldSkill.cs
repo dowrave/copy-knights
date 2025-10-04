@@ -36,7 +36,7 @@ namespace Skills.OperatorSkills
             if (shieldVFX != null)
             {
                 Debug.Log("[ShieldSkill]스킬 시전 이펙트 시작");
-                shieldVFX.Initialize(op, duration);
+                shieldVFX.Initialize(duration, op);
             }
 
             // 만약 쉴드가 뚫렸을 때 스탯 버프도 초기화되길 원한다면
@@ -59,18 +59,12 @@ namespace Skills.OperatorSkills
         {
             base.InitializeSkillObjectPool(caster);
 
-            // ActiveSkill에 구현되어 있음 - 오브젝트 풀링은 아니지만
-            // if (buffVFXPrefab != null)
-            // {
-            //     ObjectPoolManager.Instance.CreatePool(GetBuffVFXTag(caster), buffVFXPrefab, 1);
-            // }
             if (shieldVFXPrefab != null)
             {
                 ObjectPoolManager.Instance.CreatePool(GetShieldVFXTag(caster), shieldVFXPrefab, 1);
             }
         }
 
-        public string GetBuffVFXTag(UnitEntity caster) => $"{caster.name}_{skillName}_Buff";
         public string GetShieldVFXTag(UnitEntity caster) => $"{caster.name}_{skillName}_Shield";
     }
 }

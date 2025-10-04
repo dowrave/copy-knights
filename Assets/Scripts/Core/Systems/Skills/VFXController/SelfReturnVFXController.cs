@@ -7,9 +7,10 @@ using UnityEngine;
 public class SelfReturnVFXController : MonoBehaviour, IPooledObject
 {
     [Header("Effect(Image) Reference")]
-    [SerializeField] ParticleSystem ps = default!;
-    [SerializeField] bool isGroundVFX = false;
+    [SerializeField] protected ParticleSystem ps = default!;
+    [SerializeField] protected bool isGroundVFX = false;
 
+    protected UnitEntity? caster;
     protected string poolTag = string.Empty;
     protected Coroutine _lifeCycleCoroutine; // 생명주기 코루틴 추적 변수
 
@@ -21,7 +22,7 @@ public class SelfReturnVFXController : MonoBehaviour, IPooledObject
     }
 
     // 시각 효과 설정 및 실행
-    public virtual void Initialize(float duration)
+    public virtual void Initialize(float duration, UnitEntity? caster = null)
     {
         Vector2Int nowGridPosition = MapManager.Instance.ConvertToGridPosition(transform.position);
 
@@ -38,9 +39,14 @@ public class SelfReturnVFXController : MonoBehaviour, IPooledObject
         // 생명주기 코루틴 시작
         // 즉발 스킬이라면 짧은 시간만 보여주고 사라짐
         ps.Play(true);
-        Debug.Log($"{poolTag} 파티클 시스템 플레이됨");
         float lifeTime = (duration > 0f) ? duration : 1.0f;
         _lifeCycleCoroutine = StartCoroutine(LifeCycle(lifeTime));
+
+        if (caster != null)
+        {
+            this.caster = caster;
+            caster.OnDestroyed += ReturnToPool;
+        }
     }
 
     protected void FixVisuals(Vector2Int position)
@@ -60,11 +66,17 @@ public class SelfReturnVFXController : MonoBehaviour, IPooledObject
         ReturnToPool();
     }
 
+    // 이벤트 감지해서 풀로 반환
+    // entity가 있는 경우에만 실행
+    protected void ReturnToPool(UnitEntity entity)
+    {
+        ReturnToPool();
+        caster.OnDestroyed -= ReturnToPool;
+    }
 
     protected virtual void ReturnToPool()
     {
         _lifeCycleCoroutine = null;
-        // 오브젝트 풀 매니저에게 돌려보내달라고 요청
         ObjectPoolManager.Instance?.ReturnToPool(poolTag, gameObject);
     }
 
