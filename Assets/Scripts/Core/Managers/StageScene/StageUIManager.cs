@@ -82,7 +82,7 @@ public class StageUIManager : MonoBehaviour
         // 최초에 꺼져야 할 패널들 비활성화
         gameOverPanelObject.SetActive(false);
         gameWinPanelObject.SetActive(false);
-        infoPanelObject.SetActive(false);
+        infoPanelObject.SetActive(false); // 해당 스크립트의 Hide
         stageResultPanelObject.SetActive(false);
         confirmationReturnToLobbyPanel.gameObject.SetActive(false);
 
@@ -166,7 +166,6 @@ public class StageUIManager : MonoBehaviour
     // 배치되지 않은 유닛의 정보 보기 동작
     public void ShowUndeployedInfo(DeployableManager.DeployableInfo deployableInfo)
     {
-        infoPanelObject.SetActive(true);
         inStageInfoPanelScript.UpdateInfo(deployableInfo, false);
 
         if (deployableInfo.prefab != null)
@@ -174,22 +173,19 @@ public class StageUIManager : MonoBehaviour
             DeployableUnitEntity deployable = deployableInfo.prefab.GetComponent<DeployableUnitEntity>();
             CameraManager.Instance!.AdjustForDeployableInfo(true, deployable);
         }
-        
     }
 
 
     // 배치된 유닛의 정보 보기 동작
     public void ShowDeployedInfo(DeployableUnitEntity deployableUnitEntity)
     {
-        infoPanelObject.SetActive(true);
         inStageInfoPanelScript.UpdateInfo(deployableUnitEntity.DeployableInfo!, true);
         CameraManager.Instance!.AdjustForDeployableInfo(true, deployableUnitEntity);
     }
 
     public void HideDeployableInfo()
     {
-        infoPanelObject.SetActive(false);
-        CameraManager.Instance!.AdjustForDeployableInfo(false);
+        inStageInfoPanelScript.Hide();
     }
 
     public void UpdateEnemyKillCountText()

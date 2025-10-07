@@ -99,10 +99,6 @@ public class StageItemInfoPopup : MonoBehaviour
         // 캔버스의 경계 계산 (월드 좌표 사용)
         float canvasRightEdge = canvasRectTransform.rect.width;
 
-        Debug.Log($"아이템 위치 + UI 너비 + 팝업 너비 : {itemWorldX + itemUIWidth + popupWidth}");
-        Debug.Log($"캔버스 우측 : {canvasRightEdge}");
-
-
         // 조건에 따라 팝업 위치 설정
         if (itemWorldX + itemUIWidth + popupWidth > canvasRightEdge)
         {
@@ -131,14 +127,16 @@ public class StageItemInfoPopup : MonoBehaviour
         Debug.Log($"팝업의 위치 : {popupRectTransform.position}");
 
 
+        // 나중에 다시 봤을 때 순간적으로 위화감이 들어서 제거
+        
         // 아이템 이름 오브젝트의 앵커, 피벗 변경
-        popupItemNameBackground.pivot = new Vector2(1, 0.5f);
-        popupItemNameBackground.anchorMin = new Vector2(1, 0.5f);
-        popupItemNameBackground.anchorMax = new Vector2(1, 0.5f);
+        // popupItemNameBackground.pivot = new Vector2(1, 0.5f);
+        // popupItemNameBackground.anchorMin = new Vector2(1, 0.5f);
+        // popupItemNameBackground.anchorMax = new Vector2(1, 0.5f);
 
         // 아이템 이름 오브젝트의 위치 변경
-        popupItemNameBackground.anchoredPosition = new Vector2(-originalItemNamePosition.x,
-            originalItemNamePosition.y);
+        // popupItemNameBackground.anchoredPosition = new Vector2(-originalItemNamePosition.x,
+        //     originalItemNamePosition.y);
     }
 
     private void SetPopupRight(Vector3 itemWorldPosition, Rect rect)

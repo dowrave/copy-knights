@@ -393,7 +393,6 @@ public class DeployableManager : MonoBehaviour
         // currentActionUI = Instantiate(actionUIPrefab, ActionUIPosition, Quaternion.identity);
         currentActionUI.transform.position = ActionUIPosition;
         currentActionUI.gameObject.SetActive(true);
-        Debug.Log("ShowActionUI µø¿€");
         currentActionUI.Initialize(deployable);
 
         currentUIState = UIState.OperatorAction;

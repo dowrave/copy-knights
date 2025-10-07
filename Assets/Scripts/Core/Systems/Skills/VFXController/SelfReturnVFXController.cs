@@ -45,7 +45,7 @@ public class SelfReturnVFXController : MonoBehaviour, IPooledObject
         if (caster != null)
         {
             this.caster = caster;
-            caster.OnDestroyed += ReturnToPool;
+            caster.OnDeathStarted += ReturnToPool;
         }
     }
 
@@ -71,7 +71,7 @@ public class SelfReturnVFXController : MonoBehaviour, IPooledObject
     protected void ReturnToPool(UnitEntity entity)
     {
         ReturnToPool();
-        caster.OnDestroyed -= ReturnToPool;
+        caster.OnDeathStarted -= ReturnToPool;
     }
 
     protected virtual void ReturnToPool()

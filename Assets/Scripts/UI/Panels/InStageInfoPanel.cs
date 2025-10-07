@@ -52,6 +52,7 @@ public class InStageInfoPanel : MonoBehaviour
 
     public void UpdateInfo(DeployableManager.DeployableInfo deployableInfo, bool IsClickDeployed)
     {
+        gameObject.SetActive(true); // 정보 업데이트라서 오브젝트 활성화
         currentDeployableInfo = deployableInfo;
         currentDeployableUnitState = DeployableManager.Instance!.UnitStates[currentDeployableInfo];
 
@@ -68,14 +69,52 @@ public class InStageInfoPanel : MonoBehaviour
             cancelPanel.onClick.AddListener(OnCancelPanelClicked);
         }
 
-        if (currentDeployableUnitState.IsOperator)
+        // 1. 배치된 Operator
+        if (currentDeployableInfo.deployedOperator != null)
         {
+            Operator op = currentDeployableInfo.deployedOperator;
+            op.OnDeathStarted += Hide;
+            CameraManager.Instance!.AdjustForDeployableInfo(true, op);
             UpdateOperatorInfo();
         }
-        else
+        // 2. 박스의 Operator
+        else if (currentDeployableInfo.ownedOperator != null)
         {
-            UpdateDeployableInfo();
+            OwnedOperator op = currentDeployableInfo.ownedOperator;
+            CameraManager.Instance!.AdjustForDeployableInfo(true);
+            UpdateOperatorInfo();
         }
+        else if (currentDeployableInfo.deployedDeployable != null)
+        {
+            DeployableUnitEntity deployable = deployableInfo.deployedDeployable;
+            deployable.OnDeathStarted += Hide;
+            CameraManager.Instance!.AdjustForDeployableInfo(true, deployable);
+            UpdateDeployableInfo();
+        }        
+    }
+
+    public void Hide(UnitEntity unit)
+    {
+        // 이게 null이 되는 경우는 이미 1번 사라진 상황
+        // 왜인지 모르겠지만 이 메서드가 2번 실행되는 현상이 있고 이 조건문이 없다면 null 예외가 뜬다
+        if (currentDeployableInfo == null) return;
+
+        if (currentDeployableInfo.deployedOperator != null)
+        {
+            currentDeployableInfo.deployedOperator.OnDeathStarted -= Hide;
+        }
+        else if (currentDeployableInfo.deployedDeployable != null)
+        {
+            currentDeployableInfo.deployedDeployable.OnDeathStarted -= Hide;
+        }
+
+        Hide();
+    }
+
+    public void Hide()
+    {
+        gameObject.SetActive(false);
+        CameraManager.Instance!.AdjustForDeployableInfo(false);
     }
 
     private void UpdateOperatorInfo()

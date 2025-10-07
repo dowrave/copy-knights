@@ -65,6 +65,7 @@ public abstract class UnitEntity : MonoBehaviour, ITargettable, IFactionMember, 
     // 이벤트
     public event Action<float, float, float> OnHealthChanged = delegate { };
     public event Action<Buff, bool> OnBuffChanged = delegate { }; // onCrowdControlChanged 대체 
+    public event Action<UnitEntity> OnDeathStarted = delegate { }; // 사망 판정 발생 시 발생하는 이벤트
     public event Action<UnitEntity> OnDeathAnimationCompleted = delegate { }; // 체력이 다해 죽었을 때 정상적인 이벤트 실행 
     public event Action<UnitEntity> OnDestroyed = delegate { }; // 어떤 경로로든 이 객체가 파괴될 때 실행, 위와 같이 쓰겠다면 중첩을 방지할 플래그를 쓰자.
 
@@ -115,6 +116,8 @@ public abstract class UnitEntity : MonoBehaviour, ITargettable, IFactionMember, 
 
     protected void PlayDeathAnimation()
     {
+        OnDeathStarted?.Invoke(this);
+
         if (primaryRenderer == null)
         {
             OnDeathAnimationCompleted?.Invoke(this);

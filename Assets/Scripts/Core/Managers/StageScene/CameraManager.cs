@@ -73,7 +73,11 @@ public class CameraManager : MonoBehaviour
         originalSize = MainCamera.orthographicSize;
     }
 
-    // UI를 클릭하거나 배치된 오퍼레이터 클릭 시 카메라 이동 / 회전 변경
+    /// <summary>
+    /// UI를 클릭하거나 배치된 오퍼레이터 클릭 시 카메라 이동 / 회전 변경
+    /// </summary>
+    /// <param name="show">보여주는지 여부</param>
+    /// <param name="deployable">배치된 deployable(배치되지 않은 경우는 null)</param>
     public void AdjustForDeployableInfo(bool show, DeployableUnitEntity? deployable = null)
     {
         // ShowDeployableInfo

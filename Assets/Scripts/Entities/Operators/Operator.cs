@@ -547,7 +547,7 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
 
         // UI 파괴
         DestroyOperatorUI();
-        
+
         // 필요한지 모르겠어서 일단 주석처리
         //OnSPChanged = null;
 
@@ -557,9 +557,6 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
             ObjectPoolManager.Instance!.RemovePool("Effect_" + OperatorData.entityName);
         }
 
-        // 배치된 요소에서 제거
-        DeployableInfo.deployedOperator = null;
-
         // 오퍼레이터 사망 이벤트 발생
         OnOperatorDied?.Invoke(this);
 
@@ -567,6 +564,8 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
         Enemy.OnEnemyDespawned -= HandleEnemyDespawn;
 
         base.Die();
+        
+        
     }
 
     public override void OnClick()
