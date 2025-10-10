@@ -421,8 +421,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   bodyColliderController: {fileID: 758498809095223509}
-  primaryRenderer: {fileID: 1295280524214356052}
-  secondaryRenderer: {fileID: 0}
+  renderers:
+  - {fileID: 1295280524214356052}
   enemyData: {fileID: 0}
   enemyBarUIPrefab: {fileID: 4850112300594543659, guid: f855a11e7f642eb4481495480ef1a6e8, type: 3}
   modelContainer: {fileID: 879292670743782935}

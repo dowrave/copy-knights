@@ -212,8 +212,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   bodyColliderController: {fileID: 4548167353770906771}
-  primaryRenderer: {fileID: 1776861606506173852}
-  secondaryRenderer: {fileID: 0}
+  renderers:
+  - {fileID: 1776861606506173852}
   currentDeployableStats:
     _baseStats:
       _health: 0

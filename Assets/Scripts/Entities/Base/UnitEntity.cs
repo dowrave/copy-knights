@@ -38,10 +38,16 @@ public abstract class UnitEntity : MonoBehaviour, ITargettable, IFactionMember, 
     [SerializeField] protected BodyColliderController bodyColliderController;
 
     // 이 객체가 갖고 있는 메쉬 렌더러들
-    [SerializeField] protected Renderer primaryRenderer; 
-    [SerializeField] protected Renderer secondaryRenderer; 
+    [SerializeField] protected List<Renderer> renderers;
+    protected List<Material> materialInstances = new List<Material>();
+    protected Dictionary<Renderer, Color> originalEmissionColors = new Dictionary<Renderer, Color>();
+    protected static readonly int EmissionColorID = Shader.PropertyToID("_EmissionColor"); // URP Lit 기준
+    private Coroutine _flashCoroutine; // 피격 시 머티리얼 색 변하는 코루틴
+    protected float flashDuration = .15f;
+    protected Color flashColor = new Color(.3f, .3f, .3f, 1);
+    
     protected MaterialPropertyBlock propBlock; // 모든 렌더러에 재사용 가능
-
+    
     // 버프 관련
     protected List<Buff> activeBuffs = new List<Buff>();
 
@@ -81,6 +87,41 @@ public abstract class UnitEntity : MonoBehaviour, ITargettable, IFactionMember, 
             OnHealthChanged?.Invoke(CurrentHealth, MaxHealth, shield);
         };
 
+        // 갖고 있는 렌더러들 설정
+        if (renderers.Count == 0)
+        {
+            Debug.LogError("UnitEntity에 할당된 Renderer가 없음");
+            return;
+        }
+        else
+        {
+            foreach (var renderer in renderers)
+            {
+                Color originalColor = Color.black;
+                // URP - Lit 사용한다고 가정
+                if (renderer.sharedMaterial.IsKeywordEnabled("_EMISSION"))
+                {
+                    Debug.Log("셰이더의 Emission 키워드 사용 가능");
+                    renderer.GetPropertyBlock(propBlock);
+                    if (propBlock.GetColor(EmissionColorID) != Color.clear)
+                    {
+                        originalColor = propBlock.GetColor(EmissionColorID);
+                    }
+                    else
+                    {
+                        originalColor = renderer.sharedMaterial.GetColor(EmissionColorID);
+                    }
+                }
+
+                originalEmissionColors.Add(renderer, originalColor);
+            }
+        }
+
+        // List<Material> materialInstances = new List<Material>();
+        // List<Renderer> renderers = new List<Renderer>();
+        // if (primaryRenderer != null) renderers.Add(primaryRenderer);
+        // if (secondaryRenderer != null) renderers.Add(secondaryRenderer);
+
         // 콜라이더가 켜지는 시점은 자식 클래스들에서 수동으로 구현함
     }
 
@@ -118,7 +159,7 @@ public abstract class UnitEntity : MonoBehaviour, ITargettable, IFactionMember, 
     {
         OnDeathStarted?.Invoke(this);
 
-        if (primaryRenderer == null)
+        if (renderers.Count == 0)
         {
             OnDeathAnimationCompleted?.Invoke(this);
             Destroy(gameObject);
@@ -127,11 +168,6 @@ public abstract class UnitEntity : MonoBehaviour, ITargettable, IFactionMember, 
 
         // 시퀀스로 만들어 여러 개의 애니메이션을 하나의 그룹으로 묶어서 관리한다
         Sequence deathSequence = DOTween.Sequence();
-
-        List<Material> materialInstances = new List<Material>();
-        List<Renderer> renderers = new List<Renderer>();
-        if (primaryRenderer != null) renderers.Add(primaryRenderer);
-        if (secondaryRenderer != null) renderers.Add(secondaryRenderer);
 
         foreach (Renderer renderer in renderers)
         {
@@ -216,18 +252,18 @@ public abstract class UnitEntity : MonoBehaviour, ITargettable, IFactionMember, 
 
     protected virtual void AssignColorToRenderers(Color primaryColor, Color secondaryColor)
     {
-        if (primaryRenderer != null)
+        if (renderers.Count > 0)
         {
-            primaryRenderer.GetPropertyBlock(propBlock);
+            renderers[0].GetPropertyBlock(propBlock);
             propBlock.SetColor("_BaseColor", primaryColor); // URP Lit 기준
-            primaryRenderer.SetPropertyBlock(propBlock);
+            renderers[0].SetPropertyBlock(propBlock);
         }
             
-        if (secondaryRenderer != null)
+        if (renderers.Count > 1)
         {
-            secondaryRenderer.GetPropertyBlock(propBlock);
+            renderers[1].GetPropertyBlock(propBlock);
             propBlock.SetColor("_BaseColor", secondaryColor); // URP Lit 기준
-            secondaryRenderer.SetPropertyBlock(propBlock);
+            renderers[1].SetPropertyBlock(propBlock);
         }
     }
 
@@ -368,6 +404,9 @@ public abstract class UnitEntity : MonoBehaviour, ITargettable, IFactionMember, 
         CurrentHealth = Mathf.Max(0, CurrentHealth - remainingDamage);
         OnHealthChanged?.Invoke(CurrentHealth, MaxHealth, shieldSystem.CurrentShield);
 
+        // 피격 이펙트 - GetHit이 없더라도 피격당한 오브젝트의 반짝이는 효과
+        _flashCoroutine = StartCoroutine(PlayTakeDamageVFX());
+
         // 피격 이펙트 재생 - 프리팹, 태그 모두 있을 때만 실행됨
         PlayGetHitEffect(source);
 
@@ -427,6 +466,32 @@ public abstract class UnitEntity : MonoBehaviour, ITargettable, IFactionMember, 
     public void ExecuteSkillSequence(IEnumerator skillCoroutine)
     {
         StartCoroutine(skillCoroutine);
+    }
+
+    private IEnumerator PlayTakeDamageVFX()
+    {
+        foreach (Renderer renderer in renderers)
+        {
+            // 현재 렌더러의 프로퍼티 블록 상태를 가져옴 (다른 프로퍼티 유지를 위해)
+            renderer.GetPropertyBlock(propBlock);
+            // Emission 색상만 덮어씀
+            propBlock.SetColor(EmissionColorID, flashColor);
+            renderer.SetPropertyBlock(propBlock);
+        }
+
+        yield return new WaitForSeconds(flashDuration);
+
+        foreach (var renderer in renderers)
+        {
+            // Dictionary에서 해당 렌더러의 원래 색상을 찾아옴
+            Color originalColor = originalEmissionColors[renderer];
+            
+            renderer.GetPropertyBlock(propBlock);
+            propBlock.SetColor(EmissionColorID, originalColor);
+            renderer.SetPropertyBlock(propBlock);
+        }
+
+        _flashCoroutine = null;
     }
 
 
