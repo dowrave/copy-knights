@@ -52,6 +52,39 @@ public class OperatorData : ScriptableObject, ICombatData
     public AttackRangeType AttackRangeType => attackRangeType;
     public Sprite? Icon => icon;
 
+    public virtual void CreateObjectPools()
+    {
+        if (projectilePrefab != null)
+        {
+            ObjectPoolManager.Instance.CreatePool(GetProjectileTag(), projectilePrefab, 5);
+        }
+        if (deployEffectPrefab != null)
+        {
+            ObjectPoolManager.Instance.CreatePool(GetDeployVFXTag(), deployEffectPrefab, 1);
+        }
+        if (meleeAttackEffectPrefab != null)
+        {
+            ObjectPoolManager.Instance.CreatePool(GetMeleeAttackVFXTag(), meleeAttackEffectPrefab, 3);
+        }
+        if (hitEffectPrefab != null)
+        {
+            ObjectPoolManager.Instance.CreatePool(GetHitVFXTag(), hitEffectPrefab, 3);
+        }
+        if (muzzleVFXPrefab != null)
+        {
+            ObjectPoolManager.Instance.CreatePool(GetMuzzleVFXTag(), muzzleVFXPrefab, 3);
+        }
+    }
+
+    public string GetUnitTag() => $"Operator_{entityName}";
+    public string GetProjectileTag() => $"{entityName}_Projectile";
+    public string GetDeployVFXTag() => $"{entityName}_Deploy";
+    public string GetMeleeAttackVFXTag() => $"{entityName}_MeleeAttackVFX";
+    public string GetHitVFXTag() => $"{entityName}_HitVFX";
+    public string GetMuzzleVFXTag() => $"{entityName}_Muzzle";
+
+
+
     public enum OperatorClass
     {
         Vanguard,

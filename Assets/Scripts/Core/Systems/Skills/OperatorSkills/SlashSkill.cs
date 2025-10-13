@@ -24,16 +24,13 @@ namespace Skills.OperatorSkills
             duration = 0f;
         }
 
-        public override void InitializeSkillObjectPool(UnitEntity caster)
+        public override void PreloadObjectPools(OperatorData ownerData)
         {
-            base.InitializeSkillObjectPool(caster);
+            base.PreloadObjectPools(ownerData);
 
-            if (caster is Operator op)
+            if (slashEffectPrefab != null)
             {
-                if (slashEffectPrefab != null)
-                {
-                    skillPoolTag = RegisterPool(caster, slashEffectPrefab, 3);
-                }
+                skillPoolTag = RegisterPool(ownerData, slashEffectPrefab, 3);
             }
         }
 

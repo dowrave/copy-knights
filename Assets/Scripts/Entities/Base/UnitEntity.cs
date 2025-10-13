@@ -45,12 +45,16 @@ public abstract class UnitEntity : MonoBehaviour, ITargettable, IFactionMember, 
     private Coroutine _flashCoroutine; // 피격 시 머티리얼 색 변하는 코루틴
     protected float flashDuration = .15f;
     protected Color flashColor = new Color(.3f, .3f, .3f, 1);
+
+    // 사라지는 애니메이션 관련
+    protected float currentAlpha = 1f;
+    protected float endAlpha = 0f;
+    protected float fadeDuration = .5f;
     
     protected MaterialPropertyBlock propBlock; // 모든 렌더러에 재사용 가능
     
     // 버프 관련
     protected List<Buff> activeBuffs = new List<Buff>();
-
     public ActionRestriction Restrictions { get; private set; } = ActionRestriction.None;
 
     // ICrowdControlTarget 인터페이스 구현
@@ -117,11 +121,6 @@ public abstract class UnitEntity : MonoBehaviour, ITargettable, IFactionMember, 
             }
         }
 
-        // List<Material> materialInstances = new List<Material>();
-        // List<Renderer> renderers = new List<Renderer>();
-        // if (primaryRenderer != null) renderers.Add(primaryRenderer);
-        // if (secondaryRenderer != null) renderers.Add(secondaryRenderer);
-
         // 콜라이더가 켜지는 시점은 자식 클래스들에서 수동으로 구현함
     }
 
@@ -166,62 +165,22 @@ public abstract class UnitEntity : MonoBehaviour, ITargettable, IFactionMember, 
             return;
         }
 
-        // 시퀀스로 만들어 여러 개의 애니메이션을 하나의 그룹으로 묶어서 관리한다
-        Sequence deathSequence = DOTween.Sequence();
-
-        foreach (Renderer renderer in renderers)
-        {
-            // 1. 머티리얼 인스턴스로 만들어 동일한 머티리얼을 사용하는 다른 객체에 영향을 주지 않게 한다
-            Material materialInstance = new Material(renderer.material);
-            renderer.material = materialInstance;
-            materialInstances.Add(materialInstance);
-
-            // 2. 투명 렌더링 모드로 전환
-            SetMaterialToTransparent(materialInstance);
-
-            // 3. 각 렌더러의 머티리얼에 대한 페이드 아웃 트윈을 생성
-            Tween fadeTween = materialInstance.DOFade(0f, 0.2f);
-
-            // 4. 시퀀스에 조인함. 
-            deathSequence.Join(fadeTween);
-        }
-
-        deathSequence.OnComplete(() =>
-        {
-            OnDeathAnimationCompleted?.Invoke(this);
-
-            foreach (Material mat in materialInstances)
+        DOTween.To(() => currentAlpha, x => currentAlpha = x, endAlpha, fadeDuration) // 
+            .OnUpdate(() =>
             {
-                Destroy(mat);
+                foreach (Renderer renderer in renderers)
+                {
+                    renderer.GetPropertyBlock(propBlock);
+                    propBlock.SetFloat("_FadeAmount", currentAlpha);
+                    renderer.SetPropertyBlock(propBlock);
+                }
+            })
+            .OnComplete(() =>
+            {
+                OnDeathAnimationCompleted?.Invoke(this);
+                Destroy(gameObject); // 오브젝트 풀링으로 수정할 예정
             }
-
-            Destroy(gameObject);
-        });
-
-        // 시퀀스의 실행 시점은 위에서 모든 애니메이션이 등록됨 -> DOTween이 시퀀스를 감지함 -> 실행시킴이라서
-        // 이 메서드가 호출되면 별도로 실행시킬 필요 없이 다음 프레임부터 시작된다.
-    }
-
-    // 머티리얼을 투명하게 설정하는 메서드 (URP Lit을 쓴다고 가정)
-    private void SetMaterialToTransparent(Material material)
-    {
-        // URP Lit 셰이더를 Transparent 모드로 변경
-        material.SetFloat("_Surface", 1f);      // 1 = Transparent
-        material.SetFloat("_Blend", 0f);        // 0 = Alpha
-        material.SetFloat("_AlphaClip", 0f);    // 알파 클리핑 비활성화
-
-        // 블렌딩 모드 설정
-        material.SetFloat("_SrcBlend", (float)UnityEngine.Rendering.BlendMode.SrcAlpha);
-        material.SetFloat("_DstBlend", (float)UnityEngine.Rendering.BlendMode.OneMinusSrcAlpha);
-        material.SetFloat("_ZWrite", 0f);       // 깊이 쓰기 비활성화
-
-        // 렌더 큐를 투명 객체용으로 변경
-        material.renderQueue = (int)UnityEngine.Rendering.RenderQueue.Transparent;
-
-        // 키워드 설정
-        material.EnableKeyword("_SURFACE_TYPE_TRANSPARENT");
-        material.DisableKeyword("_SURFACE_TYPE_OPAQUE");
-        material.DisableKeyword("_ALPHATEST_ON");
+        );
     }
 
     protected abstract void InitializeHP();

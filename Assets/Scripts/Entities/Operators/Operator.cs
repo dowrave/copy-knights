@@ -564,8 +564,6 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
         Enemy.OnEnemyDespawned -= HandleEnemyDespawn;
 
         base.Die();
-        
-        
     }
 
     public override void OnClick()
@@ -1140,5 +1138,12 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
     }
 
     public void SetMovementSpeed(float newMovementSpeed) { }
+
+    #region Object Pool Tag Generators 
+    public static string GetMeleeAttackEffectTag(OperatorData data) => $"{data.entityName}_{data.meleeAttackEffectPrefab.name}";
+    public static string GetHitEffectTag(OperatorData data) => $"{data.entityName}_{data.hitEffectPrefab.name}";
+    public static string GetProjectileTag(OperatorData data) => $"{data.entityName}_projectile";
+    public static string GetMuzzleTag(OperatorData data) => $"{data.entityName}_muzzle";
+    #endregion
 
 }

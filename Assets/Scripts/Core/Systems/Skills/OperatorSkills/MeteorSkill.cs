@@ -102,31 +102,28 @@ namespace Skills.Base
             }
         }
 
-        public override void InitializeSkillObjectPool(UnitEntity caster)
-        {
-            if (caster is Operator op)
-            {
-                base.InitializeSkillObjectPool(caster);
-                InitializeSkillObjectPool(op);
-            }
-        }
+        // public override void InitializeSkillObjectPool(UnitEntity caster)
+        // {
+        //     if (caster is Operator op)
+        //     {
+        //         base.InitializeSkillObjectPool(caster);
+        //         InitializeSkillObjectPool(op);
+        //     }
+        // }
 
-        public void InitializeSkillObjectPool(Operator caster)
+        public override void PreloadObjectPools(OperatorData ownerData)
         {
-            if (caster is Operator op)
+            if (meteorPrefab != null)
             {
-                if (meteorPrefab != null)
-                {
-                    METEOR_TAG = RegisterPool(op, meteorPrefab, 10);
-                }
-                if (skillRangeVFXPrefab != null)
-                {
-                    SKILL_RANGE_VFX_TAG = RegisterPool(op, skillRangeVFXPrefab, skillRangeOffset.Count);
-                }
-                if (hitEffectPrefab != null)
-                {
-                    HIT_EFFECT_TAG = RegisterPool(op, hitEffectPrefab, 10);
-                }
+                METEOR_TAG = RegisterPool(ownerData, meteorPrefab, 10);
+            }
+            if (skillRangeVFXPrefab != null)
+            {
+                SKILL_RANGE_VFX_TAG = RegisterPool(ownerData, skillRangeVFXPrefab, skillRangeOffset.Count);
+            }
+            if (hitEffectPrefab != null)
+            {
+                HIT_EFFECT_TAG = RegisterPool(ownerData, hitEffectPrefab, 10);
             }
         }
 

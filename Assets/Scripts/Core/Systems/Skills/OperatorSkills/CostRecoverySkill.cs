@@ -30,7 +30,7 @@ namespace SKills.OperatorSkills
         {
             if (costVFXPrefab != null)
             {
-                PlayVFX(op, GetCostVFXTag(op), op.transform.position, Quaternion.identity, 1);
+                PlayVFX(op, GetCostVFXTag(op.OperatorData), op.transform.position, Quaternion.identity, 1);
             }
         }
 
@@ -43,15 +43,17 @@ namespace SKills.OperatorSkills
         }
 
 
-        public override void InitializeSkillObjectPool(UnitEntity caster)
+        public override void PreloadObjectPools(OperatorData ownerData)
         {
+            base.PreloadObjectPools(ownerData);
+
             if (costVFXPrefab != null)
             {
-                ObjectPoolManager.Instance.CreatePool(GetCostVFXTag(caster), costVFXPrefab, 1);
+                ObjectPoolManager.Instance.CreatePool(GetCostVFXTag(ownerData), costVFXPrefab, 1);
             }
         }
 
-        public string GetCostVFXTag(UnitEntity caster) => $"{caster.name}_{skillName}_costVFX";
+        public string GetCostVFXTag(OperatorData opData) => $"{opData.entityName}_{skillName}_costVFX";
         
     }
 

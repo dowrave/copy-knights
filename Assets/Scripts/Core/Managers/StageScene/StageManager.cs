@@ -4,6 +4,7 @@ using DG.Tweening;
 using System.Collections.Generic;
 using System.Linq;
 using System;
+using Skills.Base;
 
 // 스테이지 씬에서 스테이지와 관련된 여러 상태들을 관리합니다.
 public class StageManager : MonoBehaviour
@@ -175,7 +176,10 @@ public class StageManager : MonoBehaviour
 
         // 맵 준비
         InitializeMap();
-        
+
+        // 스테이지에 필요한 모든 재료(오브젝트 풀)를 준비함
+        PreloadStageObjectPools(squadData);
+
         // 맵에서 가져올 게 있어서 맵 초기화 후에 진행해야 함
         PrepareDeployables(squadData);
 
@@ -554,6 +558,135 @@ public class StageManager : MonoBehaviour
         if (ObjectPoolManager.Instance != null)
         {
             ObjectPoolManager.Instance.ClearAllPools();
+        }
+    }
+
+    private void PreloadStageObjectPools(List<SquadOperatorInfo> squadData)
+    {
+        if (ObjectPoolManager.Instance == null)
+        {
+            Debug.LogError("ObjectPoolManager가 없어 풀 생성 불가능");
+            return;
+        }
+
+        // 1. 등장할 모든 적 유닛 목록 확보
+        var uniqueEnemyPrefabs = new HashSet<GameObject>();
+        // 프리팹 수집
+        if (currentMap != null)
+        {
+            foreach (var spawner in currentMap.EnemySpawners)
+            {
+                if (spawner.spawnList == null) continue;
+                foreach (var spawnInfo in spawner.spawnList.spawnedEnemies)
+                {
+                    if (spawnInfo.prefab != null)
+                    {
+                        uniqueEnemyPrefabs.Add(spawnInfo.prefab);
+                    }
+                }
+            }
+        }
+        // 풀 생성
+        foreach (var enemyPrefab in uniqueEnemyPrefabs)
+        {
+            Enemy enemy = enemyPrefab.GetComponent<Enemy>();
+            if (enemy == null || enemy.BaseData == null) continue;
+            EnemyData enemyData = enemy.BaseData;
+
+            string poolTag = enemyData.GetUnitTag();
+            ObjectPoolManager.Instance.CreatePool(poolTag, enemyPrefab, 10);
+        }
+
+        // 2. 스쿼드의 모든 배치 가능 요소 유닛 목록 확보 및 풀링 (프리팹 수집 + 풀 생성)
+        var uniqueDeployablePrefabs = new HashSet<GameObject>();
+        // a. 스쿼드
+        foreach (var opInfo in squadData)
+        {
+            if (opInfo.op.OperatorProgressData?.prefab != null)
+            {
+                uniqueDeployablePrefabs.Add(opInfo.op.OperatorProgressData.prefab);
+            }
+        }
+        // b. 맵 전용
+        if (stageData != null && stageData.mapDeployables != null)
+        {
+            foreach (var mapDeployableData in stageData.mapDeployables)
+            {
+                if (mapDeployableData.deployablePrefab != null)
+                {
+                    uniqueDeployablePrefabs.Add(mapDeployableData.deployablePrefab);
+                }
+            }
+        }
+        // c. 수집된 모든 배치 가능 유닛 프리팹 풀링
+        foreach (var deployablePrefab in uniqueDeployablePrefabs)
+        {
+            DeployableUnitEntity deployableUnit = deployablePrefab.GetComponent<DeployableUnitEntity>();
+            if (deployableUnit != null)
+            {
+                if (deployableUnit is Operator op)
+                {
+                    OperatorData opData = op.OperatorData;
+                    string opPoolTag = opData.GetUnitTag();
+                    ObjectPoolManager.Instance.CreatePool(opPoolTag, deployablePrefab, 1);
+                }
+                else
+                {
+                    DeployableUnitData deployableData = deployableUnit.DeployableUnitData;
+                    string deployablePoolTag = deployableData.GetUnitTag();
+                    ObjectPoolManager.Instance.CreatePool(deployablePoolTag, deployablePrefab, 1);
+                }
+            } 
+        }
+
+        // 3. 종속 오브젝트 풀링
+        // 3-a. Enemy의 종속 오브젝트
+        foreach (var enemyPrefab in uniqueEnemyPrefabs)
+        {
+            Enemy enemyComponent = enemyPrefab.GetComponent<Enemy>();
+            if (enemyComponent == null || enemyComponent.BaseData == null) continue;
+
+            EnemyData enemyBaseData = enemyComponent.BaseData;
+            enemyBaseData.CreateObjectPools();
+        }
+
+        // 3-b. Opereator의 종속 오브젝트
+        foreach (var opInfo in squadData)
+        {
+            OperatorData opData = opInfo.op.OperatorProgressData;
+            if (opData == null) continue;
+            opData.CreateObjectPools();
+
+            // 스킬 오브젝트 풀 생성
+            // "선택된 스킬"이라는 정보는 여기나 스쿼드 단위에서 관리되므로 여기서 구현
+            int skillIndex = opInfo.skillIndex;
+            if (skillIndex >= 0 && skillIndex < 2)
+            {
+                // 인덱스는 0 or 1
+                OperatorSkill selectedSkill = skillIndex == 0 ? opData.elite0Skill : opData.elite1Unlocks.unlockedSkill;
+                if (selectedSkill != null)
+                {
+                    selectedSkill.PreloadObjectPools(opData);
+                }
+            }
+        }
+
+        // 3-c. 맵 전용 배치 유닛의 종속 오브젝트 풀링
+        if (stageData == null && stageData.mapDeployables != null)
+        {
+            foreach (var mapDeployableData in stageData.mapDeployables)
+            {
+                if (mapDeployableData.deployablePrefab == null) return;
+                var deployableComponent = mapDeployableData.deployablePrefab.GetComponent<DeployableUnitEntity>();
+                if (deployableComponent != null)
+                {
+                    DeployableUnitData deployableData = deployableComponent.DeployableUnitData;
+                    if (deployableData != null)
+                    {
+                        deployableData.CreateObjectPools();
+                    }
+                }
+            }
         }
     }
 

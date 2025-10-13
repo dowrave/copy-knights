@@ -48,16 +48,28 @@ namespace Skills.Base
         /// <summary>
         /// 스킬에서 사용되는 오브젝트 풀 생성(VFX 포함)
         /// </summary>
-        public override void InitializeSkillObjectPool(UnitEntity caster)
+        public virtual void PreloadObjectPools(OperatorData ownerData)
         {
             // 근접 공격 VFX 변경
             if (meleeAttackEffectOverride != null)
             {
-                MELEE_ATTACK_OVERRIDE_TAG = RegisterPool(caster, meleeAttackEffectOverride);
+                MELEE_ATTACK_OVERRIDE_TAG = RegisterPool(ownerData, meleeAttackEffectOverride);
             }
         }
 
-        public override string GetVFXPoolTag(UnitEntity caster, GameObject vfxPrefab)
+        protected string RegisterPool(OperatorData ownerData, GameObject prefab, int initialSize = 5)
+        {
+            if (prefab == null) return string.Empty;
+
+            string poolTag = GetVFXPoolTag(ownerData, prefab);
+            if (!ObjectPoolManager.Instance.IsPoolExist(poolTag))
+            {
+                ObjectPoolManager.Instance.CreatePool(poolTag, prefab, initialSize);
+            }
+            return poolTag; 
+        }
+
+        public virtual string GetVFXPoolTag(OperatorData ownerData, GameObject vfxPrefab)
         {
             if (vfxPrefab == null)
             {
@@ -65,12 +77,14 @@ namespace Skills.Base
                 return string.Empty;
             }
 
-            if (caster is Operator op)
-            {
-                return $"{op.OperatorData.entityName}_{this.name}_{vfxPrefab.name}";
-            }
+            return $"{ownerData.entityName}_{this.name}_{vfxPrefab.name}";
 
-            return string.Empty;
+            // if (caster is Operator op)
+            // {
+            //     return $"{op.OperatorData.entityName}_{this.name}_{vfxPrefab.name}";
+            // }
+
+            // return string.Empty;
         }
 
         protected void Reset()

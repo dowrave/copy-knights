@@ -122,25 +122,23 @@ namespace Skills.OperatorSkills
 
         // 오브젝트 풀 초기화.
         // 오퍼레이터라면 배치되는 시점에 실행된다. 
-        public override void InitializeSkillObjectPool(UnitEntity caster)
+        public override void PreloadObjectPools(OperatorData ownerData)
         {
-            base.InitializeSkillObjectPool(caster);
+            base.PreloadObjectPools(ownerData);
 
-            if (caster is Operator op)
+            if (fieldEffectPrefab != null)
             {
-                if (fieldEffectPrefab != null)
-                {
-                    FIELD_EFFECT_TAG = RegisterPool(op, fieldEffectPrefab, 2);
-                }
-                if (skillRangeVFXPrefab != null)
-                {
-                    SKILL_RANGE_VFX_TAG = RegisterPool(op, skillRangeVFXPrefab, skillRangeOffset.Count);
-                }
-                if (hitEffectPrefab != null)
-                {
-                    HIT_EFFECT_TAG = RegisterPool(op, hitEffectPrefab, 10);
-                }
+                FIELD_EFFECT_TAG = RegisterPool(ownerData, fieldEffectPrefab, 2);
+            }
+            if (skillRangeVFXPrefab != null)
+            {
+                SKILL_RANGE_VFX_TAG = RegisterPool(ownerData, skillRangeVFXPrefab, skillRangeOffset.Count);
+            }
+            if (hitEffectPrefab != null)
+            {
+                HIT_EFFECT_TAG = RegisterPool(ownerData, hitEffectPrefab, 10);
             }
         }
+        
     }
 }

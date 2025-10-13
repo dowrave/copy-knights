@@ -22,6 +22,9 @@ public class DeployableUnitData : ScriptableObject
     public Sprite? Icon => icon;
     public Color PrimaryColor => primaryColor;
     public Color SecondaryColor => secondaryColor;
+
+    public void CreateObjectPools() { }
+    public string GetUnitTag() => $"DeployableUnit_{entityName}";
 }
 
 [System.Serializable]

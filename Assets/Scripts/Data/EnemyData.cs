@@ -25,6 +25,27 @@ public class EnemyData : ScriptableObject, ICombatData
     [SerializeField] protected GameObject? meleeAttackEffectPrefab; // 근접 공격 이펙트
     [SerializeField] protected GameObject hitEffectPrefab = default!; // 공격이 적중했을 때의 이펙트
 
+    public void CreateObjectPools()
+    {
+        if (projectilePrefab != null)
+        {
+            ObjectPoolManager.Instance?.CreatePool(GetProjectileTag(), projectilePrefab, 5);
+        }
+        if (meleeAttackEffectPrefab != null)
+        {
+            ObjectPoolManager.Instance?.CreatePool(GetMeleeAttackVFXTag(), meleeAttackEffectPrefab, 10);
+        }
+        if (hitEffectPrefab != null)
+        {
+            ObjectPoolManager.Instance?.CreatePool(GetHitVFXTag(), hitEffectPrefab, 10);
+        }
+    }
+
+    public string GetUnitTag() => $"Enemy_{entityName}";
+    public string GetProjectileTag() => $"{entityName}_Projectile";
+    public string GetMeleeAttackVFXTag() => $"{entityName}_MeleeAttackVFX";
+    public string GetHitVFXTag() => $"{entityName}_HitVFX";
+
     // UnitData 관련 프로퍼티
     public string EntityName => entityName;
     public EnemyStats Stats => stats;
