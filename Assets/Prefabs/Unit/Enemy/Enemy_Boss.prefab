@@ -423,9 +423,9 @@ MonoBehaviour:
   bodyColliderController: {fileID: 758498809095223509}
   renderers:
   - {fileID: 1295280524214356052}
-  enemyData: {fileID: 0}
+  _enemyData: {fileID: 0}
   enemyBarUIPrefab: {fileID: 4850112300594543659, guid: f855a11e7f642eb4481495480ef1a6e8, type: 3}
   modelContainer: {fileID: 879292670743782935}
   attackRangeController: {fileID: 6276210478676473632}
-  bossData: {fileID: 11400000, guid: aee059c035a64e948aa8548c35ec914a, type: 2}
+  _bossData: {fileID: 11400000, guid: aee059c035a64e948aa8548c35ec914a, type: 2}
   skillRangeController: {fileID: 4353039095607318831}

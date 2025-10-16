@@ -231,45 +231,6 @@ public class ClickDetectionSystem : MonoBehaviour
 
         // 4. 위의 조건에 다 해당하지 않으면 빈 공간 클릭으로 처리
         HandleEmptySpaceClick();
-
-
-        // 레이캐스트를 맞은 콜라이더의 부모 오브젝트에서 DeployableUnitEntity를 찾도록 수정
-        // DeployableUnitEntity? clickable = hit.collider.GetComponent<DeployableUnitEntity>();
-        // DeployableUnitEntity? clickable = hit.collider.GetComponentInParent<DeployableUnitEntity>();
-
-        // if (clickable != null && !DeployableManager.Instance!.IsClickingPrevented)
-        // {
-        //     clickable.OnClick();
-        // }
-
-        // else
-        // {
-        //     Tile? clickedTile = hit.collider.GetComponent<Tile>();
-        //     if (clickedTile != null)
-        //     {
-        //         DeployableUnitEntity? clickedDeployable = clickedTile.OccupyingDeployable;
-        //         if (clickedDeployable != null)
-        //         {
-        //             if (clickedDeployable is Operator op)
-        //             {
-        //                 op.OnClick();
-        //             }
-
-        //             else
-        //             {
-        //                 clickedDeployable.OnClick();
-        //             }
-        //             // Operator가 아닐 때에도 퇴각 버튼은 나타나야 함 
-        //         }
-        //         else
-        //         {
-        //             // clickedTile이 null일 때도 현재 액션 취소
-        //             Debug.Log("클릭된 배치 요소 없음 - CancelCurrentAction 동작");
-
-        //             DeployableManager.Instance!.CancelCurrentAction();
-        //         }
-        //     }
-        // }
     }
     
     private void HandleEmptySpaceClick()

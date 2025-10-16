@@ -169,7 +169,7 @@ MonoBehaviour:
   bodyColliderController: {fileID: 5971685539314000458}
   renderers:
   - {fileID: 1295280524214356052}
-  enemyData: {fileID: 11400000, guid: 397dc75b95a9a804c940fbf6530deaa0, type: 2}
+  _enemyData: {fileID: 11400000, guid: 397dc75b95a9a804c940fbf6530deaa0, type: 2}
   enemyBarUIPrefab: {fileID: 4850112300594543659, guid: f855a11e7f642eb4481495480ef1a6e8, type: 3}
   modelContainer: {fileID: 889998717351143953}
   attackRangeController: {fileID: 2350074905866737951}

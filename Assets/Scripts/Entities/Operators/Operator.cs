@@ -9,7 +9,8 @@ using Unity.VisualScripting;
 
 public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
 {
-    public OperatorData OperatorData { get; protected set; } = default!;
+    [SerializeField] protected OperatorData _operatorData;
+    public OperatorData OperatorData => _operatorData;
     [HideInInspector] 
     public OperatorStats currentOperatorStats; // 일단 public으로 구현
     [SerializeField] protected GameObject operatorUIPrefab = default!;
@@ -177,7 +178,11 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
             OwnedOperator ownedOp = opInfo.ownedOperator;
 
             // 기본 데이터 초기화
-            OperatorData = ownedOp.OperatorProgressData;
+            if (_operatorData == null)
+            {
+                _operatorData = ownedOp.OperatorProgressData;
+            }
+
             CurrentSP = OperatorData.initialSP;
 
             SetPrefab();
@@ -552,10 +557,10 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
         //OnSPChanged = null;
 
         // 이펙트 풀 정리
-        if (OperatorData.hitEffectPrefab != null)
-        {
-            ObjectPoolManager.Instance!.RemovePool("Effect_" + OperatorData.entityName);
-        }
+        // if (OperatorData.hitEffectPrefab != null)
+        // {
+        //     ObjectPoolManager.Instance!.RemovePool("Effect_" + OperatorData.entityName);
+        // }
 
         // 오퍼레이터 사망 이벤트 발생
         OnOperatorDied?.Invoke(this);
@@ -564,6 +569,11 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
         Enemy.OnEnemyDespawned -= HandleEnemyDespawn;
 
         base.Die();
+    }
+
+    protected override void SetPoolTag()
+    {
+        poolTag = _operatorData.GetUnitTag();
     }
 
     public override void OnClick()

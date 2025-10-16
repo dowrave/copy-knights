@@ -25,7 +25,9 @@ public class DeployableBox : MonoBehaviour, IPointerDownHandler, IBeginDragHandl
     private Color onCooldownColor = new Color(0.3f, 0, 0, 0.95f);
 
     private Sprite? boxIcon;
-    private GameObject deployablePrefab = default!;
+    private string deployableTag;
+    private GameObject deployablePrefab;
+    private GameObject deployableObject = default!;
     private DeployableUnitEntity deployableComponent = default!;
     private DeployableManager.DeployableInfo deployableInfo = default!;
     private DeployableUnitState deployableUnitState = default!;
@@ -47,6 +49,7 @@ public class DeployableBox : MonoBehaviour, IPointerDownHandler, IBeginDragHandl
     public void Initialize(DeployableManager.DeployableInfo info)
     {
         deployableInfo = info;
+        deployableTag = info.poolTag;
         deployablePrefab = info.prefab;
         deployableComponent = deployablePrefab.GetComponent<DeployableUnitEntity>(); // 다형성 활용
         deployableUnitState = DeployableManager.Instance!.UnitStates[deployableInfo];
@@ -163,8 +166,9 @@ public class DeployableBox : MonoBehaviour, IPointerDownHandler, IBeginDragHandl
             operatorIllustImage.sprite = boxIcon;
             operatorIllustImage.color = Color.white; // 원래의 아이콘 그대로 나타내기 위함
         }
+
         // 아니라면 deployable 모델의 설정을 가져옴
-        else if (deployablePrefab != null)
+        else if (deployableComponent != null)
         {
             if (deployableComponent is Operator && deployableInfo.operatorData != null)
             {
@@ -283,7 +287,7 @@ public class DeployableBox : MonoBehaviour, IPointerDownHandler, IBeginDragHandl
     {
         if (isDragging)
         {
-            DeployableManager.Instance!.EndDragging(deployablePrefab);
+            DeployableManager.Instance!.EndDragging();
             isDragging = false;
         }
     }

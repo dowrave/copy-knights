@@ -15,8 +15,8 @@ public enum DespawnReason
 
 public class Enemy : UnitEntity, IMovable, ICombatEntity
 {
-    [SerializeField] protected EnemyData enemyData = default!;
-    public virtual EnemyData BaseData => enemyData;
+    [SerializeField] protected EnemyData _enemyData = default!;
+    public virtual EnemyData BaseData => _enemyData;
 
     protected EnemyStats currentStats;
 
@@ -134,7 +134,7 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity
 
     protected virtual void Start()
     {
-        AssignColorToRenderers(enemyData.PrimaryColor, enemyData.SecondaryColor);
+        AssignColorToRenderers(_enemyData.PrimaryColor, _enemyData.SecondaryColor);
     }
 
     // 모델 회전 관련 로직을 쓸 일이 Enemy 뿐이라 여기에 구현해놓음.
@@ -146,9 +146,15 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity
         }
     }
 
+    protected override void SetPoolTag()
+    {
+        poolTag = _enemyData.GetUnitTag();
+    }
+
     public virtual void Initialize(EnemyData enemyData, PathData pathData)
     {
-        this.enemyData = enemyData;
+        this._enemyData = enemyData;
+        SetPoolTag();
         SetPrefab();
         currentStats = enemyData.Stats;
         this.pathData = pathData;
@@ -181,7 +187,7 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity
 
     public override void SetPrefab()
     {
-        prefab = enemyData.Prefab;
+        prefab = _enemyData.Prefab;
     }
 
     protected void OnEnable()

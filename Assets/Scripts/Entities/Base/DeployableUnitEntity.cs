@@ -5,18 +5,16 @@ using System;
 public abstract class DeployableUnitEntity : UnitEntity, IDeployable
 {
     public DeployableManager.DeployableInfo DeployableInfo { get; protected set; } = default!;
-    public DeployableUnitData DeployableUnitData { get; private set; } = default!;
+
+    [SerializeField] protected DeployableUnitData _deployableData;
+    public DeployableUnitData DeployableUnitData => _deployableData;
 
     [HideInInspector]
     public DeployableUnitStats currentDeployableStats;
 
-
     public bool IsDeployed { get; protected set; }
-    public int InitialDeploymentCost { get; protected set; } // ???? ©ö??¢® ??¨ö¨¬¨¡¢ç - DeploymentCost¢¥? ¡Æ??? ?©¬ ??¡Æ¢®?? ¨ù? ???¨ö
+    public int InitialDeploymentCost { get; protected set; } 
 
-    // [SerializeField] private Collider _mainCollider;
-
-    // ©ö?¢¬¢ç¨¬¢¬¡¾? ¡Æ?¡¤?
     protected bool isPreviewMode = false;
     public bool IsPreviewMode
     {
@@ -29,17 +27,16 @@ public abstract class DeployableUnitEntity : UnitEntity, IDeployable
     protected Material originalMaterial = default!;
     protected Material previewMaterial = default!;
 
-    // ©ö??¢® ¢¯?¡¤? ?? ?¢¯¨ù¡©¢¬? ¢Ò¨ú ?¡×?¢®¡Æ¢® ¢¯?¨¡?¡¤©ö???? ?¡×?¢®?? ¢Ò¡× ActionUI¡Æ¢® ©ø¨£?¢¬©ø©÷?? ©ö©¡????¡¾? ?¡×?? ¨¬?¨ù???
     private float preventInteractingTime = 0.1f;
     private float lastDeployTime;
 
-    public Tile? CurrentTile { get; protected set; } // "©ö??¢® ?©¬"??¢Ò?¢¥? ¡Æ??¢´?? ??¡¾? ??©ö¢ç¢¯¢® nullable
+    public Tile? CurrentTile { get; protected set; } 
 
     public static event Action<DeployableUnitEntity> OnDeployed = delegate { };
 
     protected override void Awake()
     {
-        Faction = Faction.Ally; // ©ö??¢® ¡Æ¢®¢¥??? ¢¯?¨ù?¢¥? ¢¬©£?? ¨ú¨¡¡¾¨¬?¢¬¡¤? ¡Æ???
+        Faction = Faction.Ally; 
         base.Awake();
     }
 
@@ -51,11 +48,12 @@ public abstract class DeployableUnitEntity : UnitEntity, IDeployable
     public void Initialize(DeployableManager.DeployableInfo deployableInfo)
     {
         DeployableInfo = deployableInfo;
-        if (deployableInfo.deployableUnitData != null)
+        if (_deployableData != null)
         {
-            DeployableUnitData = deployableInfo.deployableUnitData!;
+            _deployableData = deployableInfo.deployableUnitData!;
 
             currentDeployableStats = DeployableUnitData.stats;
+            SetPoolTag();
             SetPrefab();
 
             InitializeDeployableProperties();
@@ -63,9 +61,13 @@ public abstract class DeployableUnitEntity : UnitEntity, IDeployable
         }
         else
         {
-            Debug.LogError("BaseData¢¯¢® ??¢¥??? ¡Æ¨£?? ¨ú©ª?¨ö!");
             return;
         }
+    }
+
+    protected override void SetPoolTag()
+    {
+        poolTag = _deployableData.GetUnitTag();
     }
 
     public override void SetPrefab()
@@ -74,11 +76,10 @@ public abstract class DeployableUnitEntity : UnitEntity, IDeployable
     }
 
 
-    // ??¨ö? ¢¯?¨¬??¡×¨¡¢ç¢¯¢® ¨ö?¡Æ??¡©¢¬? ¢¥?¢¥???¢¥? Model?? ??¢¥?¢¥? ????
     protected virtual void InitializeDeployableProperties()
     {
         SetDeployState(false);
-        InitialDeploymentCost = currentDeployableStats.DeploymentCost; // ??¡¾? ©ö??¢® ??¨ö¨¬¨¡¢ç ¨ù©ø?¢´
+        InitialDeploymentCost = currentDeployableStats.DeploymentCost;
     }
 
     public virtual void Deploy(Vector3 position)
@@ -86,7 +87,7 @@ public abstract class DeployableUnitEntity : UnitEntity, IDeployable
         if (!IsDeployed)
         {
             SetDeployState(true);
-            SetColliderState(true); // ??¢Ò???¢¥? ??
+            SetColliderState(true); 
             UpdateCurrentTile();
             if (CurrentTile != null)
             {
@@ -97,16 +98,13 @@ public abstract class DeployableUnitEntity : UnitEntity, IDeployable
             lastDeployTime = Time.time;
 
             OnDeployed?.Invoke(this);
-            Debug.Log("OnDeployed ??¨¬?¨¡¢ç ©ö©¬??");
         }
     }
 
-    // ?¢¬?? ?¡×¢¯¢®¨ù¡©?? ¨ö??? ©ö??¢® ?¡×?¢® ?¢Ò?¢´
     protected void SetPosition(Vector3 worldPosition)
     {
         if (CurrentTile != null)
         {
-            // ¢¯?¨¡?¡¤©ö????¢¥? ???? ¢Ò?¢¯?¨ù¡© ©ö??¢®
             if (this is Operator)
             {
                 transform.position = worldPosition + Vector3.up * (CurrentTile.GetHeightScale() / 2 + 0.5f);
@@ -132,9 +130,8 @@ public abstract class DeployableUnitEntity : UnitEntity, IDeployable
             DeployableManager.Instance!.OnDeployableRemoved(this);
             if (CurrentTile != null)
             {
-                CurrentTile.ClearOccupied(); // ?¢¬??¢¯¢® ©ö??¢®?? ¢¯?¨ù? ??¡Æ?
+                CurrentTile.ClearOccupied();
             }
-
             base.Die();
         }
     }
@@ -152,7 +149,6 @@ public abstract class DeployableUnitEntity : UnitEntity, IDeployable
     private bool IsInvalidTile(Tile tile)
     {
         return tile == null ||
-        // tile.IsOccupied ||
         tile.data.isStartPoint ||
         tile.data.isEndPoint;
     }
@@ -165,38 +161,30 @@ public abstract class DeployableUnitEntity : UnitEntity, IDeployable
         }
     }
 
-    // ©ö??¢®?? ??¢¥? ??¢¬? ¨ö? ?¢¯??
     public virtual void OnClick()
     {
-        // ©ö??¢® ?¡À?? ??¢¬? ©ö©¡??
+        // ?? ??
         if (Time.time - lastDeployTime < preventInteractingTime)
         {
             DeployableManager.Instance!.CancelPlacement();
             return;
         }
 
-        // ©ö??¢®?? ¢¯?¨¡?¡¤©ö???? ??¢¬? ?¢¯??
+        
         if (IsDeployed &&
             !IsPreviewMode &&
-            StageManager.Instance!.currentState == GameState.Battle // ?¡¿¨ö¨¬¨¡¢ç ?©¬)
+            StageManager.Instance!.currentState == GameState.Battle
             )
         {
             DeployableManager.Instance!.CancelPlacement();
 
-            // ©ö?¢¬¢ç¨¬¢¬¡¾? ????¢¯¢®¨ù¡¾ ?¢¯?? X
             if (IsPreviewMode == false)
             {
-                //DebugDeployableInfo();
                 StageUIManager.Instance!.ShowDeployedInfo(this);
             }
 
             ShowActionUI();
         }
-    }
-
-    protected virtual void DebugDeployableInfo()
-    {
-        Debug.Log($"©ö??¢® ¢¯?¨ù? ??¢¬?, deployableInfo : {DeployableInfo}");
     }
 
     protected virtual void ShowActionUI()
@@ -217,7 +205,6 @@ public abstract class DeployableUnitEntity : UnitEntity, IDeployable
         IsPreviewMode = !isDeployed;
     }
 
-    // ???? ?¡×?¢®?? ?¢¬?? ¨ù©ø?¢´
     protected virtual void UpdateCurrentTile()
     {
         Vector3 position = transform.position;

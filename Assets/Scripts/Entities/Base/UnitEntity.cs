@@ -66,6 +66,9 @@ public abstract class UnitEntity : MonoBehaviour, ITargettable, IFactionMember, 
     protected HashSet<Vector2Int> currentSkillRange = new HashSet<Vector2Int>(); // 스킬 범위
     public Vector2Int LastSkillCenter { get; protected set; } // 마지막으로 사용한 스킬의 중심 위치. 범위 재계산 여부를 결정하기 위한 필드.
 
+    // 유닛 자신의 풀 태그
+    public string poolTag {get; set;}
+
     // 이펙트 태그
     protected string? meleeAttackEffectTag;
     protected string hitEffectTag = string.Empty;
@@ -178,10 +181,14 @@ public abstract class UnitEntity : MonoBehaviour, ITargettable, IFactionMember, 
             .OnComplete(() =>
             {
                 OnDeathAnimationCompleted?.Invoke(this);
-                Destroy(gameObject); // 오브젝트 풀링으로 수정할 예정
+                ObjectPoolManager.Instance.ReturnToPool(poolTag, gameObject);
+                Debug.Log($"{poolTag}에서 풀로 돌아가는 동작 수행됨");
+                // Destroy(gameObject); // 오브젝트 풀링으로 수정할 예정
             }
         );
     }
+
+    protected virtual void SetPoolTag() {}
 
     protected abstract void InitializeHP();
 

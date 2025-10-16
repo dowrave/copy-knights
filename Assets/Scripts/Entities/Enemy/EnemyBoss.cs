@@ -5,12 +5,12 @@ using System.Linq;
 
 public class EnemyBoss : Enemy
 {
-    [NonSerialized] protected new EnemyData enemyData; // 부모의 enemyData와 충돌 방지, 이 필드는 직렬화에서 무시됨
-    [SerializeField] EnemyBossData bossData = default!;
+    [NonSerialized] protected new EnemyData _enemyData; // 부모의 enemyData와 충돌 방지, 이 필드는 직렬화에서 무시됨
+    [SerializeField] EnemyBossData _bossData = default!;
     [SerializeField] protected EnemyBossSkillRangeController skillRangeController;
 
-    public override EnemyData BaseData => bossData;
-    public EnemyBossData BossData => bossData;
+    public override EnemyData BaseData => _bossData;
+    public EnemyBossData BossData => _bossData;
 
     private List<EnemyBossSkill> meleeSkills = new List<EnemyBossSkill>();
     private List<EnemyBossSkill> rangedSkills = new List<EnemyBossSkill>();
@@ -27,7 +27,7 @@ public class EnemyBoss : Enemy
 
     public override void SetPrefab()
     {
-        prefab = bossData.Prefab;
+        prefab = _bossData.Prefab;
     }
 
     public void Initialize(EnemyBossData bossData, PathData pathData)
@@ -35,6 +35,11 @@ public class EnemyBoss : Enemy
         base.Initialize(bossData, pathData);
 
         skillRangeController.Initialize(this);
+    }
+
+    protected override void SetPoolTag()
+    {
+        poolTag = _bossData.GetUnitTag();
     }
 
     // 스킬을 초기화함

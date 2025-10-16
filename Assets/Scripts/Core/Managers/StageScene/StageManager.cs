@@ -571,6 +571,7 @@ public class StageManager : MonoBehaviour
 
         // 1. 등장할 모든 적 유닛 목록 확보
         var uniqueEnemyPrefabs = new HashSet<GameObject>();
+
         // 프리팹 수집
         if (currentMap != null)
         {
@@ -593,18 +594,24 @@ public class StageManager : MonoBehaviour
             if (enemy == null || enemy.BaseData == null) continue;
             EnemyData enemyData = enemy.BaseData;
 
-            string poolTag = enemyData.GetUnitTag();
-            ObjectPoolManager.Instance.CreatePool(poolTag, enemyPrefab, 10);
+            string enemyPoolTag = enemyData.GetUnitTag();
+            ObjectPoolManager.Instance.CreatePool(enemyPoolTag, enemyPrefab, 10);
+            Debug.Log($"enemy 풀 - {enemyPoolTag} 생성됨");
+
         }
 
         // 2. 스쿼드의 모든 배치 가능 요소 유닛 목록 확보 및 풀링 (프리팹 수집 + 풀 생성)
-        var uniqueDeployablePrefabs = new HashSet<GameObject>();
         // a. 스쿼드
         foreach (var opInfo in squadData)
         {
-            if (opInfo.op.OperatorProgressData?.prefab != null)
+            if (opInfo.op.OperatorProgressData != null)
             {
-                uniqueDeployablePrefabs.Add(opInfo.op.OperatorProgressData.prefab);
+                OperatorData opData = opInfo.op.OperatorProgressData;
+                GameObject operatorPrefab = opData.prefab;
+
+                string opPoolTag = opData.GetUnitTag();
+                ObjectPoolManager.Instance.CreatePool(opPoolTag, operatorPrefab, 1);
+                Debug.Log($"operator 풀 - {opPoolTag} 생성됨");
             }
         }
         // b. 맵 전용
@@ -612,31 +619,16 @@ public class StageManager : MonoBehaviour
         {
             foreach (var mapDeployableData in stageData.mapDeployables)
             {
-                if (mapDeployableData.deployablePrefab != null)
+                if (mapDeployableData != null)
                 {
-                    uniqueDeployablePrefabs.Add(mapDeployableData.deployablePrefab);
-                }
-            }
-        }
-        // c. 수집된 모든 배치 가능 유닛 프리팹 풀링
-        foreach (var deployablePrefab in uniqueDeployablePrefabs)
-        {
-            DeployableUnitEntity deployableUnit = deployablePrefab.GetComponent<DeployableUnitEntity>();
-            if (deployableUnit != null)
-            {
-                if (deployableUnit is Operator op)
-                {
-                    OperatorData opData = op.OperatorData;
-                    string opPoolTag = opData.GetUnitTag();
-                    ObjectPoolManager.Instance.CreatePool(opPoolTag, deployablePrefab, 1);
-                }
-                else
-                {
-                    DeployableUnitData deployableData = deployableUnit.DeployableUnitData;
+                    DeployableUnitData deployableData = mapDeployableData.DeployableData;
+                    GameObject deployablePrefab = deployableData.prefab;
+
                     string deployablePoolTag = deployableData.GetUnitTag();
                     ObjectPoolManager.Instance.CreatePool(deployablePoolTag, deployablePrefab, 1);
+                    Debug.Log($"operator 풀 - {deployablePoolTag} 생성됨");
                 }
-            } 
+            }
         }
 
         // 3. 종속 오브젝트 풀링
@@ -648,6 +640,7 @@ public class StageManager : MonoBehaviour
 
             EnemyData enemyBaseData = enemyComponent.BaseData;
             enemyBaseData.CreateObjectPools();
+            Debug.Log($"{enemyBaseData} 관련 종속 오브젝트 풀 생성됨");
         }
 
         // 3-b. Opereator의 종속 오브젝트
@@ -669,22 +662,22 @@ public class StageManager : MonoBehaviour
                     selectedSkill.PreloadObjectPools(opData);
                 }
             }
+
+            Debug.Log($"{opData} 관련 종속 오브젝트 풀 생성됨");
         }
 
         // 3-c. 맵 전용 배치 유닛의 종속 오브젝트 풀링
-        if (stageData == null && stageData.mapDeployables != null)
+        if (stageData != null && stageData.mapDeployables != null)
         {
             foreach (var mapDeployableData in stageData.mapDeployables)
             {
-                if (mapDeployableData.deployablePrefab == null) return;
-                var deployableComponent = mapDeployableData.deployablePrefab.GetComponent<DeployableUnitEntity>();
-                if (deployableComponent != null)
+                if (mapDeployableData.DeployableData == null) continue;
+
+                DeployableUnitData deployableData = mapDeployableData.DeployableData;
+                if (deployableData != null)
                 {
-                    DeployableUnitData deployableData = deployableComponent.DeployableUnitData;
-                    if (deployableData != null)
-                    {
-                        deployableData.CreateObjectPools();
-                    }
+                    deployableData.CreateObjectPools();
+                    Debug.Log($"{deployableData} 관련 종속 오브젝트 풀 생성됨");
                 }
             }
         }

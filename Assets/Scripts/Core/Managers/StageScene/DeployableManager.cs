@@ -28,7 +28,7 @@ public class DeployableManager : MonoBehaviour
     // 현재 선택된 박스에서 불러오는 정보들 - 일일이 관리한다는 번거로운 감은 있는데 그냥 이렇게 쓰겠음
     private DeployableInfo? currentDeployableInfo;
     private DeployableBox? currentDeployableBox;
-    private GameObject? currentDeployablePrefab;
+    private GameObject? currentDeployableObject;
     private DeployableUnitEntity? currentDeployable;
 
     // 배치 가능 수와 현재 배치 수
@@ -126,11 +126,12 @@ public class DeployableManager : MonoBehaviour
             var info = new DeployableInfo
             {
                 prefab = op.OperatorProgressData.prefab,
+                poolTag = op.OperatorProgressData.GetUnitTag(),
                 maxDeployCount = 1,
                 redeployTime = op.OperatorProgressData.stats.RedeployTime,
                 ownedOperator = op,
                 skillIndex = opInfo.skillIndex,
-                operatorData = op.OperatorProgressData
+                operatorData = op.OperatorProgressData,
             };
 
             allDeployables.Add(info);
@@ -146,10 +147,10 @@ public class DeployableManager : MonoBehaviour
             var info = deployable.ToDeployableInfo();
             allDeployables.Add(info);
 
-            InstanceValidator.ValidateInstance(deployable.deployableData);
+            InstanceValidator.ValidateInstance(deployable.DeployableData);
 
             // (배치 요소 이름 - 배치 정보) 매핑
-            deployableInfoMap[deployable.deployableData!.entityName!] = info; 
+            deployableInfoMap[deployable.DeployableData!.entityName!] = info; 
         }
 
         MaxOperatorDeploymentCount = maxOperatorDeploymentCount;
@@ -268,29 +269,34 @@ public class DeployableManager : MonoBehaviour
     // BottomPanelOperatorBox 마우스버튼 다운 시 작동, 배치하려는 오퍼레이터의 정보를 변수에 넣는다.
     public void StartDeployableSelection(DeployableInfo deployableInfo)
     {
+        Debug.Log("StartDeployableSelection 동작");
         ResetPlacement();
 
-        if (currentDeployableInfo != deployableInfo)
-        {    
+        SetCurrentDeployableInfo(deployableInfo);
+
+        IsDeployableSelecting = true;
+
+        StageUIManager.Instance!.ShowUndeployedInfo(currentDeployableInfo);
+
+        // 박스 선택 상태
+        currentDeployableBox.Select();
+
+        HighlightAvailableTiles();
+    }
+    
+    private void SetCurrentDeployableInfo(DeployableInfo deployableInfo)
+    {
+        if (deployableInfo != null)
+        {
             currentDeployableInfo = deployableInfo;
+
+            currentDeployable = currentDeployableInfo.deployedOperator != null ?
+                currentDeployableInfo.deployedOperator :
+                currentDeployableInfo.deployedDeployable;
+            if (currentDeployableInfo == null) throw new InvalidOperationException("currentDeployableInfo가 null임");
+
             currentDeployableBox = deployableUIBoxes[currentDeployableInfo];
-            currentDeployablePrefab = currentDeployableInfo.prefab;
-
             if (currentDeployableBox == null) throw new InvalidOperationException("currentDeployableBox가 null임");
-            if (currentDeployablePrefab == null) throw new InvalidOperationException("currentDeployablePrefab가 null임");
-
-            currentDeployable = currentDeployablePrefab.GetComponent<DeployableUnitEntity>();
-            if (currentDeployable == null) throw new InvalidOperationException("currentDeployable이 null임");
-
-            IsDeployableSelecting = true;
-            
-            StageUIManager.Instance!.ShowUndeployedInfo(currentDeployableInfo);
-
-            // 박스 선택 상태
-            currentDeployableBox.Select();
-
-
-            HighlightAvailableTiles();
         }
     }
 
@@ -317,12 +323,12 @@ public class DeployableManager : MonoBehaviour
     }
 
     // 하단 박스 드래그 중 커서를 뗐을 때의 동작
-    public void EndDragging(GameObject deployablePrefab)
+    public void EndDragging()
     {
-        if (currentDeployable == null) throw new InvalidOperationException("currentDeployablePrefab이 null임");
+        if (currentDeployable == null) throw new InvalidOperationException("currentDeployable이 null임");
         if (currentDeployableInfo == null) throw new InvalidOperationException("currentDeployableInfo이 null임");
 
-        if (IsDraggingDeployable && currentDeployablePrefab == deployablePrefab)
+        if (IsDraggingDeployable)
         {
             IsDraggingDeployable = false;
             Tile? hoveredTile = GetHoveredTile();
@@ -353,13 +359,11 @@ public class DeployableManager : MonoBehaviour
 
     private void CreatePreviewDeployable()
     {
-        InstanceValidator.ValidateInstance(currentDeployable);
-        InstanceValidator.ValidateInstance(currentDeployablePrefab);
         InstanceValidator.ValidateInstance(currentDeployableInfo);
 
-
-        GameObject deployableObject = Instantiate(currentDeployablePrefab!);
-        currentDeployable = deployableObject.GetComponent<DeployableUnitEntity>();
+        currentDeployableObject = ObjectPoolManager.Instance.SpawnFromPool(currentDeployableInfo.poolTag, Vector3.zero, Quaternion.identity);
+        Debug.Log($"{currentDeployableObject} 풀에서 꺼내 생성됨");
+        currentDeployable = currentDeployableObject.GetComponent<DeployableUnitEntity>();
 
         if (currentDeployable is Operator op)
         {
@@ -479,7 +483,6 @@ public class DeployableManager : MonoBehaviour
                         IsSelectingDirection = false;
                         IsMousePressed = false;
                         lastPlacementTime = Time.time; // 배치 시간 기록
-                        ResetPlacement();
                     }
                     // 바운더리 이내라면 다시 방향 설정(클릭 X) 상태
                     else
@@ -583,7 +586,6 @@ public class DeployableManager : MonoBehaviour
                 {
                     currentDeployableBox.Deselect();
                     currentDeployableBox = null;
-
                 }
             }
             else
@@ -625,7 +627,8 @@ public class DeployableManager : MonoBehaviour
             // 미리보기 중일 때는 해당 오브젝트 파괴
             if (currentDeployable.IsPreviewMode)
             {
-                Destroy(currentDeployable.transform.gameObject);
+                ObjectPoolManager.Instance.ReturnToPool(currentDeployableInfo.poolTag, currentDeployableObject);
+                Debug.Log($"[ResetPlacement] - {currentDeployableObject} 풀로 반환됨");
             }
             currentDeployable = null;
         }
@@ -634,15 +637,56 @@ public class DeployableManager : MonoBehaviour
             currentDeployableBox.Deselect();
             currentDeployableBox = null;
         }
-        currentDeployablePrefab = null;
+
+        currentDeployableObject = null;
         currentDeployableInfo = null;
 
         StageUIManager.Instance!.HideDeployableInfo();
         GameManagement.Instance!.TimeManager.UpdateTimeScale();
-        ResetHighlights();
 
+        ResetHighlights();
         HideOperatorUIs();
     }
+
+    // private void ResetPlacementWithObjectReturn()
+    // {
+    //     InstanceValidator.ValidateInstance(StageManager.Instance);
+    //     InstanceValidator.ValidateInstance(StageUIManager.Instance);
+
+    //     IsDeployableSelecting = false;
+    //     IsDraggingDeployable = false;
+    //     IsSelectingDirection = false;
+    //     IsMousePressed = false;
+
+    //     // currentDeployableInfo 관련 변수들
+    //     if (currentDeployable != null)
+    //     {
+    //         // 미리보기 중일 때는 해당 오브젝트 되돌림
+    //         if (currentDeployable.IsPreviewMode)
+    //         {
+    //             ObjectPoolManager.Instance.ReturnToPool(currentDeployableInfo.poolTag, currentDeployable.gameObject);
+    //         }
+    //         currentDeployable = null;
+    //     }
+    //     if (currentDeployableBox != null)
+    //     {
+    //         currentDeployableBox.Deselect();
+    //         currentDeployableBox = null;
+    //     }
+    //     // currentDeployablePrefab = null;
+    //     if (currentDeployableObject != null)
+    //     {
+    //         currentDeployableObject = null;
+    //     }
+
+    //     currentDeployableInfo = null;
+
+    //     StageUIManager.Instance!.HideDeployableInfo();
+    //     GameManagement.Instance!.TimeManager.UpdateTimeScale();
+
+    //     ResetHighlights();
+    //     HideOperatorUIs();
+    // }
 
     public void CancelPlacement()
     {
@@ -796,6 +840,7 @@ public class DeployableManager : MonoBehaviour
     public class DeployableInfo
     {
         public GameObject prefab = default!;
+        public string poolTag;
         public int maxDeployCount = 0;
         public float redeployTime = 0f;
 

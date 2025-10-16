@@ -6,9 +6,13 @@ using UnityEngine;
 [System.Serializable]
 public class MapDeployableData
 {
-    public GameObject deployablePrefab = default!;
-    public DeployableUnitData deployableData = default!; // 기본 데이터. 별도의 초기화 로직을 거치지 않게 하기 위함. 
-    public int maxDeployCount = 0; // 최대 배치 가능 수 
+    protected GameObject deployablePrefab = default!;
+    protected DeployableUnitData deployableData = default!; // 기본 데이터. 별도의 초기화 로직을 거치지 않게 하기 위함. 
+    protected int maxDeployCount = 0; // 최대 배치 가능 수 
+
+    public GameObject DeployablePrefab => deployablePrefab;
+    public DeployableUnitData DeployableData => deployableData;
+    public int MaxDeployCount => maxDeployCount;
 
     public DeployableManager.DeployableInfo ToDeployableInfo()
     {
@@ -17,7 +21,8 @@ public class MapDeployableData
             prefab = deployablePrefab,
             maxDeployCount = maxDeployCount,
             redeployTime = deployableData.stats.RedeployTime,
-            deployableUnitData = deployableData
+            deployableUnitData = deployableData,
+            poolTag = deployableData.GetUnitTag()
         };
     }
 }

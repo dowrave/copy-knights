@@ -68,6 +68,9 @@ public class StageLoader : MonoBehaviour
         }
 
         asyncLoad.allowSceneActivation = true;
+
+        // true일 때는 씬의 로딩과 활성화가 모두 완료된 시점
+        // 해당 씬의 모든 활성 게임 오브젝트의 Awake 메서드가 호출된다.
         while (!asyncLoad.isDone)
         {
             yield return null;

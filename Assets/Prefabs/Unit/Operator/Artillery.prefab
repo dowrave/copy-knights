@@ -161,6 +161,7 @@ MonoBehaviour:
   bodyColliderController: {fileID: 8171197615734996694}
   renderers:
   - {fileID: 5031761690942785426}
+  _deployableData: {fileID: 0}
   currentDeployableStats:
     _baseStats:
       _health: 0
@@ -168,6 +169,7 @@ MonoBehaviour:
       _magicResistance: 0
     _deploymentCost: 0
     _redeployTime: 0
+  _operatorData: {fileID: 11400000, guid: 963d80d939117e544ab6c4ce4ee994e7, type: 2}
   currentOperatorStats:
     _deployableUnitStats:
       _baseStats:

@@ -328,7 +328,7 @@ MonoBehaviour:
   bodyColliderController: {fileID: 5188553645360056048}
   renderers:
   - {fileID: 1295280524214356052}
-  enemyData: {fileID: 11400000, guid: 673037e1dec1a8445b3797044c9c07e2, type: 2}
+  _enemyData: {fileID: 11400000, guid: 673037e1dec1a8445b3797044c9c07e2, type: 2}
   enemyBarUIPrefab: {fileID: 4850112300594543659, guid: f855a11e7f642eb4481495480ef1a6e8, type: 3}
   modelContainer: {fileID: 879292670743782935}
   attackRangeController: {fileID: 1638704922582537678}
