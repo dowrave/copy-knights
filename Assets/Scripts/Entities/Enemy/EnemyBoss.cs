@@ -20,8 +20,6 @@ public class EnemyBoss : Enemy
     private float globalSkillCooldownDuration = 5f;
     private float currentGlobalCooldown = 0f;
 
-    
-
     private HashSet<Operator> operatorsInSkillRange = new HashSet<Operator>();
     public IReadOnlyCollection<Operator> OperatorsInSkillRange => operatorsInSkillRange;
 
@@ -39,7 +37,7 @@ public class EnemyBoss : Enemy
 
     protected override void SetPoolTag()
     {
-        poolTag = _bossData.GetUnitTag();
+        PoolTag = _bossData.GetUnitTag();
     }
 
     // 스킬을 초기화함
@@ -71,16 +69,16 @@ public class EnemyBoss : Enemy
         }
     }
 
-    protected override void CreateObjectPool()
-    {
-        base.CreateObjectPool();
+    // protected override void CreateObjectPool()
+    // {
+    //     base.CreateObjectPool();
 
-        // 스킬 오브젝트 풀 생성 - 전체 스킬이 skillCooldowns에 들어간 상태이므로 반복문을 2번 쓰지 않기 위해 이런 식으로 구현
-        foreach (var skill in skillCooldowns.Keys)
-        {
-            skill.InitializeSkillObjectPool(this);
-        }
-    }
+    //     // 스킬 오브젝트 풀 생성 - 전체 스킬이 skillCooldowns에 들어간 상태이므로 반복문을 2번 쓰지 않기 위해 이런 식으로 구현
+    //     foreach (var skill in skillCooldowns.Keys)
+    //     {
+    //         skill.InitializeSkillObjectPool(this);
+    //     }
+    // }
 
     // 쿨다운이 돌고 있는 상황이라면 쿨다운을 업데이트한다.
     protected override void UpdateAllCooldowns()

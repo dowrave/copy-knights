@@ -67,7 +67,7 @@ public abstract class DeployableUnitEntity : UnitEntity, IDeployable
 
     protected override void SetPoolTag()
     {
-        poolTag = _deployableData.GetUnitTag();
+        PoolTag = _deployableData.GetUnitTag();
     }
 
     public override void SetPrefab()
@@ -118,7 +118,18 @@ public abstract class DeployableUnitEntity : UnitEntity, IDeployable
 
     public virtual void Retreat()
     {
-        Die();
+        if (IsDeployed)
+        {
+            IsDeployed = false;
+            DeployableInfo.deployedDeployable = null;
+            DeployableManager.Instance!.OnDeployableRemoved(this);
+            if (CurrentTile != null)
+            {
+                CurrentTile.ClearOccupied();
+            }
+
+            base.DieInstantly();
+        }
     }
 
     protected override void Die()

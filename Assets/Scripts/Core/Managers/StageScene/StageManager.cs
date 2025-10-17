@@ -570,7 +570,8 @@ public class StageManager : MonoBehaviour
         }
 
         // 1. 등장할 모든 적 유닛 목록 확보
-        var uniqueEnemyPrefabs = new HashSet<GameObject>();
+        // var uniqueEnemyPrefabs = new HashSet<GameObject>();
+        var enemyPrefabCounts = new Dictionary<GameObject, int>();
 
         // 프리팹 수집
         if (currentMap != null)
@@ -582,22 +583,46 @@ public class StageManager : MonoBehaviour
                 {
                     if (spawnInfo.prefab != null)
                     {
-                        uniqueEnemyPrefabs.Add(spawnInfo.prefab);
+                        // 이미 존재하면 갯수 추가
+                        if (enemyPrefabCounts.ContainsKey(spawnInfo.prefab))
+                        {
+                            enemyPrefabCounts[spawnInfo.prefab]++;
+                        }
+                        // 없다면 딕셔너리에 새로 추가
+                        else
+                        {
+                            enemyPrefabCounts.Add(spawnInfo.prefab, 1);
+                        }
                     }
                 }
             }
         }
-        // 풀 생성
-        foreach (var enemyPrefab in uniqueEnemyPrefabs)
+
+        // 적 유닛 자체의 풀 & 적 유닛이 가진 오브젝트 풀 생성
+        foreach (var entry in enemyPrefabCounts)
         {
+            GameObject enemyPrefab = entry.Key;
+            int requiredAmount = entry.Value;
+
             Enemy enemy = enemyPrefab.GetComponent<Enemy>();
             if (enemy == null || enemy.BaseData == null) continue;
             EnemyData enemyData = enemy.BaseData;
 
             string enemyPoolTag = enemyData.GetUnitTag();
-            ObjectPoolManager.Instance.CreatePool(enemyPoolTag, enemyPrefab, 10);
-            Debug.Log($"enemy 풀 - {enemyPoolTag} 생성됨");
+            ObjectPoolManager.Instance.CreatePool(enemyPoolTag, enemyPrefab, requiredAmount);
+            Debug.Log($"enemy 풀 - {enemyPoolTag}에 오브젝트 {requiredAmount}만큼 생성됨");
 
+            // 해당 적이 갖고 있는 오브젝트들 생성
+            if (enemyData is EnemyBossData bossData)
+            {
+                bossData.CreateObjectPools();
+                Debug.Log($"enemy 풀 - {bossData.EntityName} 세부 오브젝트 풀 생성 완료");
+            }
+            else
+            {
+                enemyData.CreateObjectPools();
+                Debug.Log($"enemy 풀 - {enemyData.EntityName} 세부 오브젝트 풀 생성 완료");
+            }
         }
 
         // 2. 스쿼드의 모든 배치 가능 요소 유닛 목록 확보 및 풀링 (프리팹 수집 + 풀 생성)
@@ -612,6 +637,23 @@ public class StageManager : MonoBehaviour
                 string opPoolTag = opData.GetUnitTag();
                 ObjectPoolManager.Instance.CreatePool(opPoolTag, operatorPrefab, 1);
                 Debug.Log($"operator 풀 - {opPoolTag} 생성됨");
+
+                opData.CreateObjectPools();
+
+                // 세부 오브젝트 풀 생성
+                // "선택된 스킬"이라는 정보는 여기나 스쿼드 단위에서 관리되므로 여기서 구현
+                int skillIndex = opInfo.skillIndex;
+                if (skillIndex >= 0 && skillIndex < 2)
+                {
+                    // 인덱스는 0 or 1
+                    OperatorSkill selectedSkill = skillIndex == 0 ? opData.elite0Skill : opData.elite1Unlocks.unlockedSkill;
+                    if (selectedSkill != null)
+                    {
+                        selectedSkill.PreloadObjectPools(opData);
+                    }
+                }
+
+                Debug.Log($"{opData.entityName} 관련 종속 오브젝트 풀 생성 완료");
             }
         }
         // b. 맵 전용
@@ -627,60 +669,81 @@ public class StageManager : MonoBehaviour
                     string deployablePoolTag = deployableData.GetUnitTag();
                     ObjectPoolManager.Instance.CreatePool(deployablePoolTag, deployablePrefab, 1);
                     Debug.Log($"operator 풀 - {deployablePoolTag} 생성됨");
+
+                    if (deployableData != null)
+                    {
+                        deployableData.CreateObjectPools();
+                        Debug.Log($"{deployableData} 관련 세부 오브젝트 풀 생성 완료");
+                    }
                 }
             }
         }
 
         // 3. 종속 오브젝트 풀링
         // 3-a. Enemy의 종속 오브젝트
-        foreach (var enemyPrefab in uniqueEnemyPrefabs)
-        {
-            Enemy enemyComponent = enemyPrefab.GetComponent<Enemy>();
-            if (enemyComponent == null || enemyComponent.BaseData == null) continue;
+        // foreach (var entry in enemyPrefabCounts)
+        // {
+        //     GameObject enemyPrefab = entry.Key;
 
-            EnemyData enemyBaseData = enemyComponent.BaseData;
-            enemyBaseData.CreateObjectPools();
-            Debug.Log($"{enemyBaseData} 관련 종속 오브젝트 풀 생성됨");
-        }
+        //     Enemy enemyComponent = enemyPrefab.GetComponent<Enemy>();
+        //     // Debug.Log($"{enemyComponent.name} 관련 종속 오브젝트 풀 생성 시도");
 
-        // 3-b. Opereator의 종속 오브젝트
-        foreach (var opInfo in squadData)
-        {
-            OperatorData opData = opInfo.op.OperatorProgressData;
-            if (opData == null) continue;
-            opData.CreateObjectPools();
+        //     if (enemyComponent == null || enemyComponent.BaseData == null)
+        //     {
+        //         Debug.Log($"enemyComponents나 enemyComponent.BaseData가 null이라 다음으로 넘어감");
+        //         continue;
+        //     } 
 
-            // 스킬 오브젝트 풀 생성
-            // "선택된 스킬"이라는 정보는 여기나 스쿼드 단위에서 관리되므로 여기서 구현
-            int skillIndex = opInfo.skillIndex;
-            if (skillIndex >= 0 && skillIndex < 2)
-            {
-                // 인덱스는 0 or 1
-                OperatorSkill selectedSkill = skillIndex == 0 ? opData.elite0Skill : opData.elite1Unlocks.unlockedSkill;
-                if (selectedSkill != null)
-                {
-                    selectedSkill.PreloadObjectPools(opData);
-                }
-            }
+        //     EnemyData enemyBaseData = enemyComponent.BaseData;
+        //     if (enemyBaseData is EnemyBossData bossData)
+        //     {
+        //         bossData.CreateObjectPools();
+        //     }
+        //     else
+        //     {
+        //         enemyBaseData.CreateObjectPools();
+        //     }
+        //     Debug.Log($"{enemyBaseData.EntityName} 관련 종속 오브젝트 풀 생성됨");
+        // }
 
-            Debug.Log($"{opData} 관련 종속 오브젝트 풀 생성됨");
-        }
+        // // 3-b. Opereator의 종속 오브젝트
+        // foreach (var opInfo in squadData)
+        // {
+        //     OperatorData opData = opInfo.op.OperatorProgressData;
+        //     if (opData == null) continue;
+        //     opData.CreateObjectPools();
 
-        // 3-c. 맵 전용 배치 유닛의 종속 오브젝트 풀링
-        if (stageData != null && stageData.mapDeployables != null)
-        {
-            foreach (var mapDeployableData in stageData.mapDeployables)
-            {
-                if (mapDeployableData.DeployableData == null) continue;
+        //     // 스킬 오브젝트 풀 생성
+        //     // "선택된 스킬"이라는 정보는 여기나 스쿼드 단위에서 관리되므로 여기서 구현
+        //     int skillIndex = opInfo.skillIndex;
+        //     if (skillIndex >= 0 && skillIndex < 2)
+        //     {
+        //         // 인덱스는 0 or 1
+        //         OperatorSkill selectedSkill = skillIndex == 0 ? opData.elite0Skill : opData.elite1Unlocks.unlockedSkill;
+        //         if (selectedSkill != null)
+        //         {
+        //             selectedSkill.PreloadObjectPools(opData);
+        //         }
+        //     }
 
-                DeployableUnitData deployableData = mapDeployableData.DeployableData;
-                if (deployableData != null)
-                {
-                    deployableData.CreateObjectPools();
-                    Debug.Log($"{deployableData} 관련 종속 오브젝트 풀 생성됨");
-                }
-            }
-        }
+        //     Debug.Log($"{opData} 관련 종속 오브젝트 풀 생성됨");
+        // }
+
+        // // 3-c. 맵 전용 배치 유닛의 종속 오브젝트 풀링
+        // if (stageData != null && stageData.mapDeployables != null)
+        // {
+        //     foreach (var mapDeployableData in stageData.mapDeployables)
+        //     {
+        //         if (mapDeployableData.DeployableData == null) continue;
+
+        //         DeployableUnitData deployableData = mapDeployableData.DeployableData;
+        //         if (deployableData != null)
+        //         {
+        //             deployableData.CreateObjectPools();
+        //             Debug.Log($"{deployableData} 관련 종속 오브젝트 풀 생성됨");
+        //         }
+        //     }
+        // }
     }
 
     private void OnDestroy()

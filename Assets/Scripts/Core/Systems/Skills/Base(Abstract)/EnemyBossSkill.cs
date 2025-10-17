@@ -32,6 +32,8 @@ public class EnemyBossSkill : UnitSkill
         }
     }
 
+    public virtual void PreloadObjectPools(EnemyBossData ownerData){ }
+
     public override bool CanActivate(UnitEntity caster)
     {
         if (caster is EnemyBoss boss)

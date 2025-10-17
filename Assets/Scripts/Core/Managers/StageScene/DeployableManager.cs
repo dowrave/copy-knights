@@ -269,7 +269,6 @@ public class DeployableManager : MonoBehaviour
     // BottomPanelOperatorBox 마우스버튼 다운 시 작동, 배치하려는 오퍼레이터의 정보를 변수에 넣는다.
     public void StartDeployableSelection(DeployableInfo deployableInfo)
     {
-        Debug.Log("StartDeployableSelection 동작");
         ResetPlacement();
 
         SetCurrentDeployableInfo(deployableInfo);

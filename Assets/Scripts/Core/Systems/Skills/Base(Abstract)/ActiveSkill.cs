@@ -100,7 +100,7 @@ namespace Skills.Base
         {
             if (durationVFXPrefab == null) return;
 
-            PlayVFX(op, GetDurationVFXTag(op), op.transform.position, Quaternion.identity, duration);
+            PlayVFX(op, GetDurationVFXTag(op.OperatorData), op.transform.position, Quaternion.identity, duration);
         }
 
         // 스킬 지속시간 처리
@@ -157,15 +157,21 @@ namespace Skills.Base
             Destroy(vfxObject);
         }
 
-        public override void InitializeSkillObjectPool(UnitEntity caster)
+        public override void PreloadObjectPools()
+        {
+            Debug.LogError("OperatorData가 필요함");
+            return;
+        }
+
+        public override void PreloadObjectPools(OperatorData opData)
         {
             if (durationVFXPrefab != null)
             {
-                ObjectPoolManager.Instance.CreatePool(GetDurationVFXTag(caster), durationVFXPrefab, 1);
+                ObjectPoolManager.Instance.CreatePool(GetDurationVFXTag(opData), durationVFXPrefab, 1);
             }
         }
 
-        public string GetDurationVFXTag(UnitEntity caster) => $"{caster.name}_{skillName}_durationVFX";
+        public string GetDurationVFXTag(OperatorData opData) => $"{opData.entityName}_{skillName}_durationVFX";
     }
 }
 

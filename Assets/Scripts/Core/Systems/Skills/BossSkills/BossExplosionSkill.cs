@@ -41,13 +41,13 @@ namespace Skills.Base
         // 여기서 상태를 갖지 않는 게 베스트이기 떄문에 Stateless 패턴으로 만들어봄
         // 상태를 갖는 게 아니라 고정된 값을 반환하는 메서드를 구현한다는 개념임
         // 참고) 필드로 $"{caster}" 를 구현하지 못한다고 나옴
-        public string GetSkillControllerTag(UnitEntity caster) => $"{caster.name}_{skillName}_skillController";
-        public string GetHitVFXTag(UnitEntity caster) => $"{caster.name}_{skillName}_hit";
-        public string GetCastVFXTag(UnitEntity caster) => $"{caster.name}_{skillName}_cast";
-        public string GetFallingSunVFXTag(UnitEntity caster) => $"{caster.name}_{skillName}_fallingSun";
-        public string GetSkillRangeVFXTag(UnitEntity caster) => $"{caster.name}_{skillName}_skillRange";
-        public string GetCrackedGroundVFXTag(UnitEntity caster) => $"{caster.name}_{skillName}_crackedGround";
-        public string GetExplosionVFXTag(UnitEntity caster) => $"{caster.name}_{skillName}_explosion";
+        public string GetSkillControllerTag(EnemyBossData ownerData) => $"{ownerData.EntityName}_{skillName}_skillController";
+        public string GetHitVFXTag(EnemyBossData ownerData) => $"{ownerData.EntityName}_{skillName}_hit";
+        public string GetCastVFXTag(EnemyBossData ownerData) => $"{ownerData.EntityName}_{skillName}_cast";
+        public string GetFallingSunVFXTag(EnemyBossData ownerData) => $"{ownerData.EntityName}_{skillName}_fallingSun";
+        public string GetSkillRangeVFXTag(EnemyBossData ownerData) => $"{ownerData.EntityName}_{skillName}_skillRange";
+        public string GetCrackedGroundVFXTag(EnemyBossData ownerData) => $"{ownerData.EntityName}_{skillName}_crackedGround";
+        public string GetExplosionVFXTag(EnemyBossData ownerData) => $"{ownerData.EntityName}_{skillName}_explosion";
 
         public override void Activate(EnemyBoss caster, UnitEntity target)
         {
@@ -69,7 +69,7 @@ namespace Skills.Base
             }
 
             // 범위를 기반으로 스킬 컨트롤러 생성, 스킬의 재생은 모두 여기서 담당함
-            GameObject controllerObject = ObjectPoolManager.Instance.SpawnFromPool(GetSkillControllerTag(caster), target.transform.position, Quaternion.identity);
+            GameObject controllerObject = ObjectPoolManager.Instance.SpawnFromPool(GetSkillControllerTag(caster.BossData), target.transform.position, Quaternion.identity);
             BossExplosionSkillController? controller = controllerObject.GetComponent<BossExplosionSkillController>();
 
             if (controller != null)
@@ -77,7 +77,7 @@ namespace Skills.Base
                 // controllerObject.transform.SetParent(caster.gameObject.transform);
 
                 // 1. Caster 위치에 Cast 이펙트를 실행함
-                GameObject castVFXObject = ObjectPoolManager.Instance.SpawnFromPool(GetCastVFXTag(caster), caster.transform.position, Quaternion.identity);
+                GameObject castVFXObject = ObjectPoolManager.Instance.SpawnFromPool(GetCastVFXTag(caster.BossData), caster.transform.position, Quaternion.identity);
                 // castVFXObject.transform.SetParent(caster.gameObject.transform);
                 SelfReturnVFXController castVFX = castVFXObject.GetComponent<SelfReturnVFXController>();
                 if (castVFX != null)
@@ -98,45 +98,50 @@ namespace Skills.Base
             }
         }
 
-        public override void InitializeSkillObjectPool(UnitEntity caster)
+        public override void PreloadObjectPools()
         {
-            base.InitializeSkillObjectPool(caster);
+            Debug.LogError("[PreloadObjectPools] EnemyBossData 파라미터 필요");
+            return;
+        }
 
+        public override void PreloadObjectPools(EnemyBossData ownerData)
+        {
+            base.PreloadObjectPools(ownerData);
 
             // 얘는 사실 null이면 안됨
             if (skillControllerPrefab != null)
             {
-                ObjectPoolManager.Instance.CreatePool(GetSkillControllerTag(caster), skillControllerPrefab, 1);
+                ObjectPoolManager.Instance.CreatePool(GetSkillControllerTag(ownerData), skillControllerPrefab, 1);
             }
 
             if (hitVFXPrefab != null)
             {
-                ObjectPoolManager.Instance.CreatePool(GetHitVFXTag(caster), hitVFXPrefab, 10);
+                ObjectPoolManager.Instance.CreatePool(GetHitVFXTag(ownerData), hitVFXPrefab, 10);
             }
 
             if (castVFXPrefab != null)
             {
-                ObjectPoolManager.Instance.CreatePool(GetCastVFXTag(caster), castVFXPrefab, 1);
+                ObjectPoolManager.Instance.CreatePool(GetCastVFXTag(ownerData), castVFXPrefab, 1);
             }
 
             if (skillRangeVFXPrefab != null)
             {
-                ObjectPoolManager.Instance.CreatePool(GetSkillRangeVFXTag(caster), skillRangeVFXPrefab, rangeOffset.Count);
+                ObjectPoolManager.Instance.CreatePool(GetSkillRangeVFXTag(ownerData), skillRangeVFXPrefab, rangeOffset.Count);
             }
 
             if (crackedGroundVFXPrefab != null)
             {
-                ObjectPoolManager.Instance.CreatePool(GetCrackedGroundVFXTag(caster), crackedGroundVFXPrefab, rangeOffset.Count);
+                ObjectPoolManager.Instance.CreatePool(GetCrackedGroundVFXTag(ownerData), crackedGroundVFXPrefab, rangeOffset.Count);
             }
 
             if (fallingSunVFXPrefab != null)
             {
-                ObjectPoolManager.Instance.CreatePool(GetFallingSunVFXTag(caster), fallingSunVFXPrefab, 1);
+                ObjectPoolManager.Instance.CreatePool(GetFallingSunVFXTag(ownerData), fallingSunVFXPrefab, 1);
             }
 
             if (explosionVFXPrefab != null)
             {
-                ObjectPoolManager.Instance.CreatePool(GetExplosionVFXTag(caster), explosionVFXPrefab, 1);
+                ObjectPoolManager.Instance.CreatePool(GetExplosionVFXTag(ownerData), explosionVFXPrefab, 1);
             }
         }
 

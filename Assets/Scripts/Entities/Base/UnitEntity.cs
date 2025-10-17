@@ -67,7 +67,7 @@ public abstract class UnitEntity : MonoBehaviour, ITargettable, IFactionMember, 
     public Vector2Int LastSkillCenter { get; protected set; } // 마지막으로 사용한 스킬의 중심 위치. 범위 재계산 여부를 결정하기 위한 필드.
 
     // 유닛 자신의 풀 태그
-    public string poolTag {get; set;}
+    public string PoolTag {get; protected set;}
 
     // 이펙트 태그
     protected string? meleeAttackEffectTag;
@@ -124,6 +124,8 @@ public abstract class UnitEntity : MonoBehaviour, ITargettable, IFactionMember, 
             }
         }
 
+        SetPoolTag();
+
         // 콜라이더가 켜지는 시점은 자식 클래스들에서 수동으로 구현함
     }
 
@@ -151,6 +153,20 @@ public abstract class UnitEntity : MonoBehaviour, ITargettable, IFactionMember, 
         attackingEntities.Remove(attacker);
     }
 
+    // 사망 애니메이션을 쓰지 않을 경우 이걸 사용
+    protected void DieInstantly()
+    {
+        OnDeathStarted?.Invoke(this);
+
+        OnDeathAnimationCompleted?.Invoke(this);
+        if (PoolTag != string.Empty || PoolTag != null)
+        {
+            Debug.Log($"{PoolTag}에서 풀로 돌아가는 동작 수행됨");
+            ObjectPoolManager.Instance.ReturnToPool(PoolTag, gameObject);
+        }
+        return;
+        
+    }
 
     protected virtual void Die()
     {
@@ -164,7 +180,11 @@ public abstract class UnitEntity : MonoBehaviour, ITargettable, IFactionMember, 
         if (renderers.Count == 0)
         {
             OnDeathAnimationCompleted?.Invoke(this);
-            Destroy(gameObject);
+            if (PoolTag != string.Empty)
+            {
+                Debug.Log($"{PoolTag}에서 풀로 돌아가는 동작 수행됨");
+                ObjectPoolManager.Instance.ReturnToPool(PoolTag, gameObject);
+            }
             return;
         }
 
@@ -181,8 +201,11 @@ public abstract class UnitEntity : MonoBehaviour, ITargettable, IFactionMember, 
             .OnComplete(() =>
             {
                 OnDeathAnimationCompleted?.Invoke(this);
-                ObjectPoolManager.Instance.ReturnToPool(poolTag, gameObject);
-                Debug.Log($"{poolTag}에서 풀로 돌아가는 동작 수행됨");
+                if (PoolTag != string.Empty)
+                {
+                    Debug.Log($"{PoolTag}에서 풀로 돌아가는 동작 수행됨");
+                    ObjectPoolManager.Instance.ReturnToPool(PoolTag, gameObject);
+                }
                 // Destroy(gameObject); // 오브젝트 풀링으로 수정할 예정
             }
         );

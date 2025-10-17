@@ -10,6 +10,20 @@ public class EnemyBossData : EnemyData
     [Tooltip("저지 당하지 않은 상태에서 오퍼레이터를 대상으로 사용하는 스킬들")]
     [SerializeField] private List<EnemyBossSkill> rangedSkills = new List<EnemyBossSkill>();
 
+    public override void CreateObjectPools()
+    {
+        base.CreateObjectPools();
+
+        foreach (var meleeSkill in meleeSkills)
+        {
+            meleeSkill.PreloadObjectPools(this);
+        }
+        foreach (var rangedSkill in rangedSkills)
+        {
+            rangedSkill.PreloadObjectPools(this);
+        }
+    }
+
     // 프로퍼티
     public List<EnemyBossSkill> MeleeSkills => meleeSkills;
     public List<EnemyBossSkill> RangedSkills => rangedSkills;

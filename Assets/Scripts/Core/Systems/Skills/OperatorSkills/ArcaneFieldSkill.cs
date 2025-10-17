@@ -120,8 +120,7 @@ namespace Skills.OperatorSkills
             }
         }
 
-        // 오브젝트 풀 초기화.
-        // 오퍼레이터라면 배치되는 시점에 실행된다. 
+        // 스킬 관련 오브젝트 풀 초기화.
         public override void PreloadObjectPools(OperatorData ownerData)
         {
             base.PreloadObjectPools(ownerData);

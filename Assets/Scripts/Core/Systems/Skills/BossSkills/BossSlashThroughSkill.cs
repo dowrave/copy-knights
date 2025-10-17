@@ -37,13 +37,13 @@ namespace Skills.Base
             float crossVFXStartTime = 0.8f;
 
             // 시전 이펙트 실행
-            PlayVFX(caster, GetCastVFXTag(caster), caster.transform.position, Quaternion.identity, RETURN_POOL_WAIT_TIME);
+            PlayVFX(caster, GetCastVFXTag(caster.BossData), caster.transform.position, Quaternion.identity, RETURN_POOL_WAIT_TIME);
             caster.SetIsWaiting(true); // 시전 시간 동안 대기
             caster.SetStopAttacking(true);
             yield return new WaitForSeconds(crossVFXStartTime);
 
             // 시전 
-            GameObject crossVFXObj = PlayVFX(caster, GetCrossVFXTag(caster), caster.transform.position, Quaternion.identity, RETURN_POOL_WAIT_TIME);
+            GameObject crossVFXObj = PlayVFX(caster, GetCrossVFXTag(caster.BossData), caster.transform.position, Quaternion.identity, RETURN_POOL_WAIT_TIME);
             crossVFXObj.transform.SetParent(caster.transform);
             yield return new WaitForSeconds(castTime - crossVFXStartTime);
 
@@ -69,7 +69,7 @@ namespace Skills.Base
                     type: AttackType.Physical,
                     isProjectile: false,
                     hitEffectPrefab: hitVFXPrefab,
-                    hitEffectTag: GetHitVFXTag(caster),
+                    hitEffectTag: GetHitVFXTag(caster.BossData),
                     showDamagePopup: true
                 );
 
@@ -77,7 +77,7 @@ namespace Skills.Base
 
                 // 베고 지나가는 이펙트
                 Quaternion rot = Quaternion.LookRotation(moveDirection);
-                PlayVFX(caster, GetSlashVFXTag(caster), target.transform.position, rot, RETURN_POOL_WAIT_TIME);
+                PlayVFX(caster, GetSlashVFXTag(caster.BossData), target.transform.position, rot, RETURN_POOL_WAIT_TIME);
             }
 
             caster.SetIsWaiting(false);
@@ -137,39 +137,40 @@ namespace Skills.Base
             return false;
         }
 
-        public override void InitializeSkillObjectPool(UnitEntity caster)
+        public override void PreloadObjectPools(EnemyBossData ownerData)
         {
-            base.InitializeSkillObjectPool(caster);
+            base.PreloadObjectPools(ownerData);
 
             if (hitVFXPrefab != null)
             {
-                ObjectPoolManager.Instance.CreatePool(GetHitVFXTag(caster), hitVFXPrefab, 1);
+                ObjectPoolManager.Instance.CreatePool(GetHitVFXTag(ownerData), hitVFXPrefab, 1);
             }
 
             if (slashVFXPrefab != null)
             {
-                ObjectPoolManager.Instance.CreatePool(GetSlashVFXTag(caster), slashVFXPrefab, 1);
+                ObjectPoolManager.Instance.CreatePool(GetSlashVFXTag(ownerData), slashVFXPrefab, 1);
             }
 
             if (castVFXPrefab != null)
             {
-                ObjectPoolManager.Instance.CreatePool(GetCastVFXTag(caster), castVFXPrefab, 1);
+                ObjectPoolManager.Instance.CreatePool(GetCastVFXTag(ownerData), castVFXPrefab, 1);
             }
 
             if (crossVFXPrefab != null)
             {
-                ObjectPoolManager.Instance.CreatePool(GetCrossVFXTag(caster), crossVFXPrefab, 1);
+                ObjectPoolManager.Instance.CreatePool(GetCrossVFXTag(ownerData), crossVFXPrefab, 1);
             }
         }
+
 
         public float DamageMultiplier => damageMultiplier;
         public float CastTime => castTime;
         public float MoveDistance => moveDistance;
 
-        public string GetHitVFXTag(UnitEntity caster) => $"{caster.name}_{skillName}_hit";
-        public string GetSlashVFXTag(UnitEntity caster) => $"{caster.name}_{skillName}_slash";
-        public string GetCastVFXTag(UnitEntity caster) => $"{caster.name}_{skillName}_cast";
-        public string GetCrossVFXTag(UnitEntity caster) => $"{caster.name}_{skillName}_cross";
+        public string GetHitVFXTag(EnemyBossData ownerData) => $"{ownerData.EntityName}_{skillName}_hit";
+        public string GetSlashVFXTag(EnemyBossData ownerData) => $"{ownerData.EntityName}_{skillName}_slash";
+        public string GetCastVFXTag(EnemyBossData ownerData) => $"{ownerData.EntityName}_{skillName}_cast";
+        public string GetCrossVFXTag(EnemyBossData ownerData) => $"{ownerData.EntityName}_{skillName}_cross";
 
     }
 

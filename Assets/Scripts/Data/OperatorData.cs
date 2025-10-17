@@ -52,6 +52,7 @@ public class OperatorData : ScriptableObject, ICombatData
     public AttackRangeType AttackRangeType => attackRangeType;
     public Sprite? Icon => icon;
 
+    // 이 유닛 자체 풀은 StageManager에서 준비함, 여기선 유닛이 사용하는 오브젝트들만 준비함
     public virtual void CreateObjectPools()
     {
         if (projectilePrefab != null)

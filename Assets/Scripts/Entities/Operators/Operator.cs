@@ -553,15 +553,6 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
         // UI 파괴
         DestroyOperatorUI();
 
-        // 필요한지 모르겠어서 일단 주석처리
-        //OnSPChanged = null;
-
-        // 이펙트 풀 정리
-        // if (OperatorData.hitEffectPrefab != null)
-        // {
-        //     ObjectPoolManager.Instance!.RemovePool("Effect_" + OperatorData.entityName);
-        // }
-
         // 오퍼레이터 사망 이벤트 발생
         OnOperatorDied?.Invoke(this);
 
@@ -573,7 +564,8 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
 
     protected override void SetPoolTag()
     {
-        poolTag = _operatorData.GetUnitTag();
+        PoolTag = _operatorData.GetUnitTag();
+        Debug.Log($"Pooltag : {PoolTag}로 할당됨");
     }
 
     public override void OnClick()
@@ -738,7 +730,33 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
     public override void Retreat()
     {
         RecoverInitialCost();
-        Die();
+
+        // 배치되어야 Die가 가능
+        if (!IsDeployed) return;
+
+        // 공격 범위 타일 해제
+        UnregisterTiles();
+
+        // 스킬 유지 중이었다면 코루틴 취소 
+        if (_activeSkillCoroutine != null)
+        {
+            StopCoroutine(_activeSkillCoroutine);
+            _activeSkillCoroutine = null;
+        }
+
+        // 사망 후 동작 로직
+        UnblockAllEnemies();
+
+        // UI 파괴
+        DestroyOperatorUI();
+
+        // 오퍼레이터 사망 이벤트 발생
+        OnOperatorDied?.Invoke(this);
+
+        // 이벤트 구독 해제
+        Enemy.OnEnemyDespawned -= HandleEnemyDespawn;
+
+        base.Retreat();
     }
 
     // 수동 퇴각 시 최초 배치 코스트의 절반 회복
@@ -944,10 +962,10 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
         }
 
         // 원거리인 경우 투사체 풀 생성
-        InitializeRangedPool();
+        // InitializeRangedPool();
 
         // 스킬에서 사용할 이펙트 풀 생성
-        CurrentSkill.InitializeSkillObjectPool(this);
+        // CurrentSkill.InitializeSkillObjectPool(O);
     }
 
     protected virtual void PlayMeleeAttackEffect(UnitEntity target, AttackSource attackSource)
@@ -991,22 +1009,22 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
         }
     }
 
-    public void InitializeRangedPool()
-    {
-        if (AttackRangeType == AttackRangeType.Ranged &&
-            OperatorData.projectilePrefab != null)
-        {
-            projectileTag = $"{OperatorData.entityName}_Projectile";
-            ObjectPoolManager.Instance!.CreatePool(projectileTag, OperatorData.projectilePrefab, 5);
-        }
+    // public void InitializeRangedPool()
+    // {
+    //     if (AttackRangeType == AttackRangeType.Ranged &&
+    //         OperatorData.projectilePrefab != null)
+    //     {
+    //         projectileTag = $"{OperatorData.entityName}_Projectile";
+    //         ObjectPoolManager.Instance!.CreatePool(projectileTag, OperatorData.projectilePrefab, 5);
+    //     }
 
-        if (OperatorData.muzzleVFXPrefab != null)
-        {
-            muzzleTag = $"{OperatorData.entityName}_Muzzle";
-            ObjectPoolManager.Instance!.CreatePool(muzzleTag, OperatorData.muzzleVFXPrefab, 5);
-            Debug.Log("muzzle 오브젝트 풀 생성됨");
-        }
-    }
+    //     if (OperatorData.muzzleVFXPrefab != null)
+    //     {
+    //         muzzleTag = $"{OperatorData.entityName}_Muzzle";
+    //         ObjectPoolManager.Instance!.CreatePool(muzzleTag, OperatorData.muzzleVFXPrefab, 5);
+    //         Debug.Log("muzzle 오브젝트 풀 생성됨");
+    //     }
+    // }
 
     protected void RemoveProjectilePool()
     {

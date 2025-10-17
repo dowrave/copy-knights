@@ -25,7 +25,7 @@ public class EnemyData : ScriptableObject, ICombatData
     [SerializeField] protected GameObject? meleeAttackEffectPrefab; // 근접 공격 이펙트
     [SerializeField] protected GameObject hitEffectPrefab = default!; // 공격이 적중했을 때의 이펙트
 
-    public void CreateObjectPools()
+    public virtual void CreateObjectPools()
     {
         if (projectilePrefab != null)
         {

@@ -35,4 +35,5 @@ MonoBehaviour:
   hitEffectPrefab: {fileID: 7245273522019326439, guid: 7efd1727cc772f140a02a7da68da0b49, type: 3}
   meleeSkills:
   - {fileID: 11400000, guid: 4b542b72f98ca9a45931a339a582537a, type: 2}
-  rangedSkills: []
+  rangedSkills:
+  - {fileID: 11400000, guid: 575332fd28b1f1f4b9f3c841bcc671a8, type: 2}

@@ -28,7 +28,7 @@ namespace Skills.Base
         public virtual void OnAfterAttack(UnitEntity caster, UnitEntity target) { }
 
         // RegisterPool할 요소들을 이것저것 넣는 메서드
-        public virtual void InitializeSkillObjectPool(UnitEntity caster) { }
+        public virtual void PreloadObjectPools() { }
 
         protected virtual GameObject PlayVFX(UnitEntity caster, string vfxTag, Vector3 pos, Quaternion rot, float duration = 2f)
         {

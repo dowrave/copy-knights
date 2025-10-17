@@ -184,6 +184,7 @@ public class ObjectPoolManager : MonoBehaviour
 
             poolDictionary.Remove(tag);
             poolInfos.Remove(tag);
+            Debug.Log($"태그 {tag}의 오브젝트 풀 파괴");
         }
     }
 
