@@ -109,6 +109,7 @@ public class ObjectPoolManager : MonoBehaviour
             }
 
             // 반응형 확장 로직으로 수정
+            Debug.Log($"{tag}의 새로운 풀을 만듦 : {poolInfo.prefab.name}");
             obj = Instantiate(poolInfo.prefab);
             poolInfo.size++; // 풀의 개념적 크기를 1 늘린다.
         }

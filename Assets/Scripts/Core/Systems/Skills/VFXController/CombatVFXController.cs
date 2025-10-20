@@ -6,10 +6,11 @@ using UnityEngine.VFX;
 // 풀에서 꺼낸 전투 VFX의 실행과 오브젝트 풀링 관리
 public class CombatVFXController : MonoBehaviour
 {
+    private string _tag;
+
     private AttackSource attackSource;
     private UnitEntity? target; // null일 수 있음
     private Vector3 targetPosition;
-    private string effectTag = string.Empty;
     private float effectDuration;
 
     [Header("Assign One")]
@@ -24,23 +25,21 @@ public class CombatVFXController : MonoBehaviour
 
     private void Awake()
     {
-        // ps = GetComponent<ParticleSystem>();
         vfx = GetComponent<VisualEffect>(); // ps로 구현 시 직접 할당
     }
 
     // 타겟이 있을 때 - 위치 정보만 뽑아낸다.
-    public void Initialize(AttackSource attackSource, UnitEntity target, string effectTag, float effectDuration = 1f)
+    public void Initialize(AttackSource attackSource, UnitEntity target, string tag, float effectDuration = 1f)
     {
-        Initialize(attackSource, target.transform.position, effectTag, effectDuration, target);
-
+        Initialize(attackSource, target.transform.position, tag, effectDuration, target);
     }
 
-    public void Initialize(AttackSource attackSource, Vector3 targetPosition, string effectTag, float effectDuration = 1f, UnitEntity? target = null)
+    public void Initialize(AttackSource attackSource, Vector3 targetPosition, string tag, float effectDuration = 1f, UnitEntity? target = null)
     {
+        _tag = tag;
         this.attackSource = attackSource;
         this.targetPosition = targetPosition;
-        this.target = target; 
-        this.effectTag = effectTag;
+        this.target = target;
         this.effectDuration = effectDuration;
 
         if (vfx != null)
@@ -150,8 +149,9 @@ public class CombatVFXController : MonoBehaviour
 
         if (gameObject != null)
         {
-            ObjectPoolManager.Instance!.ReturnToPool(effectTag, gameObject);
+            ObjectPoolManager.Instance!.ReturnToPool(attackSource.HitEffectTag, gameObject);
         }
+        
         // else문은 필요 없음 - null이면 Destroy 호출 불가능
     }
 }

@@ -35,7 +35,6 @@ public class Projectile : MonoBehaviour
     private Vector3 lastKnownPosition = new Vector3(0f, 0f, 0f); // 마지막으로 알려진 적의 위치
     private string poolTag = string.Empty;
     private string hitEffectTag = string.Empty;
-    private GameObject hitEffectPrefab = default!;
     private bool shouldDestroy = false;
     private AttackType attackType;
 
@@ -74,7 +73,6 @@ public class Projectile : MonoBehaviour
         float value,
         bool showValue,
         string poolTag,
-        GameObject hitEffectPrefab,
         string hitEffectTag,
         AttackType attackType)
     {
@@ -96,7 +94,6 @@ public class Projectile : MonoBehaviour
         lastKnownPosition = target.transform.position;
         shouldDestroy = false;
 
-        this.hitEffectPrefab = hitEffectPrefab;
         this.hitEffectTag = hitEffectTag;
 
         // 메쉬로 구현된 요소가 있다면 활성화
@@ -263,7 +260,6 @@ public class Projectile : MonoBehaviour
                 damage: value,
                 type: attackType,
                 isProjectile: true,
-                hitEffectPrefab: hitEffectPrefab,
                 hitEffectTag: hitEffectTag,
                 showDamagePopup: showValue
             );
@@ -347,10 +343,11 @@ public class Projectile : MonoBehaviour
     private void CreateAreaOfDamage(Vector3 position, float damage, bool showValue, AttackSource attackSource)
     {
         // 범위 공격 이펙트 생성
-        if (hitEffectPrefab != null)
+        if (hitEffectTag != null)
         {
-            GameObject effectInstance = Instantiate(hitEffectPrefab, position, Quaternion.identity);
-            Destroy(effectInstance, 2f); // 2초 후에 이펙트 제거. 아래의 코드는 이걸 기다리지 않고 잘 동작함.
+            GameObject effectInstance = ObjectPoolManager.Instance.SpawnFromPool(hitEffectTag, position, Quaternion.identity);
+            // GameObject effectInstance = Instantiate(hitEffectPrefab, position, Quaternion.identity);
+            // Destroy(effectInstance, 2f); // 2초 후에 이펙트 제거. 아래의 코드는 이걸 기다리지 않고 잘 동작함.
         }
 
         // 범위 공격 대상에게 대미지 적용

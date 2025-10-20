@@ -106,7 +106,6 @@ public class BossExplosionSkillController : FieldEffectController
             damage: casterAttackPower * skillData.ExplosionDamageRatio, // 폭발 대미지를 곱함
             type: AttackType.Magical,
             isProjectile: false,
-            hitEffectPrefab: skillData.HitVFXPrefab,
             hitEffectTag: skillData.GetHitVFXTag(_caster.BossData),
             showDamagePopup: true
         );
@@ -130,7 +129,6 @@ public class BossExplosionSkillController : FieldEffectController
             damage: casterAttackPower * skillData.TickDamageRatio, // 폭발 대미지를 곱함
             type: AttackType.Magical,
             isProjectile: false,
-            hitEffectPrefab: skillData.HitVFXPrefab,
             hitEffectTag: skillData.GetHitVFXTag(_caster.BossData),
             showDamagePopup: false
         );

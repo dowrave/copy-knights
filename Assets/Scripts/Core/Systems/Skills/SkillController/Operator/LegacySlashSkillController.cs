@@ -129,7 +129,6 @@ public class LegacySlashSkillController : MonoBehaviour
                         damage: damage,
                         type: attacker.AttackType,
                         isProjectile: true,
-                        hitEffectPrefab: hitEffectPrefab,
                         hitEffectTag: hitEffectTag,
                         showDamagePopup: false
                     );

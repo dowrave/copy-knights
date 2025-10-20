@@ -68,7 +68,6 @@ namespace Skills.Base
                     damage: caster.AttackPower * damageMultiplier,
                     type: AttackType.Physical,
                     isProjectile: false,
-                    hitEffectPrefab: hitVFXPrefab,
                     hitEffectTag: GetHitVFXTag(caster.BossData),
                     showDamagePopup: true
                 );

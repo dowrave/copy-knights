@@ -36,7 +36,8 @@ public abstract class DeployableUnitEntity : UnitEntity, IDeployable
 
     protected override void Awake()
     {
-        Faction = Faction.Ally; 
+        Faction = Faction.Ally;
+
         base.Awake();
     }
 
@@ -116,18 +117,22 @@ public abstract class DeployableUnitEntity : UnitEntity, IDeployable
         }
     }
 
+    protected virtual void Undeploy()
+    {
+        IsDeployed = false;
+        DeployableInfo.deployedDeployable = null;
+        DeployableManager.Instance!.OnDeployableRemoved(this);
+        if (CurrentTile != null)
+        {
+            CurrentTile.ClearOccupied();
+        }
+    }
+
     public virtual void Retreat()
     {
         if (IsDeployed)
         {
-            IsDeployed = false;
-            DeployableInfo.deployedDeployable = null;
-            DeployableManager.Instance!.OnDeployableRemoved(this);
-            if (CurrentTile != null)
-            {
-                CurrentTile.ClearOccupied();
-            }
-
+            Undeploy();
             base.DieInstantly();
         }
     }
@@ -136,13 +141,7 @@ public abstract class DeployableUnitEntity : UnitEntity, IDeployable
     {
         if (IsDeployed)
         {
-            IsDeployed = false;
-            DeployableInfo.deployedDeployable = null;
-            DeployableManager.Instance!.OnDeployableRemoved(this);
-            if (CurrentTile != null)
-            {
-                CurrentTile.ClearOccupied();
-            }
+            Undeploy();
             base.Die();
         }
     }

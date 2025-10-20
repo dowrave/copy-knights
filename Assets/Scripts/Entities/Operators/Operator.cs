@@ -13,7 +13,7 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
     public OperatorData OperatorData => _operatorData;
     [HideInInspector] 
     public OperatorStats currentOperatorStats; // 일단 public으로 구현
-    [SerializeField] protected GameObject operatorUIPrefab = default!;
+    // [SerializeField] protected GameObject operatorUIPrefab = default!;
 
     // ICombatEntity 필드
     protected AttackType _currentAttackType;
@@ -134,9 +134,7 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
     protected GameObject operatorUIInstance = default!;
     protected OperatorUI? operatorUI;
     public OperatorUI? OperatorUI => operatorUI;
-
-    // 원거리 공격 오브젝트 풀 옵션
-    protected string? projectileTag;
+    protected DirectionIndicator _directionIndicator;
 
     // 스킬 관련
     public OperatorSkill CurrentSkill { get; protected set; } = default!;
@@ -164,6 +162,13 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
     public event System.Action OnStatsChanged = delegate { };
     public event System.Action<Operator> OnOperatorDied = delegate { };
     public event System.Action OnSkillStateChanged = delegate { };
+
+    protected override void Awake()
+    {
+        base.Awake();
+        CreateDirectionIndicator();
+        CreateOperatorUI();
+    }
 
     protected override void Start()
     {
@@ -208,6 +213,8 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
             ElitePhase = ownedOp.currentPhase;
             Level = ownedOp.currentLevel;
 
+            InitializeVisuals();
+
             SetDeployState(false);
         }
         else
@@ -228,21 +235,23 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
 
     protected void CreateOperatorUI()
     {
-        if (operatorUIPrefab != null)
+        operatorUIInstance = Instantiate(StageUIManager.Instance.OperatorUIPrefab);
+        operatorUI = operatorUIInstance.GetComponent<OperatorUI>();
+        DisableOperatorUI();
+    }
+    
+    protected void InitializeOperatorUI()
+    {
+        if (operatorUI != null)
         {
-            operatorUIInstance = Instantiate(operatorUIPrefab);
-            operatorUI = operatorUIInstance.GetComponent<OperatorUI>();
-            if (operatorUI != null)
-            {
-                operatorUI.Initialize(this);
-            }
+            operatorUI.gameObject.SetActive(true);
+            operatorUI.Initialize(this);
         }
     }
     
-    protected void DestroyOperatorUI()
+    protected void DisableOperatorUI()
     {
-        // 컴포넌트를 파괴하는 게 아니라 오브젝트를 파괴해야 함
-        Destroy(operatorUI.gameObject);
+        operatorUI.gameObject.SetActive(false);
     }
 
     protected override void Update()
@@ -362,8 +371,7 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
             damage: damage,
             type: attackType,
             isProjectile: false,
-            hitEffectPrefab: OperatorData.HitEffectPrefab,
-            hitEffectTag: hitEffectTag,
+            hitEffectTag: OperatorData.GetHitVFXTag(),
             showDamagePopup: showDamagePopup
         );
 
@@ -373,36 +381,31 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
 
     protected virtual void PerformRangedAttack(UnitEntity target, float damage, AttackType attackType, bool showDamagePopup = false)
     {
-        if (OperatorData.projectilePrefab != null)
+        if (_operatorData.projectilePrefab != null)
         {
             // 투사체 생성 위치
-            // Vector3 spawnPosition = transform.position + Vector3.up * 0.5f;
             Vector3 spawnPosition = transform.position + transform.forward * 0.25f;
 
-            // Debug.Log($"[Operator]Projectile의 생성 위치 : {spawnPosition}");
-
-            if (projectileTag != null)
+            GameObject? projectileObj = ObjectPoolManager.Instance!.SpawnFromPool(_operatorData.GetProjectileTag(), spawnPosition, Quaternion.identity);
+            if (projectileObj != null)
             {
-                GameObject? projectileObj = ObjectPoolManager.Instance!.SpawnFromPool(projectileTag, spawnPosition, Quaternion.identity);
-                if (projectileObj != null)
+                Projectile? projectile = projectileObj.GetComponent<Projectile>();
+                if (projectile != null)
                 {
-                    Projectile? projectile = projectileObj.GetComponent<Projectile>();
-                    if (projectile != null)
-                    {
-                        PlayMuzzleVFX();
-                        projectile.Initialize(this, target, damage, showDamagePopup, projectileTag, OperatorData.hitEffectPrefab, hitEffectTag, AttackType);
-                    }
+                    PlayMuzzleVFX();
+                    projectile.Initialize(this, target, damage, showDamagePopup, _operatorData.GetProjectileTag(), _operatorData.GetHitVFXTag(), AttackType);
                 }
             }
+            
         }
     }
 
     // 원거리인 경우에만 사용. Muzzle 이펙트를 실행한다.
     protected void PlayMuzzleVFX()
     {
-        if (OperatorData.muzzleVFXPrefab != null && muzzleTag != string.Empty)
+        if (_operatorData.muzzleVFXPrefab != null && muzzleTag != string.Empty)
         {
-            GameObject muzzleVFXObject = ObjectPoolManager.Instance!.SpawnFromPool(muzzleTag, transform.position, transform.rotation);
+            GameObject muzzleVFXObject = ObjectPoolManager.Instance!.SpawnFromPool(_operatorData.GetMuzzleVFXTag(), transform.position, transform.rotation);
             MuzzleVFXController muzzleVFXController = muzzleVFXObject.GetComponentInChildren<MuzzleVFXController>();
             muzzleVFXController.Initialize(muzzleTag);
         }
@@ -551,7 +554,10 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
         UnblockAllEnemies();
 
         // UI 파괴
-        DestroyOperatorUI();
+        DisableOperatorUI();
+
+        // 방향 표시기 비활성화
+        _directionIndicator.gameObject.SetActive(false);
 
         // 오퍼레이터 사망 이벤트 발생
         OnOperatorDied?.Invoke(this);
@@ -646,37 +652,40 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
         UpdateAttackableTiles(); // 방향에 따른 공격 범위 타일들 업데이트
         RegisterTiles(); // 타일들에 이 오퍼레이터가 공격 타일로 선정했음을 알림
 
-        CreateDirectionIndicator();
-        CreateOperatorUI();
+        if (_directionIndicator != null && !_directionIndicator.isActiveAndEnabled)
+        {
+            _directionIndicator.gameObject.SetActive(true);
+        }
 
         // deployableInfo의 배치된 오퍼레이터를 이것으로 지정
         DeployableInfo.deployedOperator = this;
 
-        // 이펙트 오브젝트 풀 생성
-        CreateObjectPool();
+        InitializeOperatorUI();
+        InitializeDirectionIndicator();
 
         // 배치 이펙트 실행
-        PlayDeployVFX();
+        StartCoroutine(PlayDeployVFX());
 
         // 적 사망 이벤트 구독
         Enemy.OnEnemyDespawned += HandleEnemyDespawn;
     }
 
-    protected void PlayDeployVFX()
+    protected IEnumerator PlayDeployVFX()
     {
         // 배치 VFX 실행 
         if (OperatorData.deployEffectPrefab != null)
         {
-            GameObject deployEffect = Instantiate(
-                OperatorData.deployEffectPrefab,
+            GameObject deployEffect = ObjectPoolManager.Instance.SpawnFromPool(
+                OperatorData.GetDeployVFXTag(),
                 transform.position,
                 Quaternion.identity
             );
+
             var ps = deployEffect.GetComponent<ParticleSystem>();
             if (ps != null)
             {
                 ps.Play(true);
-                Destroy(deployEffect, 1.5f);
+
             }
             else
             {
@@ -684,9 +693,10 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
                 if (vfx != null)
                 {
                     vfx.Play();
-                    Destroy(deployEffect, 1.5f);
                 }
             }
+            yield return new WaitForSeconds(1.5f);
+            ObjectPoolManager.Instance.ReturnToPool(OperatorData.GetDeployVFXTag(), deployEffect);
         }
     }
 
@@ -747,8 +757,10 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
         // 사망 후 동작 로직
         UnblockAllEnemies();
 
+        _directionIndicator.gameObject.SetActive(false);
+
         // UI 파괴
-        DestroyOperatorUI();
+        DisableOperatorUI();
 
         // 오퍼레이터 사망 이벤트 발생
         OnOperatorDied?.Invoke(this);
@@ -936,38 +948,6 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
         }
     }
 
-    // 구현할 오브젝트 풀링이 있다면 여기다 넣음
-    protected void CreateObjectPool()
-    {
-        string baseTag = OperatorData.entityName;
-
-        // 근접 공격 이펙트 풀 생성
-        if (OperatorData.meleeAttackEffectPrefab != null)
-        {
-            meleeAttackEffectTag = $"{baseTag}_{OperatorData.meleeAttackEffectPrefab.name}";
-            ObjectPoolManager.Instance!.CreatePool(
-                meleeAttackEffectTag,
-                OperatorData.meleeAttackEffectPrefab
-            );
-        }
-
-        // 타격 이펙트 풀 생성
-        if (OperatorData.hitEffectPrefab != null)
-        {
-            hitEffectTag = $"{baseTag}_{OperatorData.hitEffectPrefab.name}";
-            ObjectPoolManager.Instance!.CreatePool(
-                hitEffectTag,
-                OperatorData.hitEffectPrefab
-            );
-        }
-
-        // 원거리인 경우 투사체 풀 생성
-        // InitializeRangedPool();
-
-        // 스킬에서 사용할 이펙트 풀 생성
-        // CurrentSkill.InitializeSkillObjectPool(O);
-    }
-
     protected virtual void PlayMeleeAttackEffect(UnitEntity target, AttackSource attackSource)
     {
         Vector3 targetPosition = target.transform.position;
@@ -976,22 +956,21 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
 
     protected virtual void PlayMeleeAttackEffect(Vector3 targetPosition, AttackSource attackSource)
     {
-        GameObject effectPrefab = OperatorData.meleeAttackEffectPrefab;
-        string effectTag = meleeAttackEffectTag;
+        // 공격 이펙트(명중 이펙트가 아님 유의!!)
+        string effectTag = OperatorData.GetMeleeAttackVFXTag();
 
         // [버프 이펙트 적용] 물리 공격 이펙트가 바뀌어야 한다면 바뀐 걸 적용함
         var vfxBuff = activeBuffs.FirstOrDefault(b => b.MeleeAttackEffectOverride);
         if (vfxBuff != null)
         {
-            effectPrefab = vfxBuff.MeleeAttackEffectOverride;
-            effectTag = vfxBuff.SourceSkill.GetVFXPoolTag(this, effectPrefab);
+            // effectPrefab = vfxBuff.MeleeAttackEffectOverride;
+            effectTag = vfxBuff.SourceSkill.GetVFXPoolTag(this, vfxBuff.SourceSkill.meleeAttackEffectOverride);
         }
 
         // 이펙트 처리
-        if (effectPrefab != null && !string.IsNullOrEmpty(effectTag))
+        if (!string.IsNullOrEmpty(effectTag))
         {
             // 이펙트가 보는 방향은 combatVFXController에서 설정
-
             GameObject? effectObj = ObjectPoolManager.Instance!.SpawnFromPool(
                    effectTag,
                    transform.position, // 이펙트 생성 위치
@@ -1009,40 +988,6 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
         }
     }
 
-    // public void InitializeRangedPool()
-    // {
-    //     if (AttackRangeType == AttackRangeType.Ranged &&
-    //         OperatorData.projectilePrefab != null)
-    //     {
-    //         projectileTag = $"{OperatorData.entityName}_Projectile";
-    //         ObjectPoolManager.Instance!.CreatePool(projectileTag, OperatorData.projectilePrefab, 5);
-    //     }
-
-    //     if (OperatorData.muzzleVFXPrefab != null)
-    //     {
-    //         muzzleTag = $"{OperatorData.entityName}_Muzzle";
-    //         ObjectPoolManager.Instance!.CreatePool(muzzleTag, OperatorData.muzzleVFXPrefab, 5);
-    //         Debug.Log("muzzle 오브젝트 풀 생성됨");
-    //     }
-    // }
-
-    protected void RemoveProjectilePool()
-    {
-        if (AttackRangeType == AttackRangeType.Ranged)
-        {
-            if (projectileTag != null)
-            {
-                ObjectPoolManager.Instance!.RemovePool(projectileTag);
-            }
-
-            if (muzzleTag != null)
-            {
-                ObjectPoolManager.Instance!.RemovePool(muzzleTag);
-            }
-        }
-        
-    }
-
     // 지속 시간이 있는 스킬을 켜거나 끌 때 호출됨
     public void SetSkillOnState(bool skillOnState)
     {
@@ -1052,11 +997,14 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
     // 방향 표시 UI 생성
     protected void CreateDirectionIndicator()
     {
-        // 자식 오브젝트로 들어감
-        DirectionIndicator indicator = Instantiate(StageUIManager.Instance!.directionIndicator, transform).GetComponent<DirectionIndicator>();
-        indicator.Initialize(this);
+        // StageUIManager에 할당된 프리팹을 자식 오브젝트로 생성
+        _directionIndicator = Instantiate(StageUIManager.Instance!.DirectionIndicator, transform).GetComponent<DirectionIndicator>();
+        _directionIndicator.gameObject.SetActive(false);
+    }
 
-        // 오퍼레이터가 파괴될 때 함께 파괴되므로 전역변수로 설정하지 않아도 됨
+    protected void InitializeDirectionIndicator()
+    {
+        _directionIndicator.Initialize(this);
     }
 
     protected override float CalculateActualDamage(AttackType attacktype, float incomingDamage)
@@ -1164,8 +1112,6 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
 
         base.OnDestroy();
     }
-
-    public void SetMovementSpeed(float newMovementSpeed) { }
 
     #region Object Pool Tag Generators 
     public static string GetMeleeAttackEffectTag(OperatorData data) => $"{data.entityName}_{data.meleeAttackEffectPrefab.name}";

@@ -41,7 +41,6 @@ public class DualBladeOperator : Operator
                 damage: 0f,
                 type: AttackType,
                 isProjectile: false,
-                hitEffectPrefab: null,
                 hitEffectTag: null,
                 showDamagePopup: false
             );

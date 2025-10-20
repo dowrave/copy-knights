@@ -426,8 +426,7 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity
             damage: damage,
             type: AttackType,
             isProjectile: false,
-            hitEffectPrefab: BaseData.HitEffectPrefab,
-            hitEffectTag: hitEffectTag,
+            hitEffectTag: _enemyData.GetHitVFXTag(),
             showDamagePopup: false
         );
 
@@ -450,7 +449,7 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity
                 Projectile? projectile = projectileObj.GetComponent<Projectile>();
                 if (projectile != null)
                 {
-                    projectile.Initialize(this, target, damage, false, _enemyData.GetProjectileTag(), BaseData.HitEffectPrefab, hitEffectTag, AttackType);
+                    projectile.Initialize(this, target, damage, false, _enemyData.GetProjectileTag(), _enemyData.GetHitVFXTag(), AttackType);
                 }
             }
         }
@@ -577,16 +576,6 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity
     {
         CurrentTarget?.AddAttackingEntity(this);
     }
-
-    // public void InitializeProjectilePool()
-    // {
-    //     if (AttackRangeType == AttackRangeType.Ranged && BaseData.ProjectilePrefab != null)
-    //     {
-    //         projectileTag = $"{BaseData.EntityName}_Projectile";
-    //         ObjectPoolManager.Instance!.CreatePool(projectileTag, BaseData.ProjectilePrefab, initialPoolSize);
-    //     }
-    // }
-
 
     // 현재 경로상에서 목적지까지 남은 거리 계산
     public float GetRemainingPathDistance()
@@ -776,34 +765,6 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity
             AttackDuration <= 0 &&
             !stopAttacking; 
     }
-
-    // protected virtual void CreateObjectPool()
-    // {
-    //     // 객체의 종류마다 풀을 공유함
-    //     string baseTag = BaseData.EntityName;
-
-    //     // 근접 공격 이펙트 풀 생성
-    //     if (BaseData.MeleeAttackEffectPrefab != null)
-    //     {
-    //         meleeAttackEffectTag = baseTag + BaseData.MeleeAttackEffectPrefab.name;
-    //         ObjectPoolManager.Instance!.CreatePool(
-    //             meleeAttackEffectTag,
-    //             BaseData.MeleeAttackEffectPrefab
-    //         );
-    //     }
-
-    //     // 적 타격 이펙트 풀 생성
-    //     if (BaseData.HitEffectPrefab != null)
-    //     {
-    //         hitEffectTag = baseTag + BaseData.HitEffectPrefab.name;
-    //         ObjectPoolManager.Instance!.CreatePool(
-    //             hitEffectTag,
-    //             BaseData.HitEffectPrefab
-    //         );
-    //     }
-
-    //     InitializeProjectilePool();
-    // }
 
     protected void PlayMeleeAttackEffect(UnitEntity target, AttackSource attackSource)
     {

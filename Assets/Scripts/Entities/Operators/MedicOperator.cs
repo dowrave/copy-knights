@@ -95,7 +95,6 @@ public class MedicOperator : Operator
                 damage: healValue,
                 type: AttackType,
                 isProjectile: true,
-                hitEffectPrefab: OperatorData.hitEffectPrefab,
                 hitEffectTag: hitEffectTag,
                 showDamagePopup: false
             );

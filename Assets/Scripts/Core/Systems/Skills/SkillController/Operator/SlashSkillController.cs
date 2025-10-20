@@ -103,7 +103,6 @@ public class SlashSkillController : MonoBehaviour
                     damage: attacker.AttackPower * damageMultiplier,
                     type: attacker.AttackType,
                     isProjectile: false,
-                    hitEffectPrefab: hitEffectPrefab,
                     hitEffectTag: hitEffectTag,
                     showDamagePopup: false
                 );

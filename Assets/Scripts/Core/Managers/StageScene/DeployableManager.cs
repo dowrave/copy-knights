@@ -647,46 +647,6 @@ public class DeployableManager : MonoBehaviour
         HideOperatorUIs();
     }
 
-    // private void ResetPlacementWithObjectReturn()
-    // {
-    //     InstanceValidator.ValidateInstance(StageManager.Instance);
-    //     InstanceValidator.ValidateInstance(StageUIManager.Instance);
-
-    //     IsDeployableSelecting = false;
-    //     IsDraggingDeployable = false;
-    //     IsSelectingDirection = false;
-    //     IsMousePressed = false;
-
-    //     // currentDeployableInfo 관련 변수들
-    //     if (currentDeployable != null)
-    //     {
-    //         // 미리보기 중일 때는 해당 오브젝트 되돌림
-    //         if (currentDeployable.IsPreviewMode)
-    //         {
-    //             ObjectPoolManager.Instance.ReturnToPool(currentDeployableInfo.poolTag, currentDeployable.gameObject);
-    //         }
-    //         currentDeployable = null;
-    //     }
-    //     if (currentDeployableBox != null)
-    //     {
-    //         currentDeployableBox.Deselect();
-    //         currentDeployableBox = null;
-    //     }
-    //     // currentDeployablePrefab = null;
-    //     if (currentDeployableObject != null)
-    //     {
-    //         currentDeployableObject = null;
-    //     }
-
-    //     currentDeployableInfo = null;
-
-    //     StageUIManager.Instance!.HideDeployableInfo();
-    //     GameManagement.Instance!.TimeManager.UpdateTimeScale();
-
-    //     ResetHighlights();
-    //     HideOperatorUIs();
-    // }
-
     public void CancelPlacement()
     {
         ResetPlacement();

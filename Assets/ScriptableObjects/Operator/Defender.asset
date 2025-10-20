@@ -21,7 +21,7 @@ MonoBehaviour:
         _defense: 245
         _magicResistance: 0
       _deploymentCost: 20
-      _redeployTime: 70
+      _redeployTime: 1
     _attackPower: 198
     _attackSpeed: 1.2
     _maxBlockableEnemies: 3
@@ -41,8 +41,8 @@ MonoBehaviour:
   deployEffectPrefab: {fileID: 856940111582043208, guid: bec65663e4fb6004ebef9ec4aab1b61f, type: 3}
   meleeAttackEffectPrefab: {fileID: 1878176885182270282, guid: f571c8d7fe2ef274a8f763f91b1442d9, type: 3}
   hitEffectPrefab: {fileID: 666637002290319158, guid: ab06a0ca9db4abd47b237e5b5610fd6b, type: 3}
-  projectilePrefab: {fileID: 0}
   muzzleVFXPrefab: {fileID: 0}
+  projectilePrefab: {fileID: 0}
   levelStats:
     healthPerLevel: 9.5
     attackPowerPerLevel: 0.9

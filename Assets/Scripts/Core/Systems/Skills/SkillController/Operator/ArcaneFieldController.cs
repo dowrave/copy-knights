@@ -82,7 +82,6 @@ public class ArcaneFieldController : FieldEffectController
                     damage: caster.AttackPower * tickDamageRatio,
                     type: caster.AttackType,
                     isProjectile: true,
-                    hitEffectPrefab: hitEffectPrefab,
                     hitEffectTag: hitEffectTag,
                     showDamagePopup: false
                 );

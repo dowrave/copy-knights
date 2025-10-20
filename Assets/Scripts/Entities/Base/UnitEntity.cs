@@ -206,9 +206,18 @@ public abstract class UnitEntity : MonoBehaviour, ITargettable, IFactionMember, 
                     Debug.Log($"{PoolTag}에서 풀로 돌아가는 동작 수행됨");
                     ObjectPoolManager.Instance.ReturnToPool(PoolTag, gameObject);
                 }
-                // Destroy(gameObject); // 오브젝트 풀링으로 수정할 예정
             }
         );
+    }
+
+    protected void InitializeVisuals()
+    {
+        foreach (Renderer renderer in renderers)
+        {
+            renderer.GetPropertyBlock(propBlock);
+            propBlock.SetFloat("_FadeAmount", 1f);
+            renderer.SetPropertyBlock(propBlock);
+        }
     }
 
     protected virtual void SetPoolTag() {}
@@ -230,9 +239,6 @@ public abstract class UnitEntity : MonoBehaviour, ITargettable, IFactionMember, 
                 ObjectPoolManager.Instance!.ShowFloatingText(transform.position, actualHealAmount, true);
             }
         }
-
-
-
         if (attackSource.Attacker is Operator healerOperator)
         {
             StatisticsManager.Instance!.UpdateHealingDone(healerOperator.OperatorData, actualHealAmount);
@@ -258,53 +264,18 @@ public abstract class UnitEntity : MonoBehaviour, ITargettable, IFactionMember, 
 
     protected virtual void PlayGetHitEffect(AttackSource attackSource)
     {
-        GameObject sourceHitEffectPrefab = attackSource.HitEffectPrefab;
         string sourceHitEffectTag = attackSource.HitEffectTag;
-
-        if (sourceHitEffectPrefab == null || sourceHitEffectTag == string.Empty) return;
-
-        string attackerName;
-
-        if (attackSource.Attacker is Operator op)
-        {
-            OperatorData opData = op.OperatorData;
-            attackerName = opData.entityName;
-            if (sourceHitEffectPrefab == null)
-            {
-                sourceHitEffectPrefab = opData.hitEffectPrefab;
-            }
-        }
-        else if (attackSource.Attacker is Enemy enemy)
-        {
-            EnemyData enemyData = enemy.BaseData;
-            attackerName = enemyData.EntityName;
-            if (sourceHitEffectPrefab == null)
-            {
-                sourceHitEffectPrefab = enemyData.HitEffectPrefab;
-            }
-        }
-        else
-        {
-            Debug.LogError("이펙트 없음");
-            return;
-        }
-
-        if (sourceHitEffectPrefab != null)
+        
+        if (sourceHitEffectTag != string.Empty)
         {
             Vector3 effectPosition = transform.position;
-
-            // 풀에서 이펙트 오브젝트 가져오기
-            if (sourceHitEffectTag == string.Empty)
-            {
-                Debug.LogWarning("[TakeDamage] hitEffectTag 값이 null임");
-            }
-
             GameObject? hitEffect = ObjectPoolManager.Instance!.SpawnFromPool(sourceHitEffectTag, effectPosition, Quaternion.identity);
 
             if (hitEffect != null)
             {
+                Debug.Log($"hitEffect 재생됨 : {attackSource.HitEffectTag}");
                 CombatVFXController hitVFXController = hitEffect.GetComponent<CombatVFXController>();
-                hitVFXController.Initialize(attackSource, this, sourceHitEffectTag);
+                hitVFXController.Initialize(attackSource, this, attackSource.HitEffectTag);
             }
         }
     }

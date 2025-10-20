@@ -57,7 +57,6 @@ public class AreaHasteHealController: FieldEffectController
                     damage: caster.AttackPower * tickDamageRatio,
                     type: caster.AttackType,
                     isProjectile: true,
-                    hitEffectPrefab: hitEffectPrefab,
                     hitEffectTag: hitEffectTag,
                     showDamagePopup: true
                 );

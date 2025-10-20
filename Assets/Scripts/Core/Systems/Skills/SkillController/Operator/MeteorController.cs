@@ -76,7 +76,6 @@ public class MeteorController : MonoBehaviour, IPooledObject
                 damage: damage,
                 type: caster.AttackType,
                 isProjectile: true,
-                hitEffectPrefab: hitEffectPrefab,
                 hitEffectTag: hitEffectTag,
                 showDamagePopup: false
             );

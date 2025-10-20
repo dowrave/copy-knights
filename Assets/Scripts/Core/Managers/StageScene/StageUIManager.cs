@@ -47,7 +47,10 @@ public class StageUIManager : MonoBehaviour
     [SerializeField] private float resultDelay = 0.5f;
 
     [Header("Operator UIs")]
-    public GameObject directionIndicator = default!; // 오퍼레이터의 자식 오브젝트로 들어감
+    [SerializeField] protected GameObject operatorUIPrefab = default!;
+    [SerializeField] protected GameObject directionIndicator = default!; // 오퍼레이터의 자식 오브젝트로 들어감
+    public GameObject OperatorUIPrefab => operatorUIPrefab;
+    public GameObject DirectionIndicator => directionIndicator;
 
     [Header("Top Sub Boxes")]
     [SerializeField] private GameObject passedEnemiesBox = default!;
