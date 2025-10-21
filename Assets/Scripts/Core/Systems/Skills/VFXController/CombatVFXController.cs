@@ -44,10 +44,13 @@ public class CombatVFXController : MonoBehaviour
 
         if (vfx != null)
         {
+            vfx.Stop();
+            vfx.Reinit();
             PlayVFXGraph();
         }
         else if (mainPs != null)
         {
+            mainPs.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
             PlayPS();
         }
 
@@ -149,7 +152,7 @@ public class CombatVFXController : MonoBehaviour
 
         if (gameObject != null)
         {
-            ObjectPoolManager.Instance!.ReturnToPool(attackSource.HitEffectTag, gameObject);
+            ObjectPoolManager.Instance!.ReturnToPool(_tag, gameObject);
         }
         
         // else문은 필요 없음 - null이면 Destroy 호출 불가능

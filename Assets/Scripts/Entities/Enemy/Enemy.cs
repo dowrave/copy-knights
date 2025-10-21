@@ -73,7 +73,6 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity
             // 기존 타겟의 이벤트 구독 해제
             if (_currentTarget != null)
             {
-                _currentTarget.OnDeathAnimationCompleted -= OnCurrentTargetDied;
                 _currentTarget.RemoveAttackingEntity(this);
             }
 
@@ -81,7 +80,6 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity
 
             if (_currentTarget != null)
             {
-                _currentTarget.OnDeathAnimationCompleted += OnCurrentTargetDied;
                 NotifyTarget();
             }
         }
@@ -99,6 +97,7 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity
     [Header("Model Components")]
     [SerializeField] protected GameObject modelContainer = default!;
 
+    [Header("Attack Range Controller")]
     [SerializeField] protected EnemyAttackRangeController attackRangeController = default!;
 
     // ICrowdControlTarget
@@ -168,7 +167,6 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity
         UpdateNextNode();
         InitializeCurrentPath();
 
-
         // 공격 범위 콜라이더 설정
         attackRangeController.Initialize(this);
 
@@ -180,6 +178,7 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity
 
         // 스킬 설정 
         SetSkills();
+
 
         // 오브젝트 풀 생성
         // CreateObjectPool();
@@ -194,12 +193,16 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity
 
     protected void OnEnable()
     {
+        DeployableUnitEntity.OnDeployableDied += HandleDeployableDied;
+
         Barricade.OnBarricadeDeployed += OnBarricadePlaced;
         Barricade.OnBarricadeRemoved += OnBarricadeRemovedWithDelay;
     }
 
     protected void OnDisable()
     {
+        DeployableUnitEntity.OnDeployableDied -= HandleDeployableDied;
+
         Barricade.OnBarricadeDeployed -= OnBarricadePlaced;
         Barricade.OnBarricadeRemoved -= OnBarricadeRemovedWithDelay;
     }
@@ -472,10 +475,11 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity
         // UI 제거
         if (enemyBarUI != null)
         {
-            Destroy(enemyBarUI.gameObject);
+            enemyBarUI.gameObject.SetActive(false);
+            // Destroy(enemyBarUI.gameObject);
         }
 
-        // 킬 카운트 / 도착 등은 바로 동작하게 수정
+        // 킬 카운트 / 도착 등은 바로 동작
         OnEnemyDespawned?.Invoke(this, currentDespawnReason);
 
         PlayDeathAnimation(); // 내부 이벤트 발생으로 인해 HandleDeathAnimationCompleted도 실행됨.
@@ -561,10 +565,16 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity
     }
 
     // Enemy가 공격 대상으로 삼은 적이 죽었을 때 동작
-    public void OnCurrentTargetDied(UnitEntity destroyedTarget)
+    public void HandleDeployableDied(DeployableUnitEntity disabledEntity)
     {
-        // 타겟이 파괴되었다는 의미이므로 CurrentTarget = null로만 설정해준다.
-        if (CurrentTarget == destroyedTarget)
+        if (targetsInRange.Contains(disabledEntity))
+        {
+            targetsInRange.Remove(disabledEntity);
+
+        }
+
+        // 타겟이 범위에서 벗어났어도 현재 타겟으로 지정되는 상황이 있을 수 있으니 위 조건과는 별도로 구현했음
+        if (CurrentTarget == disabledEntity)
         {
             CurrentTarget = null;
         }

@@ -30,9 +30,10 @@ public abstract class DeployableUnitEntity : UnitEntity, IDeployable
     private float preventInteractingTime = 0.1f;
     private float lastDeployTime;
 
-    public Tile? CurrentTile { get; protected set; } 
+    public Tile? CurrentTile { get; protected set; }
 
     public static event Action<DeployableUnitEntity> OnDeployed = delegate { };
+    public static event Action<DeployableUnitEntity> OnDeployableDied = delegate { };
 
     protected override void Awake()
     {
@@ -121,6 +122,7 @@ public abstract class DeployableUnitEntity : UnitEntity, IDeployable
     {
         IsDeployed = false;
         DeployableInfo.deployedDeployable = null;
+        OnDeployableDied?.Invoke(this);
         DeployableManager.Instance!.OnDeployableRemoved(this);
         if (CurrentTile != null)
         {

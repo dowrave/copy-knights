@@ -160,8 +160,8 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
     // 이벤트들
     public event System.Action<float, float> OnSPChanged = delegate { };
     public event System.Action OnStatsChanged = delegate { };
-    public event System.Action<Operator> OnOperatorDied = delegate { };
     public event System.Action OnSkillStateChanged = delegate { };
+    public static event System.Action<Operator> OnOperatorDied = delegate { };
 
     protected override void Awake()
     {
