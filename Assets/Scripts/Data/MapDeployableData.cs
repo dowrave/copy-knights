@@ -6,17 +6,17 @@ using UnityEngine;
 [System.Serializable]
 public class MapDeployableData
 {
-    protected GameObject deployablePrefab = default!;
-    protected DeployableUnitData deployableData = default!; // 기본 데이터. 별도의 초기화 로직을 거치지 않게 하기 위함. 
-    protected int maxDeployCount = 0; // 최대 배치 가능 수 
+    [SerializeField] protected GameObject deployablePrefab = default!;
+    [SerializeField] protected DeployableUnitData deployableData = default!; // 기본 데이터. 별도의 초기화 로직을 거치지 않게 하기 위함. 
+    [SerializeField] protected int maxDeployCount = 0; // 최대 배치 가능 수 
 
     public GameObject DeployablePrefab => deployablePrefab;
     public DeployableUnitData DeployableData => deployableData;
     public int MaxDeployCount => maxDeployCount;
 
-    public DeployableManager.DeployableInfo ToDeployableInfo()
+    public DeployableInfo ToDeployableInfo()
     {
-        return new DeployableManager.DeployableInfo
+        return new DeployableInfo
         {
             prefab = deployablePrefab,
             maxDeployCount = maxDeployCount,

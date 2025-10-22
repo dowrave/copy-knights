@@ -4,7 +4,7 @@ using System;
 
 public abstract class DeployableUnitEntity : UnitEntity, IDeployable
 {
-    public DeployableManager.DeployableInfo DeployableInfo { get; protected set; } = default!;
+    public DeployableInfo DeployableInfo { get; protected set; } = default!;
 
     [SerializeField] protected DeployableUnitData _deployableData;
     public DeployableUnitData DeployableUnitData => _deployableData;
@@ -47,7 +47,7 @@ public abstract class DeployableUnitEntity : UnitEntity, IDeployable
         AssignColorToRenderers(DeployableUnitData.PrimaryColor, DeployableUnitData.SecondaryColor);
     }
 
-    public void Initialize(DeployableManager.DeployableInfo deployableInfo)
+    public void Initialize(DeployableInfo deployableInfo)
     {
         DeployableInfo = deployableInfo;
         if (_deployableData != null)

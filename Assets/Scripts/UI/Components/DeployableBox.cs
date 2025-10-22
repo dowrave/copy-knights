@@ -29,7 +29,7 @@ public class DeployableBox : MonoBehaviour, IPointerDownHandler, IBeginDragHandl
     private GameObject deployablePrefab;
     private GameObject deployableObject = default!;
     private DeployableUnitEntity deployableComponent = default!;
-    private DeployableManager.DeployableInfo deployableInfo = default!;
+    private DeployableInfo deployableInfo = default!;
     private DeployableUnitState deployableUnitState = default!;
 
     // 애니메이션 관련
@@ -46,7 +46,7 @@ public class DeployableBox : MonoBehaviour, IPointerDownHandler, IBeginDragHandl
     private bool isDragging = false;
     private int currentDeploymentCost;
 
-    public void Initialize(DeployableManager.DeployableInfo info)
+    public void Initialize(DeployableInfo info)
     {
         deployableInfo = info;
         deployableTag = info.poolTag;

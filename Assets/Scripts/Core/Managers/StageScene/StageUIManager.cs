@@ -167,9 +167,9 @@ public class StageUIManager : MonoBehaviour
 
 
     // 배치되지 않은 유닛의 정보 보기 동작
-    public void ShowUndeployedInfo(DeployableManager.DeployableInfo deployableInfo)
+    public void ShowUndeployedInfo(DeployableInfo deployableInfo)
     {
-        inStageInfoPanelScript.UpdateInfo(deployableInfo, false);
+        inStageInfoPanelScript.UpdateUnDeployedInfo(deployableInfo);
 
         if (deployableInfo.prefab != null)
         {
@@ -182,7 +182,7 @@ public class StageUIManager : MonoBehaviour
     // 배치된 유닛의 정보 보기 동작
     public void ShowDeployedInfo(DeployableUnitEntity deployableUnitEntity)
     {
-        inStageInfoPanelScript.UpdateInfo(deployableUnitEntity.DeployableInfo!, true);
+        inStageInfoPanelScript.UpdateDeployedInfo(deployableUnitEntity);
         CameraManager.Instance!.AdjustForDeployableInfo(true, deployableUnitEntity);
     }
 

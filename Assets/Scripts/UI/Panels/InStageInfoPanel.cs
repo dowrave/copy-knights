@@ -36,61 +36,110 @@ public class InStageInfoPanel : MonoBehaviour
     [SerializeField] private Button cancelPanel = default!;
 
     // 배치 요소 정보
-    private DeployableManager.DeployableInfo currentDeployableInfo = default!;
+    private DeployableInfo currentDeployableInfo = default!;
     private DeployableUnitState? currentDeployableUnitState;
 
     // 오퍼레이터에서만 사용
     private Operator? currentOperator;
     private OperatorSkill operatorSkill = default!;
 
-    public DeployableManager.DeployableInfo CurrentDeployableInfo => currentDeployableInfo;
+    public DeployableInfo CurrentDeployableInfo => currentDeployableInfo;
 
     private void Awake()
     {
         cancelPanel.gameObject.SetActive(false);
     }
 
-    public void UpdateInfo(DeployableManager.DeployableInfo deployableInfo, bool IsClickDeployed)
+    // public void UpdateInfo(DeployableInfo deployableInfo, bool IsClickDeployed)
+    // {
+    //     gameObject.SetActive(true); // 정보 업데이트라서 오브젝트 활성화
+    //     currentDeployableInfo = deployableInfo;
+    //     currentDeployableUnitState = DeployableManager.Instance!.UnitStates[currentDeployableInfo];
+
+    //     if (currentDeployableUnitState == null)
+    //     {
+    //         Debug.LogError("현재 배치 요소의 정보가 없음");
+    //         return;
+    //     }
+
+    //     // 박스에서 꺼내는 요소인 경우, 맵의 남은 부분을 클릭하면 현재 동작을 취소할 수 있음
+    //     if (!IsClickDeployed)
+    //     {
+    //         cancelPanel.gameObject.SetActive(true);
+    //         cancelPanel.onClick.AddListener(OnCancelPanelClicked);
+    //     }
+
+    //     // 1. 배치된 Operator
+    //     if (currentDeployableInfo.deployedOperator != null)
+    //     {
+    //         Operator op = currentDeployableInfo.deployedOperator;
+    //         op.OnDeathStarted += Hide;
+    //         CameraManager.Instance!.AdjustForDeployableInfo(true, op);
+    //         UpdateOperatorInfo();
+    //     }
+    //     // 2. 박스의 Operator
+    //     else if (currentDeployableInfo.ownedOperator != null)
+    //     {
+    //         OwnedOperator op = currentDeployableInfo.ownedOperator;
+    //         CameraManager.Instance!.AdjustForDeployableInfo(true);
+    //         UpdateOperatorInfo();
+    //     }
+    //     // else if (currentDeployableInfo.deployedDeployable != null)
+    //     else if (currentDeployableInfo.deployableUnitData != null)
+    //     {
+    //         DeployableUnitEntity deployable = deployableInfo.deployedDeployable;
+    //         deployable.OnDeathStarted += Hide;
+    //         CameraManager.Instance!.AdjustForDeployableInfo(true, deployable);
+    //         UpdateDeployableInfo();
+    //     }
+    // }
+
+    // 배치되지 않은 요소 처리
+    public void UpdateUnDeployedInfo(DeployableInfo deployableInfo)
     {
-        gameObject.SetActive(true); // 정보 업데이트라서 오브젝트 활성화
+        gameObject.SetActive(true);
         currentDeployableInfo = deployableInfo;
         currentDeployableUnitState = DeployableManager.Instance!.UnitStates[currentDeployableInfo];
 
-        if (currentDeployableUnitState == null)
-        {
-            Debug.LogError("현재 배치 요소의 정보가 없음");
-            return;
-        }
+        // 취소 패널 활성화
+        cancelPanel.gameObject.SetActive(true);
+        cancelPanel.onClick.AddListener(OnCancelPanelClicked);
 
-        // 박스에서 꺼내는 요소인 경우, 맵의 남은 부분을 클릭하면 현재 동작을 취소할 수 있음
-        if (!IsClickDeployed)
-        {
-            cancelPanel.gameObject.SetActive(true);
-            cancelPanel.onClick.AddListener(OnCancelPanelClicked);
-        }
-
-        // 1. 배치된 Operator
-        if (currentDeployableInfo.deployedOperator != null)
-        {
-            Operator op = currentDeployableInfo.deployedOperator;
-            op.OnDeathStarted += Hide;
-            CameraManager.Instance!.AdjustForDeployableInfo(true, op);
-            UpdateOperatorInfo();
-        }
-        // 2. 박스의 Operator
-        else if (currentDeployableInfo.ownedOperator != null)
+        if (currentDeployableInfo.ownedOperator != null)
         {
             OwnedOperator op = currentDeployableInfo.ownedOperator;
             CameraManager.Instance!.AdjustForDeployableInfo(true);
             UpdateOperatorInfo();
         }
-        else if (currentDeployableInfo.deployedDeployable != null)
+        else if (currentDeployableInfo.deployableUnitData != null)
         {
-            DeployableUnitEntity deployable = deployableInfo.deployedDeployable;
-            deployable.OnDeathStarted += Hide;
-            CameraManager.Instance!.AdjustForDeployableInfo(true, deployable);
+            CameraManager.Instance!.AdjustForDeployableInfo(true);
             UpdateDeployableInfo();
-        }        
+        }
+    }
+    
+    // 배치된 요소 처리
+    public void UpdateDeployedInfo(DeployableUnitEntity deployedUnit)
+    {
+        gameObject.SetActive(true);
+        currentDeployableInfo = deployedUnit.DeployableInfo;
+        currentDeployableUnitState = DeployableManager.Instance!.UnitStates[currentDeployableInfo];
+
+        // 취소 패널 비활성화
+        cancelPanel.gameObject.SetActive(true);
+
+        if (deployedUnit is Operator op)
+        {
+            op.OnDeathStarted += Hide;
+            CameraManager.Instance!.AdjustForDeployableInfo(true, op);
+            UpdateOperatorInfo();
+        }
+        else
+        {
+            deployedUnit.OnDeathStarted += Hide;
+            CameraManager.Instance!.AdjustForDeployableInfo(true, deployedUnit);
+            UpdateDeployableInfo();
+        }
     }
 
     public void Hide(UnitEntity unit)

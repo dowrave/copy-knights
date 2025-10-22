@@ -175,7 +175,7 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
         AssignColorToRenderers(OperatorData.PrimaryColor, OperatorData.SecondaryColor);
     }
 
-    public new virtual void Initialize(DeployableManager.DeployableInfo opInfo)
+    public new virtual void Initialize(DeployableInfo opInfo)
     {
         DeployableInfo = opInfo;
         if (opInfo.ownedOperator != null)

@@ -109,7 +109,7 @@ public class TestManager : MonoBehaviour
 
     private void InitializeStageProgressForTest()
     {
-        // StageClearAndGetRewards("1-0", 3);
+        StageClearAndGetRewards("1-0", 3);
         // StageClearAndGetRewards("1-1", 3);
         // StageClearAndGetRewards("1-2", 3);
     }
