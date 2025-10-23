@@ -213,7 +213,7 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
             ElitePhase = ownedOp.currentPhase;
             Level = ownedOp.currentLevel;
 
-            InitializeVisuals();
+            base.Initialize();
 
             SetDeployState(false);
         }

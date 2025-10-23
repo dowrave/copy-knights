@@ -623,7 +623,7 @@ public class DeployableManager : MonoBehaviour
         // currentDeployableInfo 관련 변수들
         if (currentDeployable != null)
         {
-            // 미리보기 중일 때는 해당 오브젝트 파괴
+            // 미리보기 중일 때는 해당 오브젝트 반환
             if (currentDeployable.IsPreviewMode)
             {
                 ObjectPoolManager.Instance.ReturnToPool(currentDeployableInfo.poolTag, currentDeployableObject);
@@ -713,10 +713,11 @@ public class DeployableManager : MonoBehaviour
 
     public void SetActiveActionUI(DeployableActionUI ui)
     {
-        // 현재 선택된 ui와 기존 선택된 actionUI가 다른 경우라면 숨김(자식 오브젝트라 숨김)
+        // 현재 선택된 ui와 기존 선택된 actionUI가 다른 경우라면 숨김
         if (currentActionUI != null && currentActionUI != ui)
         {
-            Destroy(currentActionUI);
+            // Destroy(currentActionUI);
+            currentActionUI.gameObject.SetActive(false);
         }
 
         currentActionUI = ui;

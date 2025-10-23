@@ -58,6 +58,7 @@ public abstract class DeployableUnitEntity : UnitEntity, IDeployable
             SetPoolTag();
             SetPrefab();
 
+            InitializeVisuals();
             InitializeDeployableProperties();
             UpdateCurrentTile();
         }

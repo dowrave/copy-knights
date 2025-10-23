@@ -42,20 +42,36 @@ public class ClickDetectionSystem : MonoBehaviour
     {
         if (Input.GetMouseButtonDown(0))
         {
-            HandleUIMouseDown();
-            shouldSkipHandleClick = false; // 매 프레임 초기화
+            // UI 요소 클릭 시의 동작
+            if (EventSystem.current.IsPointerOverGameObject())
+            {
+                HandleUIMouseDown();
+                return;
+            }
         }
         if (Input.GetMouseButtonUp(0))
         {
-            // UI 클릭이 없었을 때에만 HandleClick 동작
-            if (!shouldSkipHandleClick)
+            PointerEventData pointerData = new PointerEventData(EventSystem.current);
+            pointerData.position = Input.mousePosition;
+
+            List<RaycastResult> results = new List<RaycastResult>();
+            EventSystem.current.RaycastAll(pointerData, results);
+            
+            if (results.Count > 0)
             {
-                HandleClick();
+                Debug.Log("UI 요소 클릭되어서 동작 중단됨. 감지된 첫 번째 요소: " + results[0].gameObject.name);
+                
+                // 디버깅을 위해 모든 감지된 요소 출력
+                // foreach (var result in results)
+                // {
+                //     Debug.Log("감지된 UI: " + result.gameObject.name);
+                // }
+                
+                return; 
             }
 
-            // 다음 프레임을 위한 초기화
-            buttonClickedThisFrame = false;
-            shouldSkipHandleClick = false;
+            // UI가 클릭되지 않았을 때의 로직 (예: ProcessClickMapObject())
+            ProcessClickMapObject();
         }
     }
 
@@ -73,7 +89,7 @@ public class ClickDetectionSystem : MonoBehaviour
         List<RaycastResult> results = PerformScreenRaycast();
         foreach (var result in results)
         {
-            //Debug.Log($"MouseButtonDown Raycast hit: {result.gameObject.name}");
+            Debug.Log($"MouseButtonDown Raycast hit: {result.gameObject.name}");
 
             // ButtonDown 동작 1. 다이아몬드 내부 클릭 시 방향 설정
             DiamondMask diamondMask = result.gameObject.GetComponent<DiamondMask>();
@@ -81,7 +97,6 @@ public class ClickDetectionSystem : MonoBehaviour
             {
                 if (diamondMask.IsPointInsideDiamond(Input.mousePosition))
                 {
-                    //Debug.LogWarning("HandleUIClick : 다이아몬드 내부 ");
                     DeployableManager.Instance!.IsMousePressed = true;
                     return;
                 }
@@ -95,35 +110,6 @@ public class ClickDetectionSystem : MonoBehaviour
                 return;
             }
         }
-    }
-
-
-
-    // ** 클릭한 지점에 UI 요소(GrpahicRayCaster가 있는 Canvas)가 있다면 먼저 반응함(여기서의 처리가 아님) **
-    // 이후의 클릭 동작을 담당함
- 
-    private void HandleClick()
-    {
-        List<RaycastResult> results = PerformScreenRaycast();
-
-        if (results.Count > 0 && ProcessClickUI(results))
-        {
-            return;
-        }
-
-        ProcessClickMapObject();
-    }
-
-    // UI 요소 처리: GraphicRaycaster 모듈이 있는 결과만 필터링
-    private bool ProcessClickUI(List<RaycastResult> results)
-    {
-        var uiResults = results.Where(r => r.module is GraphicRaycaster).ToList();
-
-        if (uiResults.Count > 0)
-        {
-            return HandleUIClick(uiResults);
-        }
-        return false; // 처리할 UI가 없음
     }
 
     private void ProcessClickMapObject()
@@ -150,12 +136,12 @@ public class ClickDetectionSystem : MonoBehaviour
         }
     }
 
-    private bool HandleUIClick(List<RaycastResult> uiResults)
+    private bool HandleSpecialUIClick()
     {
-        foreach (var result in uiResults)
-        {
-            //Debug.Log($"ui 탐지: {result.gameObject.name}");
+        List<RaycastResult> results = PerformScreenRaycast();
 
+        foreach (var result in results)
+        {
             // 1. 다이아몬드 외부 클릭 시 상태 해제
             DiamondMask diamondMask = result.gameObject.GetComponent<DiamondMask>();
             if (diamondMask != null)
@@ -173,20 +159,17 @@ public class ClickDetectionSystem : MonoBehaviour
             // 2. OperatorUI 관련 요소 클릭 처리 - Deployable.OnClick이 동작하도록 수정
             // 체력 바 같은 걸 클릭했을 때도 해당 배치 요소를 클릭하게끔 구현한 내용이다. 지우면 안됨.
             DeployableUnitEntity? associatedDeployable = GetAssociatedDeployableUnitEntity(result.gameObject);
-            if (associatedDeployable != null )
+            if (associatedDeployable != null)
             {
                 associatedDeployable.OnClick();
+                Debug.Log($"{associatedDeployable}.OnClick 메서드가 동작함");
                 return true;
             }
         }
 
+        Debug.Log("HandleSpecialUIClick이 동작했으나 해당 요소가 없음");
+
         return false;
-    }
-
-    private void HandleDiamondInteriorClick(RaycastResult result)
-    {
-        // 마름모 내부 클릭 시 내부 동작 유지 - ActionUI나 DeployingUI 상태 유지
-
     }
 
     private void HandleObjectClick(RaycastHit[] hits)
@@ -257,6 +240,7 @@ public class ClickDetectionSystem : MonoBehaviour
     /// </summary>
     private DeployableUnitEntity? GetAssociatedDeployableUnitEntity(GameObject clickedObject)
     {
+        Debug.Log($"GetAssociatedDeployableUnitEntity 동작, clickedObject : {clickedObject.name}");
         Transform? current = clickedObject.transform;
         while (current != null)
         {

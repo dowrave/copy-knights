@@ -139,6 +139,11 @@ public abstract class UnitEntity : MonoBehaviour, ITargettable, IFactionMember, 
         }
     }
 
+    public virtual void Initialize()
+    {
+        InitializeVisuals();
+    }
+
     protected virtual void Update()
     {
         foreach (var buff in activeBuffs.ToArray())

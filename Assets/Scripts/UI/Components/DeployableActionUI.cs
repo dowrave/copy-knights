@@ -48,6 +48,12 @@ public class DeployableActionUI : MonoBehaviour
 
     public void Initialize(DeployableUnitEntity deployable)
     {
+        // 동일한 요소인 경우는 동작하지 않음
+        if (this.deployable == deployable) return;
+
+        // 상태 초기화
+        ResetState();
+
         this.deployable = deployable;
 
         if (deployable is Operator)
@@ -55,19 +61,23 @@ public class DeployableActionUI : MonoBehaviour
             currentOperator = deployable as Operator;
             if (currentOperator != null)
             {
+                // 스킬 아이콘 관련 설정
                 skillButton.gameObject.SetActive(true);
 
                 UpdateSkillButton();
-                currentOperator.OnSPChanged += HandleSPChange;
                 isSPImageActive = currentOperator.CanUseSkill();
 
-                // 스킬 아이콘 부분에 이미지 할당
-                InitializeSkillIcon();
+
+                InitializeSkillIcon();  // 스킬 아이콘 부분에 이미지 할당
                 InitializeColors();
+
+                // SP 변화에 따른 이벤트 등록
+                currentOperator.OnSPChanged += HandleSPChange;
             }
         }
         else
         {
+            currentOperator = null;
             skillButton.gameObject.SetActive(false);
         }
 
@@ -115,15 +125,19 @@ public class DeployableActionUI : MonoBehaviour
         // 버튼 위치는 인스펙터에서 설정
         // 버튼 이벤트 설정
         retreatButton.onClick.AddListener(OnRetreatButtonClicked);
+        Debug.Log("DeployableActionUI - 퇴각 버튼에 OnClick 리스너 등록");
 
         if (deployable is Operator)
         {
             skillButton.onClick.AddListener(OnSkillButtonClicked);
+            Debug.Log("DeployableActionUI - 퇴각 버튼에 OnClick 리스너 등록");
+
         }
     }
 
     private void OnSkillButtonClicked()
     {
+        Debug.Log("[DeployableActionUI]스킬 버튼 클릭 감지");
         if (deployable is Operator op)
         {
             if (op.CurrentSkill is AmmoBasedActiveSkill ammoSkill && op.IsSkillOn)
@@ -176,6 +190,7 @@ public class DeployableActionUI : MonoBehaviour
 
     private void OnRetreatButtonClicked()
     {
+        Debug.Log("[DeployableActionUI]퇴각 버튼 클릭 감지");
         deployable.Retreat();
         ClickDetectionSystem.Instance!.OnButtonClicked();
         Hide();
@@ -288,13 +303,26 @@ public class DeployableActionUI : MonoBehaviour
         }
     }
 
-    private void OnDestroy()
+    private void ResetState()
     {
         retreatButton.onClick.RemoveAllListeners();
         if (currentOperator != null)
         {
             skillButton.onClick.RemoveAllListeners();
             currentOperator.OnSPChanged -= HandleSPChange;
+            currentOperator = null;
         }
+
+        deployable = null;
+    }
+
+    private void OnDisable()
+    {
+        ResetState();
+    }
+
+    private void OnDestroy()
+    {
+
     }
 }
