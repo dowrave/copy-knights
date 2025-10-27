@@ -221,13 +221,13 @@ public class DeployableBox : MonoBehaviour, IPointerDownHandler, IBeginDragHandl
         ResetAnimation();
     }
 
-    // 마우스 동작 관련 : 동작하지 않는다면 상속을 확인하라
+    // 마우스 동작 관련 : 동작하지 않는다면 상속을 확인할 것
     // 마우스 버튼을 눌렀다가 같은 위치에서 뗐을 때 발생
     public void OnPointerDown(PointerEventData eventData)
     {
         if (CanInteract())
         {
-            DeployableManager.Instance!.StartDeployableSelection(deployableInfo);
+            DeploymentInputHandler.Instance!.StartDeploymentProcess(deployableInfo);
             Select();
         }
     }
@@ -238,7 +238,7 @@ public class DeployableBox : MonoBehaviour, IPointerDownHandler, IBeginDragHandl
         if (CanInteract())
         {
             isDragging = true;
-            DeployableManager.Instance!.StartDragging(deployableInfo);
+            DeploymentInputHandler.Instance!.StartDeployableDragging(deployableInfo);
         }
     }
     
@@ -257,8 +257,6 @@ public class DeployableBox : MonoBehaviour, IPointerDownHandler, IBeginDragHandl
 
         sequence.Append(rectTransform.DOAnchorPosY(originalPosition.y + animationHeight, animationDuration / 2)
             .SetEase(Ease.OutQuad));
-        //sequence.Append(rectTransform.DOAnchorPosY(originalPosition.y, animationDuration / 2)
-        //    .SetEase(Ease.InQuad));
 
         currentTween = sequence;
     }
@@ -278,7 +276,7 @@ public class DeployableBox : MonoBehaviour, IPointerDownHandler, IBeginDragHandl
     {
         if (isDragging && CanInteract())
         {
-            DeployableManager.Instance!.HandleDragging(deployableInfo);
+            DeploymentInputHandler.Instance!.HandleDeployableDragging(deployableInfo);
         }
     }
 
@@ -287,7 +285,7 @@ public class DeployableBox : MonoBehaviour, IPointerDownHandler, IBeginDragHandl
     {
         if (isDragging)
         {
-            DeployableManager.Instance!.EndDragging();
+            DeploymentInputHandler.Instance!.EndDeployableDragging();
             isDragging = false;
         }
     }

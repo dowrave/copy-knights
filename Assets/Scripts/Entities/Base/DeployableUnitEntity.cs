@@ -176,14 +176,14 @@ public abstract class DeployableUnitEntity : UnitEntity, IDeployable
 
     public virtual void OnClick()
     {
-        // ?? ??
+        // 커서를 뗀 시점에 다시 클릭되는 현상 방지
         if (Time.time - lastDeployTime < preventInteractingTime)
         {
             DeployableManager.Instance!.CancelPlacement();
             return;
         }
 
-        
+        // 배치된 유닛 클릭
         if (IsDeployed &&
             !IsPreviewMode &&
             StageManager.Instance!.currentState == GameState.Battle
@@ -193,10 +193,11 @@ public abstract class DeployableUnitEntity : UnitEntity, IDeployable
 
             if (IsPreviewMode == false)
             {
+                DeploymentInputHandler.Instance!.SetIsSelectingDeployedUnit(true);
                 StageUIManager.Instance!.ShowDeployedInfo(this);
+                ShowActionUI();
             }
 
-            ShowActionUI();
         }
     }
 

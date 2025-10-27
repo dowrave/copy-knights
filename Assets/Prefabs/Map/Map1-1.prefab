@@ -2265,7 +2265,7 @@ MonoBehaviour:
   mapId: 1-1
   width: 8
   height: 7
-  cameraPosition: {x: 3.5, y: 5, z: 0.5}
+  cameraPosition: {x: 3.5, y: 5.5, z: 0.5}
   enemySpawners:
   - {fileID: 326490296103264606}
 --- !u!1 &2706228320786089589

@@ -61,7 +61,7 @@ public class DiamondMask : Image
 
         // 스크린 상에서의 마름모 "반지름" 계산
         screenDiamondRadius = Vector2.Distance(screenCenter, screenRight);
-        DeployableManager.Instance!.SetMinDirectionDistance(screenDiamondRadius);
+        DeploymentInputHandler.Instance!.SetMinDirectionDistance(screenDiamondRadius);
 
         // 맨해튼 거리 계산
         float dx = Mathf.Abs(screenPoint.x - screenCenter.x);

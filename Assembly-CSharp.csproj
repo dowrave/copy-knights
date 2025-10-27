@@ -84,11 +84,13 @@
     <Compile Include="Assets\Scripts\Utils\OperatorIconHelper.cs" />
     <Compile Include="Assets\Scripts\UI\Components\GaugeBar\HealthBar.cs" />
     <Compile Include="Assets\Scripts\Core\Systems\Skills\OperatorSkills\AreaHasteHealSkill.cs" />
+    <Compile Include="Assets\Scripts\Core\Managers\StageScene\DeploymentInputHandler.cs" />
     <Compile Include="Assets\Scripts\UI\Components\DiamondOutline.cs" />
     <Compile Include="Assets\Scripts\Core\Managers\MainmenuScene\PopupManager.cs" />
     <Compile Include="Assets\Scripts\Entities\Base\DeployableUnitEntity.cs" />
     <Compile Include="Assets\Scripts\Utils\ClickDetectionSystem.cs" />
     <Compile Include="Assets\Scripts\Core\Systems\Skills\SkillController\Enemy\BossExplosionSkillController.cs" />
+    <Compile Include="Assets\Scripts\UI\Components\RaycastPassThroughFilter.cs" />
     <Compile Include="Assets\Scripts\Interfaces\IMovable.cs" />
     <Compile Include="Assets\Scripts\Core\Systems\Skills\OperatorSkills\SmashSkill.cs" />
     <Compile Include="Assets\Scripts\Core\Managers\GameManagement\GameManagement.cs" />

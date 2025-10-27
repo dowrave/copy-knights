@@ -21,6 +21,7 @@ public class ClickDetectionSystem : MonoBehaviour
     public bool buttonClickedThisFrame = false;
     private bool shouldSkipHandleClick = false;
 
+
     private void Awake()
     {
         if (Instance == null)
@@ -56,24 +57,26 @@ public class ClickDetectionSystem : MonoBehaviour
 
             List<RaycastResult> results = new List<RaycastResult>();
             EventSystem.current.RaycastAll(pointerData, results);
-            
+
             if (results.Count > 0)
             {
                 Debug.Log("UI 요소 클릭되어서 동작 중단됨. 감지된 첫 번째 요소: " + results[0].gameObject.name);
-                
+
                 // 디버깅을 위해 모든 감지된 요소 출력
                 // foreach (var result in results)
                 // {
                 //     Debug.Log("감지된 UI: " + result.gameObject.name);
                 // }
-                
-                return; 
+
+                return;
             }
 
             // UI가 클릭되지 않았을 때의 로직 (예: ProcessClickMapObject())
             ProcessClickMapObject();
         }
     }
+    
+
 
     public void OnButtonClicked()
     {
@@ -83,13 +86,13 @@ public class ClickDetectionSystem : MonoBehaviour
 
     private void HandleUIMouseDown()
     {
-        PointerEventData pointerData = new PointerEventData(EventSystem.current);
+        // PointerEventData pointerData = new PointerEventData(EventSystem.current);
 
         // UI 요소에 대한 레이캐스트
         List<RaycastResult> results = PerformScreenRaycast();
         foreach (var result in results)
         {
-            Debug.Log($"MouseButtonDown Raycast hit: {result.gameObject.name}");
+            // Debug.Log($"MouseButtonDown Raycast hit: {result.gameObject.name}");
 
             // ButtonDown 동작 1. 다이아몬드 내부 클릭 시 방향 설정
             DiamondMask diamondMask = result.gameObject.GetComponent<DiamondMask>();
@@ -97,18 +100,18 @@ public class ClickDetectionSystem : MonoBehaviour
             {
                 if (diamondMask.IsPointInsideDiamond(Input.mousePosition))
                 {
-                    DeployableManager.Instance!.IsMousePressed = true;
+                    DeploymentInputHandler.Instance!.SetIsMousePressed(true);
                     return;
                 }
             }
 
             // ButtonDown 동작 2. 오퍼레이터 박스 드래그 동작 시작
-            DeployableBox deployableBox = result.gameObject.GetComponent<DeployableBox>();
-            if (deployableBox != null)
-            {
-                deployableBox.OnPointerDown(pointerData);
-                return;
-            }
+            // DeployableBox deployableBox = result.gameObject.GetComponent<DeployableBox>();
+            // if (deployableBox != null)
+            // {
+            //     deployableBox.OnPointerDown(pointerData);
+            //     return;
+            // }
         }
     }
 
@@ -116,7 +119,7 @@ public class ClickDetectionSystem : MonoBehaviour
     {
         // 1. 배치 중 드래깅 혹은 방향 선택 상태라면 클릭 처리 중단
         // 배치 상황은 DeployableManager에서 처리한다. 여기서는 다른 오브젝트의 클릭 동작을 막기 위해 남겨둠.
-        if (DeployableManager.Instance!.IsSelectingDirection)
+        if (DeploymentInputHandler.Instance!.IsSelectingDirection)
         {
             Debug.Log("HandleClick : 배치 중 드래깅 혹은 방향 선택 상태 - 클릭 처리 중단");
             return;
@@ -184,7 +187,7 @@ public class ClickDetectionSystem : MonoBehaviour
         foreach (var hit in hits.OrderBy(h => h.distance)) // 카메라에서 가까운 순서
         {
             DeployableUnitEntity? clickable = hit.collider.GetComponentInParent<DeployableUnitEntity>();
-            if (clickable != null && !DeployableManager.Instance!.IsClickingPrevented)
+            if (clickable != null && !DeploymentInputHandler.Instance!.IsClickingPrevented)
             {
                 clickable.OnClick();
                 Debug.Log("DeployableUnitEntity 콜라이더 감지 및 클릭됨");

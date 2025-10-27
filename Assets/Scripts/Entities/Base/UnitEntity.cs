@@ -278,7 +278,6 @@ public abstract class UnitEntity : MonoBehaviour, ITargettable, IFactionMember, 
 
             if (hitEffect != null)
             {
-                Debug.Log($"hitEffect Àç»ýµÊ : {attackSource.HitEffectTag}");
                 CombatVFXController hitVFXController = hitEffect.GetComponent<CombatVFXController>();
                 hitVFXController.Initialize(attackSource, this, attackSource.HitEffectTag);
             }

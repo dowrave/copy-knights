@@ -1,5 +1,6 @@
 using Skills.Base;
 using TMPro;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -7,7 +8,6 @@ using UnityEngine.UI;
 // 스테이지에서 사용되는, 오퍼레이터의 정보를 표시하는 패널.
 public class InStageInfoPanel : MonoBehaviour
 {
-
     [Header("Base Info Fields")]
     [SerializeField] private Image classIconImage = default!;
     [SerializeField] private GameObject operatorLevelTextBox = default!;
@@ -23,7 +23,7 @@ public class InStageInfoPanel : MonoBehaviour
     [SerializeField] private TextMeshProUGUI magicResistanceText = default!;
     [SerializeField] private TextMeshProUGUI blockCountText = default!;
 
-    [Header("Tabs")]
+    // [Header("Tabs")]
     //[SerializeField] private Button SkillTab = default!; // 아마 이것만 쓸 것 같긴 한데
 
     [Header("Ability Panel")]
@@ -33,7 +33,8 @@ public class InStageInfoPanel : MonoBehaviour
     [SerializeField] private TextMeshProUGUI skillDetailText = default!;
 
     [Header("Cancel Panel")]
-    [SerializeField] private Button cancelPanel = default!;
+    // [SerializeField] private Button cancelPanel = default!;
+    [SerializeField] private GameObject cancelPanelObject = default!;
 
     // 배치 요소 정보
     private DeployableInfo currentDeployableInfo = default!;
@@ -47,7 +48,28 @@ public class InStageInfoPanel : MonoBehaviour
 
     private void Awake()
     {
-        cancelPanel.gameObject.SetActive(false);
+        Button cancelPanel = cancelPanelObject.GetComponent<Button>();
+        if (cancelPanel != null)
+        {
+            cancelPanel.onClick.AddListener(OnCancelPanelClicked);
+        }
+        cancelPanelObject.SetActive(false);
+    }
+
+    private void Start()
+    {
+        DeploymentInputHandler.Instance.OnDragStarted += DeactivateCancelPanelObject;
+        DeploymentInputHandler.Instance.OnDragEnded += ActivateCancelPanelObject;
+    }
+
+    private void ActivateCancelPanelObject()
+    {
+        cancelPanelObject.SetActive(true);
+    }
+    
+    private void DeactivateCancelPanelObject()
+    {
+        cancelPanelObject.SetActive(false);
     }
     
     // 배치되지 않은 요소 처리
@@ -58,8 +80,8 @@ public class InStageInfoPanel : MonoBehaviour
         currentDeployableUnitState = DeployableManager.Instance!.UnitStates[currentDeployableInfo];
 
         // 취소 패널 활성화
-        cancelPanel.gameObject.SetActive(true);
-        cancelPanel.onClick.AddListener(OnCancelPanelClicked);
+        cancelPanelObject.SetActive(true);
+        // cancelPanel.onClick.AddListener(OnCancelPanelClicked);
 
         if (currentDeployableInfo.ownedOperator != null)
         {
@@ -82,7 +104,7 @@ public class InStageInfoPanel : MonoBehaviour
         currentDeployableUnitState = DeployableManager.Instance!.UnitStates[currentDeployableInfo];
 
         // 취소 패널 비활성화
-        cancelPanel.gameObject.SetActive(true);
+        cancelPanelObject.SetActive(false);
 
         if (deployedUnit is Operator op)
         {
@@ -259,7 +281,13 @@ public class InStageInfoPanel : MonoBehaviour
 
     private void OnCancelPanelClicked()
     {
-        if (DeployableManager.Instance!.IsDeployableSelecting)
+        Debug.Log("OnCancelPanelClicked 동작");
+        if (DeploymentInputHandler.Instance == null) return;
+
+        // 방금 드래그를 끝내고 타일에 배치된 시점에는 동작하지 않음
+        if (DeploymentInputHandler.Instance.JustEndedDrag) return;
+
+        if (DeploymentInputHandler.Instance!.IsSelectingBox || DeploymentInputHandler.Instance!.IsSelectingDeployedUnit)
         {
             DeployableManager.Instance!.CancelDeployableSelection();
         }
@@ -275,7 +303,18 @@ public class InStageInfoPanel : MonoBehaviour
         }
 
         currentDeployableInfo = null;
-        cancelPanel.onClick.RemoveAllListeners();
-        cancelPanel.gameObject.SetActive(false);
+
+        if (cancelPanelObject != null)
+        {
+            cancelPanelObject.SetActive(false);
+        }
+        // cancelPanel.onClick.RemoveAllListeners();
+        // cancelPanel.gameObject.SetActive(false);
+    }
+
+    private void OnDestroy()
+    {
+        DeploymentInputHandler.Instance.OnDragStarted -= DeactivateCancelPanelObject;
+        DeploymentInputHandler.Instance.OnDragEnded -= ActivateCancelPanelObject;
     }
 }
