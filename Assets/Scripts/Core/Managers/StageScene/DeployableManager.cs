@@ -247,9 +247,11 @@ public class DeployableManager : MonoBehaviour
         {
             CurrentDeployableInfo = deployableInfo;
 
-            CurrentDeployableEntity = CurrentDeployableInfo.deployedOperator != null ?
-                CurrentDeployableInfo.deployedOperator :
-                CurrentDeployableInfo.deployedDeployable;
+            // CurrentDeployableEntity = deployableInfo.deployedOperator != null ?
+            //     deployableInfo.deployedOperator :
+            //     deployableInfo.deployedDeployable;
+
+            // Debug.Log($"DeployableManager.CurrentDeployableEntity : {CurrentDeployableEntity}");
             if (CurrentDeployableInfo == null) throw new InvalidOperationException("CurrentDeployableInfo가 null임");
 
             CurrentDeployableBox = deployableUIBoxes[CurrentDeployableInfo];
@@ -272,7 +274,6 @@ public class DeployableManager : MonoBehaviour
         {
             CurrentDeployableEntity!.Initialize(CurrentDeployableInfo!);
         }
-
     }
 
     public void ShowActionUI(DeployableUnitEntity deployable)
@@ -385,16 +386,6 @@ public class DeployableManager : MonoBehaviour
             highlightedTiles.Add(tile);
         }
     }
-
-    public Vector3 DetermineDirection(Vector3 dragVector)
-    {
-        float angle = Mathf.Atan2(dragVector.y, dragVector.x) * Mathf.Rad2Deg;
-        if (angle < 45 && angle >= -45) return Vector3.right;
-        if (angle < 135 && angle >= 45) return Vector3.forward;
-        if (angle >= 135 || angle < -135) return Vector3.left;
-        return Vector3.back;
-    }
-
 
     // 배치되는 경우 동작하는 메서드
     public void DeployDeployable(Tile tile, Vector3 placementDirection)

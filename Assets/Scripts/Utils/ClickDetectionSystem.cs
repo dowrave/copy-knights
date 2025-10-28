@@ -46,7 +46,7 @@ public class ClickDetectionSystem : MonoBehaviour
             // UI 요소 클릭 시의 동작
             if (EventSystem.current.IsPointerOverGameObject())
             {
-                HandleUIMouseDown();
+                // HandleUIMouseDown();
                 return;
             }
         }
@@ -84,42 +84,30 @@ public class ClickDetectionSystem : MonoBehaviour
         shouldSkipHandleClick = true; // 즉시 HandleClick이 호출되는 것을 방지
     }
 
-    private void HandleUIMouseDown()
-    {
-        // PointerEventData pointerData = new PointerEventData(EventSystem.current);
-
-        // UI 요소에 대한 레이캐스트
-        List<RaycastResult> results = PerformScreenRaycast();
-        foreach (var result in results)
-        {
-            // Debug.Log($"MouseButtonDown Raycast hit: {result.gameObject.name}");
-
-            // ButtonDown 동작 1. 다이아몬드 내부 클릭 시 방향 설정
-            DiamondMask diamondMask = result.gameObject.GetComponent<DiamondMask>();
-            if (diamondMask != null)
-            {
-                if (diamondMask.IsPointInsideDiamond(Input.mousePosition))
-                {
-                    DeploymentInputHandler.Instance!.SetIsMousePressed(true);
-                    return;
-                }
-            }
-
-            // ButtonDown 동작 2. 오퍼레이터 박스 드래그 동작 시작
-            // DeployableBox deployableBox = result.gameObject.GetComponent<DeployableBox>();
-            // if (deployableBox != null)
-            // {
-            //     deployableBox.OnPointerDown(pointerData);
-            //     return;
-            // }
-        }
-    }
+    // private void HandleUIMouseDown()
+    // {
+    //     // UI 요소에 대한 레이캐스트
+    //     List<RaycastResult> results = PerformScreenRaycast();
+    //     foreach (var result in results)
+    //     {
+    //         // ButtonDown 동작 1. 다이아몬드 내부 클릭 시 방향 설정
+    //         DiamondMask diamondMask = result.gameObject.GetComponent<DiamondMask>();
+    //         if (diamondMask != null)
+    //         {
+    //             if (diamondMask.IsPointInsideDiamond(Input.mousePosition))
+    //             {
+    //                 DeploymentInputHandler.Instance!.SetIsMousePressed(true);
+    //                 return;
+    //             }
+    //         }
+    //     }
+    // }
 
     private void ProcessClickMapObject()
     {
         // 1. 배치 중 드래깅 혹은 방향 선택 상태라면 클릭 처리 중단
         // 배치 상황은 DeployableManager에서 처리한다. 여기서는 다른 오브젝트의 클릭 동작을 막기 위해 남겨둠.
-        if (DeploymentInputHandler.Instance!.IsSelectingDirection)
+        if (DeploymentInputHandler.Instance!.CurrentState == DeploymentInputHandler.InputState.SelectingDirection)
         {
             Debug.Log("HandleClick : 배치 중 드래깅 혹은 방향 선택 상태 - 클릭 처리 중단");
             return;
@@ -139,41 +127,41 @@ public class ClickDetectionSystem : MonoBehaviour
         }
     }
 
-    private bool HandleSpecialUIClick()
-    {
-        List<RaycastResult> results = PerformScreenRaycast();
+    // private bool HandleSpecialUIClick()
+    // {
+    //     List<RaycastResult> results = PerformScreenRaycast();
 
-        foreach (var result in results)
-        {
-            // 1. 다이아몬드 외부 클릭 시 상태 해제
-            DiamondMask diamondMask = result.gameObject.GetComponent<DiamondMask>();
-            if (diamondMask != null)
-            {
-                if (!diamondMask.IsPointInsideDiamond(Input.mousePosition))
-                {
-                    Debug.Log("HandleUIClick : 다이아몬드 외부 클릭");
+    //     foreach (var result in results)
+    //     {
+    //         // 1. 다이아몬드 외부 클릭 시 상태 해제
+    //         DiamondMask diamondMask = result.gameObject.GetComponent<DiamondMask>();
+    //         if (diamondMask != null)
+    //         {
+    //             if (!diamondMask.IsPointInsideDiamond(Input.mousePosition))
+    //             {
+    //                 Debug.Log("HandleUIClick : 다이아몬드 외부 클릭");
 
-                    // 마름모 외부 클릭 처리
-                    DeployableManager.Instance!.CancelCurrentAction();
-                    return true;
-                }
-            }
+    //                 // 마름모 외부 클릭 처리
+    //                 DeployableManager.Instance!.CancelCurrentAction();
+    //                 return true;
+    //             }
+    //         }
 
-            // 2. OperatorUI 관련 요소 클릭 처리 - Deployable.OnClick이 동작하도록 수정
-            // 체력 바 같은 걸 클릭했을 때도 해당 배치 요소를 클릭하게끔 구현한 내용이다. 지우면 안됨.
-            DeployableUnitEntity? associatedDeployable = GetAssociatedDeployableUnitEntity(result.gameObject);
-            if (associatedDeployable != null)
-            {
-                associatedDeployable.OnClick();
-                Debug.Log($"{associatedDeployable}.OnClick 메서드가 동작함");
-                return true;
-            }
-        }
+    //         // 2. OperatorUI 관련 요소 클릭 처리 - Deployable.OnClick이 동작하도록 수정
+    //         // 체력 바 같은 걸 클릭했을 때도 해당 배치 요소를 클릭하게끔 구현한 내용이다. 지우면 안됨.
+    //         DeployableUnitEntity? associatedDeployable = GetAssociatedDeployableUnitEntity(result.gameObject);
+    //         if (associatedDeployable != null)
+    //         {
+    //             associatedDeployable.OnClick();
+    //             Debug.Log($"{associatedDeployable}.OnClick 메서드가 동작함");
+    //             return true;
+    //         }
+    //     }
 
-        Debug.Log("HandleSpecialUIClick이 동작했으나 해당 요소가 없음");
+    //     Debug.Log("HandleSpecialUIClick이 동작했으나 해당 요소가 없음");
 
-        return false;
-    }
+    //     return false;
+    // }
 
     private void HandleObjectClick(RaycastHit[] hits)
     {
@@ -226,7 +214,7 @@ public class ClickDetectionSystem : MonoBehaviour
     }
 
     /// <summary>
-    /// 마우스 포인터 클릭 시 닿는 모든 레이캐스트 대상을 반환함
+    /// 마우스 포인터 클릭 시 닿는 모든 UI 레이캐스트 대상을 반환함
     /// </summary>
     private List<RaycastResult> PerformScreenRaycast()
     {

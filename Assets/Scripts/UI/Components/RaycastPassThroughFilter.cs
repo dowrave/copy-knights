@@ -43,14 +43,16 @@ public class RaycastPassThroughFilter : MonoBehaviour, ICanvasRaycastFilter
 
             results.Clear();
             raycaster.Raycast(pointerEventData, results);
+            Debug.Log($"{raycaster.name} 내의 UI 요소 검사");
 
             // 뒤쪽에서 UI가 감지된다면 뒤의 UI를 클릭하도록 함
             if (results.Count > 0)
             {
+                Debug.Log($"{raycaster.name}의 UI 감지됨, 이 스크립트가 붙은 요소의 클릭 동작을 무시함");
                 return false;
             }
         }
-
+        Debug.Log($"[RaycastPassThroughFilter] 이 스크립트가 붙은 요소의 클릭 동작을 실행함");
         return true;
     }
 }

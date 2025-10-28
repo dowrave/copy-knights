@@ -32,6 +32,9 @@ public class DeployableBox : MonoBehaviour, IPointerDownHandler, IBeginDragHandl
     private DeployableInfo deployableInfo = default!;
     private DeployableUnitState deployableUnitState = default!;
 
+    public DeployableUnitEntity DeployableComponent => deployableComponent;
+
+
     // 애니메이션 관련
     private Vector3 originalPosition;
     public float animationDuration = 0.2f;
