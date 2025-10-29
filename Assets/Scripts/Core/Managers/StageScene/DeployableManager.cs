@@ -390,8 +390,8 @@ public class DeployableManager : MonoBehaviour
     // 배치되는 경우 동작하는 메서드
     public void DeployDeployable(Tile tile, Vector3 placementDirection)
     {
-        // 기본값을 Vector3.zero로 설정, 이 값이 들어오면 배치되지 않음
-        if (placementDirection == Vector3.zero) return;
+        // Operator일 때만 회전 조건 적용) 기본값을 Vector3.zero로 설정, 이 값이 들어오면 배치되지 않음
+        if (CurrentDeployableEntity is Operator && placementDirection == Vector3.zero) return;
 
         InstanceValidator.ValidateInstance(CurrentDeployableEntity);
         InstanceValidator.ValidateInstance(CurrentDeployableInfo);

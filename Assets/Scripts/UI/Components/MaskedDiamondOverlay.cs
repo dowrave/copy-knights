@@ -17,7 +17,6 @@ public class MaskedDiamondOverlay : MonoBehaviour
             canvas = gameObject.AddComponent<Canvas>();
             gameObject.AddComponent<CanvasScaler>();
             gameObject.AddComponent<GraphicRaycaster>();
-
         }
         if (darkPanel == null)
         {

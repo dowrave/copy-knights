@@ -2,7 +2,7 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
-public class DiamondMask : Image, IPointerDownHandler
+public class DiamondMask : Image
 {
     private Vector2[] diamondPoints = new Vector2[4];
     private float diamondSize = 4f; // Width, Height가 4임
@@ -47,23 +47,23 @@ public class DiamondMask : Image, IPointerDownHandler
         return vertex;
     }
 
-    public void OnPointerDown(PointerEventData eventData)
-    {
-        if (IsPointInsideDiamond(eventData))
-        {
-            Debug.Log("DiamondMask 내부 클릭 감지 - 방향 설정 시작");
+    // public void OnPointerDown(PointerEventData eventData)
+    // {
+    //     if (IsPointInsideDiamond(eventData))
+    //     {
+    //         Debug.Log("DiamondMask 내부 클릭 감지 - 방향 설정 시작");
 
-            DeploymentInputHandler.Instance!.SetDraggingState(true);
+    //         DeploymentInputHandler.Instance!.SetDraggingState(true);
 
-            // 드래그 시작에 필요한 최소 거리 설정
-            float screenRadius = CalculateScreenRadius();
-            DeploymentInputHandler.Instance!.SetMinDirectionDistance(screenRadius);
+    //         // 드래그 시작에 필요한 최소 거리 설정
+    //         // float screenRadius = CalculateScreenRadius();
+    //         // DeploymentInputHandler.Instance!.SetMinDirectionDistance(screenRadius);
 
-            eventData.Use(); // 뒷쪽의 다른 UI로 전달되지 않도록 막음
-        }
+    //         eventData.Use(); // 뒷쪽의 다른 UI로 전달되지 않도록 막음
+    //     }
 
-        // 마름모 외부 클릭 - 아무것도 하지 않음
-    }
+    //     // 마름모 외부 클릭 - 아무것도 하지 않음
+    // }
 
     // 클릭된 점이 마름모 내부에 있는지 체크
     // public bool IsPointInsideDiamond(Vector2 screenPoint)

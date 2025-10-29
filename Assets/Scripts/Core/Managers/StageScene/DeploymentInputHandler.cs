@@ -16,7 +16,10 @@ public class DeploymentInputHandler: MonoBehaviour
     private DeployableInfo currentDeployableInfo;
     private DeployableUnitEntity currentDeployableEntity;
     private Tile currentHoveredTile;
-    private Vector3 placementDirection = Vector3.zero; 
+    private Vector3 placementDirection = Vector3.zero;
+
+    private Vector3 dragStartPosition;
+    private Vector3 dragEndPosition;
 
     // 동작 상태
     // 드래그하는 경우는 크게 2개임 - Box에서 꺼낼 때, 방향을 정할 때
@@ -43,6 +46,8 @@ public class DeploymentInputHandler: MonoBehaviour
     {
         if (Instance == null) Instance = this;
         else Destroy(gameObject);
+
+        minDirectionDistance = Screen.width * 0.1f;
     }
 
     private void Start()
@@ -53,8 +58,6 @@ public class DeploymentInputHandler: MonoBehaviour
 
     private void Update()
     {
-        IsDragging = Input.GetMouseButtonDown(0) ? true : false;
-
         // 1. 하단 UI의 오퍼레이터 클릭 시 배치 가능한 타일들 하이라이트
         if (CurrentState == InputState.SelectingBox)
         {
@@ -94,10 +97,6 @@ public class DeploymentInputHandler: MonoBehaviour
             CurrentState = InputState.SelectingBox;
             currentDeployableInfo = info;
 
-            // currentDeployableEntity = deployManager.CurrentDeployableEntity;
-            // Debug.Log($"배치 시작 - currentDeployableEntity 설정됨 : {currentDeployableEntity}");
-
-
             // 시간을 느리게
             GameManagement.Instance.TimeManager.SetPlacementTimeScale();
         }
@@ -116,7 +115,7 @@ public class DeploymentInputHandler: MonoBehaviour
 
             GameManagement.Instance!.TimeManager.SetPlacementTimeScale();
 
-            // IsDragging = true;
+            IsDragging = true;
 
             OnDragStarted?.Invoke();
         }
@@ -143,12 +142,11 @@ public class DeploymentInputHandler: MonoBehaviour
                 {
                     CurrentState = InputState.SelectingDirection;
                     StartDirectionSelection(hoveredTile);
-                    // 여기선 OnDragEnd 이벤트 발생을 StartDirectionSelection의 시작 시점으로 옮김
-                    // InstageInfoPanel의 CancelPanel과 충돌이 일어남;
                 }
                 // 방향 설정이 필요 없다면 바로 배치
                 else
                 {
+                    
                     deployManager.DeployDeployable(hoveredTile, placementDirection);
                     OnDragEnded?.Invoke();
                 }
@@ -160,7 +158,7 @@ public class DeploymentInputHandler: MonoBehaviour
                 OnDragEnded?.Invoke();
             }
 
-            // IsDragging = false;
+            IsDragging = false;
         }
     }
 
@@ -170,7 +168,6 @@ public class DeploymentInputHandler: MonoBehaviour
 
         InstanceValidator.ValidateInstance(currentDeployableEntity);
 
-        // IsSelectingDirection = true;
         CurrentState = InputState.SelectingDirection;
 
         deployManager.ResetHighlights();
@@ -186,88 +183,84 @@ public class DeploymentInputHandler: MonoBehaviour
     public void HandleDirectionSelection()
     {
         // 드래그 시작 후에만 방향 업데이트 & 마우스 버튼 Up 로직 실행
-        if (!IsDragging && CurrentState != InputState.SelectingDirection) return;
+        if (CurrentState != InputState.SelectingDirection) return;
 
-        // 1. 드래그 중 - 매 프레임 방향 미리보기 업데이트
-        Vector3 dragVector = Input.mousePosition - mainCamera.WorldToScreenPoint(currentHoveredTile.transform.position);
-        Vector3 newDirection = DetermineDirection(dragVector);
-
-        // 방향 변경 시에만 업데이트
-        if (placementDirection != newDirection)
+        // 클릭 중이 아닐 때는 타일 하이라이트 제거
+        if (!IsDragging)
         {
-            placementDirection = newDirection;
-            if (currentDeployableEntity is Operator op)
-            {
-                op.SetDirection(placementDirection);
-                op.HighlightAttackRange();
-            }
-            deployManager.UpdatePreviewRotation(placementDirection);
+            deployManager.ResetHighlights();
         }
 
-        // 2. 마우스 버튼 Up - 배치 / 배치 취소 결정
+        Vector3 basePosition = mainCamera.WorldToScreenPoint(currentHoveredTile.transform.position);
+        Vector3 dragVector = Input.mousePosition - basePosition; // 스크린에 투사한 타일 위치 ~ 커서 위치
+
+        // 마우스 버튼을 누르는 순간 드래그 시작
+        if (Input.GetMouseButtonDown(0))
+        {
+            // 클릭이 된 지점이 마름모 밖이라면 배치 로직 취소
+            if ((Input.mousePosition - basePosition).magnitude > minDirectionDistance)
+            {
+                Debug.Log($"기준 위치에서의 거리 : {(Input.mousePosition - basePosition).magnitude}");
+                Debug.Log($"최소 거리 : {minDirectionDistance}");
+
+                Debug.Log("클릭 시작 지점이 마름모 밖이므로 배치 로직이 취소됨");
+                deployManager.CancelPlacement();
+                return;
+            }
+
+            IsDragging = true;
+
+            // 커서 방향으로 공격 범위 하이라이트 및 회전 설정(드래그 시작 & 드래그 중일 때 동작하는 로직)
+            placementDirection = DetermineDirection(dragVector);
+                if (currentDeployableEntity is Operator op)
+                {
+                    op.SetDirection(placementDirection);
+                    op.HighlightAttackRange();
+                }
+            deployManager.UpdatePreviewRotation(placementDirection);
+        }
+        
+
+        // 2. 드래그 중
+        if (IsDragging && Input.GetMouseButton(0))
+        {
+            Vector3 newDirection = DetermineDirection(dragVector);
+
+            // 방향 변경 시에만 업데이트
+            if (placementDirection != newDirection)
+            {
+                placementDirection = newDirection;
+                if (currentDeployableEntity is Operator op)
+                {
+                    op.SetDirection(placementDirection);
+                    op.HighlightAttackRange();
+                }
+                deployManager.UpdatePreviewRotation(placementDirection);
+            }
+        }
+
+        // 3. 드래그 종료
         if (Input.GetMouseButtonUp(0))
         {
+            if (!IsDragging) return;
+
             float dragDistance = dragVector.magnitude;
-            Debug.Log($"dragDistance : {dragDistance}");
 
             // 일정 거리 이상 커서 이동 시 배치
             if (dragDistance > minDirectionDistance)
             {
                 // 배치 시 이 스크립트의 상태도 초기화됨
-                deployManager.DeployDeployable(currentHoveredTile, placementDirection); 
+                deployManager.DeployDeployable(currentHoveredTile, placementDirection);
                 lastPlacementTime = Time.time;
             }
 
-            // 일정 거리 이상 이동하지 않았다면 배치 로직 유지
+            // 일정 거리 이상 이동하지 않았다면 타일이 선택된 상태는 유지함
             else
             {
                 deployManager.ResetHighlights();
                 IsDragging = false;
             }
         }
-
-        // if (CurrentState == InputState.SelectingDirection && Input.GetMouseButtonDown(0))
-        // {
-        //     deployManager.ResetHighlights();
-
-        //     if (currentHoveredTile != null)
-        //     {
-        //         Vector3 dragVector = Input.mousePosition - mainCamera.WorldToScreenPoint(currentHoveredTile.transform.position);
-        //         float dragDistance = dragVector.magnitude;
-        //         Vector3 newDirection = DetermineDirection(dragVector);
-
-        //         placementDirection = newDirection;
-
-        //         if (currentDeployableEntity != null && currentDeployableEntity is Operator op)
-        //         {
-        //             op.SetDirection(placementDirection);
-        //             op.HighlightAttackRange();
-        //         }
-
-        //         deployManager.UpdatePreviewRotation(placementDirection);
-        //         Debug.Log("방향 미리보기 수정됨");
-
-        //         if (Input.GetMouseButtonUp(0))
-        //         {
-        //             Debug.Log("방향 선택 중 마우스 버튼 업 감지");
-        //             Debug.Log($"dragDistance : {dragDistance}");
-        //             Debug.Log($"minDirectionDistance : {minDirectionDistance}");
-
-        //             // 일정 거리 이상 커서 이동 시 배치
-        //             if (dragDistance > minDirectionDistance)
-        //             {
-        //                 deployManager.DeployDeployable(currentHoveredTile, placementDirection);
-        //                 lastPlacementTime = Time.time; // 배치 시간 기록
-        //             }
-        //             // 바운더리 이내라면 다시 방향 설정(클릭 X) 상태
-        //             else
-        //             {
-        //                 IsMousePressed = false;
-        //                 deployManager.ResetHighlights();
-        //             }
-        //         }
-        //     }
-        // }
     }
 
     private Vector3 DetermineDirection(Vector3 dragVector)
@@ -279,30 +272,13 @@ public class DeploymentInputHandler: MonoBehaviour
         return Vector3.back;
     } 
 
-    public void SetDraggingState(bool state)
-    {
-        IsDragging = state;
-    }
-
     public void SetIsSelectingDeployedUnit(bool state)
     {
         IsSelectingDeployedUnit = state;
     }
 
-    public void SetMinDirectionDistance(float screenDiamondRadius)
-    {
-        minDirectionDistance = screenDiamondRadius / 2;
-        Debug.Log($"minDirectionDistance = {minDirectionDistance}");
-    }
-
-    public void StartDirectionDrag()
-    {
-        IsDragging = true;
-    }
-
     public void ResetState()
     {
-        Debug.Log("배치 클릭 시스템 상태 초기화됨");
         IsDragging = false;
         IsSelectingDeployedUnit = false;
 

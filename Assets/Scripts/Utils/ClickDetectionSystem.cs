@@ -11,9 +11,6 @@ public class ClickDetectionSystem : MonoBehaviour
     private Camera mainCamera = default!;
     [SerializeField] private LayerMask clickableLayerMask = default!;  // Inspector에서 설정
 
-    //private bool isDraggingDiamond = false;
-    //private DiamondMask currentDiamondMask;
-
     private bool isTutorialMode = false;
     private string expectedButtonName = string.Empty;
 
@@ -46,7 +43,6 @@ public class ClickDetectionSystem : MonoBehaviour
             // UI 요소 클릭 시의 동작
             if (EventSystem.current.IsPointerOverGameObject())
             {
-                // HandleUIMouseDown();
                 return;
             }
         }
@@ -84,25 +80,6 @@ public class ClickDetectionSystem : MonoBehaviour
         shouldSkipHandleClick = true; // 즉시 HandleClick이 호출되는 것을 방지
     }
 
-    // private void HandleUIMouseDown()
-    // {
-    //     // UI 요소에 대한 레이캐스트
-    //     List<RaycastResult> results = PerformScreenRaycast();
-    //     foreach (var result in results)
-    //     {
-    //         // ButtonDown 동작 1. 다이아몬드 내부 클릭 시 방향 설정
-    //         DiamondMask diamondMask = result.gameObject.GetComponent<DiamondMask>();
-    //         if (diamondMask != null)
-    //         {
-    //             if (diamondMask.IsPointInsideDiamond(Input.mousePosition))
-    //             {
-    //                 DeploymentInputHandler.Instance!.SetIsMousePressed(true);
-    //                 return;
-    //             }
-    //         }
-    //     }
-    // }
-
     private void ProcessClickMapObject()
     {
         // 1. 배치 중 드래깅 혹은 방향 선택 상태라면 클릭 처리 중단
@@ -126,42 +103,6 @@ public class ClickDetectionSystem : MonoBehaviour
             HandleEmptySpaceClick();
         }
     }
-
-    // private bool HandleSpecialUIClick()
-    // {
-    //     List<RaycastResult> results = PerformScreenRaycast();
-
-    //     foreach (var result in results)
-    //     {
-    //         // 1. 다이아몬드 외부 클릭 시 상태 해제
-    //         DiamondMask diamondMask = result.gameObject.GetComponent<DiamondMask>();
-    //         if (diamondMask != null)
-    //         {
-    //             if (!diamondMask.IsPointInsideDiamond(Input.mousePosition))
-    //             {
-    //                 Debug.Log("HandleUIClick : 다이아몬드 외부 클릭");
-
-    //                 // 마름모 외부 클릭 처리
-    //                 DeployableManager.Instance!.CancelCurrentAction();
-    //                 return true;
-    //             }
-    //         }
-
-    //         // 2. OperatorUI 관련 요소 클릭 처리 - Deployable.OnClick이 동작하도록 수정
-    //         // 체력 바 같은 걸 클릭했을 때도 해당 배치 요소를 클릭하게끔 구현한 내용이다. 지우면 안됨.
-    //         DeployableUnitEntity? associatedDeployable = GetAssociatedDeployableUnitEntity(result.gameObject);
-    //         if (associatedDeployable != null)
-    //         {
-    //             associatedDeployable.OnClick();
-    //             Debug.Log($"{associatedDeployable}.OnClick 메서드가 동작함");
-    //             return true;
-    //         }
-    //     }
-
-    //     Debug.Log("HandleSpecialUIClick이 동작했으나 해당 요소가 없음");
-
-    //     return false;
-    // }
 
     private void HandleObjectClick(RaycastHit[] hits)
     {
@@ -226,23 +167,21 @@ public class ClickDetectionSystem : MonoBehaviour
         return results;
     }
 
-    /// <summary>
-    /// 클릭된 오브젝트로부터 상위 오브젝트에 DeployableUnitEntity가 있는지 검사함
-    /// </summary>
-    private DeployableUnitEntity? GetAssociatedDeployableUnitEntity(GameObject clickedObject)
-    {
-        Debug.Log($"GetAssociatedDeployableUnitEntity 동작, clickedObject : {clickedObject.name}");
-        Transform? current = clickedObject.transform;
-        while (current != null)
-        {
-            DeployableUnitEntity deployable = current.GetComponent<DeployableUnitEntity>();
-            if (deployable != null)
-            {
-                return deployable;
-            }
-            current = current.parent;
-        }
+    // 클릭된 오브젝트로부터 상위 오브젝트에 DeployableUnitEntity가 있는지 검사함
+    // private DeployableUnitEntity? GetAssociatedDeployableUnitEntity(GameObject clickedObject)
+    // {
+    //     Debug.Log($"GetAssociatedDeployableUnitEntity 동작, clickedObject : {clickedObject.name}");
+    //     Transform? current = clickedObject.transform;
+    //     while (current != null)
+    //     {
+    //         DeployableUnitEntity deployable = current.GetComponent<DeployableUnitEntity>();
+    //         if (deployable != null)
+    //         {
+    //             return deployable;
+    //         }
+    //         current = current.parent;
+    //     }
 
-        return null;
-    }
+    //     return null;
+    // }
 }
