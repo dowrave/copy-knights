@@ -109,7 +109,8 @@ public class StageManager : MonoBehaviour
     public IReadOnlyList<ItemWithCount> FirstClearRewards = default!;
     public IReadOnlyList<ItemWithCount> BasicClearRewards = default!;
 
-
+    // [Header("Stage Camera")]
+    // [SerializeField] private Camera stageCamera;
 
     // 이벤트
     public event Action<Map>? OnMapLoaded;
@@ -137,6 +138,8 @@ public class StageManager : MonoBehaviour
         {
             Destroy(gameObject);
         }
+
+        // if (stageCamera != null) stageCamera.enabled = false; // UI 초기화 이슈로 처음에 꺼둠
 
         DOTween.SetTweensCapacity(500, 50); // 동시에 실행될 애니메이션의 수 / 여러 애니메이션이 순차적으로 실행되는 수
 
@@ -169,22 +172,33 @@ public class StageManager : MonoBehaviour
         }
     }
 
-    public void InitializeStage(StageData stageData, List<SquadOperatorInfo> squadData, StageLoadingScreen stageLoadingScreen)
+    // public void InitializeStage(StageData stageData, List<SquadOperatorInfo> squadData, StageLoadingScreen stageLoadingScreen)
+    public IEnumerator InitializeStageCoroutine(StageData stageData, List<SquadOperatorInfo> squadData, StageLoadingScreen stageLoadingScreen, Action<float> onProgress)
     {
         this.stageData = stageData;
         this.stageLoadingScreen = stageLoadingScreen;
 
         // 맵 준비
         InitializeMap();
+        onProgress?.Invoke(.1f);
+        yield return null;
 
         // 스테이지에 필요한 모든 재료(오브젝트 풀)를 준비함
-        PreloadStageObjectPools(squadData);
+        // PreloadStageObjectPoolsCoroutine(squadData);
+        yield return StartCoroutine(PreloadStageObjectPoolsCoroutine(squadData, progress => onProgress?.Invoke(0.1f + progress + 0.8f)));
 
         // 맵에서 가져올 게 있어서 맵 초기화 후에 진행해야 함
         PrepareDeployables(squadData);
+        onProgress?.Invoke(0.95f);
+        yield return null;
 
         // 스테이지 준비
         PrepareStage();
+        onProgress?.Invoke(1.0f);
+        yield return null;
+
+        // UI 초기화
+        StageUIManager.Instance!.Initialize();
 
         // 로딩 화면이 사라진 후에 StartStage가 동작함
         stageLoadingScreen.OnHideComplete += StartStageCoroutine;
@@ -209,10 +223,6 @@ public class StageManager : MonoBehaviour
 
         // 체력 포인트 초기화
         CurrentLifePoints = MaxLifePoints;
-
-        // UI 초기화
-        StageUIManager.Instance!.Initialize();
-         
         OnPreparationCompleted?.Invoke();
     }
 
@@ -227,11 +237,18 @@ public class StageManager : MonoBehaviour
 
         if (SpawnerManager.Instance! == null) throw new InvalidOperationException("스포너 매니저 인스턴스가 없음");
 
+        // if (stageCamera != null) stageCamera.enabled = true;
+
         SetGameState(GameState.Battle);
         lastCostUpdateTime = Time.time;
         CheckTutorial();
         StartCoroutine(IncreaseCostOverTime());
         SpawnerManager.Instance!.StartSpawning();
+
+        // stageLoadingScreen은 역할이 끝났다면 Destroy해줌 (오브젝트로 올려두지 않음!!)
+        stageLoadingScreen!.OnHideComplete -= StartStageCoroutine;
+        Destroy(stageLoadingScreen.gameObject);
+        stageLoadingScreen = null;
     }
 
     private void CheckTutorial()
@@ -561,12 +578,14 @@ public class StageManager : MonoBehaviour
         }
     }
 
-    private void PreloadStageObjectPools(List<SquadOperatorInfo> squadData)
+    // private void PreloadStageObjectPools(List<SquadOperatorInfo> squadData)
+    private IEnumerator PreloadStageObjectPoolsCoroutine(List<SquadOperatorInfo> squadData, Action<float> onProgress)
     {
         if (ObjectPoolManager.Instance == null)
         {
             Debug.LogError("ObjectPoolManager가 없어 풀 생성 불가능");
-            return;
+            // return;
+            yield break;
         }
 
         // 1. 등장할 모든 적 유닛 목록 확보
@@ -598,6 +617,10 @@ public class StageManager : MonoBehaviour
             }
         }
 
+        // 풀링할 전체 작업량 계산
+        float totalTasks = enemyPrefabCounts.Count + squadData.Count + (stageData?.mapDeployables?.Count ?? 0);
+        float completedTasks = 0f;
+
         // 적 유닛 자체의 풀 & 적 유닛이 가진 오브젝트 풀 생성
         foreach (var entry in enemyPrefabCounts)
         {
@@ -613,16 +636,13 @@ public class StageManager : MonoBehaviour
             Debug.Log($"enemy 풀 - {enemyPoolTag}에 오브젝트 {requiredAmount}만큼 생성됨");
 
             // 해당 적이 갖고 있는 오브젝트들 생성
-            if (enemyData is EnemyBossData bossData)
-            {
-                bossData.CreateObjectPools();
-                Debug.Log($"enemy 풀 - {bossData.EntityName} 세부 오브젝트 풀 생성 완료");
-            }
-            else
-            {
-                enemyData.CreateObjectPools();
-                Debug.Log($"enemy 풀 - {enemyData.EntityName} 세부 오브젝트 풀 생성 완료");
-            }
+            if (enemyData is EnemyBossData bossData) bossData.CreateObjectPools();
+            else enemyData.CreateObjectPools();
+
+            // 작업 완료 시마다 진행도 업데이트 및 제어권 양도
+            completedTasks++;
+            onProgress?.Invoke(completedTasks / totalTasks);
+            yield return null;
         }
 
         // 2. 스쿼드의 모든 배치 가능 요소 유닛 목록 확보 및 풀링 (프리팹 수집 + 풀 생성)
@@ -654,6 +674,10 @@ public class StageManager : MonoBehaviour
                 }
 
                 Debug.Log($"{opData.entityName} 관련 종속 오브젝트 풀 생성 완료");
+
+                completedTasks++;
+                onProgress?.Invoke(completedTasks / totalTasks);
+                yield return null;
             }
         }
         // b. 맵 전용
@@ -668,87 +692,24 @@ public class StageManager : MonoBehaviour
 
                     string deployablePoolTag = deployableData.GetUnitTag();
                     ObjectPoolManager.Instance.CreatePool(deployablePoolTag, deployablePrefab, 1);
-                    Debug.Log($"operator 풀 - {deployablePoolTag} 생성됨");
+                    // Debug.Log($"operator 풀 - {deployablePoolTag} 생성됨");
 
                     if (deployableData != null)
                     {
                         deployableData.CreateObjectPools();
-                        Debug.Log($"{deployableData} 관련 세부 오브젝트 풀 생성 완료");
+                        // Debug.Log($"{deployableData} 관련 세부 오브젝트 풀 생성 완료");
                     }
                 }
+
+                completedTasks++;
+                onProgress?.Invoke(completedTasks / totalTasks);
+                yield return null;
             }
         }
-
-        // 3. 종속 오브젝트 풀링
-        // 3-a. Enemy의 종속 오브젝트
-        // foreach (var entry in enemyPrefabCounts)
-        // {
-        //     GameObject enemyPrefab = entry.Key;
-
-        //     Enemy enemyComponent = enemyPrefab.GetComponent<Enemy>();
-        //     // Debug.Log($"{enemyComponent.name} 관련 종속 오브젝트 풀 생성 시도");
-
-        //     if (enemyComponent == null || enemyComponent.BaseData == null)
-        //     {
-        //         Debug.Log($"enemyComponents나 enemyComponent.BaseData가 null이라 다음으로 넘어감");
-        //         continue;
-        //     } 
-
-        //     EnemyData enemyBaseData = enemyComponent.BaseData;
-        //     if (enemyBaseData is EnemyBossData bossData)
-        //     {
-        //         bossData.CreateObjectPools();
-        //     }
-        //     else
-        //     {
-        //         enemyBaseData.CreateObjectPools();
-        //     }
-        //     Debug.Log($"{enemyBaseData.EntityName} 관련 종속 오브젝트 풀 생성됨");
-        // }
-
-        // // 3-b. Opereator의 종속 오브젝트
-        // foreach (var opInfo in squadData)
-        // {
-        //     OperatorData opData = opInfo.op.OperatorProgressData;
-        //     if (opData == null) continue;
-        //     opData.CreateObjectPools();
-
-        //     // 스킬 오브젝트 풀 생성
-        //     // "선택된 스킬"이라는 정보는 여기나 스쿼드 단위에서 관리되므로 여기서 구현
-        //     int skillIndex = opInfo.skillIndex;
-        //     if (skillIndex >= 0 && skillIndex < 2)
-        //     {
-        //         // 인덱스는 0 or 1
-        //         OperatorSkill selectedSkill = skillIndex == 0 ? opData.elite0Skill : opData.elite1Unlocks.unlockedSkill;
-        //         if (selectedSkill != null)
-        //         {
-        //             selectedSkill.PreloadObjectPools(opData);
-        //         }
-        //     }
-
-        //     Debug.Log($"{opData} 관련 종속 오브젝트 풀 생성됨");
-        // }
-
-        // // 3-c. 맵 전용 배치 유닛의 종속 오브젝트 풀링
-        // if (stageData != null && stageData.mapDeployables != null)
-        // {
-        //     foreach (var mapDeployableData in stageData.mapDeployables)
-        //     {
-        //         if (mapDeployableData.DeployableData == null) continue;
-
-        //         DeployableUnitData deployableData = mapDeployableData.DeployableData;
-        //         if (deployableData != null)
-        //         {
-        //             deployableData.CreateObjectPools();
-        //             Debug.Log($"{deployableData} 관련 종속 오브젝트 풀 생성됨");
-        //         }
-        //     }
-        // }
     }
 
     private void OnDestroy()
     {
-        stageLoadingScreen!.OnHideComplete -= StartStageCoroutine;
         Enemy.OnEnemyDespawned -= HandleEnemyDespawned;
         OnGameEnded -= ClearStageObjectPools;
     }

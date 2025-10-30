@@ -14,6 +14,8 @@ public class StageLoadingScreen : MonoBehaviour
     [SerializeField] private CanvasGroup infoPanel = default!;
     [SerializeField] private TextMeshProUGUI stageIdText = default!;
     [SerializeField] private TextMeshProUGUI stageNameText = default!;
+    [SerializeField] private Slider loadingSlider = default!;
+    [SerializeField] private TextMeshProUGUI progressText = default!;
 
     [Header("Background")]
     [SerializeField] private Image backgroundPanel = default!;
@@ -57,6 +59,12 @@ public class StageLoadingScreen : MonoBehaviour
         StageManager.Instance!.OnPreparationCompleted += HandlePreparationComplete;
     }
 
+    public void UpdateProgress(float progress)
+    {
+        loadingSlider.value = progress;
+        progressText.text = progress >= 1f ? "스테이지 로딩 완료" : $"스테이지 로딩중 : {progress * 100:F0}%";
+    }
+
     private void HandlePreparationComplete()
     {
         backgroundPanel.DOColor(completedColor, fadeInDuration * 0.01f).OnComplete(() =>
@@ -72,7 +80,7 @@ public class StageLoadingScreen : MonoBehaviour
             {
                 // 패널이 완전히 사라진 후
                 OnHideComplete?.Invoke();
-                gameObject.SetActive(false);
+                // gameObject.SetActive(false);
             })
             .WaitForCompletion();
     }

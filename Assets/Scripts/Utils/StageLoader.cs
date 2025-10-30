@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.SceneManagement;
@@ -42,31 +43,27 @@ public class StageLoader : MonoBehaviour
 
     private IEnumerator LoadStage()
     {
-        float loadStartTime = Time.time;
-
         // 모든 입력 차단(스테이지 입력 버튼 재클릭 때문에 필요)
-        EventSystem.current.enabled = false; 
+        EventSystem.current.enabled = false;
 
         // 로딩 화면 보여주기 및 입력 차단
         ShowLoadingScreen();
+
+        // 로딩 스크린이 생성될 시간을 줌
+        yield return null;
 
         // 비동기 씬 로드
         AsyncOperation asyncLoad = SceneManager.LoadSceneAsync(STAGE_SCENE);
         asyncLoad.allowSceneActivation = false;
 
-        // 씬 로드 진행 - 로딩이 90% 되었을 때 다음으로 넘어간다.
-        while (asyncLoad.progress < 0.9f)
+        // 씬 로드 진행 
+        // 씬 로딩(50%)과 스테이지 초기화(50%)로 진행률을 나눴음
+        while (asyncLoad.progress < 0.9f) // 백그라운드 로딩 완료 시점이 0.9f
         {
+            float progress = Mathf.Clamp01(asyncLoad.progress / 0.9f);
+            loadingScreen?.UpdateProgress(progress * 0.5f); // 전체 로딩의 50%
             yield return null;
         }
-
-        // 최소 로딩 시간 보장
-        float elapsedTime = Time.time - loadStartTime;
-        if (elapsedTime < MIN_LOADING_TIME)
-        {
-            yield return new WaitForSeconds(MIN_LOADING_TIME - elapsedTime);
-        }
-
         asyncLoad.allowSceneActivation = true;
 
         // true일 때는 씬의 로딩과 활성화가 모두 완료된 시점
@@ -76,16 +73,22 @@ public class StageLoader : MonoBehaviour
             yield return null;
         }
 
-        // 로딩 완료 직전에 입력 차단 해제
-        EventSystem.current.enabled = true;
-
+        // 씬 전환 완료 후 StageManager 초기화가 진행된다.
+        // 로딩화면을 숨기는 부분은 StageManager에서 담당시킬 것.
         if (CachedStageData != null && cachedSquadData != null && loadingScreen != null)
         {
-            StageManager.Instance!.InitializeStage(CachedStageData, cachedSquadData, loadingScreen);
+            StartCoroutine(StageManager.Instance!.InitializeStageCoroutine(
+                CachedStageData,
+                cachedSquadData,
+                loadingScreen,
+                progress => loadingScreen.UpdateProgress(0.5f + progress * 0.5f)
+            ));
         }
 
-        // 초기화 후에는 로딩화면 사라짐
-        loadingScreen = null;
+        // 초기화 후에는 로딩화면 사라짐 : StageManager에서 OnHideComplete에서 관리됨
+        // loadingScreen = null;
+        isLoading = false;
+        EventSystem.current.enabled = true; // 입력 차단 해제 - StageManager 부분이 더 안전하다는 평
     }
 
     private void ShowLoadingScreen()

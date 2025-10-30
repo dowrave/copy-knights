@@ -3430,6 +3430,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   currentState: 0
+  stageCamera: {fileID: 963194227}
 --- !u!4 &572659672
 Transform:
   m_ObjectHideFlags: 0
@@ -9545,7 +9546,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_RaycastTarget: 0
+  m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
   m_OnCullStateChanged:
@@ -14022,6 +14023,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3294d1c5328a9e841b90347c32e4d157, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  mainCanvas: {fileID: 3366600155496213402}
   statsPanelObject: {fileID: 748492372}
   gameOverPanelObject: {fileID: 3027162035940749476}
   gameWinPanelObject: {fileID: 5570793338769630143}

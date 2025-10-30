@@ -8,6 +8,9 @@ public class StageUIManager : MonoBehaviour
 {
     public static StageUIManager? Instance { get; private set; }
 
+    [Header("Canvas")]
+    [SerializeField] private Canvas mainCanvas; 
+
     [Header("Panels")]
     [SerializeField] private GameObject statsPanelObject = default!; // 통계 패널
     [SerializeField] private GameObject gameOverPanelObject = default!;
@@ -18,8 +21,6 @@ public class StageUIManager : MonoBehaviour
     [SerializeField] private GameObject infoPanelObject = default!; // 선택된 오퍼레이터 정보 패널
     [SerializeField] private GameObject stageResultPanelObject = default!;
     [SerializeField] private ConfirmationReturnToLobbyPanel confirmationReturnToLobbyPanel = default!;
-
-
 
     [Header("Button Container")]
     [SerializeField] private InGameTopButtonContainer inGameTopButtonContainer = default!;
@@ -58,11 +59,13 @@ public class StageUIManager : MonoBehaviour
 
     // 코스트 이펙트에서 사용할 좌표statsPanelObject
     private Vector3 costIconWorldPosition;
-    public Vector3 CostIconWorldPosition 
+    public Vector3 CostIconWorldPosition
     {
         get => costIconWorldPosition;
         private set => costIconWorldPosition = value;
     }
+
+
 
     private InStageInfoPanel inStageInfoPanelScript = default!;
     public InStageInfoPanel InStageInfoPanel => inStageInfoPanelScript;
@@ -89,6 +92,9 @@ public class StageUIManager : MonoBehaviour
         stageResultPanelObject.SetActive(false);
         confirmationReturnToLobbyPanel.gameObject.SetActive(false);
 
+        // 스테이지 로딩 패널이 완료되고 캔버스가 나타나도록 수정
+        // mainCanvas.gameObject.SetActive(false);
+
         HideItemPopup();
     }
 
@@ -110,6 +116,8 @@ public class StageUIManager : MonoBehaviour
 
     public void Initialize()
     {
+        // mainCanvas.gameObject.SetActive(true);
+
         inGameTopButtonContainer!.Initialize();
 
         // 최초 카메라에서 코스트 아이콘의 월드 포지션을 잡아줌
