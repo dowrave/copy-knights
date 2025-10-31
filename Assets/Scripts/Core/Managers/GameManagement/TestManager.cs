@@ -23,7 +23,7 @@ public class TestManager : MonoBehaviour
         // GameManagement의 자식으로 구성되므로 Instance를 통해 매니저들에 접근
         if (GameManagement.Instance == null)
         {
-            Debug.LogError("GameManagement Instance가 초기화되지 않았습니다.");
+            Logger.LogError("GameManagement Instance가 초기화되지 않았습니다.");
             return;
         }
 
@@ -42,7 +42,7 @@ public class TestManager : MonoBehaviour
     {
         if (!enableTestInitialization)
         {
-            Debug.Log("테스트 초기화가 비활성화되어 있습니다.");
+            Logger.Log("테스트 초기화가 비활성화되어 있습니다.");
             return;
         }
 
@@ -125,7 +125,7 @@ public class TestManager : MonoBehaviour
         }
         else
         {
-            Debug.LogError($"스테이지 데이터를 찾을 수 없습니다: {stageId}");
+            Logger.LogError($"스테이지 데이터를 찾을 수 없습니다: {stageId}");
         }
     }
 

@@ -543,7 +543,7 @@ public class OperatorLevelUpPanel : MonoBehaviour
 
         var (maxLevel, usagePlan) = ExpCalculationSystem.CalculateMaxLevel(op, availableItems);
 
-        Debug.Log($"모든 아이템 사용 시 최대 도달 레벨 : {maxLevel}");
+        Logger.Log($"모든 아이템 사용 시 최대 도달 레벨 : {maxLevel}");
 
         // 스크롤 설정
         SetScrollToLevel(maxLevel, true);

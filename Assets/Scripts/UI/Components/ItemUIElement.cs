@@ -86,7 +86,7 @@ public class ItemUIElement : MonoBehaviour, IPointerClickHandler
     {
         if (isOnStageScene)
         {
-            Debug.Log("UIManager의 ShowItemPopup 메서드 동작");
+            Logger.Log("UIManager의 ShowItemPopup 메서드 동작");
             StageUIManager.Instance!.ShowItemPopup(this);
         }
         else if (PopupManager.Instance != null)

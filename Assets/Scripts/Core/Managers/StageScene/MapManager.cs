@@ -49,7 +49,7 @@ public class MapManager : MonoBehaviour
     {
         if (currentMap == null)
         {
-            Debug.LogError("현재 맵이 초기화되지 않았습니다.");
+            Logger.LogError("현재 맵이 초기화되지 않았습니다.");
             return null;
         }
 
@@ -61,7 +61,7 @@ public class MapManager : MonoBehaviour
     {
         if (currentMap == null)
         {
-            Debug.LogError("현재 맵이 초기화되지 않았습니다.");
+            Logger.LogError("현재 맵이 초기화되지 않았습니다.");
             return null;
         }
 
@@ -73,7 +73,7 @@ public class MapManager : MonoBehaviour
     {
         if (currentMap == null)
         {
-            Debug.LogError("현재 맵이 초기화되지 않았습니다.");
+            Logger.LogError("현재 맵이 초기화되지 않았습니다.");
             return new List<Tile>();
         }
         return currentMap.GetAllTiles();
@@ -84,7 +84,7 @@ public class MapManager : MonoBehaviour
     {
         if (currentMap == null)
         {
-            Debug.LogError("현재 맵이 초기화되지 않았습니다.");
+            Logger.LogError("현재 맵이 초기화되지 않았습니다.");
             return Vector2Int.zero;
         }
 
@@ -96,7 +96,7 @@ public class MapManager : MonoBehaviour
     {
         if (currentMap == null)
         {
-            Debug.LogError("현재 맵이 초기화되지 않았습니다.");
+            Logger.LogError("현재 맵이 초기화되지 않았습니다.");
             return Vector3.zero;
         }
         return currentMap.GridToWorldPosition(gridPosition);

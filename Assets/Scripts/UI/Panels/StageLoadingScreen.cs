@@ -62,7 +62,7 @@ public class StageLoadingScreen : MonoBehaviour
     public void UpdateProgress(float progress)
     {
         loadingSlider.value = progress;
-        progressText.text = progress >= 1f ? "스테이지 로딩 완료" : $"스테이지 로딩중 : {progress * 100:F0}%";
+        progressText.text = progress >= 1f ? "스테이지 로딩 완료!" : $"스테이지 로딩중 : {progress * 100:F0}%";
     }
 
     private void HandlePreparationComplete()

@@ -17,7 +17,7 @@ public class EnemyBossSkill : UnitSkill
     {
         if (vfxPrefab == null)
         {
-            Debug.LogError("[EnemyBossSkill.GetVFXPoolTag] vfxPrefab이 null임!!");
+            Logger.LogError("[EnemyBossSkill.GetVFXPoolTag] vfxPrefab이 null임!!");
             return string.Empty;
         }
 
@@ -27,7 +27,7 @@ public class EnemyBossSkill : UnitSkill
         }
         else
         {
-            Debug.LogError("[EnemyBossSkill.GetVFXPoolTag] caster가 Enemy가 아님!!");
+            Logger.LogError("[EnemyBossSkill.GetVFXPoolTag] caster가 Enemy가 아님!!");
             return string.Empty;
         }
     }

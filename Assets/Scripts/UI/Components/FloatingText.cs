@@ -49,7 +49,7 @@ public class FloatingText : MonoBehaviour, IPooledObject
         }
         else
         {
-            Debug.Log("대미지 텍스트가 설정되지 않음");
+            Logger.Log("대미지 텍스트가 설정되지 않음");
         }
     }
 

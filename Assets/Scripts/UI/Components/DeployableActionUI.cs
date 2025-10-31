@@ -125,19 +125,19 @@ public class DeployableActionUI : MonoBehaviour
         // 버튼 위치는 인스펙터에서 설정
         // 버튼 이벤트 설정
         retreatButton.onClick.AddListener(OnRetreatButtonClicked);
-        Debug.Log("DeployableActionUI - 퇴각 버튼에 OnClick 리스너 등록");
+        Logger.Log("DeployableActionUI - 퇴각 버튼에 OnClick 리스너 등록");
 
         if (deployable is Operator)
         {
             skillButton.onClick.AddListener(OnSkillButtonClicked);
-            Debug.Log("DeployableActionUI - 퇴각 버튼에 OnClick 리스너 등록");
+            Logger.Log("DeployableActionUI - 퇴각 버튼에 OnClick 리스너 등록");
 
         }
     }
 
     private void OnSkillButtonClicked()
     {
-        Debug.Log("[DeployableActionUI]스킬 버튼 클릭 감지");
+        Logger.Log("[DeployableActionUI]스킬 버튼 클릭 감지");
         if (deployable is Operator op)
         {
             if (op.CurrentSkill is AmmoBasedActiveSkill ammoSkill && op.IsSkillOn)
@@ -190,7 +190,7 @@ public class DeployableActionUI : MonoBehaviour
 
     private void OnRetreatButtonClicked()
     {
-        Debug.Log("[DeployableActionUI]퇴각 버튼 클릭 감지");
+        Logger.Log("[DeployableActionUI]퇴각 버튼 클릭 감지");
         deployable.Retreat();
         ClickDetectionSystem.Instance!.OnButtonClicked();
         Hide();

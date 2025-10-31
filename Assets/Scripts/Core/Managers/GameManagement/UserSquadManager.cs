@@ -132,7 +132,7 @@ public class UserSquadManager : MonoBehaviour
         }
         else
         {
-            Debug.Log($"슬롯 인덱스 : {slotIndex}");
+            Logger.Log($"슬롯 인덱스 : {slotIndex}");
             EditingSlotIndex = slotIndex;
 
             // 반대되는 개념이 켜져 있으면 자동으로 해제

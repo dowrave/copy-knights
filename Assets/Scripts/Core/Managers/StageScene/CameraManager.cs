@@ -86,7 +86,7 @@ public class CameraManager : MonoBehaviour
             Vector3 newPosition;
             if (MapManager.Instance == null)
             {
-                Debug.LogError("맵 매니저 인스턴스가 초기화되지 않았음");
+                Logger.LogError("맵 매니저 인스턴스가 초기화되지 않았음");
                 return;
             }
             float mapWidth = MapManager.Instance.GetCurrentMapWidth();

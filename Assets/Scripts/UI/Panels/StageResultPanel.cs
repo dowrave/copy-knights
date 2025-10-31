@@ -85,7 +85,7 @@ public class StageResultPanel : MonoBehaviour
 
     private void OnReturnButtonClicked()
     {
-        Debug.Log("로비로 돌아가기 버튼이 클릭됨");
+        Logger.Log("로비로 돌아가기 버튼이 클릭됨");
         bool isPerfectClear = stars == 3;
         StageManager.Instance!.ReturnToMainMenu(isPerfectClear);
     }
@@ -247,7 +247,7 @@ public class StageResultPanel : MonoBehaviour
 
             if (starImages[i] == null)
             {
-                Debug.LogError($"Star image at index {i} is null!");
+                Logger.LogError($"Star image at index {i} is null!");
                 continue;
             }
             int currentIndex = i;
@@ -400,7 +400,7 @@ public class StageResultPanel : MonoBehaviour
         }
         else
         {
-            Debug.LogWarning("Grid Layout Group component not found on statisticItemContainer");
+            Logger.LogWarning("Grid Layout Group component not found on statisticItemContainer");
         }
     }
 

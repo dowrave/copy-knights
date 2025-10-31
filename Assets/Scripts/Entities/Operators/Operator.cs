@@ -219,7 +219,7 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
         }
         else
         {
-            Debug.LogError("오퍼레이터의 ownedOperator 정보가 없음!");
+            Logger.LogError("오퍼레이터의 ownedOperator 정보가 없음!");
         }
     }
     
@@ -571,7 +571,7 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
     protected override void SetPoolTag()
     {
         PoolTag = _operatorData.GetUnitTag();
-        Debug.Log($"Pooltag : {PoolTag}로 할당됨");
+        Logger.Log($"Pooltag : {PoolTag}로 할당됨");
     }
 
     public override void OnClick()
@@ -816,7 +816,7 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
                 .OrderBy(E => E.GetRemainingPathDistance()) // 살아있는 객체 중 남은 거리가 짧은 순서로 정렬
                 .FirstOrDefault(); // 가장 짧은 거리의 객체를 가져옴
 
-            // Debug.Log($"");
+            // Logger.Log($"");
 
             if (CurrentTarget != null)
             {

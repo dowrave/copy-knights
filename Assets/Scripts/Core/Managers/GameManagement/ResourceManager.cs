@@ -32,7 +32,7 @@ public class ResourceManager : MonoBehaviour
     {
         if (iconData == null)
         {
-            Debug.LogError("IconData가 할당되지 않음");
+            Logger.LogError("IconData가 할당되지 않음");
             return;
         }
 

@@ -75,7 +75,7 @@ public class InGameTopButtonContainer : MonoBehaviour
 
     private void OnReturnToLobbyButtonClicked()
     {
-        Debug.Log("로비로 돌아가기 버튼이 클릭됨");
+        Logger.Log("로비로 돌아가기 버튼이 클릭됨");
 
         // Pause패널이 나타났을 때에도 클릭될 수 있음
         if (StageManager.Instance!.currentState == GameState.Battle)

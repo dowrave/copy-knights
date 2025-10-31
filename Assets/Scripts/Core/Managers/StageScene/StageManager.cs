@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System;
 using Skills.Base;
+using UnityEngine.EventSystems;
 
 // 스테이지 씬에서 스테이지와 관련된 여러 상태들을 관리합니다.
 public class StageManager : MonoBehaviour
@@ -166,13 +167,15 @@ public class StageManager : MonoBehaviour
         {
             if (Time.time - lastCostUpdateTime > COST_CHECK_INTERVAL)
             {
-                Debug.LogWarning("1초 동안 코스트 업데이트가 감지되지 않음, 코스트 회복 재시작");
+                Logger.LogWarning("1초 동안 코스트 업데이트가 감지되지 않음, 코스트 회복 재시작");
                 RestartCostIncrease();
             }
         }
     }
 
     // public void InitializeStage(StageData stageData, List<SquadOperatorInfo> squadData, StageLoadingScreen stageLoadingScreen)
+    
+    // StageLoader에서의 동작이 끝난 후에 호출됨
     public IEnumerator InitializeStageCoroutine(StageData stageData, List<SquadOperatorInfo> squadData, StageLoadingScreen stageLoadingScreen, Action<float> onProgress)
     {
         this.stageData = stageData;
@@ -187,6 +190,9 @@ public class StageManager : MonoBehaviour
         // PreloadStageObjectPoolsCoroutine(squadData);
         yield return StartCoroutine(PreloadStageObjectPoolsCoroutine(squadData, progress => onProgress?.Invoke(0.1f + progress + 0.8f)));
 
+        // 스테이지 씬의 메인 캔버스 초기화 & 활성화
+        StageUIManager.Instance!.Initialize();
+
         // 맵에서 가져올 게 있어서 맵 초기화 후에 진행해야 함
         PrepareDeployables(squadData);
         onProgress?.Invoke(0.95f);
@@ -196,9 +202,6 @@ public class StageManager : MonoBehaviour
         PrepareStage();
         onProgress?.Invoke(1.0f);
         yield return null;
-
-        // UI 초기화
-        StageUIManager.Instance!.Initialize();
 
         // 로딩 화면이 사라진 후에 StartStage가 동작함
         stageLoadingScreen.OnHideComplete += StartStageCoroutine;
@@ -233,11 +236,12 @@ public class StageManager : MonoBehaviour
 
     private IEnumerator StartStageWithDelay()
     {
-        yield return new WaitForSecondsRealtime(0.5f); // Time.timeScale에 영향을 받지 않게 구성
+        yield return new WaitForSecondsRealtime(1f); // Time.timeScale에 영향을 받지 않게 구성
 
         if (SpawnerManager.Instance! == null) throw new InvalidOperationException("스포너 매니저 인스턴스가 없음");
 
         // if (stageCamera != null) stageCamera.enabled = true;
+        EventSystem.current.enabled = true; // 버튼 동작 가능하게 설정
 
         SetGameState(GameState.Battle);
         lastCostUpdateTime = Time.time;
@@ -369,7 +373,7 @@ public class StageManager : MonoBehaviour
                 OnEnemyReachDestination(enemy);
                 break;
             default:
-                Debug.LogError("처리되면 안되는 듯?");
+                Logger.LogError("처리되면 안되는 듯?");
                 break;
         }
     }
@@ -485,7 +489,7 @@ public class StageManager : MonoBehaviour
 
     public void TogglePause()
     {
-        Debug.Log("Pause 동작");
+        Logger.Log("Pause 동작");
 
         if (currentState == GameState.GameOver || currentState == GameState.GameWin) return;
 
@@ -530,7 +534,7 @@ public class StageManager : MonoBehaviour
 
                 if (currentMap == null || currentMap.Mapid != stageData!.stageId)
                 {
-                    Debug.LogError("맵 ID가 스테이지 설정과 일치하지 않습니다!");
+                    Logger.LogError("맵 ID가 스테이지 설정과 일치하지 않습니다!");
                     return;
                 }
 
@@ -546,7 +550,7 @@ public class StageManager : MonoBehaviour
             }
             catch (System.Exception e)
             {
-                Debug.LogError($"맵 초기화 중 오류 발생 : {e.Message}");
+                Logger.LogError($"맵 초기화 중 오류 발생 : {e.Message}");
                 return;
             }
             
@@ -583,7 +587,7 @@ public class StageManager : MonoBehaviour
     {
         if (ObjectPoolManager.Instance == null)
         {
-            Debug.LogError("ObjectPoolManager가 없어 풀 생성 불가능");
+            Logger.LogError("ObjectPoolManager가 없어 풀 생성 불가능");
             // return;
             yield break;
         }
@@ -633,7 +637,7 @@ public class StageManager : MonoBehaviour
 
             string enemyPoolTag = enemyData.GetUnitTag();
             ObjectPoolManager.Instance.CreatePool(enemyPoolTag, enemyPrefab, requiredAmount);
-            Debug.Log($"enemy 풀 - {enemyPoolTag}에 오브젝트 {requiredAmount}만큼 생성됨");
+            Logger.Log($"enemy 풀 - {enemyPoolTag}에 오브젝트 {requiredAmount}만큼 생성됨");
 
             // 해당 적이 갖고 있는 오브젝트들 생성
             if (enemyData is EnemyBossData bossData) bossData.CreateObjectPools();
@@ -656,7 +660,7 @@ public class StageManager : MonoBehaviour
 
                 string opPoolTag = opData.GetUnitTag();
                 ObjectPoolManager.Instance.CreatePool(opPoolTag, operatorPrefab, 1);
-                Debug.Log($"operator 풀 - {opPoolTag} 생성됨");
+                Logger.Log($"operator 풀 - {opPoolTag} 생성됨");
 
                 opData.CreateObjectPools();
 
@@ -673,7 +677,7 @@ public class StageManager : MonoBehaviour
                     }
                 }
 
-                Debug.Log($"{opData.entityName} 관련 종속 오브젝트 풀 생성 완료");
+                Logger.Log($"{opData.entityName} 관련 종속 오브젝트 풀 생성 완료");
 
                 completedTasks++;
                 onProgress?.Invoke(completedTasks / totalTasks);
@@ -692,12 +696,12 @@ public class StageManager : MonoBehaviour
 
                     string deployablePoolTag = deployableData.GetUnitTag();
                     ObjectPoolManager.Instance.CreatePool(deployablePoolTag, deployablePrefab, 1);
-                    // Debug.Log($"operator 풀 - {deployablePoolTag} 생성됨");
+                    // Logger.Log($"operator 풀 - {deployablePoolTag} 생성됨");
 
                     if (deployableData != null)
                     {
                         deployableData.CreateObjectPools();
-                        // Debug.Log($"{deployableData} 관련 세부 오브젝트 풀 생성 완료");
+                        // Logger.Log($"{deployableData} 관련 세부 오브젝트 풀 생성 완료");
                     }
                 }
 

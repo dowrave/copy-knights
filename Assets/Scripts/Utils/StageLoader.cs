@@ -1,6 +1,5 @@
 using System.Collections;
 using System.Collections.Generic;
-using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.SceneManagement;
@@ -31,7 +30,7 @@ public class StageLoader : MonoBehaviour
     {
         if (isLoading)
         {
-            Debug.LogWarning("스테이지가 이미 로딩 중임");
+            Logger.LogWarning("스테이지가 이미 로딩 중임");
             return;
         }
 
@@ -88,7 +87,7 @@ public class StageLoader : MonoBehaviour
         // 초기화 후에는 로딩화면 사라짐 : StageManager에서 OnHideComplete에서 관리됨
         // loadingScreen = null;
         isLoading = false;
-        EventSystem.current.enabled = true; // 입력 차단 해제 - StageManager 부분이 더 안전하다는 평
+        EventSystem.current.enabled = true;
     }
 
     private void ShowLoadingScreen()

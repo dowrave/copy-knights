@@ -52,7 +52,7 @@ public class EnemyBoss : Enemy
             }
             else
             {
-                Debug.LogError("Melee 스킬이 아닌 스킬이 들어가 있음!!!!");
+                Logger.LogError("Melee 스킬이 아닌 스킬이 들어가 있음!!!!");
             }
         }
         foreach (EnemyBossSkill skill in BossData.RangedSkills)
@@ -64,7 +64,7 @@ public class EnemyBoss : Enemy
             }
             else
             {
-                Debug.LogError("Ranged 스킬이 아닌 스킬이 들어가 있음!!!!");
+                Logger.LogError("Ranged 스킬이 아닌 스킬이 들어가 있음!!!!");
             }
         }
     }

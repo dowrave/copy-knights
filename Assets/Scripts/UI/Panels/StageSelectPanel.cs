@@ -228,7 +228,7 @@ public class StageSelectPanel : MonoBehaviour
             // squadEditPanel을 보여주고 stageSelectPanel을 숨김
             MainMenuManager.Instance!.FadeInAndHide(squadEditPanel, stageSelectPanel);
             confirmButton.interactable = false; // 중복 클릭 방지
-            //Debug.Log("StageSelectPanel : ConfirmButton 클릭됨");
+            //Logger.Log("StageSelectPanel : ConfirmButton 클릭됨");
         }
     }
 

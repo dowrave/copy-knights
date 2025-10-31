@@ -18,7 +18,7 @@ public class BossExplosionSkillController : FieldEffectController
     {
         if (skillData == null)
         {
-            Debug.LogError("[BossExplosionSkillController] 스킬 데이터가 할당되지 않음!");
+            Logger.LogError("[BossExplosionSkillController] 스킬 데이터가 할당되지 않음!");
             return;
         }
     }
@@ -60,7 +60,7 @@ public class BossExplosionSkillController : FieldEffectController
         yield return new WaitForSeconds(skillData.LingeringDuration); // 필드 지속시간 동안 대기
 
 
-        Debug.Log($"[BossExplosionSkillController]오브젝트가 풀로 돌아감");
+        Logger.Log($"[BossExplosionSkillController]오브젝트가 풀로 돌아감");
         ObjectPoolManager.Instance.ReturnToPool(skillData.GetSkillControllerTag(_caster.BossData), gameObject); // 풀로 되돌림
     }
 
@@ -68,7 +68,7 @@ public class BossExplosionSkillController : FieldEffectController
     {
         if (skillData.GetSkillRangeVFXTag(_caster.BossData) == string.Empty)
         {
-            Debug.LogError("[BossExplosionSkillController]스킬 범위 프리팹이 할당되지 않은 듯");
+            Logger.LogError("[BossExplosionSkillController]스킬 범위 프리팹이 할당되지 않은 듯");
             return;
         }
 
@@ -170,7 +170,7 @@ public class BossExplosionSkillController : FieldEffectController
     {
         if (skillData.GetSkillRangeVFXTag(_caster.BossData) == string.Empty)
         {
-            Debug.LogError("[BossExplosionSkillController]바닥 파티클 시스템 프리팹이 할당되지 않은 듯");
+            Logger.LogError("[BossExplosionSkillController]바닥 파티클 시스템 프리팹이 할당되지 않은 듯");
             return;       
         }
 

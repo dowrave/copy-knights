@@ -281,7 +281,7 @@ public class InStageInfoPanel : MonoBehaviour
 
     private void OnCancelPanelClicked()
     {
-        Debug.Log("OnCancelPanelClicked 동작");
+        Logger.Log("OnCancelPanelClicked 동작");
 
         if (DeploymentInputHandler.Instance == null) return;
 

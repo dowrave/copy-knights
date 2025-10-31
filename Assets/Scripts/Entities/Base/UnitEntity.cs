@@ -97,7 +97,7 @@ public abstract class UnitEntity : MonoBehaviour, ITargettable, IFactionMember, 
         // 갖고 있는 렌더러들 설정
         if (renderers.Count == 0)
         {
-            Debug.LogError("UnitEntity에 할당된 Renderer가 없음");
+            Logger.LogError("UnitEntity에 할당된 Renderer가 없음");
             return;
         }
         else
@@ -108,7 +108,7 @@ public abstract class UnitEntity : MonoBehaviour, ITargettable, IFactionMember, 
                 // URP - Lit 사용한다고 가정
                 if (renderer.sharedMaterial.IsKeywordEnabled("_EMISSION"))
                 {
-                    Debug.Log("셰이더의 Emission 키워드 사용 가능");
+                    Logger.Log("셰이더의 Emission 키워드 사용 가능");
                     renderer.GetPropertyBlock(propBlock);
                     if (propBlock.GetColor(EmissionColorID) != Color.clear)
                     {
@@ -166,7 +166,7 @@ public abstract class UnitEntity : MonoBehaviour, ITargettable, IFactionMember, 
         OnDeathAnimationCompleted?.Invoke(this);
         if (PoolTag != string.Empty || PoolTag != null)
         {
-            Debug.Log($"{PoolTag}에서 풀로 돌아가는 동작 수행됨");
+            Logger.Log($"{PoolTag}에서 풀로 돌아가는 동작 수행됨");
             ObjectPoolManager.Instance.ReturnToPool(PoolTag, gameObject);
         }
         return;
@@ -187,7 +187,7 @@ public abstract class UnitEntity : MonoBehaviour, ITargettable, IFactionMember, 
             OnDeathAnimationCompleted?.Invoke(this);
             if (PoolTag != string.Empty)
             {
-                Debug.Log($"{PoolTag}에서 풀로 돌아가는 동작 수행됨");
+                Logger.Log($"{PoolTag}에서 풀로 돌아가는 동작 수행됨");
                 ObjectPoolManager.Instance.ReturnToPool(PoolTag, gameObject);
             }
             return;
@@ -208,7 +208,7 @@ public abstract class UnitEntity : MonoBehaviour, ITargettable, IFactionMember, 
                 OnDeathAnimationCompleted?.Invoke(this);
                 if (PoolTag != string.Empty)
                 {
-                    Debug.Log($"{PoolTag}에서 풀로 돌아가는 동작 수행됨");
+                    Logger.Log($"{PoolTag}에서 풀로 돌아가는 동작 수행됨");
                     ObjectPoolManager.Instance.ReturnToPool(PoolTag, gameObject);
                 }
             }

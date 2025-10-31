@@ -60,7 +60,7 @@ public class SpawnerManager : MonoBehaviour
             }
             else
             {
-                Debug.LogWarning("Null EnemySpawner found in the list.");
+                Logger.LogWarning("Null EnemySpawner found in the list.");
             }
         }
     }

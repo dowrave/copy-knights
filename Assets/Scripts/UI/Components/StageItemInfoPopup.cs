@@ -36,7 +36,7 @@ public class StageItemInfoPopup : MonoBehaviour
         canvasRectTransform = canvas.GetComponent<RectTransform>();
         popupRectTransform = popupArea.GetComponent<RectTransform>();
 
-        Debug.Log($"popupRectTransform : {popupRectTransform}");
+        Logger.Log($"popupRectTransform : {popupRectTransform}");
 
         originalItemNamePosition = popupItemNameBackground.anchoredPosition;
     }
@@ -124,7 +124,7 @@ public class StageItemInfoPopup : MonoBehaviour
         float popupX = itemWorldPosition.x - rect.width / 2;
         float popupY = itemWorldPosition.y + rect.height / 2;
         popupRectTransform.position = new Vector2(popupX, popupY);
-        Debug.Log($"팝업의 위치 : {popupRectTransform.position}");
+        Logger.Log($"팝업의 위치 : {popupRectTransform.position}");
 
 
         // 나중에 다시 봤을 때 순간적으로 위화감이 들어서 제거
@@ -151,7 +151,7 @@ public class StageItemInfoPopup : MonoBehaviour
         float popupX = itemWorldPosition.x + rect.width / 2;
         float popupY = itemWorldPosition.y + rect.height / 2;
         popupRectTransform.position = new Vector2(popupX, popupY);
-        Debug.Log($"팝업의 위치 : {popupRectTransform.position}");
+        Logger.Log($"팝업의 위치 : {popupRectTransform.position}");
 
         popupItemNameBackground.pivot = new Vector2(0, 0.5f);
         popupItemNameBackground.anchorMin = new Vector2(0, 0.5f);

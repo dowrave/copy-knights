@@ -86,7 +86,7 @@ public class ObjectPoolManager : MonoBehaviour
     {
         if (!IsPoolExist(tag))
         {
-            Debug.LogError($"{tag}라는 이름을 가진 태그가 풀 목록에 존재하지 않음");
+            Logger.LogError($"{tag}라는 이름을 가진 태그가 풀 목록에 존재하지 않음");
             return null; 
         }
 
@@ -104,12 +104,12 @@ public class ObjectPoolManager : MonoBehaviour
             Pool? poolInfo = poolInfos[tag];
             if (poolInfo == null || poolInfo.prefab == null)
             {
-                Debug.LogError($"poolInfo.prefab이 null임!!");
+                Logger.LogError($"poolInfo.prefab이 null임!!");
                 return null;
             }
 
             // 반응형 확장 로직으로 수정
-            Debug.Log($"{tag}의 새로운 풀을 만듦 : {poolInfo.prefab.name}");
+            Logger.Log($"{tag}의 새로운 풀을 만듦 : {poolInfo.prefab.name}");
             obj = Instantiate(poolInfo.prefab);
             poolInfo.size++; // 풀의 개념적 크기를 1 늘린다.
         }
@@ -185,7 +185,7 @@ public class ObjectPoolManager : MonoBehaviour
 
             poolDictionary.Remove(tag);
             poolInfos.Remove(tag);
-            Debug.Log($"태그 {tag}의 오브젝트 풀 파괴");
+            Logger.Log($"태그 {tag}의 오브젝트 풀 파괴");
         }
     }
 

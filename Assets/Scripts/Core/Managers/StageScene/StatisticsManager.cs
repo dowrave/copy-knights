@@ -39,7 +39,7 @@ public class StatisticsManager : MonoBehaviour
 
         if (statsPanel == null)
         {
-            Debug.LogError("statsPanel이 할당되어 있지 않음!");
+            Logger.LogError("statsPanel이 할당되어 있지 않음!");
         }
 
     }

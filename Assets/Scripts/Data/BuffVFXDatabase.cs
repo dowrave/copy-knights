@@ -33,17 +33,17 @@ public class BuffVFXDatabase : ScriptableObject
 
             if (buffType == null)
             {
-                Debug.LogWarning($"버프 이펙트 데이터베이스에 : {mapping.exactBuffClassName}이 없음");
+                Logger.LogWarning($"버프 이펙트 데이터베이스에 : {mapping.exactBuffClassName}이 없음");
                 continue;
             }
             if (mapping.vfxPrefab == null)
             {
-                Debug.LogWarning($"버프 이펙트 데이터베이스에 : {mapping.vfxPrefab}이 없음");
+                Logger.LogWarning($"버프 이펙트 데이터베이스에 : {mapping.vfxPrefab}이 없음");
                 continue;
             }
             if (vfxDataMap.ContainsKey(buffType))
             {
-                Debug.Log($"[BuffVFXDatabase] 중복된 버프 타입이 존재합니다. : {mapping.exactBuffClassName}");
+                Logger.Log($"[BuffVFXDatabase] 중복된 버프 타입이 존재합니다. : {mapping.exactBuffClassName}");
                 continue;
             }
 
@@ -58,7 +58,7 @@ public class BuffVFXDatabase : ScriptableObject
             }
             else
             {
-                Debug.Log("ObjectPoolManager 초기화되지 않음");
+                Logger.Log("ObjectPoolManager 초기화되지 않음");
             }
 
         }
@@ -68,7 +68,7 @@ public class BuffVFXDatabase : ScriptableObject
     {
         if (vfxDataMap == null)
         {
-            Debug.LogError("[BuffVFXDatabase] db가 초기화되지 않았음");
+            Logger.LogError("[BuffVFXDatabase] db가 초기화되지 않았음");
             data = default;
             return false;
         }

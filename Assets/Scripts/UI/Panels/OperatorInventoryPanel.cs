@@ -885,7 +885,7 @@ public class OperatorInventoryPanel : MonoBehaviour
 
         foreach (OperatorSlot slot in clickedSlots.Where(slot => slot != null))
         {
-            Debug.Log(slot.opData?.entityName);
+            Logger.Log(slot.opData?.entityName);
             slot.ClearIndexText();
         }
 

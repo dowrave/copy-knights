@@ -193,6 +193,7 @@
     <Compile Include="Assets\Scripts\UI\Components\DeployableDeployingUI.cs" />
     <Compile Include="Assets\Scripts\Core\Enums\ActionRestrictions.cs" />
     <Compile Include="Assets\Scripts\Core\Systems\Skills\SkillController\Enemy\FallingSunVFXController.cs" />
+    <Compile Include="Assets\Scripts\Utils\SystemLogger.cs" />
     <Compile Include="Assets\Scripts\Core\Systems\Skills\Base(Abstract)\UnitSkill.cs" />
     <Compile Include="Assets\Scripts\Data\StageResultData.cs" />
     <Compile Include="Assets\Scripts\Entities\Operators\DualBladeOperator.cs" />

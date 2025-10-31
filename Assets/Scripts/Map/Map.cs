@@ -199,7 +199,7 @@ public class Map : MonoBehaviour
         }
         else
         {
-            Debug.LogError($"({x}, {y}) 그리드 포지션에 타일 컴포넌트가 없음");
+            Logger.LogError($"({x}, {y}) 그리드 포지션에 타일 컴포넌트가 없음");
         }
         tileObjects[gridPos] = tileObj; 
     }
@@ -209,7 +209,7 @@ public class Map : MonoBehaviour
     {
         if (enemySpawnerPrefab == null)
         {
-            Debug.LogError("Enemy spawner prefab is not set");
+            Logger.LogError("Enemy spawner prefab is not set");
             return;
         }
 
@@ -229,7 +229,7 @@ public class Map : MonoBehaviour
         }
         else
         {
-            Debug.LogError($"Tile not found at position ({x}, {y}) for spawner creation");
+            Logger.LogError($"Tile not found at position ({x}, {y}) for spawner creation");
         }
     }
 

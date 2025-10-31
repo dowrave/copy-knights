@@ -89,7 +89,7 @@ public class SquadEditPanel : MonoBehaviour
     // OperatorSlot 버튼 클릭 시 OpeatorInventoryPanel로 넘어감
     private void OnSlotClicked(OperatorSlot clickedSlot, int slotIndex)
     {
-        Debug.Log($"squadEditPanel 슬롯 클릭 : {clickedSlot}, {slotIndex}");
+        Logger.Log($"squadEditPanel 슬롯 클릭 : {clickedSlot}, {slotIndex}");
 
         // 현재 수정 중인 인덱스 설정
         GameManagement.Instance!.UserSquadManager.StartEditingSlot(slotIndex);

@@ -109,7 +109,7 @@ public class MainMenuManager : MonoBehaviour
             {
                 if (panelInfo.panel == null)
                 {
-                    Debug.LogError("panelInfo.panel 값이 null");
+                    Logger.LogError("panelInfo.panel 값이 null");
                     continue;
                 }
                 panelMap[panelInfo.type] = panelInfo.panel;
@@ -203,7 +203,7 @@ public class MainMenuManager : MonoBehaviour
         }
         else
         {
-            Debug.LogWarning($"{CurrentPanel}에는 연결된 상위 패널이 없음");
+            Logger.LogWarning($"{CurrentPanel}에는 연결된 상위 패널이 없음");
         }
     }
 
@@ -262,7 +262,7 @@ public class MainMenuManager : MonoBehaviour
     {
         if (navButtonContainer == null || itemInventoryButton == null)
         {
-            Debug.LogError("navButtonContainer가 null이거나 itemInventoryButton이 null");
+            Logger.LogError("navButtonContainer가 null이거나 itemInventoryButton이 null");
             return;
         }
 
@@ -402,7 +402,7 @@ public class MainMenuManager : MonoBehaviour
         }
         else
         {
-            Debug.LogWarning("빈 스쿼드로는 스테이지를 시작할 수 없음");
+            Logger.LogWarning("빈 스쿼드로는 스테이지를 시작할 수 없음");
         }
     }
 

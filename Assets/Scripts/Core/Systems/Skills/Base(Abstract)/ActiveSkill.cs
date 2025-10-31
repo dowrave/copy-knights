@@ -159,7 +159,7 @@ namespace Skills.Base
 
         public override void PreloadObjectPools()
         {
-            Debug.LogError("OperatorData가 필요함");
+            Logger.LogError("OperatorData가 필요함");
             return;
         }
 

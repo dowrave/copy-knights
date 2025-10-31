@@ -27,7 +27,7 @@ public class EnemySpawner : MonoBehaviour
     {
         if (spawnList.spawnedEnemies == null || spawnList.spawnedEnemies.Count == 0)
         {
-            Debug.LogWarning("스폰 리스트가 비어있음");
+            Logger.LogWarning("스폰 리스트가 비어있음");
             return;
         }
 
@@ -79,7 +79,7 @@ public class EnemySpawner : MonoBehaviour
         {
             if (spawnData.spawnType != SpawnType.Enemy)
             {
-                Debug.LogError("spawnType이 Enemy로 지정되어 있지 않음");
+                Logger.LogError("spawnType이 Enemy로 지정되어 있지 않음");
                 return;
             }
             EnemyData enemyData = enemy.BaseData;
@@ -89,14 +89,14 @@ public class EnemySpawner : MonoBehaviour
         {
             if (spawnData.spawnType != SpawnType.PathIndicator)
             {
-                Debug.LogError("spawnType이 pathIndicator로 지정되어 있지 않음");
+                Logger.LogError("spawnType이 pathIndicator로 지정되어 있지 않음");
                 return;
             }
             pathIndicator.Initialize(spawnData.pathData);
         }
         else
         {
-            Debug.LogError("프리팹에 Enemy나 PathIndicator 컴포넌트가 없음");
+            Logger.LogError("프리팹에 Enemy나 PathIndicator 컴포넌트가 없음");
         }
     }
 }

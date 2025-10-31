@@ -74,7 +74,7 @@ public class PathfindingManager : MonoBehaviour
         List<Vector3>? worldPath = FindPath(startPos, endPos);
         if (worldPath == null)
         {
-            Debug.Log("반환된 경로가 없음!");
+            Logger.Log("반환된 경로가 없음!");
             return null;
         }
 
@@ -112,7 +112,7 @@ public class PathfindingManager : MonoBehaviour
 
         if (startTile == null || endTile == null)
         {
-            Debug.LogWarning("Invalid Start or End Tile");
+            Logger.LogWarning("Invalid Start or End Tile");
             return null;
         }
 

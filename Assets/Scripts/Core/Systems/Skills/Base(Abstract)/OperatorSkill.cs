@@ -73,7 +73,7 @@ namespace Skills.Base
         {
             if (vfxPrefab == null)
             {
-                Debug.LogError("[BaseSkill.GetVFXPoolTag] vfxPrefab이 null임!!");
+                Logger.LogError("[BaseSkill.GetVFXPoolTag] vfxPrefab이 null임!!");
                 return string.Empty;
             }
 

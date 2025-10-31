@@ -8,7 +8,7 @@ public class ShieldVFXController : SelfReturnVFXController
 
     new public void Initialize(float duration, UnitEntity owner)
     {
-        Debug.LogWarning("[ShieldVFXController] Initialize 실행됨");
+        Logger.LogWarning("[ShieldVFXController] Initialize 실행됨");
         this.owner = owner;
 
         // 일단 쉴드 시스템이 Operator에만 구현되어 있기 때문에 이렇게 만듦

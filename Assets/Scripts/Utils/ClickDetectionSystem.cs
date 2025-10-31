@@ -35,44 +35,23 @@ public class ClickDetectionSystem : MonoBehaviour
     {
         mainCamera = Camera.main;
     }
-
+    
     private void Update()
-    {
-        if (Input.GetMouseButtonDown(0))
+    {   
+        if (EventSystem.current.IsPointerOverGameObject())
         {
-            // UI 요소 클릭 시의 동작
-            if (EventSystem.current.IsPointerOverGameObject())
-            {
-                return;
-            }
+            #if UNITY_EDITOR
+            Logger.Log("EventSystem이 UI 클릭을 처리했습니다. 오브젝트 클릭 처리를 무시합니다.");
+            #endif
+            return;
         }
+
         if (Input.GetMouseButtonUp(0))
         {
-            PointerEventData pointerData = new PointerEventData(EventSystem.current);
-            pointerData.position = Input.mousePosition;
-
-            List<RaycastResult> results = new List<RaycastResult>();
-            EventSystem.current.RaycastAll(pointerData, results);
-
-            if (results.Count > 0)
-            {
-                Debug.Log("UI 요소 클릭되어서 동작 중단됨. 감지된 첫 번째 요소: " + results[0].gameObject.name);
-
-                // 디버깅을 위해 모든 감지된 요소 출력
-                // foreach (var result in results)
-                // {
-                //     Debug.Log("감지된 UI: " + result.gameObject.name);
-                // }
-
-                return;
-            }
-
             // UI가 클릭되지 않았을 때의 로직 (예: ProcessClickMapObject())
             ProcessClickMapObject();
         }
     }
-    
-
 
     public void OnButtonClicked()
     {
@@ -86,7 +65,7 @@ public class ClickDetectionSystem : MonoBehaviour
         // 배치 상황은 DeployableManager에서 처리한다. 여기서는 다른 오브젝트의 클릭 동작을 막기 위해 남겨둠.
         if (DeploymentInputHandler.Instance!.CurrentState == DeploymentInputHandler.InputState.SelectingDirection)
         {
-            Debug.Log("HandleClick : 배치 중 드래깅 혹은 방향 선택 상태 - 클릭 처리 중단");
+            Logger.Log("HandleClick : 배치 중 드래깅 혹은 방향 선택 상태 - 클릭 처리 중단");
             return;
         }
 
@@ -109,7 +88,7 @@ public class ClickDetectionSystem : MonoBehaviour
         // 디버깅용 : 모든 오브젝트 출력
         foreach (var hit in hits)
         {
-            Debug.Log($"RaycastAll hit: {hit.collider.name}");
+            Logger.Log($"RaycastAll hit: {hit.collider.name}");
         }
 
         // 1. DeployableUnitEntity를 먼저 찾음
@@ -119,7 +98,7 @@ public class ClickDetectionSystem : MonoBehaviour
             if (clickable != null && !DeploymentInputHandler.Instance!.IsClickingPrevented)
             {
                 clickable.OnClick();
-                Debug.Log("DeployableUnitEntity 콜라이더 감지 및 클릭됨");
+                Logger.Log("DeployableUnitEntity 콜라이더 감지 및 클릭됨");
                 return;
             }
         }
@@ -131,7 +110,7 @@ public class ClickDetectionSystem : MonoBehaviour
             if (clickedTile != null && clickedTile.OccupyingDeployable != null)
             {
                 clickedTile.OccupyingDeployable.OnClick();
-                Debug.Log("타일이 클릭되어서 그 위의 Deployable을 클릭함");
+                Logger.Log("타일이 클릭되어서 그 위의 Deployable을 클릭함");
                 return;
             }
         }
@@ -140,7 +119,7 @@ public class ClickDetectionSystem : MonoBehaviour
         if (hits.Any(h => h.collider.GetComponent<Tile>() != null))
         {
             DeployableManager.Instance!.CancelCurrentAction();
-            Debug.Log("빈 타일을 클릭함");
+            Logger.Log("빈 타일을 클릭함");
             return;
         }
 
@@ -150,7 +129,7 @@ public class ClickDetectionSystem : MonoBehaviour
     
     private void HandleEmptySpaceClick()
     {
-        Debug.Log("빈 공간 클릭 - CancelCurrentAction 동작");
+        Logger.Log("빈 공간 클릭 - CancelCurrentAction 동작");
         DeployableManager.Instance!.CancelCurrentAction();
     }
 
@@ -170,7 +149,7 @@ public class ClickDetectionSystem : MonoBehaviour
     // 클릭된 오브젝트로부터 상위 오브젝트에 DeployableUnitEntity가 있는지 검사함
     // private DeployableUnitEntity? GetAssociatedDeployableUnitEntity(GameObject clickedObject)
     // {
-    //     Debug.Log($"GetAssociatedDeployableUnitEntity 동작, clickedObject : {clickedObject.name}");
+    //     Logger.Log($"GetAssociatedDeployableUnitEntity 동작, clickedObject : {clickedObject.name}");
     //     Transform? current = clickedObject.transform;
     //     while (current != null)
     //     {

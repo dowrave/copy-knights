@@ -251,7 +251,7 @@ public class DeployableManager : MonoBehaviour
             //     deployableInfo.deployedOperator :
             //     deployableInfo.deployedDeployable;
 
-            // Debug.Log($"DeployableManager.CurrentDeployableEntity : {CurrentDeployableEntity}");
+            // Logger.Log($"DeployableManager.CurrentDeployableEntity : {CurrentDeployableEntity}");
             if (CurrentDeployableInfo == null) throw new InvalidOperationException("CurrentDeployableInfo가 null임");
 
             CurrentDeployableBox = deployableUIBoxes[CurrentDeployableInfo];
@@ -452,7 +452,7 @@ public class DeployableManager : MonoBehaviour
             if (CurrentDeployableEntity.IsPreviewMode)
             {
                 ObjectPoolManager.Instance.ReturnToPool(CurrentDeployableInfo.poolTag, CurrentDeployableObject);
-                Debug.Log($"[ResetPlacement] - {CurrentDeployableObject} 풀로 반환됨");
+                Logger.Log($"[ResetPlacement] - {CurrentDeployableObject} 풀로 반환됨");
             }
             CurrentDeployableEntity = null;
         }

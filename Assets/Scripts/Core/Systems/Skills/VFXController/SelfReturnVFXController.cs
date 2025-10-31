@@ -29,7 +29,7 @@ public class SelfReturnVFXController : MonoBehaviour, IPooledObject
         // 유효하지 않은 위치는 아무것도 표시하지 않음
         if (MapManager.Instance.CurrentMap == null || !MapManager.Instance.CurrentMap.IsTileAt(nowGridPosition.x, nowGridPosition.y))
         {
-            Debug.LogWarning("파티클 시스템 플레이되지 않음");
+            Logger.LogWarning("파티클 시스템 플레이되지 않음");
             ps.gameObject.SetActive(false);
             return;
         }

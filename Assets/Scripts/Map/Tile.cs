@@ -220,7 +220,7 @@ public class Tile : MonoBehaviour
         {
             return new Vector2Int(x, y);
         }
-        Debug.LogWarning($"타일 이름에서 그리드 좌표 추출 실패: {tileName}");
+        Logger.LogWarning($"타일 이름에서 그리드 좌표 추출 실패: {tileName}");
         return Vector2Int.zero;
     }
 

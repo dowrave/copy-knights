@@ -721,7 +721,7 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity
     {
         if (!CalculateAndSetPath(transform.position, destinationPosition))
         {
-            Debug.Log("목적지로 향하는 경로 발견 및 설정");
+            Logger.Log("목적지로 향하는 경로 발견 및 설정");
             SetBarricadePath();
         }
     }

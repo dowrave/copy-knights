@@ -82,7 +82,7 @@ namespace Skills.Base
                 SelfReturnVFXController castVFX = castVFXObject.GetComponent<SelfReturnVFXController>();
                 if (castVFX != null)
                 {
-                    Debug.Log("[BossExplosionSkill]스킬 시전 이펙트 시작");
+                    Logger.Log("[BossExplosionSkill]스킬 시전 이펙트 시작");
                     castVFX.Initialize(castVFXDuration);
                 }
                 caster.SetIsWaiting(true);
@@ -100,7 +100,7 @@ namespace Skills.Base
 
         public override void PreloadObjectPools()
         {
-            Debug.LogError("[PreloadObjectPools] EnemyBossData 파라미터 필요");
+            Logger.LogError("[PreloadObjectPools] EnemyBossData 파라미터 필요");
             return;
         }
 

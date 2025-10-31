@@ -77,7 +77,7 @@ public class PlayerDataManager : MonoBehaviour
             }
             else
             {
-                Debug.LogError($"{path}에서 OperatorData 로드 실패");
+                Logger.LogError($"{path}에서 OperatorData 로드 실패");
             }
         }
 
@@ -88,7 +88,7 @@ public class PlayerDataManager : MonoBehaviour
 
             if (op != null && !operatorDatabase.ContainsKey(op.entityName!))
             {
-                Debug.LogError($"Starting operator {op.entityName!} not found in database!");
+                Logger.LogError($"Starting operator {op.entityName!} not found in database!");
             }
         }
 #endif
@@ -351,7 +351,7 @@ public class PlayerDataManager : MonoBehaviour
         // 디버깅 - 스쿼드 수정마다 반복문 실행해서 점검
         // for (int i=0; i < squadForSave.Count; i++)
         // {
-        //     Debug.Log($"스쿼드 구성 : {i}번째 인덱스 - ({squadForSave[i].operatorName}, 스킬 인덱스 : {squadForSave[i].skillIndex})");
+        //     Logger.Log($"스쿼드 구성 : {i}번째 인덱스 - ({squadForSave[i].operatorName}, 스킬 인덱스 : {squadForSave[i].skillIndex})");
         // }
 
         SavePlayerData();
@@ -386,7 +386,7 @@ public class PlayerDataManager : MonoBehaviour
                         (safePlayerData.ownedOperators == null || !safePlayerData.ownedOperators.Any(ownedOp => ownedOp.operatorName == opName)))
                     {
                         // 소유하지 않은 오퍼레이터가 있으면 업데이트 실패
-                        Debug.LogError($"{opName}은 소유하고 있는 오퍼레이터가 아님");
+                        Logger.LogError($"{opName}은 소유하고 있는 오퍼레이터가 아님");
                         return false;
                     }
 
@@ -663,7 +663,7 @@ public class PlayerDataManager : MonoBehaviour
         }
         else
         {
-            Debug.LogError($"{itemName}은 아이템 데이터베이스에 존재하지 않는 이름임");
+            Logger.LogError($"{itemName}은 아이템 데이터베이스에 존재하지 않는 이름임");
         }
     }
 

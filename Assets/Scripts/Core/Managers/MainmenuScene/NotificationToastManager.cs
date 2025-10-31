@@ -32,7 +32,7 @@ public class NotificationToastManager : MonoBehaviour
     {
         if (notificationToastPrefab == null)
         {
-            Debug.LogError("NotificationToast 프리팹이 할당되지 않음");
+            Logger.LogError("NotificationToast 프리팹이 할당되지 않음");
             return;
         }
 

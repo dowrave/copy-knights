@@ -229,11 +229,11 @@ public class TutorialManager : MonoBehaviour
             Button expectedButton = GameObject.Find(expectedButtonName)?.GetComponent<Button>();
             if (expectedButton == null)
             {
-                Debug.LogError("요청된 버튼을 찾을 수 없습니다 : " + expectedButtonName);
+                Logger.LogError("요청된 버튼을 찾을 수 없습니다 : " + expectedButtonName);
                 yield break;
             }
 
-            Debug.Log("요청된 버튼을 찾았습니다 : " + expectedButton.name);
+            Logger.Log("요청된 버튼을 찾았습니다 : " + expectedButton.name);
 
             float waitSeconds = 0.1f;
 
@@ -255,7 +255,7 @@ public class TutorialManager : MonoBehaviour
             }
             else
             {
-                Debug.LogError("currentOverlay에 잡힌 요소 없음");
+                Logger.LogError("currentOverlay에 잡힌 요소 없음");
             }
         }
     }
@@ -297,7 +297,7 @@ public class TutorialManager : MonoBehaviour
             targetButton.GetComponent<Button>().onClick.Invoke();
         });
 
-        Debug.Log("overlayButton에 리스너가 등록됨");
+        Logger.Log("overlayButton에 리스너가 등록됨");
 
         // 제거를 위한 현재 오버레이 등록
         currentOverlay = overlayButton;
@@ -319,7 +319,7 @@ public class TutorialManager : MonoBehaviour
     // 튜토리얼을 완전히 종료
     public void FinishAllTutorials()
     {
-        Debug.Log("튜토리얼을 종료");
+        Logger.Log("튜토리얼을 종료");
         GameManagement.Instance.PlayerDataManager.FinishAllTutorials();
     }
 
@@ -349,7 +349,7 @@ public class TutorialManager : MonoBehaviour
     private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
     {
         canvas = FindRootCanvas();
-        if (canvas == null) Debug.LogError("TutorialManager에 canvas가 정상적으로 할당되지 않음");
+        if (canvas == null) Logger.LogError("TutorialManager에 canvas가 정상적으로 할당되지 않음");
 
         // 저장된 데이터를 점검
         // - 튜토리얼이 완료/스킵된 경우 생략

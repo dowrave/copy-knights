@@ -200,10 +200,10 @@ public class DeploymentInputHandler: MonoBehaviour
             // 클릭이 된 지점이 마름모 밖이라면 배치 로직 취소
             if ((Input.mousePosition - basePosition).magnitude > minDirectionDistance)
             {
-                Debug.Log($"기준 위치에서의 거리 : {(Input.mousePosition - basePosition).magnitude}");
-                Debug.Log($"최소 거리 : {minDirectionDistance}");
+                Logger.Log($"기준 위치에서의 거리 : {(Input.mousePosition - basePosition).magnitude}");
+                Logger.Log($"최소 거리 : {minDirectionDistance}");
 
-                Debug.Log("클릭 시작 지점이 마름모 밖이므로 배치 로직이 취소됨");
+                Logger.Log("클릭 시작 지점이 마름모 밖이므로 배치 로직이 취소됨");
                 deployManager.CancelPlacement();
                 return;
             }

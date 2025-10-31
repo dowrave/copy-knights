@@ -14,9 +14,7 @@ public class CostParticleMotionVFXController : SelfReturnVFXController
     private float elapsed = 0f;
 
     private Vector3 iconWorldPosition;
-    // private bool isReturningToPool;
 
-    private RectTransform deploymentCostIconTransform = default!;
     private Dictionary<uint, Vector3> particleVelocities = new Dictionary<uint, Vector3>();
    
 
@@ -29,11 +27,6 @@ public class CostParticleMotionVFXController : SelfReturnVFXController
 
         particles = new ParticleSystem.Particle[ps.main.maxParticles];
 
-        if (deploymentCostIconTransform == null)
-        {
-            GameObject DeploymentCostIconObject = GameObject.Find("MainCanvas/DeploymentPanel/DeploymentCostIcon");
-            deploymentCostIconTransform = DeploymentCostIconObject.GetComponent<RectTransform>();
-        }
     }
 
     public new void OnObjectSpawn(string tag)
@@ -41,7 +34,6 @@ public class CostParticleMotionVFXController : SelfReturnVFXController
         base.OnObjectSpawn(tag); 
         
         elapsed = 0f;
-        // isReturningToPool = false;
         particleVelocities.Clear();
     }
 
@@ -54,7 +46,7 @@ public class CostParticleMotionVFXController : SelfReturnVFXController
         }
         else
         {
-            Debug.LogError("StageUIManager.Instance is not available!");
+            Logger.LogError("StageUIManager.Instance is not available!");
             ReturnToPool(); // 초기화 실패 시 즉시 반환
             return;
         }

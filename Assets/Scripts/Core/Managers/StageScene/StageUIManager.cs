@@ -65,8 +65,6 @@ public class StageUIManager : MonoBehaviour
         private set => costIconWorldPosition = value;
     }
 
-
-
     private InStageInfoPanel inStageInfoPanelScript = default!;
     public InStageInfoPanel InStageInfoPanel => inStageInfoPanelScript;
 
@@ -93,7 +91,7 @@ public class StageUIManager : MonoBehaviour
         confirmationReturnToLobbyPanel.gameObject.SetActive(false);
 
         // 스테이지 로딩 패널이 완료되고 캔버스가 나타나도록 수정
-        // mainCanvas.gameObject.SetActive(false);
+        mainCanvas.gameObject.SetActive(false);
 
         HideItemPopup();
     }
@@ -116,8 +114,6 @@ public class StageUIManager : MonoBehaviour
 
     public void Initialize()
     {
-        // mainCanvas.gameObject.SetActive(true);
-
         inGameTopButtonContainer!.Initialize();
 
         // 최초 카메라에서 코스트 아이콘의 월드 포지션을 잡아줌
@@ -133,8 +129,11 @@ public class StageUIManager : MonoBehaviour
 
         // DeployableManager.Instance.InitializeDeployableUI();
 
-        InitializeListeners();   
+        InitializeListeners();
+
+        mainCanvas.gameObject.SetActive(true);
     }
+    
 
     public void ShowGameOverUI()
     {
@@ -279,16 +278,16 @@ public class StageUIManager : MonoBehaviour
             float t = (projectionHeight - ray.origin.y) / ray.direction.y;
             Vector3 projectedPoint = ray.origin + ray.direction * t;
 
-            Debug.Log($"UI Element '{uiElement.name}' projects to world position: {projectedPoint}");
+            Logger.Log($"UI Element '{uiElement.name}' projects to world position: {projectedPoint}");
 
             // 디버그 시각화
-            Debug.DrawRay(ray.origin, ray.direction * 100f, Color.red, 1f);
-            Debug.DrawLine(Vector3.zero, projectedPoint, Color.blue, 1f);
+            // Debug.DrawRay(ray.origin, ray.direction * 100f, Color.red, 1f);
+            // Debug.DrawLine(Vector3.zero, projectedPoint, Color.blue, 1f);
 
             return projectedPoint;
         }
 
-        Debug.LogWarning("Could not project UI element to world space - ray is parallel to XZ plane");
+        Logger.LogWarning("Could not project UI element to world space - ray is parallel to XZ plane");
         return Vector3.zero;
     }
 

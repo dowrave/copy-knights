@@ -35,7 +35,7 @@ namespace Skills.OperatorSkills
             ShieldVFXController shieldVFX = shieldVFXObject.GetComponent<ShieldVFXController>();
             if (shieldVFX != null)
             {
-                Debug.Log("[ShieldSkill]스킬 시전 이펙트 시작");
+                Logger.Log("[ShieldSkill]스킬 시전 이펙트 시작");
                 shieldVFX.Initialize(duration, op);
             }
 
