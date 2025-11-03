@@ -1,6 +1,6 @@
 using System;
 using System.Collections.Generic;
-using System.Xml;
+using System.Collections;
 using DG.Tweening;
 using UnityEngine;
 using UnityEngine.UI;
@@ -50,6 +50,9 @@ public class MainMenuManager : MonoBehaviour
     [SerializeField] private ExpandableButton squadBulkEditButton;
     [SerializeField] private ExpandableButton resetSquadButton;
 
+    [Header("Fade Config")]
+    [SerializeField] private Image fadeImage;
+    [SerializeField] private float fadeDuration; 
 
     [Header("Panel References")]
     [SerializeField] private List<PanelInfo>? panels;
@@ -392,11 +395,14 @@ public class MainMenuManager : MonoBehaviour
         {
             throw new InvalidOperationException("게임 매니지먼트 인스턴스가 초기화되지 않았음");
         }
+        
         List<SquadOperatorInfo> currentSquad = GameManagement.Instance.UserSquadManager.GetCurrentSquad();
+
         if (currentSquad.Count > 0)
         {
             if (SelectedStage != null)
             {
+                // GameManagement.Instance.StageLoader.ShowLoadingScreen();
                 GameManagement.Instance.StageLoader.LoadStage(SelectedStage);
             }
         }

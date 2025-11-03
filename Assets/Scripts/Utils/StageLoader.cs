@@ -19,6 +19,8 @@ public class StageLoader : MonoBehaviour
     private List<SquadOperatorInfo>? cachedSquadData;
     private bool isLoading;
     private StageLoadingScreen? loadingScreen;
+    private bool isFadeInCompleted = false;
+
     private const float MIN_LOADING_TIME = 0.5f;
     private const string MAINMENU_SCENE = "MainMenuScene"; // 스테이지 씬은 StageData 내에 있음
     private const string STAGE_SCENE = "StageScene";
@@ -34,6 +36,9 @@ public class StageLoader : MonoBehaviour
             return;
         }
 
+        // 상태 초기화
+        if (isFadeInCompleted) isFadeInCompleted = false; 
+
         cachedStageData = stageData;
         cachedSquadData = new List<SquadOperatorInfo>(GameManagement.Instance!.UserSquadManager.GetCurrentSquad());
 
@@ -48,8 +53,10 @@ public class StageLoader : MonoBehaviour
         // 로딩 화면 보여주기 및 입력 차단
         ShowLoadingScreen();
 
-        // 로딩 스크린이 생성될 시간을 줌
-        yield return null;
+        // 로딩 스크린의 페이드인이 완료되기까지 대기
+        if (loadingScreen != null) loadingScreen.OnFadeInCompleted += HandleFadeInComplete;
+        yield return new WaitUntil(() => isFadeInCompleted);
+        if (loadingScreen != null) loadingScreen.OnFadeInCompleted -= HandleFadeInComplete;
 
         // 비동기 씬 로드
         AsyncOperation asyncLoad = SceneManager.LoadSceneAsync(STAGE_SCENE);
@@ -65,24 +72,25 @@ public class StageLoader : MonoBehaviour
         }
         asyncLoad.allowSceneActivation = true;
 
-        // true일 때는 씬의 로딩과 활성화가 모두 완료된 시점
-        // 해당 씬의 모든 활성 게임 오브젝트의 Awake 메서드가 호출된다.
+        // true가 된다 = 모든 활성 오브젝트의 Awake가 호출될 때까지 대기
         while (!asyncLoad.isDone)
         {
             yield return null;
         }
 
-        // 씬 전환 완료 후 StageManager 초기화가 진행된다.
-        // 로딩화면을 숨기는 부분은 StageManager에서 담당시킬 것.
-        if (CachedStageData != null && cachedSquadData != null && loadingScreen != null)
+        // 이제 asyncLoad.progress = 1이며, Awake 이후이므로 StageManager에도 접근 가능하다.
+        if (cachedStageData != null && cachedSquadData != null && loadingScreen != null)
         {
             StartCoroutine(StageManager.Instance!.InitializeStageCoroutine(
-                CachedStageData,
+                cachedStageData,
                 cachedSquadData,
                 loadingScreen,
-                progress => loadingScreen.UpdateProgress(0.5f + progress * 0.5f)
+                progress => loadingScreen.UpdateProgress(0.5f + progress * 0.5f) // 후반부 로딩은 나머지 50%
             ));
         }
+
+        // 로딩 완료 후 대기 시간 부여
+        yield return new WaitForSeconds(1f);
 
         // 초기화 후에는 로딩화면 사라짐 : StageManager에서 OnHideComplete에서 관리됨
         // loadingScreen = null;
@@ -90,22 +98,24 @@ public class StageLoader : MonoBehaviour
         EventSystem.current.enabled = true;
     }
 
-    private void ShowLoadingScreen()
+    public void ShowLoadingScreen()
     {
         if (loadingScreenPrefab == null) return;
 
         GameObject loadingObj = Instantiate(loadingScreenPrefab);
+        // Debug.Log("로딩 스크린 오브젝트가 생성됨");
         loadingScreen = loadingObj.GetComponent<StageLoadingScreen>();
 
-        if (loadingScreen != null && CachedStageData != null)
+        if (loadingScreen != null && cachedStageData != null)
         {
             loadingScreen.Initialize(
-                CachedStageData.stageId,
-                CachedStageData.stageName
+                cachedStageData.stageId,
+                cachedStageData.stageName
             );
             DontDestroyOnLoad(loadingObj);
         }
     }
+
 
     public void ReturnToMainMenu()
     {
@@ -122,6 +132,11 @@ public class StageLoader : MonoBehaviour
             PlayerPrefs.Save();
             SceneManager.LoadScene(MAINMENU_SCENE);
         }
+    }
+
+    public void HandleFadeInComplete()
+    {
+        isFadeInCompleted = true;
     }
 
     private void CleanupCache()

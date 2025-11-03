@@ -173,25 +173,19 @@ public class StageManager : MonoBehaviour
         }
     }
 
-    // public void InitializeStage(StageData stageData, List<SquadOperatorInfo> squadData, StageLoadingScreen stageLoadingScreen)
-    
     // StageLoader에서의 동작이 끝난 후에 호출됨
     public IEnumerator InitializeStageCoroutine(StageData stageData, List<SquadOperatorInfo> squadData, StageLoadingScreen stageLoadingScreen, Action<float> onProgress)
     {
         this.stageData = stageData;
         this.stageLoadingScreen = stageLoadingScreen;
 
-        // 맵 준비
+        // 맵 준비(10%)
         InitializeMap();
         onProgress?.Invoke(.1f);
         yield return null;
 
         // 스테이지에 필요한 모든 재료(오브젝트 풀)를 준비함
-        // PreloadStageObjectPoolsCoroutine(squadData);
-        yield return StartCoroutine(PreloadStageObjectPoolsCoroutine(squadData, progress => onProgress?.Invoke(0.1f + progress + 0.8f)));
-
-        // 스테이지 씬의 메인 캔버스 초기화 & 활성화
-        StageUIManager.Instance!.Initialize();
+        yield return StartCoroutine(PreloadStageObjectPoolsCoroutine(squadData, progress => onProgress?.Invoke(0.1f + progress * 0.8f)));
 
         // 맵에서 가져올 게 있어서 맵 초기화 후에 진행해야 함
         PrepareDeployables(squadData);
@@ -204,7 +198,9 @@ public class StageManager : MonoBehaviour
         yield return null;
 
         // 로딩 화면이 사라진 후에 StartStage가 동작함
-        stageLoadingScreen.OnHideComplete += StartStageCoroutine;
+        stageLoadingScreen.OnHideComplete += StartStage;
+
+        yield return new WaitForSecondsRealtime(1f);
     }
 
     private void PrepareStage()
@@ -212,8 +208,6 @@ public class StageManager : MonoBehaviour
         InstanceValidator.ValidateInstance(stageData);
 
         SetGameState(GameState.Preparation);
-
-        // 게임 설정
 
         // 적의 숫자 초기화
         TotalEnemyCount = CalculateTotalEnemyCount();
@@ -226,21 +220,32 @@ public class StageManager : MonoBehaviour
 
         // 체력 포인트 초기화
         CurrentLifePoints = MaxLifePoints;
+
+        // 잠깐 대기 후 준비 완료 호출
+        StartCoroutine(WaitAndIntializeUI());
+    }
+
+    private IEnumerator WaitAndIntializeUI()
+    {
+        // 참고) 로딩 스크린의 로딩 게이지가 1f일 때 "준비 완료" 문구가 나오는데
+        // 해당 타이밍은 여기서의 대기 시간 이전임
+        yield return new WaitForSecondsRealtime(.5f);
+
+        // UI 초기화 - 스테이지의 값들이 모두 초기화된 다음에 들어가야 함
+        StageUIManager.Instance!.Initialize();
+
+        // 스테이지 준비 완료 이벤트 발생 (StageLoadingScreen의 페이드아웃 시작)
         OnPreparationCompleted?.Invoke();
+
     }
 
-    private void StartStageCoroutine()
+    // stageLoadingScreen이 완전히 사라진 후에 실행됨
+    private void StartStage()
     {
-        StartCoroutine(StartStageWithDelay());
-    }
-
-    private IEnumerator StartStageWithDelay()
-    {
-        yield return new WaitForSecondsRealtime(1f); // Time.timeScale에 영향을 받지 않게 구성
-
         if (SpawnerManager.Instance! == null) throw new InvalidOperationException("스포너 매니저 인스턴스가 없음");
 
-        // if (stageCamera != null) stageCamera.enabled = true;
+        // Debug.Log("[StageManager]StageLoadingScreen의 페이드아웃 완료 후 스테이지 시작 로직 실행");
+
         EventSystem.current.enabled = true; // 버튼 동작 가능하게 설정
 
         SetGameState(GameState.Battle);
@@ -250,9 +255,12 @@ public class StageManager : MonoBehaviour
         SpawnerManager.Instance!.StartSpawning();
 
         // stageLoadingScreen은 역할이 끝났다면 Destroy해줌 (오브젝트로 올려두지 않음!!)
-        stageLoadingScreen!.OnHideComplete -= StartStageCoroutine;
-        Destroy(stageLoadingScreen.gameObject);
-        stageLoadingScreen = null;
+        if (stageLoadingScreen != null)
+        {
+            stageLoadingScreen.OnHideComplete -= StartStage;
+            Destroy(stageLoadingScreen.gameObject);
+            stageLoadingScreen = null;
+        }
     }
 
     private void CheckTutorial()
@@ -588,12 +596,10 @@ public class StageManager : MonoBehaviour
         if (ObjectPoolManager.Instance == null)
         {
             Logger.LogError("ObjectPoolManager가 없어 풀 생성 불가능");
-            // return;
             yield break;
         }
 
         // 1. 등장할 모든 적 유닛 목록 확보
-        // var uniqueEnemyPrefabs = new HashSet<GameObject>();
         var enemyPrefabCounts = new Dictionary<GameObject, int>();
 
         // 프리팹 수집
@@ -637,7 +643,7 @@ public class StageManager : MonoBehaviour
 
             string enemyPoolTag = enemyData.GetUnitTag();
             ObjectPoolManager.Instance.CreatePool(enemyPoolTag, enemyPrefab, requiredAmount);
-            Logger.Log($"enemy 풀 - {enemyPoolTag}에 오브젝트 {requiredAmount}만큼 생성됨");
+            // Logger.Log($"enemy 풀 - {enemyPoolTag}에 오브젝트 {requiredAmount}만큼 생성됨");
 
             // 해당 적이 갖고 있는 오브젝트들 생성
             if (enemyData is EnemyBossData bossData) bossData.CreateObjectPools();
@@ -660,7 +666,7 @@ public class StageManager : MonoBehaviour
 
                 string opPoolTag = opData.GetUnitTag();
                 ObjectPoolManager.Instance.CreatePool(opPoolTag, operatorPrefab, 1);
-                Logger.Log($"operator 풀 - {opPoolTag} 생성됨");
+                // Logger.Log($"operator 풀 - {opPoolTag} 생성됨");
 
                 opData.CreateObjectPools();
 
@@ -677,7 +683,7 @@ public class StageManager : MonoBehaviour
                     }
                 }
 
-                Logger.Log($"{opData.entityName} 관련 종속 오브젝트 풀 생성 완료");
+                // Logger.Log($"{opData.entityName} 관련 종속 오브젝트 풀 생성 완료");
 
                 completedTasks++;
                 onProgress?.Invoke(completedTasks / totalTasks);

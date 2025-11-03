@@ -8,7 +8,8 @@ public class StageLoadingScreen : MonoBehaviour
 {
     [Header("Screen Fade")]
     [SerializeField] private CanvasGroup screenFader = default!;
-    [SerializeField] private float fadeInDuration = 1f;
+    [SerializeField] private float fadeOutDuration = 1f; // 화면이 어두워지는데 걸리는 시간
+    [SerializeField] private float fadeInDuration = 1f; // 화면이 밝아지는 데 걸리는 시간
 
     [Header("Stage Info")]
     [SerializeField] private CanvasGroup infoPanel = default!;
@@ -23,7 +24,8 @@ public class StageLoadingScreen : MonoBehaviour
     [SerializeField] private Color completedColor = new Color(0.2f, 0.2f, 0.3f, 1f);
 
     private Sequence? currentSequence;
-    public event System.Action OnHideComplete = delegate { };
+    public event Action OnFadeInCompleted = delegate { }; // 이 스크린의 페이드인 동작이 완료되었을 때 발생
+    public event Action OnHideComplete = delegate { }; // 이 스크린이 완전히 투명해졌을 때 발생
 
     private void Awake()
     {
@@ -35,51 +37,65 @@ public class StageLoadingScreen : MonoBehaviour
     // 로딩 화면을 띄우고 스테이지 매니저의 로딩 완료를 기다림
     public void Initialize(string stageId, string stageName)
     {
-        gameObject.SetActive(true);
-
         if (currentSequence != null)
         {
             currentSequence.Kill();
         }
 
+        // 패널 정보 초기화
         stageIdText.text = stageId;
         stageNameText.text = stageName;
+        loadingSlider.value = 0f;
+        progressText.text = "";
 
+        gameObject.SetActive(true);
+
+        // 어두운 패널이 서서히 나타남 - Append 개념은 순차적으로 동작함
         currentSequence = DOTween.Sequence();
-        currentSequence.Append(screenFader.DOFade(1f, fadeInDuration * 0.1f));
-        currentSequence.Append(infoPanel.DOFade(1f, fadeInDuration * 0.5f));
-        currentSequence.Play();
+        currentSequence.Append(screenFader.DOFade(1f, fadeOutDuration))
+            .OnComplete(() =>
+            {
+                OnFadeInCompleted?.Invoke(); // 이 패널이 완전히 나타난 후 이벤트 발생
+            });
+        currentSequence.AppendCallback(() =>
+        {
+            infoPanel.alpha = 1f; // 페이드인 후 인포 패널 등장
+        });
 
-        StartCoroutine(WaitForStageManagerAndSubscribe());
+        // 시퀀스 실행
+        StartCoroutine(WaitStageManagerAndPlaySequence());
     }
-
-    private IEnumerator WaitForStageManagerAndSubscribe()
+    
+    // StageManager의 초기화를 기다린 후 이벤트 실행 및 시퀀
+    private IEnumerator WaitStageManagerAndPlaySequence()
     {
         yield return new WaitUntil(() => StageManager.Instance != null);
+        // Logger.Log("[StageLoadingScreen] StageManager 초기화 확인, 이벤트를 구독하고 자신의 시퀀스를 플레이함");
         StageManager.Instance!.OnPreparationCompleted += HandlePreparationComplete;
+        currentSequence.Play();
     }
 
     public void UpdateProgress(float progress)
     {
         loadingSlider.value = progress;
-        progressText.text = progress >= 1f ? "스테이지 로딩 완료!" : $"스테이지 로딩중 : {progress * 100:F0}%";
+        progressText.text = progress >= 1f ? "스테이지 로딩 완료" : $"스테이지 로딩중 : {progress * 100:F0}%";
     }
 
+    // 스테이지 매니저 인스턴스가 생성되면 패널을 감추기 시작
     private void HandlePreparationComplete()
     {
-        backgroundPanel.DOColor(completedColor, fadeInDuration * 0.01f).OnComplete(() =>
-        {
-            StartCoroutine(HideRoutine());
-        });
+        backgroundPanel.color = completedColor;
+        StartCoroutine(HideRoutine());
     }
 
     private IEnumerator HideRoutine()
     {
-        yield return screenFader.DOFade(0f, fadeInDuration * 2f) // 패널이 서서히 사라짐
+        yield return screenFader.DOFade(0f, fadeOutDuration) // 패널이 서서히 사라짐
             .OnComplete(() =>
             {
                 // 패널이 완전히 사라진 후
                 OnHideComplete?.Invoke();
+                StageManager.Instance!.OnPreparationCompleted -= HandlePreparationComplete;
                 // gameObject.SetActive(false);
             })
             .WaitForCompletion();
@@ -87,7 +103,10 @@ public class StageLoadingScreen : MonoBehaviour
 
     private void OnDisable()
     {
-        StageManager.Instance!.OnPreparationCompleted -= HandlePreparationComplete;
+        if (StageManager.Instance != null)
+        {
+            StageManager.Instance!.OnPreparationCompleted -= HandlePreparationComplete;
+        }
         currentSequence?.Kill();
     }
 }

@@ -571,7 +571,7 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
     protected override void SetPoolTag()
     {
         PoolTag = _operatorData.GetUnitTag();
-        Logger.Log($"Pooltag : {PoolTag}로 할당됨");
+        // Logger.Log($"Pooltag : {PoolTag}로 할당됨");
     }
 
     public override void OnClick()

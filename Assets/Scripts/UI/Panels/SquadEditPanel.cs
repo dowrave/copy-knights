@@ -99,7 +99,11 @@ public class SquadEditPanel : MonoBehaviour
     private void OnStartButtonClicked()
     {
         // 어떤 스테이지인지는 MainMenuManager에서 관리 중
+        // 검은 화면으로 부드럽게
+        // MainMenuManager.Instance!.FadeOutAndDoAction(() =>
+        // {
         MainMenuManager.Instance!.StartStage();
+        // });
     }
 
     /// <summary>

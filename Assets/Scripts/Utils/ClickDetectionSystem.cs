@@ -40,9 +40,7 @@ public class ClickDetectionSystem : MonoBehaviour
     {   
         if (EventSystem.current.IsPointerOverGameObject())
         {
-            #if UNITY_EDITOR
-            Logger.Log("EventSystem이 UI 클릭을 처리했습니다. 오브젝트 클릭 처리를 무시합니다.");
-            #endif
+            // Logger.Log("EventSystem이 UI 클릭을 처리했습니다. 오브젝트 클릭 처리를 무시합니다.");
             return;
         }
 
@@ -145,22 +143,4 @@ public class ClickDetectionSystem : MonoBehaviour
         EventSystem.current.RaycastAll(pointerData, results);
         return results;
     }
-
-    // 클릭된 오브젝트로부터 상위 오브젝트에 DeployableUnitEntity가 있는지 검사함
-    // private DeployableUnitEntity? GetAssociatedDeployableUnitEntity(GameObject clickedObject)
-    // {
-    //     Logger.Log($"GetAssociatedDeployableUnitEntity 동작, clickedObject : {clickedObject.name}");
-    //     Transform? current = clickedObject.transform;
-    //     while (current != null)
-    //     {
-    //         DeployableUnitEntity deployable = current.GetComponent<DeployableUnitEntity>();
-    //         if (deployable != null)
-    //         {
-    //             return deployable;
-    //         }
-    //         current = current.parent;
-    //     }
-
-    //     return null;
-    // }
 }

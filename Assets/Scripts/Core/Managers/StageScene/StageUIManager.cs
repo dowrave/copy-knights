@@ -133,7 +133,6 @@ public class StageUIManager : MonoBehaviour
 
         mainCanvas.gameObject.SetActive(true);
     }
-    
 
     public void ShowGameOverUI()
     {
