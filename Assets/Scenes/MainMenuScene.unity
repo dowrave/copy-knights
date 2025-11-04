@@ -4590,7 +4590,7 @@ GameObject:
   - component: {fileID: 411509559}
   - component: {fileID: 411509558}
   m_Layer: 0
-  m_Name: StageLoader
+  m_Name: SceneLoader
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -15937,7 +15937,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0d45c4f5b5724264ebe4718f9a8446d9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  stageLoader: {fileID: 411509558}
+  sceneLoader: {fileID: 411509558}
   userSquadManager: {fileID: 1856081711}
   resourceManager: {fileID: 1259888922}
   playerDataManager: {fileID: 920941511}

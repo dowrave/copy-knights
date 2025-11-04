@@ -9,7 +9,7 @@ public class GameManagement : MonoBehaviour
 {
     public static GameManagement? Instance;
 
-    [SerializeField] private StageLoader? stageLoader = null!;
+    [SerializeField] private SceneLoader? sceneLoader = null!;
     [SerializeField] private UserSquadManager? userSquadManager = null!;
     [SerializeField] private ResourceManager? resourceManager = null!;
     [SerializeField] private PlayerDataManager? playerDataManager = null!;
@@ -24,7 +24,7 @@ public class GameManagement : MonoBehaviour
 
     // 프로퍼티를 사용하는 시점은 null이 아님이 보장된 시점이므로
     // null에 대한 경고를 띄우지 않게 하기 위해 `!`(= null-forgiveness 연산자)을 추가한다.
-    public StageLoader StageLoader => stageLoader!;
+    public SceneLoader SceneLoader => sceneLoader!;
     public UserSquadManager UserSquadManager => userSquadManager!;
     public ResourceManager ResourceManager => resourceManager!;
     public PlayerDataManager PlayerDataManager => playerDataManager!;
@@ -67,8 +67,8 @@ public class GameManagement : MonoBehaviour
 
     private void ValidateComponents()
     {
-        if (stageLoader == null)
-            throw new NullReferenceException($"{nameof(stageLoader)}가 인스펙터에서 할당되지 않았습니다.");
+        if (sceneLoader == null)
+            throw new NullReferenceException($"{nameof(sceneLoader)}가 인스펙터에서 할당되지 않았습니다.");
         if (userSquadManager == null)
             throw new NullReferenceException($"{nameof(userSquadManager)}가 인스펙터에서 할당되지 않았습니다.");
         if (resourceManager == null)
@@ -81,9 +81,9 @@ public class GameManagement : MonoBehaviour
 
     private void OnApplicationQuit()
     {
-        if (stageLoader != null)
+        if (sceneLoader != null)
         {
-            stageLoader.OnGameQuit();
+            sceneLoader.OnGameQuit();
         }
     }
 }

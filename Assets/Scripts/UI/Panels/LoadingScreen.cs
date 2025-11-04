@@ -4,7 +4,9 @@ using DG.Tweening;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
-public class StageLoadingScreen : MonoBehaviour
+
+// 스테이지 로딩 사용
+public class LoadingScreen : MonoBehaviour
 {
     [Header("Screen Fade")]
     [SerializeField] private CanvasGroup screenFader = default!;
@@ -12,7 +14,7 @@ public class StageLoadingScreen : MonoBehaviour
     [SerializeField] private float fadeInDuration = 1f; // 화면이 밝아지는 데 걸리는 시간
 
     [Header("Stage Info")]
-    [SerializeField] private CanvasGroup infoPanel = default!;
+    [SerializeField] private CanvasGroup stageInfoPanel = default!;
     [SerializeField] private TextMeshProUGUI stageIdText = default!;
     [SerializeField] private TextMeshProUGUI stageNameText = default!;
     [SerializeField] private Slider loadingSlider = default!;
@@ -29,13 +31,10 @@ public class StageLoadingScreen : MonoBehaviour
 
     private void Awake()
     {
-        screenFader.alpha = 0;
-        infoPanel.alpha = 0;
-        backgroundPanel.color = loadingColor;
+        ResetState();
     }
 
-    // 로딩 화면을 띄우고 스테이지 매니저의 로딩 완료를 기다림
-    public void Initialize(string stageId, string stageName)
+    private void ResetState()
     {
         if (currentSequence != null)
         {
@@ -43,12 +42,51 @@ public class StageLoadingScreen : MonoBehaviour
         }
 
         // 패널 정보 초기화
-        stageIdText.text = stageId;
-        stageNameText.text = stageName;
+        stageIdText.text = "";
+        stageNameText.text = "";
         loadingSlider.value = 0f;
         progressText.text = "";
 
+        screenFader.alpha = 0;
+        stageInfoPanel.alpha = 0f;
+        backgroundPanel.color = loadingColor;
+
+        gameObject.SetActive(false);
+    }
+
+    // 검은 화면만 사용할 경우
+    public void Initialize()
+    {
+        ResetState();
+
         gameObject.SetActive(true);
+        stageInfoPanel.gameObject.SetActive(false); // 정보 패널 부분은 비활성화
+
+        Debug.Log("[LoadingScreen]어두운 화면만 나타나는 Initialize");
+
+        // 어두운 패널이 서서히 나타남 - Append 개념은 순차적으로 동작함
+        currentSequence = DOTween.Sequence();
+        currentSequence.Append(screenFader.DOFade(1f, fadeOutDuration))
+            .OnComplete(() =>
+            {
+                OnFadeInCompleted?.Invoke(); // 이 패널이 완전히 나타난 후 이벤트 발생
+            });
+
+        currentSequence.Play();
+    }
+
+    // 스테이지 진입 시 사용 - 스테이지 이름과 로딩 게이지를 함께 보여줌
+    // 로딩 화면을 띄우고 스테이지 매니저의 로딩 완료를 기다림
+    public void Initialize(string stageId, string stageName)
+    {
+        ResetState();
+
+        gameObject.SetActive(true);
+
+        // 스테이지 정보 및 로딩 게이지 활성화 
+        stageIdText.text = stageId;
+        stageNameText.text = stageName;
+        loadingSlider.gameObject.SetActive(true);
 
         // 어두운 패널이 서서히 나타남 - Append 개념은 순차적으로 동작함
         currentSequence = DOTween.Sequence();
@@ -59,7 +97,7 @@ public class StageLoadingScreen : MonoBehaviour
             });
         currentSequence.AppendCallback(() =>
         {
-            infoPanel.alpha = 1f; // 페이드인 후 인포 패널 등장
+            stageInfoPanel.alpha = 1f; // 페이드인 후 인포 패널 등장
         });
 
         // 시퀀스 실행

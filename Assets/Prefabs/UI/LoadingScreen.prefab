@@ -419,7 +419,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 0.5, g: 0.5, b: 0.5, a: 1}
+  m_Color: {r: 0.101960786, g: 0.101960786, b: 0.101960786, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -710,7 +710,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 0.05, g: 0.025, b: 0.025, a: 0.9019608}
+  m_Color: {r: 0.1, g: 0.1, b: 0.1, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -828,7 +828,7 @@ GameObject:
   - component: {fileID: 3644711348487048431}
   - component: {fileID: 6324753742039176947}
   m_Layer: 0
-  m_Name: StageLoadingScreen
+  m_Name: LoadingScreen
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -915,7 +915,7 @@ MonoBehaviour:
   screenFader: {fileID: 5367309862983088108}
   fadeOutDuration: 0.5
   fadeInDuration: 1
-  infoPanel: {fileID: 4885182206724245181}
+  stageInfoPanel: {fileID: 4885182206724245181}
   stageIdText: {fileID: 8435825268680549644}
   stageNameText: {fileID: 1273889975686609433}
   loadingSlider: {fileID: 9009752228953946487}

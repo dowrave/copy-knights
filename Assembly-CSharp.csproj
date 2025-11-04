@@ -65,7 +65,6 @@
     <Analyzer Include="E:\Unity\6000.0.41f1\Editor\Data\Tools\Unity.SourceGenerators\Unity.UIToolkit.SourceGenerator.dll" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Assets\Scripts\Utils\StageLoader.cs" />
     <Compile Include="Assets\Scripts\Core\Systems\Skills\OperatorSkills\LegacySlashSkill.cs" />
     <Compile Include="Assets\Scripts\Core\Systems\Skills\VFXController\SelfReturnVFXController.cs" />
     <Compile Include="Assets\Scripts\Core\Systems\Skills\OperatorSkills\ArcaneFieldSkill.cs" />
@@ -154,7 +153,6 @@
     <Compile Include="Assets\Scripts\Core\Systems\Buff\StatModifierBuff.cs" />
     <Compile Include="Assets\Scripts\Entities\Controller\MuzzleVFXController.cs" />
     <Compile Include="Assets\Scripts\Entities\Enemy\EnemyBoss.cs" />
-    <Compile Include="Assets\Scripts\UI\Panels\StageLoadingScreen.cs" />
     <Compile Include="Assets\Scripts\Core\Systems\Buff\StunBuff.cs" />
     <Compile Include="Assets\Scripts\Core\Systems\Skills\BossSkills\BossExplosionSkill.cs" />
     <Compile Include="Assets\Scripts\Core\Systems\Skills\SkillController\Operator\MeteorController.cs" />
@@ -203,6 +201,7 @@
     <Compile Include="Assets\Scripts\Core\Systems\Class\AttackSource.cs" />
     <Compile Include="Assets\Scripts\Entities\Barricade.cs" />
     <Compile Include="Assets\Scripts\Map\Map.cs" />
+    <Compile Include="Assets\Scripts\Utils\SceneLoader.cs" />
     <Compile Include="Assets\Scripts\UI\Components\ItemUIElement.cs" />
     <Compile Include="Assets\Scripts\Data\BuffVFXDatabase.cs" />
     <Compile Include="Assets\Scripts\Core\Systems\OperatorGrowthSystem.cs" />
@@ -224,6 +223,7 @@
     <Compile Include="Assets\Scripts\Core\Managers\StageScene\StageUIManager.cs" />
     <Compile Include="Assets\Scripts\UI\Panels\ItemInventoryPanel.cs" />
     <Compile Include="Assets\Scripts\Core\Managers\MainmenuScene\OperatorGrowthManager.cs" />
+    <Compile Include="Assets\Scripts\UI\Panels\LoadingScreen.cs" />
     <Compile Include="Assets\Scripts\Interfaces\ICrowdControlTarget.cs" />
     <Compile Include="Assets\Scripts\UI\Panels\OperatorDetailPanel.cs" />
     <Compile Include="Assets\Scripts\UI\Panels\StatsPanel.cs" />

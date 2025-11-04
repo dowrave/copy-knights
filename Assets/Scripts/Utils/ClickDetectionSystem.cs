@@ -37,7 +37,9 @@ public class ClickDetectionSystem : MonoBehaviour
     }
     
     private void Update()
-    {   
+    {
+        if (EventSystem.current == null) return;
+        
         if (EventSystem.current.IsPointerOverGameObject())
         {
             // Logger.Log("EventSystem이 UI 클릭을 처리했습니다. 오브젝트 클릭 처리를 무시합니다.");

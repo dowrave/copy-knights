@@ -104,7 +104,7 @@ public class StageManager : MonoBehaviour
     private const float COST_CHECK_INTERVAL = 1f;
 
     // 스크린이 완전히 사라진 다음 게임 시작을 위한 할당
-    private StageLoadingScreen? stageLoadingScreen;
+    private LoadingScreen? stageLoadingScreen;
 
     // 패널에 전달하기 위한 보상 값들
     public IReadOnlyList<ItemWithCount> FirstClearRewards = default!;
@@ -174,7 +174,7 @@ public class StageManager : MonoBehaviour
     }
 
     // StageLoader에서의 동작이 끝난 후에 호출됨
-    public IEnumerator InitializeStageCoroutine(StageData stageData, List<SquadOperatorInfo> squadData, StageLoadingScreen stageLoadingScreen, Action<float> onProgress)
+    public IEnumerator InitializeStageCoroutine(StageData stageData, List<SquadOperatorInfo> squadData, LoadingScreen stageLoadingScreen, Action<float> onProgress)
     {
         this.stageData = stageData;
         this.stageLoadingScreen = stageLoadingScreen;
@@ -479,11 +479,11 @@ public class StageManager : MonoBehaviour
 
         if (isPerfectClear)
         {
-            GameManagement.Instance!.StageLoader.ReturnToMainMenu();
+            GameManagement.Instance!.SceneLoader.ReturnToMainMenu();
         }
         else
         {
-            GameManagement.Instance!.StageLoader.ReturnToMainMenuWithStageSelected();
+            GameManagement.Instance!.SceneLoader.ReturnToMainMenuWithStageSelected();
         }
     }
 

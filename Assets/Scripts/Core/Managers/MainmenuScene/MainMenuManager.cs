@@ -403,7 +403,7 @@ public class MainMenuManager : MonoBehaviour
             if (SelectedStage != null)
             {
                 // GameManagement.Instance.StageLoader.ShowLoadingScreen();
-                GameManagement.Instance.StageLoader.LoadStage(SelectedStage);
+                GameManagement.Instance.SceneLoader.LoadStage(SelectedStage);
             }
         }
         else
