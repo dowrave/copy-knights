@@ -98,7 +98,8 @@ public class DeploymentInputHandler: MonoBehaviour
             currentDeployableInfo = info;
 
             // 시간을 느리게
-            GameManagement.Instance.TimeManager.SetPlacementTimeScale();
+            // GameManagement.Instance.TimeManager.SetPlacementTimeScale();
+            Time.timeScale = .2f;
         }
     }
 
@@ -113,7 +114,8 @@ public class DeploymentInputHandler: MonoBehaviour
             // currentDeployableEntity는 CreatePreviewDeployable에서 처음으로 초기화됨(활성화되는 시점)
             currentDeployableEntity = deployManager.CurrentDeployableEntity;
 
-            GameManagement.Instance!.TimeManager.SetPlacementTimeScale();
+            // GameManagement.Instance!.TimeManager.SetPlacementTimeScale();
+            Time.timeScale = .2f;
 
             IsDragging = true;
 

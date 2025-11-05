@@ -20,10 +20,10 @@ public class LoadingScreen : MonoBehaviour
     [SerializeField] private Slider loadingSlider = default!;
     [SerializeField] private TextMeshProUGUI progressText = default!;
 
-    [Header("Background")]
-    [SerializeField] private Image backgroundPanel = default!;
-    [SerializeField] private Color loadingColor = new Color(0.1f, 0.1f, 0.1f, 1f);
-    [SerializeField] private Color completedColor = new Color(0.2f, 0.2f, 0.3f, 1f);
+    // [Header("Background")]
+    // [SerializeField] private Image backgroundPanel = default!;
+    // [SerializeField] private Color loadingColor = new Color(0.1f, 0.1f, 0.1f, 1f);
+    // [SerializeField] private Color completedColor = new Color(0.2f, 0.2f, 0.3f, 1f);
 
     private Sequence? currentSequence;
     public event Action OnFadeInCompleted = delegate { }; // 이 스크린의 페이드인 동작이 완료되었을 때 발생
@@ -49,9 +49,6 @@ public class LoadingScreen : MonoBehaviour
 
         screenFader.alpha = 0;
         stageInfoPanel.alpha = 0f;
-        backgroundPanel.color = loadingColor;
-
-        gameObject.SetActive(false);
     }
 
     // 검은 화면만 사용할 경우
@@ -59,10 +56,7 @@ public class LoadingScreen : MonoBehaviour
     {
         ResetState();
 
-        gameObject.SetActive(true);
         stageInfoPanel.gameObject.SetActive(false); // 정보 패널 부분은 비활성화
-
-        Debug.Log("[LoadingScreen]어두운 화면만 나타나는 Initialize");
 
         // 어두운 패널이 서서히 나타남 - Append 개념은 순차적으로 동작함
         currentSequence = DOTween.Sequence();
@@ -70,7 +64,8 @@ public class LoadingScreen : MonoBehaviour
             .OnComplete(() =>
             {
                 OnFadeInCompleted?.Invoke(); // 이 패널이 완전히 나타난 후 이벤트 발생
-            });
+            })
+            .SetUpdate(true);
 
         currentSequence.Play();
     }
@@ -80,8 +75,6 @@ public class LoadingScreen : MonoBehaviour
     public void Initialize(string stageId, string stageName)
     {
         ResetState();
-
-        gameObject.SetActive(true);
 
         // 스테이지 정보 및 로딩 게이지 활성화 
         stageIdText.text = stageId;
@@ -94,7 +87,8 @@ public class LoadingScreen : MonoBehaviour
             .OnComplete(() =>
             {
                 OnFadeInCompleted?.Invoke(); // 이 패널이 완전히 나타난 후 이벤트 발생
-            });
+            })
+            .SetUpdate(true);
         currentSequence.AppendCallback(() =>
         {
             stageInfoPanel.alpha = 1f; // 페이드인 후 인포 패널 등장
@@ -108,8 +102,7 @@ public class LoadingScreen : MonoBehaviour
     private IEnumerator WaitStageManagerAndPlaySequence()
     {
         yield return new WaitUntil(() => StageManager.Instance != null);
-        // Logger.Log("[StageLoadingScreen] StageManager 초기화 확인, 이벤트를 구독하고 자신의 시퀀스를 플레이함");
-        StageManager.Instance!.OnPreparationCompleted += HandlePreparationComplete;
+        StageManager.Instance!.OnPreparationCompleted += HandleStagePreparationComplete;
         currentSequence.Play();
     }
 
@@ -120,9 +113,8 @@ public class LoadingScreen : MonoBehaviour
     }
 
     // 스테이지 매니저 인스턴스가 생성되면 패널을 감추기 시작
-    private void HandlePreparationComplete()
+    private void HandleStagePreparationComplete()
     {
-        backgroundPanel.color = completedColor;
         StartCoroutine(HideRoutine());
     }
 
@@ -133,8 +125,7 @@ public class LoadingScreen : MonoBehaviour
             {
                 // 패널이 완전히 사라진 후
                 OnHideComplete?.Invoke();
-                StageManager.Instance!.OnPreparationCompleted -= HandlePreparationComplete;
-                // gameObject.SetActive(false);
+                StageManager.Instance!.OnPreparationCompleted -= HandleStagePreparationComplete;
             })
             .WaitForCompletion();
     }
@@ -143,7 +134,7 @@ public class LoadingScreen : MonoBehaviour
     {
         if (StageManager.Instance != null)
         {
-            StageManager.Instance!.OnPreparationCompleted -= HandlePreparationComplete;
+            StageManager.Instance!.OnPreparationCompleted -= HandleStagePreparationComplete;
         }
         currentSequence?.Kill();
     }

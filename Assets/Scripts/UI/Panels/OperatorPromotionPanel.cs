@@ -240,7 +240,7 @@ public class OperatorPromotionPanel : MonoBehaviour
             {
                 NotificationToastManager.Instance!.ShowNotification($"{op.operatorName} 정예화 완료");
                 // 디테일 패널로 돌아가기
-                MainMenuManager.Instance!.ActivateAndFadeOut(
+                MainMenuManager.Instance!.ChangePanel(
                     MainMenuManager.Instance!.PanelMap[MainMenuManager.MenuPanel.OperatorDetail],
                     gameObject
                 );

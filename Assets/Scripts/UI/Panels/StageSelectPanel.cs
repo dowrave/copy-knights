@@ -1,6 +1,7 @@
 
 using System.Collections.Generic;
 using System.Linq;
+using DG.Tweening;
 using TMPro;
 using UnityEditor.SceneManagement;
 using UnityEngine;
@@ -27,11 +28,23 @@ public class StageSelectPanel : MonoBehaviour
     [SerializeField] private Button confirmButton = default!;
     [SerializeField] private GameObject itemElementPrefab = default!;
     [SerializeField] private Transform itemContainerTransform = default!;
+    [SerializeField] private float animationDuration = .5f;
 
     public StageButton? CurrentStageButton { get; private set; }
     private StageData? selectedStage => MainMenuManager.Instance!.SelectedStage;
 
     private PlayerDataManager playerDataManager = default!;
+
+    // 사이드 패널 위치 관련
+    RectTransform detailPanelRect;
+    private bool isPanelOpen; 
+    private float openPosX; // 사이드 패널 활성화됐을 때의 위치
+    private float closePosX; // 사이드 패널 비활성화됐을 때의 위치
+
+    private void Awake()
+    {
+        InitializeDetailPanelPosition();
+    }
 
     private void Start()
     {
@@ -39,6 +52,29 @@ public class StageSelectPanel : MonoBehaviour
 
         InitializeStageButtons();
         InitializeDetailPanel();
+    }
+
+    // 애니메이션 구현을 위한 디테일 패널 위치 초기화
+    private void InitializeDetailPanelPosition()
+    {
+        // 디테일 패널 초기 위치 설정
+        detailPanelRect = stageDetailPanel.GetComponent<RectTransform>();
+
+        // 에디터에서 보이는 위치
+        openPosX = detailPanelRect.anchoredPosition.x;
+
+        // 최초에 가려진 위치
+        closePosX = openPosX + detailPanelRect.rect.width;
+
+        // 화면 밖으로 패널을 이동시킴
+        detailPanelRect.DOAnchorPosX(closePosX, 0);
+    }
+
+    private void OnEnable()
+    {
+        detailPanelRect.DOAnchorPosX(closePosX, 0);
+        confirmButton.onClick.AddListener(OnConfirmButtonClicked);
+        cancelArea.onClick.AddListener(OnCancelAreaClicked);
     }
 
     private void InitializeStageButtons()
@@ -72,32 +108,33 @@ public class StageSelectPanel : MonoBehaviour
     {
         if (selectedStage != null)
         {
-            stageDetailPanel.SetActive(true);
             SetStageButtonById(selectedStage.stageId);
+            OpenDetailPanel();
         }
         else
         {
-            stageDetailPanel.SetActive(false);
+            CloseDetailPanel();
         }
 
-        InitializeDetailPanelButtons();
-        cancelArea.interactable = false;
+        // InitializeDetailPanelButtons();
+        // cancelArea.interactable = false;
     }
 
-    private void InitializeDetailPanelButtons()
-    {
-        confirmButton.onClick.AddListener(OnConfirmButtonClicked);
-        if (selectedStage != null)
-        {
-            confirmButton.interactable = true;
-        }
-        else
-        {
-            confirmButton.interactable = false;
-        }
+    // private void InitializeDetailPanelButtons()
+    // {
+        
 
-        cancelArea.onClick.AddListener(OnCancelAreaClicked);
-    }
+    //     // if (selectedStage != null)
+    //     // {
+    //     //     confirmButton.interactable = true;
+    //     // }
+    //     // else
+    //     // {
+    //     //     confirmButton.interactable = false;
+    //     // }
+
+        
+    // }
 
 
     // stageId에 해당하는 버튼을 클릭 상태로 바꿈
@@ -133,28 +170,44 @@ public class StageSelectPanel : MonoBehaviour
         ShowDetailPanel(CurrentStageButton.StageData);
     }
 
+    private void OpenDetailPanel()
+    {
+        // stageDetailPanel.SetActive(true);
+        detailPanelRect.DOAnchorPosX(openPosX, animationDuration).SetEase(Ease.OutCubic);
+    }
+    
+    private void CloseDetailPanel()
+    {
+        detailPanelRect.DOAnchorPosX(closePosX, animationDuration).SetEase(Ease.InCubic);
+        // stageDetailPanel.SetActive(false);
+    }
+
+
     private void OnCancelAreaClicked()
     {
+        CloseDetailPanel();
+
         if (CurrentStageButton != null)
         {
             CurrentStageButton.SetSelected(false);
             CurrentStageButton = null;
         }
-        stageDetailPanel.SetActive(false);
-        cancelArea.interactable = false;
+        // stageDetailPanel.SetActive(false);
+        // cancelArea.interactable = false;
     }
 
     private void ShowDetailPanel(StageData stageData)
     {
         if (stageDetailPanel != null)
         {
-            stageDetailPanel.SetActive(true);
-            cancelArea.interactable = true;
+            // cancelArea.interactable = true;
             stageIdText.text = stageData.stageId;
             stageNameText.text = stageData.stageName;
             stageDetailText.text = stageData.stageDetail;
-            confirmButton.interactable = true;
+            // confirmButton.interactable = true;
             ShowRewardItems(stageData);
+
+            OpenDetailPanel();
         }
     }
 
@@ -226,8 +279,8 @@ public class StageSelectPanel : MonoBehaviour
             GameObject stageSelectPanel = MainMenuManager.Instance!.PanelMap[MainMenuManager.MenuPanel.StageSelect];
 
             // squadEditPanel을 보여주고 stageSelectPanel을 숨김
-            MainMenuManager.Instance!.FadeInAndHide(squadEditPanel, stageSelectPanel);
-            confirmButton.interactable = false; // 중복 클릭 방지
+            MainMenuManager.Instance!.ChangePanel(squadEditPanel, stageSelectPanel);
+            // confirmButton.interactable = false; // 중복 클릭 방지
             //Logger.Log("StageSelectPanel : ConfirmButton 클릭됨");
         }
     }
@@ -242,8 +295,11 @@ public class StageSelectPanel : MonoBehaviour
             CurrentStageButton = null;
         }
 
-        stageDetailPanel.SetActive(false);
-        cancelArea.interactable = false;
-        confirmButton.interactable = false;
+        // stageDetailPanel.SetActive(false);
+        // cancelArea.interactable = false;
+        // confirmButton.interactable = false;
+
+        confirmButton.onClick.RemoveAllListeners();
+        cancelArea.onClick.RemoveAllListeners();
     }
 }

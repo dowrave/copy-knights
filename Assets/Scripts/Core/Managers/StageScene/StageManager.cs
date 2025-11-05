@@ -305,18 +305,17 @@ public class StageManager : MonoBehaviour
     public void SetGameState(GameState gameState)
     {
         currentState = gameState;
-        TimeManager timeManager = GameManagement.Instance!.TimeManager;
 
         switch (gameState)
         {
             case GameState.Battle:
-                timeManager.UpdateTimeScale(IsSpeedUp);
+                Time.timeScale = 2f;
                 break;
 
             case GameState.Paused:
             case GameState.GameOver:
             case GameState.GameWin:
-                timeManager.SetPauseTime();
+                Time.timeScale = 0f;
                 break;
         }
 
@@ -492,7 +491,8 @@ public class StageManager : MonoBehaviour
         if (currentState != GameState.Battle) return;
 
         IsSpeedUp = !IsSpeedUp;
-        GameManagement.Instance!.TimeManager.UpdateTimeScale(IsSpeedUp);
+        Time.timeScale = IsSpeedUp ? 2f : 1f;
+        // GameManagement.Instance!.TimeManager.UpdateTimeScale(IsSpeedUp);
     }
 
     public void TogglePause()

@@ -99,7 +99,6 @@
     <Compile Include="Assets\Scripts\Core\Managers\MainmenuScene\NotificationToastManager.cs" />
     <Compile Include="Assets\Scripts\Core\Systems\Buff\DoubleShotBuff.cs" />
     <Compile Include="Assets\Scripts\Interfaces\ISkill.cs" />
-    <Compile Include="Assets\Scripts\Core\Managers\GameManagement\TimeManager.cs" />
     <Compile Include="Assets\Scripts\Core\Systems\Skills\SkillController\Operator\AreaHasteHealController.cs" />
     <Compile Include="Assets\Scripts\Entities\Controller\BodyColliderController.cs" />
     <Compile Include="Assets\Scripts\UI\Components\DiamondMask.cs" />

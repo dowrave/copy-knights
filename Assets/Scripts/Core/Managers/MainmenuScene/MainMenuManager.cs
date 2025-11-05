@@ -50,13 +50,8 @@ public class MainMenuManager : MonoBehaviour
     [SerializeField] private ExpandableButton squadBulkEditButton;
     [SerializeField] private ExpandableButton resetSquadButton;
 
-    [Header("Fade Config")]
-    [SerializeField] private Image fadeImage;
-    [SerializeField] private float fadeDuration; 
-
-    [Header("Panel References")]
+    [Header("Panel Configs")]
     [SerializeField] private List<PanelInfo>? panels;
-
     [SerializeField] private float panelTransitionSpeed;
 
     [Header("Notification")]
@@ -193,15 +188,14 @@ public class MainMenuManager : MonoBehaviour
 
         if (parentMap.TryGetValue(CurrentPanel, out List<MenuPanel> parentPanels))
         {
-            // 여러 부모 패널이 있었고, 
             if (parentPanels.Count > 1 && ConditionalParentPanel != MenuPanel.None)
             {
-                ActivateAndFadeOut(panelMap[ConditionalParentPanel], panelMap[CurrentPanel]);
+                ChangePanel(panelMap[ConditionalParentPanel], panelMap[CurrentPanel]);
                 ConditionalParentPanel = MenuPanel.None;
             }
             else
             {
-                ActivateAndFadeOut(panelMap[parentPanels[0]], panelMap[CurrentPanel]);
+                ChangePanel(panelMap[parentPanels[0]], panelMap[CurrentPanel]);
             }
         }
         else
@@ -235,12 +229,12 @@ public class MainMenuManager : MonoBehaviour
 
     public void NavigateToHome()
     {
-        ActivateAndFadeOut(panelMap[MenuPanel.StageSelect], panelMap[CurrentPanel]);
+        ChangePanel(panelMap[MenuPanel.StageSelect], panelMap[CurrentPanel]);
     }
 
     public void NavigateToItemInventory()
     {
-        FadeInAndHide(panelMap[MenuPanel.ItemInventory], panelMap[CurrentPanel]);
+        ChangePanel(panelMap[MenuPanel.ItemInventory], panelMap[CurrentPanel]);
     }
 
     private void OnOperatorInventoryButtonClicked()
@@ -252,7 +246,7 @@ public class MainMenuManager : MonoBehaviour
 
     private void NavigateToOperatorInventory()
     {
-        FadeInAndHide(panelMap[MenuPanel.OperatorInventory], panelMap[CurrentPanel]);
+        ChangePanel(panelMap[MenuPanel.OperatorInventory], panelMap[CurrentPanel]);
     }
 
     private void NavigateToOperatorInventoryWithBulk()
@@ -349,16 +343,22 @@ public class MainMenuManager : MonoBehaviour
     // 상하위의 정의 : StageSelect > SquadEdit 등 사용자가 맞닥뜨리는 대략적인 순서
 
     // 애니메이션 1 - 상위 패널 -> 하위 패널로 들어갈 때 사용
-    public void FadeInAndHide(GameObject panelToShow, GameObject panelToHide)
+    public void ChangePanel(GameObject panelToShow, GameObject panelToHide)
     {
         // 여러 부모를 가진 패널의 경우 - 숨기는 패널을 조건부 부모 패널로 지정 
         SetConditionalParentPanel(panelToHide, panelToShow);
 
         if (reversePanelMap.TryGetValue(panelToShow, out MenuPanel newPanel))
         {
+            // Debug.Log($"{panelToShow}에서 {panelToHide}로 ChangePanel 동작");
             CurrentPanel = newPanel;
-            panelToShow.SetActive(true);
             UpdateTopAreaButtons();
+
+            // 감출 패널을 바로 감춘 다음
+            panelToHide.SetActive(false);
+
+            // 보여줄 그룹 서서히 보여줌
+            panelToShow.SetActive(true);
             CanvasGroup showGroup = panelToShow.GetComponent<CanvasGroup>();
             showGroup.alpha = minAlpha;
             showGroup.DOKill();
@@ -371,23 +371,27 @@ public class MainMenuManager : MonoBehaviour
     }
 
     // 애니메이션 2 - 하위 패널에서 상위 패널로 나올 때 사용
-    public void ActivateAndFadeOut(GameObject panelToShow, GameObject panelToHide)
-    {
-        if (reversePanelMap.TryGetValue(panelToShow, out MenuPanel newPanel))
-        {
-            CurrentPanel = newPanel;
-            panelToShow.SetActive(true);
-            CanvasGroup showGroup = panelToShow.GetComponent<CanvasGroup>();
-            showGroup.alpha = 1f;
-            UpdateTopAreaButtons();
-            CanvasGroup hideGroup = panelToHide.GetComponent<CanvasGroup>();
-            hideGroup.DOFade(minAlpha, panelTransitionSpeed)
-                .OnComplete(() =>
-                {
-                    panelToHide.SetActive(false);
-                });
-        }
-    }
+    // public void ActivateAndFadeOut(GameObject panelToShow, GameObject panelToHide)
+    // {
+    //     if (reversePanelMap.TryGetValue(panelToShow, out MenuPanel newPanel))
+    //     {
+    //         CurrentPanel = newPanel;
+    //         UpdateTopAreaButtons();
+
+    //         // 보여줄 그룹 바로 보여줌 
+    //         panelToShow.SetActive(true);
+    //         CanvasGroup showGroup = panelToShow.GetComponent<CanvasGroup>();
+    //         showGroup.alpha = 1f;
+
+    //         // 감출 그룹 서서히 감춤
+    //         CanvasGroup hideGroup = panelToHide.GetComponent<CanvasGroup>();
+    //         hideGroup.DOFade(minAlpha, panelTransitionSpeed)
+    //             .OnComplete(() =>
+    //             {
+    //                 panelToHide.SetActive(false);
+    //             });
+    //     }
+    // }
 
     public void StartStage()
     {

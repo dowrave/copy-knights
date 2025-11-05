@@ -85,7 +85,6 @@ public class StageResultPanel : MonoBehaviour
 
     private void OnReturnButtonClicked()
     {
-        Logger.Log("로비로 돌아가기 버튼이 클릭됨");
         bool isPerfectClear = stars == 3;
         StageManager.Instance!.ReturnToMainMenu(isPerfectClear);
     }
@@ -94,32 +93,32 @@ public class StageResultPanel : MonoBehaviour
     /// <summary>
     /// 전체 패널 외에 별도로 동작해야 할 요소를 클릭했는가?
     /// </summary>
-    private bool IsClickableElement(GameObject targetObj)
-    {
-        if (!EventSystem.current.IsPointerOverGameObject()) return false;
+    // private bool IsClickableElement(GameObject targetObj)
+    // {
+    //     if (!EventSystem.current.IsPointerOverGameObject()) return false;
 
-        PointerEventData pointerData = new PointerEventData(EventSystem.current);
-        pointerData.position = Input.mousePosition;
-        List<RaycastResult> results = new List<RaycastResult>();
-        EventSystem.current.RaycastAll(pointerData, results);
+    //     PointerEventData pointerData = new PointerEventData(EventSystem.current);
+    //     pointerData.position = Input.mousePosition;
+    //     List<RaycastResult> results = new List<RaycastResult>();
+    //     EventSystem.current.RaycastAll(pointerData, results);
 
-        foreach (var result in results)
-        {
-            // 클릭된 객체가 통계 패널이나 그 자식인지 확인
-            Transform current = result.gameObject.transform;
-            while (current != null)
-            {
-                if (current.gameObject == targetObj)
-                {
-                    return true;
-                }
-                current = current.parent;
+    //     foreach (var result in results)
+    //     {
+    //         // 클릭된 객체가 통계 패널이나 그 자식인지 확인
+    //         Transform current = result.gameObject.transform;
+    //         while (current != null)
+    //         {
+    //             if (current.gameObject == targetObj)
+    //             {
+    //                 return true;
+    //             }
+    //             current = current.parent;
 
-            }    
-        }
+    //         }    
+    //     }
 
-        return false;
-    }
+    //     return false;
+    // }
 
     /// <summary>
     /// 각 버튼에 각각의 동작과 패널 클릭 동작을 방지하는 리스너를 추가합니다.

@@ -93,17 +93,12 @@ public class SquadEditPanel : MonoBehaviour
 
         // 현재 수정 중인 인덱스 설정
         GameManagement.Instance!.UserSquadManager.StartEditingSlot(slotIndex);
-        MainMenuManager.Instance!.FadeInAndHide(MainMenuManager.Instance!.PanelMap[MainMenuManager.MenuPanel.OperatorInventory], gameObject);
+        MainMenuManager.Instance!.ChangePanel(MainMenuManager.Instance!.PanelMap[MainMenuManager.MenuPanel.OperatorInventory], gameObject);
     }
 
     private void OnStartButtonClicked()
     {
-        // 어떤 스테이지인지는 MainMenuManager에서 관리 중
-        // 검은 화면으로 부드럽게
-        // MainMenuManager.Instance!.FadeOutAndDoAction(() =>
-        // {
         MainMenuManager.Instance!.StartStage();
-        // });
     }
 
     /// <summary>

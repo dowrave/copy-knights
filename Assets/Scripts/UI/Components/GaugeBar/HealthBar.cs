@@ -105,7 +105,7 @@ public class HealthBar : MonoBehaviour
         //  체력이 닳는 상황
         else if (showDamageEffect && previousAmount > currentAmount)
         {
-            ShowDamageEffect(previousAmount);
+            ShowDamageEffect();
         }
     }
 
@@ -156,14 +156,17 @@ public class HealthBar : MonoBehaviour
         healthFill.rectTransform.anchorMax = new Vector2(currentAmount / totalAmount, 1);
     }
 
-    private void ShowDamageEffect(float previousAmount)
+    private void ShowDamageEffect()
     {
         if (damageCoroutine != null)
         {
             StopCoroutine(damageCoroutine);
         }
 
-        damageCoroutine = StartCoroutine(FadeDamageOverlay());
+        if (gameObject.activeInHierarchy) // 코루틴은 활성화일 때만 실행 가능
+        {  
+            damageCoroutine = StartCoroutine(FadeDamageOverlay());
+        }
     }
 
     private IEnumerator FadeDamageOverlay()

@@ -43,18 +43,20 @@ public class SceneLoader : MonoBehaviour
 
     public IEnumerator LoadScene(string sceneName)
     {
+        Time.timeScale = 1f;
+
         // 모든 입력 차단(스테이지 입력 버튼 재클릭 때문에 필요)
         EventSystem.current.enabled = false;
 
         // 로딩 화면 보여주기 및 입력 차단
         ShowLoadingScreen(sceneName);
 
-        // 로딩 스크린의 페이드인이 완료되기까지 대기
+        // 페이드 인이 완료되기까지 대기 - 씬이 너무 빨리 넘어가버리는 현상이 있어서 구현
         if (loadingScreen != null) loadingScreen.OnFadeInCompleted += HandleFadeInComplete;
         yield return new WaitUntil(() => isFadeInCompleted);
         if (loadingScreen != null) loadingScreen.OnFadeInCompleted -= HandleFadeInComplete;
 
-        // 비동기 씬 로드
+        // 비동기로 씬 로드
         AsyncOperation asyncLoad = SceneManager.LoadSceneAsync(sceneName);
         asyncLoad.allowSceneActivation = false;
 
@@ -72,13 +74,12 @@ public class SceneLoader : MonoBehaviour
 
         asyncLoad.allowSceneActivation = true;
 
-        // true가 된다 = 모든 활성 오브젝트의 Awake가 호출될 때까지 대기
+        // true가 된다 = 모든 활성 오브젝트의 Awake, OnEnable이 호출될 때까지 대기
+        // asyncLoad.isDone이 완료되기 "직전에" SceneManager.SceneLoaded 이벤트가 호출된다.
         while (!asyncLoad.isDone)
         {
             yield return null;
         }
-
-        // StageManager.sceneLoaded 이벤트가 호출되는 지점
 
         // 스테이지 씬 진입 처리는 StageManager에서 진행
         // 이제 asyncLoad.progress = 1이며, Awake 이후이므로 StageManager에도 접근 가능하다.
@@ -101,9 +102,7 @@ public class SceneLoader : MonoBehaviour
         }
         else
         {
-            // 스테이지 로딩 상황이 아니라면 
-            // loadingScreen.gameObject.SetActive(false);
-            // loadingScreen = null;
+            // 스테이지 로딩 상황이 아니라면 여기서 로딩스크린 파괴 처리
             CleanupCache();
             Destroy(loadingScreen.gameObject);
             loadingScreen = null;
@@ -126,12 +125,10 @@ public class SceneLoader : MonoBehaviour
             if (sceneName == STAGE_SCENE && cachedStageData != null)
             {
                 loadingScreen.Initialize(cachedStageData.stageId, cachedStageData.stageName);
-                Debug.Log($"스테이지 로딩 화면 초기화");
             }
             else
             {
                 loadingScreen.Initialize();
-                Debug.Log($"일반 로딩 화면 초기화");
             }
             DontDestroyOnLoad(loadingObj);
         }

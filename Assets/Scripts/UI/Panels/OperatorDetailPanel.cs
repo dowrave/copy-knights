@@ -264,7 +264,7 @@ public class OperatorDetailPanel : MonoBehaviour
             {
                 GameObject levelUpPanelObject = MainMenuManager.Instance!.PanelMap[MainMenuManager.MenuPanel.OperatorLevelUp];
                 OperatorLevelUpPanel levelUpPanel = levelUpPanelObject.GetComponent<OperatorLevelUpPanel>();
-                MainMenuManager.Instance!.FadeInAndHide(levelUpPanelObject, gameObject);
+                MainMenuManager.Instance!.ChangePanel(levelUpPanelObject, gameObject);
                 levelUpPanel.Initialize(currentOperator);
             }
             else if (currentOperator.currentLevel == OperatorGrowthSystem.GetMaxLevel(currentOperator.currentPhase))
@@ -281,7 +281,7 @@ public class OperatorDetailPanel : MonoBehaviour
             currentOperator.currentPhase == OperatorGrowthSystem.ElitePhase.Elite0)
         {
             GameObject promotionPanelObject = MainMenuManager.Instance!.PanelMap[MainMenuManager.MenuPanel.OperatorPromotion];
-            MainMenuManager.Instance!.FadeInAndHide(promotionPanelObject, gameObject);
+            MainMenuManager.Instance!.ChangePanel(promotionPanelObject, gameObject);
             OperatorPromotionPanel promotionPanel = promotionPanelObject.GetComponent<OperatorPromotionPanel>();
             promotionPanel.Initialize(currentOperator);
         }

@@ -425,7 +425,8 @@ public class DeployableManager : MonoBehaviour
         deployedItems.Add(CurrentDeployableEntity!);
         UpdateDeployableUI(CurrentDeployableInfo!);
         ResetPlacement();
-        GameManagement.Instance.TimeManager.UpdateTimeScale();
+        Time.timeScale = 1f;
+        // GameManagement.Instance.TimeManager.UpdateTimeScale();
     }
     
     private void UpdateDeployableUI(DeployableInfo info)
@@ -466,7 +467,8 @@ public class DeployableManager : MonoBehaviour
         CurrentDeployableInfo = null;
 
         StageUIManager.Instance!.HideDeployableInfo();
-        GameManagement.Instance!.TimeManager.UpdateTimeScale();
+        Time.timeScale = 1f;
+        // GameManagement.Instance!.TimeManager.UpdateTimeScale();
 
         ResetHighlights();
         HideOperatorUIs();

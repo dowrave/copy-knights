@@ -16,6 +16,7 @@ public class OperatorInventoryPanel : MonoBehaviour
     [SerializeField] private TextMeshProUGUI operatorNameText = default!;
     [SerializeField] private OperatorSlot slotButtonPrefab = default!;
     [SerializeField] private Button confirmButton = default!;
+    [SerializeField] private GameObject buttonEmptySpace = default!; 
     [SerializeField] private Button setEmptyButton = default!; // 현재 슬롯을 비우는 버튼
     [SerializeField] private Button detailButton = default!; // OperatorDetailPanel로 가는 버튼
     [SerializeField] private Button growthResetButton = default!;
@@ -613,7 +614,7 @@ public class OperatorInventoryPanel : MonoBehaviour
         {
             GameObject detailPanel = MainMenuManager.Instance!.PanelMap[MainMenuManager.MenuPanel.OperatorDetail];
             detailPanel.GetComponent<OperatorDetailPanel>().Initialize(slot.OwnedOperator);
-            MainMenuManager.Instance!.FadeInAndHide(detailPanel, gameObject);
+            MainMenuManager.Instance!.ChangePanel(detailPanel, gameObject);
         }
     }
 
@@ -831,7 +832,7 @@ public class OperatorInventoryPanel : MonoBehaviour
     private void ReturnToSquadEditPanel()
     {
         MainMenuManager.Instance!.SetOperatorSelectionSession(false);
-        MainMenuManager.Instance!.ActivateAndFadeOut(MainMenuManager.Instance!.PanelMap[MainMenuManager.MenuPanel.SquadEdit], gameObject);
+        MainMenuManager.Instance!.ChangePanel(MainMenuManager.Instance!.PanelMap[MainMenuManager.MenuPanel.SquadEdit], gameObject);
     }
 
     private void SetSquadEditMode(bool isEditing)
@@ -839,6 +840,7 @@ public class OperatorInventoryPanel : MonoBehaviour
         // 스쿼드 편집 중 or 단순히 오퍼레이터 상태 보기
         leftArea.gameObject.SetActive(isEditing);
         confirmButton.gameObject.SetActive(isEditing);
+        buttonEmptySpace.SetActive(isEditing);
         setEmptyButton.gameObject.SetActive(isEditing);
     }
 

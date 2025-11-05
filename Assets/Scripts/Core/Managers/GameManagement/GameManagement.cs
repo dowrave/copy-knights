@@ -14,7 +14,6 @@ public class GameManagement : MonoBehaviour
     [SerializeField] private ResourceManager? resourceManager = null!;
     [SerializeField] private PlayerDataManager? playerDataManager = null!;
     [SerializeField] private TutorialManager? tutorialManager = null!;
-    [SerializeField] private TimeManager? timeManager = null!;
     [SerializeField] private RewardManager? rewardManager = null!;
     [SerializeField] private StageDatabase? stageDatabase = null!;
     [SerializeField] private TestManager? testManager = null!; 
@@ -29,7 +28,6 @@ public class GameManagement : MonoBehaviour
     public ResourceManager ResourceManager => resourceManager!;
     public PlayerDataManager PlayerDataManager => playerDataManager!;
     public TutorialManager TutorialManager => tutorialManager!;
-    public TimeManager TimeManager => timeManager!;
     public RewardManager RewardManager => rewardManager!;
     public StageDatabase StageDatabase => stageDatabase!;
     public TestManager TestManager => testManager!; 

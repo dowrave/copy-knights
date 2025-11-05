@@ -103,7 +103,8 @@ public class TutorialManager : MonoBehaviour
             // 스테이지 씬의 경우 시간 멈춤
             if (progress == 1)
             {
-                GameManagement.Instance?.TimeManager.SetPauseTime();
+                // GameManagement.Instance?.TimeManager.SetPauseTime();
+                Time.timeScale = 0.2f;
             }
 
             PlayCurrentStep();
@@ -174,7 +175,8 @@ public class TutorialManager : MonoBehaviour
         if (currentTutorialIndex == 1)
         {
             // 시간 원상 복구
-            GameManagement.Instance?.TimeManager.UpdateTimeScale();
+            // GameManagement.Instance?.TimeManager.UpdateTimeScale();
+            Time.timeScale = 1f;
 
             // 스테이지 씬에서 튜토리얼이 클리어된 시점은 게임을 클리어한 시점이라서
             // 여기서 저장을 수행하지 않음
