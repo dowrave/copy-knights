@@ -10,21 +10,15 @@ namespace Skills.OperatorSkills
     public class ArcaneFieldSkill : ActiveSkill
     {
         [Header("Field Settings")]
-        [SerializeField] private GameObject fieldEffectPrefab = default!;
+        [SerializeField] private GameObject skillControllerPrefab = default!;
         [SerializeField] private GameObject skillRangeVFXPrefab = default!;
-        [SerializeField] private GameObject hitEffectPrefab = default!;
+        [SerializeField] private GameObject hitVFXPrefab = default!;
 
         [Header("Damage Settings")]
         [SerializeField] private float damagePerTickRatio = 0.7f; // 대미지 배율
         [SerializeField] private float slowAmount = 0.3f; // 이동속도 감소율
         [SerializeField] private float damageInterval = 0.5f; // 대미지 간격
-
-        // private CannotAttackBuff? _cannotAttackBuff;
-
-        string FIELD_EFFECT_TAG; // 실제 필드 효과 태그
-        string SKILL_RANGE_VFX_TAG; // 필드 범위 VFX 태그
-        string HIT_EFFECT_TAG; // 타격 이펙트 태그
-
+        
         protected override void SetDefaults()
         {
             autoRecover = true;
@@ -68,16 +62,14 @@ namespace Skills.OperatorSkills
 
         protected void CreateEffectField(Operator caster)
         {
-            if (hitEffectPrefab == null)
-            {
-                hitEffectPrefab = caster.OperatorData.HitEffectPrefab;
-            }
-
-
             // 부모를 오퍼레이터로 설정해서 생명주기를 동기화한다
             // 즉 Operator가 파괴될 때 이 장판도 함께 파괴시키기 위한 것이라고 생각하면 됨
-            GameObject fieldObj = Instantiate(fieldEffectPrefab, caster.transform);
-            ArcaneFieldController? controller = fieldObj.GetComponent<ArcaneFieldController>();
+            GameObject skillControllerObj = ObjectPoolManager.Instance!.SpawnFromPool(
+                GetSkillControllerTag(caster.OperatorData),
+                caster.transform.position,
+                Quaternion.identity
+            );
+            ArcaneFieldController? controller = skillControllerObj.GetComponent<ArcaneFieldController>();
 
             if (controller != null)
             {
@@ -87,8 +79,8 @@ namespace Skills.OperatorSkills
                     duration,
                     damagePerTickRatio,
                     damageInterval,
-                    hitEffectPrefab!,
-                    HIT_EFFECT_TAG,
+                    hitVFXPrefab!,
+                    GetHitVFXTag(caster.OperatorData),
                     slowAmount
                 );
             }
@@ -103,7 +95,7 @@ namespace Skills.OperatorSkills
                     Vector3 worldPos = MapManager.Instance!.ConvertToWorldPosition(pos);
 
                     // 오브젝트 풀에서 VFX 객체를 가져옴
-                    GameObject? vfxObj = ObjectPoolManager.Instance?.SpawnFromPool(SKILL_RANGE_VFX_TAG, worldPos, Quaternion.identity);
+                    GameObject? vfxObj = ObjectPoolManager.Instance?.SpawnFromPool(GetSkillRangeVFXTag(caster.OperatorData), worldPos, Quaternion.identity);
 
                     if (vfxObj != null)
                     {
@@ -120,23 +112,18 @@ namespace Skills.OperatorSkills
             }
         }
 
+        public string GetSkillControllerTag(OperatorData ownerData) => $"{ownerData}_{skillName}_SkillController";
+        public string GetSkillRangeVFXTag(OperatorData ownerData) => $"{ownerData}_{skillName}_SkillRangeVFX";
+        public string GetHitVFXTag(OperatorData ownerData) => $"{ownerData}_{skillName}_HitVFX";
+
         // 스킬 관련 오브젝트 풀 초기화.
         public override void PreloadObjectPools(OperatorData ownerData)
         {
             base.PreloadObjectPools(ownerData);
 
-            if (fieldEffectPrefab != null)
-            {
-                FIELD_EFFECT_TAG = RegisterPool(ownerData, fieldEffectPrefab, 2);
-            }
-            if (skillRangeVFXPrefab != null)
-            {
-                SKILL_RANGE_VFX_TAG = RegisterPool(ownerData, skillRangeVFXPrefab, skillRangeOffset.Count);
-            }
-            if (hitEffectPrefab != null)
-            {
-                HIT_EFFECT_TAG = RegisterPool(ownerData, hitEffectPrefab, 10);
-            }
+            if (skillControllerPrefab != null) ObjectPoolManager.Instance.CreatePool(GetSkillControllerTag(ownerData), skillControllerPrefab, 1);
+            if (skillRangeVFXPrefab != null) ObjectPoolManager.Instance.CreatePool(GetSkillRangeVFXTag(ownerData), skillRangeVFXPrefab, skillRangeOffset.Count);
+            if (hitVFXPrefab != null) ObjectPoolManager.Instance.CreatePool(GetHitVFXTag(ownerData), hitVFXPrefab, 10);
         }
         
     }

@@ -15,7 +15,7 @@ namespace Skills.OperatorSkills
 
         [Header("VFX Settings")]
         [SerializeField] private float vfxDuration = 2f;
-        [SerializeField] private GameObject slashEffectPrefab = default!;
+        [SerializeField] private GameObject slashControllerPrefab = default!;
 
         private string skillPoolTag; 
 
@@ -28,15 +28,19 @@ namespace Skills.OperatorSkills
         {
             base.PreloadObjectPools(ownerData);
 
-            if (slashEffectPrefab != null)
+            if (slashControllerPrefab != null)
             {
-                skillPoolTag = RegisterPool(ownerData, slashEffectPrefab, 3);
+                ObjectPoolManager.Instance.CreatePool(GetSlashControllerTag(ownerData), slashControllerPrefab, 1);
+
+                // skillPoolTag = RegisterPool(ownerData, slashControllerPrefab, 3);
             }
         }
 
+        public string GetSlashControllerTag(OperatorData ownerData) => $"{ownerData.entityName}_{skillName}_SlashController";
+
         protected override void PlaySkillEffect(Operator caster)
         {
-            if (slashEffectPrefab == null) return;
+            if (slashControllerPrefab == null) return;
 
             // 스킬 중에는 버프 (공격 불가 버프 해제는 컨트롤러에서 공격 판정 끝나면 진행)
             caster.AddBuff(new CannotAttackBuff(effectDuration, this));

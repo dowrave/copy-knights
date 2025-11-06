@@ -22,8 +22,6 @@ public class FloatingText : MonoBehaviour, IPooledObject
         {
             valueText = GetComponent<TextMeshPro>(); // WorldSpace에 바로 쓴다면 이렇게 씀
         }
-
-
     }
 
     public void OnObjectSpawn(string tag)
@@ -43,7 +41,8 @@ public class FloatingText : MonoBehaviour, IPooledObject
             }
             else
             {
-                valueText.text = Mathf.Round(damage).ToString("F0");
+                string floatingText = Mathf.Round(damage).ToString("F0");
+                valueText.text = floatingText;
                 valueText.color = attackColor;
             }
         }

@@ -22,6 +22,6 @@ MonoBehaviour:
   autoRecover: 0
   autoActivate: 1
   isOnTest: 0
-  meleeAttackEffectOverride: {fileID: 1249516511906949688, guid: a35bd5c623b9ddf4c8a665484ca72fac, type: 3}
+  meleeAttackVFXOverride: {fileID: 1249516511906949688, guid: a35bd5c623b9ddf4c8a665484ca72fac, type: 3}
   damageMultiplier: 1.5
   attackType: 1

@@ -25,9 +25,9 @@ MonoBehaviour:
   autoRecover: 1
   autoActivate: 0
   isOnTest: 1
-  meleeAttackEffectOverride: {fileID: 0}
+  meleeAttackVFXOverride: {fileID: 0}
   duration: 0
-  skillVFXPrefab: {fileID: 0}
+  durationVFXPrefab: {fileID: 0}
   activeFromOperatorPosition: 0
   skillRangeOffset:
   - {x: 0, y: 0}
@@ -39,4 +39,4 @@ MonoBehaviour:
   firstDamageMultiplier: 2
   secondDamageMultiplier: 1.25
   vfxDuration: 2
-  slashEffectPrefab: {fileID: 1520095671981588855, guid: 58926a1656f0cf04dae7bc9cc440dc00, type: 3}
+  slashControllerPrefab: {fileID: 1520095671981588855, guid: 58926a1656f0cf04dae7bc9cc440dc00, type: 3}

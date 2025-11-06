@@ -957,14 +957,18 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
     protected virtual void PlayMeleeAttackEffect(Vector3 targetPosition, AttackSource attackSource)
     {
         // 공격 이펙트(명중 이펙트가 아님 유의!!)
-        string effectTag = OperatorData.GetMeleeAttackVFXTag();
+        string effectTag = _operatorData.GetMeleeAttackVFXTag();
 
         // [버프 이펙트 적용] 물리 공격 이펙트가 바뀌어야 한다면 바뀐 걸 적용함
-        var vfxBuff = activeBuffs.FirstOrDefault(b => b.MeleeAttackEffectOverride);
+        // 이 코드의 전제 조건은 "근접 공격 이펙트를 쓰는 다른 버프가 없다"이다. 상황이 바뀌면 코드를 바꿔야 함.
+        var vfxBuff = activeBuffs.FirstOrDefault(b => b.MeleeAttackVFXOverride != null);
         if (vfxBuff != null)
         {
             // effectPrefab = vfxBuff.MeleeAttackEffectOverride;
-            effectTag = vfxBuff.SourceSkill.GetVFXPoolTag(this, vfxBuff.SourceSkill.meleeAttackEffectOverride);
+            // effectTag = vfxBuff.SourceSkill.GetVFXPoolTag(this, vfxBuff.SourceSkill.meleeAttackEffectOverride);
+            effectTag = vfxBuff.SourceSkill.GetMeleeAttackVFXTag(_operatorData);
+
+            Debug.Log($"버프로 인한 물리공격 이펙트 변경 : {effectTag}");
         }
 
         // 이펙트 처리

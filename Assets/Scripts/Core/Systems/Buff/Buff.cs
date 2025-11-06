@@ -28,7 +28,7 @@ public abstract class Buff
     protected List<Buff> linkedBuffs = new List<Buff>(); // 연결된 버프들. 같이 관리되기를 원하는 버프가 있다면
 
     // 공격 이펙트 오버라이드 정보
-    public GameObject MeleeAttackEffectOverride { get; protected set; }
+    public GameObject MeleeAttackVFXOverride { get; protected set; }
     
 
     // 파괴 중인지에 대한 플래그
@@ -103,7 +103,7 @@ public abstract class Buff
         if (sourceSkill == null) return;
 
         this.SourceSkill = sourceSkill;
-        this.MeleeAttackEffectOverride = sourceSkill.meleeAttackEffectOverride;
+        this.MeleeAttackVFXOverride = sourceSkill.meleeAttackVFXOverride;
     }
 
     // 버프에 포함된 VFX 이펙트를 재생한다.

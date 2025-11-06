@@ -102,6 +102,7 @@ public abstract class FieldEffectController : MonoBehaviour, IPooledObject
         affectedTargets.Clear();
 
         // Destroy(gameObject);
-        gameObject.SetActive(false);
+        // gameObject.SetActive(false);
+        ObjectPoolManager.Instance!.ReturnToPool(poolTag, gameObject);
     }
 }

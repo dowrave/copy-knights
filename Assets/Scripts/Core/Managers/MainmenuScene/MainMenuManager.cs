@@ -53,6 +53,7 @@ public class MainMenuManager : MonoBehaviour
     [Header("Panel Configs")]
     [SerializeField] private List<PanelInfo>? panels;
     [SerializeField] private float panelTransitionSpeed;
+    [SerializeField] private float minAlpha = 0f;
 
     [Header("Notification")]
     [SerializeField] private GameObject? notificationPanelPrefab;
@@ -79,7 +80,7 @@ public class MainMenuManager : MonoBehaviour
     public StageData? SelectedStage { get; private set; }
 
     // 캔버스 전환 시 최소 알파값
-    private float minAlpha = 0f;
+
 
     // 2번 클릭되는 버튼을 위한 옵션. 최초로 클릭된 버튼이 갖는다.
     private Button firstClickedButton;
@@ -342,9 +343,44 @@ public class MainMenuManager : MonoBehaviour
 
     // 상하위의 정의 : StageSelect > SquadEdit 등 사용자가 맞닥뜨리는 대략적인 순서
 
+    
+    // public IEnumerator ChangePanelCoroutine(GameObject panelToShow, GameObject panelToHide)
+    // {
+    //     // 여러 부모를 가진 패널의 경우 - 숨기는 패널을 조건부 부모 패널로 지정 
+    //     SetConditionalParentPanel(panelToHide, panelToShow);
+
+    //     if (reversePanelMap.TryGetValue(panelToShow, out MenuPanel newPanel))
+    //     {
+    //         // Debug.Log($"{panelToShow}에서 {panelToHide}로 ChangePanel 동작");
+    //         CurrentPanel = newPanel;
+    //         UpdateTopAreaButtons();
+
+    //         // 감출 패널을 바로 감춘 다음
+    //         panelToHide.SetActive(false);
+
+    //         // 보여줄 그룹 서서히 보여줌
+    //         panelToShow.SetActive(true);
+
+    //         CanvasGroup showGroup = panelToShow.GetComponent<CanvasGroup>();
+    //         showGroup.alpha = minAlpha;
+    //         showGroup.DOKill();
+
+    //         yield return new WaitForSeconds(.1f); // 플리커 방지 - 한 프레임을 기다려 panelToShow의 OnEnable 동작을 기다림
+
+
+    //         showGroup.DOFade(1f, panelTransitionSpeed)
+    //             .OnComplete(() =>
+    //             {
+    //                 panelToHide.SetActive(false);
+    //             });
+    //     }
+    // }
+
     // 애니메이션 1 - 상위 패널 -> 하위 패널로 들어갈 때 사용
     public void ChangePanel(GameObject panelToShow, GameObject panelToHide)
     {
+        // StartCoroutine(ChangePanelCoroutine(panelToShow, panelToHide));
+
         // 여러 부모를 가진 패널의 경우 - 숨기는 패널을 조건부 부모 패널로 지정 
         SetConditionalParentPanel(panelToHide, panelToShow);
 

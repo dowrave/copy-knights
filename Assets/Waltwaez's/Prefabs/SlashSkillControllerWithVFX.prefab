@@ -9820,7 +9820,7 @@ GameObject:
   - component: {fileID: 8485487584891923240}
   - component: {fileID: 2624949479373988765}
   m_Layer: 6
-  m_Name: VFX_Skill_Slash_v1
+  m_Name: SlashSkillControllerWithVFX
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

@@ -24,10 +24,10 @@ MonoBehaviour:
   skillIcon: {fileID: 21300000, guid: 8316db1ade37fa845a8264478187d0e7, type: 3}
   autoRecover: 1
   autoActivate: 0
-  isOnTest: 0
-  meleeAttackEffectOverride: {fileID: 0}
+  isOnTest: 1
+  meleeAttackVFXOverride: {fileID: 0}
   duration: 5
-  skillVFXPrefab: {fileID: 0}
+  durationVFXPrefab: {fileID: 0}
   activeFromOperatorPosition: 0
   skillRangeOffset:
   - {x: -2, y: 0}
@@ -44,9 +44,9 @@ MonoBehaviour:
   - {x: 1, y: -1}
   - {x: 2, y: 0}
   rectOffset: 0
-  fieldEffectPrefab: {fileID: 926762040787327029, guid: bb7f19d33fefe14408ec775a2d8506f8, type: 3}
+  skillControllerPrefab: {fileID: 926762040787327029, guid: bb7f19d33fefe14408ec775a2d8506f8, type: 3}
   skillRangeVFXPrefab: {fileID: 4360018886635934139, guid: 9ff6fcecb6f1c76469c6c95092aaeb21, type: 3}
-  hitEffectPrefab: {fileID: 2509783916205190540, guid: 369d8688afce7f745a382edaefbd9fbd, type: 3}
+  hitVFXPrefab: {fileID: 2509783916205190540, guid: 369d8688afce7f745a382edaefbd9fbd, type: 3}
   damagePerTickRatio: 0.5
   slowAmount: 0.3
   damageInterval: 0.5

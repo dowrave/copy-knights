@@ -18,14 +18,10 @@ namespace Skills.Base
         public bool isOnTest = false; // 현재 테스트 여부, 테스트 시 SP = 1로 설정
 
         public float SPCost => isOnTest ? 1f : spCost; // 테스트 모드일 때 SP 비용을 1로 설정
-
-        // protected Operator caster = default!; // 스킬 시전자
-
+        
         // 이펙트를 변경해야 하는 경우
         [Header("Attack VFX Overrides(Optional)")]
-        public GameObject meleeAttackEffectOverride;
-
-        protected string MELEE_ATTACK_OVERRIDE_TAG;
+        public GameObject meleeAttackVFXOverride;
 
         // 인스펙터 bool 필드값들 초기 설정.
         protected virtual void SetDefaults() { }
@@ -51,41 +47,13 @@ namespace Skills.Base
         public virtual void PreloadObjectPools(OperatorData ownerData)
         {
             // 근접 공격 VFX 변경
-            if (meleeAttackEffectOverride != null)
+            if (meleeAttackVFXOverride != null)
             {
-                MELEE_ATTACK_OVERRIDE_TAG = RegisterPool(ownerData, meleeAttackEffectOverride);
+                ObjectPoolManager.Instance.CreatePool(GetMeleeAttackVFXTag(ownerData), meleeAttackVFXOverride, 2);
             }
         }
 
-        protected string RegisterPool(OperatorData ownerData, GameObject prefab, int initialSize = 5)
-        {
-            if (prefab == null) return string.Empty;
-
-            string poolTag = GetVFXPoolTag(ownerData, prefab);
-            if (!ObjectPoolManager.Instance.IsPoolExist(poolTag))
-            {
-                ObjectPoolManager.Instance.CreatePool(poolTag, prefab, initialSize);
-            }
-            return poolTag; 
-        }
-
-        public virtual string GetVFXPoolTag(OperatorData ownerData, GameObject vfxPrefab)
-        {
-            if (vfxPrefab == null)
-            {
-                Logger.LogError("[BaseSkill.GetVFXPoolTag] vfxPrefab이 null임!!");
-                return string.Empty;
-            }
-
-            return $"{ownerData.entityName}_{this.name}_{vfxPrefab.name}";
-
-            // if (caster is Operator op)
-            // {
-            //     return $"{op.OperatorData.entityName}_{this.name}_{vfxPrefab.name}";
-            // }
-
-            // return string.Empty;
-        }
+        public string GetMeleeAttackVFXTag(OperatorData ownerData) => $"{ownerData.entityName}_{skillName}_MeleeVFX";
 
         protected void Reset()
         {

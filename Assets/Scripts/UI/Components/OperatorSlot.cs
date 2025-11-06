@@ -214,8 +214,6 @@ public class OperatorSlot : MonoBehaviour
     {
         if (OwnedOperator == null) return;
 
-        skillImage.gameObject.SetActive(true);
-
         int skillIndex = GameManagement.Instance!.UserSquadManager.GetCurrentSkillIndex(OwnedOperator);
         
         // 스쿼드 편집 패널 : 스테이지에서 사용할 스킬 표시
@@ -250,6 +248,8 @@ public class OperatorSlot : MonoBehaviour
                             : OwnedOperator.DefaultSelectedSkill; // 아니라면 기본 지정 스킬로 설정
 
             skillImage.sprite = SelectedSkill.skillIcon;
+
+            skillImage.gameObject.SetActive(true);
         }
     }
 

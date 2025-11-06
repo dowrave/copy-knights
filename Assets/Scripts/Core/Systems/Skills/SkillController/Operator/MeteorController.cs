@@ -28,7 +28,7 @@ public class MeteorController : MonoBehaviour, IPooledObject
         this.hitEffectPrefab = hitEffectPrefab;
         this.hitEffectTag = hitEffectTag;
 
-        StartCoroutine(FallRoutine());
+        if (gameObject.activeInHierarchy) StartCoroutine(FallRoutine());
     }
 
     private IEnumerator FallRoutine()

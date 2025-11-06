@@ -264,27 +264,15 @@ public class Projectile : MonoBehaviour
                 showDamagePopup: showValue
             );
 
+            // 힐 상황
+            if (isHealing) target.TakeHeal(attackSource);
 
-            if (isHealing)
-            {
-                // 힐 상황
-                target.TakeHeal(attackSource);
-            }
-            else if (attacker is Operator op && op.OperatorData.operatorClass == OperatorData.OperatorClass.Artillery)
-            {
-                // 범위 공격 상황
-                CreateAreaOfDamage(transform.position, value, showValue, attackSource);
-            }
-            else
-            {
-                // 단일 공격
-                // 대미지는 보여야 하는 경우에만 보여줌
-                if (showValue == true)
-                {
-                    ObjectPoolManager.Instance!.ShowFloatingText(target.transform.position, value, false);
-                }
-                target.TakeDamage(attackSource);
-            }
+            // 범위 공격 상황
+            else if (attacker is Operator op &&
+                op.OperatorData.operatorClass == OperatorData.OperatorClass.Artillery) CreateAreaOfDamage(transform.position, value, showValue, attackSource);
+
+            // 단일 공격 상황
+            else target.TakeDamage(attackSource);
         }
 
         // 공격자가 사라졌거나, 풀이 제거 예정인 경우
