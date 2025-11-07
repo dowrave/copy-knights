@@ -31,7 +31,7 @@ MonoBehaviour:
     - "\uBE48 \uC2AC\uB86F\uC744 \uD074\uB9AD\uD574\uC8FC\uC138\uC694."
     dialogueBoxPosition: {x: -250, y: 150}
     requireUserAction: 1
-    expectedButtonName: OperatorSlotButton
+    expectedButtonName: OperatorSlot
   - stepName: 4. Click Vanguard
     dialogues:
     - "\uBC45\uAC00\uB4DC\uB97C \uD074\uB9AD\uD574\uC8FC\uC138\uC694."
@@ -70,7 +70,7 @@ MonoBehaviour:
     - "\uBE48 \uC2AC\uB86F\uC744 \uC120\uD0DD\uD574\uC8FC\uC138\uC694."
     dialogueBoxPosition: {x: -250, y: -200}
     requireUserAction: 1
-    expectedButtonName: OperatorSlotButton (1)
+    expectedButtonName: OperatorSlot (1)
   - stepName: 9. Click Sniper
     dialogues:
     - "Sniper\uB97C \uD074\uB9AD\uD574\uC8FC\uC138\uC694."
@@ -88,7 +88,7 @@ MonoBehaviour:
     - "\uBE48 \uC2AC\uB86F\uC744 \uD074\uB9AD\uD574\uC8FC\uC138\uC694."
     dialogueBoxPosition: {x: -25, y: 200}
     requireUserAction: 1
-    expectedButtonName: OperatorSlotButton (2)
+    expectedButtonName: OperatorSlot (2)
   - stepName: 12. Click Guard
     dialogues:
     - "Guard\uB97C \uD074\uB9AD\uD574\uC8FC\uC138\uC694."

@@ -24,7 +24,7 @@ MonoBehaviour:
   skillIcon: {fileID: 21300000, guid: 97d5ea9fec1507c4998e41947329be81, type: 3}
   autoRecover: 1
   autoActivate: 0
-  isOnTest: 1
+  isOnTest: 0
   meleeAttackVFXOverride: {fileID: 0}
   duration: 0
   durationVFXPrefab: {fileID: 0}

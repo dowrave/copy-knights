@@ -62,7 +62,7 @@ public class OperatorSlot : MonoBehaviour
         }
         else
         {
-            gameObject.name = $"OperatorSlot(Empty)";
+            // gameObject.name = $"OperatorSlot(Empty)";
             InitializeEmptyOrDisabled(isActive);
         }
 
