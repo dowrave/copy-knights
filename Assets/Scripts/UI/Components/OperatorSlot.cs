@@ -33,7 +33,7 @@ public class OperatorSlot : MonoBehaviour
     private bool isThisActiveButton = false;
 
     public OwnedOperator? OwnedOperator { get; private set; }
-    public OperatorData? opData => OwnedOperator?.OperatorProgressData;
+    public OperatorData? opData => OwnedOperator?.OperatorData;
 
     public bool IsSelected { get; private set; } = false;
     public OperatorSkill? SelectedSkill { get; private set; } // 슬롯이니까 null일 수 있음
@@ -57,7 +57,7 @@ public class OperatorSlot : MonoBehaviour
         if (ownedOp != null)
         {
             // 이름 변경 - 튜토리얼에서 버튼 이름 추적할 때 필요함
-            gameObject.name = $"OperatorSlot({ownedOp.operatorName})";
+            gameObject.name = $"OperatorSlot({ownedOp.OperatorID})"; // 이 부분은 나중에 한글 자료를 가져올 생각
             AssignOperator(ownedOp);
         }
         else
@@ -165,9 +165,9 @@ public class OperatorSlot : MonoBehaviour
 
             if (opData == null) return;
 
-            if (opData.icon != null)
+            if (opData.Icon != null)
             {
-                operatorImage.sprite = opData.icon;
+                operatorImage.sprite = opData.Icon;
             }
             else
             {
@@ -178,7 +178,7 @@ public class OperatorSlot : MonoBehaviour
             classIconImage.gameObject.SetActive(true);
             if (opData != null)
             {
-                OperatorIconHelper.SetClassIcon(classIconImage, opData.operatorClass);
+                OperatorIconHelper.SetClassIcon(classIconImage, opData.OperatorClass);
             }
 
             // 경험치 게이지, 레벨, 정예화 표시
@@ -189,7 +189,9 @@ public class OperatorSlot : MonoBehaviour
 
             // 오퍼레이터 이름 설정
             operatorNameText.gameObject.SetActive(true);
-            operatorNameText.text = opData?.entityName ?? string.Empty;
+
+            string showingOpName = GameManagement.Instance!.LocalizationManager.GetText(opData.EntityNameLocalizationKey);
+            operatorNameText.text = showingOpName ?? string.Empty;
 
             UpdateButtonColor();
             UpdateSelectionIndicator(IsSelected);
@@ -200,10 +202,10 @@ public class OperatorSlot : MonoBehaviour
     public void UpdateActiveSlotVisuals()
     {
         // 경험치 게이지, 레벨, 정예화 표시
-        int remainingExp = OperatorGrowthSystem.GetMaxExpForNextLevel(OwnedOperator.currentPhase, OwnedOperator.currentLevel);
-        expSlider.value = (float)OwnedOperator.currentExp / remainingExp;
-        levelText.text = $"LV\r\n<size=40><b>{OwnedOperator.currentLevel}</b>\r\n</size>";
-        OperatorIconHelper.SetElitePhaseIcon(promotionImage, OwnedOperator.currentPhase);
+        int remainingExp = OperatorGrowthSystem.GetMaxExpForNextLevel(OwnedOperator.CurrentPhase, OwnedOperator.CurrentLevel);
+        expSlider.value = (float)OwnedOperator.CurrentExp / remainingExp;
+        levelText.text = $"LV\r\n<size=40><b>{OwnedOperator.CurrentLevel}</b>\r\n</size>";
+        OperatorIconHelper.SetElitePhaseIcon(promotionImage, OwnedOperator.CurrentPhase);
 
         // 스킬 설정은 따로 건드릴 필요 없을 듯
         // 인벤토리에서 스킬1 선택 -> 디테일에서 기본 스킬2로 지정 -> 인벤토리에서는 스킬1 유지되어야 함

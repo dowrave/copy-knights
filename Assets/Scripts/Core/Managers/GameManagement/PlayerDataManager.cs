@@ -45,7 +45,6 @@ public class PlayerDataManager : MonoBehaviour
     {
         ResetPlayerData(); // 디버깅용
         InitializeSystem();
-        
     }
 
     private void InitializeSystem()
@@ -62,18 +61,18 @@ public class PlayerDataManager : MonoBehaviour
         InstanceValidator.ValidateInstance(startingOperators);
 
 
-#if UNITY_EDITOR
+    #if UNITY_EDITOR
         // guid : 유니티에서 각 에셋에 할당하는 고유 식별자
         string[] guids = UnityEditor.AssetDatabase.FindAssets("t:OperatorData", 
-            new[] { "Assets/ScriptableObjects/Operator" });
+            new[] { "Assets/ScriptableObjects/Unit/Operator" });
 
         foreach (string guid in guids)
         {
             string path = UnityEditor.AssetDatabase.GUIDToAssetPath(guid);
             OperatorData opData = UnityEditor.AssetDatabase.LoadAssetAtPath<OperatorData>(path);
-            if (opData != null && !string.IsNullOrEmpty(opData.entityName))
+            if (opData != null && !string.IsNullOrEmpty(opData.EntityID))
             {
-                operatorDatabase[opData.entityName] = opData;
+                operatorDatabase[opData.EntityID] = opData;
             }
             else
             {
@@ -84,14 +83,14 @@ public class PlayerDataManager : MonoBehaviour
         // Validate starting operators are in database
         foreach (var op in startingOperators!)
         {
-            InstanceValidator.ValidateInstance(op.entityName);
+            InstanceValidator.ValidateInstance(op.EntityID);
 
-            if (op != null && !operatorDatabase.ContainsKey(op.entityName!))
+            if (op != null && !operatorDatabase.ContainsKey(op.EntityID!))
             {
-                Logger.LogError($"Starting operator {op.entityName!} not found in database!");
+                Logger.LogError($"Starting operator {op.EntityID!} not found in database!");
             }
         }
-#endif
+    #endif
     }
 
 
@@ -120,7 +119,7 @@ public class PlayerDataManager : MonoBehaviour
             {
                 foreach (var op in startingOperators)
                 {
-                    AddOperator(op.entityName!);
+                    AddOperator(op.EntityID!);
                 }
             }
 
@@ -166,12 +165,12 @@ public class PlayerDataManager : MonoBehaviour
     }
 
     // operatorName에 해당하는 OwnedOperator을 얻는다
-    public OwnedOperator? GetOwnedOperator(string operatorName)
+    public OwnedOperator? GetOwnedOperator(string operatorID)
     {
         InstanceValidator.ValidateInstance(playerData);
         var safePlayerData = playerData!;
 
-        return safePlayerData.ownedOperators.Find(op => op.operatorName == operatorName) ?? null;
+        return safePlayerData.ownedOperators.Find(op => op.OperatorID == operatorID) ?? null;
     }
 
 
@@ -209,7 +208,7 @@ public class PlayerDataManager : MonoBehaviour
         InstanceValidator.ValidateInstance(playerData);
         var safePlayerData = playerData!;
 
-        if (!safePlayerData.ownedOperators.Any(op => op.operatorName == operatorName))
+        if (!safePlayerData.ownedOperators.Any(op => op.OperatorID == operatorName))
         {
             OperatorData opData = GetOperatorData(operatorName);
             OwnedOperator newOp = new OwnedOperator(opData);
@@ -246,7 +245,7 @@ public class PlayerDataManager : MonoBehaviour
         var safePlayerData = playerData!;
 
         return safePlayerData.ownedOperators
-            .Select(owned => GetOperatorData(owned.operatorName))
+            .Select(owned => GetOperatorData(owned.OperatorID))
             .Where(data => data != null)
             .ToList();
     }
@@ -313,13 +312,13 @@ public class PlayerDataManager : MonoBehaviour
     public List<OperatorData> GetCurrentSquadData()
     {
         return GetCurrentSquad()
-            .Select(opInfo => opInfo.op.OperatorProgressData)
+            .Select(opInfo => opInfo.op.OperatorData)
             .Where(op => op != null)
             .ToList();
     }
 
     // 스쿼드를 업데이트한다
-    public bool TryUpdateSquad(int squadIndex, string operatorName, int skillIndex)
+    public bool TryUpdateSquad(int squadIndex, string operatorID, int skillIndex)
     {
         // 1. 저장된 스쿼드 정보를 불러옴
         InstanceValidator.ValidateInstance(playerData);
@@ -336,17 +335,17 @@ public class PlayerDataManager : MonoBehaviour
 
         // 3. 오퍼레이터를 넣는 경우, 지금 보유했는지 + 스쿼드에 중복된 오퍼레이터가 없는지 점검함
         // 빈 슬롯으로 대체하려는 경우는 이 조건들을 무시
-        if (operatorName != string.Empty)
+        if (operatorID != string.Empty)
         {
             // 오퍼레이터 소유 확인
-            if (!string.IsNullOrEmpty(operatorName) && !safePlayerData.ownedOperators.Any(op => op.operatorName == operatorName)) return false;
+            if (!string.IsNullOrEmpty(operatorID) && !safePlayerData.ownedOperators.Any(op => op.OperatorID == operatorID)) return false;
 
             // 같은 이름의 오퍼레이터 중복 방지 : 단, 스킬 인덱스가 다른 경우는 허용함
-            if (squadForSave.Any(opInfo => opInfo != null && opInfo.operatorName == operatorName && opInfo.skillIndex == skillIndex)) return false;
+            if (squadForSave.Any(opInfo => opInfo != null && opInfo.operatorName == operatorID && opInfo.skillIndex == skillIndex)) return false;
         }
 
         // 4. 등록
-        squadForSave[squadIndex] = new SquadOperatorInfoForSave(operatorName, skillIndex);
+        squadForSave[squadIndex] = new SquadOperatorInfoForSave(operatorID, skillIndex);
 
         // 디버깅 - 스쿼드 수정마다 반복문 실행해서 점검
         // for (int i=0; i < squadForSave.Count; i++)
@@ -379,24 +378,24 @@ public class PlayerDataManager : MonoBehaviour
                 }
                 else
                 {
-                    string opName = runtimeInfo.op.operatorName;
+                    string opID = runtimeInfo.op.OperatorID;
                     int skillIdx = runtimeInfo.skillIndex;
 
-                    if (!string.IsNullOrEmpty(opName) &&
-                        (safePlayerData.ownedOperators == null || !safePlayerData.ownedOperators.Any(ownedOp => ownedOp.operatorName == opName)))
+                    if (!string.IsNullOrEmpty(opID) &&
+                        (safePlayerData.ownedOperators == null || !safePlayerData.ownedOperators.Any(ownedOp => ownedOp.OperatorID == opID)))
                     {
                         // 소유하지 않은 오퍼레이터가 있으면 업데이트 실패
-                        Logger.LogError($"{opName}은 소유하고 있는 오퍼레이터가 아님");
+                        Logger.LogError($"{opID}은 소유하고 있는 오퍼레이터가 아님");
                         return false;
                     }
 
                     // 빈 슬롯
-                    if (string.IsNullOrEmpty(opName))
+                    if (string.IsNullOrEmpty(opID))
                     {
                         skillIdx = -1;
                     }
 
-                    newSquadForSave.Add(new SquadOperatorInfoForSave(opName, skillIdx));
+                    newSquadForSave.Add(new SquadOperatorInfoForSave(opID, skillIdx));
                 }
             }
             else
@@ -726,7 +725,7 @@ public class PlayerDataManager : MonoBehaviour
     // 정예화에 필요한 아이템들이 모두 있는지 검사하는 메서드
     public bool HasPromotionItems(OperatorData opData)
     {
-        foreach (OperatorData.PromotionItems promotionItem in opData.promotionItems)
+        foreach (ItemWithCount promotionItem in opData.PromotionItems)
         {
             string itemName = promotionItem.itemData.itemName;
             int requiredCount = promotionItem.count;

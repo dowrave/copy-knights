@@ -7,7 +7,7 @@ using UnityEngine.UI;
 public static class OperatorIconHelper
 {
     private static OperatorIconData? iconData; // 아이콘들 정보. 수정 필요 시 ScriptableObject에서 수정하면 됨 
-    private static Dictionary<OperatorGrowthSystem.ElitePhase, Sprite> elitePhaseIcons = new Dictionary<OperatorGrowthSystem.ElitePhase, Sprite>(); 
+    private static Dictionary<OperatorElitePhase, Sprite> elitePhaseIcons = new Dictionary<OperatorElitePhase, Sprite>(); 
 
     public static event System.Action OnIconDataInitialized = delegate { };
 
@@ -25,7 +25,7 @@ public static class OperatorIconHelper
         }
     }
 
-    public static void SetClassIcon(Image imageComponent, OperatorData.OperatorClass operatorClass)
+    public static void SetClassIcon(Image imageComponent, OperatorClass operatorClass)
     {
         // 기능만 수행
         Sprite? icon = iconData?.GetClassIcon(operatorClass);
@@ -40,7 +40,7 @@ public static class OperatorIconHelper
         }
     }
 
-    public static void SetElitePhaseIcon(Image imageComponent, OperatorGrowthSystem.ElitePhase phase)
+    public static void SetElitePhaseIcon(Image imageComponent, OperatorElitePhase phase)
     {
         Sprite? icon = elitePhaseIcons.GetValueOrDefault(phase);
 

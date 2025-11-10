@@ -101,20 +101,20 @@ public class DeployableManager : MonoBehaviour
 
             var info = new DeployableInfo
             {
-                prefab = op.OperatorProgressData.prefab,
-                poolTag = op.OperatorProgressData.GetUnitTag(),
+                prefab = op.OperatorData.Prefab,
+                poolTag = op.OperatorData.GetUnitTag(),
                 maxDeployCount = 1,
-                redeployTime = op.OperatorProgressData.stats.RedeployTime,
+                redeployTime = op.OperatorData.Stats.RedeployTime,
                 ownedOperator = op,
                 skillIndex = opInfo.skillIndex,
-                operatorData = op.OperatorProgressData,
+                operatorData = op.OperatorData,
             };
 
             allDeployables.Add(info);
 
-            InstanceValidator.ValidateInstance(op.OperatorProgressData);
+            InstanceValidator.ValidateInstance(op.OperatorData);
             // (오퍼레이터 엔티티 이름 - 배치 정보) 매핑
-            deployableInfoMap[op.OperatorProgressData!.entityName!] = info;
+            deployableInfoMap[op.OperatorData!.EntityID!] = info;
         }
 
         // 스테이지 제공 요소 -> DeployableInfo로 변환
@@ -126,7 +126,7 @@ public class DeployableManager : MonoBehaviour
             InstanceValidator.ValidateInstance(deployable.DeployableData);
 
             // (배치 요소 이름 - 배치 정보) 매핑
-            deployableInfoMap[deployable.DeployableData!.entityName!] = info; 
+            deployableInfoMap[deployable.DeployableData!.EntityID!] = info; 
         }
 
         MaxOperatorDeploymentCount = maxOperatorDeploymentCount;
@@ -150,11 +150,11 @@ public class DeployableManager : MonoBehaviour
             // 이름 설정
             if (deployableInfo.operatorData != null)
             {
-                box.gameObject.name = $"DeployableBox({deployableInfo.operatorData.entityName})";
+                box.gameObject.name = $"DeployableBox({deployableInfo.operatorData.EntityID})";
             }
             else
             {
-                box.gameObject.name = $"DeployableBox({deployableInfo.deployableUnitData.entityName})";
+                box.gameObject.name = $"DeployableBox({deployableInfo.deployableUnitData.EntityID})";
             }
 
 
@@ -213,13 +213,13 @@ public class DeployableManager : MonoBehaviour
     {
         if (CurrentDeployableInfo?.operatorData != null)
         {
-            return (tile.data.terrain == TileData.TerrainType.Ground && CurrentDeployableInfo.operatorData.canDeployOnGround) ||
-                    (tile.data.terrain == TileData.TerrainType.Hill && CurrentDeployableInfo.operatorData.canDeployOnHill);
+            return (tile.data.terrain == TileData.TerrainType.Ground && CurrentDeployableInfo.operatorData.CanDeployOnGround) ||
+                    (tile.data.terrain == TileData.TerrainType.Hill && CurrentDeployableInfo.operatorData.CanDeployOnHill);
         }
         else if (CurrentDeployableInfo?.deployableUnitData != null)
         {
-            return (tile.data.terrain == TileData.TerrainType.Ground && CurrentDeployableInfo.deployableUnitData.canDeployOnGround) ||
-                    (tile.data.terrain == TileData.TerrainType.Hill && CurrentDeployableInfo.deployableUnitData.canDeployOnHill);
+            return (tile.data.terrain == TileData.TerrainType.Ground && CurrentDeployableInfo.deployableUnitData.CanDeployOnGround) ||
+                    (tile.data.terrain == TileData.TerrainType.Hill && CurrentDeployableInfo.deployableUnitData.CanDeployOnHill);
         }
         else
             return false;
@@ -516,12 +516,12 @@ public class DeployableManager : MonoBehaviour
             {
                 CurrentOperatorDeploymentCount--;
                 InstanceValidator.ValidateInstance(op.OperatorData);
-                info = GetDeployableInfoByName(op.OperatorData?.entityName!);
+                info = GetDeployableInfoByName(op.OperatorData?.EntityID!);
             }
             else
             {
                 InstanceValidator.ValidateInstance(deployable.DeployableUnitData);
-                info = GetDeployableInfoByName(deployable.DeployableUnitData.entityName!);
+                info = GetDeployableInfoByName(deployable.DeployableUnitData.EntityID!);
             }
 
             if (info != null && unitStates.TryGetValue(info, out var unitState))
@@ -602,9 +602,9 @@ public class DeployableManager : MonoBehaviour
         CurrentDeploymentOrder += 1;
     }
 
-    public DeployableInfo? GetDeployableInfoByName(string entityName)
+    public DeployableInfo? GetDeployableInfoByName(string entityID)
     {
-        return deployableInfoMap.TryGetValue(entityName, out var info) ? info : null;
+        return deployableInfoMap.TryGetValue(entityID, out var info) ? info : null;
     }
 
 

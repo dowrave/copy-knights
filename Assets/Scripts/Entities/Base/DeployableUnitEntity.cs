@@ -54,7 +54,7 @@ public abstract class DeployableUnitEntity : UnitEntity, IDeployable
         {
             _deployableData = deployableInfo.deployableUnitData!;
 
-            currentDeployableStats = DeployableUnitData.stats;
+            currentDeployableStats = DeployableUnitData.Stats;
             SetPoolTag();
             SetPrefab();
 
@@ -75,7 +75,7 @@ public abstract class DeployableUnitEntity : UnitEntity, IDeployable
 
     public override void SetPrefab()
     {
-        prefab = DeployableUnitData.prefab;
+        prefab = DeployableUnitData.Prefab;
     }
 
 
@@ -153,8 +153,8 @@ public abstract class DeployableUnitEntity : UnitEntity, IDeployable
     {
         if (IsInvalidTile(tile)) return false;
 
-        if (tile.data.terrain == TileData.TerrainType.Ground && DeployableUnitData.canDeployOnGround) return true;
-        if (tile.data.terrain == TileData.TerrainType.Hill && DeployableUnitData.canDeployOnHill) return true;
+        if (tile.data.terrain == TileData.TerrainType.Ground && DeployableUnitData.CanDeployOnGround) return true;
+        if (tile.data.terrain == TileData.TerrainType.Hill && DeployableUnitData.CanDeployOnHill) return true;
 
         return false;
     }

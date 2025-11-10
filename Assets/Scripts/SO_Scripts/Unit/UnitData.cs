@@ -1,0 +1,38 @@
+using UnityEngine;
+
+[CreateAssetMenu(fileName = "New Unit Data", menuName = "Game/Unit Data")]
+public class UnitData : ScriptableObject
+{
+    [SerializeField] protected string entityID = string.Empty; // 고유 식별자. 다른 에셋과 중복되면 안됨.
+    [SerializeField] protected string entityNameLocalizationKey; // 화면에 표시될 이름을 로컬라이제이션 테이블에서 찾기 위한 키. 해당하는 언어를 불러오기 위한 키값이다.
+    [SerializeField] protected UnitStats stats = default!;
+    [SerializeField] protected GameObject prefab = default!;
+    [SerializeField] protected Color primaryColor;
+    [SerializeField] protected Color secondaryColor; // 필요한 경우만 사용
+}
+
+[System.Serializable]
+public struct UnitStats
+{
+    [SerializeField] private float _health;
+    [SerializeField] private float _defense;
+    [SerializeField] private float _magicResistance;
+
+    public float Health
+    {
+        get => _health;
+        set => _health = value;
+    }
+
+    public float Defense
+    {
+        get => _defense;
+        set => _defense = value;
+    }
+
+    public float MagicResistance
+    {
+        get => _magicResistance;
+        set => _magicResistance = value;
+    }
+}

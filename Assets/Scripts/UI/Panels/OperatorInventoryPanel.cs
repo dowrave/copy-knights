@@ -649,9 +649,9 @@ public class OperatorInventoryPanel : MonoBehaviour
             if (op != null)
             {
                 OperatorStats opStats = op.CurrentStats;
-                OperatorData opData = op.OperatorProgressData;
+                OperatorData opData = op.OperatorData;
 
-                operatorNameText.text = opData.entityName;
+                operatorNameText.text = GameManagement.Instance!.LocalizationManager.GetText(opData.EntityNameLocalizationKey);
                 healthText.text = Mathf.FloorToInt(opStats.Health).ToString();
                 redeployTimeText.text = Mathf.FloorToInt(opStats.RedeployTime).ToString();
                 attackPowerText.text = Mathf.FloorToInt(opStats.AttackPower).ToString();
@@ -887,7 +887,7 @@ public class OperatorInventoryPanel : MonoBehaviour
 
         foreach (OperatorSlot slot in clickedSlots.Where(slot => slot != null))
         {
-            Logger.Log(slot.opData?.entityName);
+            Logger.Log(slot.opData?.EntityID);
             slot.ClearIndexText();
         }
 

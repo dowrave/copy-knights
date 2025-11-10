@@ -41,13 +41,13 @@ namespace Skills.Base
         // 여기서 상태를 갖지 않는 게 베스트이기 떄문에 Stateless 패턴으로 만들어봄
         // 상태를 갖는 게 아니라 고정된 값을 반환하는 메서드를 구현한다는 개념임
         // 참고) 필드로 $"{caster}" 를 구현하지 못한다고 나옴
-        public string GetSkillControllerTag(EnemyBossData ownerData) => $"{ownerData.EntityName}_{skillName}_skillController";
-        public string GetHitVFXTag(EnemyBossData ownerData) => $"{ownerData.EntityName}_{skillName}_hit";
-        public string GetCastVFXTag(EnemyBossData ownerData) => $"{ownerData.EntityName}_{skillName}_cast";
-        public string GetFallingSunVFXTag(EnemyBossData ownerData) => $"{ownerData.EntityName}_{skillName}_fallingSun";
-        public string GetSkillRangeVFXTag(EnemyBossData ownerData) => $"{ownerData.EntityName}_{skillName}_skillRange";
-        public string GetCrackedGroundVFXTag(EnemyBossData ownerData) => $"{ownerData.EntityName}_{skillName}_crackedGround";
-        public string GetExplosionVFXTag(EnemyBossData ownerData) => $"{ownerData.EntityName}_{skillName}_explosion";
+        public string GetSkillControllerTag(EnemyBossData ownerData) => $"{ownerData.EntityID}_{skillName}_skillController";
+        public string GetHitVFXTag(EnemyBossData ownerData) => $"{ownerData.EntityID}_{skillName}_hit";
+        public string GetCastVFXTag(EnemyBossData ownerData) => $"{ownerData.EntityID}_{skillName}_cast";
+        public string GetFallingSunVFXTag(EnemyBossData ownerData) => $"{ownerData.EntityID}_{skillName}_fallingSun";
+        public string GetSkillRangeVFXTag(EnemyBossData ownerData) => $"{ownerData.EntityID}_{skillName}_skillRange";
+        public string GetCrackedGroundVFXTag(EnemyBossData ownerData) => $"{ownerData.EntityID}_{skillName}_crackedGround";
+        public string GetExplosionVFXTag(EnemyBossData ownerData) => $"{ownerData.EntityID}_{skillName}_explosion";
 
         public override void Activate(EnemyBoss caster, UnitEntity target)
         {

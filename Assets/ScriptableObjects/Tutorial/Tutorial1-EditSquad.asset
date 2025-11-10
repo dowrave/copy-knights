@@ -34,10 +34,10 @@ MonoBehaviour:
     expectedButtonName: OperatorSlot
   - stepName: 4. Click Vanguard
     dialogues:
-    - "\uBC45\uAC00\uB4DC\uB97C \uD074\uB9AD\uD574\uC8FC\uC138\uC694."
+    - "\uBC45\uAC00\uB4DC \uC2AC\uB86F\uC744 \uD074\uB9AD\uD574\uC8FC\uC138\uC694."
     dialogueBoxPosition: {x: 60, y: 150}
     requireUserAction: 1
-    expectedButtonName: OperatorSlot(Vanguard)
+    expectedButtonName: OperatorSlot(op_vanguard)
   - stepName: 5. Conversation Left Panel
     dialogues:
     - "\uC67C\uCABD \uD328\uB110\uC5D0\uB294 \uC120\uD0DD\uB41C \uC624\uD37C\uB808\uC774\uD130\uC758
@@ -76,7 +76,7 @@ MonoBehaviour:
     - "Sniper\uB97C \uD074\uB9AD\uD574\uC8FC\uC138\uC694."
     dialogueBoxPosition: {x: 60, y: 150}
     requireUserAction: 1
-    expectedButtonName: OperatorSlot(Sniper)
+    expectedButtonName: OperatorSlot(op_sniper)
   - stepName: 10. Click Confirm Button
     dialogues:
     - "\uD655\uC778 \uBC84\uD2BC\uC744 \uD074\uB9AD\uD574\uC8FC\uC138\uC694."
@@ -94,7 +94,7 @@ MonoBehaviour:
     - "Guard\uB97C \uD074\uB9AD\uD574\uC8FC\uC138\uC694."
     dialogueBoxPosition: {x: 60, y: 150}
     requireUserAction: 1
-    expectedButtonName: OperatorSlot(Guard)
+    expectedButtonName: OperatorSlot(op_guard)
   - stepName: 13. Click Confirm Button
     dialogues:
     - "\uD655\uC778 \uBC84\uD2BC\uC744 \uD074\uB9AD\uD574\uC8FC\uC138\uC694."

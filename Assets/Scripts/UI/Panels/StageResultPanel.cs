@@ -176,14 +176,14 @@ public class StageResultPanel : MonoBehaviour
         Dictionary<string, StatisticItem> itemDict = new Dictionary<string, StatisticItem>();
         foreach (var item in statItems)
         {
-            itemDict[item.OpData.entityName] = item;
+            itemDict[item.OpData.EntityID] = item;
         }
 
         // 순서를 정함
         List<StatisticItem> newOrder = new List<StatisticItem>();
         foreach (var (opData, _) in sortedStats)
         {
-            newOrder.Add(itemDict[opData.entityName]);
+            newOrder.Add(itemDict[opData.EntityID]);
         }
 
         // UI 업데이트

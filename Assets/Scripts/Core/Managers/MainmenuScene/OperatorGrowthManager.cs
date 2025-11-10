@@ -59,7 +59,7 @@ public class OperatorGrowthManager: MonoBehaviour
         }
 
         // 정예화에 필요한 아이템 검사: promotionItems 데이터를 Dictionary(아이템 이름, 갯수)로 변환
-        var itemsToUse = op.OperatorProgressData.promotionItems.ToDictionary(
+        var itemsToUse = op.OperatorData.PromotionItems.ToDictionary(
             promotionItem => promotionItem.itemData.itemName,
             promotionItem => promotionItem.count);
 
@@ -90,10 +90,10 @@ public class OperatorGrowthManager: MonoBehaviour
             .ToList();
 
         return ExpCalculationSystem.CalculateOptimalItemUsage(
-                op.currentPhase,
-                op.currentLevel,
+                op.CurrentPhase,
+                op.CurrentLevel,
                 targetLevel,
-                op.currentExp,
+                op.CurrentExp,
                 availableItems
             );
     }
@@ -131,14 +131,14 @@ public class OperatorGrowthManager: MonoBehaviour
         List<SquadOperatorInfo?> currentSquad = GameManagement.Instance!.PlayerDataManager.GetCurrentSquadWithNull();
         foreach (var op in ownedOperators)
         {
-            op.currentPhase = OperatorGrowthSystem.ElitePhase.Elite0;
-            op.currentLevel = 1;
-            op.currentExp = 0;
+            op.SetCurrentPhase(OperatorElitePhase.Elite0);
+            op.SetCurrentLevel(1);
+            op.SetCurrentExp(0);
             op.ClearUsedItems();
             op.Initialize();
 
             // 현재 스쿼드에 해당 오퍼레이터가 있다면 스킬은 0번으로 설정
-            int squadIndex = currentSquad.FindIndex(member => member.op.operatorName == op.operatorName);
+            int squadIndex = currentSquad.FindIndex(member => member.op.OperatorID == op.OperatorID);
             if (squadIndex != -1) // FindIndex는 해당하는 값이 없으면 -1을 반환
             {
                 GameManagement.Instance!.UserSquadManager.TryReplaceOperator(squadIndex, op, 0);

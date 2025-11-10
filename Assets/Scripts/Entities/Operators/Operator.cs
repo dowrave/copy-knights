@@ -154,7 +154,7 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
     protected Coroutine _activeSkillCoroutine; // 지속시간이 있는 스킬에 해당하는 코루틴
 
     // 현재 오퍼레이터의 육성 상태 - Current를 별도로 붙이지는 않겠음
-    public OperatorGrowthSystem.ElitePhase ElitePhase { get; protected set; }
+    public OperatorElitePhase ElitePhase { get; protected set; }
     public int Level { get; protected set; }
 
     // 이벤트들
@@ -185,10 +185,10 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
             // 기본 데이터 초기화
             if (_operatorData == null)
             {
-                _operatorData = ownedOp.OperatorProgressData;
+                _operatorData = ownedOp.OperatorData;
             }
 
-            CurrentSP = OperatorData.initialSP;
+            CurrentSP = OperatorData.InitialSP;
 
             SetPrefab();
 
@@ -210,8 +210,8 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
 
             MaxSP = CurrentSkill?.SPCost ?? 0f;
 
-            ElitePhase = ownedOp.currentPhase;
-            Level = ownedOp.currentLevel;
+            ElitePhase = ownedOp.CurrentPhase;
+            Level = ownedOp.CurrentLevel;
 
             base.Initialize();
 
@@ -225,7 +225,7 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
     
     public override void SetPrefab()
     {
-        prefab = OperatorData.prefab;
+        prefab = OperatorData.Prefab;
     }
 
     public void SetDirection(Vector3 direction)
@@ -381,7 +381,7 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
 
     protected virtual void PerformRangedAttack(UnitEntity target, float damage, AttackType attackType, bool showDamagePopup = false)
     {
-        if (_operatorData.projectilePrefab != null)
+        if (_operatorData.ProjectilePrefab != null)
         {
             // 투사체 생성 위치
             Vector3 spawnPosition = transform.position + transform.forward * 0.25f;
@@ -403,7 +403,7 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
     // 원거리인 경우에만 사용. Muzzle 이펙트를 실행한다.
     protected void PlayMuzzleVFX()
     {
-        if (_operatorData.muzzleVFXPrefab != null && muzzleTag != string.Empty)
+        if (_operatorData.MuzzleVFXPrefab != null && muzzleTag != string.Empty)
         {
             GameObject muzzleVFXObject = ObjectPoolManager.Instance!.SpawnFromPool(_operatorData.GetMuzzleVFXTag(), transform.position, transform.rotation);
             MuzzleVFXController muzzleVFXController = muzzleVFXObject.GetComponentInChildren<MuzzleVFXController>();
@@ -673,7 +673,7 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
     protected IEnumerator PlayDeployVFX()
     {
         // 배치 VFX 실행 
-        if (OperatorData.deployEffectPrefab != null)
+        if (OperatorData.DeployEffectPrefab != null)
         {
             GameObject deployEffect = ObjectPoolManager.Instance.SpawnFromPool(
                 OperatorData.GetDeployVFXTag(),
@@ -1117,11 +1117,11 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
         base.OnDestroy();
     }
 
-    #region Object Pool Tag Generators 
-    public static string GetMeleeAttackEffectTag(OperatorData data) => $"{data.entityName}_{data.meleeAttackEffectPrefab.name}";
-    public static string GetHitEffectTag(OperatorData data) => $"{data.entityName}_{data.hitEffectPrefab.name}";
-    public static string GetProjectileTag(OperatorData data) => $"{data.entityName}_projectile";
-    public static string GetMuzzleTag(OperatorData data) => $"{data.entityName}_muzzle";
-    #endregion
+    // #region Object Pool Tag Generators 
+    // public static string GetMeleeAttackEffectTag(OperatorData data) => $"{data.EntityID}_{data.MeleeAttackEffectPrefab.name}";
+    // public static string GetHitEffectTag(OperatorData data) => $"{data.EntityID}_{data.HitEffectPrefab.name}";
+    // public static string GetProjectileTag(OperatorData data) => $"{data.EntityID}_projectile";
+    // public static string GetMuzzleTag(OperatorData data) => $"{data.EntityID}_muzzle";
+    // #endregion
 
 }

@@ -23,7 +23,7 @@ public class EnemyBossSkill : UnitSkill
 
         if (caster is Enemy enemy)
         {
-            return $"{enemy.BaseData.EntityName}_{this.name}_{vfxPrefab.name}";
+            return $"{enemy.BaseData.EntityID}_{this.name}_{vfxPrefab.name}";
         }
         else
         {

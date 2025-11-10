@@ -53,7 +53,7 @@ namespace SKills.OperatorSkills
             }
         }
 
-        public string GetCostVFXTag(OperatorData opData) => $"{opData.entityName}_{skillName}_costVFX";
+        public string GetCostVFXTag(OperatorData opData) => $"{opData.EntityID}_{skillName}_costVFX";
         
     }
 

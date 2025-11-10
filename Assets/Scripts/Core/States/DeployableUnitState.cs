@@ -26,8 +26,8 @@ public class DeployableUnitState
         IsOperator = deployableInfo.ownedOperator != null;
 
         CurrentDeploymentCost = IsOperator && info.ownedOperator != null ?
-            info.ownedOperator.OperatorProgressData.stats.DeploymentCost :
-            info.deployableUnitData?.stats.DeploymentCost ?? 0;
+            info.ownedOperator.OperatorData.Stats.DeploymentCost :
+            info.deployableUnitData?.Stats.DeploymentCost ?? 0;
 
         RemainingDeployCount = info.maxDeployCount;
         IsOnCooldown = false;
@@ -95,7 +95,7 @@ public class DeployableUnitState
         if (deployableInfo.ownedOperator == null) return;
 
         // 기본 코스트
-        int baseCost = deployableInfo.ownedOperator.OperatorProgressData.stats.DeploymentCost;
+        int baseCost = deployableInfo.ownedOperator.OperatorData.Stats.DeploymentCost;
 
         // 1, 1.5, 2만 가질 수 있다.
         // 상세) 재배치마다 50%식 배치 코스트가 증가, 최대 2회(즉 2회 이후부터는 최초의 2배 코스트가 듦)까지만.

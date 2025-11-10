@@ -16,10 +16,26 @@ public class GameManagement : MonoBehaviour
     [SerializeField] private TutorialManager? tutorialManager = null!;
     [SerializeField] private RewardManager? rewardManager = null!;
     [SerializeField] private StageDatabase? stageDatabase = null!;
-    [SerializeField] private TestManager? testManager = null!; 
+    [SerializeField] private TestManager? testManager = null!;
+    [SerializeField] private LocalizationManager? localizationManager = null!;
 
     [Header("System Data")]
     [SerializeField] private OperatorLevelData? operatorLevelData; // 인스펙터에서 설정
+
+    // 현재 언어
+    private Language _currentLanguage = Language.Korean; 
+    public Language CurrentLanguage
+    {
+        get => _currentLanguage;
+        set
+        {
+            if (_currentLanguage != value)
+            {
+                _currentLanguage = value;
+                OnLanguageChanged?.Invoke();
+            }
+        }
+    }
 
     // 프로퍼티를 사용하는 시점은 null이 아님이 보장된 시점이므로
     // null에 대한 경고를 띄우지 않게 하기 위해 `!`(= null-forgiveness 연산자)을 추가한다.
@@ -30,7 +46,10 @@ public class GameManagement : MonoBehaviour
     public TutorialManager TutorialManager => tutorialManager!;
     public RewardManager RewardManager => rewardManager!;
     public StageDatabase StageDatabase => stageDatabase!;
-    public TestManager TestManager => testManager!; 
+    public TestManager TestManager => testManager!;
+    public LocalizationManager LocalizationManager => localizationManager; 
+
+    public Action OnLanguageChanged = delegate { }; 
 
     private void Awake()
     {
@@ -38,7 +57,6 @@ public class GameManagement : MonoBehaviour
         {
             Instance = this;
             DontDestroyOnLoad(gameObject);
-            ValidateComponents();
             InitializeSystems(); // 시스템 초기화
         }
         else
@@ -63,25 +81,17 @@ public class GameManagement : MonoBehaviour
         Time.timeScale = 1f;
     }
 
-    private void ValidateComponents()
-    {
-        if (sceneLoader == null)
-            throw new NullReferenceException($"{nameof(sceneLoader)}가 인스펙터에서 할당되지 않았습니다.");
-        if (userSquadManager == null)
-            throw new NullReferenceException($"{nameof(userSquadManager)}가 인스펙터에서 할당되지 않았습니다.");
-        if (resourceManager == null)
-            throw new NullReferenceException($"{nameof(resourceManager)}가 인스펙터에서 할당되지 않았습니다.");
-        if (playerDataManager == null)
-            throw new NullReferenceException($"{nameof(playerDataManager)}가 인스펙터에서 할당되지 않았습니다.");
-        if (operatorLevelData == null)
-            throw new NullReferenceException($"{nameof(operatorLevelData)}가 인스펙터에서 할당되지 않았습니다.");
-    }
-
     private void OnApplicationQuit()
     {
         if (sceneLoader != null)
         {
             sceneLoader.OnGameQuit();
         }
+    }
+
+    public enum Language
+    {
+        English,
+        Korean
     }
 }

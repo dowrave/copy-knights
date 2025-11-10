@@ -41,7 +41,7 @@ public class MedicOperator : Operator
         {
             Vector2Int operatorGridPos = CurrentMap.WorldToGridPosition(transform.position);
 
-            foreach (Vector2Int offset in OperatorData.attackableTiles)
+            foreach (Vector2Int offset in OperatorData.AttackableTiles)
             {
                 Vector2Int rotatedOffset = PositionCalculationSystem.RotateGridOffset(offset, FacingDirection);
                 Vector2Int targetGridPos = operatorGridPos + rotatedOffset;

@@ -18,7 +18,7 @@ public static class ExpCalculationSystem
     /// 2. 같은 경험치 낭비라면, 적은 수의 아이템을 사용하는 조합을 선택합니다.
     /// </summary>
     public static ExpItemUsagePlan CalculateOptimalItemUsage(
-            OperatorGrowthSystem.ElitePhase phase,
+            OperatorElitePhase phase,
             int currentLevel,
             int targetLevel,
             int currentExp,
@@ -168,23 +168,23 @@ public static class ExpCalculationSystem
         OwnedOperator op, 
         List<(ItemData item, int count)> availableItems)
     {
-        int maxLevelForPhase = OperatorGrowthSystem.GetMaxLevel(op.currentPhase);
+        int maxLevelForPhase = OperatorGrowthSystem.GetMaxLevel(op.CurrentPhase);
 
         // 모든 사용 가능한 경험치를 계산
         int totalAvailableExp = availableItems
             .Where(i => i.item.type == ItemData.ItemType.Exp)
             .Sum(i => i.item.expAmount * i.count);
-        totalAvailableExp += op.currentExp; // 현재 경험치도 포함
+        totalAvailableExp += op.CurrentExp; // 현재 경험치도 포함
 
         // 도달 가능한 레벨 계산
-        var (reachableLevel, remainingExp) = OperatorGrowthSystem.CalculateReachableLevel(op.currentPhase, op.currentLevel, totalAvailableExp);
+        var (reachableLevel, remainingExp) = OperatorGrowthSystem.CalculateReachableLevel(op.CurrentPhase, op.CurrentLevel, totalAvailableExp);
 
         // 사용할 아이템 계산
         var usagePlan = CalculateOptimalItemUsage(
-            op.currentPhase,
-            op.currentLevel,
+            op.CurrentPhase,
+            op.CurrentLevel,
             reachableLevel,
-            op.currentExp,
+            op.CurrentExp,
             availableItems
             );
 
@@ -192,7 +192,7 @@ public static class ExpCalculationSystem
     }
 
     public static int CalculateMaxReachableLevel(
-        OperatorGrowthSystem.ElitePhase phase,
+        OperatorElitePhase phase,
         int currentLevel,
         int currentExp,
         List<(ItemData item, int count)> availableItems)

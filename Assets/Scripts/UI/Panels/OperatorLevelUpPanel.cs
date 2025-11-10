@@ -108,8 +108,8 @@ public class OperatorLevelUpPanel : MonoBehaviour
     public void Initialize(OwnedOperator op)
     {
         this.op = op;
-        currentLevel = op.currentLevel;
-        maxLevel = OperatorGrowthSystem.GetMaxLevel(op.currentPhase);
+        currentLevel = op.CurrentLevel;
+        maxLevel = OperatorGrowthSystem.GetMaxLevel(op.CurrentPhase);
         selectedLevel = currentLevel;
         viewportHeight = levelScrollRect.viewport.rect.height;
         totalLevels = maxLevel - currentLevel + 1;
@@ -244,7 +244,7 @@ public class OperatorLevelUpPanel : MonoBehaviour
     private void SetSnapThreshold()
     {
         // 현재 정예화의 최대 레벨이 아닐 때에만 계산
-        if (currentLevel != OperatorGrowthSystem.GetMaxLevel(op.currentPhase))
+        if (currentLevel != OperatorGrowthSystem.GetMaxLevel(op.CurrentPhase))
         {
             snapThreshold = levelToScrollPosition[currentLevel + 1] - levelToScrollPosition[currentLevel];
         }
@@ -384,7 +384,7 @@ public class OperatorLevelUpPanel : MonoBehaviour
         yield return null; // 한 프레임 대기
 
         // 스탯 패널 업데이트
-        OperatorStats targetLevelStats = OperatorGrowthSystem.CalculateStats(op, targetLevel, op.currentPhase);
+        OperatorStats targetLevelStats = OperatorGrowthSystem.CalculateStats(op, targetLevel, op.CurrentPhase);
 
         // 레벨업 상황일 때 텍스트에 색깔만 추가
         if (targetLevel == currentLevel)
@@ -420,8 +420,8 @@ public class OperatorLevelUpPanel : MonoBehaviour
     {
         if (selectedLevel <= maxReachableLevel)
         {
-            float currentExp = op.currentExp;
-            float maxExp = OperatorGrowthSystem.GetMaxExpForNextLevel(op.currentPhase, op.currentLevel);
+            float currentExp = op.CurrentExp;
+            float maxExp = OperatorGrowthSystem.GetMaxExpForNextLevel(op.CurrentPhase, op.CurrentLevel);
             expGauge.value = currentExp / maxExp;
         }
         else
@@ -516,7 +516,7 @@ public class OperatorLevelUpPanel : MonoBehaviour
             if (currentUsagePlan.totalItemExp > 0)
             {
                 float maxExpForLevel = OperatorGrowthSystem.GetMaxExpForNextLevel(
-                    op.currentPhase,
+                    op.CurrentPhase,
                     currentUsagePlan.targetLevel
                 );
                 expGauge.value = currentUsagePlan.remainingExp / maxExpForLevel;
@@ -549,7 +549,7 @@ public class OperatorLevelUpPanel : MonoBehaviour
         SetScrollToLevel(maxLevel, true);
         UpdateLevelUpPreviewDisplay();
 
-        if (maxLevel > op.currentLevel)
+        if (maxLevel > op.CurrentLevel)
         {
             currentUsagePlan = usagePlan;
         }

@@ -65,6 +65,6 @@ namespace Skills.OperatorSkills
             }
         }
 
-        public string GetShieldVFXTag(OperatorData ownerData) => $"{ownerData.entityName}_{skillName}_Shield";
+        public string GetShieldVFXTag(OperatorData ownerData) => $"{ownerData.EntityID}_{skillName}_Shield";
     }
 }

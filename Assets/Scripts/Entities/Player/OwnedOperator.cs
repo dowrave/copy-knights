@@ -9,38 +9,43 @@ using System.Linq;
 public class OwnedOperator
 {
     // 저장되는 핵심 데이터 : 진행 상황을 나타내는 최소한의 정보만 저장
-    public string operatorName; // OperatorData.entityName과 동일
-    public int currentLevel = 1; 
-    public OperatorGrowthSystem.ElitePhase currentPhase = OperatorGrowthSystem.ElitePhase.Elite0;
-    public int currentExp = 0;
+    [SerializeField] private string operatorID;
+    [SerializeField] private int currentLevel = 1; 
+    [SerializeField] private OperatorElitePhase currentPhase = OperatorElitePhase.Elite0;
+    [SerializeField] private int currentExp = 0;
 
     // 런타임에만 존재하는 계산된 필드들
     [System.NonSerialized] private OperatorStats currentStats;
     [System.NonSerialized] private List<Vector2Int> currentAttackableGridPos = new List<Vector2Int>();
     [System.NonSerialized] private List<OperatorSkill> unlockedSkills = new List<OperatorSkill>();
     [System.NonSerialized] private OperatorSkill defaultSelectedSkill = default!;
-    [System.NonSerialized] private OperatorData baseData = default!;
+    [System.NonSerialized] private OperatorData operatorData = default!;
 
     // 성장에 사용된 아이템 저장 필드
     [SerializeField] private List<ItemWithCount> usedItems = new List<ItemWithCount>();
 
     // 읽기 전용 프로퍼티
+    public string OperatorID => operatorID;
+    public int CurrentLevel => currentLevel;
+    public OperatorElitePhase CurrentPhase => currentPhase;
+    public int CurrentExp => currentExp;
+
     public OperatorStats CurrentStats => currentStats;
     public List<OperatorSkill> UnlockedSkills => unlockedSkills;
     public OperatorSkill DefaultSelectedSkill => defaultSelectedSkill;
     public int DefaultSelectedSkillIndex => UnlockedSkills.IndexOf(defaultSelectedSkill);
     public List<Vector2Int> CurrentAttackableGridPos => currentAttackableGridPos;
-    public OperatorData OperatorProgressData
+    public OperatorData OperatorData
     {
         get
         {
             // 최초 접근 시
-            if (baseData == null) 
+            if (operatorData == null) 
             {
                 // Lazy Loading에서 게터임에도 필드를 할당하는 건 잘 확립된 방식임
-                baseData = GameManagement.Instance!.PlayerDataManager.GetOperatorData(operatorName);  // PlayerDataManager에서 operatorID에 해당하는 OperatorData를 가져옴
+                operatorData = GameManagement.Instance!.PlayerDataManager.GetOperatorData(operatorID);  // PlayerDataManager에서 operatorID에 해당하는 OperatorData를 가져옴
             }
-            return baseData;
+            return operatorData;
         }
     }
     public List<ItemWithCount> UsedItems => usedItems;
@@ -55,11 +60,11 @@ public class OwnedOperator
     // 중요!) 저장된 데이터를 로드할 때는 생성자가 호출되지 않으므로 Initialize는 별도로 실행해야 한다.
     public OwnedOperator(OperatorData opData)
     {
-        operatorName = opData.entityName;
+        operatorID = opData.EntityID;
         currentLevel = 1;
-        currentPhase = OperatorGrowthSystem.ElitePhase.Elite0;
+        currentPhase = OperatorElitePhase.Elite0;
         currentExp = 0;
-        baseData = opData;
+        operatorData = opData;
 
         Initialize();
     }
@@ -84,22 +89,22 @@ public class OwnedOperator
 
     private void InitializeAttackRange()
     {
-        currentAttackableGridPos = new List<Vector2Int>(OperatorProgressData.attackableTiles);
+        currentAttackableGridPos = new List<Vector2Int>(operatorData.AttackableTiles);
 
-        if (currentPhase > OperatorGrowthSystem.ElitePhase.Elite0)
+        if (currentPhase > OperatorElitePhase.Elite0)
         {
-            currentAttackableGridPos.AddRange(baseData.elite1Unlocks.additionalAttackTiles);
+            currentAttackableGridPos.AddRange(operatorData.Elite1Unlocks.additionalAttackTiles);
         }
     }
 
     private void InitializeSkills()
     {
-        unlockedSkills = new List<OperatorSkill> { baseData.elite0Skill };
+        unlockedSkills = new List<OperatorSkill> { operatorData.Elite0Skill };
 
-        if (currentPhase > OperatorGrowthSystem.ElitePhase.Elite0 && 
-            baseData.elite1Unlocks.unlockedSkill != null)
+        if (currentPhase > OperatorElitePhase.Elite0 && 
+            operatorData.Elite1Unlocks.unlockedSkill != null)
         {
-            unlockedSkills.Add(baseData.elite1Unlocks.unlockedSkill);
+            unlockedSkills.Add(operatorData.Elite1Unlocks.unlockedSkill);
         }
 
         defaultSelectedSkill = unlockedSkills[0];
@@ -121,7 +126,7 @@ public class OwnedOperator
     {
         if (!OperatorGrowthSystem.CanPromote(this)) return;
 
-        currentPhase = OperatorGrowthSystem.ElitePhase.Elite1;
+        currentPhase = OperatorElitePhase.Elite1;
         currentLevel = 1;
         currentExp = 0;
 
@@ -130,10 +135,10 @@ public class OwnedOperator
 
     public void SetPromotionAndLevel(int targetPhase, int targetLevel)
     {
-        if (targetPhase < (int)OperatorGrowthSystem.ElitePhase.Elite0 || 
-            targetPhase > (int)OperatorGrowthSystem.ElitePhase.Elite1) return;
+        if (targetPhase < (int)OperatorElitePhase.Elite0 || 
+            targetPhase > (int)OperatorElitePhase.Elite1) return;
         
-        if (targetPhase == (int)OperatorGrowthSystem.ElitePhase.Elite1)
+        if (targetPhase == (int)OperatorElitePhase.Elite1)
         {
             // 1정예화 필요 시 진행
             LevelUP(50, 0);
@@ -190,4 +195,21 @@ public class OwnedOperator
     {
         usedItems.Clear();
     }
+
+    public void SetCurrentLevel(int level)
+    {
+        currentLevel = level;
+    }
+
+    public void SetCurrentPhase(OperatorElitePhase phase)
+    {
+        currentPhase = phase;
+    }
+
+    public void SetCurrentExp(int exp)
+    {
+        currentExp = exp;
+    }
+
+
 }

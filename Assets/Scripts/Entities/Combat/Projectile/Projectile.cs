@@ -269,7 +269,7 @@ public class Projectile : MonoBehaviour
 
             // 범위 공격 상황
             else if (attacker is Operator op &&
-                op.OperatorData.operatorClass == OperatorData.OperatorClass.Artillery) CreateAreaOfDamage(transform.position, value, showValue, attackSource);
+                op.OperatorData.OperatorClass == OperatorClass.Artillery) CreateAreaOfDamage(transform.position, value, showValue, attackSource);
 
             // 단일 공격 상황
             else target.TakeDamage(attackSource);

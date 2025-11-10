@@ -171,7 +171,7 @@ namespace Skills.Base
             }
         }
 
-        public string GetDurationVFXTag(OperatorData opData) => $"{opData.entityName}_{skillName}_durationVFX";
+        public string GetDurationVFXTag(OperatorData opData) => $"{opData.EntityID}_{skillName}_durationVFX";
     }
 }
 

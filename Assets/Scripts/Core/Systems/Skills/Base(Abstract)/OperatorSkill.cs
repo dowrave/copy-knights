@@ -53,7 +53,7 @@ namespace Skills.Base
             }
         }
 
-        public string GetMeleeAttackVFXTag(OperatorData ownerData) => $"{ownerData.entityName}_{skillName}_MeleeVFX";
+        public string GetMeleeAttackVFXTag(OperatorData ownerData) => $"{ownerData.EntityID}_{skillName}_MeleeVFX";
 
         protected void Reset()
         {

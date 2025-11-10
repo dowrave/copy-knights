@@ -1,0 +1,58 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3e9e80fd5f700b74fac5a82924257d05, type: 3}
+  m_Name: Vanguard
+  m_EditorClassIdentifier: 
+  entityID: op_vanguard
+  entityNameLocalizationKey: op.vanguard.name
+  stats:
+    _deployableUnitStats:
+      _baseStats:
+        _health: 727
+        _defense: 139
+        _magicResistance: 0
+      _deploymentCost: 11
+      _redeployTime: 1
+    _attackPower: 273
+    _attackSpeed: 1.05
+    _maxBlockableEnemies: 2
+    _spRecoveryRate: 1
+  prefab: {fileID: 5185628148525671535, guid: f6133e5c81658dc40ba3a9ece027c15e, type: 3}
+  primaryColor: {r: 0.8509804, g: 0.84705883, b: 0.21176471, a: 1}
+  secondaryColor: {r: 0, g: 0, b: 0, a: 0}
+  icon: {fileID: 0}
+  canDeployOnGround: 1
+  canDeployOnHill: 0
+  operatorClass: 0
+  attackType: 0
+  attackRangeType: 0
+  attackableTiles:
+  - {x: 0, y: 0}
+  - {x: -1, y: 0}
+  elite0Skill: {fileID: 11400000, guid: 94f9ca36096d5e846b99fae318271cb3, type: 2}
+  initialSP: 0
+  deployEffectPrefab: {fileID: 856940111582043208, guid: bec65663e4fb6004ebef9ec4aab1b61f, type: 3}
+  meleeAttackEffectPrefab: {fileID: 1249516511906949688, guid: 2be72af12fb6ab14297a81756f04ff0c, type: 3}
+  hitEffectPrefab: {fileID: 7245273522019326439, guid: a7ce6bb72f5ed9145aeb0e54505f25fd, type: 3}
+  muzzleVFXPrefab: {fileID: 0}
+  projectilePrefab: {fileID: 0}
+  levelStats:
+    healthPerLevel: 5.5
+    attackPowerPerLevel: 2
+    defensePerLevel: 1.4
+    magicResistancePerLevel: 0
+  elite1Unlocks:
+    additionalAttackTiles: []
+    unlockedSkill: {fileID: 11400000, guid: c265b734f1061d94b826e5c889ed234b, type: 2}
+  promotionItems:
+  - itemData: {fileID: 11400000, guid: 2329af0554c87104bb26e072bb7d6935, type: 2}
+    count: 1

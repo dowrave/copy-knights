@@ -110,7 +110,7 @@ public class OperatorDetailPanel : MonoBehaviour
             ClearAttackRange();
 
             currentOperator = ownedOp;
-            operatorData = ownedOp.OperatorProgressData;
+            operatorData = ownedOp.OperatorData;
 
             // AttackRangeHelper 초기화
             attackRangeHelper = UIHelper.Instance!.CreateAttackRangeHelper(
@@ -157,10 +157,10 @@ public class OperatorDetailPanel : MonoBehaviour
             operatorIconImage.enabled = false; 
         }
 
-        operatorNameText.text = operatorData.entityName;
+        operatorNameText.text = GameManagement.Instance!.LocalizationManager.GetText(operatorData.EntityNameLocalizationKey);
 
         // 클래스 아이콘 설정
-        OperatorIconHelper.SetClassIcon(classIconImage, operatorData.operatorClass);
+        OperatorIconHelper.SetClassIcon(classIconImage, operatorData.OperatorClass);
 
         // 공격 범위 설정
         if (currentOperator != null)
@@ -200,11 +200,11 @@ public class OperatorDetailPanel : MonoBehaviour
     {
         if (currentOperator != null)
         {
-            int currentLevel = currentOperator.currentLevel;
-            int maxLevel = OperatorGrowthSystem.GetMaxLevel(currentOperator.currentPhase);
-            int currentExp = currentOperator.currentExp;
+            int currentLevel = currentOperator.CurrentLevel;
+            int maxLevel = OperatorGrowthSystem.GetMaxLevel(currentOperator.CurrentPhase);
+            int currentExp = currentOperator.CurrentExp;
             float maxExp = OperatorGrowthSystem.GetMaxExpForNextLevel(
-                currentOperator.currentPhase,
+                currentOperator.CurrentPhase,
                 currentLevel
             );
 
@@ -232,10 +232,10 @@ public class OperatorDetailPanel : MonoBehaviour
     {
         if (currentOperator != null)
         {
-            phaseText.text = $"{(int)currentOperator.currentPhase}";
-            OperatorIconHelper.SetElitePhaseIcon(promotionImage, currentOperator.currentPhase);
+            phaseText.text = $"{(int)currentOperator.CurrentPhase}";
+            OperatorIconHelper.SetElitePhaseIcon(promotionImage, currentOperator.CurrentPhase);
 
-            if (currentOperator.currentPhase == OperatorGrowthSystem.ElitePhase.Elite0)
+            if (currentOperator.CurrentPhase == OperatorElitePhase.Elite0)
             {
                 maxPromotionIndicator.gameObject.SetActive(false);
             }
@@ -267,7 +267,7 @@ public class OperatorDetailPanel : MonoBehaviour
                 MainMenuManager.Instance!.ChangePanel(levelUpPanelObject, gameObject);
                 levelUpPanel.Initialize(currentOperator);
             }
-            else if (currentOperator.currentLevel == OperatorGrowthSystem.GetMaxLevel(currentOperator.currentPhase))
+            else if (currentOperator.CurrentLevel == OperatorGrowthSystem.GetMaxLevel(currentOperator.CurrentPhase))
             {
                 NotificationToastManager.Instance!.ShowNotification("현재 정예화에서의 최대 레벨입니다.");
             }
@@ -278,14 +278,14 @@ public class OperatorDetailPanel : MonoBehaviour
     {
         // 0정예화일 때에만 진입 가능
         if (currentOperator != null && 
-            currentOperator.currentPhase == OperatorGrowthSystem.ElitePhase.Elite0)
+            currentOperator.CurrentPhase == OperatorElitePhase.Elite0)
         {
             GameObject promotionPanelObject = MainMenuManager.Instance!.PanelMap[MainMenuManager.MenuPanel.OperatorPromotion];
             MainMenuManager.Instance!.ChangePanel(promotionPanelObject, gameObject);
             OperatorPromotionPanel promotionPanel = promotionPanelObject.GetComponent<OperatorPromotionPanel>();
             promotionPanel.Initialize(currentOperator);
         }
-        else if (currentOperator.currentPhase == OperatorGrowthSystem.ElitePhase.Elite1)
+        else if (currentOperator.CurrentPhase == OperatorElitePhase.Elite1)
         {
             NotificationToastManager.Instance!.ShowNotification($"최대 정예화에 도달했습니다.");
         }

@@ -1,0 +1,58 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3e9e80fd5f700b74fac5a82924257d05, type: 3}
+  m_Name: DualBlade
+  m_EditorClassIdentifier: 
+  entityID: op_dualblade
+  entityNameLocalizationKey: op.dualblade.name
+  stats:
+    _deployableUnitStats:
+      _baseStats:
+        _health: 1089
+        _defense: 146
+        _magicResistance: 0
+      _deploymentCost: 18
+      _redeployTime: 1
+    _attackPower: 245
+    _attackSpeed: 1.3
+    _maxBlockableEnemies: 2
+    _spRecoveryRate: 1
+  prefab: {fileID: 5185628148525671535, guid: 25e96cf36f195c445831adbc906931c4, type: 3}
+  primaryColor: {r: 1, g: 0.4392157, b: 0, a: 1}
+  secondaryColor: {r: 0, g: 0, b: 0, a: 0}
+  icon: {fileID: 0}
+  canDeployOnGround: 1
+  canDeployOnHill: 0
+  operatorClass: 7
+  attackType: 0
+  attackRangeType: 0
+  attackableTiles:
+  - {x: -1, y: 0}
+  - {x: 0, y: 0}
+  elite0Skill: {fileID: 11400000, guid: 0da8479ac5309df47beede7a966181e1, type: 2}
+  initialSP: 0
+  deployEffectPrefab: {fileID: 856940111582043208, guid: bec65663e4fb6004ebef9ec4aab1b61f, type: 3}
+  meleeAttackEffectPrefab: {fileID: 1249516511906949688, guid: 2be72af12fb6ab14297a81756f04ff0c, type: 3}
+  hitEffectPrefab: {fileID: 7245273522019326439, guid: a7ce6bb72f5ed9145aeb0e54505f25fd, type: 3}
+  muzzleVFXPrefab: {fileID: 0}
+  projectilePrefab: {fileID: 0}
+  levelStats:
+    healthPerLevel: 8.2
+    attackPowerPerLevel: 2.3
+    defensePerLevel: 1.3
+    magicResistancePerLevel: 0
+  elite1Unlocks:
+    additionalAttackTiles: []
+    unlockedSkill: {fileID: 11400000, guid: d4403c0916300534cbff5b8bf5e425c8, type: 2}
+  promotionItems:
+  - itemData: {fileID: 11400000, guid: 2329af0554c87104bb26e072bb7d6935, type: 2}
+    count: 1

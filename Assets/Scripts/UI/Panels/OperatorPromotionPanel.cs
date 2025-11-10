@@ -70,7 +70,7 @@ public class OperatorPromotionPanel : MonoBehaviour
     public void Initialize(OwnedOperator op)
     {
         this.op = op;
-        opData = op.OperatorProgressData!;
+        opData = op.OperatorData!;
 
         // 보상 목록 초기화
         InitializeRequiredItems();
@@ -81,8 +81,8 @@ public class OperatorPromotionPanel : MonoBehaviour
     private void UpdateUI()
     {
         // 텍스트 업데이트
-        OperatorGrowthSystem.ElitePhase currentPhase = op.currentPhase;
-        OperatorGrowthSystem.ElitePhase newPhase = op.currentPhase + 1; // enum이니까
+        OperatorElitePhase currentPhase = op.CurrentPhase;
+        OperatorElitePhase newPhase = op.CurrentPhase + 1; // enum이니까
         currentPromotionText.text = $"<size=200>{(int)currentPhase}</size>\n\n현재 정예화";
         newPromotionText.text = $"<size=200>{(int)newPhase}</size>\n\n목표 정예화";
 
@@ -115,7 +115,7 @@ public class OperatorPromotionPanel : MonoBehaviour
     // 새로 업데이트되는 스킬 정보 업데이트 
     private void ShowNewSkill()
     {
-        OperatorSkill? unlockedSkill = opData.elite1Unlocks.unlockedSkill;
+        OperatorSkill? unlockedSkill = opData.Elite1Unlocks.unlockedSkill;
 
         if (unlockedSkill != null)
         {
@@ -151,7 +151,7 @@ public class OperatorPromotionPanel : MonoBehaviour
         if (attackRangeHelper == null) return;
 
         // 정예화 후 추가되는 공격 범위
-        List<Vector2Int>? additionalTiles = opData.elite1Unlocks.additionalAttackTiles;
+        List<Vector2Int>? additionalTiles = opData.Elite1Unlocks.additionalAttackTiles;
 
         // 추가되는 범위가 없으면 공격 범위를 담는 부분은 보여주지 않음
         if (additionalTiles.Count == 0)
@@ -202,9 +202,9 @@ public class OperatorPromotionPanel : MonoBehaviour
 
     private void ShowRequiredItems()
     {
-        for (int i = 0; i < opData.promotionItems.Count; i++)
+        for (int i = 0; i < opData.PromotionItems.Count; i++)
         {
-            OperatorData.PromotionItems promotionItem = opData.promotionItems[i];
+            ItemWithCount promotionItem = opData.PromotionItems[i];
 
             // 아이템 갯수 계산 - 가지고 있는 아이템이 요구 조건에 미달하는지 여부를 판단
             int ownedCount = GameManagement.Instance!.PlayerDataManager.GetItemCount(promotionItem.itemData.itemName);
@@ -238,7 +238,7 @@ public class OperatorPromotionPanel : MonoBehaviour
             bool success = OperatorGrowthManager.Instance!.TryPromoteOperator(op);
             if (success)
             {
-                NotificationToastManager.Instance!.ShowNotification($"{op.operatorName} 정예화 완료");
+                NotificationToastManager.Instance!.ShowNotification($"{op.OperatorID} 정예화 완료");
                 // 디테일 패널로 돌아가기
                 MainMenuManager.Instance!.ChangePanel(
                     MainMenuManager.Instance!.PanelMap[MainMenuManager.MenuPanel.OperatorDetail],

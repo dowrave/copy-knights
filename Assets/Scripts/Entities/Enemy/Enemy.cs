@@ -41,8 +41,6 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity
         }
     }
 
-    public string EntityName => BaseData.EntityName;
-
     // 경로 관련
     protected PathData? pathData;
     protected List<Vector3> currentPath = new List<Vector3>();
@@ -469,7 +467,7 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity
         // 공격 이펙트 프리팹 제거
         if (BaseData.HitEffectPrefab != null)
         {
-            ObjectPoolManager.Instance!.RemovePool("Effect_" + BaseData.EntityName);
+            ObjectPoolManager.Instance!.RemovePool("Effect_" + BaseData.EntityID);
         }
 
         // UI 제거

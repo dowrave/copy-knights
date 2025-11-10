@@ -104,7 +104,7 @@ public class TutorialManager : MonoBehaviour
             if (progress == 1)
             {
                 // GameManagement.Instance?.TimeManager.SetPauseTime();
-                Time.timeScale = 0.2f;
+                Time.timeScale = 0f;
             }
 
             PlayCurrentStep();

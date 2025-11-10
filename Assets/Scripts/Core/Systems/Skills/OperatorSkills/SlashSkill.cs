@@ -36,7 +36,7 @@ namespace Skills.OperatorSkills
             }
         }
 
-        public string GetSlashControllerTag(OperatorData ownerData) => $"{ownerData.entityName}_{skillName}_SlashController";
+        public string GetSlashControllerTag(OperatorData ownerData) => $"{ownerData.EntityID}_{skillName}_SlashController";
 
         protected override void PlaySkillEffect(Operator caster)
         {

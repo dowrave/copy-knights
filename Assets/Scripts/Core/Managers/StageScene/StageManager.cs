@@ -659,10 +659,10 @@ public class StageManager : MonoBehaviour
         // a. ½ºÄõµå
         foreach (var opInfo in squadData)
         {
-            if (opInfo.op.OperatorProgressData != null)
+            if (opInfo.op.OperatorData != null)
             {
-                OperatorData opData = opInfo.op.OperatorProgressData;
-                GameObject operatorPrefab = opData.prefab;
+                OperatorData opData = opInfo.op.OperatorData;
+                GameObject operatorPrefab = opData.Prefab;
 
                 string opPoolTag = opData.GetUnitTag();
                 ObjectPoolManager.Instance.CreatePool(opPoolTag, operatorPrefab, 1);
@@ -676,7 +676,7 @@ public class StageManager : MonoBehaviour
                 if (skillIndex >= 0 && skillIndex < 2)
                 {
                     // ÀÎµ¦½º´Â 0 or 1
-                    OperatorSkill selectedSkill = skillIndex == 0 ? opData.elite0Skill : opData.elite1Unlocks.unlockedSkill;
+                    OperatorSkill selectedSkill = skillIndex == 0 ? opData.Elite0Skill : opData.Elite1Unlocks.unlockedSkill;
                     if (selectedSkill != null)
                     {
                         selectedSkill.PreloadObjectPools(opData);
@@ -698,7 +698,7 @@ public class StageManager : MonoBehaviour
                 if (mapDeployableData != null)
                 {
                     DeployableUnitData deployableData = mapDeployableData.DeployableData;
-                    GameObject deployablePrefab = deployableData.prefab;
+                    GameObject deployablePrefab = deployableData.Prefab;
 
                     string deployablePoolTag = deployableData.GetUnitTag();
                     ObjectPoolManager.Instance.CreatePool(deployablePoolTag, deployablePrefab, 1);

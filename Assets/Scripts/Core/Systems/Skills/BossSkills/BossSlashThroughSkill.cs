@@ -166,10 +166,10 @@ namespace Skills.Base
         public float CastTime => castTime;
         public float MoveDistance => moveDistance;
 
-        public string GetHitVFXTag(EnemyBossData ownerData) => $"{ownerData.EntityName}_{skillName}_hit";
-        public string GetSlashVFXTag(EnemyBossData ownerData) => $"{ownerData.EntityName}_{skillName}_slash";
-        public string GetCastVFXTag(EnemyBossData ownerData) => $"{ownerData.EntityName}_{skillName}_cast";
-        public string GetCrossVFXTag(EnemyBossData ownerData) => $"{ownerData.EntityName}_{skillName}_cross";
+        public string GetHitVFXTag(EnemyBossData ownerData) => $"{ownerData.EntityID}_{skillName}_hit";
+        public string GetSlashVFXTag(EnemyBossData ownerData) => $"{ownerData.EntityID}_{skillName}_slash";
+        public string GetCastVFXTag(EnemyBossData ownerData) => $"{ownerData.EntityID}_{skillName}_cast";
+        public string GetCrossVFXTag(EnemyBossData ownerData) => $"{ownerData.EntityID}_{skillName}_cross";
 
     }
 

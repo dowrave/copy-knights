@@ -7,12 +7,6 @@ using UnityEngine;
 /// </summary>
 public static class OperatorGrowthSystem
 {
-    public enum ElitePhase
-    {
-        Elite0 = 0,  // 초기 상태
-        Elite1 = 1   // 1차 정예화
-    }
-
     private static OperatorLevelData? levelData;
     public static readonly int Elite0MaxLevel = 50;
     public static readonly int Elite1MaxLevel = 60;
@@ -22,20 +16,20 @@ public static class OperatorGrowthSystem
         levelData = data;
     }
 
-    public static int GetMaxLevel(ElitePhase phase)
+    public static int GetMaxLevel(OperatorElitePhase phase)
     {
         // C#의 패턴 매칭을 사용한 switch 표현식
         return phase switch
         {
-            ElitePhase.Elite0 => Elite0MaxLevel,
-            ElitePhase.Elite1 => Elite1MaxLevel,
+            OperatorElitePhase.Elite0 => Elite0MaxLevel,
+            OperatorElitePhase.Elite1 => Elite1MaxLevel,
             _ => 1
         };
     }
 
 
     // 다음 레벨로 넘어가기 위해 필요한 경험치량. 현재 경험치량에 관계 없다.
-    public static int GetMaxExpForNextLevel(ElitePhase phase, int currentLevel)
+    public static int GetMaxExpForNextLevel(OperatorElitePhase phase, int currentLevel)
     {
         InstanceValidator.ValidateInstance(levelData);
 
@@ -45,11 +39,11 @@ public static class OperatorGrowthSystem
 
     // 현재 레벨에서 다음 레벨로 가기 위해 남은 경험치량을 계산
 
-    public static int GetRemainingExpForNextLevel(ElitePhase phase, int currentLevel, int currentExp)
+    public static int GetRemainingExpForNextLevel(OperatorElitePhase phase, int currentLevel, int currentExp)
         {
             // 정예화 가능 레벨이거나 최대 레벨이면 0 반환
-            if ((phase == ElitePhase.Elite0 && currentLevel >= 50) ||
-                (phase == ElitePhase.Elite1 && currentLevel >= 60))
+            if ((phase == OperatorElitePhase.Elite0 && currentLevel >= 50) ||
+                (phase == OperatorElitePhase.Elite1 && currentLevel >= 60))
             {
                 return 0;
             }
@@ -59,13 +53,13 @@ public static class OperatorGrowthSystem
         }
 
     // 같은 정예화에서 현재 상태에서 목표 레벨까지 도달하는데 필요한 "총 경험치"를 계산합니다.
-    public static int GetTotalExpRequiredForLevel(ElitePhase phase, int currentLevel, int targetLevel, int currentExp)
+    public static int GetTotalExpRequiredForLevel(OperatorElitePhase phase, int currentLevel, int targetLevel, int currentExp)
     {
         // 유효하지 않은 입력 검증
         if (currentLevel >= targetLevel) return 0;
         if (currentLevel < 1 || targetLevel < 1) return 0;
-        if (phase == ElitePhase.Elite0 && targetLevel > 50) return 0;
-        if (phase == ElitePhase.Elite1 && targetLevel > 60) return 0;
+        if (phase == OperatorElitePhase.Elite0 && targetLevel > 50) return 0;
+        if (phase == OperatorElitePhase.Elite1 && targetLevel > 60) return 0;
 
         int totalRequired = 0;
 
@@ -84,7 +78,7 @@ public static class OperatorGrowthSystem
     // 주어진 경험치로 도달 가능한 최대 레벨을 계산합니다.
     // 현재의 정예화 단계 내에서만 계산합니다.
     public static (int reachableLevel, int remainingExp) CalculateReachableLevel(
-        ElitePhase phase, 
+        OperatorElitePhase phase, 
         int currentLevel, 
         int totalExp)
     {
@@ -92,7 +86,7 @@ public static class OperatorGrowthSystem
 
         int remainingExp = totalExp;
         int level = currentLevel;
-        int maxLevel = (phase == ElitePhase.Elite0) ? 50 : 60;
+        int maxLevel = (phase == OperatorElitePhase.Elite0) ? 50 : 60;
 
         // 경험치를 소모하면서 도달 가능한 최대 레벨 계산
         while (level < maxLevel)
@@ -107,7 +101,7 @@ public static class OperatorGrowthSystem
         return (level, remainingExp);
     }
 
-    public static bool CanLevelUp(ElitePhase currentPhase, int currentLevel)
+    public static bool CanLevelUp(OperatorElitePhase currentPhase, int currentLevel)
     {
         int maxLevel = GetMaxLevel(currentPhase);
         if (currentLevel >= maxLevel) return false;
@@ -116,19 +110,19 @@ public static class OperatorGrowthSystem
 
 
     /// 현재 레벨에서 정예화 승급이 가능한지 확인.
-    public static bool CanPromote(ElitePhase phase, int currentLevel)
+    public static bool CanPromote(OperatorElitePhase phase, int currentLevel)
     {
-        return phase == ElitePhase.Elite0 && currentLevel >= 50;
+        return phase == OperatorElitePhase.Elite0 && currentLevel >= 50;
     }
 
 
     /// CanPromote의 래핑 함수
     public static bool CanPromote(OwnedOperator op)
     {
-        return CanPromote(op.currentPhase, op.currentLevel) ;
+        return CanPromote(op.CurrentPhase, op.CurrentLevel) ;
     }
 
-    public static int GetSafeExpAmount(int currentExp, int itemExp, int currentLevel, ElitePhase currentPhase)
+    public static int GetSafeExpAmount(int currentExp, int itemExp, int currentLevel, OperatorElitePhase currentPhase)
     {
         // 최대 레벨에서는 경험치 획득 불가능
         int maxLevel = GetMaxLevel(currentPhase);
@@ -139,15 +133,15 @@ public static class OperatorGrowthSystem
     }
 
     // 각 정예화 및 레벨에서의 스탯 계산. 기준은 0정예화 1레벨이다.
-    public static OperatorStats CalculateStats(OwnedOperator op, int targetLevel, ElitePhase targetPhase)
+    public static OperatorStats CalculateStats(OwnedOperator op, int targetLevel, OperatorElitePhase targetPhase)
     {
         // 기반 스탯
-        OperatorStats baseStats = op.OperatorProgressData!.stats; 
-        OperatorData.OperatorLevelStats levelUpStats = op.OperatorProgressData!.levelStats!;
+        OperatorStats baseStats = op.OperatorData!.Stats; 
+        OperatorData.OperatorLevelStats levelUpStats = op.OperatorData!.LevelStats!;
 
         // (사실상) 레벨 차이 계산하기
         int actualTargetLevel = CalculateActualLevel(targetPhase, targetLevel);
-        int baseLevel = CalculateActualLevel(ElitePhase.Elite0, 1);
+        int baseLevel = CalculateActualLevel(OperatorElitePhase.Elite0, 1);
         int levelDifference = actualTargetLevel - baseLevel;
 
         // 레벨 차이만큼 스탯 증가 적용
@@ -169,12 +163,12 @@ public static class OperatorGrowthSystem
 
     // 현재 정예화와 레벨을 기반으로 실질적인 레벨을 계산한다.
     // ex) 1정예화 60레벨은 실질적으로 0정예화 109레벨(0정예화 50레벨 = 1정예화 1레벨)로 계산됨.
-    public static int CalculateActualLevel(ElitePhase phase, int currentLevel)
+    public static int CalculateActualLevel(OperatorElitePhase phase, int currentLevel)
     {
         return phase switch
         {
-            ElitePhase.Elite0 => currentLevel,
-            ElitePhase.Elite1 => Elite0MaxLevel + (currentLevel - 1),
+            OperatorElitePhase.Elite0 => currentLevel,
+            OperatorElitePhase.Elite1 => Elite0MaxLevel + (currentLevel - 1),
             _ => currentLevel
         };
     }

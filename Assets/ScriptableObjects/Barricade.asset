@@ -12,7 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d03fe3bf630f61e47853da4857c69156, type: 3}
   m_Name: Barricade
   m_EditorClassIdentifier: 
-  entityName: Barricade
+  entityID: deployable_barricade
+  entityNameLocalizationKey: deployable.barricade.name
   stats:
     _baseStats:
       _health: 100

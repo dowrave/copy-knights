@@ -71,9 +71,9 @@ public class UserSquadManager : MonoBehaviour
         {
             if (skillIndex < 0 || skillIndex >= newOp.UnlockedSkills.Count)
             {
-                return GameManagement.Instance!.PlayerDataManager.TryUpdateSquad(squadIndex, newOp.operatorName, 0);
+                return GameManagement.Instance!.PlayerDataManager.TryUpdateSquad(squadIndex, newOp.OperatorID, 0);
             }
-            return GameManagement.Instance!.PlayerDataManager.TryUpdateSquad(squadIndex, newOp.operatorName, skillIndex);
+            return GameManagement.Instance!.PlayerDataManager.TryUpdateSquad(squadIndex, newOp.OperatorID, skillIndex);
         }
     }
 

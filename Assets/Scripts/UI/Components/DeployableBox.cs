@@ -60,8 +60,8 @@ public class DeployableBox : MonoBehaviour, IPointerDownHandler, IBeginDragHandl
         if (deployableComponent is Operator)
         {
             OwnedOperator op = deployableInfo.ownedOperator!;
-            OperatorIconHelper.SetClassIcon(operatorClassIconImage, op.OperatorProgressData.operatorClass); // 클래스 아이콘 설정
-            boxIcon = op.OperatorProgressData?.Icon;
+            OperatorIconHelper.SetClassIcon(operatorClassIconImage, op.OperatorData.OperatorClass); // 클래스 아이콘 설정
+            boxIcon = op.OperatorData?.Icon;
         }
         else
         {
@@ -180,7 +180,7 @@ public class DeployableBox : MonoBehaviour, IPointerDownHandler, IBeginDragHandl
         }
 
         // 좌측 하단 정예화 아이콘 활성화 여부
-        if (deployableComponent is Operator && deployableInfo.ownedOperator.currentPhase == OperatorGrowthSystem.ElitePhase.Elite1)
+        if (deployableComponent is Operator && deployableInfo.ownedOperator.CurrentPhase == OperatorElitePhase.Elite1)
         {
             promotionIconImage.gameObject.SetActive(true);
         }

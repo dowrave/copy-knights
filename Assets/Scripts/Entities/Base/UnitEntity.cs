@@ -235,7 +235,7 @@ public abstract class UnitEntity : MonoBehaviour, ITargettable, IFactionMember, 
         CurrentHealth += attackSource.Damage;
         float actualHealAmount = Mathf.FloorToInt(CurrentHealth - oldHealth); // ½ÇÁ¦ Èú·®
 
-        if (attackSource.Attacker is MedicOperator medic && medic.OperatorData.hitEffectPrefab != null)
+        if (attackSource.Attacker is MedicOperator medic && medic.OperatorData.HitEffectPrefab != null)
         {
             PlayGetHitEffect(attackSource);
             

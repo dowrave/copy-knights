@@ -149,10 +149,11 @@ public class InStageInfoPanel : MonoBehaviour
         ShowOperatorPanels();
 
         // 이름
-        nameText.text = currentDeployableInfo.operatorData?.entityName ?? string.Empty;
+        // nameText.text = currentDeployableInfo.operatorData?.EntityID ?? string.Empty;
+        nameText.text = GameManagement.Instance!.LocalizationManager.GetText(currentDeployableInfo.operatorData?.EntityID);
 
         // 레벨
-        levelText.text = $"{currentDeployableInfo.ownedOperator?.currentLevel}";
+        levelText.text = $"{currentDeployableInfo.ownedOperator?.CurrentLevel}";
 
         // 스킬
         UpdateSkillInfo();
@@ -164,7 +165,7 @@ public class InStageInfoPanel : MonoBehaviour
     private void UpdateDeployableInfo()
     {
         HideOperatorPanels();
-        nameText.text = currentDeployableInfo.deployableUnitData?.entityName ?? string.Empty;
+        nameText.text = currentDeployableInfo.deployableUnitData?.EntityID ?? string.Empty;
     }
 
     private void UpdateStatInfo()
@@ -241,17 +242,17 @@ public class InStageInfoPanel : MonoBehaviour
         if (operatorSkill != null)
         {
             ShowOperatorPanels();
-            OperatorIconHelper.SetClassIcon(classIconImage, currentDeployableInfo.operatorData.operatorClass);
+            OperatorIconHelper.SetClassIcon(classIconImage, currentDeployableInfo.operatorData.OperatorClass);
 
             // 0 정예화는 아이콘에 이미지가 없음 : 오브젝트 비활성화 -> 레벨 요소가 왼쪽으로 이동
-            if (currentDeployableInfo.ownedOperator.currentPhase == OperatorGrowthSystem.ElitePhase.Elite0)
+            if (currentDeployableInfo.ownedOperator.CurrentPhase == OperatorElitePhase.Elite0)
             {
                 promotionIconImage.gameObject.SetActive(false);
             }
             else
             {
                 promotionIconImage.gameObject.SetActive(true);
-                OperatorIconHelper.SetElitePhaseIcon(promotionIconImage, currentDeployableInfo.ownedOperator.currentPhase);
+                OperatorIconHelper.SetElitePhaseIcon(promotionIconImage, currentDeployableInfo.ownedOperator.CurrentPhase);
             }
 
             skillIconImage.sprite = operatorSkill.skillIcon;

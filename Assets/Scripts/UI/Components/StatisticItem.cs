@@ -54,7 +54,7 @@ public class StatisticItem : MonoBehaviour
         }
 
         // 클래스 아이콘 할당, 없다면 검은색으로 표시
-        Sprite? classSprite = GameManagement.Instance.ResourceManager.IconData.GetClassIcon(opData.operatorClass);
+        Sprite? classSprite = GameManagement.Instance.ResourceManager.IconData.GetClassIcon(opData.OperatorClass);
         if (classSprite != null)
         {
             classIcon.sprite = classSprite;
