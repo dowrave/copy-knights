@@ -186,6 +186,7 @@
     <Compile Include="Assets\Scripts\SO_Scripts\TutorialData.cs" />
     <Compile Include="Assets\Scripts\Core\Managers\StageScene\BuffVFXManager.cs" />
     <Compile Include="Assets\Scripts\Entities\Operators\Operator.cs" />
+    <Compile Include="Assets\Scripts\UI\Canvas\TutorialCanvas.cs" />
     <Compile Include="Assets\Scripts\Core\Systems\Buff\Buff.cs" />
     <Compile Include="Assets\Scripts\UI\Components\StatisticItem.cs" />
     <Compile Include="Assets\Scripts\Utils\UIHelper.cs" />
@@ -201,7 +202,6 @@
     <Compile Include="Assets\Scripts\Core\Systems\Skills\Base(Abstract)\UnitSkill.cs" />
     <Compile Include="Assets\Scripts\Entities\Operators\DualBladeOperator.cs" />
     <Compile Include="Assets\Scripts\Core\States\DeployableInfo.cs" />
-    <Compile Include="Assets\Scripts\UI\Panels\TutorialPanel.cs" />
     <Compile Include="Assets\Scripts\Core\Managers\GameManagement\PlayerDataManager.cs" />
     <Compile Include="Assets\Scripts\Core\Systems\Class\AttackSource.cs" />
     <Compile Include="Assets\Scripts\Entities\Barricade.cs" />

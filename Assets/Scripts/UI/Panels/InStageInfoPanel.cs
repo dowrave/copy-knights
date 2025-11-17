@@ -150,7 +150,7 @@ public class InStageInfoPanel : MonoBehaviour
 
         // 이름
         // nameText.text = currentDeployableInfo.operatorData?.EntityID ?? string.Empty;
-        nameText.text = GameManagement.Instance!.LocalizationManager.GetText(currentDeployableInfo.operatorData?.EntityID);
+        nameText.text = GameManagement.Instance!.LocalizationManager.GetText(currentDeployableInfo.operatorData?.EntityNameLocalizationKey);
 
         // 레벨
         levelText.text = $"{currentDeployableInfo.ownedOperator?.CurrentLevel}";

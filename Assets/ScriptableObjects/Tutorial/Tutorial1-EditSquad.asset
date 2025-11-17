@@ -18,26 +18,30 @@ MonoBehaviour:
     dialogues:
     - "\uC2A4\uD14C\uC774\uC9C0 1-0 \uBC84\uD2BC\uC744 \uD074\uB9AD\uD574\uC8FC\uC138\uC694."
     dialogueBoxPosition: {x: 0, y: 125}
+    highlightUIName: Stage1-0Button
     requireUserAction: 1
-    expectedButtonName: Stage1-0Button
+    waitTime: 0
   - stepName: 2.Click Squad Edit Button
     dialogues:
     - "\uBD80\uB300 \uD3B8\uC131\uD558\uAE30 \uBC84\uD2BC\uC744 \uD074\uB9AD\uD574\uC8FC\uC138\uC694."
     dialogueBoxPosition: {x: 400, y: -250}
+    highlightUIName: ConfirmButton
     requireUserAction: 1
-    expectedButtonName: ConfirmButton
+    waitTime: 0.4
   - stepName: 3. Click Empty Slot
     dialogues:
     - "\uBE48 \uC2AC\uB86F\uC744 \uD074\uB9AD\uD574\uC8FC\uC138\uC694."
     dialogueBoxPosition: {x: -250, y: 150}
+    highlightUIName: OperatorSlot
     requireUserAction: 1
-    expectedButtonName: OperatorSlot
+    waitTime: 0
   - stepName: 4. Click Vanguard
     dialogues:
     - "\uBC45\uAC00\uB4DC \uC2AC\uB86F\uC744 \uD074\uB9AD\uD574\uC8FC\uC138\uC694."
-    dialogueBoxPosition: {x: 60, y: 150}
+    dialogueBoxPosition: {x: 70, y: 150}
+    highlightUIName: OperatorSlot(op_vanguard)
     requireUserAction: 1
-    expectedButtonName: OperatorSlot(op_vanguard)
+    waitTime: 0
   - stepName: 5. Conversation Left Panel
     dialogues:
     - "\uC67C\uCABD \uD328\uB110\uC5D0\uB294 \uC120\uD0DD\uB41C \uC624\uD37C\uB808\uC774\uD130\uC758
@@ -46,64 +50,71 @@ MonoBehaviour:
       2\uAC1C\uC758 \uC2A4\uD0AC \uC911 1\uAC1C\uC758 \uC2A4\uD0AC\uC744 \uC120\uD0DD\uD574\uC11C
       \uD3B8\uC131\uD560 \uC218 \uC788\uC2B5\uB2C8\uB2E4."
     dialogueBoxPosition: {x: -150, y: 0}
+    highlightUIName: LeftArea
     requireUserAction: 0
-    expectedButtonName: 
+    waitTime: 0
   - stepName: 6. Click Confirm
     dialogues:
     - "\uD655\uC778 \uBC84\uD2BC\uC744 \uD074\uB9AD\uD574\uC8FC\uC138\uC694."
     dialogueBoxPosition: {x: 500, y: -285}
+    highlightUIName: ConfirmButton
     requireUserAction: 1
-    expectedButtonName: ConfirmButton
+    waitTime: 0
   - stepName: 7. Return To Squad Edit Panel
     dialogues:
     - "Vanguard\uAC00 \uC131\uACF5\uC801\uC73C\uB85C \uD3B8\uC131\uB418\uC5C8\uC2B5\uB2C8\uB2E4."
     - "Sniper\uC640 Guard\uB3C4 \uD3B8\uC131\uD558\uACE0 \uC2A4\uD14C\uC774\uC9C0\uB97C
       \uC9C4\uD589\uD558\uACA0\uC2B5\uB2C8\uB2E4."
-    - 
-    - 
-    - 
     dialogueBoxPosition: {x: -250, y: 150}
+    highlightUIName: 
     requireUserAction: 0
-    expectedButtonName: 
+    waitTime: 0
   - stepName: 8. Click Empty Slot
     dialogues:
     - "\uBE48 \uC2AC\uB86F\uC744 \uC120\uD0DD\uD574\uC8FC\uC138\uC694."
     dialogueBoxPosition: {x: -250, y: -200}
+    highlightUIName: OperatorSlot (1)
     requireUserAction: 1
-    expectedButtonName: OperatorSlot (1)
+    waitTime: 0
   - stepName: 9. Click Sniper
     dialogues:
-    - "Sniper\uB97C \uD074\uB9AD\uD574\uC8FC\uC138\uC694."
+    - "\uC2A4\uB098\uC774\uD37C \uC2AC\uB86F\uC744 \uD074\uB9AD\uD574\uC8FC\uC138\uC694."
     dialogueBoxPosition: {x: 60, y: 150}
+    highlightUIName: OperatorSlot(op_sniper)
     requireUserAction: 1
-    expectedButtonName: OperatorSlot(op_sniper)
+    waitTime: 0
   - stepName: 10. Click Confirm Button
     dialogues:
     - "\uD655\uC778 \uBC84\uD2BC\uC744 \uD074\uB9AD\uD574\uC8FC\uC138\uC694."
     dialogueBoxPosition: {x: 500, y: -285}
+    highlightUIName: ConfirmButton
     requireUserAction: 1
-    expectedButtonName: ConfirmButton
+    waitTime: 0
   - stepName: 11. Click Empty Slot
     dialogues:
     - "\uBE48 \uC2AC\uB86F\uC744 \uD074\uB9AD\uD574\uC8FC\uC138\uC694."
     dialogueBoxPosition: {x: -25, y: 200}
+    highlightUIName: OperatorSlot (2)
     requireUserAction: 1
-    expectedButtonName: OperatorSlot (2)
+    waitTime: 0
   - stepName: 12. Click Guard
     dialogues:
-    - "Guard\uB97C \uD074\uB9AD\uD574\uC8FC\uC138\uC694."
+    - "\uAC00\uB4DC \uC2AC\uB86F\uC744 \uD074\uB9AD\uD574\uC8FC\uC138\uC694."
     dialogueBoxPosition: {x: 60, y: 150}
+    highlightUIName: OperatorSlot(op_guard)
     requireUserAction: 1
-    expectedButtonName: OperatorSlot(op_guard)
+    waitTime: 0
   - stepName: 13. Click Confirm Button
     dialogues:
     - "\uD655\uC778 \uBC84\uD2BC\uC744 \uD074\uB9AD\uD574\uC8FC\uC138\uC694."
     dialogueBoxPosition: {x: 500, y: -285}
+    highlightUIName: ConfirmButton
     requireUserAction: 1
-    expectedButtonName: ConfirmButton
+    waitTime: 0
   - stepName: 14. Start Stage
     dialogues:
     - "\uC2A4\uD14C\uC774\uC9C0 \uC9C4\uC785 \uBC84\uD2BC\uC744 \uD074\uB9AD\uD574\uC8FC\uC138\uC694."
     dialogueBoxPosition: {x: 250, y: -250}
+    highlightUIName: StartButton
     requireUserAction: 1
-    expectedButtonName: StartButton
+    waitTime: 0

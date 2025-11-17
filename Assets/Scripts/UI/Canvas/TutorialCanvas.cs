@@ -3,23 +3,21 @@ using UnityEngine.UI;
 using TMPro;
 using System.Collections;
 
-
-// 
-public class TutorialPanel : MonoBehaviour
+public class TutorialCanvas : MonoBehaviour
 {
     [Header("UI References")]
     [SerializeField] private TextMeshProUGUI textComponent = default!;
     [SerializeField] private int maxCharactersPerPage;
     [SerializeField] private Image dialogueBox = default!;
     [SerializeField] private Image boxRightBottomImage = default!;
-    [SerializeField] private Button transparentPanel = default!;
+    [SerializeField] private Button dimPanel = default!;
 
     private RectTransform boxRect;
 
     private bool CanMoveToNextPage { get { return currentPageIndex < maxPageIndex && !isTyping && typingCoroutine == null;  } }
     private bool DialogueFinished { get { return currentPageIndex == maxPageIndex && !isTyping && typingCoroutine == null; } }
 
-    private string currentText = string.Empty; // 1글자씩 나타남. 현재 나타난 글자
+    private string currentText = string.Empty; // 1글자씩 나타남// 모든 글자가 나타난 후 처리. 현재 나타난 글자
     private string fullText = string.Empty; // 이번 dialogue에서 나타나야 할 전체 글자
     private float typingSpeed = 0.05f;
     private bool isTyping = false;
@@ -54,9 +52,9 @@ public class TutorialPanel : MonoBehaviour
         boxRect = dialogueBox.GetComponent<RectTransform>();
 
         // 배경 패널 이벤트 초기화 및 등록
-        transparentPanel.gameObject.SetActive(true);
-        transparentPanel.onClick.RemoveAllListeners();
-        transparentPanel.onClick.AddListener(OnClick);
+        dimPanel.gameObject.SetActive(true);
+        dimPanel.onClick.RemoveAllListeners();
+        dimPanel.onClick.AddListener(OnClick);
 
         SetActive(true);
         SetPosition(step.dialogueBoxPosition.x, step.dialogueBoxPosition.y);
@@ -72,7 +70,6 @@ public class TutorialPanel : MonoBehaviour
             typingCoroutine = null;
         }
 
-       
         // 첫 페이지 타이핑 시작
         typingCoroutine = StartCoroutine(TypeText());
     }
@@ -171,23 +168,22 @@ public class TutorialPanel : MonoBehaviour
     
     public void SetTransparentPanel(bool show)
     {
-        transparentPanel.gameObject.SetActive(show);
+        dimPanel.gameObject.SetActive(show);
     }
 
-    // transparentPanel.onClick에 리스너를 추가하는 메서드
     public void AddClickListener(UnityEngine.Events.UnityAction action)
     {
-        transparentPanel.onClick.AddListener(action);
+        dimPanel.onClick.AddListener(action);
     }
 
     public void RemoveClickListener(UnityEngine.Events.UnityAction action)
     {
-        transparentPanel.onClick.RemoveListener(action);
+        dimPanel.onClick.RemoveListener(action);
     }
 
     public void RemoveAllClickListeners()
     {
-        transparentPanel.onClick.RemoveAllListeners();
+        dimPanel.onClick.RemoveAllListeners();
     }
 
     private void SetPageIndicator(bool show)
