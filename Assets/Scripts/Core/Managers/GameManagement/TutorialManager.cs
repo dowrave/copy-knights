@@ -18,9 +18,9 @@ public class TutorialManager : MonoBehaviour
     private string stageIdRequiredForTutorial = "1-0"; // 클리어가 요구되는 stage의 stageId
 
     // 현재 강조 중인 요소
-    private GameObject highlightedObject;
-    private Transform originalParent;
-    private int originalSiblingIndex;
+    private GameObject highlightedCopiedObject;
+    // private Transform originalParent;
+    // private int originalSiblingIndex;
 
     private TutorialData currentData = default!;
     private TutorialData.TutorialStep currentStep = default!;
@@ -158,7 +158,6 @@ public class TutorialManager : MonoBehaviour
         }
     }
 
-
     // 각 TutorialData의 모든 step이 끝났을 때 호출
     private void FinishCurrentTutorial()
     {
@@ -222,22 +221,50 @@ public class TutorialManager : MonoBehaviour
         // 특정 버튼을 클릭해야만 하는 경우
         else
         {
-            Button expectedButton = GameObject.Find(expectedButtonName)?.GetComponent<Button>();
-            if (expectedButton == null)
+            // Button expectedButton = GameObject.Find(expectedButtonName)?.GetComponent<Button>();
+            Button originalButton = FindTargetButtonInCanvas(canvas, expectedButtonName);
+            Button tutorialButton = FindTargetButtonInCanvas(tutorialCanvas, expectedButtonName);
+
+            if (originalButton == null) 
             {
-                Logger.LogError("요청된 버튼을 찾을 수 없습니다 : " + expectedButtonName);
+                Logger.LogError("원본 캔버스에서 버튼을 발견하지 못함");
+                yield break;
+            }
+            if (tutorialButton == null) 
+            {
+                Logger.LogError("튜토리얼 캔버스에서 복사된 버튼을 발견하지 못함");
                 yield break;
             }
 
-            Logger.Log("요청된 버튼을 찾았습니다 : " + expectedButton.name);
-
-            expectedButton.onClick.AddListener(() => actionReceived = true);
+            // TutorialCanvas에 Instantiate로 새로 만든 버튼은 원본 버튼의 리스너가 등록되지 않았음
+            // 그래서 원본 버튼의 리스너도 동작하게끔 구현
+            tutorialButton.onClick.AddListener(
+                () => {
+                    actionReceived = true;
+                    originalButton.onClick.Invoke();
+                });
 
             // 버튼 입력 대기
             while (!actionReceived) yield return null;
 
             CurrentStepFinish();
         }
+    }
+
+    // 캔버스에서의 목표 버튼을 찾음
+    // TutorialCanvas가 MonoBehaviour을 상속받기 때문에 공통된 조상인 Component로 타입 처리함
+    private Button FindTargetButtonInCanvas(Component canvas, string buttonName)
+    {
+        Button[] buttons = canvas.GetComponentsInChildren<Button>();
+        foreach (Button button in buttons)
+        {
+            if (button.name == buttonName)
+            {
+                return button;
+            }
+        }
+        Logger.LogError($"{buttonName}에 해당하는 버튼을 발견하지 못함");
+        return null;
     }
 
     private Canvas? FindRootCanvas()
@@ -346,29 +373,86 @@ public class TutorialManager : MonoBehaviour
 
         tutorialCanvas.gameObject.SetActive(true);
 
-        // 원본 UI의 정보 저장
-        highlightedObject = targetUI;
-        originalParent = targetUI.transform.parent;
-        originalSiblingIndex = targetUI.transform.GetSiblingIndex();
-
-        // 애니메이션 등이 있을 수 있으니 0.3초 후에 버튼을 옮김
-        // 일반적인 애니메이션이 0.2초 정도임을 감안함
+        // 애니메이션 등이 있을 수 있으니 waitTime만큼 기다린 다음 버튼을 생성함
         yield return new WaitForSeconds(waitTime);
 
-        // 강조할 오브젝트를 TutorialCanvas의 자식으로 만듦
-        targetUI.transform.SetParent(tutorialCanvas.gameObject.transform, true);
+        // 프레임의 UI 레이아웃 계산 완료를 기다림
+        yield return new WaitForEndOfFrame();
+
+        // [수정 중]원본 UI 복사해서 튜토리얼 캔버스에 생성
+        // highlightedCopiedObject = Instantiate(targetUI); // 부모 없이 복사
+        highlightedCopiedObject = Instantiate(targetUI, tutorialCanvas.transform, false);
+        highlightedCopiedObject.name = targetUI.name; // (Clone)이라는 오브젝트 이름 제거, 원본과 동일한 이름으로 설정
+        Logger.Log("하이라이트 요소 캔버스로 복제됨");
+
+        // 불필요한 Layout 컴포넌트가 있다면 제거함 - SetParent 등에 의한 레이아웃 재계산을 방지하기 위해
+        var layoutElement = highlightedCopiedObject.GetComponent<LayoutElement>();
+        if (layoutElement != null) Destroy(layoutElement);
+
+        // (제거할 컴포넌트가 있다면 추가로 제거)
+
+
+        // 복사된 오브젝트의 RectTransform을 원본에 맞춤
+        EqualizeRectTransform(highlightedCopiedObject, targetUI);
+    }
+
+    // RectTransform 속성을 원본과 동일하게 설정하여 위치와 크기를 맞춤
+    public void EqualizeRectTransform(GameObject copiedObject, GameObject originalObject)
+    {
+        RectTransform originalRect = originalObject.GetComponent<RectTransform>();
+        RectTransform copiedRect = copiedObject.GetComponent<RectTransform>();
+
+        if (originalRect != null && copiedRect != null)
+        {
+            // 튜토리얼 캔버스의 RectTransform을 가져옴
+            RectTransform tutorialCanvasRect = tutorialCanvas.GetComponent<RectTransform>();
+
+            // [사전 설명]
+            // 원본의 RectTransform 값들을 복사해서 새로운 요소에 할당해도 되지만
+            // Grid Layout 등이 동작하면 제대로 동작하지 않는 이슈가 있어서
+            // 최종 월드 좌표를 타겟 캔버스의 로컬 좌표 & offset으로 변환하는 방식을 사용함
+
+            copiedRect.SetParent(tutorialCanvas.transform, false); // 월드 좌표 유지를 위해 false 처리
+            copiedRect.localScale = originalRect.localScale;
+            copiedRect.rotation = originalRect.rotation;
+
+            // 1. 원본 UI의 월드 좌표 기준 네 꼭짓점 정보를 가져옴
+            Vector3[] originalCorners = new Vector3[4]; // 0123 : 좌하에서 시계방향으로
+            originalRect.GetWorldCorners(originalCorners);
+
+            // 2. 복사본 UI의 앵커를 캔버스 전체로 확장
+            copiedRect.anchorMin = Vector2.zero;
+            copiedRect.anchorMax = Vector2.one;
+            // copiedRect.pivot = new Vector2(.5f, .5f);
+
+            // 3. 튜토리얼 캔버스의 피벗(중심)을 기준으로 한 좌표를 얻음
+            // 캔버스의 중심에서 UI 요소의 좌측 하단까지 얼마나 떨어졌는가
+            Vector3 btmLeft = tutorialCanvasRect.InverseTransformPoint(originalCorners[0]); 
+            // 캔버스의 중심에서 UI 요소의 우측 상단까지 얼마나 떨어졌는가
+            Vector3 topRight = tutorialCanvasRect.InverseTransformPoint(originalCorners[2]);
+
+            // 4. 계산된 떨어진 거리를 여백으로 사용함
+            // btmLeft, topRight는 캔버스의 중심이 기준인 값이므로
+            // offsetMin은 좌측 하단(0, 0)
+            // offsetMax은 우측 상단(1, 1)을 기준으로 한 좌표로 변환해서 넣어준다.
+            copiedRect.offsetMin = new Vector2(btmLeft.x, btmLeft.y) - tutorialCanvasRect.rect.min;
+            copiedRect.offsetMax = new Vector2(topRight.x, topRight.y) - tutorialCanvasRect.rect.max;
+        }
     }
 
     public void ResetHighlightUI()
     {
-        if (highlightedObject != null && originalParent != null)
-        {
-            highlightedObject.transform.SetParent(originalParent, true);
-            highlightedObject.transform.SetSiblingIndex(originalSiblingIndex);
+        Destroy(highlightedCopiedObject);
+        if (highlightedCopiedObject != null) highlightedCopiedObject = null;
 
-            highlightedObject = null;
-            originalParent = null;
-        }
+        // if (highlightedObject != null && originalParent != null)
+        // {
+        //     highlightedObject.transform.SetParent(originalParent, true);
+        //     highlightedObject.transform.SetSiblingIndex(originalSiblingIndex);
+
+        //     highlightedObject = null;
+        //     originalParent = null;
+        // }
 
         if (tutorialCanvas != null)
         {
