@@ -126,7 +126,7 @@ public class TutorialManager : MonoBehaviour
     {
         currentStep = currentData.steps[currentStepIndex];
 
-        if (currentStep.highlightUIName != null)
+        if (currentStep.highlightUIName != string.Empty)
         { 
             StartCoroutine(HighlightUI(currentStep.highlightUIName, currentStep.waitTime));
         }
@@ -204,23 +204,25 @@ public class TutorialManager : MonoBehaviour
         bool actionReceived = false;
 
         // 클릭해야 하는 특정 버튼이 없는 경우 : 아무거나 클릭해도 다음 스텝으로 넘어가야 함
+        // 하이라이트되는 요소는 있을 수도 있고 없을 수도 이
         if (!currentStep.requireUserAction)
         {
-            if (expectedButtonName == string.Empty)
-            {
-                // tutorialPanel의 가장 위에 오는 transparentPanel에 리스너를 추가함
-                tutorialCanvas.AddClickListener(() => actionReceived = true);
+            Logger.Log("특정 버튼을 입력할 필요가 없는 분기");
 
-                // 버튼 입력 대기
-                while (!actionReceived) yield return null;
+            // tutorialPanel의 가장 위에 오는 transparentPanel에 리스너를 추가함
+            tutorialCanvas.AddClickListener(() => actionReceived = true);
 
-                CurrentStepFinish();
-            }
+            // 버튼 입력 대기
+            while (!actionReceived) yield return null;
+
+            CurrentStepFinish();
         }
 
         // 특정 버튼을 클릭해야만 하는 경우
         else
         {
+            Logger.Log("특정 버튼의 입력이 필요한 분기");
+
             // Button expectedButton = GameObject.Find(expectedButtonName)?.GetComponent<Button>();
             Button originalButton = FindTargetButtonInCanvas(canvas, expectedButtonName);
             Button tutorialButton = FindTargetButtonInCanvas(tutorialCanvas, expectedButtonName);

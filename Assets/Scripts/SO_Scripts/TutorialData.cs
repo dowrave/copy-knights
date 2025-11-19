@@ -19,7 +19,7 @@ public class TutorialData : ScriptableObject
         public Vector2 dialogueBoxPosition = new Vector2(0, 0);
 
         // 하이라이트되어야 할 요소(튜토리얼 캔버스로 옮길 요소)
-        public string highlightUIName; 
+        public string highlightUIName = string.Empty; 
 
         [Tooltip("애니메이션을 기다리는 시간")]
         public float waitTime = 0f; 

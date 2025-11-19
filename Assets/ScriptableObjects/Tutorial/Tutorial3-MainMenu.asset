@@ -21,48 +21,55 @@ MonoBehaviour:
     - "\uACBD\uD5D8\uCE58 \uC544\uC774\uD15C\uC744 \uC0AC\uC6A9\uD558\uC5EC \uC624\uD37C\uB808\uC774\uD130\uB97C
       \uC131\uC7A5\uC2DC\uD0AC \uC218 \uC788\uC2B5\uB2C8\uB2E4."
     dialogueBoxPosition: {x: 0, y: 0}
+    highlightUIName: 
+    waitTime: 0
     requireUserAction: 0
-    expectedButtonName: 
   - stepName: 2. Click Operator Inventory Button
     dialogues:
     - "\uC624\uD37C\uB808\uC774\uD130 \uC778\uBCA4\uD1A0\uB9AC \uBC84\uD2BC\uC744
       \uD074\uB9AD\uD574\uC8FC\uC138\uC694."
     dialogueBoxPosition: {x: -300, y: 280}
+    highlightUIName: OperatorInventoryButton
+    waitTime: 0
     requireUserAction: 1
-    expectedButtonName: OperatorInventoryButton
   - stepName: 3. Click Vanguard Slot
     dialogues:
     - "\uBC45\uAC00\uB4DC \uC2AC\uB86F\uC744 \uD074\uB9AD\uD574\uC8FC\uC138\uC694."
     dialogueBoxPosition: {x: -425, y: 200}
+    highlightUIName: OperatorSlot(op_vanguard)
+    waitTime: 0
     requireUserAction: 1
-    expectedButtonName: OperatorSlot(Vanguard)
   - stepName: 4. Detail Panel
     dialogues:
     - "\uC624\uD37C\uB808\uC774\uD130\uC758 \uC138\uBD80 \uC815\uBCF4 \uD328\uB110\uC785\uB2C8\uB2E4."
     dialogueBoxPosition: {x: 0, y: 0}
+    highlightUIName: 
+    waitTime: 0
     requireUserAction: 0
-    expectedButtonName: 
   - stepName: 5. Detail Panel - Left
     dialogues:
     - "\uC88C\uCE21\uC5D0\uB294 \uC624\uD37C\uB808\uC774\uD130\uC758 \uC2A4\uD0EF\uACFC
       \uACF5\uACA9 \uBC94\uC704\uAC00 \uD45C\uC2DC\uB429\uB2C8\uB2E4."
     dialogueBoxPosition: {x: -125, y: -200}
+    highlightUIName: Left
+    waitTime: 0
     requireUserAction: 0
-    expectedButtonName: 
   - stepName: 6. Detail Panel - Right
     dialogues:
     - "\uC6B0\uCE21\uC5D0\uB294 \uC624\uD37C\uB808\uC774\uD130\uC758 \uB808\uBCA8\uC5C5\uACFC
       \uC815\uC608\uD654 \uBC0F \uAE30\uBCF8\uC73C\uB85C \uC0AC\uC6A9\uD560 \uC2A4\uD0AC\uC744
       \uC124\uC815\uD560 \uC218 \uC788\uC2B5\uB2C8\uB2E4."
     dialogueBoxPosition: {x: 50, y: -100}
+    highlightUIName: Right
+    waitTime: 0
     requireUserAction: 0
-    expectedButtonName: 
   - stepName: 7. Click LevelUp Button
     dialogues:
     - "\uC6B0\uCE21\uC758 \uB808\uBCA8\uC5C5 \uBC84\uD2BC\uC744 \uD074\uB9AD\uD574\uC8FC\uC138\uC694."
     dialogueBoxPosition: {x: 50, y: 100}
+    highlightUIName: LevelUpButton
+    waitTime: 0
     requireUserAction: 1
-    expectedButtonName: LevelUpButton
   - stepName: 8. LevelUpPanel
     dialogues:
     - "\uD604\uC7AC \uAC00\uC9C0\uACE0 \uC788\uB294 \uACBD\uD5D8\uCE58 \uC544\uC774\uD15C\uC5D0
@@ -81,14 +88,16 @@ MonoBehaviour:
       \uD074\uB9AC\uC5B4 \uC544\uC774\uD15C\uC5D0\uC11C \uAC01\uAC01 25%, 50%\uB9CC\uD07C\uB9CC
       \uC9C0\uAE09\uB429\uB2C8\uB2E4."
     dialogueBoxPosition: {x: -75, y: 225}
+    highlightUIName: LevelStripContainer
+    waitTime: 0
     requireUserAction: 0
-    expectedButtonName: 
   - stepName: 9. Click Back Button
     dialogues:
     - "\uB4A4\uB85C \uAC00\uAE30 \uBC84\uD2BC\uC744 \uD074\uB9AD\uD574\uC8FC\uC138\uC694."
     dialogueBoxPosition: {x: -650, y: 275}
+    highlightUIName: BackButton
+    waitTime: 0
     requireUserAction: 1
-    expectedButtonName: BackButton
   - stepName: 10. About Promotion
     dialogues:
     - "\uC624\uD37C\uB808\uC774\uD130\uAC00 50\uB808\uBCA8\uC774 \uB418\uBA74, \uC815\uC608\uD654\uAC00
@@ -109,5 +118,6 @@ MonoBehaviour:
       \uC9C0\uAE09\uB429\uB2C8\uB2E4."
     - "\uD29C\uD1A0\uB9AC\uC5BC\uC744 \uC885\uB8CC\uD569\uB2C8\uB2E4."
     dialogueBoxPosition: {x: 50, y: 50}
+    highlightUIName: PromotionButton
+    waitTime: 0
     requireUserAction: 0
-    expectedButtonName: 

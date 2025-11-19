@@ -49,6 +49,9 @@ public class DeployableBox : MonoBehaviour, IPointerDownHandler, IBeginDragHandl
     private bool isDragging = false;
     private int currentDeploymentCost;
 
+    // UI 복붙 시 발생하는 오류 제거를 위한 플래그
+    private bool isInitialized = false;
+
     public void Initialize(DeployableInfo info)
     {
         deployableInfo = info;
@@ -74,6 +77,8 @@ public class DeployableBox : MonoBehaviour, IPointerDownHandler, IBeginDragHandl
         StageManager.Instance!.OnDeploymentCostChanged += UpdateAvailability;
         StageManager.Instance!.OnPreparationCompleted += InitializeVisuals;
         DeployableManager.Instance!.OnCurrentOperatorDeploymentCountChanged += UpdateAvailability;
+
+        isInitialized = true;
     }
 
     public void UpdateVisuals()
@@ -157,6 +162,9 @@ public class DeployableBox : MonoBehaviour, IPointerDownHandler, IBeginDragHandl
 
     private void Update()
     {
+        // 제대로 된 초기화 과정을 거쳤을 때만 동작함
+        if (!isInitialized) return;
+
         UpdateVisuals();
     }
 

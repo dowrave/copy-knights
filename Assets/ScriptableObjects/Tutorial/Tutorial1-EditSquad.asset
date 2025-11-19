@@ -40,7 +40,7 @@ MonoBehaviour:
     - "\uBC45\uAC00\uB4DC \uC2AC\uB86F\uC744 \uD074\uB9AD\uD574\uC8FC\uC138\uC694."
     dialogueBoxPosition: {x: 70, y: 150}
     highlightUIName: OperatorSlot(op_vanguard)
-    waitTime: 0.5
+    waitTime: 0.3
     requireUserAction: 1
   - stepName: 5. Conversation Left Panel
     dialogues:
@@ -66,7 +66,7 @@ MonoBehaviour:
     - "Sniper\uC640 Guard\uB3C4 \uD3B8\uC131\uD558\uACE0 \uC2A4\uD14C\uC774\uC9C0\uB97C
       \uC9C4\uD589\uD558\uACA0\uC2B5\uB2C8\uB2E4."
     dialogueBoxPosition: {x: -250, y: 150}
-    highlightUIName: 
+    highlightUIName: OperatorSlot
     waitTime: 0
     requireUserAction: 0
   - stepName: 8. Click Empty Slot
@@ -81,7 +81,7 @@ MonoBehaviour:
     - "\uC2A4\uB098\uC774\uD37C \uC2AC\uB86F\uC744 \uD074\uB9AD\uD574\uC8FC\uC138\uC694."
     dialogueBoxPosition: {x: 60, y: 150}
     highlightUIName: OperatorSlot(op_sniper)
-    waitTime: 0.5
+    waitTime: 0.3
     requireUserAction: 1
   - stepName: 10. Click Confirm Button
     dialogues:
@@ -102,7 +102,7 @@ MonoBehaviour:
     - "\uAC00\uB4DC \uC2AC\uB86F\uC744 \uD074\uB9AD\uD574\uC8FC\uC138\uC694."
     dialogueBoxPosition: {x: 60, y: 150}
     highlightUIName: OperatorSlot(op_guard)
-    waitTime: 0.5
+    waitTime: 0.3
     requireUserAction: 1
   - stepName: 13. Click Confirm Button
     dialogues:
@@ -113,7 +113,8 @@ MonoBehaviour:
     requireUserAction: 1
   - stepName: 14. Start Stage
     dialogues:
-    - "\uC2A4\uD14C\uC774\uC9C0 \uC9C4\uC785 \uBC84\uD2BC\uC744 \uD074\uB9AD\uD574\uC8FC\uC138\uC694."
+    - "\uC791\uC804 \uC2DC\uC791 \uBC84\uD2BC\uC744 \uD074\uB9AD\uD574 \uC2A4\uD14C\uC774\uC9C0\uB97C
+      \uC2DC\uC791\uD569\uB2C8\uB2E4."
     dialogueBoxPosition: {x: 250, y: -250}
     highlightUIName: StartButton
     waitTime: 0
