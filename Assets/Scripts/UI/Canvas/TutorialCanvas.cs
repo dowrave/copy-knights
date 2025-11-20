@@ -90,6 +90,7 @@ public class TutorialCanvas : MonoBehaviour
         SetPageIndicator(false);
 
         int index = 0;
+        // int textSpeed = 2;
         while (index < fullText.Length)
         {
             // 만약 현재 문자가 '<'이면 태그 시작 -> '>'까지 전체를 한 번에 추가
