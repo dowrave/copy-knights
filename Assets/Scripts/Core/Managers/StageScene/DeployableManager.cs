@@ -425,7 +425,7 @@ public class DeployableManager : MonoBehaviour
         deployedItems.Add(CurrentDeployableEntity!);
         UpdateDeployableUI(CurrentDeployableInfo!);
         ResetPlacement();
-        Time.timeScale = 1f;
+        Time.timeScale = StageManager.Instance!.IsSpeedUp ? 2f : 1f;
         // GameManagement.Instance.TimeManager.UpdateTimeScale();
     }
     

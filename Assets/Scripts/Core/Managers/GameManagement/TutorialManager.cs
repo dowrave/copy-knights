@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
@@ -21,8 +22,12 @@ public class TutorialManager : MonoBehaviour
     private Coroutine currentStepCoroutine;
 
     // 현재 강조 중인 요소
-    private GameObject highlightedOriginalObject;
-    private GameObject highlightedCopiedObject;
+    // private GameObject highlightedOriginalObject;
+    // private GameObject highlightedCopiedObject;
+    // private List<GameObject> highlightedOriginalObjects;
+    private List<GameObject> highlightedCopiedObjects = new List<GameObject>();
+    // private Button originalActionRequiredButton;
+    // private Button copiedActionRequiredButton;
 
     private TutorialData currentData = default!;
     private TutorialData.TutorialStep currentStep = default!;
@@ -33,7 +38,7 @@ public class TutorialManager : MonoBehaviour
     // private Button? currentOverlay; // 현재 Step의 목표 버튼 위에 나타나는 투명한 버튼
 
     private ConfirmationPopup confirmationPopup;
-    private Canvas? canvas;
+    private Canvas? mainCanvas; // 스테이지의 씬마다 1개씩 있는 메인 캔버스
 
     private void Awake()
     {
@@ -130,10 +135,10 @@ public class TutorialManager : MonoBehaviour
     {
         currentStep = currentData.steps[currentStepIndex];
 
-        if (currentStep.highlightUIName != string.Empty)
+        if (currentStep.highlightUINames.Count > 0)
         { 
             // 코루틴으로 돌려서 하이라이트를 기다리고 다음 이벤트들을 등록시키려고 함
-            yield return StartCoroutine(HighlightUI(currentStep.highlightUIName, currentStep.waitTime));
+            yield return StartCoroutine(HighlightUI(currentStep.highlightUINames, currentStep.waitTime));
             // 현재 이슈) 코루틴으로 구현하면 다음 Step으로 넘어가지지 않음
 
             // HighlightUI(currentStep.highlightUIName, currentStep.waitTime);
@@ -142,7 +147,7 @@ public class TutorialManager : MonoBehaviour
         // 텍스트 출력 완료 이벤트에 사용자 동작 대기에 대한 코루틴 추가
         tutorialCanvas.OnDialogueCompleted = () =>
         {
-            StartCoroutine(WaitForUserAction(currentStep.highlightUIName));
+            StartCoroutine(WaitForUserAction(currentStep.actionRequiredUIName));
         };
 
         tutorialCanvas.Initialize(currentStep);
@@ -173,7 +178,7 @@ public class TutorialManager : MonoBehaviour
         {
             tutorialCanvas.gameObject.SetActive(false);
         }
-
+        
         if (currentTutorialIndex == 1)
         {
             // 시간 원상 복구
@@ -219,15 +224,18 @@ public class TutorialManager : MonoBehaviour
             Logger.Log("특정 버튼을 입력할 필요가 없는 분기");
 
             // 하이라이트된 오브젝트가 dimPanel의 이벤트를 가로채선 안되므로 레이캐스트를 해제함
-            if (highlightedCopiedObject != null)
+            foreach (var highlightedCopiedObject in highlightedCopiedObjects)
             {
-                CanvasGroup cg = highlightedCopiedObject.GetComponent<CanvasGroup>();
-                if (cg == null) 
+                if (highlightedCopiedObject != null)
                 {
-                    cg = highlightedCopiedObject.AddComponent<CanvasGroup>();
-                }
+                    CanvasGroup cg = highlightedCopiedObject.GetComponent<CanvasGroup>();
+                    if (cg == null) 
+                    {
+                        cg = highlightedCopiedObject.AddComponent<CanvasGroup>();
+                    }
 
-                cg.blocksRaycasts = false;
+                    cg.blocksRaycasts = false;
+                }
             }
 
             // tutorialPanel의 가장 위에 오는 transparentPanel에 리스너를 추가함
@@ -244,19 +252,12 @@ public class TutorialManager : MonoBehaviour
         {
             Logger.Log("특정 버튼의 입력이 필요한 분기");
 
-            Button tutorialButton = null;
-            Button originalButton = null; 
 
-            if (highlightedCopiedObject != null)
-            {
-                tutorialButton = highlightedCopiedObject.GetComponent<Button>();
-            }
-            if (highlightedOriginalObject != null)
-            {
-                originalButton = highlightedOriginalObject.GetComponent<Button>();
-            }
+            // OriginalButton의 OnClick 이벤트를 옮기는 과정
+            Button copiedButton = FindTargetInCanvas<Button>(tutorialCanvas, currentStep.actionRequiredUIName);
+            Button originalButton = FindTargetInCanvas<Button>(mainCanvas, currentStep.actionRequiredUIName); 
 
-            if (originalButton == null || tutorialButton == null)
+            if (originalButton == null || copiedButton == null)
             {
                 Logger.LogError($"버튼 컴포넌트를 찾을 수 없음 : {expectedButtonName}");
                 CurrentStepFinish(); // 이 과정이 막힌다고 해서 튜토리얼이 막히면 안되므로 다음으로 넘기거나 종료 처리함
@@ -265,7 +266,7 @@ public class TutorialManager : MonoBehaviour
 
             // TutorialCanvas에 Instantiate로 새로 만든 버튼은 원본 버튼의 리스너가 등록되지 않았음
             // 그래서 원본 버튼의 리스너도 동작하게끔 구현
-            tutorialButton.onClick.AddListener(
+            copiedButton.onClick.AddListener(
                 () => {
                     actionReceived = true;
                     originalButton.onClick.Invoke();
@@ -304,7 +305,7 @@ public class TutorialManager : MonoBehaviour
 
     private Canvas? FindMainCanvas()
     {
-        // 1. MainCanvas라는 태그르 가진, 활성화된 요소를 찾음
+        // 1. MainCanvas라는 태그를 가진, 활성화된 요소를 찾음
         GameObject canvasObj = GameObject.FindGameObjectWithTag("MainCanvas"); // MainCanvas라는 태그는 인스펙터에서 직접 할당
         if (canvasObj != null) return canvasObj.GetComponent<Canvas>();
 
@@ -313,9 +314,9 @@ public class TutorialManager : MonoBehaviour
         foreach (GameObject obj in rootObjects)
         {
             // CompareTag은 비활성화된 요소도 찾을 수 있음
-            if (obj.CompareTag("MainCanvas") && obj.TryGetComponent<Canvas>(out var canvas))
+            if (obj.CompareTag("MainCanvas") && obj.TryGetComponent<Canvas>(out var mainCanvas))
             {
-                return canvas;
+                return mainCanvas;
             }
         }
 
@@ -357,8 +358,8 @@ public class TutorialManager : MonoBehaviour
 
     private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
     {
-        canvas = FindMainCanvas();
-        if (canvas == null) Logger.LogError("TutorialManager에 canvas가 정상적으로 할당되지 않음");
+        mainCanvas = FindMainCanvas();
+        if (mainCanvas == null) Logger.LogError("TutorialManager에 canvas가 정상적으로 할당되지 않음");
 
         // 튜토리얼용 캔버스 생성 
         if (tutorialCanvasPrefab != null)
@@ -403,40 +404,88 @@ public class TutorialManager : MonoBehaviour
     }
 
     // 특정 UI를 강조 - 원본 캔버스에서 튜토리얼용 캔버스로 옮겨온다.
-    public IEnumerator HighlightUI(string targetName, float waitTime)
+    public IEnumerator HighlightUI(List<string> targetNames, float waitTime)
     {
-        if (tutorialCanvas == null) Logger.LogError("튜토리얼 인스턴스가 할당되지 않았음");
+        if (tutorialCanvas == null) Logger.LogError("tutorialCanvas 인스턴스가 할당되지 않았음");
 
-        ResetHighlightUI();
-
-        // GameObject targetUI = GameObject.Find(targetName);
-        Image targetUI = FindTargetInCanvas<Image>(canvas, targetName);
-        highlightedOriginalObject = targetUI.gameObject;
-
-        if (targetUI == null)
-        {
-            Logger.LogError($"[HighlightUI] {targetName}에 해당하는 UI를 찾지 못했음");
-            yield break;
-        }
-
-        // 원본 오브젝트 저장
-
+        // ResetHighlightUI();
         tutorialCanvas.gameObject.SetActive(true);
+
+        // 1. 기다림
         yield return new WaitForSeconds(waitTime); // 애니메이션 등이 있을 수 있으니 waitTime만큼 기다린 다음 버튼을 생성함
         yield return new WaitForEndOfFrame(); // 프레임의 UI 레이아웃 계산 완료를 기다림
 
-        // 원본 UI를 복사해서 TutorialCanvas에 생성함
-        highlightedCopiedObject = Instantiate(highlightedOriginalObject, tutorialCanvas.transform, false);
-        highlightedCopiedObject.name = targetUI.name; // (Clone)이라는 오브젝트 이름 제거, 원본과 동일한 이름으로 설정
+        // 2. 리스트의 모든 대상을 순회해서 생성함
+        foreach (string targetName in targetNames)
+        {
+            Image targetUI = FindTargetInCanvas<Image>(mainCanvas, targetName);
+            GameObject highlightedOriginalObject = targetUI.gameObject;
+            // highlightedOriginalObjects.Add(highlightedOriginalObject);
+                
+            if (targetUI == null)
+            {
+                Logger.LogError($"[HighlightUI] {targetName}에 해당하는 UI를 찾지 못했음");
+                yield break;
+            }
 
-        // 불필요한 Layout 컴포넌트가 있다면 제거함 - SetParent 등에 의한 레이아웃 재계산을 방지하기 위해
-        var layoutElement = highlightedCopiedObject.GetComponent<LayoutElement>();
-        if (layoutElement != null) Destroy(layoutElement);
+            // 원본 UI를 복사해서 TutorialCanvas에 생성함
+            GameObject highlightedCopiedObject = Instantiate(highlightedOriginalObject, tutorialCanvas.transform, false);
+            highlightedCopiedObjects.Add(highlightedCopiedObject);
+            highlightedCopiedObject.name = targetUI.name; // (Clone)이라는 오브젝트 이름 제거, 원본과 동일한 이름으로 설정
 
-        // (제거할 컴포넌트가 있다면 추가로 제거)
+            // 텍스트 패널에는 가려져야 하므로 인덱스는 [가장 마지막 - 1]
+            int childCount = tutorialCanvas.transform.childCount;
+            if (childCount > 1)
+            {
+                highlightedCopiedObject.transform.SetSiblingIndex(childCount - 2);
+            }
 
-        // 복사된 오브젝트의 RectTransform을 원본에 맞춤
-        EqualizeRectTransform(highlightedCopiedObject, highlightedOriginalObject);
+            // 불필요한 Layout 컴포넌트가 있다면 제거함 - SetParent 등에 의한 레이아웃 재계산을 방지하기 위해
+            var layoutElement = highlightedCopiedObject.GetComponent<LayoutElement>();
+            if (layoutElement != null) Destroy(layoutElement);
+
+            // (제거할 컴포넌트가 있다면 추가로 제거)
+            // 원본이 가진 이미지 요소를 복사된 오브젝트로 옮김
+            SyncVisualHierarchy(highlightedCopiedObject, highlightedOriginalObject);
+
+            // 복사된 오브젝트의 RectTransform을 원본에 맞춤
+            EqualizeRectTransform(highlightedCopiedObject, highlightedOriginalObject);
+        }
+    }
+    private void SyncVisualHierarchy(GameObject copy, GameObject original)
+    {
+        // 1. Image 컴포넌트 동기화
+        // GetComponentsInChildren은 계층 구조 순서대로 반환하므로, 구조가 같다면 인덱스가 일치함
+        Image[] copiedImages = copy.GetComponentsInChildren<Image>(true);
+        Image[] originalImages = original.GetComponentsInChildren<Image>(true);
+
+        if (originalImages.Length == copiedImages.Length)
+        {
+            for (int i = 0; i < originalImages.Length; i++)
+            {
+                copiedImages[i].sprite = originalImages[i].sprite;
+                copiedImages[i].color = originalImages[i].color;
+                copiedImages[i].fillAmount = originalImages[i].fillAmount;
+                copiedImages[i].type = originalImages[i].type;
+            }
+        }
+
+        // 2. TMPro 기반의 텍스트 복사
+        TextMeshProUGUI[] originalTexts = original.GetComponentsInChildren<TextMeshProUGUI>(true);
+        TextMeshProUGUI[] copiedTexts = copy.GetComponentsInChildren<TextMeshProUGUI>(true);
+
+        if (originalTexts.Length == copiedTexts.Length)
+        {
+            for (int i = 0; i < originalTexts.Length; i++)
+            {
+                // 텍스트 내용 복구
+                copiedTexts[i].text = originalTexts[i].text;
+                copiedTexts[i].color = originalTexts[i].color;
+
+                // 원본이 켜져 있는지 여부에 따라 똑같이 나타남
+                copiedTexts[i].gameObject.SetActive(originalTexts[i].gameObject.activeSelf);
+            }
+        }
     }
 
     // RectTransform 속성을 원본과 동일하게 설정하여 위치와 크기를 맞춤
@@ -485,10 +534,17 @@ public class TutorialManager : MonoBehaviour
 
     public void ResetHighlightUI()
     {
-        Destroy(highlightedCopiedObject);
-        if (highlightedCopiedObject != null) highlightedCopiedObject = null;
-
-        highlightedOriginalObject = null;
+        // 1. 리스트에 담겨있던 복제된 오브젝트들을 모두 파괴
+        if (highlightedCopiedObjects != null)
+        {
+            foreach (GameObject obj in highlightedCopiedObjects)
+            {
+                if (obj != null) Destroy(obj);
+            }
+            
+            // 2. 리스트 내용 비우기 (참조 제거)
+            highlightedCopiedObjects.Clear();
+        }
 
         if (tutorialCanvas != null)
         {

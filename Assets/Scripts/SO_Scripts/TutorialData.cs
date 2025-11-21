@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using UnityEditor.EditorTools;
 using UnityEngine;
 
 // 튜토리얼 각각에 대한 데이터. 사용자가 저장하는 데이터가 아님!
@@ -19,12 +18,14 @@ public class TutorialData : ScriptableObject
         public Vector2 dialogueBoxPosition = new Vector2(0, 0);
 
         // 하이라이트되어야 할 요소(튜토리얼 캔버스로 옮길 요소)
-        public string highlightUIName = string.Empty; 
+        // public string highlightUIName = string.Empty; 
+        public List<string> highlightUINames = new List<string>();
 
         [Tooltip("애니메이션을 기다리는 시간")]
         public float waitTime = 0f; 
 
         [Header("사용자의 입력을 기다려야 하는 경우에 사용")]
         public bool requireUserAction;
+        public string actionRequiredUIName = string.Empty;
     }
 }

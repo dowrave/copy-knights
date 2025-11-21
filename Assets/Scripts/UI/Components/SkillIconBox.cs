@@ -32,7 +32,6 @@ public class SkillIconBox : MonoBehaviour
 
     public void Initialize(OperatorSkill skillData, bool showDurationBox = false, bool showSkillName = false)
     {
-        
         this.skillData = skillData;
 
         if (skillData.skillIcon != null)

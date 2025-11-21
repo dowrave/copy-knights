@@ -309,7 +309,7 @@ public class StageManager : MonoBehaviour
         switch (gameState)
         {
             case GameState.Battle:
-                Time.timeScale = 1f;
+                Time.timeScale = IsSpeedUp ? 2f : 1f;
                 break;
 
             case GameState.Paused:
