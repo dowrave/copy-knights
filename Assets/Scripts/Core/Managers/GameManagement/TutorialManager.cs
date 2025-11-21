@@ -445,6 +445,7 @@ public class TutorialManager : MonoBehaviour
             if (layoutElement != null) Destroy(layoutElement);
 
             // (제거할 컴포넌트가 있다면 추가로 제거)
+            
             // 원본이 가진 이미지 요소를 복사된 오브젝트로 옮김
             SyncVisualHierarchy(highlightedCopiedObject, highlightedOriginalObject);
 
@@ -452,6 +453,7 @@ public class TutorialManager : MonoBehaviour
             EqualizeRectTransform(highlightedCopiedObject, highlightedOriginalObject);
         }
     }
+
     private void SyncVisualHierarchy(GameObject copy, GameObject original)
     {
         // 1. Image 컴포넌트 동기화
