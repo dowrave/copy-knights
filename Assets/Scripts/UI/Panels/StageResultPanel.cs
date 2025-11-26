@@ -254,7 +254,10 @@ public class StageResultPanel : MonoBehaviour
             Image currentStar = starImages[currentIndex];
 
             // 별이 잠시 작아졌다가 
-            currentStar.transform.DOScale(0.5f, starAnimationDuration * 0.2f);
+            // currentStar.transform.DOScale(0.5f, starAnimationDuration * 0.2f);
+
+            // 이전 트윈 충돌 방지를 위한 초기화
+            currentStar.transform.DOKill();
 
             // 스프라이트와 색상을 변경한 후 커지는 애니메이션
             Sequence starSequence = DOTween.Sequence().SetUpdate(true).SetAutoKill();
@@ -264,13 +267,17 @@ public class StageResultPanel : MonoBehaviour
                 currentStar.sprite = activeStarSprite;
             });
 
+            // 별이 잠시 작아진 다음
+            starSequence.Append(currentStar.transform.DOScale(0.5f, starAnimationDuration * 0.2f));
+
+            // 최종 크기보다 조금 더 커졌다가
             starSequence.Append(currentStar.transform
                 .DOScale(1.2f, starAnimationDuration * 0.4f)
                 .SetEase(Ease.OutBack));
 
             starSequence.Join(currentStar.DOColor(activeStarColor, starAnimationDuration * 0.4f));
 
-            // 크기 원상 복구
+            // 최종 크기로 진행
             starSequence.Append(currentStar.transform
                 .DOScale(1f, starAnimationDuration * 0.4f)
                 .SetEase(Ease.OutBounce));

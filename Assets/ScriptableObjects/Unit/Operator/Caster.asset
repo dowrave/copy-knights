@@ -21,7 +21,7 @@ MonoBehaviour:
         _defense: 45
         _magicResistance: 10
       _deploymentCost: 18
-      _redeployTime: 1
+      _redeployTime: 60
     _attackPower: 271
     _attackSpeed: 1.6
     _maxBlockableEnemies: 1
