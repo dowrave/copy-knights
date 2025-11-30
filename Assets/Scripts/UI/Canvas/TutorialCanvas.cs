@@ -2,6 +2,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 using System.Collections;
+using UnityEngine.EventSystems;
 
 public class TutorialCanvas : MonoBehaviour
 {
@@ -13,6 +14,7 @@ public class TutorialCanvas : MonoBehaviour
     [SerializeField] private Button dimPanel = default!;
 
     private RectTransform boxRect;
+    private Button dialogueBoxButton;
 
     private bool CanMoveToNextPage { get { return currentPageIndex < maxPageIndex && !isTyping && typingCoroutine == null;  } }
     private bool DialogueFinished { get { return currentPageIndex == maxPageIndex && !isTyping && typingCoroutine == null; } }
@@ -50,12 +52,14 @@ public class TutorialCanvas : MonoBehaviour
         // 초기화
         textComponent.text = string.Empty;
         boxRect = dialogueBox.GetComponent<RectTransform>();
+        dialogueBoxButton = dialogueBox.GetComponent<Button>();
 
         // 배경 패널 이벤트 초기화 및 등록
         dimPanel.gameObject.SetActive(true);
         dimPanel.onClick.RemoveAllListeners();
-        dimPanel.onClick.AddListener(OnClick);
 
+        AddClickListener(OnClick);
+        
         SetActive(true);
         SetPosition(step.dialogueBoxPosition.x, step.dialogueBoxPosition.y);
 
@@ -143,15 +147,20 @@ public class TutorialCanvas : MonoBehaviour
     // 클릭 시 동작
     public void OnClick()
     {
+        Logger.Log("TutorialCanvas의 OnClick 동작");
+        Logger.Log($"클릭된 오브젝트 : {EventSystem.current.currentSelectedGameObject}");
+
         // 글자가 나타나는 중 : 현재 페이지의 글자를 모두 보여준다
         if (isTyping)
         {
+            Logger.Log("isTyping : true 동작");
             // 실행 중인 코루틴을 먼저 종료하고, 나머지 텍스트 조작이 들어가야 함
             if (typingCoroutine != null)
             {
                 StopCoroutine(typingCoroutine);
                 typingCoroutine = null;
             }
+            Logger.Log($"모든 텍스트 출력됨 : {fullText}");
             textComponent.text = fullText;
             isTyping = false;
             OnCurrentPageFinish();
@@ -161,6 +170,8 @@ public class TutorialCanvas : MonoBehaviour
         // 다음 페이지로 넘어갈 수 있음 : 다음 페이지로 넘어간다
         if (CanMoveToNextPage)
         {
+            Logger.Log("CanMoveToNextPage : true 동작");
+
             currentPageIndex++;
             typingCoroutine = StartCoroutine(TypeText());
             return;
@@ -175,16 +186,19 @@ public class TutorialCanvas : MonoBehaviour
     public void AddClickListener(UnityEngine.Events.UnityAction action)
     {
         dimPanel.onClick.AddListener(action);
+        dialogueBoxButton.onClick.AddListener(action);
     }
 
     public void RemoveClickListener(UnityEngine.Events.UnityAction action)
     {
         dimPanel.onClick.RemoveListener(action);
+        dialogueBoxButton.onClick.RemoveListener(action);
     }
 
     public void RemoveAllClickListeners()
     {
         dimPanel.onClick.RemoveAllListeners();
+        dialogueBoxButton.onClick.RemoveAllListeners();
     }
 
     private void SetPageIndicator(bool show)

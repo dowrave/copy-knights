@@ -170,6 +170,13 @@ public class StageManager : MonoBehaviour
                 Logger.LogWarning("1초 동안 코스트 업데이트가 감지되지 않음, 코스트 회복 재시작");
                 RestartCostIncrease();
             }
+
+            // 치트키 - F1 키를 누르면 3성 클리어
+            if (Input.GetKey(KeyCode.F1))
+            {
+                PassedEnemies = 0;
+                StartCoroutine(GameWinAfterDelay());
+            }
         }
     }
 
@@ -401,13 +408,13 @@ public class StageManager : MonoBehaviour
 
     private IEnumerator GameWinAfterDelay()
     {
-        yield return new WaitForSeconds(0.22f); // 적이 사라지는 시간이 0.2초니까 그거보다 조금 더 길게
+        yield return new WaitForSeconds(0.2f); // 적이 사라지는 시간이 0.2초니까 그거보다 조금 더 길게
         GameWin();
     }
 
     private IEnumerator GameOverAfterDelay()
     {
-        yield return new WaitForSeconds(0.22f); // 적이 사라지는 시간이 0.2초니까 그거보다 조금 더 길게
+        yield return new WaitForSeconds(0.2f); // 적이 사라지는 시간이 0.2초니까 그거보다 조금 더 길게
         GameOver();
     }
 
@@ -424,6 +431,8 @@ public class StageManager : MonoBehaviour
             }
             else if (KilledEnemyCount + PassedEnemies >= TotalEnemyCount)
             {
+        
+                
                 StartCoroutine(GameWinAfterDelay());
             }
         }

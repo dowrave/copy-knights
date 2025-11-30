@@ -22,12 +22,7 @@ public class TutorialManager : MonoBehaviour
     private Coroutine currentStepCoroutine;
 
     // 현재 강조 중인 요소
-    // private GameObject highlightedOriginalObject;
-    // private GameObject highlightedCopiedObject;
-    // private List<GameObject> highlightedOriginalObjects;
     private List<GameObject> highlightedCopiedObjects = new List<GameObject>();
-    // private Button originalActionRequiredButton;
-    // private Button copiedActionRequiredButton;
 
     private TutorialData currentData = default!;
     private TutorialData.TutorialStep currentStep = default!;

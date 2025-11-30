@@ -14,6 +14,17 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   tutorialName: Tutorial_1_EditSquad
   steps:
+  - stepName: 0. sentence test
+    dialogues:
+    - 1st long sentence 1st long sentence 1st long sentence 1st long sentence 1st
+      long sentence 1st long sentence
+    - "2\uBC88\uC9F8 \uBB38\uC7A5"
+    - "3\uBC88 \uBB38\uC7A5"
+    dialogueBoxPosition: {x: 0, y: 0}
+    highlightUINames: []
+    waitTime: 0
+    requireUserAction: 0
+    actionRequiredUIName: 
   - stepName: 1.Click Stage 1-0 Button
     dialogues:
     - "\uC2A4\uD14C\uC774\uC9C0 1-0 \uBC84\uD2BC\uC744 \uD074\uB9AD\uD574\uC8FC\uC138\uC694."
@@ -75,9 +86,9 @@ MonoBehaviour:
     actionRequiredUIName: ConfirmButton
   - stepName: 7. Return To Squad Edit Panel
     dialogues:
-    - "Vanguard\uAC00 \uC131\uACF5\uC801\uC73C\uB85C \uD3B8\uC131\uB418\uC5C8\uC2B5\uB2C8\uB2E4."
-    - "Sniper\uC640 Guard\uB3C4 \uD3B8\uC131\uD558\uACE0 \uC2A4\uD14C\uC774\uC9C0\uB97C
-      \uC9C4\uD589\uD558\uACA0\uC2B5\uB2C8\uB2E4."
+    - "\uBC45\uAC00\uB4DC\uAC00 \uC131\uACF5\uC801\uC73C\uB85C \uD3B8\uC131\uB418\uC5C8\uC2B5\uB2C8\uB2E4."
+    - "\uC2A4\uB098\uC774\uD37C, \uAC00\uB4DC, \uBA54\uB515\uC744 \uD3B8\uC131\uD558\uACE0
+      \uC2A4\uD14C\uC774\uC9C0\uB97C \uC9C4\uD589\uD558\uACA0\uC2B5\uB2C8\uB2E4."
     dialogueBoxPosition: {x: -250, y: 150}
     highlightUINames:
     - OperatorSlot
@@ -96,7 +107,7 @@ MonoBehaviour:
   - stepName: 9. Click Sniper
     dialogues:
     - "\uC2A4\uB098\uC774\uD37C \uC2AC\uB86F\uC744 \uD074\uB9AD\uD574\uC8FC\uC138\uC694."
-    dialogueBoxPosition: {x: 60, y: 150}
+    dialogueBoxPosition: {x: 70, y: 150}
     highlightUINames:
     - OperatorSlot(op_sniper)
     waitTime: 0.3
@@ -123,7 +134,7 @@ MonoBehaviour:
   - stepName: 12. Click Guard
     dialogues:
     - "\uAC00\uB4DC \uC2AC\uB86F\uC744 \uD074\uB9AD\uD574\uC8FC\uC138\uC694."
-    dialogueBoxPosition: {x: 60, y: 150}
+    dialogueBoxPosition: {x: 70, y: 150}
     highlightUINames:
     - OperatorSlot(op_guard)
     waitTime: 0.3
@@ -138,10 +149,37 @@ MonoBehaviour:
     waitTime: 0
     requireUserAction: 1
     actionRequiredUIName: ConfirmButton
-  - stepName: 14. Start Stage
+  - stepName: 14. Click Empty Slot
     dialogues:
-    - "\uC791\uC804 \uC2DC\uC791 \uBC84\uD2BC\uC744 \uD074\uB9AD\uD574 \uC2A4\uD14C\uC774\uC9C0\uB97C
-      \uC2DC\uC791\uD569\uB2C8\uB2E4."
+    - "\uBE48 \uC2AC\uB86F\uC744 \uD074\uB9AD\uD574\uC8FC\uC138\uC694."
+    dialogueBoxPosition: {x: -25, y: -200}
+    highlightUINames:
+    - OperatorSlot (3)
+    waitTime: 0
+    requireUserAction: 1
+    actionRequiredUIName: OperatorSlot (3)
+  - stepName: 15. Click Medic
+    dialogues:
+    - "\uBA54\uB515 \uC2AC\uB86F\uC744 \uD074\uB9AD\uD574\uC8FC\uC138\uC694."
+    dialogueBoxPosition: {x: 70, y: 150}
+    highlightUINames:
+    - OperatorSlot(op_medic)
+    waitTime: 0
+    requireUserAction: 1
+    actionRequiredUIName: OperatorSlot(op_medic)
+  - stepName: 16. Click Confirm Button
+    dialogues:
+    - "\uD655\uC778 \uBC84\uD2BC\uC744 \uD074\uB9AD\uD574\uC8FC\uC138\uC694."
+    dialogueBoxPosition: {x: 250, y: -250}
+    highlightUINames:
+    - ConfirmButton
+    waitTime: 0
+    requireUserAction: 1
+    actionRequiredUIName: ConfirmButton
+  - stepName: 17. Start Stage
+    dialogues:
+    - "\uC791\uC804 \uC2DC\uC791 \uBC84\uD2BC\uC744 \uB20C\uB7EC \uC2A4\uD14C\uC774\uC9C0\uC5D0
+      \uC9C4\uC785\uD569\uB2C8\uB2E4."
     dialogueBoxPosition: {x: 250, y: -250}
     highlightUINames:
     - StartButton

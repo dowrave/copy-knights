@@ -14,7 +14,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   stageId: 1-2
   stageName: Middle
-  stageDetail: "\uC774\uAC83\uC740 \uC2A4\uD14C\uC774\uC9C0 1-2\uC785\uB2C8\uB2E4. "
+  stageDetail: "\uC801\uC758 \uC0DD\uC131 \uC9C0\uC810\uC774 \uB450 \uACF3\uC73C\uB85C
+    \uB298\uC5B4\uB0A9\uB2C8\uB2E4."
   mapPrefab: {fileID: 3707257452706152924, guid: 6ebd6de17551a07479ef2e0154871137, type: 3}
   startDeploymentCost: 20
   maxDeploymentCost: 99
