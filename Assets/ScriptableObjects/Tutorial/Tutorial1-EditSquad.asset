@@ -14,17 +14,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   tutorialName: Tutorial_1_EditSquad
   steps:
-  - stepName: 0. sentence test
-    dialogues:
-    - 1st long sentence 1st long sentence 1st long sentence 1st long sentence 1st
-      long sentence 1st long sentence
-    - "2\uBC88\uC9F8 \uBB38\uC7A5"
-    - "3\uBC88 \uBB38\uC7A5"
-    dialogueBoxPosition: {x: 0, y: 0}
-    highlightUINames: []
-    waitTime: 0
-    requireUserAction: 0
-    actionRequiredUIName: 
   - stepName: 1.Click Stage 1-0 Button
     dialogues:
     - "\uC2A4\uD14C\uC774\uC9C0 1-0 \uBC84\uD2BC\uC744 \uD074\uB9AD\uD574\uC8FC\uC138\uC694."

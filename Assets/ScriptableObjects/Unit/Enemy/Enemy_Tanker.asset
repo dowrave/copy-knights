@@ -12,11 +12,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 277825dab463fe8469435119db921473, type: 3}
   m_Name: Enemy_Tanker
   m_EditorClassIdentifier: 
-  entityName: Enemy_Tanker
+  entityID: 
+  entityNameLocalizationKey: 
   stats:
     _baseStats:
       _health: 5000
-      _defense: 550
+      _defense: 400
       _magicResistance: 10
     _movementSpeed: 0.8
     _attackPower: 350

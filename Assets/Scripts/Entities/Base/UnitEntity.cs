@@ -49,7 +49,7 @@ public abstract class UnitEntity : MonoBehaviour, ITargettable, IFactionMember, 
     // 사라지는 애니메이션 관련
     protected float currentAlpha = 1f;
     protected float endAlpha = 0f;
-    protected float fadeDuration = .5f;
+    protected float fadeDuration = .3f;
     
     protected MaterialPropertyBlock propBlock; // 모든 렌더러에 재사용 가능
     

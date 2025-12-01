@@ -16,7 +16,7 @@ MonoBehaviour:
   stageName: Middle
   stageDetail: "\uC801\uC758 \uC0DD\uC131 \uC9C0\uC810\uC774 \uB450 \uACF3\uC73C\uB85C
     \uB298\uC5B4\uB0A9\uB2C8\uB2E4."
-  mapPrefab: {fileID: 3707257452706152924, guid: 6ebd6de17551a07479ef2e0154871137, type: 3}
+  mapPrefab: {fileID: 8867187191464731114, guid: d91187226e4bbe84c937ca2c7a0699fa, type: 3}
   startDeploymentCost: 20
   maxDeploymentCost: 99
   costPerSecondModifier: 1

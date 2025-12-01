@@ -19,15 +19,21 @@ public class Barricade : DeployableUnitEntity
 
     public override void Retreat()
     {
-        Die();
+        UndeployBarricade();
+        base.Retreat();
     }
 
     protected override void Die()
     {
+        UndeployBarricade();
+        base.Die();
+    }
+
+    private void UndeployBarricade()
+    {
         CurrentTile!.ToggleWalkable(true); // 현재 타일 이동 가능으로 변경
         PathfindingManager.Instance!.RemoveBarricade(this); // 바리케이드 리스트에서 제거
         OnBarricadeRemoved?.Invoke(this); // 제거 이벤트 발생
-        base.Die();
     }
 
     protected override float CalculateActualDamage(AttackType attacktype, float incomingDamage)

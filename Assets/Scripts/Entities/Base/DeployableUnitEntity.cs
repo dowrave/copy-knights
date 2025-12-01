@@ -133,8 +133,11 @@ public abstract class DeployableUnitEntity : UnitEntity, IDeployable
 
     public virtual void Retreat()
     {
+        Debug.Log("DeployableUnitEntity의 Retreat 동작");
+
         if (IsDeployed)
         {
+            Debug.Log("DeployableUnitEntity의 Retreat 동작, IsDeployed : true");
             Undeploy();
             base.DieInstantly();
         }

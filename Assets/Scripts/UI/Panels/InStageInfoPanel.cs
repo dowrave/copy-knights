@@ -32,10 +32,6 @@ public class InStageInfoPanel : MonoBehaviour
     [SerializeField] private TextMeshProUGUI skillNameText = default!;
     [SerializeField] private TextMeshProUGUI skillDetailText = default!;
 
-    [Header("Cancel Panel")]
-    // [SerializeField] private Button cancelPanel = default!;
-    // [SerializeField] private GameObject cancelPanelObject = default!;
-
     // 배치 요소 정보
     private DeployableInfo currentDeployableInfo = default!;
     private DeployableUnitState? currentDeployableUnitState;
@@ -46,42 +42,12 @@ public class InStageInfoPanel : MonoBehaviour
 
     public DeployableInfo CurrentDeployableInfo => currentDeployableInfo;
 
-    private void Awake()
-    {
-        // Button cancelPanel = cancelPanelObject.GetComponent<Button>();
-        // if (cancelPanel != null)
-        // {
-        //     cancelPanel.onClick.AddListener(OnCancelPanelClicked);
-        // }
-        // cancelPanelObject.SetActive(false);
-    }
-
-    private void Start()
-    {
-        // DeploymentInputHandler.Instance.OnDragStarted += DeactivateCancelPanelObject;
-        // DeploymentInputHandler.Instance.OnDragEnded += ActivateCancelPanelObject;
-    }
-
-    // private void ActivateCancelPanelObject()
-    // {
-    //     cancelPanelObject.SetActive(true);
-    // }
-    
-    // private void DeactivateCancelPanelObject()
-    // {
-    //     cancelPanelObject.SetActive(false);
-    // }
-    
     // 배치되지 않은 요소 처리
     public void UpdateUnDeployedInfo(DeployableInfo deployableInfo)
     {
         gameObject.SetActive(true);
         currentDeployableInfo = deployableInfo;
         currentDeployableUnitState = DeployableManager.Instance!.UnitStates[currentDeployableInfo];
-
-        // 취소 패널 활성화
-        // cancelPanelObject.SetActive(true);
-        // cancelPanel.onClick.AddListener(OnCancelPanelClicked);
 
         if (currentDeployableInfo.ownedOperator != null)
         {
@@ -149,7 +115,6 @@ public class InStageInfoPanel : MonoBehaviour
         ShowOperatorPanels();
 
         // 이름
-        // nameText.text = currentDeployableInfo.operatorData?.EntityID ?? string.Empty;
         nameText.text = GameManagement.Instance!.LocalizationManager.GetText(currentDeployableInfo.operatorData?.EntityNameLocalizationKey);
 
         // 레벨
@@ -165,7 +130,7 @@ public class InStageInfoPanel : MonoBehaviour
     private void UpdateDeployableInfo()
     {
         HideOperatorPanels();
-        nameText.text = currentDeployableInfo.deployableUnitData?.EntityID ?? string.Empty;
+        nameText.text = GameManagement.Instance!.LocalizationManager.GetText(currentDeployableInfo.deployableUnitData?.EntityNameLocalizationKey) ?? string.Empty;
     }
 
     private void UpdateStatInfo()

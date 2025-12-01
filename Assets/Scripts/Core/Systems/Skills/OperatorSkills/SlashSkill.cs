@@ -17,8 +17,6 @@ namespace Skills.OperatorSkills
         [SerializeField] private float vfxDuration = 2f;
         [SerializeField] private GameObject slashControllerPrefab = default!;
 
-        private string skillPoolTag; 
-
         protected override void SetDefaults()
         {
             duration = 0f;
@@ -46,7 +44,7 @@ namespace Skills.OperatorSkills
             caster.AddBuff(new CannotAttackBuff(effectDuration, this));
 
             // 풀에서 오브젝트 생성
-            GameObject effectObj = ObjectPoolManager.Instance.SpawnFromPool(skillPoolTag, caster.transform.position, caster.transform.rotation);
+            GameObject effectObj = ObjectPoolManager.Instance.SpawnFromPool(GetSlashControllerTag(caster.OperatorData), caster.transform.position, caster.transform.rotation);
 
             // 스킬 범위 정의
             HashSet<Vector2Int> skillRange = SetSkillRange(caster);
@@ -55,7 +53,16 @@ namespace Skills.OperatorSkills
             SlashSkillController controller = effectObj.GetComponent<SlashSkillController>();
             if (controller != null)
             {
-                controller.Initialize(caster, vfxDuration, skillRange, firstDamageMultiplier, secondDamageMultiplier, caster.OperatorData.HitEffectPrefab, caster.HitEffectTag, skillPoolTag, this);
+                controller.Initialize(caster, 
+                    vfxDuration, 
+                    skillRange, 
+                    firstDamageMultiplier, 
+                    secondDamageMultiplier, 
+                    caster.OperatorData.HitEffectPrefab, 
+                    caster.HitEffectTag, 
+                    GetSlashControllerTag(caster.OperatorData), 
+                    this
+                );
             }
         }
 
