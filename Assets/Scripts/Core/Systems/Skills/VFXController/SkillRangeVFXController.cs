@@ -44,42 +44,49 @@ public class SkillRangeVFXController : MonoBehaviour, IPooledObject
     {
         this.poolTag = tag;
 
-        // 초기 : 모든 이펙트 비활성화
+        // 초기 : 모든 이펙트 초기화
 
-        // 방향에 따른 파티클 시스템 / 이미지 비활성화
+        // 방향에 따른 파티클 시스템 / 이미지 초기화
         foreach (var pair in directionEffects.Values)
         {
             if (pair.effect != null)
             {
-                InitializeParticleSystem(pair.effect);
+                ResetParticleSystem(pair.effect);
             }
 
             pair.boundary?.gameObject.SetActive(false);
         }
 
-        // 바닥의 파티클 시스템 / 이미지 비활성화
-
-        InitializeParticleSystem(floorEffectObject);
-        
+        // 바닥의 파티클 시스템 / 이미지 초기화
+        if (floorEffectObject != null)
+        {
+            ResetParticleSystem(floorEffectObject);
+        }
         floorImage?.gameObject.SetActive(false);
+
+
     }
 
     // 파티클 시스템 초기화
-    private void InitializeParticleSystem(GameObject psObject)
+    private void ResetParticleSystem(GameObject psObject)
     {
-        if (psObject != null)
+        psObject.SetActive(false);
+
+        ParticleSystem psComponent = psObject.GetComponent<ParticleSystem>();
+        if (psComponent != null)
         {
-            psObject.SetActive(false);
-            psObject.GetComponent<ParticleSystem>()?.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
+            psComponent.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
         }
     }
 
     private void PlayParticleSystem(GameObject psObject)
     {
-        if (psObject != null)
+        psObject.SetActive(true);
+        
+        ParticleSystem psComponent = psObject.GetComponent<ParticleSystem>();
+        if (psComponent != null)
         {
-            psObject.SetActive(true);
-            psObject.GetComponent<ParticleSystem>()?.Play(true);
+            psComponent.Play(true);
         }
     }
 
@@ -107,11 +114,14 @@ public class SkillRangeVFXController : MonoBehaviour, IPooledObject
             return;
         }
 
+        // 바닥 이펙트/이미지 실행
         floorImage?.gameObject.SetActive(true);
+        if (floorEffectObject != null)
+        {
+            PlayParticleSystem(floorEffectObject);
+        }
 
-        PlayParticleSystem(floorEffectObject);
-    
-
+        // 벽 이펙트/이미지 실행
         // 방향에 따른 타일 검사로 이펙트 실행 여부 결정
         foreach (var direction in directions)
         {
@@ -121,7 +131,6 @@ public class SkillRangeVFXController : MonoBehaviour, IPooledObject
             var (effectObject, boundary) = directionEffects[direction];
             
             boundary?.gameObject.SetActive(showEffect);
-
             if (showEffect && effectObject != null)
             {
                 PlayParticleSystem(effectObject);

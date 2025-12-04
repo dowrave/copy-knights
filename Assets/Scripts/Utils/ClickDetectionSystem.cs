@@ -65,7 +65,6 @@ public class ClickDetectionSystem : MonoBehaviour
         // 배치 상황은 DeployableManager에서 처리한다. 여기서는 다른 오브젝트의 클릭 동작을 막기 위해 남겨둠.
         if (DeploymentInputHandler.Instance!.CurrentState == DeploymentInputHandler.InputState.SelectingDirection)
         {
-            Logger.Log("HandleClick : 배치 중 드래깅 혹은 방향 선택 상태 - 클릭 처리 중단");
             return;
         }
 
@@ -129,7 +128,6 @@ public class ClickDetectionSystem : MonoBehaviour
     
     private void HandleEmptySpaceClick()
     {
-        Logger.Log("빈 공간 클릭 - CancelCurrentAction 동작");
         DeployableManager.Instance!.CancelCurrentAction();
     }
 

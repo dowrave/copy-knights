@@ -18,7 +18,7 @@ public class Projectile : MonoBehaviour
     [SerializeField] private bool needToRotate; // 방향이 정해진 파티클의 경우 체크
 
     [Header("Speed")]
-    public float speed = 5f;
+    public float speed = 3f;
 
     [Header("Wait Time Before VFX Stop")]
     // 파괴되거나 풀로 돌아가기 전 대기 시간 - 이펙트가 바로 사라지지 않게 해서 보기 어색하지 않게끔 함
@@ -268,9 +268,11 @@ public class Projectile : MonoBehaviour
             if (isHealing) target.TakeHeal(attackSource);
 
             // 범위 공격 상황
-            else if (attacker is Operator op &&
-                op.OperatorData.OperatorClass == OperatorClass.Artillery) CreateAreaOfDamage(transform.position, value, showValue, attackSource);
-
+            else if (attacker is Operator op && op.OperatorData.OperatorClass == OperatorClass.Artillery)
+            {
+                CreateAreaOfDamage(transform.position, value, showValue, attackSource);
+            } 
+                
             // 단일 공격 상황
             else target.TakeDamage(attackSource);
         }
@@ -331,11 +333,15 @@ public class Projectile : MonoBehaviour
     private void CreateAreaOfDamage(Vector3 position, float damage, bool showValue, AttackSource attackSource)
     {
         // 범위 공격 이펙트 생성
+        // 피격 이펙트와 동일한 태그를 사용 중이다. 이 공격 판정은 UnitEntity.TakeDamage에서 피격 이펙트를 
         if (hitEffectTag != null)
         {
             GameObject effectInstance = ObjectPoolManager.Instance.SpawnFromPool(hitEffectTag, position, Quaternion.identity);
-            // GameObject effectInstance = Instantiate(hitEffectPrefab, position, Quaternion.identity);
-            // Destroy(effectInstance, 2f); // 2초 후에 이펙트 제거. 아래의 코드는 이걸 기다리지 않고 잘 동작함.
+            CombatVFXController combatVFXController = effectInstance.GetComponent<CombatVFXController>();
+            if (combatVFXController != null)
+            {
+                combatVFXController.Initialize(attackSource, position, hitEffectTag);
+            }
         }
 
         // 범위 공격 대상에게 대미지 적용
@@ -355,8 +361,8 @@ public class Projectile : MonoBehaviour
                         ObjectPoolManager.Instance!.ShowFloatingText(target.transform.position, damage, false);
                     }
 
-                    // 피격 이펙트는 적용하지 않음
-                    target.TakeDamage(source: attackSource);
+                    // 피격 이펙트는 위에서만 한 번 실행됨
+                    target.TakeDamage(source: attackSource, false);
                 }
             }
         }

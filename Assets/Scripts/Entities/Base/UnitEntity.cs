@@ -352,7 +352,7 @@ public abstract class UnitEntity : MonoBehaviour, ITargettable, IFactionMember, 
     }
 
 
-    public virtual void TakeDamage(AttackSource source)
+    public virtual void TakeDamage(AttackSource source, bool playHitVFX = true)
     {
         // 현재 체력이 0 이하라면 실행되지 않는다
         // 중복해서 실행되는 경우를 방지함
@@ -369,10 +369,18 @@ public abstract class UnitEntity : MonoBehaviour, ITargettable, IFactionMember, 
         OnHealthChanged?.Invoke(CurrentHealth, MaxHealth, shieldSystem.CurrentShield);
 
         // 피격 이펙트 - GetHit이 없더라도 피격당한 오브젝트의 반짝이는 효과
+        if (_flashCoroutine != null)
+        {
+            StopCoroutine(_flashCoroutine);
+            _flashCoroutine = null;
+        }
         _flashCoroutine = StartCoroutine(PlayTakeDamageVFX());
 
         // 피격 이펙트 재생 - 프리팹, 태그 모두 있을 때만 실행됨
-        PlayGetHitEffect(source);
+        if (playHitVFX)
+        {
+            PlayGetHitEffect(source);
+        }
 
         // 대미지 팝업
         if (source.ShowDamagePopup)

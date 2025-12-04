@@ -238,7 +238,7 @@ public class OperatorPromotionPanel : MonoBehaviour
             bool success = OperatorGrowthManager.Instance!.TryPromoteOperator(op);
             if (success)
             {
-                NotificationToastManager.Instance!.ShowNotification($"{op.OperatorID} 정예화 완료");
+                NotificationToastManager.Instance!.ShowNotification($"{GameManagement.Instance.LocalizationManager.GetText(op.OperatorData.EntityNameLocalizationKey)}) 정예화 완료");
                 // 디테일 패널로 돌아가기
                 MainMenuManager.Instance!.ChangePanel(
                     MainMenuManager.Instance!.PanelMap[MainMenuManager.MenuPanel.OperatorDetail],

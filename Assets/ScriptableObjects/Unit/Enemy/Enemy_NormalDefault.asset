@@ -12,13 +12,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 277825dab463fe8469435119db921473, type: 3}
   m_Name: Enemy_NormalDefault
   m_EditorClassIdentifier: 
-  entityName: Enemy_NormalDefault
+  entityID: enemy_normalDefault
+  entityNameLocalizationKey: enemy.normalDefault.name
   stats:
     _baseStats:
       _health: 3000
       _defense: 225
       _magicResistance: 10
-    _movementSpeed: 0.9
+    _movementSpeed: 0.7
     _attackPower: 350
     _attackSpeed: 1
     _attackRange: 0

@@ -18,7 +18,7 @@ public class StageManager : MonoBehaviour
     private Map? currentMap;
 
     // 배치 코스트
-    private float timeToFillCost = 0.5f; // 코스트 1 회복에 걸리는 시간
+    private float timeToFillCost = 0.5f; // 코스트 1 회복에 걸리는 시간(초)
     private int currentDeploymentCost;
     private int maxDeploymentCost;
     private float currentCostGauge = 0f;

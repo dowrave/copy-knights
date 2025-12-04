@@ -13,6 +13,8 @@ public class CombatVFXController : MonoBehaviour
     private Vector3 targetPosition;
     private float effectDuration;
 
+    private Coroutine _currentCoroutine; 
+
     [Header("Assign One")]
     [SerializeField] private ParticleSystem? mainPs; 
     [SerializeField] private VisualEffect? vfx;
@@ -54,7 +56,13 @@ public class CombatVFXController : MonoBehaviour
             PlayPS();
         }
 
-        StartCoroutine(WaitAndReturnToPool(this.effectDuration));
+        if (_currentCoroutine != null)
+        {
+            StopCoroutine(_currentCoroutine);
+            _currentCoroutine = null;
+        }
+
+        _currentCoroutine = StartCoroutine(WaitAndReturnToPool(this.effectDuration));
     }
 
     // 그래프마다 활성화된 프로퍼티가 다름 / 이펙트 사용처가 더 많아지면 더 확장해야 함
@@ -108,7 +116,6 @@ public class CombatVFXController : MonoBehaviour
         {
             // 옵션 1) 피격자 -> 공격자 방향의 이펙트 진행
             case VFXRotationType.targetToSource:
-
                 direction = (attackSource.Position - targetPosition).normalized;
                 break;
 

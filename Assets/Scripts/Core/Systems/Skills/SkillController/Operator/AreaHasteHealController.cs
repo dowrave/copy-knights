@@ -3,6 +3,21 @@ using UnityEngine;
 
 public class AreaHasteHealController: FieldEffectController
 {
+
+    public override void Initialize(
+        UnitEntity caster, 
+        IReadOnlyCollection<Vector2Int> skillRangeGridPositions, 
+        float fieldDuration, 
+        float tickDamageRatio, 
+        float interval, 
+        GameObject hitEffectPrefab, 
+        string hitEffectTag
+    )
+    {
+        InitializeFields(caster, skillRangeGridPositions, fieldDuration, tickDamageRatio, interval, hitEffectPrefab, hitEffectTag);
+        InitializeCoroutine();
+    }
+
     protected override void CheckTargetsInField()
     {
         // 이전에 힐을 받던 대상들 중 범위를 벗어난 경우 처리
@@ -60,7 +75,6 @@ public class AreaHasteHealController: FieldEffectController
                     hitEffectTag: hitEffectTag,
                     showDamagePopup: true
                 );
-
                 target.TakeHeal(healSource);
             }
         }

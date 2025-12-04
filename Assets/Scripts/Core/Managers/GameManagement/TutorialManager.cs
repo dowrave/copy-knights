@@ -360,7 +360,6 @@ public class TutorialManager : MonoBehaviour
         if (tutorialCanvasPrefab != null)
         {
             tutorialCanvas = Instantiate(tutorialCanvasPrefab).GetComponent<TutorialCanvas>();
-            Logger.Log($"{SceneManager.GetActiveScene().name}¿¡¼­ tutorialCanvas »ý¼ºµÊ : {tutorialCanvas.name}");
             tutorialCanvas.gameObject.SetActive(false);
         }
 
@@ -561,12 +560,10 @@ public class TutorialManager : MonoBehaviour
     // ¾ÀÀÌ ´ÝÈú ¶§ È£ÃâµÇ´Â ¸Þ¼­µå
     private void OnSceneUnloaded(Scene scene)
     {
-        Logger.Log("OnSceneUnloaded µ¿ÀÛÇÔ");
         ResetHighlightUI();
 
         if (tutorialCanvas != null)
         {
-            Logger.Log($"{SceneManager.GetActiveScene().name}¿¡¼­ tutorialCanvas ÆÄ±«µÊ");
             Destroy(tutorialCanvas.gameObject);
             tutorialCanvas = null;
         }

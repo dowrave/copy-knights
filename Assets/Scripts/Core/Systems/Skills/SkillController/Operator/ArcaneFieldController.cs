@@ -19,11 +19,18 @@ public class ArcaneFieldController : FieldEffectController
         float slowAmount
         )
     {
-        base.Initialize(caster, affectedTiles, fieldDuration, amountPerTick, interval, hitEffectPrefab, hitEffectTag);
+        // base.Initialize(caster, affectedTiles, fieldDuration, amountPerTick, interval, hitEffectPrefab, hitEffectTag);
+        InitializeFields(caster, affectedTiles, fieldDuration, amountPerTick, interval, hitEffectPrefab, hitEffectTag);
         this.slowAmount = slowAmount;
 
-        StartCoroutine(FieldRoutine(fieldDuration, interval));
+        // _currentCoroutine = StartCoroutine(FieldRoutine(fieldDuration, interval));
+        InitializeCoroutine();
     }
+
+    // public override void Initialize(UnitEntity caster, IReadOnlyCollection<Vector2Int> skillRangeGridPositions, float fieldDuration, float tickDamageRatio, float interval, GameObject hitEffectPrefab, string hitEffectTag)
+    // {
+    //     Logger.LogWarning($"slowAmount 값이 없음 - 임의로 0.3으로 설정");
+    // }
 
     protected override void CheckTargetsInField()
     {

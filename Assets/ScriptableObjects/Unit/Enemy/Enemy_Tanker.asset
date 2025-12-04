@@ -12,16 +12,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 277825dab463fe8469435119db921473, type: 3}
   m_Name: Enemy_Tanker
   m_EditorClassIdentifier: 
-  entityID: 
-  entityNameLocalizationKey: 
+  entityID: enemy_tanker
+  entityNameLocalizationKey: enemy.tanker.name
   stats:
     _baseStats:
       _health: 5000
       _defense: 400
       _magicResistance: 10
-    _movementSpeed: 0.8
+    _movementSpeed: 1.1
     _attackPower: 350
-    _attackSpeed: 1.7
+    _attackSpeed: 0.85
     _attackRange: 0
   prefab: {fileID: 6542749020257112806, guid: 3cc57da195bbbd34b915e65d097837f1, type: 3}
   primaryColor: {r: 1, g: 0.46666667, b: 0.13725491, a: 1}

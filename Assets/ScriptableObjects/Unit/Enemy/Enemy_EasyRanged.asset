@@ -12,13 +12,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 277825dab463fe8469435119db921473, type: 3}
   m_Name: Enemy_EasyRanged
   m_EditorClassIdentifier: 
-  entityName: Enemy_EasyRanged
+  entityID: enemy_easyRanged
+  entityNameLocalizationKey: enemy.easyRanged.name
   stats:
     _baseStats:
       _health: 1500
       _defense: 100
       _magicResistance: 5
-    _movementSpeed: 1
+    _movementSpeed: 0.7
     _attackPower: 280
     _attackSpeed: 1.5
     _attackRange: 2

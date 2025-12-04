@@ -4936,7 +4936,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b7d2569bcf045ad4a9b4f6b572e4c677, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  mainPs: {fileID: 0}
+  mainPs: {fileID: 4890438818747446371}
   vfx: {fileID: 0}
   rotationType: 0
   billboardParticles: []

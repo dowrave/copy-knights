@@ -55,7 +55,7 @@ MonoBehaviour:
   - {fileID: 1143250644515394310}
   - {fileID: 6621663035910166232}
   needToRotate: 1
-  speed: 5
+  speed: 3
   WAIT_DISAPPEAR_TIME: 0.5
   renderers: []
 --- !u!54 &800397965192090725

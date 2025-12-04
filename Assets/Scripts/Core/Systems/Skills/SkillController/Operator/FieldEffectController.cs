@@ -15,6 +15,8 @@ public abstract class FieldEffectController : MonoBehaviour, IPooledObject
     protected string hitEffectTag = string.Empty;
     protected string poolTag = string.Empty;
 
+    protected Coroutine _currentCoroutine; 
+
     // 영향받은 대상 딕셔너리
     protected Dictionary<UnitEntity, List<Buff>> affectedTargets = new Dictionary<UnitEntity, List<Buff>>();
 
@@ -24,8 +26,17 @@ public abstract class FieldEffectController : MonoBehaviour, IPooledObject
         affectedTargets.Clear();
     }
 
-
     public virtual void Initialize(
+        UnitEntity caster,
+        IReadOnlyCollection<Vector2Int> skillRangeGridPositions,
+        float fieldDuration,
+        float tickDamageRatio,
+        float interval,
+        GameObject hitEffectPrefab,
+        string hitEffectTag
+        ) {}
+
+    protected virtual void InitializeFields(        
         UnitEntity caster,
         IReadOnlyCollection<Vector2Int> skillRangeGridPositions,
         float fieldDuration,
@@ -44,7 +55,19 @@ public abstract class FieldEffectController : MonoBehaviour, IPooledObject
         this.hitEffectTag = hitEffectTag;
     }
 
+    protected virtual void InitializeCoroutine()
+    {
+        if (_currentCoroutine != null)
+        {
+            StopCoroutine(_currentCoroutine);
+            _currentCoroutine = null;
+        }
+
+        _currentCoroutine = StartCoroutine(FieldRoutine(fieldDuration, interval));
+    }
+
     // Update 대신 모든 로직을 처리하는 메인 코루틴
+    // 말단 클래스들에서 각각 실행시키도록 합시다 
     protected virtual IEnumerator FieldRoutine(float duration, float interval)
     {
         float elapsedTime = 0f;

@@ -5028,7 +5028,7 @@ MonoBehaviour:
   remainingParticles:
   - {fileID: 7512746793012168770}
   needToRotate: 0
-  speed: 5
+  speed: 3
   WAIT_DISAPPEAR_TIME: 0.5
   renderers:
   - {fileID: 6915234090985654807}

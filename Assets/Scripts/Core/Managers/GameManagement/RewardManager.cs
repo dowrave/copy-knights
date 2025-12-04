@@ -91,6 +91,11 @@ public class RewardManager : MonoBehaviour
                 if (stars == 3) return 0.5f;
             }
         }
+        else
+        {
+            // 기존 기록과 같거나 더 못 깼을때
+            return 0f; 
+        }
 
         throw new InvalidOperationException("FirstClearItemRate의 예상치 못한 동작");
     }

@@ -329,6 +329,8 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
         float spBeforeAttack = CurrentSP;
         AttackType finalAttackType = AttackType;
 
+        Logger.LogWarning($"[현재 테스트] {OperatorData.EntityID}이 {target}에게 공격");
+
         // 스킬 시스템에서 버프로 변환 중
         // 공격에만 적용되는 버프 적용
         foreach (var buff in activeBuffs)
@@ -709,7 +711,7 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
         CurrentTarget = null;
     }
 
-    // 테스트) 적 파괴 이벤트를 받아 오퍼레이터에서의 처리를 작업함
+    // 적 디스폰 이벤트를 받았을 때의 처리
     protected void HandleEnemyDespawn(Enemy enemy, DespawnReason reason)
     {
         // 1. 현재 타겟이라면 타겟 해제
