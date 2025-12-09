@@ -58,7 +58,11 @@ public class HealthBar : MonoBehaviour
         float previousTotalAmount = totalAmount;
         totalAmount = maxValue + currentShield;
 
-        slider.maxValue = totalAmount; 
+        if (slider != null)
+        {
+            slider.maxValue = maxAmount;
+            slider.value = currentAmount;
+        }
 
         // 이전 값 저장 후 갱신
         float previousAmount = currentAmount;

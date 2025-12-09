@@ -10,7 +10,7 @@ Material:
   m_Name: Trail02_Gray
   m_Shader: {fileID: -6465566751694194690, guid: 4b9036e449e840d4682b6d4ce5bbcbdc, type: 3}
   m_Parent: {fileID: 2100000, guid: 9c3de82b0a47e4b4fa54393a21be8f0d, type: 2}
-  m_ModifiedSerializedProperties: 0
+  m_ModifiedSerializedProperties: 16
   m_ValidKeywords:
   - _ALPHATEST_ON
   - _SURFACE_TYPE_TRANSPARENT
@@ -18,7 +18,7 @@ Material:
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 0
   m_DoubleSidedGI: 0
-  m_CustomRenderQueue: -1
+  m_CustomRenderQueue: 3000
   stringTagMap:
     RenderType: Transparent
   disabledShaderPasses:
@@ -30,7 +30,8 @@ Material:
     serializedVersion: 3
     m_TexEnvs: []
     m_Ints: []
-    m_Floats: []
+    m_Floats:
+    - _DstBlendAlpha: 10
     m_Colors:
     - _Color1: {r: 0.4528302, g: 0.4528302, b: 0.4528302, a: 0.5019608}
     - _Color2: {r: 0.3301887, g: 0.3301887, b: 0.3301887, a: 0.5019608}
@@ -48,4 +49,4 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d0353a89b1f911e48b9e16bdc9f2e058, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  version: 9
+  version: 10

@@ -45,10 +45,15 @@ public class SPBar : MonoBehaviour
     public void UpdateSPFill(float newValue, float maxValue)
     {
         maxAmount = maxValue;
-        slider.maxValue = maxAmount;
+        currentAmount = newValue;
+
+        if (slider != null)
+        {
+            slider.maxValue = maxAmount;
+            slider.value = currentAmount;
+        }
 
         // 이전 값 저장 후 갱신
-        currentAmount = newValue;
 
         // 메인 게이지 비율 갱신
         float valueRatio = newValue / maxAmount;

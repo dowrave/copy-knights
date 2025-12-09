@@ -132,7 +132,8 @@ public class Projectile : MonoBehaviour
         {
             shouldDestroy = true; // 목표 도달 후에 파괴
         }
-        // 타겟이 살아 있다면 위치 갱신
+
+        // 타겟이 살아 있다면 목표 지점 갱신
         if (target != null)
         {
             lastKnownPosition = target.transform.position;
@@ -140,6 +141,14 @@ public class Projectile : MonoBehaviour
 
         // 방향 계산 및 이동
         Vector3 direction = (lastKnownPosition - transform.position).normalized;
+        
+        // 거리가 너무 가까운 경우 타격 처리
+        if (direction == Vector3.zero)
+        {
+            HandleHit(lastKnownPosition);
+            return;
+        }
+
         transform.position += direction * speed * Time.deltaTime;
 
         // 회전 설정 반영
@@ -154,7 +163,7 @@ public class Projectile : MonoBehaviour
         if (target == null)
         {
             float reachDistance = sphereCollider.radius;
-            if ((transform.position - lastKnownPosition).sqrMagnitude < reachDistance * reachDistance) // 이게 더 가볍단다
+            if ((transform.position - lastKnownPosition).sqrMagnitude < reachDistance * reachDistance) // 이게 더 가볍다고 한다
             {
                 HandleHit(lastKnownPosition);
             }
