@@ -63,3 +63,8 @@ MonoBehaviour:
     pathData: {fileID: 11400000, guid: a994f179e4009934daf345de979283f9, type: 2}
     prefab: {fileID: 6542749020257112806, guid: 53b71dc6cf9a3434190f6e26b2d4ead4, type: 3}
     enemyType: 0
+  - spawnType: 0
+    spawnTime: 52
+    pathData: {fileID: 11400000, guid: a994f179e4009934daf345de979283f9, type: 2}
+    prefab: {fileID: 6542749020257112806, guid: 8286c7e86561fed45aa30aca892a27ce, type: 3}
+    enemyType: 0

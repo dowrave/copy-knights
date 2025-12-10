@@ -66,6 +66,8 @@ public class SPBar : MonoBehaviour
         maxAmmoCount = maxAmmo;
         currentAmmoCount = currentAmmo;
 
+        if (slider != null) slider.enabled = false;
+
         spFill.gameObject.SetActive(false);
         ammoContainer.gameObject.SetActive(true);
 
@@ -153,6 +155,8 @@ public class SPBar : MonoBehaviour
         maxAmmoCount = 0;
         isAmmoMode = false;
 
+        if (slider != null) slider.enabled = true;
+
         // 스킬 게이지로 전환
         ammoContainer.gameObject.SetActive(false);
         spFill.gameObject.SetActive(true);
@@ -160,9 +164,10 @@ public class SPBar : MonoBehaviour
         spFill.color = offSkillColor;
 
         // spFill 원래 상태로 복원
-        spFill.fillAmount = currentAmount / maxAmount;
-        spFill.rectTransform.anchorMin = new Vector2(0, 0);
-        spFill.rectTransform.anchorMax = new Vector2(currentAmount / maxAmount, 1);
+        // slider를 쓰면 자체적으로 계산하므로 필요없어짐
+        // spFill.fillAmount = currentAmount / maxAmount;
+        // spFill.rectTransform.anchorMin = new Vector2(0, 0);
+        // spFill.rectTransform.anchorMax = new Vector2(currentAmount / maxAmount, 1);
     }
 
     public Color GetColor()

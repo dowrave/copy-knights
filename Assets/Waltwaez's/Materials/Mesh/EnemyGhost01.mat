@@ -59,12 +59,14 @@ Material:
     m_Ints: []
     m_Floats:
     - _AlphaClip: 0
+    - _AlphaPulseFrequency: 2.5
     - _AlphaToMask: 0
     - _Blend: 0
     - _BlendModePreserveSpecular: 0
     - _CastShadows: 1
     - _Cull: 2
     - _DstBlend: 10
+    - _DstBlendAlpha: 10
     - _FadeAmount: 1
     - _Float: 0
     - _FrequencyPerSecond: 0.3
@@ -74,6 +76,7 @@ Material:
     - _ReceiveShadows: 1
     - _Smoothness: 0
     - _SrcBlend: 5
+    - _SrcBlendAlpha: 1
     - _Surface: 1
     - _WorkflowMode: 1
     - _ZTest: 4

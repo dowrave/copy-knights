@@ -1,0 +1,30 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 27b28f2099ad3ba4c9f301873da05e13, type: 3}
+  m_Name: 1-0Test
+  m_EditorClassIdentifier: 
+  spawnedEnemies:
+  - spawnType: 1
+    spawnTime: 2
+    pathData: {fileID: 11400000, guid: f8a73130100f0864d8197ff02694ca67, type: 2}
+    prefab: {fileID: 7620251311904048292, guid: 9aeab8e4aa50ac446ba479d0f93c4f56, type: 3}
+    enemyType: 0
+  - spawnType: 0
+    spawnTime: 5
+    pathData: {fileID: 11400000, guid: f8a73130100f0864d8197ff02694ca67, type: 2}
+    prefab: {fileID: 6542749020257112806, guid: 8286c7e86561fed45aa30aca892a27ce, type: 3}
+    enemyType: 0
+  - spawnType: 0
+    spawnTime: 10
+    pathData: {fileID: 11400000, guid: f8a73130100f0864d8197ff02694ca67, type: 2}
+    prefab: {fileID: 6542749020257112806, guid: 8286c7e86561fed45aa30aca892a27ce, type: 3}
+    enemyType: 0

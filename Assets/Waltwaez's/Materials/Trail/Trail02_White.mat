@@ -58,12 +58,14 @@ Material:
     - _Cull: 0
     - _DistortionAmount: 0.126
     - _DstBlend: 10
+    - _DstBlendAlpha: 10
     - _NoiseLength: 0.74
     - _NoisePower: 3.21
     - _NoiseScale: 50
     - _QueueControl: 0
     - _QueueOffset: 0
     - _SrcBlend: 5
+    - _SrcBlendAlpha: 1
     - _Surface: 1
     - _TrailLength_AlphaClip: 0.198
     - _ZTest: 4

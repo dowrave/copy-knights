@@ -175,6 +175,7 @@
     <Compile Include="Assets\Scripts\Utils\UIHelper.cs" />
     <Compile Include="Assets\Scripts\UI\Components\OperatorSlot.cs" />
     <Compile Include="Assets\Scripts\UI\Panels\SquadEditPanel.cs" />
+    <Compile Include="Assets\Scripts\Core\Systems\Physics\UnitOverlapSolver.cs" />
     <Compile Include="Assets\Scripts\UI\Panels\ToLobbyPanel.cs" />
     <Compile Include="Assets\Scripts\Core\Systems\Buff\ShieldBuff.cs" />
     <Compile Include="Assets\Scripts\UI\Panels\InStageInfoPanel.cs" />

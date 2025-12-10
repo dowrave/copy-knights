@@ -12,7 +12,7 @@ TagManager:
   - 
   - Water
   - UI
-  - Deployable
+  - Unit
   - (Intentionally Not Used)
   - UI_Overlay
   - UI_WorldSpace
@@ -48,7 +48,7 @@ TagManager:
   - name: DirectionIndicator
     uniqueID: 103597713
     locked: 0
-  - name: Deployable
+  - name: Unit
     uniqueID: 2801499103
     locked: 0
   - name: Effect
