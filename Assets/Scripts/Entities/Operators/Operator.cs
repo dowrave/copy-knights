@@ -52,7 +52,6 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
         }
     }
 
-
     public override float Defense
     {
         get => currentOperatorStats.Defense;
@@ -321,15 +320,12 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
         SetAttackCooldown();
 
         PerformAttack(target, polishedDamage, showDamagePopup);
-
     }
 
     public virtual void PerformAttack(UnitEntity target, float damage, bool showDamagePopup)
     {
         float spBeforeAttack = CurrentSP;
-        AttackType finalAttackType = AttackType;
-
-        Logger.LogWarning($"[현재 테스트] {OperatorData.EntityID}이 {target}에게 공격");
+        AttackType finalAttackType = _currentAttackType;
 
         // 스킬 시스템에서 버프로 변환 중
         // 공격에만 적용되는 버프 적용
@@ -646,9 +642,8 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
         ClearStates();
 
         base.Deploy(position);
-
-        IsPreviewMode = false;
         SetDeploymentOrder();
+        _currentAttackType = _operatorData.AttackType;
         operatorGridPos = MapManager.Instance!.CurrentMap!.WorldToGridPosition(transform.position);
         SetDirection(FacingDirection);
         UpdateAttackableTiles(); // 방향에 따른 공격 범위 타일들 업데이트
@@ -966,11 +961,7 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
         var vfxBuff = activeBuffs.FirstOrDefault(b => b.MeleeAttackVFXOverride != null);
         if (vfxBuff != null)
         {
-            // effectPrefab = vfxBuff.MeleeAttackEffectOverride;
-            // effectTag = vfxBuff.SourceSkill.GetVFXPoolTag(this, vfxBuff.SourceSkill.meleeAttackEffectOverride);
             effectTag = vfxBuff.SourceSkill.GetMeleeAttackVFXTag(_operatorData);
-
-            Debug.Log($"버프로 인한 물리공격 이펙트 변경 : {effectTag}");
         }
 
         // 이펙트 처리
@@ -1118,12 +1109,4 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
 
         base.OnDestroy();
     }
-
-    // #region Object Pool Tag Generators 
-    // public static string GetMeleeAttackEffectTag(OperatorData data) => $"{data.EntityID}_{data.MeleeAttackEffectPrefab.name}";
-    // public static string GetHitEffectTag(OperatorData data) => $"{data.EntityID}_{data.HitEffectPrefab.name}";
-    // public static string GetProjectileTag(OperatorData data) => $"{data.EntityID}_projectile";
-    // public static string GetMuzzleTag(OperatorData data) => $"{data.EntityID}_muzzle";
-    // #endregion
-
 }

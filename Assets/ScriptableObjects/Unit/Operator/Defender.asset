@@ -32,9 +32,9 @@ MonoBehaviour:
   icon: {fileID: 0}
   canDeployOnGround: 1
   canDeployOnHill: 0
-  operatorClass: 2
-  attackType: 0
-  attackRangeType: 0
+  operatorClass: 3
+  attackType: 1
+  attackRangeType: 1
   attackableTiles:
   - {x: 0, y: 0}
   elite0Skill: {fileID: 11400000, guid: 56faa0a8b9215bf43a3fabf75602a487, type: 2}

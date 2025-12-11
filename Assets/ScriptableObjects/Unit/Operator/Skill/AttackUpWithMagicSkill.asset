@@ -24,7 +24,7 @@ MonoBehaviour:
   autoRecover: 0
   autoActivate: 0
   isOnTest: 0
-  meleeAttackEffectOverride: {fileID: 1249516511906949688, guid: a35bd5c623b9ddf4c8a665484ca72fac, type: 3}
+  meleeAttackVFXOverride: {fileID: 1249516511906949688, guid: a35bd5c623b9ddf4c8a665484ca72fac, type: 3}
   duration: 10
   durationVFXPrefab: {fileID: 8208081831452339212, guid: 9041f43c8afec3d4a9c9b44ebd8937d4, type: 3}
   activeFromOperatorPosition: 1
@@ -36,7 +36,7 @@ MonoBehaviour:
     attackSpeedModifier: 1.5
     defenseModifier: 1
     magicResistanceModifier: 1
-    attackType: 1
+    attackType: 2
     attackRangeModifier: []
   stunChance: 0.25
   stunDuration: 1

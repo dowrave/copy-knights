@@ -364,6 +364,19 @@ public abstract class UnitEntity : MonoBehaviour, ITargettable, IFactionMember, 
         // 쉴드를 깎고 남은 대미지
         float remainingDamage = shieldSystem.AbsorbDamage(actualDamage);
 
+        // 오류 처리 - 공격 타입이 None이면 진짜 이슈임 
+        if (source.Type == AttackType.None)
+        {
+            Logger.LogError($"{source.Attacker}의 공격 타입이 None임");
+            return;
+        }
+
+        // 디버깅용 
+        if (source.Type == AttackType.Magical)
+        {
+            Logger.Log($"들어간 마법 대미지 : {remainingDamage}");
+        }
+
         // 체력 계산
         CurrentHealth = Mathf.Max(0, CurrentHealth - remainingDamage);
         OnHealthChanged?.Invoke(CurrentHealth, MaxHealth, shieldSystem.CurrentShield);

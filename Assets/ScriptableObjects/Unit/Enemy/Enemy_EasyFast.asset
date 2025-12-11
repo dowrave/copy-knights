@@ -26,8 +26,8 @@ MonoBehaviour:
   prefab: {fileID: 6542749020257112806, guid: a25e00875a1545645b0cd199aef220b0, type: 3}
   primaryColor: {r: 0.20784314, g: 0.20784314, b: 0.20784314, a: 1}
   secondaryColor: {r: 0, g: 0, b: 0, a: 0}
-  attackType: 0
-  attackRangeType: 0
+  attackType: 1
+  attackRangeType: 1
   blockCount: 1
   defaultYPosition: 0.5
   playerDamage: 1

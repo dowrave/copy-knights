@@ -32,9 +32,9 @@ MonoBehaviour:
   icon: {fileID: 0}
   canDeployOnGround: 0
   canDeployOnHill: 1
-  operatorClass: 5
-  attackType: 0
-  attackRangeType: 1
+  operatorClass: 6
+  attackType: 1
+  attackRangeType: 2
   attackableTiles:
   - {x: 0, y: 0}
   - {x: 0, y: -1}

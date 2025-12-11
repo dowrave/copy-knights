@@ -157,14 +157,10 @@ namespace Skills.Base
             Destroy(vfxObject);
         }
 
-        public override void PreloadObjectPools()
-        {
-            Logger.LogError("OperatorData가 필요함");
-            return;
-        }
-
         public override void PreloadObjectPools(OperatorData opData)
         {
+            base.PreloadObjectPools(opData);
+
             if (durationVFXPrefab != null)
             {
                 ObjectPoolManager.Instance.CreatePool(GetDurationVFXTag(opData), durationVFXPrefab, 1);

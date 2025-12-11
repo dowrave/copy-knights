@@ -16,7 +16,10 @@ public class SmashBuff : Buff
     public override void OnBeforeAttack(UnitEntity owner, ref float damage, ref AttackType attackType, ref bool showDamagePopup)
     {
         damage *= damageMultiplier;
-        attackType = this.attackType;
+        if (attackType != AttackType.None)
+        {
+            attackType = this.attackType;
+        }
         showDamagePopup = true;
     }
 

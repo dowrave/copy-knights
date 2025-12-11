@@ -1,5 +1,6 @@
 public enum OperatorClass
 {
+    None,
     Vanguard,
     Guard,
     Defender,

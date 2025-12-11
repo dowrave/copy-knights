@@ -69,7 +69,12 @@ public class StatModificationBuff : Buff
         owner.AttackSpeed /= modifiers.attackSpeedModifier; // 공격 속도 = 쿨다운이므로 줄어야 맞음
         owner.Defense *= modifiers.defenseModifier;
         owner.MagicResistance *= modifiers.magicResistanceModifier;
-        owner.AttackType = modifiers.attackType;
+
+        // Modifier의 설정이 있을 때만 공격 타입을 수정(아니라면 Operator.AttackType을 따름)
+        if (modifiers.attackType != AttackType.None)
+        {
+            owner.AttackType = modifiers.attackType;
+        }
 
         // 오퍼레이터 한정 변경 사항
         if (owner is Operator op)

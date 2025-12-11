@@ -27,6 +27,7 @@ public interface ICombatEntity
 
 public enum AttackType
 {
+    None,
     Physical,
     Magical,
     True
@@ -34,6 +35,7 @@ public enum AttackType
 
 public enum AttackRangeType
 {
+    None,
     Melee,
     Ranged
 }

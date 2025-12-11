@@ -47,7 +47,7 @@ public class UnitOverlapSolver: MonoBehaviour
                 if (CheckConditionAboutDeployable(otherUnit)) continue;
                 if (CheckConditionAboutEnemy(otherUnit)) continue;
 
-                Logger.Log($"다른 오브젝트 {otherUnit.gameObject.name}를 찾아서 충돌 로직 계산 시작");
+                // Logger.Log($"다른 오브젝트 {otherUnit.gameObject.name}를 찾아서 충돌 로직 계산 시작");
 
                 // 위치 계산 - 
                 Vector3 direction = transform.position - other.transform.position; 

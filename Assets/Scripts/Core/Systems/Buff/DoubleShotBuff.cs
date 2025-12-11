@@ -27,8 +27,6 @@ public class DoubleShotBuff : Buff
     {
         if (owner is Operator op)
         {
-
-
             UnitEntity? target = op.CurrentTarget;
             if (target == null) yield break;
 
