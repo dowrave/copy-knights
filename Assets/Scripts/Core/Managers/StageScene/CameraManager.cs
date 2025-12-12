@@ -1,17 +1,17 @@
 using System.Collections;
 using UnityEngine;
+using System; 
 
 public class CameraManager : MonoBehaviour
 {
     public static CameraManager Instance { get; private set; } = null!; // null이 아님을 보장, 경고문구 무시
 
-    private float animationDuration = 0.1f;
+    private float animationDuration = 0.05f;
 
     // OperatorInfo가 나타날 때 카메라의 위치 / 높이 변화
     private float cameraShiftAmount = -0.1f;
     private float cameraHeightAmount = 1f;
     private float clickedOperatorZShiftAmount = 2f;
-
 
     private Vector3 operatorInfoRotation = new Vector3(0, -15, -15);
 
@@ -22,6 +22,8 @@ public class CameraManager : MonoBehaviour
         private set { mainCamera = value; }
     }
 
+    private Coroutine _currentCoroutine; 
+
     private Vector3 originalPosition;
 
     // 카메라 각도 - Quaternion 타입은 transform.rotation에 할당
@@ -31,6 +33,7 @@ public class CameraManager : MonoBehaviour
 
     private float originalSize;
 
+    public System.Action OnCameraMovementFinished = delegate { };
 
     private void Awake()
     {
@@ -80,6 +83,13 @@ public class CameraManager : MonoBehaviour
     /// <param name="deployable">배치된 deployable(배치되지 않은 경우는 null)</param>
     public void AdjustForDeployableInfo(bool show, DeployableUnitEntity? deployable = null)
     {
+
+        if (_currentCoroutine != null)
+        {
+            StopCoroutine(_currentCoroutine);
+            _currentCoroutine = null;
+        }
+
         // ShowDeployableInfo
         if (show)
         {
@@ -114,51 +124,39 @@ public class CameraManager : MonoBehaviour
                                 );
             }
 
-            StartCoroutine(LerpPosition(MainCamera.transform, newPosition, animationDuration));
 
-            // 카메라 회전
-            //Quaternion newRotation = Quaternion.Euler(originalRotation.eulerAngles + operatorInfoRotation);
-            StartCoroutine(LerpRotation(MainCamera.transform, infoRotation, animationDuration));
+            // 카메라 이동 및 회전 (+ 후에 Slow 설정)
+            _currentCoroutine = StartCoroutine(LerpPositionAndRotation(MainCamera.transform, newPosition, infoRotation, animationDuration, 
+                onComplete: () => StageManager.Instance.SlowState = true));
         }
-
-        // HideDeployableInfo
+        // 해제 상황 : HideDeployableInfo
         else
         {
-            // 원위치 복귀
-            StartCoroutine(LerpPosition(MainCamera.transform, originalPosition, animationDuration));
-
-            // 원래 회전 복귀
-            StartCoroutine(LerpRotation(MainCamera.transform, baseRotation, animationDuration));
-
+            // 카메라 이동 및 회전 (시작 시에 Slow 해제)
+            _currentCoroutine = StartCoroutine(LerpPositionAndRotation(MainCamera.transform, originalPosition, baseRotation, animationDuration,
+                onStart: () => StageManager.Instance.SlowState = false ));
         }
     }
 
-    // 카메라의 위치를 부드럽게 변경 : 시작 -> 목표 위치로 지정된 duration 동안 선형 보간을 수행
-    private IEnumerator LerpPosition(Transform transform, Vector3 targetPosition, float duration)
+    private IEnumerator LerpPositionAndRotation(Transform transform, Vector3 targetPosition, Quaternion targetRotation, float duration, Action onStart = null, Action onComplete = null)
     {
+        onStart?.Invoke();
+
         Vector3 startPosition = transform.position;
+        Quaternion startRotation = transform.rotation;
+
         float time = 0;
         while (time < duration)
         {
             transform.position = Vector3.Lerp(startPosition, targetPosition, time / duration);
+            transform.rotation = Quaternion.Slerp(startRotation, targetRotation, time / duration);
+
             time += Time.deltaTime;
             yield return null;
         }
         transform.position = targetPosition;
-    }
-
-    // 카메라의 회전을 부드럽게 변경
-    private IEnumerator LerpRotation(Transform transform, Quaternion targetRotation, float duration)
-    {
-        Quaternion startRotation = transform.rotation;
-        float time = 0;
-        while (time < duration)
-        {
-            transform.rotation = Quaternion.Slerp(startRotation, targetRotation, time / duration);
-            time += Time.deltaTime;
-            yield return null;
-        }
         transform.rotation = targetRotation;
-    }
 
+        onComplete?.Invoke();
+    }
 }

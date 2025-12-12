@@ -255,7 +255,7 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
 
     protected override void Update()
     {
-        if (IsDeployed && StageManager.Instance!.currentState == GameState.Battle)
+        if (IsDeployed && StageManager.Instance!.CurrentGameState == GameState.Battle)
         {
             // ----- 상태 갱신 로직. 행동 제약과 무관 -----
             UpdateAttackDuration();

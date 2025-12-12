@@ -218,7 +218,7 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity
 
     protected override void Update()
     {
-        if (StageManager.Instance!.currentState == GameState.Battle && // 전투 중이면서
+        if (StageManager.Instance!.CurrentGameState == GameState.Battle && // 전투 중이면서
             currentDespawnReason == DespawnReason.Null && // 디스폰되고 있지 않을 때
             isInitialized
             )

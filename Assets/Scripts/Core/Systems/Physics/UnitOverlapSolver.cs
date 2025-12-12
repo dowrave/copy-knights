@@ -13,6 +13,20 @@ public class UnitOverlapSolver: MonoBehaviour
     private Collider[] hitColliders = new Collider[20];
     private int hitCount;
 
+    // 자기 자신 
+    // 이 스크립트가 필요한 대부분의 경우는 Enemy이긴 함
+    private DeployableUnitEntity selfDeployable;
+    private Enemy selfEnemy;
+
+    public DeployableUnitEntity SelfDeployable => selfDeployable;
+    public Enemy SelfEnemy => selfEnemy;
+
+    private void Awake()
+    {
+        selfDeployable = GetComponent<DeployableUnitEntity>();
+        selfEnemy = GetComponent<Enemy>();
+    }
+
     private void LateUpdate()
     {
         if (isStaticUnit) return;
@@ -39,13 +53,17 @@ public class UnitOverlapSolver: MonoBehaviour
             // 유닛 콜라이더는 자식 오브젝트로 둠 -> 부모에서 이 스크립트를 찾아야 함
             UnitOverlapSolver otherUnit = other.GetComponentInParent<UnitOverlapSolver>();
 
-            if (otherUnit.gameObject == gameObject) continue;
-
             if (otherUnit != null)
             {
-                // 상대가 배치 요소인데 미리보기 모드일 때는 처리하지 않음
-                if (CheckConditionAboutDeployable(otherUnit)) continue;
-                if (CheckConditionAboutEnemy(otherUnit)) continue;
+                // 자기 자신은 제외
+                if (otherUnit.gameObject == gameObject) continue;
+
+                // 충돌 처리 조건 체크 - false일 때는 처리하지 않음
+                if (!CheckCollideCondition(otherUnit)) continue;
+
+                // 조건부로만 처리함 
+                // if (!PassCondition(otherUnit)) continue;
+                // if (CheckConditionAboutEnemy(otherUnit)) continue;
 
                 // Logger.Log($"다른 오브젝트 {otherUnit.gameObject.name}를 찾아서 충돌 로직 계산 시작");
 
@@ -93,30 +111,70 @@ public class UnitOverlapSolver: MonoBehaviour
         }
     }
 
-    // 충돌한 상대가 Deployable일때 조건 체크
-    private bool CheckConditionAboutDeployable(UnitOverlapSolver otherUnit)
+    // true일 때 충돌 처리 진행, false일 때 진행하지 않음
+    private bool CheckCollideCondition(UnitOverlapSolver otherUnit)
     {
-        DeployableUnitEntity otherDeployable = otherUnit.GetComponent<DeployableUnitEntity>();
-        if (otherDeployable != null && otherDeployable.IsPreviewMode) return true; // 미리보기 중에는 이 스크립트로 인한 처리 진행 X
-        return false;
-    }
+        if (selfEnemy == null) return false;
 
-    // Enemy의 경우, 저지당할 때만 동작함
-    // 이동 중에도 동작하게끔 구현하면 멈춰있는 오브젝트 A의 위치로 이동하는 오브젝트 B가 진입할 때 B가 A를 밀어넣어버리는 현상이 발생함
-    private bool CheckConditionAboutEnemy(UnitOverlapSolver otherUnit)
-    {
-        Enemy thisEnemy = GetComponent<Enemy>();
-        Enemy otherEnemy = otherUnit.GetComponent<Enemy>();
-        
-        // 스크립트의 동작 조건 : 두 Enemy가 모두 저지당한 상태에서만 동작
-        if (thisEnemy != null && 
-            otherEnemy != null && 
-            thisEnemy.BlockingOperator != null && 
-            otherEnemy.BlockingOperator != null)
+        // 1. 상대가 Deployable일 때의 처리
+        DeployableUnitEntity otherDeployable = otherUnit.SelfDeployable; 
+        if (otherDeployable != null)
         {
-            return true; 
+            // 날 저지하는 중일 때에만 처리
+            if (selfEnemy.BlockingOperator == otherDeployable) return true;
+
+            // 별도로 처리할 필요가 있는지 없는지 모르겠어서 주석 처리
+            // 상단 조건에 미리보기 모드가 아니라는 의미가 포함되긴 했음
+
+            // 미리보기 모드일 때는 처리하지 않음
+            // if (otherDeployable.IsPreviewMode) return false; 
+
+            return false; 
         }
 
-        return false;
+        // 2. 상대가 Enemy일 때의 처리
+        Enemy otherEnemy = otherUnit.SelfEnemy;
+        if (otherEnemy != null)
+        {
+            // 두 Enemy가 모두 저지당할 때에만 동작함
+            if (selfEnemy.BlockingOperator != null && otherEnemy.BlockingOperator != null) return true;
+            return false;
+        } 
+
+        return false; 
     }
+
+    // // 충돌한 상대가 Deployable일때 조건 체크
+    // // true일 때 처리되지 않게, false일 때 
+    // private bool CheckConditionAboutDeployable(UnitOverlapSolver otherUnit)
+    // {
+    //     DeployableUnitEntity otherDeployable = otherUnit.GetComponent<DeployableUnitEntity>();
+    //     if (otherDeployable != null && otherDeployable.IsPreviewMode)
+    //     {
+    //         if (selfEnemy != null && elfEnemy.BlockingOperator == otherDeployable)
+    //         {
+    //             return false;
+    //         }
+    //     }
+
+    //     return true;
+    // }
+
+    // // Enemy의 경우, 저지당할 때만 동작함
+    // // 이동 중에도 동작하게끔 구현하면 멈춰있는 오브젝트 A의 위치로 이동하는 오브젝트 B가 진입할 때 B가 A를 밀어넣어버리는 현상이 발생함
+    // private bool CheckConditionAboutEnemy(UnitOverlapSolver otherUnit)
+    // {
+    //     // 자신이 Enemy일 때, 자신이 저지 당하는 중에만 동작해야 함
+    //     if (selfEnemy != null && selfEnemy.BlockingOperator != null)
+    //     {
+    //         // 상대도 Enemy일 때, 상대가 저지 당하는 중에만 동작해야 함
+    //         Enemy otherEnemy = otherUnit.GetComponent<Enemy>();
+    //         if (otherEnemy != null && otherEnemy.BlockingOperator != null)
+    //         {
+    //             return true;
+    //         }          
+    //     }
+
+    //     return false;
+    // }
 }

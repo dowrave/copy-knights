@@ -171,7 +171,7 @@ public class DeployableManager : MonoBehaviour
     {
         if (StageManager.Instance == null) throw new InvalidOperationException("StageManager.Instance가 null임");
 
-        if (StageManager.Instance.currentState != GameState.Battle) { return; }
+        if (StageManager.Instance.CurrentGameState != GameState.Battle) { return; }
 
         UpdateDeployableStateCooldown();
     }
@@ -467,7 +467,8 @@ public class DeployableManager : MonoBehaviour
         CurrentDeployableInfo = null;
 
         StageUIManager.Instance!.HideDeployableInfo();
-        Time.timeScale = 1f;
+        StageManager.Instance!.SlowState = false;
+        // Time.timeScale = 1f;
         // GameManagement.Instance!.TimeManager.UpdateTimeScale();
 
         ResetHighlights();
@@ -509,7 +510,7 @@ public class DeployableManager : MonoBehaviour
         ResetHighlights();
 
         // 박스 재생성. 전투 중일 때에만 동작
-        if (StageManager.Instance != null && StageManager.Instance.currentState == GameState.Battle)
+        if (StageManager.Instance != null && StageManager.Instance.CurrentGameState == GameState.Battle)
         {
             DeployableInfo? info;
             if (deployable is Operator op)

@@ -60,17 +60,26 @@ public class InGameTopButtonContainer : MonoBehaviour
     }
 
 
-    public void UpdateSpeedUpButtonVisual(bool isSpeedUp)
+    public void UpdateSpeedUpButtonVisual(bool isSpeedUp, bool slowState)
     {
-        // 현재 배속인 상태를 띄움
-        currentSpeedText.text = isSpeedUp ? "x2" : "x1";
-        currentSpeedImage.sprite = isSpeedUp ? x2SpeedSprite : x1SpeedSprite;
+        if (slowState)
+        {
+            currentSpeedButton.interactable = false;
+        }
+        else
+        {
+            currentSpeedButton.interactable = true;
+            
+            // 현재 배속인 상태를 띄움
+            currentSpeedText.text = isSpeedUp ? "x2" : "x1";
+            currentSpeedImage.sprite = isSpeedUp ? x2SpeedSprite : x1SpeedSprite;
+        }
     }
 
     public void UpdatePauseButtonVisual()
     {
         // 눌러서 바뀌는 상태를 띄움(정지 중일 때 재생, 재생 중일 때 정지)
-        pauseImage.sprite = StageManager.Instance!.currentState == GameState.Paused ? x1SpeedSprite : pauseSprite;
+        pauseImage.sprite = StageManager.Instance!.CurrentGameState == GameState.Paused ? x1SpeedSprite : pauseSprite;
     }
 
     private void OnReturnToLobbyButtonClicked()
@@ -78,7 +87,7 @@ public class InGameTopButtonContainer : MonoBehaviour
         Logger.Log("로비로 돌아가기 버튼이 클릭됨");
 
         // Pause패널이 나타났을 때에도 클릭될 수 있음
-        if (StageManager.Instance!.currentState == GameState.Battle)
+        if (StageManager.Instance!.CurrentGameState == GameState.Battle)
         {
             StageManager.Instance!.SetGameState(GameState.Paused);
         }

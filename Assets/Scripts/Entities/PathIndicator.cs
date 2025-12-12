@@ -52,7 +52,7 @@ public class PathIndicator : MonoBehaviour
 
     private void Update()
     {
-        if (StageManager.Instance!.currentState == GameState.Battle)
+        if (StageManager.Instance!.CurrentGameState == GameState.Battle)
         {
             MoveAlongPath();
         }

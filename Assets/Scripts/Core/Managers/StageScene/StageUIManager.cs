@@ -100,7 +100,7 @@ public class StageUIManager : MonoBehaviour
     {
         if (StageManager.Instance != null)
         {
-            StageManager.Instance.OnSpeedUpChanged += UpdateSpeedUpButtonVisual;
+            StageManager.Instance.OnSpeedChanged += UpdateSpeedUpButtonVisual;
         }
     }
 
@@ -207,9 +207,9 @@ public class StageUIManager : MonoBehaviour
         lifePointsText!.text = $"<color=#ff7485>{currentLifePoints}</color>";
     }
 
-    public void UpdateSpeedUpButtonVisual(bool isSpeedUp)
+    public void UpdateSpeedUpButtonVisual(bool isSpeedUp, bool slowState)
     {
-        inGameTopButtonContainer!.UpdateSpeedUpButtonVisual(isSpeedUp);
+        inGameTopButtonContainer!.UpdateSpeedUpButtonVisual(isSpeedUp, slowState);
     }
 
     public void UpdatePauseButtonVisual()
@@ -326,7 +326,7 @@ public class StageUIManager : MonoBehaviour
 
         if (StageManager.Instance != null)
         {
-            StageManager.Instance.OnSpeedUpChanged -= UpdateSpeedUpButtonVisual;
+            StageManager.Instance.OnSpeedChanged -= UpdateSpeedUpButtonVisual;
         }
     }
 }

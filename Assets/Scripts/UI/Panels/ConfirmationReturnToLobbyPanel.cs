@@ -24,7 +24,7 @@ public class ConfirmationReturnToLobbyPanel : MonoBehaviour
     public void Initialize()
     {
         // 전투 중일 때 멈춤으로 전환
-        if (StageManager.Instance!.currentState == GameState.Battle)
+        if (StageManager.Instance!.CurrentGameState == GameState.Battle)
         {
             StageManager.Instance!.SetGameState(GameState.Paused);
         }

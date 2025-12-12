@@ -189,7 +189,7 @@ public abstract class DeployableUnitEntity : UnitEntity, IDeployable
         // 배치된 유닛 클릭
         if (IsDeployed &&
             !IsPreviewMode &&
-            StageManager.Instance!.currentState == GameState.Battle
+            StageManager.Instance!.CurrentGameState == GameState.Battle
             )
         {
             DeployableManager.Instance!.CancelPlacement();
@@ -197,6 +197,7 @@ public abstract class DeployableUnitEntity : UnitEntity, IDeployable
             if (IsPreviewMode == false)
             {
                 DeploymentInputHandler.Instance!.SetIsSelectingDeployedUnit(true);
+                StageManager.Instance!.SlowState = true;
                 StageUIManager.Instance!.ShowDeployedInfo(this);
                 ShowActionUI();
             }
