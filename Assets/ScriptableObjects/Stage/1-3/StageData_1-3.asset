@@ -17,7 +17,7 @@ MonoBehaviour:
   stageDetail: "\uBCF4\uC2A4\uAC00 \uB098\uD0C0\uB0A9\uB2C8\uB2E4. \uBC14\uB9AC\uCF00\uC774\uB4DC\uAC00
     \uC81C\uACF5\uB418\uACE0 \uC801\uC774 \uC5EC\uB7EC \uACF3\uC5D0\uC11C \uC0DD\uC131\uB420
     \uC218 \uC788\uC2B5\uB2C8\uB2E4."
-  mapPrefab: {fileID: 634433898594637645, guid: 1f132ed87b79c844ab5dfa021b6a6922, type: 3}
+  mapPrefab: {fileID: 28621251638114162, guid: c920765e775d3814fa7e2bb31f091b11, type: 3}
   startDeploymentCost: 20
   maxDeploymentCost: 99
   costPerSecondModifier: 1
@@ -27,6 +27,6 @@ MonoBehaviour:
   mapDeployables:
   - deployablePrefab: {fileID: 8875430263191699086, guid: 445bdcb62b7e4c84b9ac1f5d640cb325, type: 3}
     deployableData: {fileID: 11400000, guid: 137922d0524493444ba9997d212523d8, type: 2}
-    maxDeployCount: 3
+    maxDeployCount: 10
   FirstClearRewardItems: []
   BasicClearRewardItems: []

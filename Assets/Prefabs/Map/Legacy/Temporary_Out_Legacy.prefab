@@ -3778,7 +3778,7 @@ GameObject:
   - component: {fileID: 8539917797902173396}
   - component: {fileID: 6451024488157021042}
   m_Layer: 0
-  m_Name: Temporary_Out
+  m_Name: Temporary_Out_Legacy
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

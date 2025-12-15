@@ -7,6 +7,8 @@ public class StageDatabase : MonoBehaviour
 {
     [SerializeField] private List<StageData> stageDatas = new List<StageData>();
 
+    public IReadOnlyCollection<StageData> StageDatas => stageDatas; 
+
     // stageId로 stageData를 얻음
     public StageData GetDataById(string stageId)
     {

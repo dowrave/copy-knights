@@ -69,6 +69,7 @@ namespace Skills.OperatorSkills
                 caster.transform.position,
                 Quaternion.identity
             );
+            
             ArcaneFieldController? controller = skillControllerObj.GetComponent<ArcaneFieldController>();
 
             if (controller != null)

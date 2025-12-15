@@ -1888,7 +1888,7 @@ MonoBehaviour:
   enableLevelUp: 0
   enableInitializeSquad: 0
   enableTutorialTest: 0
-  enableStageClearing: 0
+  targetStageId: 1-3
 --- !u!4 &105573112
 Transform:
   m_ObjectHideFlags: 0
