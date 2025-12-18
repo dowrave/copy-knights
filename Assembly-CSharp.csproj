@@ -92,6 +92,7 @@
     <Compile Include="Assets\Scripts\UI\Components\DiamondMask.cs" />
     <Compile Include="Assets\Scripts\Core\Managers\StageScene\MapManager.cs" />
     <Compile Include="Assets\Scripts\Entities\PathIndicator.cs" />
+    <Compile Include="Assets\Scripts\Core\Systems\Class\PathNavigator.cs" />
     <Compile Include="Assets\Scripts\Core\Managers\StageScene\CameraManager.cs" />
     <Compile Include="Assets\Scripts\Core\Managers\GameManagement\RewardManager.cs" />
     <Compile Include="Assets\Scripts\UI\Components\GaugeBar\SPBar.cs" />
@@ -121,6 +122,7 @@
     <Compile Include="Assets\Scripts\UI\Components\DirectionIndicator.cs" />
     <Compile Include="Assets\Scripts\Entities\Combat\Projectile\Projectile.cs" />
     <Compile Include="Assets\Scripts\UI\Components\EnemyBarUI.cs" />
+    <Compile Include="Assets\Scripts\Core\Systems\Attributes.cs" />
     <Compile Include="Assets\Scripts\Core\Systems\Skills\SkillController\Operator\SlashSkillController.cs" />
     <Compile Include="Assets\Scripts\Core\Systems\Skills\VFXController\SkillRangeVFXController.cs" />
     <Compile Include="Assets\Scripts\SO_Scripts\StageData.cs" />

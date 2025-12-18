@@ -127,7 +127,7 @@ public class PathDataEditor : Editor
         Debug.Log($"{tile.gameObject.name}");
         Debug.Log($"{tile.GridPosition}");
 
-        pathData.nodes.Add(new PathNode
+        pathData.Nodes.Add(new PathNode
         {
             tileName = tile.name,
             gridPosition = tile.GridPosition,
@@ -142,15 +142,15 @@ public class PathDataEditor : Editor
     {
         InstanceValidator.ValidateInstance(pathData);
 
-        if (pathData!.nodes.Count == 0) return;
+        if (pathData!.Nodes.Count == 0) return;
 
-        int nearestIndex = pathData.nodes
+        int nearestIndex = pathData.Nodes
             .Select((node, index) => new { Node = node, Index = index })
             .OrderBy(x => Vector2Int.Distance(x.Node.gridPosition, position))
             .First().Index;
 
         Undo.RecordObject(pathData, "Remove Path Node");
-        pathData.nodes.RemoveAt(nearestIndex);
+        pathData.Nodes.RemoveAt(nearestIndex);
         EditorUtility.SetDirty(pathData);
     }
 

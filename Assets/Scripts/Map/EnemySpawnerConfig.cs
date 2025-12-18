@@ -4,32 +4,32 @@ using System.Collections.Generic;
 [CreateAssetMenu(fileName = "New Enemy Spawner Config", menuName ="Game/Enemy Spawner Config")]
 public class EnemySpawnerConfig : ScriptableObject
 {
-    public List<EnemySpawnData> spawnedEnemies = new List<EnemySpawnData>();
+    [SerializeField] protected List<SpawnData> spawnedEnemies;
+
+    public IReadOnlyList<SpawnData> SpawnedEnemies => spawnedEnemies;
 }
 
 
 [System.Serializable]
-public class EnemySpawnData
+public class SpawnData
 {
-    public SpawnType spawnType;
-    public float spawnTime = 0f;
-    public PathData pathData = default!; // StageData에서는 경로 데이터를 직접 참조하도록 수정
-    public GameObject prefab = default!; // 스폰되는 종류가 다양할 수 있기 때문에 EnemyData를 사용하지 않음
+    [SerializeField] protected SpawnType spawnType;
+    [SerializeField] protected float spawnTime = 0f;
+    [SerializeField] protected PathData pathData = default!; // StageData에서는 경로 데이터를 직접 참조하도록 수정
 
-    [Tooltip("spawnType = Enemy일 때만 사용")]
-    public EnemyType enemyType;
+    [Header("Enemy일 때만 사용")]
+    [SerializeField] protected EnemyData? enemyData; 
+
+    public SpawnType SpawnType => spawnType;
+    public float SpawnTime => spawnTime; 
+    public PathData PathData => pathData;
+    public EnemyData? EnemyData => enemyData;
 }
 
 public enum SpawnType
 {
+    None,
     Enemy,
     PathIndicator
-}
-
-public enum EnemyType
-{
-    Regular,
-    Elite,
-    Boss
 }
 

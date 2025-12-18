@@ -13,13 +13,10 @@ public class PathfindingManager : MonoBehaviour
     public IReadOnlyList<Barricade> Barricades => barricades.AsReadOnly();
     public bool IsBarricadeDeployed => barricades.Count > 0;
 
-
     private static PathfindingManager? instance; // 필드
     public static PathfindingManager? Instance => instance;
 
     private Map? currentMap;
-
-
 
     private void Awake()
     {
@@ -71,6 +68,9 @@ public class PathfindingManager : MonoBehaviour
         if (MapManager.Instance == null) throw new InvalidOperationException("맵 매니저 인스턴스가 초기화되지 않았음");
         if (currentMap == null) throw new InvalidOperationException("currentMap이 초기화되지 않았음");
 
+        Logger.LogFieldStatus(startPos);
+        Logger.LogFieldStatus(endPos);
+
         List<Vector3>? worldPath = FindPath(startPos, endPos);
         if (worldPath == null)
         {
@@ -95,6 +95,7 @@ public class PathfindingManager : MonoBehaviour
                 pathNodes.Add(node);
             }
         }
+        
         return pathNodes;
     }
 

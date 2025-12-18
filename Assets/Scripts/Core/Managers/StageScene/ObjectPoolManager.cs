@@ -36,6 +36,9 @@ public class ObjectPoolManager : MonoBehaviour
     public Dictionary<string, Queue<GameObject>> poolDictionary = new Dictionary<string, Queue<GameObject>>(); // 실제 풀의 개별 오브젝트 인스턴스 관리
     private Dictionary<string, HashSet<GameObject>> activeObjects = new Dictionary<string, HashSet<GameObject>>(); // 현재 활성화된 오브젝트들 추적
 
+    // 딱히 관리할 곳이 안 보여서 여기서 관리함
+    public const string PathIndicatorTag = "pathIndicator";
+
     [Header("텍스트 관련")]
     [SerializeField] private GameObject? floatingTextPrefab;
     [SerializeField] private int floatingTextCounts = 2;

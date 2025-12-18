@@ -125,7 +125,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 97537113958457845, guid: e2398dcf759e75743b0e55cc17de6acc, type: 3}
       propertyPath: m_Color.a
-      value: 0.69803923
+      value: 0.5019608
       objectReference: {fileID: 0}
     - target: {fileID: 97537113958457845, guid: e2398dcf759e75743b0e55cc17de6acc, type: 3}
       propertyPath: m_Color.b
@@ -173,7 +173,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4361264696287308240, guid: e2398dcf759e75743b0e55cc17de6acc, type: 3}
       propertyPath: m_Color.a
-      value: 0.69803923
+      value: 0.5019608
       objectReference: {fileID: 0}
     - target: {fileID: 4361264696287308240, guid: e2398dcf759e75743b0e55cc17de6acc, type: 3}
       propertyPath: m_Color.b
@@ -190,6 +190,10 @@ PrefabInstance:
     - target: {fileID: 4361264696287308240, guid: e2398dcf759e75743b0e55cc17de6acc, type: 3}
       propertyPath: m_FillAmount
       value: 0.325
+      objectReference: {fileID: 0}
+    - target: {fileID: 4872841892573702157, guid: e2398dcf759e75743b0e55cc17de6acc, type: 3}
+      propertyPath: m_Color.a
+      value: 0.5019608
       objectReference: {fileID: 0}
     - target: {fileID: 5822929250571809993, guid: e2398dcf759e75743b0e55cc17de6acc, type: 3}
       propertyPath: m_Layer
@@ -309,7 +313,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7940435949015412083, guid: e2398dcf759e75743b0e55cc17de6acc, type: 3}
       propertyPath: healthFillColor.a
-      value: 1
+      value: 0.5019608
       objectReference: {fileID: 0}
     - target: {fileID: 7940435949015412083, guid: e2398dcf759e75743b0e55cc17de6acc, type: 3}
       propertyPath: healthFillColor.b
@@ -325,7 +329,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7940435949015412083, guid: e2398dcf759e75743b0e55cc17de6acc, type: 3}
       propertyPath: shieldFillColor.a
-      value: 1
+      value: 0.5019608
       objectReference: {fileID: 0}
     - target: {fileID: 7940435949015412083, guid: e2398dcf759e75743b0e55cc17de6acc, type: 3}
       propertyPath: shieldFillColor.b
@@ -341,7 +345,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7940435949015412083, guid: e2398dcf759e75743b0e55cc17de6acc, type: 3}
       propertyPath: damageOverlayColor.a
-      value: 1
+      value: 0.5019608
       objectReference: {fileID: 0}
     - target: {fileID: 7940435949015412083, guid: e2398dcf759e75743b0e55cc17de6acc, type: 3}
       propertyPath: damageOverlayColor.b

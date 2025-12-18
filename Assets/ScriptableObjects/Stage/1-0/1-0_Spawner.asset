@@ -1,0 +1,47 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 27b28f2099ad3ba4c9f301873da05e13, type: 3}
+  m_Name: 1-0_Spawner
+  m_EditorClassIdentifier: 
+  spawnedEnemies:
+  - spawnType: 2
+    spawnTime: 3
+    pathData: {fileID: 11400000, guid: f8a73130100f0864d8197ff02694ca67, type: 2}
+    enemyData: {fileID: 0}
+  - spawnType: 1
+    spawnTime: 6
+    pathData: {fileID: 11400000, guid: f8a73130100f0864d8197ff02694ca67, type: 2}
+    enemyData: {fileID: 11400000, guid: 49fcc305b57e89e40a626d509522d79a, type: 2}
+  - spawnType: 1
+    spawnTime: 9
+    pathData: {fileID: 11400000, guid: f8a73130100f0864d8197ff02694ca67, type: 2}
+    enemyData: {fileID: 11400000, guid: 49fcc305b57e89e40a626d509522d79a, type: 2}
+  - spawnType: 1
+    spawnTime: 12
+    pathData: {fileID: 11400000, guid: f8a73130100f0864d8197ff02694ca67, type: 2}
+    enemyData: {fileID: 11400000, guid: 673037e1dec1a8445b3797044c9c07e2, type: 2}
+  - spawnType: 2
+    spawnTime: 15
+    pathData: {fileID: 11400000, guid: 501d45a5536aba54d992b20c384b0c59, type: 2}
+    enemyData: {fileID: 0}
+  - spawnType: 1
+    spawnTime: 18
+    pathData: {fileID: 11400000, guid: 501d45a5536aba54d992b20c384b0c59, type: 2}
+    enemyData: {fileID: 11400000, guid: 673037e1dec1a8445b3797044c9c07e2, type: 2}
+  - spawnType: 1
+    spawnTime: 21
+    pathData: {fileID: 11400000, guid: 501d45a5536aba54d992b20c384b0c59, type: 2}
+    enemyData: {fileID: 11400000, guid: 673037e1dec1a8445b3797044c9c07e2, type: 2}
+  - spawnType: 1
+    spawnTime: 24
+    pathData: {fileID: 11400000, guid: f8a73130100f0864d8197ff02694ca67, type: 2}
+    enemyData: {fileID: 11400000, guid: f29e0c6041bad8a408813d1d901122f8, type: 2}

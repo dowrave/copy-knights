@@ -330,7 +330,7 @@ public class StageManager : MonoBehaviour
 
         count += spawners! // spawners가 null이 아님을 가정
             .Sum(spawner =>
-            spawner.spawnList?.spawnedEnemies?.Count(spawnInfo => spawnInfo.spawnType is SpawnType.Enemy) 
+            spawner.SpawnList?.Count(spawnInfo => spawnInfo.SpawnType is SpawnType.Enemy) 
             ?? 0 // spawnList나 spawnedEnemies가 null이면 0을 사용
             );
         
@@ -581,7 +581,6 @@ public class StageManager : MonoBehaviour
                 Logger.LogError($"맵 초기화 중 오류 발생 : {e.Message}");
                 return;
             }
-            
         }
     }
 
@@ -619,28 +618,39 @@ public class StageManager : MonoBehaviour
             yield break;
         }
 
-        // 1. 등장할 모든 적 유닛 목록 확보
-        var enemyPrefabCounts = new Dictionary<GameObject, int>();
+        // 등장할 모든 적에 관한 SO 데이터를 키, 갯수를 밸류로 하는 딕셔너리 생성
+        var enemyCountDict = new Dictionary<EnemyData, int>();
 
-        // 프리팹 수집
+        // Spawner에서 적의 수만 카운트함
         if (currentMap != null)
         {
             foreach (var spawner in currentMap.EnemySpawners)
             {
-                if (spawner.spawnList == null) continue;
-                foreach (var spawnInfo in spawner.spawnList.spawnedEnemies)
+                if (spawner.SpawnList == null)
                 {
-                    if (spawnInfo.prefab != null)
+                    Logger.Log("spawnList가 null이라 다음 스포너 처리로 넘어감");
+                    continue;
+                }
+
+                foreach (var spawnData in spawner.SpawnList)
+                {
+                    if (spawnData != null && spawnData.SpawnType == SpawnType.Enemy)
                     {
-                        // 이미 존재하면 갯수 추가
-                        if (enemyPrefabCounts.ContainsKey(spawnInfo.prefab))
+                        EnemyData enemyData = spawnData.EnemyData;
+                        if (enemyData == null)
                         {
-                            enemyPrefabCounts[spawnInfo.prefab]++;
+                            throw new InvalidOperationException($"enemyData가 할당되어 있지 않아 총 유닛 갯수 카운트에 들어가지 않음");
+                        }
+                        
+                        // 이미 존재하면 갯수 추가
+                        if (enemyCountDict.ContainsKey(enemyData))
+                        {
+                            enemyCountDict[enemyData]++;
                         }
                         // 없다면 딕셔너리에 새로 추가
                         else
                         {
-                            enemyPrefabCounts.Add(spawnInfo.prefab, 1);
+                            enemyCountDict.Add(enemyData, 1);
                         }
                     }
                 }
@@ -648,21 +658,24 @@ public class StageManager : MonoBehaviour
         }
 
         // 풀링할 전체 작업량 계산
-        float totalTasks = enemyPrefabCounts.Count + squadData.Count + (stageData?.mapDeployables?.Count ?? 0);
+        float totalTasks = enemyCountDict.Count + squadData.Count + (stageData?.mapDeployables?.Count ?? 0);
         float completedTasks = 0f;
 
+        // PathFinder는 1개 생성해둠 - 모든 스테이지에서 사용하므로
+        ObjectPoolManager.Instance.CreatePool(ObjectPoolManager.PathIndicatorTag, GameManagement.Instance.ResourceManager.PathIndicatorPrefab, 1);
+
         // 적 유닛 자체의 풀 & 적 유닛이 가진 오브젝트 풀 생성
-        foreach (var entry in enemyPrefabCounts)
+        foreach (var entry in enemyCountDict)
         {
-            GameObject enemyPrefab = entry.Key;
+            EnemyData enemyData = entry.Key;
             int requiredAmount = entry.Value;
 
-            Enemy enemy = enemyPrefab.GetComponent<Enemy>();
-            if (enemy == null || enemy.BaseData == null) continue;
-            EnemyData enemyData = enemy.BaseData;
+            // Enemy enemy = enemyPrefab.GetComponent<Enemy>();
+            // if (enemy == null || enemy.BaseData == null) continue;
+            // EnemyData enemyData = enemy.BaseData;
 
             string enemyPoolTag = enemyData.GetUnitTag();
-            ObjectPoolManager.Instance.CreatePool(enemyPoolTag, enemyPrefab, requiredAmount);
+            ObjectPoolManager.Instance.CreatePool(enemyPoolTag, enemyData.Prefab, requiredAmount);
             // Logger.Log($"enemy 풀 - {enemyPoolTag}에 오브젝트 {requiredAmount}만큼 생성됨");
 
             // 해당 적이 갖고 있는 오브젝트들 생성

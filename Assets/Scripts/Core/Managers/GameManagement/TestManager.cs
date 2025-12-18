@@ -13,6 +13,7 @@ public class TestManager : MonoBehaviour
     [SerializeField] private bool enableTestInitialization = true; // 테스트 초기화 활성화 여부
     [SerializeField] private bool enableLevelUp = false;
     [SerializeField] private bool enableInitializeSquad = false;
+    [SerializeField] private int whichSkillToUse = 1;
     [SerializeField] private bool enableTutorialTest = false;
     [Tooltip("이 스테이지 전까지 클리어됩니다")]
     [SerializeField] private string targetStageId; 
@@ -56,18 +57,19 @@ public class TestManager : MonoBehaviour
             TestAboutTutorial();
         }
 
+
         // 오퍼레이터 레벨업 및 정예화 테스트
         if (enableLevelUp)
         {
             InitializeOperatorsForTest();
         }
-
+ 
         // 스쿼드 배치
         if (enableInitializeSquad)
         {
             InitializeSquadForTest();
         }
- 
+
         // 스테이지 클리어
         InitializeStageProgressForTest(targetStageId);
         
@@ -76,6 +78,7 @@ public class TestManager : MonoBehaviour
     }
 
 
+    // 튜토리얼 관련 초기화
     private void TestAboutTutorial()
     {
         playerDataManager.FinishAllTutorials(); // 모든 튜토리얼 완료
@@ -104,7 +107,7 @@ public class TestManager : MonoBehaviour
 
         for (int i = 0; i < maxSquadSize && i < ownedOperators.Count; i++)
         {
-            userSquadManager.TryReplaceOperator(i, ownedOperators[i], 1);
+            userSquadManager.TryReplaceOperator(i, ownedOperators[i], whichSkillToUse);
         }
     }
 

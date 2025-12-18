@@ -42,20 +42,25 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity
     }
 
     // 경로 관련
-    protected PathData? pathData;
-    protected List<Vector3> currentPath = new List<Vector3>();
-    protected List<UnitEntity> targetsInRange = new List<UnitEntity>();
+    protected PathNavigator navigator;
+    // protected PathData? pathData;
+    protected List<PathNode> pathNodes;
     protected PathNode nextNode = default!;
     protected int nextNodeIndex = 0; // 시작하자마자 1이 됨
     protected Vector3 nextNodeWorldPosition; // 다음 노드의 좌표
     protected Vector3 destinationPosition; // 목적지
+    protected List<Vector3> currentPath = new List<Vector3>();
     protected bool isWaiting = false; // 단순히 위치에서 기다리는 상태
     protected bool stopAttacking = false; // 인위적으로 넣은 공격 가능 / 불가능 상태
     protected Barricade? targetBarricade;
 
+    public PathNavigator Navigator => navigator;
+    public IReadOnlyList<PathNode> PathNodes => pathNodes;
+    public IReadOnlyList<Vector3> CurrentPath => currentPath;
     public PathNode NextNode => nextNode;
     public Vector3 NextNodeWorldPosition => nextNodeWorldPosition; 
     public Vector3 DestinationPosition => DestinationPosition; 
+
     
     protected Operator? blockingOperator; // 자신을 저지 중인 오퍼레이터
     public Operator? BlockingOperator => blockingOperator;
@@ -82,7 +87,7 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity
             }
         }
     } // 공격 대상
-
+    protected List<UnitEntity> targetsInRange = new List<UnitEntity>();
     protected int initialPoolSize = 5;
 
     [SerializeField] protected GameObject enemyBarUIPrefab = default!;
@@ -156,7 +161,12 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity
 
         SetPrefab();
         currentStats = enemyData.Stats;
-        this.pathData = pathData;
+
+        if (pathData == null) Logger.LogError("pathData가 전달되지 않음");
+        
+        pathNodes = pathData.Nodes;
+        currentPath = pathNodes.Select(node => MapManager.Instance!.ConvertToWorldPosition(node.gridPosition) + Vector3.up * 0.5f).ToList();
+        nextNodeIndex = 0; 
 
         InitializeHP();
 
@@ -164,14 +174,17 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity
         CreateEnemyBarUI();
         UpdateNextNode();
         InitializeCurrentPath();
+        
+        navigator = new PathNavigator(this, pathNodes, destinationPosition);
+        navigator.OnPathUpdated += HandlePathUpdated;
 
         // 공격 범위 콜라이더 설정
         attackRangeController.Initialize(this);
 
         // 최초에 설정한 경로가 막힌 상황일 때 동작
-        if (PathfindingManager.Instance!.IsBarricadeDeployed && IsPathBlocked())
+        if (PathfindingManager.Instance!.IsBarricadeDeployed && navigator.IsPathBlocked())
         {
-            FindPathToDestinationOrBarricade();
+            navigator.FindPathToDestinationOrBarricade();
         }
 
         // 스킬 설정 
@@ -193,25 +206,46 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity
     {
         DeployableUnitEntity.OnDeployableDied += HandleDeployableDied;
 
-        Barricade.OnBarricadeDeployed += OnBarricadePlaced;
-        Barricade.OnBarricadeRemoved += OnBarricadeRemovedWithDelay;
+        // navigator = new PathNavigator(this, destinationPosition);
+        // navigator.OnPathUpdated += HandlePathUpdated;
+        // if (navigator.IsPathBlocked())
+        // {
+        //     navigator.UpdatePath(transform.position);
+        // }
+
+        // Barricade.OnBarricadeDeployed += OnBarricadePlaced;
+        // Barricade.OnBarricadeRemoved += OnBarricadeRemovedWithDelay;
     }
 
     protected void OnDisable()
     {
         DeployableUnitEntity.OnDeployableDied -= HandleDeployableDied;
 
-        Barricade.OnBarricadeDeployed -= OnBarricadePlaced;
-        Barricade.OnBarricadeRemoved -= OnBarricadeRemovedWithDelay;
+        if (navigator != null)
+        {
+            navigator.OnPathUpdated -= HandlePathUpdated;
+            navigator.Cleanup();
+        }
+        // Barricade.OnBarricadeDeployed -= OnBarricadePlaced;
+        // Barricade.OnBarricadeRemoved -= OnBarricadeRemovedWithDelay;
+    }
+
+    // 새로운 경로 설정 시 설정됨
+    protected void HandlePathUpdated(List<PathNode> newPathNodes)
+    {
+        pathNodes = newPathNodes;
+        currentPath = pathNodes.Select(node => MapManager.Instance!.ConvertToWorldPosition(node.gridPosition) + Vector3.up * 0.5f).ToList();
+        nextNodeIndex = 0; 
+        navigator.UpdateNextNodeIndex(nextNodeIndex);
     }
 
     protected void SetupInitialPosition()
     {
-        if (pathData == null || pathData.nodes == null) return;
+        if (pathNodes == null) return;
 
-        if (pathData!.nodes!.Count > 0)
+        if (pathNodes.Count > 0)
         {
-            transform.position = MapManager.Instance!.ConvertToWorldPosition(pathData.nodes![0].gridPosition) +
+            transform.position = MapManager.Instance!.ConvertToWorldPosition(pathNodes[0].gridPosition) +
                 Vector3.up * BaseData.DefaultYPosition;
         }
     }
@@ -244,7 +278,7 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity
     // 행동 규칙.
     protected virtual void DecideAndPerformAction()
     {
-        if (nextNodeIndex < pathData.nodes.Count)
+        if (nextNodeIndex < pathNodes.Count)
         {
             if (AttackDuration > 0) return;  // 공격 모션 중
 
@@ -287,12 +321,12 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity
     // 보스에서 사용
     protected virtual bool TryUseSkill() { return false; }
 
-    // pathData.nodes를 이용해 currentPath 초기화
+    // pathNodes을 이용해 currentPath 초기화
     protected void InitializeCurrentPath()
     {
-        if (pathData == null || pathData.nodes == null) throw new InvalidOperationException("null인 변수가 존재");
+        if (pathNodes == null) throw new InvalidOperationException("null인 변수가 존재");
 
-        foreach (var node in pathData.nodes)
+        foreach (var node in pathNodes)
         {
             currentPath.Add(MapManager.Instance!.ConvertToWorldPosition(node.gridPosition) + Vector3.up * BaseData.DefaultYPosition);
         }
@@ -356,12 +390,14 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity
     public void UpdateNextNode()
     {
         // pathData 관련 데이터 항목이 없거나, 도달할 노드가 마지막 노드인 경우는 실행되지 않음
-        if (pathData == null || pathData.nodes == null || nextNodeIndex >= pathData.nodes.Count - 1) return;
+        if (pathNodes == null || nextNodeIndex >= pathNodes.Count - 1) return;
 
         nextNodeIndex++;
-        if (nextNodeIndex < pathData.nodes.Count)
+        navigator.UpdateNextNodeIndex(nextNodeIndex);
+
+        if (nextNodeIndex < pathNodes.Count)
         {
-            nextNode = pathData.nodes[nextNodeIndex];
+            nextNode = pathNodes[nextNodeIndex];
             nextNodeWorldPosition = MapManager.Instance!.ConvertToWorldPosition(nextNode.gridPosition) +
                 Vector3.up * BaseData.DefaultYPosition;
         }
@@ -517,11 +553,11 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity
     // 마지막 타일의 월드 좌표 기준
     protected bool CheckIfReachedDestination()
     {
-        if (pathData == null || pathData.nodes == null) throw new InvalidOperationException("pathData, pathData.nodes가 없음");
+        if (pathNodes == null) throw new InvalidOperationException("pathData, pathData.nodes가 없음");
 
-        if (pathData.nodes.Count == 0) return false;
+        if (pathNodes.Count == 0) return false;
 
-        Vector2Int lastNodeGridPos = pathData!.nodes![pathData!.nodes!.Count - 1].gridPosition;
+        Vector2Int lastNodeGridPos = pathNodes[pathNodes.Count - 1].gridPosition;
         Vector3 lastNodePosition = MapManager.Instance!.ConvertToWorldPosition(lastNodeGridPos) + Vector3.up * 0.5f;
 
         return Vector3.Distance(transform.position, lastNodePosition) < 0.05f;
@@ -610,120 +646,118 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity
     }
 
 
-    // Barricade 설치 시 현재 경로가 막혔다면 재계산
-    protected void OnBarricadePlaced(Barricade barricade)
-    {
-        // 내 타일과 같은 타일에 바리케이드가 배치된 경우
-        if (barricade.CurrentTile != null &&
-            barricade.CurrentTile.EnemiesOnTile.Contains(this))
-        {
-            targetBarricade = barricade;
-        }
+    // // Barricade 설치 시 현재 경로가 막혔다면 재계산
+    // protected void OnBarricadePlaced(Barricade barricade)
+    // {
+    //     // 내 타일과 같은 타일에 바리케이드가 배치된 경우
+    //     if (barricade.CurrentTile != null &&
+    //         barricade.CurrentTile.EnemiesOnTile.Contains(this))
+    //     {
+    //         targetBarricade = barricade;
+    //     }
 
-        // 현재 사용 중인 경로가 막힌 경우
-        else if (IsPathBlocked())
-        {
-            FindPathToDestinationOrBarricade();
-        }
-    }
+    //     // 현재 사용 중인 경로가 막힌 경우
+    //     else if (IsPathBlocked())
+    //     {
+    //         FindPathToDestinationOrBarricade();
+    //     }
+    // }
 
-    protected void OnBarricadeRemovedWithDelay(Barricade barricade)
-    {
-        StartCoroutine(OnBarricadeRemoved(barricade));
-    }
+    // protected void OnBarricadeRemovedWithDelay(Barricade barricade)
+    // {
+    //     StartCoroutine(OnBarricadeRemoved(barricade));
+    // }
 
-    // 바리케이드 제거 시 동작
-    protected IEnumerator OnBarricadeRemoved(Barricade barricade)
-    {
-        // 바리케이드가 파괴될 시간 확보
-        yield return new WaitForSeconds(0.1f);
+    // // 바리케이드 제거 시 동작
+    // protected IEnumerator OnBarricadeRemoved(Barricade barricade)
+    // {
+    //     // 바리케이드가 파괴될 시간 확보
+    //     yield return new WaitForSeconds(0.1f);
 
-        // 바리케이드와 관계 없던 Enemy는 경로를 다시 탐색
-        if (targetBarricade == null)
-        {
-            FindPathToDestinationOrBarricade();
-        }
+    //     // 바리케이드와 관계 없던 Enemy는 경로를 다시 탐색
+    //     if (targetBarricade == null)
+    //     {
+    //         FindPathToDestinationOrBarricade();
+    //     }
 
-        // 해당 바리케이드가 목표였던 Enemy들의 targetBarricade 해제
-        else if (targetBarricade == barricade)
-        {
-            targetBarricade = null;
-            FindPathToDestinationOrBarricade();
-        }
+    //     // 해당 바리케이드가 목표였던 Enemy들의 targetBarricade 해제
+    //     else if (targetBarricade == barricade)
+    //     {
+    //         targetBarricade = null;
+    //         FindPathToDestinationOrBarricade();
+    //     }
 
-        // 다른 바리케이드를 목표로 하고 있다면 별도 동작 X
-    }
+    //     // 다른 바리케이드를 목표로 하고 있다면 별도 동작 X
+    // }
 
-    // 현재 pathData를 사용하는 경로가 막혔는지를 점검한다
-    protected bool IsPathBlocked()
-    {
-        if (currentPath.Count == 0) throw new InvalidOperationException("currentPath가 비어 있음");
+    // // 현재 pathData를 사용하는 경로가 막혔는지를 점검한다
+    // protected bool IsPathBlocked()
+    // {
+    //     if (currentPath.Count == 0) throw new InvalidOperationException("currentPath가 비어 있음");
 
-        for (int i = nextNodeIndex; i <= currentPath.Count - 1; i++)
-        {
-            // 경로가 막힌 상황 : 기존 경로 데이터들을 정리한다
-            if ((i == nextNodeIndex && PathfindingManager.Instance!.IsPathSegmentValid(transform.position, currentPath[i]) == false) ||
-                PathfindingManager.Instance!.IsPathSegmentValid(currentPath[i], currentPath[i + 1]) == false)
-            {
-                pathData = null;
-                currentPath.Clear();
-                return true;
-            }
-        }
+    //     for (int i = nextNodeIndex; i <= currentPath.Count - 1; i++)
+    //     {
+    //         // 경로가 막힌 상황 : 기존 경로 데이터들을 정리한다
+    //         if ((i == nextNodeIndex && PathfindingManager.Instance!.IsPathSegmentValid(transform.position, currentPath[i]) == false) ||
+    //             PathfindingManager.Instance!.IsPathSegmentValid(currentPath[i], currentPath[i + 1]) == false)
+    //         {
+    //             pathData = null;
+    //             currentPath.Clear();
+    //             return true;
+    //         }
+    //     }
+
+    //     return false;
+    // }
 
 
-        return false;
-    }
+    // // CalculatePath로 탐색된 경로를 받아와 pathData와 currentPath 초기화
+    // protected void SetNewPath(List<PathNode> newPathNodes)
+    // {
+    //     if (newPathNodes != null && newPathNodes.Count > 0)
+    //     {
+    //         PathData newPathData = ScriptableObject.CreateInstance<PathData>();
+    //         newPathData.nodes = newPathNodes;
+    //         pathData = newPathData;
+    //         currentPath = newPathNodes.Select(node => MapManager.Instance!.ConvertToWorldPosition(node.gridPosition) + Vector3.up * 0.5f).ToList();
 
+    //         nextNodeIndex = 0;
 
-    // CalculatePath로 탐색된 경로를 받아와 pathData와 currentPath 초기화
-    protected void SetNewPath(List<PathNode> newPathNodes)
-    {
-        if (newPathNodes != null && newPathNodes.Count > 0)
-        {
-            PathData newPathData = ScriptableObject.CreateInstance<PathData>();
-            newPathData.nodes = newPathNodes;
-            pathData = newPathData;
-            currentPath = newPathNodes.Select(node => MapManager.Instance!.ConvertToWorldPosition(node.gridPosition) + Vector3.up * 0.5f).ToList();
+    //         UpdateNextNode();
+    //     }
+    // }
 
-            nextNodeIndex = 0;
+    // // targetPosition으로 향하는 경로를 계산하고, 경로가 있다면 새로운 pathData와 currentPath로 설정함
+    // protected bool CalculateAndSetPath(Vector3 currentPosition, Vector3 targetPosition)
+    // {
+    //     List<PathNode>? tempPathNodes = PathfindingManager.Instance!.FindPathAsNodes(currentPosition, targetPosition);
 
-            UpdateNextNode();
-        }
-    }
+    //     if (tempPathNodes == null || tempPathNodes.Count == 0) return false; // 목적지로 향하는 경로가 없음
 
-    // targetPosition으로 향하는 경로를 계산하고, 경로가 있다면 새로운 pathData와 currentPath로 설정함
-    protected bool CalculateAndSetPath(Vector3 currentPosition, Vector3 targetPosition)
-    {
-        List<PathNode>? tempPathNodes = PathfindingManager.Instance!.FindPathAsNodes(currentPosition, targetPosition);
+    //     SetNewPath(tempPathNodes);
+    //     return true;
+    // }
 
-        if (tempPathNodes == null || tempPathNodes.Count == 0) return false; // 목적지로 향하는 경로가 없음
+    // // // 현재 위치에서 가장 가까운 바리케이드를 설정하고, 바리케이드로 향하는 경로를 설정함
+    // protected void SetBarricadePath()
+    // {
+    //     targetBarricade = PathfindingManager.Instance!.GetNearestBarricade(transform.position);
 
-        SetNewPath(tempPathNodes);
-        return true;
-    }
+    //     if (targetBarricade != null)
+    //     {
+    //         CalculateAndSetPath(transform.position, targetBarricade.transform.position);
+    //     }
+    // }
 
-    // 현재 위치에서 가장 가까운 바리케이드를 설정하고, 바리케이드로 향하는 경로를 설정함
-    protected void SetBarricadePath()
-    {
-        targetBarricade = PathfindingManager.Instance!.GetNearestBarricade(transform.position);
-
-        if (targetBarricade != null)
-        {
-            CalculateAndSetPath(transform.position, targetBarricade.transform.position);
-        }
-    }
-
-    // 목적지로 향하는 경로를 찾고, 없다면 가장 가까운 바리케이드로 향하는 경로를 설정함
-    protected void FindPathToDestinationOrBarricade()
-    {
-        if (!CalculateAndSetPath(transform.position, destinationPosition))
-        {
-            Logger.Log("목적지로 향하는 경로 발견 및 설정");
-            SetBarricadePath();
-        }
-    }
-
+    // // // 목적지로 향하는 경로를 찾고, 없다면 가장 가까운 바리케이드로 향하는 경로를 설정함
+    // protected void FindPathToDestinationOrBarricade()
+    // {
+    //     if (!CalculateAndSetPath(transform.position, destinationPosition))
+    //     {
+    //         Logger.Log("목적지로 향하는 경로 발견 및 설정");
+    //         SetBarricadePath();
+    //     }
+    // }
 
     // 인터페이스 때문에 구현
     public void UpdateAttackDuration()
@@ -913,12 +947,17 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity
     {
         this.stopAttacking = isAttacking;
     }
-
-    protected virtual void SetSkills() { }
-
-    protected void OnDestroy()
+    
+    public void SetPathNodes(List<PathNode> newPathNodes)
     {
+        pathNodes = newPathNodes;
     }
 
+    public void SetCurrentPath(List<Vector3> newPath)
+    {
+        currentPath = newPath;
+    }
+
+    protected virtual void SetSkills() { }
 }
 

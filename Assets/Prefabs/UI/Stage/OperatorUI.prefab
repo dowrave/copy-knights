@@ -58,7 +58,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 0, g: 0.8773585, b: 0.8773585, a: 0.9019608}
+  m_Color: {r: 0, g: 0.8773585, b: 0.8773585, a: 0.5019608}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -188,7 +188,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 0.21698111, g: 0.21698111, b: 0.21698111, a: 0.9019608}
+  m_Color: {r: 0.21698111, g: 0.21698111, b: 0.21698111, a: 0.5019608}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -278,7 +278,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 0.15511577, g: 0.8962264, b: 0.097232126, a: 0.9019608}
+  m_Color: {r: 0.15511577, g: 0.8962264, b: 0.097232126, a: 0.5019608}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -428,7 +428,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 0.44978005, g: 0.86, b: 0.40420002, a: 0.9019608}
+  m_Color: {r: 0.44978005, g: 0.86, b: 0.40420002, a: 0.5019608}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -556,9 +556,9 @@ MonoBehaviour:
   damageOverlayImage: {fileID: 5751748119622135520}
   damageFadeTime: 0.3
   showDamageEffect: 1
-  healthFillColor: {r: 0, g: 0.8679245, b: 0.788391, a: 0.9019608}
-  shieldFillColor: {r: 0, g: 0.5672978, b: 0.8666667, a: 0.9019608}
-  damageOverlayColor: {r: 0.70598966, g: 0.8962264, b: 0.87757576, a: 0.9019608}
+  healthFillColor: {r: 0, g: 0.8679245, b: 0.788391, a: 0.5019608}
+  shieldFillColor: {r: 0, g: 0.5672978, b: 0.8666667, a: 0.5019608}
+  damageOverlayColor: {r: 0.70598966, g: 0.8962264, b: 0.87757576, a: 0.5019608}
 --- !u!222 &2284489797956281936
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -773,7 +773,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_Color: {r: 1, g: 1, b: 1, a: 0.5019608}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1

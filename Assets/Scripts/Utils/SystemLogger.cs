@@ -1,4 +1,5 @@
 using UnityEngine;
+using System.Runtime.CompilerServices;
 
 public static class Logger
 {
@@ -22,10 +23,14 @@ public static class Logger
     {
         Debug.LogError(message);
     }
-    
-    // 에러 로그는 빌드에서도 보고 싶을 경우, 속성을 제거하면 됩니다.
-    // public static void LogError(object message)
-    // {
-    //     Debug.LogError(message);
-    // }
+
+    // 변수를 넣으면 그 변수의 이름과 값을 출력하는 코드
+    // fieldName에는 CallerArgumentExpression이라는, 변수 이름을 그대로 string으로 바꾸는 어트리뷰트가 적용된다.
+    // 다만 CallerArgumentExpression
+    [System.Diagnostics.Conditional("UNITY_EDITOR")]
+    public static void LogFieldStatus(object fieldValue, [CallerArgumentExpression("fieldValue")] string fieldName = "")
+    {
+        // Debug.LogError(message);
+        Debug.Log($"{fieldName} : {fieldValue}");
+    }
 }

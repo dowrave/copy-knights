@@ -34,7 +34,6 @@ public class MapManager : MonoBehaviour
         // 다른 매니저에 맵 설정 알림
         SpawnerManager.Instance!.Initialize(currentMap);
         
-
         // 카메라 설정
         InitializeCameraManager();
     }

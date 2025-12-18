@@ -21,7 +21,7 @@ public class ResourceManager : MonoBehaviour
     [SerializeField] private Color offSkillColor = new Color(115, 219, 103, 255);
 
     [Header("Enemy Path Indicator")]
-    [SerializeField] private GameObject pathIndicator = default!;
+    [SerializeField] private GameObject pathIndicatorPrefab = default!;
 
     private void Awake()
     {
@@ -72,5 +72,5 @@ public class ResourceManager : MonoBehaviour
 
     public Color OffSkillColor => offSkillColor;
 
-    public GameObject PathIndicator => pathIndicator;
+    public GameObject PathIndicatorPrefab => pathIndicatorPrefab;
 }

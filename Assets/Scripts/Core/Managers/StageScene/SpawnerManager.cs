@@ -23,29 +23,23 @@ public class SpawnerManager : MonoBehaviour
     public void Initialize(Map map)
     {
         currentMap = map;
-        FindAllSpawners();
+        Logger.LogFieldStatus(currentMap);
+        FindAllSpawnersAndInitialize();
     }
 
     /// <summary>
     /// 맵에 있는 스포너들을 찾아서 자동으로 등록함
     /// </summary>
-    private void FindAllSpawners()
+    private void FindAllSpawnersAndInitialize()
     {
         spawners.Clear();
 
-        // Map 찾기
-        Map? currentMap = MapManager.Instance?.CurrentMap; 
-        if (currentMap != null)
+        EnemySpawner[] foundSpawners = currentMap.GetComponentsInChildren<EnemySpawner>();
+        foreach (EnemySpawner spawner in foundSpawners)
         {
-            // FindObjectsOfType이나 GetComponentsInChildren이나 모두 리스트를 찾음
-            EnemySpawner[] foundSpawners = currentMap.GetComponentsInChildren<EnemySpawner>();
-            foreach (EnemySpawner spawner in foundSpawners)
-            {
-                spawners.Add(spawner);
-                spawner.Initialize();
-            }
+            spawners.Add(spawner);
+            spawner.Initialize();
         }
-
     }
 
 
