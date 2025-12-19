@@ -18,8 +18,10 @@ public class DeployableUnitData : ScriptableObject
     [SerializeField] protected bool canDeployOnHill = false;
     [SerializeField] protected float cooldownTime = 0f; // 배치 후 쿨다운 시간
 
+    protected string _unitTag;
+
     public void CreateObjectPools() { }
-    public string GetUnitTag() => $"DeployableUnit_{entityID}";
+    // public string UnitTag => _unitTag ??= $"DeployableUnit_{entityID}";
     public string EntityID => entityID;
     public string EntityNameLocalizationKey => entityNameLocalizationKey;
     public DeployableUnitStats Stats => stats;
@@ -31,6 +33,17 @@ public class DeployableUnitData : ScriptableObject
     public bool CanDeployOnGround => canDeployOnGround;
     public bool CanDeployOnHill => canDeployOnHill;
     public float CooldownTime => cooldownTime; 
+
+    public string UnitTag
+    {
+        get
+        {
+            if (string.IsNullOrEmpty(_unitTag))
+                _unitTag = $"DeployableUnit_{entityID}";
+
+            return _unitTag;
+        }
+    }
 }
 
 [System.Serializable]

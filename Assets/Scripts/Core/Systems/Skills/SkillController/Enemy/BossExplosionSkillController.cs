@@ -40,7 +40,7 @@ public class BossExplosionSkillController : FieldEffectController
         VisualizeSkillRange();
 
         // 2. 해 파티클 목표 위치에 떨어지는 효과 실행
-        GameObject sunParticleObj = ObjectPoolManager.Instance.SpawnFromPool(skillData.GetFallingSunVFXTag(_caster.BossData), centerPosition, Quaternion.identity);
+        GameObject sunParticleObj = ObjectPoolManager.Instance.SpawnFromPool(skillData.FallingSunVFXTag, centerPosition, Quaternion.identity);
         FallingSunVFXController sunParticleSystem = sunParticleObj.GetComponent<FallingSunVFXController>();
         if (sunParticleSystem != null)
         {
@@ -61,12 +61,12 @@ public class BossExplosionSkillController : FieldEffectController
 
 
         Logger.Log($"[BossExplosionSkillController]오브젝트가 풀로 돌아감");
-        ObjectPoolManager.Instance.ReturnToPool(skillData.GetSkillControllerTag(_caster.BossData), gameObject); // 풀로 되돌림
+        ObjectPoolManager.Instance.ReturnToPool(skillData.SkillControllerTag, gameObject); // 풀로 되돌림
     }
 
     private void VisualizeSkillRange()
     {
-        if (skillData.GetSkillRangeVFXTag(_caster.BossData) == string.Empty)
+        if (skillData.SkillRangeVFXTag == string.Empty)
         {
             Logger.LogError("[BossExplosionSkillController]스킬 범위 프리팹이 할당되지 않은 듯");
             return;
@@ -79,7 +79,7 @@ public class BossExplosionSkillController : FieldEffectController
                 Vector3 worldPos = MapManager.Instance!.ConvertToWorldPosition(pos);
 
                 // 오브젝트 풀에서 VFX 객체를 가져옴
-                GameObject? vfxObj = ObjectPoolManager.Instance?.SpawnFromPool(skillData.GetSkillRangeVFXTag(_caster.BossData), worldPos, Quaternion.identity);
+                GameObject? vfxObj = ObjectPoolManager.Instance?.SpawnFromPool(skillData.SkillRangeVFXTag, worldPos, Quaternion.identity);
 
                 if (vfxObj != null)
                 {
@@ -106,7 +106,7 @@ public class BossExplosionSkillController : FieldEffectController
             damage: casterAttackPower * skillData.ExplosionDamageRatio, // 폭발 대미지를 곱함
             type: AttackType.Magical,
             isProjectile: false,
-            hitEffectTag: skillData.GetHitVFXTag(_caster.BossData),
+            hitEffectTag: skillData.HitVFXTag,
             showDamagePopup: true
         );
 
@@ -129,7 +129,7 @@ public class BossExplosionSkillController : FieldEffectController
             damage: casterAttackPower * skillData.TickDamageRatio, // 폭발 대미지를 곱함
             type: AttackType.Magical,
             isProjectile: false,
-            hitEffectTag: skillData.GetHitVFXTag(_caster.BossData),
+            hitEffectTag: skillData.HitVFXTag,
             showDamagePopup: false
         );
 
@@ -157,7 +157,7 @@ public class BossExplosionSkillController : FieldEffectController
 
     private void PlayExplosionVFX()
     {
-        GameObject explosionObject = ObjectPoolManager.Instance.SpawnFromPool(skillData.GetExplosionVFXTag(_caster.BossData), centerPosition, Quaternion.identity);
+        GameObject explosionObject = ObjectPoolManager.Instance.SpawnFromPool(skillData.ExplosionVFXTag, centerPosition, Quaternion.identity);
 
         ParticleSystem explosionVFX = explosionObject.GetComponent<ParticleSystem>();
         if (explosionVFX != null)
@@ -168,7 +168,7 @@ public class BossExplosionSkillController : FieldEffectController
     
     private void PlayPeriodicVFX()
     {
-        if (skillData.GetSkillRangeVFXTag(_caster.BossData) == string.Empty)
+        if (skillData.SkillRangeVFXTag == string.Empty)
         {
             Logger.LogError("[BossExplosionSkillController]바닥 파티클 시스템 프리팹이 할당되지 않은 듯");
             return;       
@@ -181,7 +181,7 @@ public class BossExplosionSkillController : FieldEffectController
                 Vector3 worldPos = MapManager.Instance!.ConvertToWorldPosition(pos);
 
                 // 오브젝트 풀에서 VFX 객체를 가져옴
-                GameObject? vfxObj = ObjectPoolManager.Instance?.SpawnFromPool(skillData.GetCrackedGroundVFXTag(_caster.BossData), worldPos, Quaternion.identity);
+                GameObject? vfxObj = ObjectPoolManager.Instance?.SpawnFromPool(skillData.CrackedGroundVFXTag, worldPos, Quaternion.identity);
 
                 if (vfxObj != null)
                 {

@@ -70,7 +70,7 @@ public abstract class DeployableUnitEntity : UnitEntity, IDeployable
 
     protected override void SetPoolTag()
     {
-        PoolTag = _deployableData.GetUnitTag();
+        PoolTag = _deployableData.UnitTag;
     }
 
     public override void SetPrefab()

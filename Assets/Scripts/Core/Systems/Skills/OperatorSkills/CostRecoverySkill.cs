@@ -10,6 +10,8 @@ namespace SKills.OperatorSkills
         [SerializeField] private int costRecoveryAmount = 8;
         [SerializeField] private GameObject costVFXPrefab = default!;
 
+        private string _costVFXTag;
+
         protected override void SetDefaults()
         {
             autoRecover = true;
@@ -30,7 +32,7 @@ namespace SKills.OperatorSkills
         {
             if (costVFXPrefab != null)
             {
-                PlayVFX(op, GetCostVFXTag(op.OperatorData), op.transform.position, Quaternion.identity, 1);
+                PlayVFX(op, CostVFXTag, op.transform.position, Quaternion.identity, 1);
             }
         }
 
@@ -49,12 +51,23 @@ namespace SKills.OperatorSkills
 
             if (costVFXPrefab != null)
             {
-                ObjectPoolManager.Instance.CreatePool(GetCostVFXTag(ownerData), costVFXPrefab, 1);
+                ObjectPoolManager.Instance.CreatePool(CostVFXTag, costVFXPrefab, 1);
             }
         }
 
-        public string GetCostVFXTag(OperatorData opData) => $"{opData.EntityID}_{skillName}_costVFX";
-        
+        // public string CostVFXTag => _costVFXTag ??= $"{skillName}_costVFX";
+        public string CostVFXTag
+        {
+            get
+            {
+                if (string.IsNullOrEmpty(_costVFXTag))
+                {
+                    _costVFXTag = $"{skillName}_CostVFX";
+                }
+                return _costVFXTag;
+            }
+        }        
+
     }
 
 

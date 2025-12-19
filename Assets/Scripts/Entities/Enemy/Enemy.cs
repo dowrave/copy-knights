@@ -149,7 +149,7 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity
 
     protected override void SetPoolTag()
     {
-        PoolTag = _enemyData.GetUnitTag();
+        PoolTag = _enemyData.UnitTag;
     }
 
     public virtual void Initialize(EnemyData enemyData, PathData pathData)
@@ -172,11 +172,12 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity
 
         SetupInitialPosition();
         CreateEnemyBarUI();
-        UpdateNextNode();
         InitializeCurrentPath();
         
         navigator = new PathNavigator(this, pathNodes, destinationPosition);
         navigator.OnPathUpdated += HandlePathUpdated;
+
+        UpdateNextNode();
 
         // 공격 범위 콜라이더 설정
         attackRangeController.Initialize(this);
@@ -390,7 +391,17 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity
     public void UpdateNextNode()
     {
         // pathData 관련 데이터 항목이 없거나, 도달할 노드가 마지막 노드인 경우는 실행되지 않음
-        if (pathNodes == null || nextNodeIndex >= pathNodes.Count - 1) return;
+        if (pathNodes == null || nextNodeIndex >= pathNodes.Count - 1)
+        {
+            Logger.LogError("오류 발생");
+            return;
+        }
+
+        if (navigator == null)
+        {
+            Logger.LogError("navigator가 없음");
+            return;
+        }
 
         nextNodeIndex++;
         navigator.UpdateNextNodeIndex(nextNodeIndex);
@@ -463,7 +474,7 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity
             damage: damage,
             type: AttackType,
             isProjectile: false,
-            hitEffectTag: _enemyData.GetHitVFXTag(),
+            hitEffectTag: _enemyData.HitVFXTag,
             showDamagePopup: false
         );
 
@@ -479,14 +490,14 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity
         {
             // 투사체 생성 위치
             Vector3 spawnPosition = transform.position;
-            GameObject? projectileObj = ObjectPoolManager.Instance!.SpawnFromPool(_enemyData.GetProjectileTag(), spawnPosition, Quaternion.identity);
+            GameObject? projectileObj = ObjectPoolManager.Instance!.SpawnFromPool(_enemyData.ProjectileTag, spawnPosition, Quaternion.identity);
 
             if (projectileObj != null)
             {
                 Projectile? projectile = projectileObj.GetComponent<Projectile>();
                 if (projectile != null)
                 {
-                    projectile.Initialize(this, target, damage, false, _enemyData.GetProjectileTag(), _enemyData.GetHitVFXTag(), AttackType);
+                    projectile.Initialize(this, target, damage, false, _enemyData.ProjectileTag, _enemyData.HitVFXTag, AttackType);
                 }
             }
         }
@@ -501,10 +512,10 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity
     protected void Despawn()
     {
         // 공격 이펙트 프리팹 제거
-        if (BaseData.HitEffectPrefab != null)
-        {
-            ObjectPoolManager.Instance!.RemovePool("Effect_" + BaseData.EntityID);
-        }
+        // if (BaseData.HitEffectPrefab != null)
+        // {
+        //     ObjectPoolManager.Instance!.RemovePool("Effect_" + BaseData.EntityID);
+        // }
 
         // UI 제거
         if (enemyBarUI != null)

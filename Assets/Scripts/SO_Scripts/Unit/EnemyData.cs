@@ -30,23 +30,25 @@ public class EnemyData : ScriptableObject, ICombatData
     {
         if (projectilePrefab != null)
         {
-            ObjectPoolManager.Instance?.CreatePool(GetProjectileTag(), projectilePrefab, 5);
+            ObjectPoolManager.Instance?.CreatePool(ProjectileTag, projectilePrefab, 5);
         }
         if (meleeAttackEffectPrefab != null)
         {
-            ObjectPoolManager.Instance?.CreatePool(GetMeleeAttackVFXTag(), meleeAttackEffectPrefab, 10);
+            ObjectPoolManager.Instance?.CreatePool(MeleeAttackVFXTag, meleeAttackEffectPrefab, 10);
         }
         if (hitEffectPrefab != null)
         {
-            ObjectPoolManager.Instance?.CreatePool(GetHitVFXTag(), hitEffectPrefab, 10);
+            ObjectPoolManager.Instance?.CreatePool(HitVFXTag, hitEffectPrefab, 10);
         }
     }
 
-    public string GetUnitTag() => $"Enemy_{entityID}";
-    public string GetProjectileTag() => $"{entityID}_Projectile";
-    public string GetMeleeAttackVFXTag() => $"{entityID}_MeleeAttackVFX";
-    public string GetHitVFXTag() => $"{entityID}_HitVFX";
+    // 오브젝트 풀 태그
+    protected string _unitTag;
+    protected string _projectileTag;
+    protected string _meleeAttackVFXTag;
+    protected string _hitVFXTag;
 
+    // 프로퍼티들
     // UnitData 관련 프로퍼티
     public string EntityID => entityID;
     public EnemyStats Stats => stats;
@@ -67,6 +69,56 @@ public class EnemyData : ScriptableObject, ICombatData
     // 이펙트 관련 프로퍼티
     public GameObject? MeleeAttackEffectPrefab => meleeAttackEffectPrefab;
     public GameObject HitEffectPrefab => hitEffectPrefab;
+
+    // 오브젝트 풀 태그 프로퍼티
+    // public string UnitTag => _unitTag ??= $"Opereator_{entityID}";
+    // public string ProjectileTag => _projectileTag ??= $"{entityID}_Projectile";
+    // public string MeleeAttackVFXTag => _meleeAttackVFXTag ??= $"{entityID}_MeleeAttackVFX";
+    // public string HitVFXTag => _hitVFXTag ??= $"{entityID}_HitVFX";
+    public string UnitTag
+    {
+        get
+        {
+            if (string.IsNullOrEmpty(_unitTag))
+            {
+                _unitTag = $"Enemy_{entityID}";
+            }
+            return _unitTag;
+        }
+    }
+    public string ProjectileTag
+    {
+        get
+        {
+            if (string.IsNullOrEmpty(_projectileTag))
+            {
+                _projectileTag = $"{entityID}_Projectile";
+            }
+            return _projectileTag;
+        }
+    }
+    public string MeleeAttackVFXTag
+    {
+        get
+        {
+            if (string.IsNullOrEmpty(_meleeAttackVFXTag))
+            {
+                _meleeAttackVFXTag = $"{entityID}_MeleeAttackVFX";
+            }
+            return _meleeAttackVFXTag;
+        }
+    }
+    public string HitVFXTag
+    {
+        get
+        {
+            if (string.IsNullOrEmpty(_hitVFXTag))
+            {
+                _hitVFXTag = $"Operator_{entityID}_HitVFX";
+            }
+            return _hitVFXTag;
+        }
+    }
 }
 
 

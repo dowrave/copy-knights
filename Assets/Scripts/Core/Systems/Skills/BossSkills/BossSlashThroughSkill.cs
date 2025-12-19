@@ -20,6 +20,11 @@ namespace Skills.Base
         [SerializeField] private GameObject hitVFXPrefab = default!; // 타격 시 적에게 나타날 이펙트 프리팹
         [SerializeField] private GameObject crossVFXPrefab = default!; // 뚫기 시작 -> 도착 후에 시전자에게 잠깐 나타나는 이펙트
 
+        private string _crossVFXTag;
+        private string _hitVFXTag;
+        private string _castVFXTag;
+        private string _slashVFXTag;
+
         // VFX 자체가 실행되는 시간은 파티클 시스템에 있고
         // 오브젝트가 풀로 돌아가기까지 걸리는 시간은 기본 2초로 설정(대부분이 이를 넘기지 않을 것 같음)
         private float RETURN_POOL_WAIT_TIME = 2f;
@@ -37,13 +42,13 @@ namespace Skills.Base
             float crossVFXStartTime = 0.8f;
 
             // 시전 이펙트 실행
-            PlayVFX(caster, GetCastVFXTag(caster.BossData), caster.transform.position, Quaternion.identity, RETURN_POOL_WAIT_TIME);
+            PlayVFX(caster, CastVFXTag, caster.transform.position, Quaternion.identity, RETURN_POOL_WAIT_TIME);
             caster.SetIsWaiting(true); // 시전 시간 동안 대기
             caster.SetStopAttacking(true);
             yield return new WaitForSeconds(crossVFXStartTime);
 
             // 시전 
-            GameObject crossVFXObj = PlayVFX(caster, GetCrossVFXTag(caster.BossData), caster.transform.position, Quaternion.identity, RETURN_POOL_WAIT_TIME);
+            GameObject crossVFXObj = PlayVFX(caster, CrossVFXTag, caster.transform.position, Quaternion.identity, RETURN_POOL_WAIT_TIME);
             crossVFXObj.transform.SetParent(caster.transform);
             yield return new WaitForSeconds(castTime - crossVFXStartTime);
 
@@ -68,7 +73,7 @@ namespace Skills.Base
                     damage: caster.AttackPower * damageMultiplier,
                     type: AttackType.Physical,
                     isProjectile: false,
-                    hitEffectTag: GetHitVFXTag(caster.BossData),
+                    hitEffectTag: HitVFXTag,
                     showDamagePopup: true
                 );
 
@@ -76,7 +81,7 @@ namespace Skills.Base
 
                 // 베고 지나가는 이펙트
                 Quaternion rot = Quaternion.LookRotation(moveDirection);
-                PlayVFX(caster, GetSlashVFXTag(caster.BossData), target.transform.position, rot, RETURN_POOL_WAIT_TIME);
+                PlayVFX(caster, SlashVFXTag, target.transform.position, rot, RETURN_POOL_WAIT_TIME);
             }
 
             caster.SetIsWaiting(false);
@@ -142,22 +147,22 @@ namespace Skills.Base
 
             if (hitVFXPrefab != null)
             {
-                ObjectPoolManager.Instance.CreatePool(GetHitVFXTag(ownerData), hitVFXPrefab, 1);
+                ObjectPoolManager.Instance.CreatePool(HitVFXTag, hitVFXPrefab, 1);
             }
 
             if (slashVFXPrefab != null)
             {
-                ObjectPoolManager.Instance.CreatePool(GetSlashVFXTag(ownerData), slashVFXPrefab, 1);
+                ObjectPoolManager.Instance.CreatePool(SlashVFXTag, slashVFXPrefab, 1);
             }
 
             if (castVFXPrefab != null)
             {
-                ObjectPoolManager.Instance.CreatePool(GetCastVFXTag(ownerData), castVFXPrefab, 1);
+                ObjectPoolManager.Instance.CreatePool(CastVFXTag, castVFXPrefab, 1);
             }
 
             if (crossVFXPrefab != null)
             {
-                ObjectPoolManager.Instance.CreatePool(GetCrossVFXTag(ownerData), crossVFXPrefab, 1);
+                ObjectPoolManager.Instance.CreatePool(CrossVFXTag, crossVFXPrefab, 1);
             }
         }
 
@@ -166,10 +171,59 @@ namespace Skills.Base
         public float CastTime => castTime;
         public float MoveDistance => moveDistance;
 
-        public string GetHitVFXTag(EnemyBossData ownerData) => $"{ownerData.EntityID}_{skillName}_hit";
-        public string GetSlashVFXTag(EnemyBossData ownerData) => $"{ownerData.EntityID}_{skillName}_slash";
-        public string GetCastVFXTag(EnemyBossData ownerData) => $"{ownerData.EntityID}_{skillName}_cast";
-        public string GetCrossVFXTag(EnemyBossData ownerData) => $"{ownerData.EntityID}_{skillName}_cross";
+        // public string HitVFXTag => _hitVFXTag ??= $"{skillName}_hit";
+        // public string SlashVFXTag => _slashVFXTag ??= $"{skillName}_slash";
+        // public string CastVFXTag => _castVFXTag ??= $"{skillName}_cast";
+        // public string CrossVFXTag => _crossVFXTag ??= $"{skillName}_cross";
+
+        public string HitVFXTag
+        {
+            get
+            {
+                if (string.IsNullOrEmpty(_hitVFXTag))
+                {
+                    _hitVFXTag = $"{skillName}_HitVFX";
+                }
+                return _hitVFXTag;
+            }
+        }
+        public string SlashVFXTag
+        {
+            get
+            {
+                if (string.IsNullOrEmpty(_slashVFXTag))
+                {
+                    _slashVFXTag = $"{skillName}_SlashVFX";
+                }
+                return _slashVFXTag;
+            }
+        }
+
+        public string CastVFXTag
+        {
+            get
+            {
+                if (string.IsNullOrEmpty(_castVFXTag))
+                {
+                    _castVFXTag = $"{skillName}_CastVFX";
+                }
+                return _castVFXTag;
+            }
+        }
+
+        public string CrossVFXTag
+        {
+            get
+            {
+                if (string.IsNullOrEmpty(_crossVFXTag))
+                {
+                    _crossVFXTag = $"{skillName}_CrossVFX";
+                }
+                return _crossVFXTag;
+            }
+        }
+
+
 
     }
 

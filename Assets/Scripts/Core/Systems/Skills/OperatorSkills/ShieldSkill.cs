@@ -16,6 +16,8 @@ namespace Skills.OperatorSkills
         [Header("Shield Visual Effects")]
         [SerializeField] private GameObject shieldVFXPrefab = default!;
 
+        private string _shieldVFXTag;
+
         private ShieldBuff? _shieldBuff;
         private StatModificationBuff _statBuff;
 
@@ -30,7 +32,7 @@ namespace Skills.OperatorSkills
             // 스탯 버프 VFX는 ActiveSkill의 로직에 의해 동작함
 
             // Shield VFX 실행
-            GameObject shieldVFXObject = ObjectPoolManager.Instance.SpawnFromPool(GetShieldVFXTag(op.OperatorData), op.transform.position, Quaternion.identity);
+            GameObject shieldVFXObject = ObjectPoolManager.Instance.SpawnFromPool(ShieldVFXTag, op.transform.position, Quaternion.identity);
             shieldVFXObject.transform.SetParent(op.gameObject.transform);
             ShieldVFXController shieldVFX = shieldVFXObject.GetComponent<ShieldVFXController>();
             if (shieldVFX != null)
@@ -61,10 +63,20 @@ namespace Skills.OperatorSkills
 
             if (shieldVFXPrefab != null)
             {
-                ObjectPoolManager.Instance.CreatePool(GetShieldVFXTag(ownerData), shieldVFXPrefab, 1);
+                ObjectPoolManager.Instance.CreatePool(ShieldVFXTag, shieldVFXPrefab, 1);
             }
         }
 
-        public string GetShieldVFXTag(OperatorData ownerData) => $"{ownerData.EntityID}_{skillName}_Shield";
+        public string ShieldVFXTag
+        {
+            get
+            {
+                if (string.IsNullOrEmpty(_shieldVFXTag))
+                {
+                    _shieldVFXTag = $"{skillName}_SkillController";
+                }
+                return _shieldVFXTag;
+            }
+        }        
     }
 }

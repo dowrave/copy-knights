@@ -51,32 +51,32 @@ public class OperatorData : ScriptableObject, ICombatData
     {
         if (projectilePrefab != null)
         {
-            ObjectPoolManager.Instance.CreatePool(GetProjectileTag(), projectilePrefab, 5);
+            ObjectPoolManager.Instance.CreatePool(ProjectileTag, projectilePrefab, 5);
         }
         if (deployEffectPrefab != null)
         {
-            ObjectPoolManager.Instance.CreatePool(GetDeployVFXTag(), deployEffectPrefab, 1);
+            ObjectPoolManager.Instance.CreatePool(DeployVFXTag, deployEffectPrefab, 1);
         }
         if (meleeAttackEffectPrefab != null)
         {
-            ObjectPoolManager.Instance.CreatePool(GetMeleeAttackVFXTag(), meleeAttackEffectPrefab, 3);
+            ObjectPoolManager.Instance.CreatePool(MeleeAttackVFXTag, meleeAttackEffectPrefab, 3);
         }
         if (hitEffectPrefab != null)
         {
-            ObjectPoolManager.Instance.CreatePool(GetHitVFXTag(), hitEffectPrefab, 3);
+            ObjectPoolManager.Instance.CreatePool(HitVFXTag, hitEffectPrefab, 3);
         }
         if (muzzleVFXPrefab != null)
         {
-            ObjectPoolManager.Instance.CreatePool(GetMuzzleVFXTag(), muzzleVFXPrefab, 3);
+            ObjectPoolManager.Instance.CreatePool(MuzzleVFXTag, muzzleVFXPrefab, 3);
         }
     }
 
-    public string GetUnitTag() => $"Operator_{entityID}";
-    public string GetProjectileTag() => $"{entityID}_Projectile";
-    public string GetDeployVFXTag() => $"{entityID}_Deploy";
-    public string GetMeleeAttackVFXTag() => $"{entityID}_MeleeAttackVFX";
-    public string GetHitVFXTag() => $"{entityID}_HitVFX";
-    public string GetMuzzleVFXTag() => $"{entityID}_Muzzle";
+    protected string _unitTag;
+    protected string _projectileTag;
+    protected string _deployVFXTag;
+    protected string _meleeAttackVFXTag;
+    protected string _hitVFXTag;
+    protected string _muzzleVFXTag;
 
     [System.Serializable]
     public class OperatorLevelStats
@@ -128,6 +128,74 @@ public class OperatorData : ScriptableObject, ICombatData
     public ElitePhaseUnlocks Elite1Unlocks => elite1Unlocks;
 
     public IReadOnlyList<ItemWithCount> PromotionItems => promotionItems;
+
+    // 태그 프로퍼티
+    public string UnitTag
+    {
+        get
+        {
+            if (string.IsNullOrEmpty(_unitTag))
+            {
+                _unitTag = $"Operator_{entityID}";
+            }
+            return _unitTag;
+        }
+    }
+    public string ProjectileTag
+    {
+        get
+        {
+            if (string.IsNullOrEmpty(_projectileTag))
+            {
+                _projectileTag = $"{entityID}_Projectile";
+            }
+            return _projectileTag;
+        }
+    }
+    public string DeployVFXTag
+    {
+        get
+        {
+            if (string.IsNullOrEmpty(_deployVFXTag))
+            {
+                _deployVFXTag = $"{entityID}_DeployVFX";
+            }
+            return _deployVFXTag;
+        }
+    }
+    public string MeleeAttackVFXTag
+    {
+        get
+        {
+            if (string.IsNullOrEmpty(_meleeAttackVFXTag))
+            {
+                _meleeAttackVFXTag = $"{entityID}_MeleeAttackVFX";
+            }
+            return _meleeAttackVFXTag;
+        }
+    }
+    public string HitVFXTag
+    {
+        get
+        {
+            if (string.IsNullOrEmpty(_hitVFXTag))
+            {
+                _hitVFXTag = $"Operator_{entityID}_HitVFX";
+            }
+            return _hitVFXTag;
+        }
+    }
+    public string MuzzleVFXTag
+    {
+        get
+        {
+            if (string.IsNullOrEmpty(_muzzleVFXTag))
+            {
+                _muzzleVFXTag = $"{entityID}_MuzzleVFX";
+            }
+            return _muzzleVFXTag;
+        }
+    }
 }
 
 [System.Serializable]

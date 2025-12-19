@@ -20,9 +20,9 @@ namespace Skills.Base
 
         private float meteorDelay = 0.5f;
 
-        // string METEOR_TAG; // 메테오 효과 태그
-        // string SKILL_RANGE_VFX_TAG; // 필드 범위 VFX 태그
-        // string HIT_EFFECT_TAG; // 타격 이펙트 태그
+        private string _meteorTag;
+        private string _skillRangeVFXTag;
+        private string _hitVFXTag;
 
         protected override void SetDefaults()
         {
@@ -97,28 +97,62 @@ namespace Skills.Base
                 if (controller != null)
                 {
                     float actualDamage = caster.AttackPower * damageMultiplier;
-                    controller.Initialize(caster, target, actualDamage, fallSpeed, stunDuration, hitVFXPrefab, GetHitVFXTag(caster.OperatorData));
+                    controller.Initialize(caster, target, actualDamage, fallSpeed, stunDuration, hitVFXPrefab, HitVFXTag);
                 }
             }
         }
 
-        public string GetMeteorTag(OperatorData ownerData) => $"{ownerData}_{skillName}_Meteor";
-        public string GetSkillRangeVFXTag(OperatorData ownerData) => $"{ownerData}_{skillName}_SkillRangeVFX";
-        public string GetHitVFXTag(OperatorData ownerData) => $"{ownerData}_{skillName}_HitVFX";  
+        // public string MeteorTag => _meteorTag ??= $"{skillName}_Meteor";
+        // public string SkillRangeVFXTag => _skillRangeVFXTag ??= $"{skillName}_SkillRangeVFX";
+        // public string HitVFXTag => _hitVFXTag ??= $"{skillName}_HitVFX";  
+
+        public string MeteorTag
+        {
+            get
+            {
+                if (string.IsNullOrEmpty(_meteorTag))
+                {
+                    _meteorTag = $"{skillName}_Meteor";
+                }
+                return _meteorTag;
+            }
+        } 
+        public string SkillRangeVFXTag
+        {
+            get
+            {
+                if (string.IsNullOrEmpty(_skillRangeVFXTag))
+                {
+                    _skillRangeVFXTag = $"{skillName}_SkillRangeVFX";
+                }
+                return _skillRangeVFXTag;
+            }
+        }        
+        public string HitVFXTag
+        {
+            get
+            {
+                if (string.IsNullOrEmpty(_hitVFXTag))
+                {
+                    _hitVFXTag = $"{skillName}_HitVFX";
+                }
+                return _hitVFXTag;
+            }
+        }
 
         public override void PreloadObjectPools(OperatorData ownerData)
         {
             if (meteorPrefab != null)
             {
-                ObjectPoolManager.Instance.CreatePool(GetMeteorTag(ownerData), meteorPrefab, 2);
+                ObjectPoolManager.Instance.CreatePool(MeteorTag, meteorPrefab, 2);
             }
             if (skillRangeVFXPrefab != null)
             {
-                ObjectPoolManager.Instance.CreatePool(GetSkillRangeVFXTag(ownerData), skillRangeVFXPrefab, skillRangeOffset.Count);
+                ObjectPoolManager.Instance.CreatePool(SkillRangeVFXTag, skillRangeVFXPrefab, skillRangeOffset.Count);
             }
             if (hitVFXPrefab != null)
             {
-                ObjectPoolManager.Instance.CreatePool(GetHitVFXTag(ownerData), hitVFXPrefab, 10);
+                ObjectPoolManager.Instance.CreatePool(HitVFXTag, hitVFXPrefab, 10);
             }
         }
 
@@ -129,7 +163,7 @@ namespace Skills.Base
                 if (MapManager.Instance!.CurrentMap!.IsValidGridPosition(pos.x, pos.y))
                 {
                     Vector3 worldPos = MapManager.Instance!.ConvertToWorldPosition(pos);
-                    GameObject? vfxObj = ObjectPoolManager.Instance?.SpawnFromPool(GetSkillRangeVFXTag(op.OperatorData), worldPos, Quaternion.identity);
+                    GameObject? vfxObj = ObjectPoolManager.Instance?.SpawnFromPool(SkillRangeVFXTag, worldPos, Quaternion.identity);
 
                     if (vfxObj != null)
                     {

@@ -41,13 +41,14 @@ namespace Skills.Base
         // 여기서 상태를 갖지 않는 게 베스트이기 떄문에 Stateless 패턴으로 만들어봄
         // 상태를 갖는 게 아니라 고정된 값을 반환하는 메서드를 구현한다는 개념임
         // 참고) 필드로 $"{caster}" 를 구현하지 못한다고 나옴
-        public string GetSkillControllerTag(EnemyBossData ownerData) => $"{ownerData.EntityID}_{skillName}_skillController";
-        public string GetHitVFXTag(EnemyBossData ownerData) => $"{ownerData.EntityID}_{skillName}_hit";
-        public string GetCastVFXTag(EnemyBossData ownerData) => $"{ownerData.EntityID}_{skillName}_cast";
-        public string GetFallingSunVFXTag(EnemyBossData ownerData) => $"{ownerData.EntityID}_{skillName}_fallingSun";
-        public string GetSkillRangeVFXTag(EnemyBossData ownerData) => $"{ownerData.EntityID}_{skillName}_skillRange";
-        public string GetCrackedGroundVFXTag(EnemyBossData ownerData) => $"{ownerData.EntityID}_{skillName}_crackedGround";
-        public string GetExplosionVFXTag(EnemyBossData ownerData) => $"{ownerData.EntityID}_{skillName}_explosion";
+
+        private string _skillControllerTag;
+        private string _hitVFXTag;
+        private string _castVFXTag;
+        private string _fallingSunVFXTag;
+        private string _skillRangeVFXTag;
+        private string _crackedGroundVFXTag;
+        private string _explosionVFXTag;
 
         public override void Activate(EnemyBoss caster, UnitEntity target)
         {
@@ -69,7 +70,7 @@ namespace Skills.Base
             }
 
             // 범위를 기반으로 스킬 컨트롤러 생성, 스킬의 재생은 모두 여기서 담당함
-            GameObject controllerObject = ObjectPoolManager.Instance.SpawnFromPool(GetSkillControllerTag(caster.BossData), target.transform.position, Quaternion.identity);
+            GameObject controllerObject = ObjectPoolManager.Instance.SpawnFromPool(SkillControllerTag, target.transform.position, Quaternion.identity);
             BossExplosionSkillController? controller = controllerObject.GetComponent<BossExplosionSkillController>();
 
             if (controller != null)
@@ -77,7 +78,7 @@ namespace Skills.Base
                 // controllerObject.transform.SetParent(caster.gameObject.transform);
 
                 // 1. Caster 위치에 Cast 이펙트를 실행함
-                GameObject castVFXObject = ObjectPoolManager.Instance.SpawnFromPool(GetCastVFXTag(caster.BossData), caster.transform.position, Quaternion.identity);
+                GameObject castVFXObject = ObjectPoolManager.Instance.SpawnFromPool(CastVFXTag, caster.transform.position, Quaternion.identity);
                 // castVFXObject.transform.SetParent(caster.gameObject.transform);
                 SelfReturnVFXController castVFX = castVFXObject.GetComponent<SelfReturnVFXController>();
                 if (castVFX != null)
@@ -111,37 +112,37 @@ namespace Skills.Base
             // 얘는 사실 null이면 안됨
             if (skillControllerPrefab != null)
             {
-                ObjectPoolManager.Instance.CreatePool(GetSkillControllerTag(ownerData), skillControllerPrefab, 1);
+                ObjectPoolManager.Instance.CreatePool(SkillControllerTag, skillControllerPrefab, 1);
             }
 
             if (hitVFXPrefab != null)
             {
-                ObjectPoolManager.Instance.CreatePool(GetHitVFXTag(ownerData), hitVFXPrefab, 10);
+                ObjectPoolManager.Instance.CreatePool(HitVFXTag, hitVFXPrefab, 10);
             }
 
             if (castVFXPrefab != null)
             {
-                ObjectPoolManager.Instance.CreatePool(GetCastVFXTag(ownerData), castVFXPrefab, 1);
+                ObjectPoolManager.Instance.CreatePool(CastVFXTag, castVFXPrefab, 1);
             }
 
             if (skillRangeVFXPrefab != null)
             {
-                ObjectPoolManager.Instance.CreatePool(GetSkillRangeVFXTag(ownerData), skillRangeVFXPrefab, rangeOffset.Count);
+                ObjectPoolManager.Instance.CreatePool(SkillRangeVFXTag, skillRangeVFXPrefab, rangeOffset.Count);
             }
 
             if (crackedGroundVFXPrefab != null)
             {
-                ObjectPoolManager.Instance.CreatePool(GetCrackedGroundVFXTag(ownerData), crackedGroundVFXPrefab, rangeOffset.Count);
+                ObjectPoolManager.Instance.CreatePool(CrackedGroundVFXTag, crackedGroundVFXPrefab, rangeOffset.Count);
             }
 
             if (fallingSunVFXPrefab != null)
             {
-                ObjectPoolManager.Instance.CreatePool(GetFallingSunVFXTag(ownerData), fallingSunVFXPrefab, 1);
+                ObjectPoolManager.Instance.CreatePool(FallingSunVFXTag, fallingSunVFXPrefab, 1);
             }
 
             if (explosionVFXPrefab != null)
             {
-                ObjectPoolManager.Instance.CreatePool(GetExplosionVFXTag(ownerData), explosionVFXPrefab, 1);
+                ObjectPoolManager.Instance.CreatePool(ExplosionVFXTag, explosionVFXPrefab, 1);
             }
         }
 
@@ -172,5 +173,84 @@ namespace Skills.Base
         public float FallingSunVFXDuration => fallingSunVFXDuration;
         public float SkillRangeVFXDuration => skillRangeVFXDuration;
         public float LingeringVFXDuration => lingeringVFXDuration;
+
+        // Object Pool Tag
+        public string SkillControllerTag
+        {
+            get
+            {
+                if (string.IsNullOrEmpty(_skillControllerTag))
+                {
+                    _skillControllerTag = $"{skillName}_SkillController";
+                }
+                return _skillControllerTag;
+            }
+        }
+        public string HitVFXTag
+        {
+            get
+            {
+                if (string.IsNullOrEmpty(_hitVFXTag))
+                {
+                    _hitVFXTag = $"{skillName}_HitVFX";
+                }
+                return _hitVFXTag;
+            }
+        }
+        public string CastVFXTag
+        {
+            get
+            {
+                if (string.IsNullOrEmpty(_castVFXTag))
+                {
+                    _castVFXTag = $"{skillName}_CastVFX";
+                }
+                return _castVFXTag;
+            }
+        }
+        public string FallingSunVFXTag
+        {
+            get
+            {
+                if (string.IsNullOrEmpty(_fallingSunVFXTag))
+                {
+                    _fallingSunVFXTag = $"{skillName}_FallingSunVFX";
+                }
+                return _fallingSunVFXTag;
+            }
+        }
+        public string SkillRangeVFXTag
+        {
+            get
+            {
+                if (string.IsNullOrEmpty(_skillRangeVFXTag))
+                {
+                    _skillRangeVFXTag = $"{skillName}_skillRangeVFX";
+                }
+                return _skillRangeVFXTag;
+            }
+        }
+        public string CrackedGroundVFXTag
+        {
+            get
+            {
+                if (string.IsNullOrEmpty(_crackedGroundVFXTag))
+                {
+                    _crackedGroundVFXTag = $"{skillName}_CrackedGroundVFX";
+                }
+                return _crackedGroundVFXTag;
+            }
+        }
+        public string ExplosionVFXTag
+        {
+            get
+            {
+                if (string.IsNullOrEmpty(_explosionVFXTag))
+                {
+                    _explosionVFXTag = $"{skillName}_ExplosionVFX";
+                }
+                return _explosionVFXTag;
+            }
+        }
     }
 }

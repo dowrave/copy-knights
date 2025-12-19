@@ -22,7 +22,7 @@ public class MapDeployableData
             maxDeployCount = maxDeployCount,
             redeployTime = deployableData.Stats.RedeployTime,
             deployableUnitData = deployableData,
-            poolTag = deployableData.GetUnitTag()
+            poolTag = deployableData.UnitTag
         };
     }
 }

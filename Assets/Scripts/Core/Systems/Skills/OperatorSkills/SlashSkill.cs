@@ -17,6 +17,8 @@ namespace Skills.OperatorSkills
         [SerializeField] private float vfxDuration = 2f;
         [SerializeField] private GameObject slashControllerPrefab = default!;
 
+        private string _slashControllerTag; 
+
         protected override void SetDefaults()
         {
             duration = 0f;
@@ -28,13 +30,24 @@ namespace Skills.OperatorSkills
 
             if (slashControllerPrefab != null)
             {
-                ObjectPoolManager.Instance.CreatePool(GetSlashControllerTag(ownerData), slashControllerPrefab, 1);
+                ObjectPoolManager.Instance.CreatePool(SlashControllerTag, slashControllerPrefab, 1);
 
                 // skillPoolTag = RegisterPool(ownerData, slashControllerPrefab, 3);
             }
         }
 
-        public string GetSlashControllerTag(OperatorData ownerData) => $"{ownerData.EntityID}_{skillName}_SlashController";
+        public string SlashControllerTag
+        {
+            get
+            {
+                if (string.IsNullOrEmpty(_slashControllerTag))
+                {
+                    _slashControllerTag = $"{skillName}_SlashController";
+                }
+                return _slashControllerTag;
+            }
+        }        
+
 
         protected override void PlaySkillEffect(Operator caster)
         {
@@ -44,7 +57,7 @@ namespace Skills.OperatorSkills
             caster.AddBuff(new CannotAttackBuff(effectDuration, this));
 
             // 풀에서 오브젝트 생성
-            GameObject effectObj = ObjectPoolManager.Instance.SpawnFromPool(GetSlashControllerTag(caster.OperatorData), caster.transform.position, caster.transform.rotation);
+            GameObject effectObj = ObjectPoolManager.Instance.SpawnFromPool(SlashControllerTag, caster.transform.position, caster.transform.rotation);
 
             // 스킬 범위 정의
             HashSet<Vector2Int> skillRange = SetSkillRange(caster);
@@ -60,7 +73,7 @@ namespace Skills.OperatorSkills
                     secondDamageMultiplier, 
                     caster.OperatorData.HitEffectPrefab, 
                     caster.HitEffectTag, 
-                    GetSlashControllerTag(caster.OperatorData), 
+                    SlashControllerTag, 
                     this
                 );
             }

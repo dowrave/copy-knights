@@ -49,12 +49,25 @@ namespace Skills.Base
             // 근접 공격 VFX 변경
             if (meleeAttackVFXOverride != null)
             {
-                ObjectPoolManager.Instance.CreatePool(GetMeleeAttackVFXTag(ownerData), meleeAttackVFXOverride, 2);
-                Logger.Log($"{name}의 풀 : {GetMeleeAttackVFXTag(ownerData)} 등록 완료");
+                ObjectPoolManager.Instance.CreatePool(MeleeAttackVFXTag, meleeAttackVFXOverride, 1);
+                Logger.Log($"{name}의 풀 : {MeleeAttackVFXTag} 등록 완료");
             }
         }
 
-        public string GetMeleeAttackVFXTag(OperatorData ownerData) => $"{ownerData.EntityID}_{skillName}_MeleeVFX";
+        protected string _meleeAttackVFXTag;
+        public string MeleeAttackVFXTag
+        {
+            get
+            {
+                if (string.IsNullOrEmpty(_meleeAttackVFXTag))
+                {
+                    _meleeAttackVFXTag = $"{skillName}_MeleeAttackVFX";
+                }
+                return _meleeAttackVFXTag;
+            }
+        }
+
+        // public string GetMeleeAttackVFXTag(OperatorData ownerData) => $"{ownerData.EntityID}_{skillName}_MeleeVFX";
 
         protected void Reset()
         {

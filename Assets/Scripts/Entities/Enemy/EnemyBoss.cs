@@ -37,7 +37,7 @@ public class EnemyBoss : Enemy
 
     protected override void SetPoolTag()
     {
-        PoolTag = _bossData.GetUnitTag();
+        PoolTag = _bossData.UnitTag;
     }
 
     // 스킬을 초기화함

@@ -369,7 +369,7 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
             damage: damage,
             type: attackType,
             isProjectile: false,
-            hitEffectTag: OperatorData.GetHitVFXTag(),
+            hitEffectTag: OperatorData.HitVFXTag,
             showDamagePopup: showDamagePopup
         );
 
@@ -384,14 +384,14 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
             // 투사체 생성 위치
             Vector3 spawnPosition = transform.position + transform.forward * 0.25f;
 
-            GameObject? projectileObj = ObjectPoolManager.Instance!.SpawnFromPool(_operatorData.GetProjectileTag(), spawnPosition, Quaternion.identity);
+            GameObject? projectileObj = ObjectPoolManager.Instance!.SpawnFromPool(_operatorData.ProjectileTag, spawnPosition, Quaternion.identity);
             if (projectileObj != null)
             {
                 Projectile? projectile = projectileObj.GetComponent<Projectile>();
                 if (projectile != null)
                 {
                     PlayMuzzleVFX();
-                    projectile.Initialize(this, target, damage, showDamagePopup, _operatorData.GetProjectileTag(), _operatorData.GetHitVFXTag(), AttackType);
+                    projectile.Initialize(this, target, damage, showDamagePopup, _operatorData.ProjectileTag, _operatorData.HitVFXTag, AttackType);
                 }
             }
             
@@ -403,7 +403,7 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
     {
         if (_operatorData.MuzzleVFXPrefab != null && muzzleTag != string.Empty)
         {
-            GameObject muzzleVFXObject = ObjectPoolManager.Instance!.SpawnFromPool(_operatorData.GetMuzzleVFXTag(), transform.position, transform.rotation);
+            GameObject muzzleVFXObject = ObjectPoolManager.Instance!.SpawnFromPool(_operatorData.MuzzleVFXTag, transform.position, transform.rotation);
             MuzzleVFXController muzzleVFXController = muzzleVFXObject.GetComponentInChildren<MuzzleVFXController>();
             muzzleVFXController.Initialize(muzzleTag);
         }
@@ -568,7 +568,7 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
 
     protected override void SetPoolTag()
     {
-        PoolTag = _operatorData.GetUnitTag();
+        PoolTag = _operatorData.UnitTag;
         // Logger.Log($"Pooltag : {PoolTag}로 할당됨");
     }
 
@@ -673,7 +673,7 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
         if (OperatorData.DeployEffectPrefab != null)
         {
             GameObject deployEffect = ObjectPoolManager.Instance.SpawnFromPool(
-                OperatorData.GetDeployVFXTag(),
+                OperatorData.DeployVFXTag,
                 transform.position,
                 Quaternion.identity
             );
@@ -693,7 +693,7 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
                 }
             }
             yield return new WaitForSeconds(1.5f);
-            ObjectPoolManager.Instance.ReturnToPool(OperatorData.GetDeployVFXTag(), deployEffect);
+            ObjectPoolManager.Instance.ReturnToPool(OperatorData.DeployVFXTag, deployEffect);
         }
     }
 
@@ -954,14 +954,14 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
     protected virtual void PlayMeleeAttackEffect(Vector3 targetPosition, AttackSource attackSource)
     {
         // 공격 이펙트(명중 이펙트가 아님 유의!!)
-        string effectTag = _operatorData.GetMeleeAttackVFXTag();
+        string effectTag = _operatorData.MeleeAttackVFXTag;
 
         // [버프 이펙트 적용] 물리 공격 이펙트가 바뀌어야 한다면 바뀐 걸 적용함
         // 이 코드의 전제 조건은 "근접 공격 이펙트를 쓰는 다른 버프가 없다"이다. 상황이 바뀌면 코드를 바꿔야 함.
         var vfxBuff = activeBuffs.FirstOrDefault(b => b.MeleeAttackVFXOverride != null);
         if (vfxBuff != null)
         {
-            effectTag = vfxBuff.SourceSkill.GetMeleeAttackVFXTag(_operatorData);
+            effectTag = vfxBuff.SourceSkill.MeleeAttackVFXTag;
         }
 
         // 이펙트 처리

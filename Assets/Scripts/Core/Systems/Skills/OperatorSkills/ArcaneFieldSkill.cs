@@ -18,6 +18,10 @@ namespace Skills.OperatorSkills
         [SerializeField] private float damagePerTickRatio = 0.7f; // 대미지 배율
         [SerializeField] private float slowAmount = 0.3f; // 이동속도 감소율
         [SerializeField] private float damageInterval = 0.5f; // 대미지 간격
+
+        private string _skillControllerTag;
+        private string _skillRangeVFXTag;
+        private string _hitVFXTag;
         
         protected override void SetDefaults()
         {
@@ -65,7 +69,7 @@ namespace Skills.OperatorSkills
             // 부모를 오퍼레이터로 설정해서 생명주기를 동기화한다
             // 즉 Operator가 파괴될 때 이 장판도 함께 파괴시키기 위한 것이라고 생각하면 됨
             GameObject skillControllerObj = ObjectPoolManager.Instance!.SpawnFromPool(
-                GetSkillControllerTag(caster.OperatorData),
+                SkillControllerTag,
                 caster.transform.position,
                 Quaternion.identity
             );
@@ -81,7 +85,7 @@ namespace Skills.OperatorSkills
                     damagePerTickRatio,
                     damageInterval,
                     hitVFXPrefab!,
-                    GetHitVFXTag(caster.OperatorData),
+                    HitVFXTag,
                     slowAmount
                 );
             }
@@ -96,7 +100,7 @@ namespace Skills.OperatorSkills
                     Vector3 worldPos = MapManager.Instance!.ConvertToWorldPosition(pos);
 
                     // 오브젝트 풀에서 VFX 객체를 가져옴
-                    GameObject? vfxObj = ObjectPoolManager.Instance?.SpawnFromPool(GetSkillRangeVFXTag(caster.OperatorData), worldPos, Quaternion.identity);
+                    GameObject? vfxObj = ObjectPoolManager.Instance?.SpawnFromPool(SkillRangeVFXTag, worldPos, Quaternion.identity);
 
                     if (vfxObj != null)
                     {
@@ -113,18 +117,53 @@ namespace Skills.OperatorSkills
             }
         }
 
-        public string GetSkillControllerTag(OperatorData ownerData) => $"{ownerData}_{skillName}_SkillController";
-        public string GetSkillRangeVFXTag(OperatorData ownerData) => $"{ownerData}_{skillName}_SkillRangeVFX";
-        public string GetHitVFXTag(OperatorData ownerData) => $"{ownerData}_{skillName}_HitVFX";
+        // public string SkillControllerTag => _skillControllerTag ??= $"{skillName}_SkillController";
+        // public string SkillRangeVFXTag => _skillRangeVFXTag ??= $"{skillName}_SkillRangeVFX";
+        // public string HitVFXTag => _hitVFXTag ??= $"{skillName}_HitVFX";
+
+        public string SkillControllerTag
+        {
+            get
+            {
+                if (string.IsNullOrEmpty(_skillControllerTag))
+                {
+                    _skillControllerTag = $"{skillName}_SkillController";
+                }
+                return _skillControllerTag;
+            }
+        }        
+        public string SkillRangeVFXTag
+        {
+            get
+            {
+                if (string.IsNullOrEmpty(_skillRangeVFXTag))
+                {
+                    _skillRangeVFXTag = $"{skillName}_SkillRangeVFX";
+                }
+                return _skillRangeVFXTag;
+            }
+        }        
+        public string HitVFXTag
+        {
+            get
+            {
+                if (string.IsNullOrEmpty(_hitVFXTag))
+                {
+                    _hitVFXTag = $"{skillName}_HitVFX";
+                }
+                return _hitVFXTag;
+            }
+        }
+
 
         // 스킬 관련 오브젝트 풀 초기화.
         public override void PreloadObjectPools(OperatorData ownerData)
         {
             base.PreloadObjectPools(ownerData);
 
-            if (skillControllerPrefab != null) ObjectPoolManager.Instance.CreatePool(GetSkillControllerTag(ownerData), skillControllerPrefab, 1);
-            if (skillRangeVFXPrefab != null) ObjectPoolManager.Instance.CreatePool(GetSkillRangeVFXTag(ownerData), skillRangeVFXPrefab, skillRangeOffset.Count);
-            if (hitVFXPrefab != null) ObjectPoolManager.Instance.CreatePool(GetHitVFXTag(ownerData), hitVFXPrefab, 10);
+            if (skillControllerPrefab != null) ObjectPoolManager.Instance.CreatePool(SkillControllerTag, skillControllerPrefab, 1);
+            if (skillRangeVFXPrefab != null) ObjectPoolManager.Instance.CreatePool(SkillRangeVFXTag, skillRangeVFXPrefab, skillRangeOffset.Count);
+            if (hitVFXPrefab != null) ObjectPoolManager.Instance.CreatePool(HitVFXTag, hitVFXPrefab, 10);
         }
         
     }

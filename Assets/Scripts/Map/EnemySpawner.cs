@@ -85,7 +85,7 @@ public class EnemySpawner : MonoBehaviour
             }
             else if (spawnData.SpawnType == SpawnType.Enemy)
             {
-                tag = spawnData.EnemyData.GetUnitTag();
+                tag = spawnData.EnemyData.UnitTag;
                 spawnedObject = ObjectPoolManager.Instance!.SpawnFromPool(tag, transform.position, Quaternion.identity);
                 if (spawnedObject.TryGetComponent(out Enemy enemy))
                 {

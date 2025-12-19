@@ -674,7 +674,7 @@ public class StageManager : MonoBehaviour
             // if (enemy == null || enemy.BaseData == null) continue;
             // EnemyData enemyData = enemy.BaseData;
 
-            string enemyPoolTag = enemyData.GetUnitTag();
+            string enemyPoolTag = enemyData.UnitTag;
             ObjectPoolManager.Instance.CreatePool(enemyPoolTag, enemyData.Prefab, requiredAmount);
             // Logger.Log($"enemy 풀 - {enemyPoolTag}에 오브젝트 {requiredAmount}만큼 생성됨");
 
@@ -697,7 +697,7 @@ public class StageManager : MonoBehaviour
                 OperatorData opData = opInfo.op.OperatorData;
                 GameObject operatorPrefab = opData.Prefab;
 
-                string opPoolTag = opData.GetUnitTag();
+                string opPoolTag = opData.UnitTag;
                 ObjectPoolManager.Instance.CreatePool(opPoolTag, operatorPrefab, 1);
                 // Logger.Log($"operator 풀 - {opPoolTag} 생성됨");
 
@@ -733,7 +733,7 @@ public class StageManager : MonoBehaviour
                     DeployableUnitData deployableData = mapDeployableData.DeployableData;
                     GameObject deployablePrefab = deployableData.Prefab;
 
-                    string deployablePoolTag = deployableData.GetUnitTag();
+                    string deployablePoolTag = deployableData.UnitTag;
                     ObjectPoolManager.Instance.CreatePool(deployablePoolTag, deployablePrefab, 1);
                     // Logger.Log($"operator 풀 - {deployablePoolTag} 생성됨");
 

@@ -100,7 +100,7 @@ namespace Skills.Base
         {
             if (durationVFXPrefab == null) return;
 
-            PlayVFX(op, GetDurationVFXTag(op.OperatorData), op.transform.position, Quaternion.identity, duration);
+            PlayVFX(op, DurationVFXTag, op.transform.position, Quaternion.identity, duration);
         }
 
         // 스킬 지속시간 처리
@@ -163,11 +163,24 @@ namespace Skills.Base
 
             if (durationVFXPrefab != null)
             {
-                ObjectPoolManager.Instance.CreatePool(GetDurationVFXTag(opData), durationVFXPrefab, 1);
+                ObjectPoolManager.Instance.CreatePool(DurationVFXTag, durationVFXPrefab, 1);
             }
         }
 
-        public string GetDurationVFXTag(OperatorData opData) => $"{opData.EntityID}_{skillName}_durationVFX";
+
+        protected string _durationVFXTag;
+        public string DurationVFXTag
+        {
+            get
+            {
+                if (string.IsNullOrEmpty(_durationVFXTag))
+                {
+                    _durationVFXTag = $"{skillName}_DurationVFX";
+                }
+                return _durationVFXTag;
+            }
+        }
+        // public string GetDurationVFXTag(OperatorData opData) => $"{opData.EntityID}_{skillName}_durationVFX";
     }
 }
 

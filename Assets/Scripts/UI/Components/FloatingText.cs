@@ -63,7 +63,7 @@ public class FloatingText : MonoBehaviour, IPooledObject
 
         if (timer >= lifetime)
         {
-            ObjectPoolManager.Instance!.ReturnToPool(ObjectPoolManager.Instance.FLOATING_TEXT_TAG, gameObject);
+            ObjectPoolManager.Instance!.ReturnToPool(ObjectPoolManager.FloatingTextTag, gameObject);
         }
     }
 }

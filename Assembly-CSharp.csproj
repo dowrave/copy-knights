@@ -97,6 +97,7 @@
     <Compile Include="Assets\Scripts\Core\Managers\GameManagement\RewardManager.cs" />
     <Compile Include="Assets\Scripts\UI\Components\GaugeBar\SPBar.cs" />
     <Compile Include="Assets\Scripts\Core\Managers\StageScene\StageManager.cs" />
+    <Compile Include="Assets\Scripts\Core\Class\ObjectPool.cs" />
     <Compile Include="Assets\Scripts\Interfaces\ITargettable.cs" />
     <Compile Include="Assets\Scripts\Core\Systems\Skills\SkillController\Operator\LegacySlashSkillController.cs" />
     <Compile Include="Assets\Scripts\Entities\Enemy\EnemyBossSkillRangeController.cs" />
@@ -107,7 +108,6 @@
     <Compile Include="Assets\Scripts\Core\Systems\Skills\OperatorSkills\SlashSkill.cs" />
     <Compile Include="Assets\Scripts\Core\Systems\ShieldSystem.cs" />
     <Compile Include="Assets\Scripts\SO_Scripts\OperatorIconData.cs" />
-    <Compile Include="Assets\Scripts\Core\States\DeployableUnitState.cs" />
     <Compile Include="Assets\Scripts\Core\Managers\GameManagement\UserSquadManager.cs" />
     <Compile Include="Assets\Scripts\Core\Managers\GameManagement\TutorialManager.cs" />
     <Compile Include="Assets\Scripts\SO_Scripts\Unit\DeployableUnitData.cs" />
@@ -155,6 +155,7 @@
     <Compile Include="Assets\Scripts\UI\Components\MainmenuItemInfoPopup.cs" />
     <Compile Include="Assets\Scripts\Entities\Base\UnitEntity.cs" />
     <Compile Include="Assets\Scripts\Core\Systems\Skills\OperatorSkills\CostRecoverySkill.cs" />
+    <Compile Include="Assets\Scripts\Core\Class\DeployableUnitState.cs" />
     <Compile Include="Assets\Scripts\Core\Systems\Buff\SlowBuff.cs" />
     <Compile Include="Assets\Scripts\Core\Managers\StageScene\ObjectPoolManager.cs" />
     <Compile Include="Assets\Scripts\UI\Components\StageItemInfoPopup.cs" />
@@ -165,6 +166,7 @@
     <Compile Include="Assets\Scripts\Core\Systems\Skills\Base(Abstract)\OperatorSkill.cs" />
     <Compile Include="Assets\Scripts\Core\Systems\Skills\Base(Abstract)\ActiveSkill.cs" />
     <Compile Include="Assets\Scripts\SO_Scripts\Unit\EnemyBossData.cs" />
+    <Compile Include="Assets\Scripts\Core\Class\DeployableInfo.cs" />
     <Compile Include="Assets\Scripts\UI\Components\ConfirmationPopup.cs" />
     <Compile Include="Assets\Scripts\Map\EnemySpawnerConfig.cs" />
     <Compile Include="Assets\Scripts\Core\Managers\StageScene\SpawnerManager.cs" />
@@ -187,7 +189,6 @@
     <Compile Include="Assets\Scripts\Utils\SystemLogger.cs" />
     <Compile Include="Assets\Scripts\Core\Systems\Skills\Base(Abstract)\UnitSkill.cs" />
     <Compile Include="Assets\Scripts\Entities\Operators\DualBladeOperator.cs" />
-    <Compile Include="Assets\Scripts\Core\States\DeployableInfo.cs" />
     <Compile Include="Assets\Scripts\Core\Managers\GameManagement\PlayerDataManager.cs" />
     <Compile Include="Assets\Scripts\Core\Systems\Class\AttackSource.cs" />
     <Compile Include="Assets\Scripts\Entities\Barricade.cs" />

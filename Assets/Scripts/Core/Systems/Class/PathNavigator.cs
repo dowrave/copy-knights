@@ -18,8 +18,8 @@ public class PathNavigator
     
     private List<PathNode> pathNodes;
     private Barricade targetBarricade;
-    private List<Vector3> currentPath = new List<Vector3>();
-    private int nextNodeIndex = 0;
+    private List<Vector3> currentPath;
+    private int nextNodeIndex;
 
     // 생성자에서 초기화
     public PathNavigator(MonoBehaviour owner, List<PathNode> pathNodes, Vector3 destination)
@@ -29,6 +29,7 @@ public class PathNavigator
         this.finalDestination = destination;
 
         currentPath = pathNodes.Select(node => MapManager.Instance!.ConvertToWorldPosition(node.gridPosition) + Vector3.up * 0.5f).ToList();
+        Logger.LogFieldStatus(currentPath.Count);
         
         // 이벤트 구독
         Barricade.OnBarricadeDeployed += OnBarricadePlaced;
@@ -92,18 +93,23 @@ public class PathNavigator
     {
         if (currentPath == null || currentPath.Count == 0) throw new InvalidOperationException("currentPath가 비어 있음");
 
-        for (int i = nextNodeIndex; i <= currentPath.Count - 1; i++)
+        for (int i = nextNodeIndex; i < currentPath.Count; i++)
         {
-            // 경로가 막힌 상황 : 기존 경로 데이터들을 정리한다
-            if ((i == nextNodeIndex && PathfindingManager.Instance!.IsPathSegmentValid(owner.transform.position, currentPath[i]) == false) ||
-                PathfindingManager.Instance!.IsPathSegmentValid(currentPath[i], currentPath[i + 1]) == false)
+            // 1. 현재 위치에서 다음 노드 체크 (첫 번째 루프에서만)
+            if (i == nextNodeIndex)
             {
-                // pathData = null;
-                currentPath.Clear();
-                return true;
+                if (!PathfindingManager.Instance!.IsPathSegmentValid(owner.transform.position, currentPath[i]))
+                    return true;
+            }
+
+            // 2. 노드와 노드 사이 체크 (마지막 노드가 아닐 때만)
+            if (i < currentPath.Count - 1)
+            {
+                if (!PathfindingManager.Instance!.IsPathSegmentValid(currentPath[i], currentPath[i + 1]))
+                    return true;
             }
         }
-
+        
         return false;
     }
 
@@ -132,21 +138,6 @@ public class PathNavigator
         if (nodes == null || nodes.Count == 0) return false;
 
         SetNewPath(nodes);
-        Logger.Log("새로운 경로가 계산됨");
-
-        foreach (var node in nodes)
-        {
-            Logger.LogFieldStatus(node);
-        }
-
-        // 노드를 월드 좌표로 변환
-        // currentPath = nodes.Select(node => 
-        //     MapManager.Instance.ConvertToWorldPosition(node.gridPosition) + Vector3.up * 0.5f
-        // ).ToList();
-
-        // 경로 갱신 알림
-        // OnPathUpdated?.Invoke(currentPath);
-
         return true;
     }
 
@@ -156,21 +147,6 @@ public class PathNavigator
         {
             pathNodes = newPathNodes;
             OnPathUpdated?.Invoke(newPathNodes);
-            // currentPath = newPathNodes.Select(node => MapManager.Instance!.ConvertToWorldPosition(node.gridPosition) + Vector3.up * 0.5f).ToList();
-
-            // if (owner is Enemy enemy)
-            // {
-            //     OnPathUpdated?.Invoke(currentPath);
-            //     enemy.SetPathNodes(pathNodes);
-            //     enemy.SetCurrentPath(currentPath);
-            // }
-            // else if (owner is PathIndicator indicator)
-            // {
-            //     indicator.SetPathNodes(pathNodes);
-            //     indicator.SetCurrentPath(currentPath);
-            // }
-
-            // nextNodeIndex = 0;
         }
     }
 

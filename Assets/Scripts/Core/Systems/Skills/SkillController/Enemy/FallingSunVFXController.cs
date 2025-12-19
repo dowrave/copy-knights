@@ -58,6 +58,6 @@ public class FallingSunVFXController : MonoBehaviour
             yield return null;
         }
 
-        ObjectPoolManager.Instance.ReturnToPool(skillData.GetFallingSunVFXTag(_caster.BossData), gameObject);
+        ObjectPoolManager.Instance.ReturnToPool(skillData.FallingSunVFXTag, gameObject);
     }
 }

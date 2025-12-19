@@ -102,7 +102,7 @@ public class DeployableManager : MonoBehaviour
             var info = new DeployableInfo
             {
                 prefab = op.OperatorData.Prefab,
-                poolTag = op.OperatorData.GetUnitTag(),
+                poolTag = op.OperatorData.UnitTag,
                 maxDeployCount = 1,
                 redeployTime = op.OperatorData.Stats.RedeployTime,
                 ownedOperator = op,
@@ -263,8 +263,10 @@ public class DeployableManager : MonoBehaviour
     {
         InstanceValidator.ValidateInstance(CurrentDeployableInfo);
 
+        Logger.Log($"poolTag : {CurrentDeployableInfo.poolTag}");
         CurrentDeployableObject = ObjectPoolManager.Instance.SpawnFromPool(CurrentDeployableInfo.poolTag, Vector3.zero, Quaternion.identity);
         CurrentDeployableEntity = CurrentDeployableObject.GetComponent<DeployableUnitEntity>();
+        Logger.Log($"CreatePreviewDeployable.CurrentDeployableEntity : {CurrentDeployableEntity}");
 
         if (CurrentDeployableEntity is Operator op)
         {
