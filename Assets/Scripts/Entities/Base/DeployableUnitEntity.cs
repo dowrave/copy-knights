@@ -156,8 +156,8 @@ public abstract class DeployableUnitEntity : UnitEntity, IDeployable
     {
         if (IsInvalidTile(tile)) return false;
 
-        if (tile.data.terrain == TileData.TerrainType.Ground && DeployableUnitData.CanDeployOnGround) return true;
-        if (tile.data.terrain == TileData.TerrainType.Hill && DeployableUnitData.CanDeployOnHill) return true;
+        if (tile.TileData.Terrain == TileData.TerrainType.Ground && DeployableUnitData.CanDeployOnGround) return true;
+        if (tile.TileData.Terrain == TileData.TerrainType.Hill && DeployableUnitData.CanDeployOnHill) return true;
 
         return false;
     }
@@ -165,8 +165,8 @@ public abstract class DeployableUnitEntity : UnitEntity, IDeployable
     private bool IsInvalidTile(Tile tile)
     {
         return tile == null ||
-        tile.data.isStartPoint ||
-        tile.data.isEndPoint;
+        tile.TileData.IsStartPoint ||
+        tile.TileData.IsEndPoint;
     }
 
     public void UpdatePreviewPosition(Vector3 position)

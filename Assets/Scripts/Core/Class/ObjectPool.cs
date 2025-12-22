@@ -38,7 +38,7 @@ public class ObjectPool
         size += additionalSize;
     }
 
-    public GameObject? SpawnFromPool(string tag, Vector3 position, Quaternion rotation)
+    public GameObject? SpawnFromPool(string tag, Vector3 position, Quaternion rotation, Transform? parent = null)
     {
         GameObject obj;
 
@@ -54,15 +54,19 @@ public class ObjectPool
         }
 
         _activeObjects.Add(obj);
-        return SetupPooledObject(obj, tag, position, rotation);
+        return SetupPooledObject(obj, tag, position, rotation, parent);
     }
 
     // 오브젝트 활성화 및 생성
-    private GameObject SetupPooledObject(GameObject obj, string tag, Vector3 position, Quaternion rotation)
+    private GameObject SetupPooledObject(GameObject obj, string tag, Vector3 position, Quaternion rotation, Transform? parent = null)
     {
         obj.SetActive(true);
         obj.transform.position = position;
         obj.transform.rotation = rotation;
+        if (parent != null)
+        {
+            obj.transform.SetParent(parent);
+        }
 
         IPooledObject pooledObj = obj.GetComponent<IPooledObject>();
         if (pooledObj != null)

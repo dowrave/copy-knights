@@ -11,14 +11,13 @@ public class MeteorController : MonoBehaviour, IPooledObject
     private float fallSpeed;
     private GameObject hitEffectPrefab = default!;
     private string hitEffectTag = string.Empty;
-    private string poolTag = string.Empty;
+    private string objectPoolTag = string.Empty;
 
     public void OnObjectSpawn(string tag)
     {
-        this.poolTag = tag;
     }
 
-    public void Initialize(Operator op, Enemy target, float damage, float fallSpeed, float stunDuration, GameObject hitEffectPrefab, string hitEffectTag)
+    public void Initialize(Operator op, Enemy target, float damage, float fallSpeed, float stunDuration, GameObject hitEffectPrefab, string hitEffectTag, string objectPoolTag)
     {
         this.caster = op;
         this.target = target;
@@ -27,6 +26,7 @@ public class MeteorController : MonoBehaviour, IPooledObject
         this.stunDuration = stunDuration;
         this.hitEffectPrefab = hitEffectPrefab;
         this.hitEffectTag = hitEffectTag;
+        this.objectPoolTag = objectPoolTag;
 
         if (gameObject.activeInHierarchy) StartCoroutine(FallRoutine());
     }
@@ -48,14 +48,6 @@ public class MeteorController : MonoBehaviour, IPooledObject
             );
 
             yield return null;
-
-            // 타겟 충돌 판정 -> 콜라이더 기반으로 수정
-            // if (Vector3.Distance(transform.position, target.transform.position) < 0.5f)
-            // {
-            //     ApplyDamage();
-            //     hasDamageApplied = true;
-            // }
-
         }
 
         ReturnToPool();
@@ -79,6 +71,7 @@ public class MeteorController : MonoBehaviour, IPooledObject
                 hitEffectTag: hitEffectTag,
                 showDamagePopup: false
             );
+
             target.TakeDamage(attackSource);
         }
     }
@@ -93,12 +86,13 @@ public class MeteorController : MonoBehaviour, IPooledObject
         if (bodyCollider != null && bodyCollider.ParentUnit == target)
         {
             ApplyDamage();
+            Logger.LogFieldStatus(hitEffectTag);
             ReturnToPool();
         }
     }
 
     private void ReturnToPool()
     {
-        ObjectPoolManager.Instance?.ReturnToPool(poolTag, gameObject);
+        ObjectPoolManager.Instance?.ReturnToPool(objectPoolTag, gameObject);
     }
 }

@@ -682,7 +682,7 @@ public class StageManager : MonoBehaviour
             if (enemyData is EnemyBossData bossData) bossData.CreateObjectPools();
             else enemyData.CreateObjectPools();
 
-            // 작업 완료 시마다 진행도 업데이트 및 제어권 양도
+            // 작업 완료 시마다 진행도 업데이트
             completedTasks++;
             onProgress?.Invoke(completedTasks / totalTasks);
             yield return null;

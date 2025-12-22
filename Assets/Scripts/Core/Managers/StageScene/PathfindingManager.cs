@@ -68,9 +68,6 @@ public class PathfindingManager : MonoBehaviour
         if (MapManager.Instance == null) throw new InvalidOperationException("맵 매니저 인스턴스가 초기화되지 않았음");
         if (currentMap == null) throw new InvalidOperationException("currentMap이 초기화되지 않았음");
 
-        Logger.LogFieldStatus(startPos);
-        Logger.LogFieldStatus(endPos);
-
         List<Vector3>? worldPath = FindPath(startPos, endPos);
         if (worldPath == null)
         {
@@ -201,7 +198,7 @@ public class PathfindingManager : MonoBehaviour
                     Tile? neighbor = currentMap.GetTile(checkX, checkY);
 
                     // 걸을 수 있는 타일 조건 (바리케이드와 관련된 조건은 밖에서 체크)
-                    if (neighbor != null && neighbor.data.isWalkable)
+                    if (neighbor != null && neighbor.TileData.IsWalkable)
                     {
                         // 대각선 이동
                         if (x != 0 && y != 0)
@@ -210,7 +207,7 @@ public class PathfindingManager : MonoBehaviour
                             Tile? SideA = currentMap.GetTile(tile.GridPosition.x + x, tile.GridPosition.y);
                             Tile? SideB = currentMap.GetTile(tile.GridPosition.x, tile.GridPosition.y + y);
 
-                            if (SideA != null && SideB != null && SideA.data.isWalkable && SideB.data.isWalkable)
+                            if (SideA != null && SideB != null && SideA.TileData.IsWalkable && SideB.TileData.IsWalkable)
                             {
                                 neighbors.Add(neighbor);
                             }

@@ -213,13 +213,13 @@ public class DeployableManager : MonoBehaviour
     {
         if (CurrentDeployableInfo?.operatorData != null)
         {
-            return (tile.data.terrain == TileData.TerrainType.Ground && CurrentDeployableInfo.operatorData.CanDeployOnGround) ||
-                    (tile.data.terrain == TileData.TerrainType.Hill && CurrentDeployableInfo.operatorData.CanDeployOnHill);
+            return (tile.TileData.Terrain == TileData.TerrainType.Ground && CurrentDeployableInfo.operatorData.CanDeployOnGround) ||
+                    (tile.TileData.Terrain == TileData.TerrainType.Hill && CurrentDeployableInfo.operatorData.CanDeployOnHill);
         }
         else if (CurrentDeployableInfo?.deployableUnitData != null)
         {
-            return (tile.data.terrain == TileData.TerrainType.Ground && CurrentDeployableInfo.deployableUnitData.CanDeployOnGround) ||
-                    (tile.data.terrain == TileData.TerrainType.Hill && CurrentDeployableInfo.deployableUnitData.CanDeployOnHill);
+            return (tile.TileData.Terrain == TileData.TerrainType.Ground && CurrentDeployableInfo.deployableUnitData.CanDeployOnGround) ||
+                    (tile.TileData.Terrain == TileData.TerrainType.Hill && CurrentDeployableInfo.deployableUnitData.CanDeployOnHill);
         }
         else
             return false;
@@ -247,11 +247,6 @@ public class DeployableManager : MonoBehaviour
         {
             CurrentDeployableInfo = deployableInfo;
 
-            // CurrentDeployableEntity = deployableInfo.deployedOperator != null ?
-            //     deployableInfo.deployedOperator :
-            //     deployableInfo.deployedDeployable;
-
-            // Logger.Log($"DeployableManager.CurrentDeployableEntity : {CurrentDeployableEntity}");
             if (CurrentDeployableInfo == null) throw new InvalidOperationException("CurrentDeployableInfo∞° null¿”");
 
             CurrentDeployableBox = deployableUIBoxes[CurrentDeployableInfo];
@@ -263,10 +258,8 @@ public class DeployableManager : MonoBehaviour
     {
         InstanceValidator.ValidateInstance(CurrentDeployableInfo);
 
-        Logger.Log($"poolTag : {CurrentDeployableInfo.poolTag}");
         CurrentDeployableObject = ObjectPoolManager.Instance.SpawnFromPool(CurrentDeployableInfo.poolTag, Vector3.zero, Quaternion.identity);
         CurrentDeployableEntity = CurrentDeployableObject.GetComponent<DeployableUnitEntity>();
-        Logger.Log($"CreatePreviewDeployable.CurrentDeployableEntity : {CurrentDeployableEntity}");
 
         if (CurrentDeployableEntity is Operator op)
         {

@@ -118,10 +118,10 @@ public class Map : MonoBehaviour
             Vector2Int gridPos = tile.GridPosition;
             if (IsValidGridPosition(gridPos.x, gridPos.y))
             {
-                if (tile.data != null)
+                if (tile.TileData != null)
                 {
                     // Null 허용 어서션(!)을 사용하여 경고 해결
-                    tileDataArray![gridPos.x, gridPos.y] = tile.data;
+                    tileDataArray![gridPos.x, gridPos.y] = tile.TileData;
                     tileObjects[gridPos] = child.gameObject;
                 }
             }
@@ -134,7 +134,7 @@ public class Map : MonoBehaviour
     {
         if (!IsValidGridPosition(x, y)) return;
 
-        if (newTileData == null || newTileData.terrain == TileData.TerrainType.Empty)
+        if (newTileData == null || newTileData.Terrain == TileData.TerrainType.Empty)
         {
             RemoveTile(x, y);
         }
@@ -142,7 +142,7 @@ public class Map : MonoBehaviour
         {
             tileDataArray![x, y] = newTileData;
             CreateOrUpdateTileObject(x, y);
-            if (newTileData.isStartPoint)
+            if (newTileData.IsStartPoint)
             {
                 CreateSpawner(x, y);
             }
@@ -184,7 +184,7 @@ public class Map : MonoBehaviour
         Vector2Int gridPos = new Vector2Int(x, y);
         Vector3 worldPos = GridToWorldPosition(gridPos);
 
-        GameObject tilePrefab = tileData.tilePrefab;
+        GameObject tilePrefab = tileData.TilePrefab;
         if (tilePrefab == null) return;
         GameObject tileObj = Instantiate(tilePrefab, transform);
 
@@ -238,8 +238,8 @@ public class Map : MonoBehaviour
         string baseName = $"Tile_{x}_{y}";
         if (data != null)
         {
-            if (data.isStartPoint) return $"{baseName}_start";
-            if (data.isEndPoint) return $"{baseName}_end";
+            if (data.IsStartPoint) return $"{baseName}_start";
+            if (data.IsEndPoint) return $"{baseName}_end";
         }
         return baseName;
     }
@@ -266,7 +266,7 @@ public class Map : MonoBehaviour
         }
 
         // 빈 타일 데이터를 입력: TerrainType.Empty와 "빈 타일" 이름 설정.
-        tileDataArray![x, y] = new TileData() { terrain = TileData.TerrainType.Empty, TileName = "빈 타일" };
+        tileDataArray![x, y] = new TileData() { Terrain = TileData.TerrainType.Empty, TileName = "빈 타일" };
     }
 
     public TileData? GetTileData(int x, int y)
@@ -345,7 +345,7 @@ public class Map : MonoBehaviour
                 {
                     TileData? tileData = tileDataArray![x, y];
                     string tileInfo = tileData != null
-                        ? $"{tileData.TileName} ({tileData.terrain})"
+                        ? $"{tileData.TileName} ({tileData.Terrain})"
                         : "Empty";
                     sb.AppendLine($"  Position ({x}, {y}): {tileInfo}");
                 }

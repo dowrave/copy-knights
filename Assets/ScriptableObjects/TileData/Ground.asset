@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3faa57822d4d7604980c0ef0b1c4315b, type: 3}
   m_Name: Ground
   m_EditorClassIdentifier: 
-  TileName: Ground
+  tileName: Ground
   terrain: 0
   isWalkable: 1
   isDeployable: 1

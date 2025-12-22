@@ -200,7 +200,7 @@ public class MapEditorWindow : EditorWindow
     // GetTileSymbol 메서드의 파라미터를 nullable로 변경하여 null 체크를 수행하게 합니다.
     private string GetTileSymbol(TileData? tileData)
     {
-        if (tileData == null || tileData.terrain == TileData.TerrainType.Empty)
+        if (tileData == null || tileData.Terrain == TileData.TerrainType.Empty)
             return "-";
         return tileData.TileName.Substring(0, 1).ToUpper();
     }

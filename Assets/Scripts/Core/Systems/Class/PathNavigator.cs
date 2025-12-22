@@ -99,14 +99,21 @@ public class PathNavigator
             if (i == nextNodeIndex)
             {
                 if (!PathfindingManager.Instance!.IsPathSegmentValid(owner.transform.position, currentPath[i]))
+                {
+                    Logger.Log($"IsPathBlocked : 현재 위치 {owner.transform.position} ~ 현재 목표 노드 {currentPath[i]}까지의 경로가 막혀있다");
                     return true;
+                }
             }
 
             // 2. 노드와 노드 사이 체크 (마지막 노드가 아닐 때만)
             if (i < currentPath.Count - 1)
             {
                 if (!PathfindingManager.Instance!.IsPathSegmentValid(currentPath[i], currentPath[i + 1]))
+                {
+                    Logger.Log("IsPathBlocked : 노드 ~ 노드 사이의 경로가 막혀있다");
                     return true;
+                }
+                    
             }
         }
         

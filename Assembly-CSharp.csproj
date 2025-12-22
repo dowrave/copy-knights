@@ -195,6 +195,7 @@
     <Compile Include="Assets\Scripts\Map\Map.cs" />
     <Compile Include="Assets\Scripts\Utils\SceneLoader.cs" />
     <Compile Include="Assets\Scripts\UI\Components\ItemUIElement.cs" />
+    <Compile Include="Assets\Scripts\Interfaces\IPooledObject.cs" />
     <Compile Include="Assets\Scripts\Core\Systems\OperatorGrowthSystem.cs" />
     <Compile Include="Assets\Scripts\Map\Tile.cs" />
     <Compile Include="Assets\Scripts\Core\Systems\Skills\Base(Abstract)\EnemyBossSkill.cs" />

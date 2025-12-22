@@ -60,7 +60,6 @@ public class ObjectPoolManager : MonoBehaviour
             return;
         }
 
-        Logger.Log($"{tag}에 해당하는 오브젝트 풀 생성 완료");
         _pools[tag] = new ObjectPool(tag, prefab, size);
     }
 
@@ -71,10 +70,10 @@ public class ObjectPoolManager : MonoBehaviour
     }
 
     // 지정된 태그의 풀에서 오브젝트를 가져와 활성화하고 위치와 회전을 설정합니다.
-    public GameObject? SpawnFromPool(string tag, Vector3 position, Quaternion rotation)
+    public GameObject? SpawnFromPool(string tag, Vector3 position, Quaternion rotation, Transform? parent = null)
     {
         ObjectPool targetPool = _pools[tag];
-        return targetPool.SpawnFromPool(tag, position, rotation);
+        return targetPool.SpawnFromPool(tag, position, rotation, parent);
     }
 
 
@@ -123,11 +122,5 @@ public class ObjectPoolManager : MonoBehaviour
         }
 
         // 텍스트 풀은 게임 내내 유지할 수 있으므로 필요에 따라 예외 처리
-
     }
-}
-
-public interface IPooledObject
-{
-    void OnObjectSpawn(string tag);
 }

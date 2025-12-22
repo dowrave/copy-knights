@@ -50,7 +50,6 @@ namespace Skills.Base
             if (meleeAttackVFXOverride != null)
             {
                 ObjectPoolManager.Instance.CreatePool(MeleeAttackVFXTag, meleeAttackVFXOverride, 1);
-                Logger.Log($"{name}의 풀 : {MeleeAttackVFXTag} 등록 완료");
             }
         }
 

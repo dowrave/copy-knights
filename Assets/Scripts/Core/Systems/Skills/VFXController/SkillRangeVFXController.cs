@@ -139,7 +139,7 @@ public class SkillRangeVFXController : MonoBehaviour, IPooledObject
 
         // 언덕 타일 위치 보정
         Tile? currentTile = MapManager.Instance.GetTile(position.x, position.y);
-        if (currentTile != null && currentTile.data.terrain == TileData.TerrainType.Hill)
+        if (currentTile != null && currentTile.TileData.Terrain == TileData.TerrainType.Hill)
         {
             transform.position += Vector3.up * 0.2f;
         }

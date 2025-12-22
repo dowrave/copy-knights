@@ -5,10 +5,14 @@ using UnityEngine.UI;
 // [ExecuteAlways] // 에디터, 런타임 모두에서 스크립트 실행
 public class Tile : MonoBehaviour
 {
+    [Header("Tile Configs")]
+    [SerializeField] private TileData _tileData = default!;
+    [SerializeField] private Vector2Int gridPosition;
+
     [Header("Highlight References")]
     [SerializeField] private MeshRenderer attackRangeIndicator = default!;
 
-    public TileData data = default!;
+
     public DeployableUnitEntity? OccupyingDeployable { get; private set; }
 
     // 이 타일을 공격 범위로 삼는 오퍼레이터 목록
@@ -22,13 +26,17 @@ public class Tile : MonoBehaviour
     private HashSet<Enemy> enemiesOnTile = new HashSet<Enemy>();
     public IReadOnlyCollection<Enemy> EnemiesOnTile => enemiesOnTile;
 
-    /* 
-     * 중요! 프로퍼티만 설정하면 변수 저장은 불가능하다
-     * 필드와 프로퍼티를 함께 설정하고, 필드를 저장해야 프리팹 내부에 그리드 좌표를 저장할 수 있게 된다.
-     * 즉, 아래처럼 설정하는 건 각 타일이 스스로 gridPosition 정보를 갖게 하기 위함이다.
-     * public Vector2Int GridPosition {get; set;} 만 설정하면, 프리팹을 저장했다가 불러올 때 각 타일의 그리드 좌표가 날아간다.
-    */
-    [HideInInspector][SerializeField] private Vector2Int gridPosition;
+
+    
+    public TileData TileData 
+    {
+        get => _tileData;
+        set
+        {
+            _tileData = value; 
+        }
+    }
+
     public Vector2Int GridPosition
     {
         get { return gridPosition; }
@@ -69,11 +77,11 @@ public class Tile : MonoBehaviour
         ResetHighlight();
     }
 
-    private void OnValidate()
-    {
-        Initialize();
-        InitializeGridPosition();
-    }
+    // private void OnValidate()
+    // {
+    //     Initialize();
+    //     InitializeGridPosition();
+    // }
 
     // 오브젝트 활성화마다 호출
     private void OnEnable()
@@ -81,6 +89,15 @@ public class Tile : MonoBehaviour
         Initialize();
         InitializeGridPosition();
 
+        if (TileData != null)
+        {
+            IsWalkable = TileData.IsWalkable;
+        }
+        else
+        {
+            Logger.Log("TileData가 할당되지 않은 요소");
+            Logger.LogFieldStatus(gameObject.name);
+        }
     }
 
     private void Initialize()
@@ -102,9 +119,8 @@ public class Tile : MonoBehaviour
 
     public void SetTileData(TileData tileData, Vector2Int gridPosition)
     {
-        data = tileData;
+        _tileData = tileData;
         GridPosition = gridPosition;
-        IsWalkable = data.isWalkable;
 
         AdjustScale();
         InitializeVisuals();
@@ -119,25 +135,25 @@ public class Tile : MonoBehaviour
     // 배치될 요소는 이 값의 절반보다 위에 놔야 함
     public float GetHeightScale()
     {
-        return (data != null && data.terrain == TileData.TerrainType.Hill) ? 0.5f : 0.1f;
+        return (TileData != null && TileData.Terrain == TileData.TerrainType.Hill) ? 0.5f : 0.1f;
     }
 
     private void InitializeVisuals()
     {
-        if (meshRenderer == null || data == null) return;
+        if (meshRenderer == null || TileData == null) return;
 
         meshRenderer.GetPropertyBlock(propBlock);
-        propBlock.SetColor("_BaseColor", data.tileColor);
+        propBlock.SetColor("_BaseColor", TileData.TileColor);
         meshRenderer.SetPropertyBlock(propBlock);
     }
 
     public bool CanPlaceDeployable()
     {
         return
-            !data.isStartPoint && // 시작점 아님
-            !data.isEndPoint && // 끝점 아님
+            !TileData.IsStartPoint && // 시작점 아님
+            !TileData.IsEndPoint && // 끝점 아님
             (OccupyingDeployable == null) &&  // 차지하고 있는 객체 없음
-            (data.isDeployable); // 이 타일이 배치 가능한지
+            (TileData.IsDeployable); // 이 타일이 배치 가능한지
     }
 
     public void SetOccupied(DeployableUnitEntity deployable)

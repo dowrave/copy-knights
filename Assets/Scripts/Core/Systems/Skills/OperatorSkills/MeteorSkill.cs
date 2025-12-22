@@ -90,14 +90,14 @@ namespace Skills.Base
             if (target != null)
             {
                 Vector3 spawnPos = target.transform.position + Vector3.up * height;
-                GameObject meteorObj = Instantiate(meteorPrefab, spawnPos, Quaternion.identity, target.transform);
+                GameObject meteorObj = ObjectPoolManager.Instance.SpawnFromPool(MeteorTag, spawnPos, Quaternion.identity, target.transform);
 
                 MeteorController? controller = meteorObj.GetComponent<MeteorController>();
 
                 if (controller != null)
                 {
                     float actualDamage = caster.AttackPower * damageMultiplier;
-                    controller.Initialize(caster, target, actualDamage, fallSpeed, stunDuration, hitVFXPrefab, HitVFXTag);
+                    controller.Initialize(caster, target, actualDamage, fallSpeed, stunDuration, hitVFXPrefab, HitVFXTag, MeteorTag);
                 }
             }
         }
@@ -153,6 +153,8 @@ namespace Skills.Base
             if (hitVFXPrefab != null)
             {
                 ObjectPoolManager.Instance.CreatePool(HitVFXTag, hitVFXPrefab, 10);
+                Logger.Log($"{HitVFXTag} 오브젝트 풀 생성 완료");
+                Logger.LogFieldStatus(HitVFXTag);
             }
         }
 
