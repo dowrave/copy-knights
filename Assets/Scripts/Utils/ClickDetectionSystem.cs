@@ -85,10 +85,10 @@ public class ClickDetectionSystem : MonoBehaviour
     private void HandleObjectClick(RaycastHit[] hits)
     {
         // 디버깅용 : 모든 오브젝트 출력
-        foreach (var hit in hits)
-        {
-            Logger.Log($"RaycastAll hit: {hit.collider.name}");
-        }
+        // foreach (var hit in hits)
+        // {
+        //     Logger.Log($"RaycastAll hit: {hit.collider.name}");
+        // }
 
         // 1. DeployableUnitEntity를 먼저 찾음
         foreach (var hit in hits.OrderBy(h => h.distance)) // 카메라에서 가까운 순서
@@ -97,7 +97,7 @@ public class ClickDetectionSystem : MonoBehaviour
             if (clickable != null && !DeploymentInputHandler.Instance!.IsClickingPrevented)
             {
                 clickable.OnClick();
-                Logger.Log("DeployableUnitEntity 콜라이더 감지 및 클릭됨");
+                // Logger.Log("DeployableUnitEntity 콜라이더 감지 및 클릭됨");
                 return;
             }
         }
@@ -109,7 +109,7 @@ public class ClickDetectionSystem : MonoBehaviour
             if (clickedTile != null && clickedTile.OccupyingDeployable != null)
             {
                 clickedTile.OccupyingDeployable.OnClick();
-                Logger.Log("타일이 클릭되어서 그 위의 Deployable을 클릭함");
+                // Logger.Log("타일이 클릭되어서 그 위의 Deployable을 클릭함");
                 return;
             }
         }
@@ -118,7 +118,7 @@ public class ClickDetectionSystem : MonoBehaviour
         if (hits.Any(h => h.collider.GetComponent<Tile>() != null))
         {
             DeployableManager.Instance!.CancelCurrentAction();
-            Logger.Log("빈 타일을 클릭함");
+            // Logger.Log("빈 타일을 클릭함");
             return;
         }
 

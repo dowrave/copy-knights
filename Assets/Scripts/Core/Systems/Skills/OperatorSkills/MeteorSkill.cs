@@ -153,8 +153,7 @@ namespace Skills.Base
             if (hitVFXPrefab != null)
             {
                 ObjectPoolManager.Instance.CreatePool(HitVFXTag, hitVFXPrefab, 10);
-                Logger.Log($"{HitVFXTag} 오브젝트 풀 생성 완료");
-                Logger.LogFieldStatus(HitVFXTag);
+                // Logger.Log($"{HitVFXTag} 오브젝트 풀 생성 완료");
             }
         }
 

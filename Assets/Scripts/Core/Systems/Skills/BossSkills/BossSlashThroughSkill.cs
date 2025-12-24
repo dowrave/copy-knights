@@ -106,11 +106,11 @@ namespace Skills.Base
         private Vector3 GetSlashMoveDirection(EnemyBoss caster, Operator target)
         {
             // 타겟이 다음 노드에 위치한 특별한 경우
-            if (target.OperatorGridPos == caster.NextNode.gridPosition)
+            if (target.OperatorGridPos == caster.CurrentPathNodes[caster.CurrentPathIndex].gridPosition)
             {
-                Vector3 beforeNodeWorldPosition = caster.NextNodeWorldPosition;
+                Vector3 beforeNodeWorldPosition = caster.CurrentPathPositions[caster.CurrentPathIndex];
                 caster.UpdateNextNode();
-                Vector3 afterNodeWorldPosition = caster.NextNodeWorldPosition;
+                Vector3 afterNodeWorldPosition = caster.CurrentPathPositions[caster.CurrentPathIndex];
 
                 // 노드가 성공적으로 업데이트 되었다면, 이전 노드에서 새 노드로 향하는 방향을 반환
                 if (afterNodeWorldPosition != beforeNodeWorldPosition)
@@ -120,7 +120,7 @@ namespace Skills.Base
             }
 
             // 일반적인 경우 (또는 마지막 노드인 경우), 현재 위치에서 다음 노드로 향하는 방향을 반환
-            return (caster.NextNodeWorldPosition - caster.transform.position).normalized;
+            return (caster.CurrentPathPositions[caster.CurrentPathIndex] - caster.transform.position).normalized;
         }
 
 

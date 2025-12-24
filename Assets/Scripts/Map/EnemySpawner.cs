@@ -20,7 +20,7 @@ public class EnemySpawner : MonoBehaviour
         spawnList = new List<SpawnData>(spawnerConfig.SpawnedEnemies);
         InitializeSpawnList();
         isInitialized = true;
-        Logger.Log("Spawner 초기화 동작 완료");
+        // Logger.Log("Spawner 초기화 동작 완료");
     }
 
     public void StartSpawning()
@@ -73,7 +73,7 @@ public class EnemySpawner : MonoBehaviour
             string tag;
             GameObject spawnedObject;
 
-            // 태그를 가져오는 위치가 다름
+            // 태그를 가져오는 위치가 달라서 구분함
             if (spawnData.SpawnType == SpawnType.PathIndicator)
             {
                 tag = ObjectPoolManager.PathIndicatorTag;

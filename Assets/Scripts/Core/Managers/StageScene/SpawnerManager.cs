@@ -23,7 +23,7 @@ public class SpawnerManager : MonoBehaviour
     public void Initialize(Map map)
     {
         currentMap = map;
-        Logger.LogFieldStatus(currentMap);
+        // Logger.LogFieldStatus(currentMap);
         FindAllSpawnersAndInitialize();
     }
 

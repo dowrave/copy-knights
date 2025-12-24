@@ -117,6 +117,7 @@ public class StatisticItem : MonoBehaviour
     {
         float value = StatisticsManager.Instance!.GetOperatorValueForStatType(opStats, statType);
         float totalValue = StatisticsManager.Instance!.GetTotalValueForStatType(statType);
+
         float percentage = (totalValue > 0) ? (value / totalValue) : 0; // 전체 값 중 해당 오퍼레이터가 기여한 값
 
         percentageBar.normalizedValue = percentage;

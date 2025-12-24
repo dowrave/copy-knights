@@ -277,7 +277,7 @@ public class StageUIManager : MonoBehaviour
             float t = (projectionHeight - ray.origin.y) / ray.direction.y;
             Vector3 projectedPoint = ray.origin + ray.direction * t;
 
-            Logger.Log($"UI Element '{uiElement.name}' projects to world position: {projectedPoint}");
+            // Logger.Log($"UI Element '{uiElement.name}' projects to world position: {projectedPoint}");
 
             // 디버그 시각화
             // Debug.DrawRay(ray.origin, ray.direction * 100f, Color.red, 1f);
@@ -286,7 +286,7 @@ public class StageUIManager : MonoBehaviour
             return projectedPoint;
         }
 
-        Logger.LogWarning("Could not project UI element to world space - ray is parallel to XZ plane");
+        // Logger.LogWarning("Could not project UI element to world space - ray is parallel to XZ plane");
         return Vector3.zero;
     }
 

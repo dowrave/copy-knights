@@ -68,13 +68,11 @@ public class PathfindingManager : MonoBehaviour
         if (MapManager.Instance == null) throw new InvalidOperationException("맵 매니저 인스턴스가 초기화되지 않았음");
         if (currentMap == null) throw new InvalidOperationException("currentMap이 초기화되지 않았음");
 
+        // startPos ~ endPos까지의 경로가 있는지 체크
         List<Vector3>? worldPath = FindPath(startPos, endPos);
-        if (worldPath == null)
-        {
-            Logger.Log("반환된 경로가 없음!");
-            return null;
-        }
+        if (worldPath == null) return null;
 
+        // 경로가 있다면 pathNodes 을 생성해서 반환함
         List<PathNode> pathNodes = new List<PathNode>();
         foreach (Vector3 worldPos in worldPath)
         {
@@ -175,9 +173,7 @@ public class PathfindingManager : MonoBehaviour
         return path;
     }
 
-    /// <summary>
-    /// 주어진 타일의 이웃 타일 8칸 중, 갈 수 있는 경우에만 이웃으로 추가
-    /// </summary>
+    // 주어진 타일의 이웃 타일 8칸 중, 갈 수 있는 경우에만 이웃으로 추가
     private List<Tile> GetNeighbors(Tile tile)
     {
         if (currentMap == null) throw new InvalidOperationException("currentMap이 초기화되지 않았음");

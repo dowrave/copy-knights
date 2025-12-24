@@ -11,53 +11,48 @@ public class PathIndicator : MonoBehaviour
 
     // 경로 관련
     protected PathNavigator navigator;
-    // protected PathData? pathData;
-    protected List<PathNode> pathNodes;
-    protected PathNode nextNode = default!;
-    protected int nextNodeIndex; // 시작하자마자 1이 됨
-    protected Vector3 nextNodeWorldPosition; // 다음 노드의 좌표
-    protected Vector3 destinationPosition; // 목적지
-    protected List<Vector3> currentPath = new List<Vector3>();
+    protected Barricade? targetBarricade;
+    protected List<PathNode> currentPathNodes = new List<PathNode>();
+    protected List<Vector3> currentPathPositions = new List<Vector3>();
+    protected Vector3 currentDestination; // 현재 향하는 위치
+    protected int _currentPathIndex;
     protected bool isWaiting = false; // 단순히 위치에서 기다리는 상태
     protected bool stopAttacking = false; // 인위적으로 넣은 공격 가능 / 불가능 상태
-    protected Barricade? targetBarricade;
 
+    // 경로 관련 프로퍼티
     public PathNavigator Navigator => navigator;
-    public PathNode NextNode => nextNode;
-    public Vector3 NextNodeWorldPosition => nextNodeWorldPosition; 
-    public Vector3 DestinationPosition => DestinationPosition; 
+    public int CurrentPathIndex
+    {
+        get => _currentPathIndex;
+        protected set
+        {
+            _currentPathIndex = value;
+            if (navigator != null)
+            {
+                navigator.SetCurrentPathIndex(_currentPathIndex);
+            }
+            else
+            {
+                Logger.LogWarning($"navigator가 null이라 navigator의 _currentPathIndex가 업데이트되지 않음");
+            }
+        }
+    }
 
+// ---
 
     public void Initialize(PathData pathData)
     {
         if (pathData == null) Logger.LogError("pathData가 전달되지 않음");
 
-        pathNodes = pathData.Nodes;
-        currentPath = pathNodes.Select(node => MapManager.Instance!.ConvertToWorldPosition(node.gridPosition) + Vector3.up * 0.5f).ToList();
-        nextNodeIndex = 0; 
-
         // Enemy에 작성된 순서를 따라감
         SetupInitialPosition();
-        InitializeCurrentPath();
 
-        navigator = new PathNavigator(this, pathNodes, destinationPosition);
+        navigator = new PathNavigator(this, pathData.Nodes);
         navigator.OnPathUpdated += HandlePathUpdated;
-        if (navigator.IsPathBlocked())
-        {
-            navigator.UpdatePath(transform.position);
-        }
+        navigator.OnDisabled += ReturnToPool;
+        navigator.Initialize();
 
         UpdateNextNode();
-    }
-
-    private void OnEnable()
-    {
-        // navigator = new PathNavigator(this, destinationPosition);
-        // navigator.OnPathUpdated += HandlePathUpdated;
-        // if (navigator.IsPathBlocked())
-        // {
-        //     navigator.UpdatePath(transform.position);
-        // }
     }
 
     private void OnDiable()
@@ -65,37 +60,42 @@ public class PathIndicator : MonoBehaviour
         if (navigator != null)
         {
             navigator.OnPathUpdated -= HandlePathUpdated;
+            navigator.OnDisabled -= ReturnToPool;
             navigator.Cleanup();
         }
     }
 
-    protected void HandlePathUpdated(List<PathNode> newPathNodes)
+    protected void HandlePathUpdated(IReadOnlyList<PathNode> newPathNodes, IReadOnlyList<Vector3> newPathPositions)
     {
-        pathNodes = newPathNodes;
-        currentPath = pathNodes.Select(node => MapManager.Instance!.ConvertToWorldPosition(node.gridPosition) + Vector3.up * 0.5f).ToList();
-        nextNodeIndex = 0; 
-        navigator.UpdateNextNodeIndex(nextNodeIndex);
+        // new List<>()는 리스트가 메모리에 계속 할당되어 GC 부하가 발생하므로 자주 실행되는 메서드는 이 방식이 더 좋다
+        currentPathNodes.Clear();
+        currentPathNodes.AddRange(newPathNodes);
+
+        currentPathPositions.Clear();
+        currentPathPositions.AddRange(newPathPositions);
+
+        // 인덱스 할당
+        CurrentPathIndex = 0;
     }
 
 
-    private void InitializeCurrentPath()
+    // private void InitializeCurrentPath()
+    // {
+    //     InstanceValidator.ValidateInstance(pathNodes);
+
+    //     foreach (var node in pathNodes)
+    //     {
+    //         currentPath.Add(MapManager.Instance!.ConvertToWorldPosition(node.gridPosition) + Vector3.up * height);
+    //     }
+
+    //     destinationPosition = currentPath[currentPath.Count - 1]; // 목적지 설정
+    // }
+
+    protected void SetupInitialPosition()
     {
-        InstanceValidator.ValidateInstance(pathNodes);
-
-        foreach (var node in pathNodes)
+        if (currentPathPositions != null && currentPathPositions.Count > 0)
         {
-            currentPath.Add(MapManager.Instance!.ConvertToWorldPosition(node.gridPosition) + Vector3.up * height);
-        }
-
-        destinationPosition = currentPath[currentPath.Count - 1]; // 목적지 설정
-    }
-
-    private void SetupInitialPosition()
-    {
-        if (pathNodes.Count > 0)
-        {
-            transform.position = MapManager.Instance!.ConvertToWorldPosition(pathNodes[0].gridPosition) +
-                Vector3.up * height;
+            transform.position = currentPathPositions[0];
         }
     }
 
@@ -121,17 +121,17 @@ public class PathIndicator : MonoBehaviour
             return;
         }
 
-        Move(nextNodeWorldPosition);
+        Move(currentDestination);
 
-        if (Vector3.Distance(transform.position, nextNodeWorldPosition) < 0.05f)
+        if (Vector3.Distance(transform.position, currentDestination) < 0.05f)
         {
-            if (Vector3.Distance(transform.position, destinationPosition) < 0.05f)
+            if (Vector3.Distance(transform.position, navigator.FinalDestination) < 0.05f)
             {
                 ReachDestination();
             }
-            else if (nextNode != null && nextNode.waitTime > 0)
+            else if (currentPathNodes[CurrentPathIndex] != null && currentPathNodes[CurrentPathIndex].waitTime > 0)
             {
-                StartCoroutine(WaitAtNode(nextNode.waitTime));
+                StartCoroutine(WaitAtNode(currentPathNodes[CurrentPathIndex].waitTime));
             }
             else
             {
@@ -143,9 +143,9 @@ public class PathIndicator : MonoBehaviour
     // 마지막 타일의 월드 좌표 기준
     private bool CheckIfReachedDestination()
     {
-        if (pathNodes.Count == 0) return false;
+        if (currentPathNodes.Count == 0) return false;
 
-        Vector2Int lastNodeGridPos = pathNodes[pathNodes.Count - 1].gridPosition;
+        Vector2Int lastNodeGridPos = currentPathNodes[currentPathNodes.Count - 1].gridPosition;
         Vector3 lastNodePosition = MapManager.Instance!.ConvertToWorldPosition(lastNodeGridPos) + Vector3.up * height;
 
         return Vector3.Distance(transform.position, lastNodePosition) < 0.05f;
@@ -153,8 +153,13 @@ public class PathIndicator : MonoBehaviour
 
     private void ReachDestination()
     {
-        ObjectPoolManager.Instance.ReturnToPool(ObjectPoolManager.PathIndicatorTag, gameObject);
+        ReturnToPool();
         // Destroy(gameObject, 0.5f);
+    }
+
+    public void ReturnToPool()
+    {
+        ObjectPoolManager.Instance.ReturnToPool(ObjectPoolManager.PathIndicatorTag, gameObject);
     }
 
     public void Move(Vector3 destination)
@@ -164,15 +169,16 @@ public class PathIndicator : MonoBehaviour
 
     private void UpdateNextNode()
     {
-        nextNodeIndex++;
-        if (navigator == null) Logger.LogError("navigator가 null임");
-        navigator.UpdateNextNodeIndex(nextNodeIndex);
+        CurrentPathIndex++;
+        // if (navigator == null) Logger.LogError("navigator가 null임");
+        // navigator.UpdateNextNodeIndex(nextNodeIndex);
 
-        if (nextNodeIndex < pathNodes.Count)
+        if (CurrentPathIndex < currentPathPositions.Count)
         {
-            nextNode = pathNodes[nextNodeIndex];
-            nextNodeWorldPosition = MapManager.Instance!.ConvertToWorldPosition(nextNode.gridPosition) +
-                Vector3.up * height;
+            currentDestination = currentPathPositions[CurrentPathIndex];
+            // nextNode = pathNodes[nextNodeIndex];
+            // nextNodeWorldPosition = MapManager.Instance!.ConvertToWorldPosition(nextNode.gridPosition) +
+            //     Vector3.up * height;
         }
     }
 
@@ -185,15 +191,4 @@ public class PathIndicator : MonoBehaviour
 
         UpdateNextNode();
     }
-
-    public void SetPathNodes(List<PathNode> newPathNodes)
-    {
-        pathNodes = newPathNodes;
-    }
-
-    public void SetCurrentPath(List<Vector3> newPath)
-    {
-        currentPath = newPath;
-    }
-
 }
