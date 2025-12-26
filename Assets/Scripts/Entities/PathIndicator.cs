@@ -75,7 +75,8 @@ public class PathIndicator : MonoBehaviour
         currentPathPositions.AddRange(newPathPositions);
 
         // 인덱스 할당
-        CurrentPathIndex = 0;
+        // CurrentPathIndex = 0;
+        CurrentPathIndex = currentPathNodes.Count > 1 ? 1 : 0; // [테스트] 뒤로 가는 현상을 방지하기 위해 1로 놔 봄
     }
 
 

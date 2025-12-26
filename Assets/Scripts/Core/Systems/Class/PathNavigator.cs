@@ -46,7 +46,7 @@ public class PathNavigator
         // 최초 경로가 막혔을 때
         if (IsPathBlocked(0))
         {
-            Logger.Log($"{owner.gameObject.name} 초기화, 기본 경로가 막혀 있어서 경로 변경");
+            // Logger.Log($"{owner.gameObject.name} 초기화, 기본 경로가 막혀 있어서 경로 변경");
             UpdatePath();
         }
     }
@@ -115,7 +115,7 @@ public class PathNavigator
             {
                 if (!PathfindingManager.Instance!.IsPathSegmentValid(owner.transform.position, currentPathPositions[i]))
                 {
-                    Logger.Log($"IsPathBlocked : 현재 위치 {owner.transform.position} ~ 현재 목표 노드 {currentPathPositions[i]}까지의 경로가 막혀있다");
+                    // Logger.Log($"IsPathBlocked : 현재 위치 {owner.transform.position} ~ 현재 목표 노드 {currentPathPositions[i]}까지의 경로가 막혀있다");
                     return true;
                 }
             }
@@ -125,7 +125,7 @@ public class PathNavigator
             {
                 if (!PathfindingManager.Instance!.IsPathSegmentValid(currentPathPositions[i], currentPathPositions[i + 1]))
                 {
-                    Logger.Log($"IsPathBlocked : {currentPathPositions[i]} ~ {currentPathPositions[i+1]} 사이의 경로가 막혀있다");
+                    // Logger.Log($"IsPathBlocked : {currentPathPositions[i]} ~ {currentPathPositions[i+1]} 사이의 경로가 막혀있다");
                     return true;
                 }
             }
@@ -184,7 +184,7 @@ public class PathNavigator
 
     protected void SetNewPath(List<PathNode> newPathNodes)
     {
-        Logger.Log("SetNewPath 동작");
+        // Logger.Log("SetNewPath 동작");
 
         if (newPathNodes != null && newPathNodes.Count > 0)
         {

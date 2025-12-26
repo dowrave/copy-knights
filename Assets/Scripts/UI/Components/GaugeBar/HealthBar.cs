@@ -52,6 +52,7 @@ public class HealthBar : MonoBehaviour
         shieldFill.color = shieldFillColor;
     }
 
+    // 체력이 바뀌는 상황에 동작
     public void UpdateHealthBar(float newValue, float maxValue, float currentShield = 0)
     {
         maxAmount = maxValue;
@@ -71,7 +72,7 @@ public class HealthBar : MonoBehaviour
         // 메인 게이지 비율 갱신
         float valueRatio = newValue / totalAmount;
         healthFill.fillAmount = valueRatio;
-        healthFill.rectTransform.anchorMin = new Vector2(0, 0);
+        // healthFill.rectTransform.anchorMin = new Vector2(0, 0); // 고정이니까 주석 처리
         healthFill.rectTransform.anchorMax = new Vector2(valueRatio, 1);
 
         // 보호막 게이지 시각화
@@ -82,7 +83,7 @@ public class HealthBar : MonoBehaviour
             float shieldEndRatio = (newValue + currentShield) / totalAmount;
             float shieldRatio = currentShield / totalAmount;
 
-            // x축으로 shieldStartRatio 부분부터 shieldEndRatio까지, y축은 게이지 전체를 채우는 구조
+            // x축으로 shieldStartRatio 부분부터 shieldEndRatio까지의 영역을 차지함
             shieldFill.gameObject.SetActive(true);
             shieldFill.rectTransform.anchorMin = new Vector2(shieldStartRatio, 0); 
             shieldFill.rectTransform.anchorMax = new Vector2(shieldEndRatio, 1);
@@ -95,7 +96,7 @@ public class HealthBar : MonoBehaviour
         }
 
         // damageOverlay : 서서히 감소하는 체력 구현
-        // 체력이 회복되거나 보호막이 깎이는 등, 게이지에서 체력의 비율이 올라가는 상황
+        // 게이지에서 체력의 비율이 올라가는 상황(체력이 회복되거나 보호막이 깎이는 상황 등)
         if (previousAmount < currentAmount || totalAmount != previousTotalAmount)
         {
             if (damageCoroutine != null)
@@ -106,7 +107,8 @@ public class HealthBar : MonoBehaviour
 
             damageOverlayImage.fillAmount = currentAmount / totalAmount; 
         }
-        //  체력이 닳는 상황
+        
+        // 체력이 닳는 상황 : 서서히 감소하는 동작을 구현
         else if (showDamageEffect && previousAmount > currentAmount)
         {
             ShowDamageEffect();

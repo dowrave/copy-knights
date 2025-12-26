@@ -379,7 +379,7 @@ public abstract class UnitEntity : MonoBehaviour, ITargettable, IFactionMember, 
 
         // 체력 계산
         CurrentHealth = Mathf.Max(0, CurrentHealth - remainingDamage);
-        OnHealthChanged?.Invoke(CurrentHealth, MaxHealth, shieldSystem.CurrentShield);
+        // OnHealthChanged?.Invoke(CurrentHealth, MaxHealth, shieldSystem.CurrentShield);
 
         // 피격 이펙트 - GetHit이 없더라도 피격당한 오브젝트의 반짝이는 효과
         if (_flashCoroutine != null)
