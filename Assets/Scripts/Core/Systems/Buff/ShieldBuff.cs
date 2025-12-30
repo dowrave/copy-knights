@@ -22,7 +22,7 @@ public class ShieldBuff : Buff
         base.OnApply(owner, caster);
         if (owner is Operator op)
         {
-            op.shieldSystem.OnShieldChanged += HandleShieldChanged;
+            op.HealthSystem.Shield.OnShieldChanged += HandleShieldChanged;
             op.ActivateShield(shieldAmount);
         }
     }
@@ -37,7 +37,7 @@ public class ShieldBuff : Buff
         {
             // 재진입 방지 패턴 2 : 이벤트 구독 먼저 해제
             // DeactivateShield로 인한 이벤트를 받지 않도록 연결을 끊음
-            op.shieldSystem.OnShieldChanged -= HandleShieldChanged;
+            op.HealthSystem.Shield.OnShieldChanged -= HandleShieldChanged;
             op.DeactivateShield();
         }
         

@@ -783,8 +783,12 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
 
     protected override void InitializeHP()
     {
-        MaxHealth = Mathf.Floor(currentOperatorStats.Health);
-        CurrentHealth = Mathf.Floor(MaxHealth);
+        OperatorStats stat = OperatorData.Stats;
+        float health = stat.Health;
+        float def = stat.Defense;
+        float magicResist = stat.MagicResistance;
+
+        HealthSystem.Initialize(health, def, magicResist);
     }
 
     // 공격 대상 설정 로직

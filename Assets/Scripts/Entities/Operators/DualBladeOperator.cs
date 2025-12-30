@@ -28,7 +28,7 @@ public class DualBladeOperator : Operator
 
         yield return new WaitForSeconds(delayBetweenAttacks);
 
-        if (target != null && target.CurrentHealth > 0)
+        if (target != null && target.HealthSystem.CurrentHealth > 0)
         {
             base.PerformAttack(target, polishedDamage, showDamagePopup);
         }

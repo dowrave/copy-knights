@@ -41,7 +41,7 @@ public class StatModificationBuff : Buff
 
     private void StoreOriginalStats(UnitEntity owner)
     {
-        originalMaxHealth = owner.MaxHealth;
+        originalMaxHealth = owner.HealthSystem.MaxHealth;
         originalAttackPower = owner.AttackPower;
         originalAttackSpeed = owner.AttackSpeed;
         originalDefense = owner.Defense;
@@ -58,11 +58,11 @@ public class StatModificationBuff : Buff
     private void ApplyStatModifiers(UnitEntity owner) 
     {
         // 체력 수정 : 최대체력 증가에 맞춰 현재 체력도 비율로 증가
-        float healthRatio = owner.CurrentHealth / owner.MaxHealth;
-        owner.ChangeMaxHealth(owner.MaxHealth * modifiers.healthModifier);
+        float healthRatio = owner.HealthSystem.CurrentHealth / owner.HealthSystem.MaxHealth;
+        owner.HealthSystem.ChangeMaxHealth(owner.HealthSystem.MaxHealth * modifiers.healthModifier);
 
         // MaxHealth가 맞음 : 현재 체력 = 변한 최대 체력 * 기존 비율
-        owner.ChangeCurrentHealth(owner.MaxHealth * healthRatio); 
+        owner.HealthSystem.ChangeCurrentHealth(owner.HealthSystem.MaxHealth * healthRatio); 
 
         // 스탯 수정
         owner.AttackPower *= modifiers.attackPowerModifier;
@@ -128,12 +128,12 @@ public class StatModificationBuff : Buff
 
     private void RestoreOriginalHealth(UnitEntity owner)
     {
-        owner.ChangeMaxHealth(originalMaxHealth);
+        owner.HealthSystem.ChangeMaxHealth(originalMaxHealth);
 
         // 1. 스탯 상승 시의 현재 체력이 원상 복귀 후 최대 체력보다 높으면 최대 체력 보정
-        if (owner.CurrentHealth > originalMaxHealth)
+        if (owner.HealthSystem.CurrentHealth > originalMaxHealth)
         {
-            owner.ChangeCurrentHealth(originalMaxHealth);
+            owner.HealthSystem.ChangeCurrentHealth(originalMaxHealth);
         }
 
         // 2. 그렇지 않은 경우는 비율에 맞춰 돌아오는 게 아니라, 버프가 걸린 상태의 현재 체력 유지

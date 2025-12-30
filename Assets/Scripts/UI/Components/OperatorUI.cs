@@ -36,7 +36,7 @@ public class OperatorUI : MonoBehaviour
         SubscribeEvents();
 
         // UI의 초기 모습 설정
-        HandleHealthChanged(op.CurrentHealth, op.MaxHealth, op.GetCurrentShield());
+        HandleHealthChanged(op.HealthSystem.CurrentHealth, op.HealthSystem.MaxHealth, op.GetCurrentShield());
         HandleSPChanged(op.CurrentSP, op.MaxSP);
         HandleSkillStateChanged();
 
@@ -51,7 +51,7 @@ public class OperatorUI : MonoBehaviour
     {
         if (op == null) return;
 
-        op.OnHealthChanged += HandleHealthChanged;
+        op.HealthSystem.OnHealthChanged += HandleHealthChanged;
         op.OnSPChanged += HandleSPChanged;
         op.OnSkillStateChanged += HandleSkillStateChanged;
         op.OnBuffChanged += HandleBuffChanged;
@@ -61,7 +61,7 @@ public class OperatorUI : MonoBehaviour
     {
         if (op == null) return;
 
-        op.OnHealthChanged -= HandleHealthChanged;
+        op.HealthSystem.OnHealthChanged -= HandleHealthChanged;
         op.OnSPChanged -= HandleSPChanged;
         op.OnSkillStateChanged -= HandleSkillStateChanged;
         op.OnBuffChanged -= HandleBuffChanged;

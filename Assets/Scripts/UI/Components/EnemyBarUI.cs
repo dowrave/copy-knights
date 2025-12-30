@@ -37,7 +37,7 @@ public class EnemyBarUI : MonoBehaviour
             transform.LookAt(transform.position + mainCamera.transform.rotation * Vector3.forward, mainCamera.transform.rotation * Vector3.up);
         }
 
-        UpdateHealthBar(enemy.CurrentHealth, enemy.MaxHealth, enemy.GetCurrentShield());
+        UpdateHealthBar(enemy.HealthSystem.CurrentHealth, enemy.HealthSystem.MaxHealth, enemy.GetCurrentShield());
     }
  
 
@@ -57,12 +57,12 @@ public class EnemyBarUI : MonoBehaviour
 
     protected void SubscribeEvents()
     {
-        enemy.OnHealthChanged += UpdateHealthBar;
+        enemy.HealthSystem.OnHealthChanged += UpdateHealthBar;
     }
 
     protected void UnsubscribeEvents()
     {
-        enemy.OnHealthChanged -= UpdateHealthBar;
+        enemy.HealthSystem.OnHealthChanged -= UpdateHealthBar;
     }
 
 

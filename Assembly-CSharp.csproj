@@ -126,6 +126,7 @@
     <Compile Include="Assets\Scripts\Core\Systems\Skills\SkillController\Operator\SlashSkillController.cs" />
     <Compile Include="Assets\Scripts\Core\Systems\Skills\VFXController\SkillRangeVFXController.cs" />
     <Compile Include="Assets\Scripts\SO_Scripts\StageData.cs" />
+    <Compile Include="Assets\Scripts\Interfaces\IUnitData.cs" />
     <Compile Include="Assets\Scripts\Interfaces\ICombatEntity.cs" />
     <Compile Include="Assets\Scripts\UI\Panels\ConfirmationReturnToLobbyPanel.cs" />
     <Compile Include="Assets\Scripts\Core\Systems\Skills\OperatorSkills\StatModifierWithOnHitSkill.cs" />
@@ -194,6 +195,7 @@
     <Compile Include="Assets\Scripts\Entities\Barricade.cs" />
     <Compile Include="Assets\Scripts\Map\Map.cs" />
     <Compile Include="Assets\Scripts\Utils\SceneLoader.cs" />
+    <Compile Include="Assets\Scripts\Core\Systems\Class\HealthSystem.cs" />
     <Compile Include="Assets\Scripts\UI\Components\ItemUIElement.cs" />
     <Compile Include="Assets\Scripts\Interfaces\IPooledObject.cs" />
     <Compile Include="Assets\Scripts\Core\Systems\OperatorGrowthSystem.cs" />

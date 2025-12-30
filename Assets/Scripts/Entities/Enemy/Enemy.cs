@@ -1,9 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using Unity.VisualScripting;
 using UnityEngine;
-using static ICombatEntity;
 using System;
 
 public enum DespawnReason
@@ -97,6 +95,7 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity
             }
         }
     } // 공격 대상
+    
     protected List<UnitEntity> targetsInRange = new List<UnitEntity>();
     protected int initialPoolSize = 5;
 
@@ -241,10 +240,12 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity
 
     protected override void Update()
     {
-        if (StageManager.Instance!.CurrentGameState == GameState.Battle && // 전투 중이면서
-            currentDespawnReason == DespawnReason.Null && // 디스폰되고 있지 않을 때
-            isInitialized
-            )
+        // update 동작 조건 : 전투 중 & 디스폰되지 않음 && 초기화됨 
+        bool updateCondition = StageManager.Instance!.CurrentGameState == GameState.Battle && 
+                currentDespawnReason == DespawnReason.Null && 
+                isInitialized;
+
+        if (updateCondition)
         {
             // 행동이 불가능해도 동작해야 하는 효과
             UpdateAllCooldowns();
@@ -715,8 +716,13 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity
 
     protected override void InitializeHP()
     {
-        MaxHealth = Mathf.Floor(currentStats.Health);
-        CurrentHealth = Mathf.Floor(MaxHealth);
+        EnemyStats stat = BaseData.Stats;
+        
+        float health = stat.Health;
+        float def = stat.Defense;
+        float magicResist = stat.MagicResistance;
+
+        HealthSystem.Initialize(health, def, magicResist);
     }
 
     public void UpdateBlockingOperator(Operator? op)

@@ -213,8 +213,12 @@ public abstract class DeployableUnitEntity : UnitEntity, IDeployable
 
     protected override void InitializeHP()
     {
-        MaxHealth = Mathf.Floor(currentDeployableStats.Health);
-        CurrentHealth = Mathf.Floor(MaxHealth);
+        DeployableUnitStats stat = DeployableUnitData.Stats;
+        float health = stat.Health;
+        float def = stat.Defense;
+        float magicResist = stat.MagicResistance;
+
+        HealthSystem.Initialize(health, def, magicResist);
     }
 
     protected void SetDeployState(bool isDeployed)
