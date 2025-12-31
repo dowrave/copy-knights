@@ -75,7 +75,7 @@ public class HealthSystem
         }
 
         // 사망 체크
-        if (CurrentHealth < 0)
+        if (CurrentHealth <= 0)
         {
             OnDeath?.Invoke();
         }
@@ -108,9 +108,21 @@ public class HealthSystem
     // 힐 처리
     public float ProcessHeal(AttackSource attackSource)
     {
+        if (CurrentHealth <= 0) return 0f;
+
         float oldHealth = CurrentHealth;
-        CurrentHealth += attackSource.Damage;
-        float actualHealAmount = Mathf.FloorToInt(CurrentHealth - oldHealth); // 실제 힐량
+        
+        // 최대 체력을 넘기면 안됨
+        CurrentHealth = Mathf.Min(CurrentHealth + attackSource.Damage, MaxHealth);
+        
+        // 실제 적용된 힐량
+        float actualHealAmount = Mathf.FloorToInt(CurrentHealth - oldHealth); 
+
+        // UI 업데이트 알림
+        if (actualHealAmount > 0)
+        {
+            OnHealthChanged?.Invoke(CurrentHealth, MaxHealth, Shield.CurrentShield);
+        }
 
         return actualHealAmount; 
     }    

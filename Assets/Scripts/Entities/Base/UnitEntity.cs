@@ -16,25 +16,10 @@ public abstract class UnitEntity : MonoBehaviour, ITargettable, IFactionMember, 
 
     protected GameObject prefab;
     public GameObject Prefab => prefab;
-    // public ShieldSystem shieldSystem = default!;
 
     // 체력 시스템
     protected HealthSystem _healthSystem; 
     public HealthSystem HealthSystem { get; protected set; }
-
-    // 스탯 관련
-    // private float _currentHealth;
-    // public float CurrentHealth
-    // {
-    //     get => _currentHealth;
-    //     protected set
-    //     {
-    //         _currentHealth = Mathf.Clamp(value, 0, MaxHealth); // 0 ~ 최대 체력 사이로 값 유지
-    //         OnHealthChanged?.Invoke(_currentHealth, MaxHealth, shieldSystem.CurrentShield);
-    //     }
-    // }
-
-    // public float MaxHealth { get; protected set; }
 
     // 이 개체를 공격하는 엔티티 목록
     protected List<ICombatEntity> attackingEntities = new List<ICombatEntity>();
@@ -83,7 +68,6 @@ public abstract class UnitEntity : MonoBehaviour, ITargettable, IFactionMember, 
     public string HitEffectTag => hitEffectTag;
 
     // 이벤트
-    // public event Action<float, float, float> OnHealthChanged = delegate { };
     public event Action<Buff, bool> OnBuffChanged = delegate { }; // onCrowdControlChanged 대체 
     public event Action<UnitEntity> OnDeathStarted = delegate { }; // 사망 판정 발생 시 발생하는 이벤트
     public event Action<UnitEntity> OnDeathAnimationCompleted = delegate { }; // 체력이 다해 죽었을 때 정상적인 이벤트 실행 
@@ -99,7 +83,6 @@ public abstract class UnitEntity : MonoBehaviour, ITargettable, IFactionMember, 
 
         // 사망 로직 연결
         HealthSystem.OnDeath += Die;
-
 
         // 갖고 있는 렌더러들 설정
         if (renderers.Count == 0)
@@ -154,7 +137,6 @@ public abstract class UnitEntity : MonoBehaviour, ITargettable, IFactionMember, 
     protected virtual void InitializeSystems(UnitData unitData)
     {
         _unitData = unitData;
-        // _healthSystem.Initialize(this);
     }
 
     protected virtual void Update()
@@ -299,16 +281,6 @@ public abstract class UnitEntity : MonoBehaviour, ITargettable, IFactionMember, 
         }
     }
 
-    // 스킬 등으로 인한 현재 체력 변경 시 이 메서드를 사용
-    // public void ChangeCurrentHealth(float newCurrentHealth)
-    // {
-    //     CurrentHealth = Mathf.Floor(newCurrentHealth);
-    // }
-    // public void ChangeMaxHealth(float newMaxHealth)
-    // {
-    //     MaxHealth = Mathf.Floor(newMaxHealth);
-    // }
-
     public void AddBuff(Buff buff)
     {
         // 스턴의 경우 새로 걸리면 기존 스턴은 제거됨
@@ -369,35 +341,6 @@ public abstract class UnitEntity : MonoBehaviour, ITargettable, IFactionMember, 
 
     public virtual void TakeDamage(AttackSource source, bool playHitVFX = true)
     {
-        
-        // 현재 체력이 0 이하라면 실행되지 않는다
-        // 중복해서 실행되는 경우를 방지함
-        // if (CurrentHealth <= 0) return;
-
-        // // 방어력 / 마법 저항력이 고려된 실제 들어오는 대미지
-        // float actualDamage = Mathf.Floor(CalculateActualDamage(source.Type, source.Damage));
-
-        // // 쉴드를 깎고 남은 대미지
-        // float remainingDamage = shieldSystem.AbsorbDamage(actualDamage);
-
-        // // 오류 처리 - 공격 타입이 None이면 진짜 이슈임 
-        // if (source.Type == AttackType.None)
-        // {
-        //     Logger.LogError($"{source.Attacker}의 공격 타입이 None임");
-        //     return;
-        // }
-
-        // 디버깅용 
-        // if (source.Type == AttackType.Magical)
-        // {
-        //     Logger.Log($"들어간 마법 대미지 : {remainingDamage}");
-        // }
-
-        // 체력 계산
-        // CurrentHealth = Mathf.Max(0, CurrentHealth - remainingDamage);
-        // OnHealthChanged?.Invoke(CurrentHealth, MaxHealth, shieldSystem.CurrentShield);
-
-        // 위 코드들 축약 --------------------------
         if (HealthSystem.CurrentHealth <= 0) return;
         
         // 대미지 계산
@@ -428,11 +371,6 @@ public abstract class UnitEntity : MonoBehaviour, ITargettable, IFactionMember, 
 
         // 피격 시의 추가 동작
         OnDamageTaken(source.Attacker, damageTaken);
-
-        // if (CurrentHealth <= 0)
-        // {
-        //     Die();
-        // }
     }
 
     protected virtual void OnDamageTaken(UnitEntity attacker, float actualDamage) { } // 피격 시에 추가로 실행할 게 있을 때 사용할 메서드 
@@ -508,12 +446,10 @@ public abstract class UnitEntity : MonoBehaviour, ITargettable, IFactionMember, 
     public virtual void OnBodyTriggerEnter(Collider other) { }
     public virtual void OnBodyTriggerExit(Collider other) {}
 
-
     protected abstract float CalculateActualDamage(AttackType attacktype, float incomingDamage);
     public void ActivateShield(float amount) => HealthSystem.ActivateShield(amount);
     public void DeactivateShield() => HealthSystem.DeactivateShield();
     public float GetCurrentShield() => HealthSystem.Shield.CurrentShield;
-    // public UnitStats? GetUnitStats() { return null; }
 
     protected virtual void OnDestroy()
     {
