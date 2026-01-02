@@ -15,6 +15,8 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
     public OperatorStats currentOperatorStats; // 일단 public으로 구현
     // [SerializeField] protected GameObject operatorUIPrefab = default!;
 
+    public OwnedOperator OwnedOp {get; protected set;} 
+
     // ICombatEntity 필드
     protected AttackType _currentAttackType;
     public override AttackType AttackType
@@ -177,54 +179,57 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
     public new virtual void Initialize(DeployableInfo opInfo)
     {
         DeployableInfo = opInfo;
+
         if (opInfo.ownedOperator != null)
         {
-            OwnedOperator ownedOp = opInfo.ownedOperator;
-
-            // 기본 데이터 초기화
-            if (_operatorData == null)
-            {
-                _operatorData = ownedOp.OperatorData;
-            }
-
-            CurrentSP = OperatorData.InitialSP;
-
-            SetPrefab();
-
-            // 현재 상태 반영
-            currentOperatorStats = ownedOp.CurrentStats;
-
-            // 회전 반영
-            baseOffsets = new List<Vector2Int>(ownedOp.CurrentAttackableGridPos); // 왼쪽 방향 기준
-
-            // 스킬 설정
-            if (opInfo.skillIndex.HasValue)
-            {
-                CurrentSkill = ownedOp.UnlockedSkills[opInfo.skillIndex.Value];
-            }
-            else
-            {
-                throw new System.InvalidOperationException("인덱스가 없어서 CurrentSkill이 지정되지 않음");
-            }
-
-            MaxSP = CurrentSkill?.SPCost ?? 0f;
-
-            ElitePhase = ownedOp.CurrentPhase;
-            Level = ownedOp.CurrentLevel;
-
+            OwnedOp = opInfo.ownedOperator;
             base.Initialize();
-
-            SetDeployState(false);
         }
         else
         {
             Logger.LogError("오퍼레이터의 ownedOperator 정보가 없음!");
         }
     }
-    
-    public override void SetPrefab()
+
+    // base.Initialize 템플릿 메서드 1
+    protected override void InitializeUnitData()
     {
-        prefab = OperatorData.Prefab;
+        if (_operatorData == null)
+        {
+            _operatorData = OwnedOp.OperatorData;
+        }
+
+        // 데이터를 이용해 스탯 초기화
+        _stat.Initialize(_operatorData);
+    }
+
+    // base.Initialize 템플릿 메서드 2
+    protected override void OnInitialized()
+    {
+        CurrentSP = OperatorData.InitialSP;
+
+        // 현재 상태 반영
+        currentOperatorStats = OwnedOp.CurrentStats;
+
+        // 회전 반영
+        baseOffsets = new List<Vector2Int>(OwnedOp.CurrentAttackableGridPos); // 왼쪽 방향 기준
+
+        // 스킬 설정
+        if (DeployableInfo.skillIndex.HasValue)
+        {
+            CurrentSkill = OwnedOp.UnlockedSkills[DeployableInfo.skillIndex.Value];
+        }
+        else
+        {
+            throw new System.InvalidOperationException("인덱스가 없어서 CurrentSkill이 지정되지 않음");
+        }
+
+        MaxSP = CurrentSkill?.SPCost ?? 0f;
+
+        ElitePhase = OwnedOp.CurrentPhase;
+        Level = OwnedOp.CurrentLevel;
+
+        SetDeployState(false);
     }
 
     public void SetDirection(Vector3 direction)
@@ -282,7 +287,7 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
             if (CanAttack())
             {
                 // 공격 방식을 바꾸는 버프가 있는지 찾는다 
-                Buff? attackModifierBuff = activeBuffs.FirstOrDefault(b => b.ModifiesAttackAction);
+                Buff? attackModifierBuff = ActiveBuffs.FirstOrDefault(b => b.ModifiesAttackAction);
 
                 // 공격 형식을 바꿔야 하는 경우 스킬의 동작을 따라감
                 if (attackModifierBuff != null)
@@ -329,7 +334,7 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
 
         // 스킬 시스템에서 버프로 변환 중
         // 공격에만 적용되는 버프 적용
-        foreach (var buff in activeBuffs)
+        foreach (var buff in ActiveBuffs)
         {
             buff.OnBeforeAttack(this, ref damage, ref finalAttackType, ref showDamagePopup);
         }
@@ -354,7 +359,7 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
         }
 
         // 공격 후 동작
-        foreach (var buff in activeBuffs.ToList()) // buff가 제거될 수 있기 때문에 복사본으로 안전하게 진행
+        foreach (var buff in ActiveBuffs.ToList()) // buff가 제거될 수 있기 때문에 복사본으로 안전하게 진행
         {
             buff.OnAfterAttack(this, target);
         }
@@ -502,19 +507,19 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
             IsDeployed &&
             !blockedEnemies.Contains(enemy) && // 이미 저지 중인 적이 아님
             enemy.BlockingOperator == null &&  // 적을 저지하고 있는 오퍼레이터가 없음
-            currentBlockCount + enemy.BlockCount <= MaxBlockableEnemies; // 이 적을 저지했을 때 최대 저지 수를 초과하지 않음
+            currentBlockCount + enemy.BlockSize <= MaxBlockableEnemies; // 이 적을 저지했을 때 최대 저지 수를 초과하지 않음
     }
 
     public void BlockEnemy(Enemy enemy)
     {
         blockedEnemies.Add(enemy);
-        currentBlockCount += enemy.BlockCount;
+        currentBlockCount += enemy.BlockSize;
     }
 
     public void UnblockEnemy(Enemy enemy)
     {
         blockedEnemies.Remove(enemy);
-        currentBlockCount -= enemy.BlockCount;
+        currentBlockCount -= enemy.BlockSize;
     }
 
     public void UnblockAllEnemies()
@@ -781,16 +786,6 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
         return IsDeployed && CurrentSP >= MaxSP && !IsSkillOn;
     }
 
-    protected override void InitializeHP()
-    {
-        OperatorStats stat = OperatorData.Stats;
-        float health = stat.Health;
-        float def = stat.Defense;
-        float magicResist = stat.MagicResistance;
-
-        HealthSystem.Initialize(health, def, magicResist);
-    }
-
     // 공격 대상 설정 로직
     public virtual void SetCurrentTarget()
     {
@@ -962,7 +957,7 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
 
         // [버프 이펙트 적용] 물리 공격 이펙트가 바뀌어야 한다면 바뀐 걸 적용함
         // 이 코드의 전제 조건은 "근접 공격 이펙트를 쓰는 다른 버프가 없다"이다. 상황이 바뀌면 코드를 바꿔야 함.
-        var vfxBuff = activeBuffs.FirstOrDefault(b => b.MeleeAttackVFXOverride != null);
+        var vfxBuff = ActiveBuffs.FirstOrDefault(b => b.MeleeAttackVFXOverride != null);
         if (vfxBuff != null)
         {
             effectTag = vfxBuff.SourceSkill.MeleeAttackVFXTag;
@@ -1006,26 +1001,6 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
     protected void InitializeDirectionIndicator()
     {
         _directionIndicator.Initialize(this);
-    }
-
-    protected override float CalculateActualDamage(AttackType attacktype, float incomingDamage)
-    {
-        float actualDamage = 0; // 할당까지 필수
-
-        switch (attacktype)
-        {
-            case AttackType.Physical:
-                actualDamage = incomingDamage - currentOperatorStats.Defense;
-                break;
-            case AttackType.Magical:
-                actualDamage = incomingDamage * (1 - currentOperatorStats.MagicResistance / 100);
-                break;
-            case AttackType.True:
-                actualDamage = incomingDamage;
-                break;
-        }
-
-        return Mathf.Max(actualDamage, 0.05f * incomingDamage); // 들어온 대미지의 5%는 들어가게끔 보장
     }
 
     public void OnEnemyEnteredAttackRange(Enemy enemy)

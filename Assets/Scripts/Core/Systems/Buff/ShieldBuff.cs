@@ -22,7 +22,7 @@ public class ShieldBuff : Buff
         base.OnApply(owner, caster);
         if (owner is Operator op)
         {
-            op.HealthSystem.Shield.OnShieldChanged += HandleShieldChanged;
+            op.Health.OnHealthChanged += HandleShieldChanged;
             op.ActivateShield(shieldAmount);
         }
     }
@@ -37,16 +37,19 @@ public class ShieldBuff : Buff
         {
             // 재진입 방지 패턴 2 : 이벤트 구독 먼저 해제
             // DeactivateShield로 인한 이벤트를 받지 않도록 연결을 끊음
-            op.HealthSystem.Shield.OnShieldChanged -= HandleShieldChanged;
+            op.Health.OnHealthChanged -= HandleShieldChanged;
             op.DeactivateShield();
         }
         
         base.OnRemove();
     }
 
-    private void HandleShieldChanged(float currentShield, bool isShieldDepleted)
+    private void HandleShieldChanged(float _currentHP, float _MaxHP, float currentShield)
     {
-        if (isShieldDepleted && owner != null && !isRemoving)
+        // 원래 isShieldDepleted라는 필드가 있었음 
+        // 지금은 없앴기 때문에 이거에 대한 추가 설정이 다른 곳에서 필요할 수 있음
+
+        if (owner != null && !isRemoving && currentShield <= 0)
         {
             owner.RemoveBuff(this);
         }

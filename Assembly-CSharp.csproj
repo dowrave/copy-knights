@@ -60,6 +60,7 @@
     <Compile Include="Assets\Scripts\Core\Systems\Skills\VFXController\ShieldVFXController.cs" />
     <Compile Include="Assets\Scripts\Interfaces\IFactionMember.cs" />
     <Compile Include="Assets\Scripts\SO_Scripts\OperatorLevelData.cs" />
+    <Compile Include="Assets\Scripts\Interfaces\IReadableBuffController.cs" />
     <Compile Include="Assets\Scripts\Core\Systems\Skills\OperatorSkills\MeteorSkill.cs" />
     <Compile Include="Assets\Scripts\Interfaces\ICombatData.cs" />
     <Compile Include="Assets\Scripts\UI\Components\SkillIconBox.cs" />
@@ -70,6 +71,7 @@
     <Compile Include="Assets\Scripts\UI\Components\GaugeBar\HealthBar.cs" />
     <Compile Include="Assets\Scripts\Core\Systems\Skills\OperatorSkills\AreaHasteHealSkill.cs" />
     <Compile Include="Assets\Scripts\Core\Managers\StageScene\DeploymentInputHandler.cs" />
+    <Compile Include="Assets\Scripts\Core\Enums\StatType.cs" />
     <Compile Include="Assets\Scripts\UI\Components\DiamondOutline.cs" />
     <Compile Include="Assets\Scripts\Core\Managers\MainmenuScene\PopupManager.cs" />
     <Compile Include="Assets\Scripts\Entities\Base\DeployableUnitEntity.cs" />
@@ -120,12 +122,14 @@
     <Compile Include="Assets\Scripts\SO_Scripts\Unit\MapDeployableData.cs" />
     <Compile Include="Assets\Scripts\Core\Systems\Skills\OperatorSkills\DoubleShotSkill.cs" />
     <Compile Include="Assets\Scripts\UI\Components\DirectionIndicator.cs" />
+    <Compile Include="Assets\Scripts\Core\Systems\Class\UnitController\HealthController.cs" />
     <Compile Include="Assets\Scripts\Entities\Combat\Projectile\Projectile.cs" />
     <Compile Include="Assets\Scripts\UI\Components\EnemyBarUI.cs" />
     <Compile Include="Assets\Scripts\Core\Systems\Attributes.cs" />
     <Compile Include="Assets\Scripts\Core\Systems\Skills\SkillController\Operator\SlashSkillController.cs" />
     <Compile Include="Assets\Scripts\Core\Systems\Skills\VFXController\SkillRangeVFXController.cs" />
     <Compile Include="Assets\Scripts\SO_Scripts\StageData.cs" />
+    <Compile Include="Assets\Scripts\Interfaces\IReadableHealthController.cs" />
     <Compile Include="Assets\Scripts\Interfaces\IUnitData.cs" />
     <Compile Include="Assets\Scripts\Interfaces\ICombatEntity.cs" />
     <Compile Include="Assets\Scripts\UI\Panels\ConfirmationReturnToLobbyPanel.cs" />
@@ -144,6 +148,7 @@
     <Compile Include="Assets\Scripts\SO_Scripts\Unit\UnitData.cs" />
     <Compile Include="Assets\Scripts\Core\Systems\Buff\StunBuff.cs" />
     <Compile Include="Assets\Scripts\Core\Enums\OperatorClass.cs" />
+    <Compile Include="Assets\Scripts\Core\Systems\Class\UnitController\BuffController.cs" />
     <Compile Include="Assets\Scripts\Core\Systems\Skills\BossSkills\BossExplosionSkill.cs" />
     <Compile Include="Assets\Scripts\Core\Systems\Skills\SkillController\Operator\MeteorController.cs" />
     <Compile Include="Assets\Scripts\UI\Panels\OperatorPromotionPanel.cs" />
@@ -160,6 +165,7 @@
     <Compile Include="Assets\Scripts\Core\Systems\Buff\SlowBuff.cs" />
     <Compile Include="Assets\Scripts\Core\Managers\StageScene\ObjectPoolManager.cs" />
     <Compile Include="Assets\Scripts\UI\Components\StageItemInfoPopup.cs" />
+    <Compile Include="Assets\Scripts\Core\Systems\Class\UnitController\StatController.cs" />
     <Compile Include="Assets\Scripts\UI\Panels\StageSelectPanel.cs" />
     <Compile Include="Assets\Scripts\Core\Systems\Skills\Base(Abstract)\PassiveSkill.cs" />
     <Compile Include="Assets\Scripts\Core\Systems\Buff\CannotAttackBuff.cs" />
@@ -195,7 +201,6 @@
     <Compile Include="Assets\Scripts\Entities\Barricade.cs" />
     <Compile Include="Assets\Scripts\Map\Map.cs" />
     <Compile Include="Assets\Scripts\Utils\SceneLoader.cs" />
-    <Compile Include="Assets\Scripts\Core\Systems\Class\HealthSystem.cs" />
     <Compile Include="Assets\Scripts\UI\Components\ItemUIElement.cs" />
     <Compile Include="Assets\Scripts\Interfaces\IPooledObject.cs" />
     <Compile Include="Assets\Scripts\Core\Systems\OperatorGrowthSystem.cs" />
@@ -216,6 +221,7 @@
     <Compile Include="Assets\Scripts\SO_Scripts\Unit\OperatorData.cs" />
     <Compile Include="Assets\Scripts\Core\Managers\StageScene\StageUIManager.cs" />
     <Compile Include="Assets\Scripts\UI\Panels\ItemInventoryPanel.cs" />
+    <Compile Include="Assets\Scripts\Interfaces\IReadableStatController.cs" />
     <Compile Include="Assets\Scripts\Core\Managers\MainmenuScene\OperatorGrowthManager.cs" />
     <Compile Include="Assets\Scripts\UI\Panels\LoadingScreen.cs" />
     <Compile Include="Assets\Scripts\Interfaces\ICrowdControlTarget.cs" />

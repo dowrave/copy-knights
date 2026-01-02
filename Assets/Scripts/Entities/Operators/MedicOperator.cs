@@ -20,7 +20,7 @@ public class MedicOperator : Operator
         if (targetsInRange.Count > 0)
         {
             CurrentTarget = targetsInRange
-                .OrderBy(target => target.HealthSystem.CurrentHealth)
+                .OrderBy(target => target.Health.CurrentHealth)
                 .FirstOrDefault();
         }
         else
@@ -52,7 +52,7 @@ public class MedicOperator : Operator
                     DeployableUnitEntity? deployable = targetTile.OccupyingDeployable;
                     if (deployable != null && 
                         deployable.Faction == this.Faction && 
-                        deployable.HealthSystem.CurrentHealth < deployable.HealthSystem.MaxHealth)
+                        deployable.Health.CurrentHealth < deployable.Health.MaxHealth)
                     {
                         targetsInRange.Add(deployable);
                     }

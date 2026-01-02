@@ -35,9 +35,4 @@ public class Barricade : DeployableUnitEntity
         PathfindingManager.Instance!.RemoveBarricade(this); // 바리케이드 리스트에서 제거
         OnBarricadeRemoved?.Invoke(this); // 제거 이벤트 발생
     }
-
-    protected override float CalculateActualDamage(AttackType attacktype, float incomingDamage)
-    {
-        return Mathf.Floor(incomingDamage); 
-    }
 }

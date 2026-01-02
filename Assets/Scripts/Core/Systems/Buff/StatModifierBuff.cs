@@ -7,12 +7,7 @@ public class StatModificationBuff : Buff
     private StatModifierSkill.StatModifiers modifiers;
 
     // 원래 스탯 저장 필드
-    private float originalMaxHealth;
-    private float originalAttackPower;
-    private float originalAttackSpeed;
-    private float originalDefense;
-    private float originalMagicResistance;
-    private int originalBlockableEnemies;
+    // [StatController, BuffController 구현 중] 어떻게 처리할지 몰라 남겨둠
     private AttackType originalAttackType;
     private List<Vector2Int> originalAttackableGridPos;
 
@@ -28,66 +23,62 @@ public class StatModificationBuff : Buff
     {
         base.OnApply(owner, caster);
 
-        StoreOriginalStats(owner);
-        ApplyStatModifiers(owner);
-    }
+        // StatController 구현에 따른 변경된 로직
+        // 예시) 공격력 50% 증가라면 값은 1.5가 입력되어 있음
+        // modifier에는 0.5라는 값만 들어감
+        // 만약 비슷한 로직이 중첩된다면 modifier는 합 연산으로 구현됨
 
-    // 버프 제거 시 호출
-    public override void OnRemove()
-    {
-        RestoreOriginalStats(owner);
-        base.OnRemove();
-    }
-
-    private void StoreOriginalStats(UnitEntity owner)
-    {
-        originalMaxHealth = owner.HealthSystem.MaxHealth;
-        originalAttackPower = owner.AttackPower;
-        originalAttackSpeed = owner.AttackSpeed;
-        originalDefense = owner.Defense;
-        originalMagicResistance = owner.MagicResistance;
-        originalAttackType = owner.AttackType;
-        
-        if (owner is Operator op)
+        // 체력
+        if (modifiers.healthModifier != 1.0f)
         {
-            originalBlockableEnemies = op.MaxBlockableEnemies;
-            originalAttackableGridPos = new List<Vector2Int>(op.CurrentAttackableGridPos);
+            owner.AddStatModifier(StatType.MaxHP, modifiers.healthModifier);
         }
-    }
 
-    private void ApplyStatModifiers(UnitEntity owner) 
-    {
-        // 체력 수정 : 최대체력 증가에 맞춰 현재 체력도 비율로 증가
-        float healthRatio = owner.HealthSystem.CurrentHealth / owner.HealthSystem.MaxHealth;
-        owner.HealthSystem.ChangeMaxHealth(owner.HealthSystem.MaxHealth * modifiers.healthModifier);
+        // 방어력
+        if (modifiers.defenseModifier != 1.0f)
+        {
+            owner.AddStatModifier(StatType.Defense, modifiers.defenseModifier);
+        }
 
-        // MaxHealth가 맞음 : 현재 체력 = 변한 최대 체력 * 기존 비율
-        owner.HealthSystem.ChangeCurrentHealth(owner.HealthSystem.MaxHealth * healthRatio); 
+        // 마법저항력
+        if (modifiers.magicResistanceModifier != 1.0f)
+        {
+            owner.AddStatModifier(StatType.MagicResistance, modifiers.magicResistanceModifier);
+        }
 
-        // 스탯 수정
-        owner.AttackPower *= modifiers.attackPowerModifier;
-        owner.AttackSpeed /= modifiers.attackSpeedModifier; // 공격 속도 = 쿨다운이므로 줄어야 맞음
-        owner.Defense *= modifiers.defenseModifier;
-        owner.MagicResistance *= modifiers.magicResistanceModifier;
+        // 공격력
+        if (modifiers.attackPowerModifier != 1.0f)
+        {
+            owner.AddStatModifier(StatType.AttackPower, modifiers.attackPowerModifier );
+        }
 
-        // Modifier의 설정이 있을 때만 공격 타입을 수정(아니라면 Operator.AttackType을 따름)
+        // 공격 속도  
+        if (modifiers.attackSpeedModifier != 1.0f)
+        {
+            owner.AddStatModifier(StatType.AttackSpeed, modifiers.attackSpeedModifier);
+        }
+
+        // 저지 수는 덮어쓴다
+        if (modifiers.blockCountModifier.HasValue)
+        {
+            float blockCountOverride = modifiers.blockCountModifier.Value;
+            owner.AddStatOverride(StatType.MaxBlockCount, blockCountOverride);
+        }
+
+        // 아래는 일단 기존 로직 유지
         if (modifiers.attackType != AttackType.None)
         {
+            originalAttackType = owner.AttackType;
             owner.AttackType = modifiers.attackType;
         }
 
-        // 오퍼레이터 한정 변경 사항
         if (owner is Operator op)
         {
-            // 저지 수
-            if (modifiers.blockCountModifier.HasValue)
-            {
-                op.MaxBlockableEnemies = modifiers.blockCountModifier.Value;
-            }
-
             // 공격 범위
             if (modifiers.attackRangeModifier != null && modifiers.attackRangeModifier.Count > 0)
             {
+                originalAttackableGridPos = op.CurrentAttackableGridPos;
+                
                 List<Vector2Int> newRange = new List<Vector2Int>(op.CurrentAttackableGridPos);
 
                 foreach (Vector2Int additionalTile in modifiers.attackRangeModifier)
@@ -105,38 +96,56 @@ public class StatModificationBuff : Buff
                 op.CurrentAttackableGridPos = newRange;
             }
         }
-        
     }
 
-    // 스탯 복구
-    private void RestoreOriginalStats(UnitEntity owner)
+    // 버프 제거 시 호출
+    public override void OnRemove()
     {
-        RestoreOriginalHealth(owner);
+        // 체력
+        if (modifiers.healthModifier != 1.0f)
+        {
+            owner.RemoveStatModifier(StatType.MaxHP, modifiers.healthModifier);
 
-        owner.AttackPower = originalAttackPower;
-        owner.AttackSpeed = originalAttackSpeed;
-        owner.Defense = originalDefense;
-        owner.MagicResistance = originalMagicResistance;
+            // 이로 인해 변경된 최대 체력 및 현재 체력은 healthController에서 별도로 구현
+        }
+
+        // 방어력
+        if (modifiers.defenseModifier != 1.0f)
+        {
+            owner.RemoveStatModifier(StatType.Defense, modifiers.defenseModifier);
+        }
+
+        // 마법저항력
+        if (modifiers.magicResistanceModifier != 1.0f)
+        {
+            owner.RemoveStatModifier(StatType.MagicResistance, modifiers.magicResistanceModifier);
+        }
+
+        // 공격력
+        if (modifiers.attackPowerModifier != 1.0f)
+        {
+            owner.RemoveStatModifier(StatType.AttackPower, modifiers.attackPowerModifier );
+        }
+
+        // 공격 속도  
+        if (modifiers.attackSpeedModifier != 1.0f)
+        {
+            owner.RemoveStatModifier(StatType.AttackSpeed, modifiers.attackSpeedModifier);
+        }
+
+        // 저지 수
+        if (modifiers.blockCountModifier.HasValue)
+        {
+            owner.RemoveStatOverride(StatType.MaxBlockCount);
+        }
+
         owner.AttackType = originalAttackType;
-
         if (owner is Operator op)
         {
-            op.MaxBlockableEnemies = originalBlockableEnemies;
             op.CurrentAttackableGridPos = originalAttackableGridPos;
         }
+
+
+        base.OnRemove();
     }
-
-    private void RestoreOriginalHealth(UnitEntity owner)
-    {
-        owner.HealthSystem.ChangeMaxHealth(originalMaxHealth);
-
-        // 1. 스탯 상승 시의 현재 체력이 원상 복귀 후 최대 체력보다 높으면 최대 체력 보정
-        if (owner.HealthSystem.CurrentHealth > originalMaxHealth)
-        {
-            owner.HealthSystem.ChangeCurrentHealth(originalMaxHealth);
-        }
-
-        // 2. 그렇지 않은 경우는 비율에 맞춰 돌아오는 게 아니라, 버프가 걸린 상태의 현재 체력 유지
-    }
-    
 }

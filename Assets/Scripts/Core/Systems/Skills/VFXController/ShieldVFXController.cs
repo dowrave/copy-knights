@@ -14,7 +14,7 @@ public class ShieldVFXController : SelfReturnVFXController
         // 일단 쉴드 시스템이 Operator에만 구현되어 있기 때문에 이렇게 만듦
         if (owner is Operator op)
         {
-            op.HealthSystem.Shield.OnShieldChanged += HandleShieldChanged;
+            op.Health.OnHealthChanged += HandleShieldChanged;
         }
 
         base.Initialize(duration, owner);
@@ -25,15 +25,15 @@ public class ShieldVFXController : SelfReturnVFXController
         // 일단 쉴드 시스템이 Operator에만 구현되어 있기 때문에 이렇게 만듦
         if (owner is Operator op)
         {
-            op.HealthSystem.Shield.OnShieldChanged -= HandleShieldChanged;
+            op.Health.OnHealthChanged -= HandleShieldChanged;
         }
 
         base.ReturnToPool();
     }
 
-    protected void HandleShieldChanged(float currentShield, bool isShieldDepleted)
+    protected void HandleShieldChanged(float currentHP, float maxHp, float currentShield)
     {
-        if (isShieldDepleted)
+        if (currentShield <= 0)
         {
             ReturnToPool();
         }

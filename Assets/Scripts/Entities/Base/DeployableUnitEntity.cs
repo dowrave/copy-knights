@@ -50,32 +50,36 @@ public abstract class DeployableUnitEntity : UnitEntity, IDeployable
     public void Initialize(DeployableInfo deployableInfo)
     {
         DeployableInfo = deployableInfo;
-        if (_deployableData != null)
-        {
-            _deployableData = deployableInfo.deployableUnitData!;
-
-            currentDeployableStats = DeployableUnitData.Stats;
-            SetPoolTag();
-            SetPrefab();
-
-            InitializeVisuals();
-            InitializeDeployableProperties();
-            UpdateCurrentTile();
-        }
-        else
-        {
-            return;
-        }
+        base.Initialize();
     }
 
-    protected override void SetPoolTag()
+    // base.Initialize 템플릿 메서드 1
+    protected override void InitializeUnitData()
+    {
+        if (_deployableData == null)
+        {
+            if (DeployableInfo.deployableUnitData == null)
+            {
+                Logger.Log("_deployableData가 null임");
+                return;
+            }
+            else
+            {
+                _deployableData = DeployableInfo.deployableUnitData;
+            }
+        }
+
+        // 데이터를 이용해 스탯 초기화
+        _stat.Initialize(_deployableData);
+    }
+
+    // base.Initialize 템플릿 메서드 2
+    protected override void OnInitialized()
     {
         PoolTag = _deployableData.UnitTag;
-    }
 
-    public override void SetPrefab()
-    {
-        prefab = DeployableUnitData.Prefab;
+        InitializeDeployableProperties();
+        UpdateCurrentTile();
     }
 
 
@@ -97,7 +101,7 @@ public abstract class DeployableUnitEntity : UnitEntity, IDeployable
                 CurrentTile.SetOccupied(this);
             }
             SetPosition(position);
-            InitializeHP();
+            // InitializeHP();
             lastDeployTime = Time.time;
 
             OnDeployed?.Invoke(this);
@@ -201,7 +205,6 @@ public abstract class DeployableUnitEntity : UnitEntity, IDeployable
                 StageUIManager.Instance!.ShowDeployedInfo(this);
                 ShowActionUI();
             }
-
         }
     }
 
@@ -209,16 +212,6 @@ public abstract class DeployableUnitEntity : UnitEntity, IDeployable
     {
         DeployableManager.Instance!.ShowActionUI(this);
         StageUIManager.Instance!.ShowDeployedInfo(this);
-    }
-
-    protected override void InitializeHP()
-    {
-        DeployableUnitStats stat = DeployableUnitData.Stats;
-        float health = stat.Health;
-        float def = stat.Defense;
-        float magicResist = stat.MagicResistance;
-
-        HealthSystem.Initialize(health, def, magicResist);
     }
 
     protected void SetDeployState(bool isDeployed)

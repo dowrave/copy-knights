@@ -138,7 +138,7 @@ public class InStageInfoPanel : MonoBehaviour
         // 기존 오퍼레이터가 있었다면 구독 해제
         if (currentOperator != null)
         {
-            currentOperator.HealthSystem.OnHealthChanged -= UpdateHealthText;
+            currentOperator.Health.OnHealthChanged -= UpdateHealthText;
             currentOperator.OnStatsChanged -= UpdateOperatorInfo;
         }
 
@@ -148,14 +148,14 @@ public class InStageInfoPanel : MonoBehaviour
             currentOperator = currentDeployableInfo.deployedOperator;
             if (currentOperator != null)
             {
-                UpdateHealthText(currentOperator.HealthSystem.CurrentHealth, currentOperator.HealthSystem.MaxHealth);
+                UpdateHealthText(currentOperator.Health.CurrentHealth, currentOperator.Health.MaxHealth);
                 attackText.text = $"공격력: {Mathf.FloorToInt(currentOperator.currentOperatorStats.AttackPower)}";
                 defenseText.text = $"방어력: {Mathf.FloorToInt(currentOperator.currentOperatorStats.Defense)}";
                 magicResistanceText.text = $"마법저항력: {Mathf.FloorToInt(currentOperator.currentOperatorStats.MagicResistance)}";
                 blockCountText.text = $"저지수: {Mathf.FloorToInt(currentOperator.currentOperatorStats.MaxBlockableEnemies)}";
 
                 // 이벤트 구독
-                currentOperator.HealthSystem.OnHealthChanged += UpdateHealthText;
+                currentOperator.Health.OnHealthChanged += UpdateHealthText;
                 currentOperator.OnStatsChanged += UpdateOperatorInfo;
             }
         }
@@ -265,7 +265,7 @@ public class InStageInfoPanel : MonoBehaviour
     {
         if (currentOperator != null)
         {
-            currentOperator.HealthSystem.OnHealthChanged -= UpdateHealthText;
+            currentOperator.Health.OnHealthChanged -= UpdateHealthText;
             currentOperator.OnStatsChanged -= UpdateOperatorInfo;
             currentOperator = null;
         }

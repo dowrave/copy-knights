@@ -16,8 +16,8 @@ public abstract class Buff
     public OperatorSkill SourceSkill { get; protected set; } // 이 버프를 적용한 스킬
 
     public virtual bool IsDebuff => false; // 버프 종류 구분하는 프로퍼티
-
     public virtual bool ModifiesAttackAction => false; // 공격 방법이 바뀌는가?
+    public virtual ActionRestriction Restriction => ActionRestriction.None; // 제약
 
     protected GameObject? vfxInstance;
     protected ParticleSystem? vfxParticleSystem;
@@ -34,7 +34,7 @@ public abstract class Buff
     // 파괴 중인지에 대한 플래그
     private bool isBeingRemoved = false;
 
-    // 생성자 관련 : 매개변수가 없는 기본적인 생성자를 생성함\
+    // 생성자 관련 : 매개변수가 없는 기본적인 생성자를 생성함
     // 명시적인 생성자가 있는게 나은데, 자식 버프에서 Base를 받아서 다시 써야 하는 점 등이 지저분한 것 같아서
     // 생성자는 자식에 배치해둠. SourceSkill 같은 요소를 필요로 한다면, 필요로 하는 곳에서만 생성한다.
 
@@ -49,8 +49,8 @@ public abstract class Buff
         PlayVFX();
     }
 
-    // 버프 제거 시에 호출
-    // UnitEntity.RemoveBuff : 버프 리스트에서 버프를 제거한 뒤 OnRemove가 동작하는 방식
+    // 버프 제거 효과
+    // ActiveBuffs에서 빠질 때 수동으로 실행시킴 - 버프가 제거되는 효과 구현
     public virtual void OnRemove()
     {
         if (isBeingRemoved) return;
@@ -59,18 +59,23 @@ public abstract class Buff
         // 재진입 방지 : 메서드 동작 중 재호출을 방지하기 위해, 구독 해제는 시작 지점에 넣어두는 게 좋다.
         owner.OnDeathAnimationCompleted -= HandleOwnerTermination;
         owner.OnDestroyed -= HandleOwnerTermination;
-    
+
         // 연결된 버프들이 있다면 우선 제거함
-        foreach (var buff in linkedBuffs.ToList())
-        {
-            owner.RemoveBuff(buff);
-        }
+        RemoveLinkedBuffs();
 
         // 이펙트 제거
         RemoveVFX();
 
         // 스킬의 후처리 콜백 호출
         OnRemovedCallback?.Invoke();
+    }
+
+    public void RemoveLinkedBuffs()
+    {
+        foreach (var buff in linkedBuffs.ToList())
+        {
+            owner.RemoveBuff(buff);
+        }
     }
 
     // 매 프레임마다 업데이트가 필요하면 호출

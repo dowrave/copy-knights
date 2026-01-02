@@ -15,7 +15,7 @@ public class EnemyData : ScriptableObject, ICombatData
     // EnemyData
     [SerializeField] protected AttackType attackType;
     [SerializeField] protected AttackRangeType attackRangeType;
-    [SerializeField] protected int blockCount = 1;
+    // [SerializeField] protected int blockCount = 1;
     [SerializeField] protected float defaultYPosition = 0.5f;
     [SerializeField] protected int playerDamage = 1; // 도착 지점에 도착했을 때 차감할 라이프 포인트 수
 
@@ -59,7 +59,7 @@ public class EnemyData : ScriptableObject, ICombatData
     // EnemyData 관련 프로퍼티
     public AttackType AttackType => attackType;
     public AttackRangeType AttackRangeType => attackRangeType;
-    public int BlockCount => blockCount;
+    // public int BlockCount => blockCount;
     public float DefaultYPosition => defaultYPosition;
     public int PlayerDamage => playerDamage;
     
@@ -131,6 +131,7 @@ public struct EnemyStats
     [SerializeField] private float _attackPower;
     [SerializeField] private float _attackSpeed;
     [SerializeField] private float _attackRange;
+    [SerializeField] private int _blockSize; // 자신이 차지하는 저지 수
 
     public UnitStats BaseStats
     {
@@ -160,6 +161,11 @@ public struct EnemyStats
     {
         get => _attackRange;
         set => _attackRange = value;
+    }
+    public int BlockSize
+    {
+        get => _blockSize;
+        set => _blockSize = value;
     }
 
     // Convenience properties for nested access

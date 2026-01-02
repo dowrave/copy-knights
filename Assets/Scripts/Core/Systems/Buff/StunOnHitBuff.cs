@@ -18,7 +18,7 @@ public class StunOnHitBuff : Buff
     {        
         if (Random.value <= stunChance) // x% 확률 = 랜덤값(0~1)이 확률보다 작다 로 구현
         {
-            if (target != null && target.HealthSystem.CurrentHealth > 0)
+            if (target != null && target.Health.CurrentHealth > 0)
             {
                 StunBuff stunBuff = new StunBuff(stunDuration);
                 target.AddBuff(stunBuff);

@@ -23,11 +23,6 @@ public class EnemyBoss : Enemy
     private HashSet<Operator> operatorsInSkillRange = new HashSet<Operator>();
     public IReadOnlyCollection<Operator> OperatorsInSkillRange => operatorsInSkillRange;
 
-    public override void SetPrefab()
-    {
-        prefab = _bossData.Prefab;
-    }
-
     public void Initialize(EnemyBossData bossData, PathData pathData)
     {
         base.Initialize(bossData, pathData);

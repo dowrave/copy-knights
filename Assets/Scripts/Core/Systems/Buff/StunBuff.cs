@@ -3,6 +3,7 @@ using UnityEngine;
 public class StunBuff : Buff
 {
     public override bool IsDebuff => true;
+    public override ActionRestriction Restriction => ActionRestriction.Stunned;
 
     public StunBuff(float duration)
     {
@@ -13,12 +14,12 @@ public class StunBuff : Buff
     public override void OnApply(UnitEntity owner, UnitEntity caster)
     {
         base.OnApply(owner, caster);
-        owner.AddRestriction(ActionRestriction.Stunned);
+        // owner.AddRestriction(ActionRestriction.Stunned);
     }
 
     public override void OnRemove()
     {
-        owner.RemoveRestriction(ActionRestriction.Stunned);
+        // owner.RemoveRestriction(ActionRestriction.Stunned);
         base.OnRemove();
     }
 }

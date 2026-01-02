@@ -14,12 +14,15 @@ public abstract class UnitEntity : MonoBehaviour, ITargettable, IFactionMember, 
     private UnitData _unitData;
     public UnitData UnitData => _unitData;
 
-    protected GameObject prefab;
-    public GameObject Prefab => prefab;
+    // 세부 컨트롤러
+    protected HealthController _health; 
+    protected StatController _stat;
+    protected BuffController _buff;
 
-    // 체력 시스템
-    protected HealthSystem _healthSystem; 
-    public HealthSystem HealthSystem { get; protected set; }
+    // 컨트롤러 프로퍼티
+    public IReadableHealthController Health => _health;
+    public IReadableStatController Stat => _stat;
+    public IReadableBuffController Buff => _buff; 
 
     // 이 개체를 공격하는 엔티티 목록
     protected List<ICombatEntity> attackingEntities = new List<ICombatEntity>();
@@ -46,8 +49,8 @@ public abstract class UnitEntity : MonoBehaviour, ITargettable, IFactionMember, 
     protected MaterialPropertyBlock propBlock; // 모든 렌더러에 재사용 가능
     
     // 버프 관련
-    protected List<Buff> activeBuffs = new List<Buff>();
-    public ActionRestriction Restrictions { get; private set; } = ActionRestriction.None;
+    // protected List<Buff> activeBuffs = new List<Buff>();
+    // public ActionRestriction Restrictions { get; private set; } = ActionRestriction.None;
 
     // ICrowdControlTarget 인터페이스 구현
     // public virtual 
@@ -68,7 +71,7 @@ public abstract class UnitEntity : MonoBehaviour, ITargettable, IFactionMember, 
     public string HitEffectTag => hitEffectTag;
 
     // 이벤트
-    public event Action<Buff, bool> OnBuffChanged = delegate { }; // onCrowdControlChanged 대체 
+    // public event Action<Buff, bool> OnBuffChanged = delegate { }; // onCrowdControlChanged 대체 
     public event Action<UnitEntity> OnDeathStarted = delegate { }; // 사망 판정 발생 시 발생하는 이벤트
     public event Action<UnitEntity> OnDeathAnimationCompleted = delegate { }; // 체력이 다해 죽었을 때 정상적인 이벤트 실행 
     public event Action<UnitEntity> OnDestroyed = delegate { }; // 어떤 경로로든 이 객체가 파괴될 때 실행, 위와 같이 쓰겠다면 중첩을 방지할 플래그를 쓰자.
@@ -78,11 +81,12 @@ public abstract class UnitEntity : MonoBehaviour, ITargettable, IFactionMember, 
         // 메쉬 색상 설정
         propBlock = new MaterialPropertyBlock();
 
-        // 시스템 생성
-        HealthSystem = new HealthSystem();
+        // 시스템 생성(껍데기만 생성)
+        _stat = new StatController();
+        _health = new HealthController(_stat);
 
         // 사망 로직 연결
-        HealthSystem.OnDeath += Die;
+        _health.OnDeath += Die;
 
         // 갖고 있는 렌더러들 설정
         if (renderers.Count == 0)
@@ -119,8 +123,6 @@ public abstract class UnitEntity : MonoBehaviour, ITargettable, IFactionMember, 
         // 콜라이더가 켜지는 시점은 자식 클래스들에서 수동으로 구현함
     }
 
-    public virtual void SetPrefab() { }
-
     public virtual void AddAttackingEntity(ICombatEntity attacker)
     {
         if (!attackingEntities.Contains(attacker))
@@ -131,20 +133,26 @@ public abstract class UnitEntity : MonoBehaviour, ITargettable, IFactionMember, 
 
     public virtual void Initialize()
     {
+        // SO 설정, 스탯 초기화(구현은 자식 클래스에서)
+        InitializeUnitData();
+
+        // 체력 초기화
+        _health.Initialize();
+
+        // 시각적 초기화
         InitializeVisuals();
+
+        // 추가 로직
+        OnInitialized();
     }
 
-    protected virtual void InitializeSystems(UnitData unitData)
-    {
-        _unitData = unitData;
-    }
+    // 해당 데이터 SO 할당 + _statContainer 초기화
+    protected abstract void InitializeUnitData();
+    protected virtual void OnInitialized() { } // 별도의 초기화 로직 
 
     protected virtual void Update()
     {
-        foreach (var buff in activeBuffs.ToArray())
-        {
-            buff.OnUpdate();
-        }
+        _buff.UpdateBuffs();
     }
 
     // 이 개체를 공격하는 적을 제거
@@ -222,11 +230,11 @@ public abstract class UnitEntity : MonoBehaviour, ITargettable, IFactionMember, 
 
     protected virtual void SetPoolTag() {}
 
-    protected abstract void InitializeHP();
+    // protected abstract void InitializeHP();
 
     public virtual void TakeHeal(AttackSource attackSource)
     {
-        float healAmount = HealthSystem.ProcessHeal(attackSource);
+        float healAmount = _health.ProcessHeal(attackSource);
 
         // 태그 값이 있다면
         if (!string.IsNullOrEmpty(attackSource.HitEffectTag))
@@ -281,70 +289,12 @@ public abstract class UnitEntity : MonoBehaviour, ITargettable, IFactionMember, 
         }
     }
 
-    public void AddBuff(Buff buff)
-    {
-        // 스턴의 경우 새로 걸리면 기존 스턴은 제거됨
-        if (buff is StunBuff stunBuff)
-        {
-            Buff existingStun = activeBuffs.FirstOrDefault(b => b is StunBuff);
-            if (existingStun != null)
-            {
-                RemoveBuff(existingStun);
-            }
-        }
-
-        activeBuffs.Add(buff);
-        buff.OnApply(this, buff.caster);
-        OnBuffChanged?.Invoke(buff, true); // 이벤트 호출 
-    }
-
-    public void RemoveBuff(Buff buff)
-    {
-        if (activeBuffs.Contains(buff))
-        {
-            buff.OnRemove(); // 만약 연결된 다른 버프들이 있다면 여기서 먼저 제거됨
-            if (activeBuffs.Remove(buff))
-            {
-                OnBuffChanged?.Invoke(buff, false);
-            }
-        }
-    }
-
-    // 버프 중복 적용 방지를 위한 버프 타입 헬퍼 메서드 추가
-    public bool HasBuff<T>() where T : Buff
-    {
-        return activeBuffs.Any(b => b is T);
-    }
-
-    public T? GetBuff<T>() where T : Buff
-    {
-        return activeBuffs.FirstOrDefault(b => b is T) as T;
-    }
-
-    protected virtual void RemoveAllBuffs()
-    {
-        foreach (var buff in activeBuffs.ToList())
-        {
-            RemoveBuff(buff);
-        }
-    }
-
-    public virtual void RemoveBuffFromSourceSkill(OperatorSkill sourceSkill)
-    {
-        var buffsToRemove = activeBuffs.Where(b => b.SourceSkill == sourceSkill).ToList();
-        foreach (var buff in activeBuffs.ToList())
-        {
-            RemoveBuff(buff);
-        }
-    }
-
-
     public virtual void TakeDamage(AttackSource source, bool playHitVFX = true)
     {
-        if (HealthSystem.CurrentHealth <= 0) return;
+        if (_health.CurrentHealth <= 0) return;
         
         // 대미지 계산
-        float damageTaken = HealthSystem.ProcessDamage(source);
+        float damageTaken = _health.ProcessDamage(source);
 
         // 피격 이펙트 - GetHit이 없더라도 피격당한 오브젝트의 반짝이는 효과
         // 나중에 모델 시스템에서 처리
@@ -379,20 +329,6 @@ public abstract class UnitEntity : MonoBehaviour, ITargettable, IFactionMember, 
     protected virtual void SetColliderState(bool enabled)
     {
         if (bodyColliderController != null) bodyColliderController.SetColliderState(enabled);
-    }
-
-    public void AddRestriction(ActionRestriction restirction)
-    {
-        Restrictions |= restirction; // 비트 OR 연산으로 플래그 추가
-    }
-
-    public void RemoveRestriction(ActionRestriction restirction)
-    {
-        Restrictions &= ~restirction; // AND, NOT 연산으로 플래그 제거
-    }
-    public bool HasRestriction(ActionRestriction restirction)
-    {
-        return (Restrictions & restirction) != 0; // 겹치는 비트가 있으면 true, 없으면 false.
     }
 
     // 해쉬 셋으로 받겠다는 약속이 있다면 굳이 인터페이스로 인풋을 받을 필요는 없다
@@ -446,10 +382,29 @@ public abstract class UnitEntity : MonoBehaviour, ITargettable, IFactionMember, 
     public virtual void OnBodyTriggerEnter(Collider other) { }
     public virtual void OnBodyTriggerExit(Collider other) {}
 
-    protected abstract float CalculateActualDamage(AttackType attacktype, float incomingDamage);
-    public void ActivateShield(float amount) => HealthSystem.ActivateShield(amount);
-    public void DeactivateShield() => HealthSystem.DeactivateShield();
-    public float GetCurrentShield() => HealthSystem.Shield.CurrentShield;
+    // 연결 메서드들
+    // Health
+    public float CurrentHealth => Health.CurrentHealth;
+    public float MaxHealth => Health.MaxHealth;
+    public void ActivateShield(float amount) => _health.ActivateShield(amount);
+    public void DeactivateShield() => _health.DeactivateShield();
+
+    // Stat
+    public float GetStat(StatType type) => Stat.GetStat(type); 
+    public void AddStatModifier(StatType type, float modifier) => _stat.AddModifier(type, modifier);
+    public void RemoveStatModifier(StatType type, float modifier) => _stat.RemoveModifier(type, modifier);
+    public void AddStatOverride(StatType type, float overrideValue) => _stat.SetOverride(type, overrideValue);
+    public void RemoveStatOverride(StatType type) => _stat.RemoveOverride(type);
+
+    // Buff
+    public IReadOnlyList<Buff> ActiveBuffs => Buff.ActiveBuffs; 
+    public bool HasBuff<T>() where T : Buff => Buff.HasBuff<T>();
+    public T? GetBuff<T>() where T : Buff => Buff.GetBuff<T>();
+    public bool HasRestriction(ActionRestriction restirction) => (Buff.Restrictions & restirction) != 0;
+    public void AddBuff(Buff buff) => _buff.AddBuff(buff);
+    public void RemoveBuff(Buff buff) => _buff.RemoveBuff(buff);
+    protected void RemoveAllBuffs() => _buff.RemoveAllBuffs();
+    public void RemoveBuffFromSourceSkill(OperatorSkill sourceSkill) => _buff.RemoveBuffFromSourceSkill(sourceSkill);
 
     protected virtual void OnDestroy()
     {

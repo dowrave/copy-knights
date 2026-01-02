@@ -78,6 +78,7 @@ public class OperatorData : ScriptableObject, ICombatData
     protected string _hitVFXTag;
     protected string _muzzleVFXTag;
 
+
     [System.Serializable]
     public class OperatorLevelStats
     {

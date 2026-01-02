@@ -23,7 +23,7 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity
     public override float AttackSpeed { get => currentStats.AttackSpeed; set => currentStats.AttackSpeed = value; }
     public AttackRangeType AttackRangeType => BaseData.AttackRangeType;
     public override float MovementSpeed { get => currentStats.MovementSpeed; }
-    public int BlockCount { get => BaseData.BlockCount; } // Enemy가 차지하는 저지 수, 저지 수 자체가 변하는 로직은 없으니 게터만 구현
+    public int BlockSize { get => currentStats.BlockSize; } // Enemy가 차지하는 저지 수, 저지 수 자체가 변하는 로직은 없으니 게터만 구현
     public float AttackCooldown { get; set; } // 다음 공격까지의 대기 시간
     public float AttackDuration { get; set; } // 공격 모션 시간. Animator가 추가될 때 수정 필요할 듯. 항상 Cooldown보다 짧아야 함.
 
@@ -48,6 +48,7 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity
     protected int _currentPathIndex;
     protected bool isWaiting = false; // 단순히 위치에서 기다리는 상태
     protected bool stopAttacking = false; // 인위적으로 넣은 공격 가능 / 불가능 상태
+    protected PathData initialPathData;
 
     public PathNavigator Navigator => navigator;
     public IReadOnlyList<Vector3> CurrentPathPositions => currentPathPositions;
@@ -168,16 +169,27 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity
             _enemyData = enemyData;
         }
 
-        SetPrefab();
-        currentStats = enemyData.Stats;
-
         if (pathData == null) Logger.LogError("pathData가 전달되지 않음");
-        
-        InitializeHP();
+
+        initialPathData = pathData; 
+
+        base.Initialize();
+    }
+
+    // base.Initialize 템플릿 메서드 1
+    protected override void InitializeUnitData()
+    {
+        // 데이터를 이용해 스탯 초기화
+        _stat.Initialize(_enemyData);
+    }
+
+    // base.Initialize 템플릿 메서드 2
+    protected override void OnInitialized()
+    {
         CreateEnemyBarUI();
         
         // navigator 초기화 및 경로 설정
-        navigator = new PathNavigator(this, pathData.Nodes);
+        navigator = new PathNavigator(this, initialPathData.Nodes);
         navigator.OnPathUpdated += HandlePathUpdated;
         navigator.Initialize(); // HandlePathUpdated에 의해 currentPath도 설정됨
         SetupInitialPosition();
@@ -191,10 +203,6 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity
         isInitialized = true;
     }
 
-    public override void SetPrefab()
-    {
-        prefab = _enemyData.Prefab;
-    }
 
     protected void OnEnable()
     {
@@ -415,7 +423,7 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity
         AttackType finalAttackType = AttackType;
         bool showDamagePopup = false;
 
-        foreach (var buff in activeBuffs)
+        foreach (var buff in ActiveBuffs)
         {
             buff.OnBeforeAttack(this, ref damage, ref finalAttackType, ref showDamagePopup);
         }
@@ -430,7 +438,7 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity
                 break;
         }
         
-        foreach (var buff in activeBuffs)
+        foreach (var buff in ActiveBuffs)
         {
             buff.OnAfterAttack(this, target);
         }
@@ -714,40 +722,9 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity
         }
     }
 
-    protected override void InitializeHP()
-    {
-        EnemyStats stat = BaseData.Stats;
-        
-        float health = stat.Health;
-        float def = stat.Defense;
-        float magicResist = stat.MagicResistance;
-
-        HealthSystem.Initialize(health, def, magicResist);
-    }
-
     public void UpdateBlockingOperator(Operator? op)
     {
         blockingOperator = op;
-    }
-
-    protected override float CalculateActualDamage(AttackType attacktype, float incomingDamage)
-    {
-        float actualDamage = 0; // 할당까지 필수
-
-        switch (attacktype)
-        {
-            case AttackType.Physical:
-                actualDamage = incomingDamage - currentStats.Defense;
-                break;
-            case AttackType.Magical:
-                actualDamage = incomingDamage * (1 - currentStats.MagicResistance / 100);
-                break;
-            case AttackType.True:
-                actualDamage = incomingDamage;
-                break;
-        }
-
-        return Mathf.Max(actualDamage, 0.05f * incomingDamage); // 들어온 대미지의 5%는 들어가게끔 보장
     }
 
     public override void OnBodyTriggerEnter(Collider other)

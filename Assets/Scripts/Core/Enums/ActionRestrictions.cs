@@ -13,6 +13,6 @@ public enum ActionRestriction
 
     CannotAttack = Stunned,
     CannotMove = Stunned, 
-    CannotUseSkill = Stunned, // 나중에 스턴을 거는 적을 추가해서, 오퍼레이터의 스킬을 사용할 수 없게 만드는 것도 재밌을 듯?
+    CannotUseSkill = Stunned, 
     CannotAction = Stunned, 
 }
