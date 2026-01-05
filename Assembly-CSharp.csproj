@@ -66,6 +66,7 @@
     <Compile Include="Assets\Scripts\UI\Components\SkillIconBox.cs" />
     <Compile Include="Assets\Scripts\Interfaces\IDeployable.cs" />
     <Compile Include="Assets\Scripts\Core\Systems\Skills\SkillController\Operator\ArcaneFieldController.cs" />
+    <Compile Include="Assets\Scripts\Interfaces\IReadableColliderController.cs" />
     <Compile Include="Assets\Scripts\Utils\OperatorIconHelper.cs" />
     <Compile Include="Assets\Scripts\SO_Scripts\TileData.cs" />
     <Compile Include="Assets\Scripts\UI\Components\GaugeBar\HealthBar.cs" />
@@ -100,6 +101,7 @@
     <Compile Include="Assets\Scripts\UI\Components\GaugeBar\SPBar.cs" />
     <Compile Include="Assets\Scripts\Core\Managers\StageScene\StageManager.cs" />
     <Compile Include="Assets\Scripts\Core\Class\ObjectPool.cs" />
+    <Compile Include="Assets\Scripts\Core\Systems\Class\UnitController\VisualController.cs" />
     <Compile Include="Assets\Scripts\Interfaces\ITargettable.cs" />
     <Compile Include="Assets\Scripts\Core\Systems\Skills\SkillController\Operator\LegacySlashSkillController.cs" />
     <Compile Include="Assets\Scripts\Entities\Enemy\EnemyBossSkillRangeController.cs" />
@@ -138,6 +140,7 @@
     <Compile Include="Assets\Scripts\Map\EnemySpawner.cs" />
     <Compile Include="Assets\Scripts\UI\Components\InGameTopButtonContainer.cs" />
     <Compile Include="Assets\Scripts\Core\Managers\StageScene\PathfindingManager.cs" />
+    <Compile Include="Assets\Scripts\Interfaces\IReadableVisualController.cs" />
     <Compile Include="Assets\Scripts\Core\Systems\PositionCalculationSystem.cs" />
     <Compile Include="Assets\Scripts\Entities\Enemy\Enemy.cs" />
     <Compile Include="Assets\Scripts\Utils\InstanceValidator.cs" />

@@ -64,6 +64,7 @@ public class DeployableManager : MonoBehaviour
 
     // 이벤트
     public event Action OnCurrentOperatorDeploymentCountChanged = delegate { };
+    public event Action<int> OnOperatorRetreat = delegate { }; 
 
      
     private void Awake()
@@ -396,12 +397,15 @@ public class DeployableManager : MonoBehaviour
         int cost = gameState.CurrentDeploymentCost;
 
         // 코스트 지불 가능 & 배치 가능 상태
+        // 실제 배치 진행
         if (StageManager.Instance!.TryUseDeploymentCost(cost) && gameState.OnDeploy(CurrentDeployableEntity!))
         {
             if (CurrentDeployableEntity is Operator op)
             {
                 op.Deploy(tile.transform.position);
                 op.SetDirection(placementDirection);
+
+                op.OnRetreat += HandleOperatorRetreat;
                 
                 CurrentOperatorDeploymentCount++;
                 if (CurrentDeployableBox != null)
@@ -422,6 +426,16 @@ public class DeployableManager : MonoBehaviour
         ResetPlacement();
         Time.timeScale = StageManager.Instance!.IsSpeedUp ? 2f : 1f;
         // GameManagement.Instance.TimeManager.UpdateTimeScale();
+    }
+
+    private void HandleOperatorRetreat(DeployableUnitEntity deployable)
+    {
+        // Operator 퇴각 시에만 최초 배치 코스트의 절반 회복
+        if (deployable is Operator op)
+        {
+            int recoverCost = (int)Mathf.Round(op.InitialDeploymentCost / 2f);
+            OnOperatorRetreat?.Invoke(recoverCost);
+        }
     }
     
     private void UpdateDeployableUI(DeployableInfo info)
@@ -504,22 +518,25 @@ public class DeployableManager : MonoBehaviour
 
         ResetHighlights();
 
-        // 박스 재생성. 전투 중일 때에만 동작
+        // 상태 처리 및 박스 재생성
         if (StageManager.Instance != null && StageManager.Instance.CurrentGameState == GameState.Battle)
         {
+            // 상태 처리
             DeployableInfo? info;
             if (deployable is Operator op)
             {
                 CurrentOperatorDeploymentCount--;
                 InstanceValidator.ValidateInstance(op.OperatorData);
+                op.OnRetreat -= HandleOperatorRetreat;
                 info = GetDeployableInfoByName(op.OperatorData?.EntityID!);
             }
             else
             {
-                InstanceValidator.ValidateInstance(deployable.DeployableUnitData);
-                info = GetDeployableInfoByName(deployable.DeployableUnitData.EntityID!);
+                InstanceValidator.ValidateInstance(deployable.DeployableData);
+                info = GetDeployableInfoByName(deployable.DeployableData.EntityID!);
             }
 
+            // 박스 재생성
             if (info != null && unitStates.TryGetValue(info, out var unitState))
             {
                 unitState.OnRemoved(); // 제거 시점에 상태 업데이트

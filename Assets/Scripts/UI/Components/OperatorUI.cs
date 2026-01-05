@@ -45,6 +45,8 @@ public class OperatorUI : MonoBehaviour
         {
             transform.LookAt(transform.position + mainCamera.transform.rotation * Vector3.forward, mainCamera.transform.rotation * Vector3.up);
         }
+
+        Logger.Log("OperatorUI √ ±‚»≠µ ");
     }
 
     private void SubscribeEvents()

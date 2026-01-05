@@ -17,17 +17,25 @@ public class Barricade : DeployableUnitEntity
         OnBarricadeDeployed?.Invoke(this);
     }
 
-    public override void Retreat()
+    // Despawn에 들어가는 템플릿 메서드
+    protected override void HandleBeforeDisabled()
     {
-        UndeployBarricade();
-        base.Retreat();
+        CurrentTile!.ToggleWalkable(true); // 현재 타일 이동 가능으로 변경
+        PathfindingManager.Instance!.RemoveBarricade(this); // 바리케이드 리스트에서 제거
+        OnBarricadeRemoved?.Invoke(this); // 제거 이벤트 발생
     }
 
-    protected override void Die()
-    {
-        UndeployBarricade();
-        base.Die();
-    }
+    // public override void Retreat()
+    // {
+    //     UndeployBarricade();
+    //     base.Despawn(DeployableDespawnReason.Retreat);
+    // }
+
+    // protected override void Die()
+    // {
+    //     UndeployBarricade();
+    //     base.Despawn(DeployableDespawnReason.Defeated);
+    // }
 
     private void UndeployBarricade()
     {

@@ -2,7 +2,7 @@ using UnityEngine;
 
 // UnitEntity의 자식 오브젝트로 오며, 본체 콜라이더 충돌 이벤트를 처리 후 부모에게 전달한다.
 [RequireComponent(typeof(Collider))]
-public class BodyColliderController : MonoBehaviour
+public class BodyColliderController : MonoBehaviour, IReadableColliderController
 {
     [SerializeField] private UnitEntity owner;
     [SerializeField] private Collider bodyCollider;

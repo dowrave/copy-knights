@@ -324,7 +324,7 @@ public class Tile : MonoBehaviour
     }
 
     // 적 사망 이벤트를 받아 실행
-    private void HandleEnemyDespawn(Enemy enemy, DespawnReason reason)
+    private void HandleEnemyDespawn(Enemy enemy, EnemyDespawnReason reason)
     {
         // 타일 위에 적이 있다면 제거
         if (enemiesOnTile.Contains(enemy))

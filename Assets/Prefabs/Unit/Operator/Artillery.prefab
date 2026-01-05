@@ -126,6 +126,7 @@ GameObject:
   - component: {fileID: 517033730910062632}
   - component: {fileID: -8974212629013193790}
   - component: {fileID: -338899371214075804}
+  - component: {fileID: 4052561516546837355}
   m_Layer: 6
   m_Name: Artillery
   m_TagString: Untagged
@@ -164,29 +165,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   bodyColliderController: {fileID: 8171197615734996694}
-  renderers:
-  - {fileID: 5031761690942785426}
+  _visual: {fileID: 4052561516546837355}
   _deployableData: {fileID: 0}
-  currentDeployableStats:
-    _baseStats:
-      _health: 0
-      _defense: 0
-      _magicResistance: 0
-    _deploymentCost: 0
-    _redeployTime: 0
   _operatorData: {fileID: 11400000, guid: 963d80d939117e544ab6c4ce4ee994e7, type: 2}
-  currentOperatorStats:
-    _deployableUnitStats:
-      _baseStats:
-        _health: 0
-        _defense: 0
-        _magicResistance: 0
-      _deploymentCost: 0
-      _redeployTime: 0
-    _attackPower: 0
-    _attackSpeed: 0
-    _maxBlockableEnemies: 0
-    _spRecoveryRate: 0
 --- !u!54 &-8974212629013193790
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -232,6 +213,23 @@ MonoBehaviour:
   unitLayer:
     serializedVersion: 2
     m_Bits: 64
+--- !u!114 &4052561516546837355
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4844663318455565301}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7a063c9d1fd294849af3ec8d3e61baed, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::VisualController
+  renderers:
+  - {fileID: 5031761690942785426}
+  flashDuration: 0.15
+  flashColor: {r: 0.3, g: 0.3, b: 0.3, a: 1}
+  fadeDuration: 0.3
 --- !u!1 &7198718212583059902
 GameObject:
   m_ObjectHideFlags: 0

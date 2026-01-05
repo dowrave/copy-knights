@@ -360,6 +360,7 @@ GameObject:
   - component: {fileID: 7065728635563423566}
   - component: {fileID: 2337508774134568903}
   - component: {fileID: 2318021049949007983}
+  - component: {fileID: 9090589522510846774}
   m_Layer: 0
   m_Name: Enemy_Boss
   m_TagString: Untagged
@@ -426,8 +427,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   bodyColliderController: {fileID: 758498809095223509}
-  renderers:
-  - {fileID: 1295280524214356052}
+  _visual: {fileID: 9090589522510846774}
   _enemyData: {fileID: 0}
   enemyBarUIPrefab: {fileID: 4850112300594543659, guid: f855a11e7f642eb4481495480ef1a6e8, type: 3}
   modelContainer: {fileID: 879292670743782935}
@@ -452,3 +452,20 @@ MonoBehaviour:
   unitLayer:
     serializedVersion: 2
     m_Bits: 64
+--- !u!114 &9090589522510846774
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6542749020257112806}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7a063c9d1fd294849af3ec8d3e61baed, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::VisualController
+  renderers:
+  - {fileID: 1295280524214356052}
+  flashDuration: 0.15
+  flashColor: {r: 0.3, g: 0.3, b: 0.3, a: 1}
+  fadeDuration: 0.3

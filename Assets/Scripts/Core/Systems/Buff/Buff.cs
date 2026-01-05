@@ -57,8 +57,7 @@ public abstract class Buff
         isBeingRemoved = true;
 
         // 재진입 방지 : 메서드 동작 중 재호출을 방지하기 위해, 구독 해제는 시작 지점에 넣어두는 게 좋다.
-        owner.OnDeathAnimationCompleted -= HandleOwnerTermination;
-        owner.OnDestroyed -= HandleOwnerTermination;
+        owner.OnDisabled -= HandleOwnerTermination;
 
         // 연결된 버프들이 있다면 우선 제거함
         RemoveLinkedBuffs();
@@ -139,8 +138,7 @@ public abstract class Buff
                 }
             }
 
-            owner.OnDeathAnimationCompleted += HandleOwnerTermination;
-            owner.OnDestroyed += HandleOwnerTermination;
+            owner.OnDisabled += HandleOwnerTermination;
         }
     }
 

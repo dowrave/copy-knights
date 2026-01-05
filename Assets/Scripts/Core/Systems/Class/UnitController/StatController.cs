@@ -25,12 +25,13 @@ public class StatController: IReadableStatController
         
     }
 
-    // 초기화 - OperatorData
-    public void Initialize(OperatorData data)
+    // Operator에 관한 초기화 
+    // 성장 상태 반영을 위해 OwnedOperator를 사용해야 함
+    public void Initialize(OwnedOperator ownedOp)
     {
         _baseStats.Clear();
 
-        var stats = data.Stats;
+        var stats = ownedOp.CurrentStats;
 
         // 스탯들 초기화
         _baseStats[StatType.MaxHP] = stats.Health;
@@ -43,6 +44,8 @@ public class StatController: IReadableStatController
         _baseStats[StatType.MaxBlockCount] = stats.MaxBlockableEnemies;
         _baseStats[StatType.SPRecoveryRate] = stats.SPRecoveryRate;
     }
+
+
 
     // 초기화 - EnemyData
     public void Initialize(EnemyData data)

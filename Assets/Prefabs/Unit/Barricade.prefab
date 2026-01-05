@@ -130,6 +130,8 @@ MeshRenderer:
   m_RayTracingAccelStructBuildFlagsOverride: 0
   m_RayTracingAccelStructBuildFlags: 1
   m_SmallMeshCulling: 1
+  m_ForceMeshLod: -1
+  m_MeshLodSelectionBias: 0
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
@@ -151,9 +153,11 @@ MeshRenderer:
   m_AutoUVMaxDistance: 0.5
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
+  m_GlobalIlluminationMeshLod: 0
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
+  m_MaskInteraction: 0
   m_AdditionalVertexStreams: {fileID: 0}
 --- !u!65 &6961201887809511069
 BoxCollider:
@@ -186,6 +190,7 @@ GameObject:
   m_Component:
   - component: {fileID: 7183615870341140274}
   - component: {fileID: 9179080492805884671}
+  - component: {fileID: 5883353096667241952}
   m_Layer: 6
   m_Name: Barricade
   m_TagString: Untagged
@@ -223,13 +228,22 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   bodyColliderController: {fileID: 7522053545672304391}
+  _visual: {fileID: 5883353096667241952}
+  _deployableData: {fileID: 11400000, guid: 137922d0524493444ba9997d212523d8, type: 2}
+--- !u!114 &5883353096667241952
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8875430263191699086}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7a063c9d1fd294849af3ec8d3e61baed, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::VisualController
   renderers:
   - {fileID: 3195876115066254217}
-  _deployableData: {fileID: 11400000, guid: 137922d0524493444ba9997d212523d8, type: 2}
-  currentDeployableStats:
-    _baseStats:
-      _health: 0
-      _defense: 0
-      _magicResistance: 0
-    _deploymentCost: 0
-    _redeployTime: 0
+  flashDuration: 0.15
+  flashColor: {r: 0.3, g: 0.3, b: 0.3, a: 1}
+  fadeDuration: 0.3

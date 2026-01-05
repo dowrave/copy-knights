@@ -189,6 +189,8 @@ public class StageManager : MonoBehaviour
             // StageLoader에서 스테이지 시작을 처리함
             return;
         }
+
+        DeployableManager.Instance!.OnOperatorRetreat += RecoverDeploymentCost;
     }
 
     private void Update()
@@ -391,14 +393,14 @@ public class StageManager : MonoBehaviour
         return false; 
     }
 
-    private void HandleEnemyDespawned(Enemy enemy, DespawnReason reason)
+    private void HandleEnemyDespawned(Enemy enemy, EnemyDespawnReason reason)
     {
         switch (reason)
         {
-            case DespawnReason.Defeated:
+            case EnemyDespawnReason.Defeated:
                 OnEnemyDefeated(enemy);
                 break;
-            case DespawnReason.ReachedGoal:
+            case EnemyDespawnReason.ReachedGoal:
                 OnEnemyReachDestination(enemy);
                 break;
             default:
@@ -772,6 +774,7 @@ public class StageManager : MonoBehaviour
 
     private void OnDestroy()
     {
+        DeployableManager.Instance!.OnOperatorRetreat -= RecoverDeploymentCost;
         Enemy.OnEnemyDespawned -= HandleEnemyDespawned;
         OnGameEnded -= ClearStageObjectPools;
     }

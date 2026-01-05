@@ -4,7 +4,7 @@ using System.Linq;
 using UnityEngine;
 using System;
 
-public enum DespawnReason
+public enum EnemyDespawnReason
 {
     Null, // 디폴트
     Defeated, // 처치됨
@@ -18,26 +18,17 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity
 
     protected EnemyStats currentStats;
 
-    public override AttackType AttackType => BaseData.AttackType;
-    public override float AttackPower { get => currentStats.AttackPower; set => currentStats.AttackPower = value; }
-    public override float AttackSpeed { get => currentStats.AttackSpeed; set => currentStats.AttackSpeed = value; }
+    // 수정 필요할지도?
+    public override AttackType AttackType => BaseData.AttackType; // 수정 필요
     public AttackRangeType AttackRangeType => BaseData.AttackRangeType;
-    public override float MovementSpeed { get => currentStats.MovementSpeed; }
-    public int BlockSize { get => currentStats.BlockSize; } // Enemy가 차지하는 저지 수, 저지 수 자체가 변하는 로직은 없으니 게터만 구현
     public float AttackCooldown { get; set; } // 다음 공격까지의 대기 시간
     public float AttackDuration { get; set; } // 공격 모션 시간. Animator가 추가될 때 수정 필요할 듯. 항상 Cooldown보다 짧아야 함.
 
-    public float AttackRange
-    {
-        get
-        {
-            return BaseData.AttackRangeType == AttackRangeType.Melee ? 0f : currentStats.AttackRange;
-        }
-        protected set
-        {
-            currentStats.AttackRange = value;
-        }
-    }
+    public override float AttackPower { get => Stat.GetStat(StatType.AttackPower);}
+    public override float AttackSpeed { get => Stat.GetStat(StatType.AttackSpeed);}
+    public float MovementSpeed { get => Stat.GetStat(StatType.MovementSpeed); }
+    public int BlockSize { get => (int)Stat.GetStat(StatType.BlockSize); } // Enemy가 차지하는 저지 수, 저지 수 자체가 변하는 로직은 없으니 게터만 구현
+    public float AttackRange { get => BaseData.AttackRangeType == AttackRangeType.Melee ? 0f : Stat.GetStat(StatType.AttackRange); }
 
     // 경로 관련
     protected PathNavigator navigator;
@@ -48,7 +39,7 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity
     protected int _currentPathIndex;
     protected bool isWaiting = false; // 단순히 위치에서 기다리는 상태
     protected bool stopAttacking = false; // 인위적으로 넣은 공격 가능 / 불가능 상태
-    protected PathData initialPathData;
+    protected PathData _pathData;
 
     public PathNavigator Navigator => navigator;
     public IReadOnlyList<Vector3> CurrentPathPositions => currentPathPositions;
@@ -116,13 +107,13 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity
     // ICrowdControlTarget
     public Vector3 Position => transform.position;
 
-    protected DespawnReason currentDespawnReason = DespawnReason.Null;
+    protected EnemyDespawnReason currentEnemyDespawnReason = EnemyDespawnReason.Null;
 
     protected bool isInitialized = false;
 
     // 스태틱 이벤트 테스트
     // public static event Action<Enemy> OnEnemyDestroyed; // 죽는 상황 + 목적지에 도달해서 사라지는 상황 모두 포함
-    public static event Action<Enemy, DespawnReason> OnEnemyDespawned = delegate { };
+    public static event Action<Enemy, EnemyDespawnReason> OnEnemyDespawned = delegate { };
 
     protected override void Awake()
     {
@@ -145,7 +136,7 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity
 
     protected virtual void Start()
     {
-        AssignColorToRenderers(_enemyData.PrimaryColor, _enemyData.SecondaryColor);
+        _visual.AssignColorToRenderers(_enemyData.PrimaryColor, _enemyData.SecondaryColor);
     }
 
     // 모델 회전 관련 로직을 쓸 일이 Enemy 뿐이라 여기에 구현해놓음.
@@ -162,6 +153,7 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity
         PoolTag = _enemyData.UnitTag;
     }
 
+    // Enemy를 위한 Initialize Wrapper
     public virtual void Initialize(EnemyData enemyData, PathData pathData)
     {
         if (_enemyData == null)
@@ -171,25 +163,33 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity
 
         if (pathData == null) Logger.LogError("pathData가 전달되지 않음");
 
-        initialPathData = pathData; 
+        _pathData = pathData; 
 
+        // UnitEntity.Initialize
         base.Initialize();
     }
 
-    // base.Initialize 템플릿 메서드 1
-    protected override void InitializeUnitData()
+    // base.Initialize에서 실행되는 템플릿 메서드 1
+    protected override void ApplyUnitData()
     {
-        // 데이터를 이용해 스탯 초기화
-        _stat.Initialize(_enemyData);
+        // 스탯 시스템 초기화
+        _stat.Initialize(_enemyData); 
+        _health.Initialize();
     }
 
-    // base.Initialize 템플릿 메서드 2
+    // InitializeVisual 관련 템플릿 메서드
+    protected override void SpecificVisualLogic()
+    {
+        _visual.AssignColorToRenderers(_enemyData.PrimaryColor, _enemyData.SecondaryColor);
+    }
+
+    // base.Initialize 템플릿 메서드 3
     protected override void OnInitialized()
     {
         CreateEnemyBarUI();
         
         // navigator 초기화 및 경로 설정
-        navigator = new PathNavigator(this, initialPathData.Nodes);
+        navigator = new PathNavigator(this, _pathData.Nodes);
         navigator.OnPathUpdated += HandlePathUpdated;
         navigator.Initialize(); // HandlePathUpdated에 의해 currentPath도 설정됨
         SetupInitialPosition();
@@ -199,6 +199,9 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity
 
         // 스킬 설정 
         SetSkills();
+
+        // 재사용할 일이 없어보이긴 하지만 일단 초기화에서도 구현 
+        currentEnemyDespawnReason = EnemyDespawnReason.Null;
 
         isInitialized = true;
     }
@@ -250,7 +253,7 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity
     {
         // update 동작 조건 : 전투 중 & 디스폰되지 않음 && 초기화됨 
         bool updateCondition = StageManager.Instance!.CurrentGameState == GameState.Battle && 
-                currentDespawnReason == DespawnReason.Null && 
+                currentEnemyDespawnReason == EnemyDespawnReason.Null && 
                 isInitialized;
 
         if (updateCondition)
@@ -261,8 +264,7 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity
 
             if (HasRestriction(ActionRestriction.CannotAction)) return;
 
-            // 판단하고 행동하는 로직을 가상 메서드로 분리, 자식 클래스에서 별개로 구현할 수 있도록 함
-            // 이를 템플릿 메서드 패턴이라고 한다.
+            // 이동, 공격 등 상황에 따른 판단
             DecideAndPerformAction();
         }
     }
@@ -325,7 +327,7 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity
 
         if (CheckIfReachedDestination())
         {
-            ReachDestination();
+            Despawn(EnemyDespawnReason.ReachedGoal);
             return;
         }
 
@@ -338,7 +340,7 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity
             // 목적지 도달
             if (Vector3.Distance(transform.position, navigator.FinalDestination) < 0.05f)
             {
-                ReachDestination();
+                Despawn(EnemyDespawnReason.ReachedGoal);
             }
             // 기다려야 하는 경우
             else if (currentPathNodes[CurrentPathIndex].waitTime > 0)
@@ -483,44 +485,35 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity
         }
     }
 
+    protected override void HandleOnDeath()
+    {
+        Despawn(EnemyDespawnReason.Defeated);
+    }
+
     protected bool IsTargetInRange(UnitEntity target)
     {
         return Vector3.Distance(target.transform.position, transform.position) <= AttackRange;
     }
 
     // 사라지는 로직 관리
-    protected void Despawn()
-    {
+    protected void Despawn(EnemyDespawnReason reason)
+    {        
+        // 예외 처리
+        if (currentEnemyDespawnReason != EnemyDespawnReason.Null) return;
+
+        currentEnemyDespawnReason = reason;
+
         // UI 제거
         if (enemyBarUI != null)
         {
             enemyBarUI.gameObject.SetActive(false);
-            // Destroy(enemyBarUI.gameObject);
         }
 
-        // 킬 카운트 / 도착 등은 바로 동작
-        OnEnemyDespawned?.Invoke(this, currentDespawnReason);
+        // 디스폰 이유 파라미터를 포함하는 이벤트 발생
+        OnEnemyDespawned?.Invoke(this, currentEnemyDespawnReason);
 
-        PlayDeathAnimation(); // 내부 이벤트 발생으로 인해 HandleDeathAnimationCompleted도 실행됨.
-    }
-
-    protected override void Die()
-    {
-        // 이미 처리 중인지 확인
-        if (currentDespawnReason != DespawnReason.Null) return;
-
-        // 사망 이벤트 처리
-        currentDespawnReason = DespawnReason.Defeated;
-        Despawn();
-    }
-
-    protected void ReachDestination()
-    {
-        // 이미 처리 중인지 확인
-        if (currentDespawnReason != DespawnReason.Null) return;
-
-        currentDespawnReason = DespawnReason.ReachedGoal;
-        Despawn();
+        // 사망 처리
+        DieWithAnimation(); 
     }
 
     protected override void OnDamageTaken(UnitEntity attacker, float actualDamage)
@@ -713,8 +706,8 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity
     {
         if (enemyBarUIPrefab != null)
         {
-            GameObject uiObject = Instantiate(enemyBarUIPrefab, transform);
-            enemyBarUI = uiObject.GetComponentInChildren<EnemyBarUI>();
+            GameObject enemyBarInstance = Instantiate(enemyBarUIPrefab, transform);
+            enemyBarUI = enemyBarInstance.GetComponentInChildren<EnemyBarUI>();
             if (enemyBarUI != null)
             {
                 enemyBarUI.Initialize(this);
@@ -745,11 +738,6 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity
             tile.EnemyExited(this);
             contactedTiles.Remove(tile);
         }
-    }
-
-    public override void SetMovementSpeed(float newSpeed)
-    {
-        currentStats.MovementSpeed = newSpeed;
     }
 
     // 모델을 이동 방향으로 회전시킴

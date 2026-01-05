@@ -2,18 +2,25 @@
 using UnityEngine;
 using System;
 
+public enum DeployableDespawnReason
+{
+    Null, // 디폴트
+    Defeated, // 처치됨
+    Retreat // 퇴각
+}
+
 public abstract class DeployableUnitEntity : UnitEntity, IDeployable
 {
     public DeployableInfo DeployableInfo { get; protected set; } = default!;
 
     [SerializeField] protected DeployableUnitData _deployableData;
-    public DeployableUnitData DeployableUnitData => _deployableData;
+    public DeployableUnitData DeployableData => _deployableData;
 
-    [HideInInspector]
-    public DeployableUnitStats currentDeployableStats;
+    // [HideInInspector]
+    // public DeployableUnitStats currentDeployableStats;
 
     public bool IsDeployed { get; protected set; }
-    public int InitialDeploymentCost { get; protected set; } 
+    public int InitialDeploymentCost { get => (int)Stat.GetStat(StatType.DeploymentCost); }
 
     protected bool isPreviewMode = false;
     public bool IsPreviewMode
@@ -34,6 +41,7 @@ public abstract class DeployableUnitEntity : UnitEntity, IDeployable
 
     public static event Action<DeployableUnitEntity> OnDeployed = delegate { };
     public static event Action<DeployableUnitEntity> OnDeployableDied = delegate { };
+    public event Action<DeployableUnitEntity> OnRetreat = delegate { };
 
     protected override void Awake()
     {
@@ -42,20 +50,9 @@ public abstract class DeployableUnitEntity : UnitEntity, IDeployable
         base.Awake();
     }
 
-    protected virtual void Start()
-    {
-        AssignColorToRenderers(DeployableUnitData.PrimaryColor, DeployableUnitData.SecondaryColor);
-    }
-
-    public void Initialize(DeployableInfo deployableInfo)
+    public virtual void Initialize(DeployableInfo deployableInfo)
     {
         DeployableInfo = deployableInfo;
-        base.Initialize();
-    }
-
-    // base.Initialize 템플릿 메서드 1
-    protected override void InitializeUnitData()
-    {
         if (_deployableData == null)
         {
             if (DeployableInfo.deployableUnitData == null)
@@ -69,25 +66,35 @@ public abstract class DeployableUnitEntity : UnitEntity, IDeployable
             }
         }
 
-        // 데이터를 이용해 스탯 초기화
-        _stat.Initialize(_deployableData);
+        base.Initialize();
     }
 
-    // base.Initialize 템플릿 메서드 2
+    // base.Initialize 템플릿 메서드 1
+    protected override void ApplyUnitData()
+    {
+        // 데이터를 이용해 스탯 초기화
+        _stat.Initialize(_deployableData);
+        _health.Initialize();
+    }
+
+    // InitializeVisual 관련 템플릿 메서드
+    protected override void SpecificVisualLogic()
+    {
+        _visual.AssignColorToRenderers(DeployableData.PrimaryColor, DeployableData.SecondaryColor);
+    }
+
+    // base.Initialize 템플릿 메서드 3
     protected override void OnInitialized()
     {
         PoolTag = _deployableData.UnitTag;
 
-        InitializeDeployableProperties();
+        // 배치 상태 관련
+        SetDeployState(false); // Initialize에서는 배치되지 않은 상태로 초기화됨
+        // InitialDeploymentCost = currentDeployableStats.DeploymentCost;
+
         UpdateCurrentTile();
     }
 
-
-    protected virtual void InitializeDeployableProperties()
-    {
-        SetDeployState(false);
-        InitialDeploymentCost = currentDeployableStats.DeploymentCost;
-    }
 
     public virtual void Deploy(Vector3 position)
     {
@@ -101,7 +108,7 @@ public abstract class DeployableUnitEntity : UnitEntity, IDeployable
                 CurrentTile.SetOccupied(this);
             }
             SetPosition(position);
-            // InitializeHP();
+
             lastDeployTime = Time.time;
 
             OnDeployed?.Invoke(this);
@@ -123,7 +130,7 @@ public abstract class DeployableUnitEntity : UnitEntity, IDeployable
         }
     }
 
-    protected virtual void Undeploy()
+    protected void Undeploy()
     {
         IsDeployed = false;
         DeployableInfo.deployedDeployable = null;
@@ -135,33 +142,39 @@ public abstract class DeployableUnitEntity : UnitEntity, IDeployable
         }
     }
 
-    public virtual void Retreat()
+    // 체력이 0 이하가 된 상황
+    protected override void HandleOnDeath()
     {
-        Debug.Log("DeployableUnitEntity의 Retreat 동작");
+        Despawn(DeployableDespawnReason.Defeated);
+    }
 
-        if (IsDeployed)
+    public void Despawn(DeployableDespawnReason reason)
+    {
+        if (reason == DeployableDespawnReason.Null) return;
+        if (!IsDeployed) return; // 현재 배치되지 않았으면 Despawn되지 않음
+
+        HandleBeforeDisabled(); 
+        Undeploy();
+
+        if (reason == DeployableDespawnReason.Retreat)
         {
-            Debug.Log("DeployableUnitEntity의 Retreat 동작, IsDeployed : true");
-            Undeploy();
-            base.DieInstantly();
+            OnRetreat?.Invoke(this);
+            DieInstantly();
+        }
+        else if (reason == DeployableDespawnReason.Defeated)
+        {
+            DieWithAnimation();
         }
     }
 
-    protected override void Die()
-    {
-        if (IsDeployed)
-        {
-            Undeploy();
-            base.Die();
-        }
-    }
+    protected virtual void HandleBeforeDisabled() { }
 
     public virtual bool CanDeployOnTile(Tile tile)
     {
         if (IsInvalidTile(tile)) return false;
 
-        if (tile.TileData.Terrain == TileData.TerrainType.Ground && DeployableUnitData.CanDeployOnGround) return true;
-        if (tile.TileData.Terrain == TileData.TerrainType.Hill && DeployableUnitData.CanDeployOnHill) return true;
+        if (tile.TileData.Terrain == TileData.TerrainType.Ground && DeployableData.CanDeployOnGround) return true;
+        if (tile.TileData.Terrain == TileData.TerrainType.Hill && DeployableData.CanDeployOnHill) return true;
 
         return false;
     }

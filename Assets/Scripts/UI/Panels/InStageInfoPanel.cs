@@ -149,10 +149,10 @@ public class InStageInfoPanel : MonoBehaviour
             if (currentOperator != null)
             {
                 UpdateHealthText(currentOperator.Health.CurrentHealth, currentOperator.Health.MaxHealth);
-                attackText.text = $"공격력: {Mathf.FloorToInt(currentOperator.currentOperatorStats.AttackPower)}";
-                defenseText.text = $"방어력: {Mathf.FloorToInt(currentOperator.currentOperatorStats.Defense)}";
-                magicResistanceText.text = $"마법저항력: {Mathf.FloorToInt(currentOperator.currentOperatorStats.MagicResistance)}";
-                blockCountText.text = $"저지수: {Mathf.FloorToInt(currentOperator.currentOperatorStats.MaxBlockableEnemies)}";
+                attackText.text = $"공격력: {Mathf.FloorToInt(currentOperator.AttackPower)}";
+                defenseText.text = $"방어력: {Mathf.FloorToInt(currentOperator.Defense)}";
+                magicResistanceText.text = $"마법저항력: {Mathf.FloorToInt(currentOperator.MagicResistance)}";
+                blockCountText.text = $"저지수: {Mathf.FloorToInt(currentOperator.MaxBlockableEnemies)}";
 
                 // 이벤트 구독
                 currentOperator.Health.OnHealthChanged += UpdateHealthText;
@@ -161,6 +161,8 @@ public class InStageInfoPanel : MonoBehaviour
         }
         else
         {
+            // Box에 있는 정보를 가져옴 
+            
             OperatorStats ownedOperatorStats = currentDeployableInfo.ownedOperator!.CurrentStats;
 
             float initialHealth = ownedOperatorStats.Health;

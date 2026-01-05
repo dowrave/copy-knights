@@ -23,9 +23,40 @@ public class EnemyBoss : Enemy
     private HashSet<Operator> operatorsInSkillRange = new HashSet<Operator>();
     public IReadOnlyCollection<Operator> OperatorsInSkillRange => operatorsInSkillRange;
 
+
     public void Initialize(EnemyBossData bossData, PathData pathData)
     {
-        base.Initialize(bossData, pathData);
+        if (_bossData == null)
+        {
+            _bossData = bossData;
+        }
+
+        if (pathData == null) Logger.LogError("pathData가 전달되지 않음");
+
+        _pathData = pathData; 
+
+        skillRangeController.Initialize(this);
+    }
+
+    // base.Initialize 템플릿 메서드 1
+    protected override void ApplyUnitData()
+    {
+        if (_bossData == null)
+        {
+            // SerializeField에 할당되어 있지 않다면 오류 발생
+            Logger.LogError($"{gameObject.name}의 EnemyData가 할당되지 않음");
+            return;
+        }
+
+        // 데이터를 이용해 스탯 초기화
+        _stat.Initialize(_bossData);
+    }
+
+    // base.Initialize 템플릿 메서드 2
+    protected override void OnInitialized()
+    {
+        // Enemy.OnInitialized
+        base.OnInitialized();
 
         skillRangeController.Initialize(this);
     }
@@ -143,12 +174,6 @@ public class EnemyBoss : Enemy
             operatorsInSkillRange.Remove(op);
         }
     }
-    // 연결 구현
-    public override void Initialize(EnemyData enemyData, PathData pathData)
-    {
-        if (enemyData is EnemyBossData bossData)
-        {
-            Initialize(bossData, pathData);
-        }
-    }
+
+
 }

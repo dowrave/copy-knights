@@ -4,15 +4,15 @@ using System.Linq;
 using UnityEngine;
 using UnityEngine.VFX;
 using Skills.Base;
-using static ICombatEntity;
 using Unity.VisualScripting;
+
 
 public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
 {
     [SerializeField] protected OperatorData _operatorData;
     public OperatorData OperatorData => _operatorData;
-    [HideInInspector] 
-    public OperatorStats currentOperatorStats; // 일단 public으로 구현
+    // [HideInInspector] 
+    // public OperatorStats currentOperatorStats; // 일단 public으로 구현
     // [SerializeField] protected GameObject operatorUIPrefab = default!;
 
     public OwnedOperator OwnedOp {get; protected set;} 
@@ -29,69 +29,14 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
     }
     public AttackRangeType AttackRangeType => OperatorData.AttackRangeType;
 
-    public override float AttackPower
-    {
-        get => currentOperatorStats.AttackPower;
-        set
-        {
-            if (currentOperatorStats.AttackPower != value)
-            {
-                currentOperatorStats.AttackPower = value;
-                OnStatsChanged?.Invoke();
-            }
-        }
-    }
-    public override float AttackSpeed
-    {
-        get => currentOperatorStats.AttackSpeed;
-        set
-        {
-            if (currentOperatorStats.AttackSpeed != value)
-            {
-                currentOperatorStats.AttackSpeed = value;
-                OnStatsChanged?.Invoke();
-            }
-        }
-    }
+    // 스탯의 세터는 UnitEntity.()StatModifier 관련 메서드들로 진행 - 계수가 필요하므로 프로퍼티로 구현 못 함
+    public override float AttackPower { get => Stat.GetStat(StatType.AttackPower); }
+    public override float AttackSpeed { get => Stat.GetStat(StatType.AttackSpeed); }
+    public override float Defense { get => Stat.GetStat(StatType.Defense); }
+    public override float MagicResistance { get => Stat.GetStat(StatType.MagicResistance); }
+    public int MaxBlockableEnemies { get => (int)Stat.GetStat(StatType.MaxBlockCount); }
+    public float SPRecoveryRate { get => Stat.GetStat(StatType.SPRecoveryRate); }
 
-    public override float Defense
-    {
-        get => currentOperatorStats.Defense;
-        set
-        {
-            if (currentOperatorStats.Defense != value)
-            {
-                currentOperatorStats.Defense = value;
-                OnStatsChanged?.Invoke();
-            }
-        }
-    }
-
-    public override float MagicResistance
-    {
-        get => currentOperatorStats.MagicResistance;
-        set
-        {
-            if (currentOperatorStats.MagicResistance != value)
-            {
-                currentOperatorStats.MagicResistance = value;
-                OnStatsChanged?.Invoke();
-            }
-        }
-    }
-
-    public int MaxBlockableEnemies
-    {
-        get => currentOperatorStats.MaxBlockableEnemies;
-        set
-        {
-            if (currentOperatorStats.MaxBlockableEnemies != value)
-            {
-                currentOperatorStats.MaxBlockableEnemies = value;
-                OnStatsChanged?.Invoke();
-            }
-        }
-    }
 
     protected float currentSP;
     public float CurrentSP 
@@ -162,7 +107,6 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
     public event System.Action<float, float> OnSPChanged = delegate { };
     public event System.Action OnStatsChanged = delegate { };
     public event System.Action OnSkillStateChanged = delegate { };
-    public static event System.Action<Operator> OnOperatorDied = delegate { };
 
     protected override void Awake()
     {
@@ -171,45 +115,43 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
         CreateOperatorUI();
     }
 
-    protected override void Start()
-    {
-        AssignColorToRenderers(OperatorData.PrimaryColor, OperatorData.SecondaryColor);
-    }
-
-    public new virtual void Initialize(DeployableInfo opInfo)
+    public override void Initialize(DeployableInfo opInfo)
     {
         DeployableInfo = opInfo;
 
-        if (opInfo.ownedOperator != null)
-        {
-            OwnedOp = opInfo.ownedOperator;
-            base.Initialize();
-        }
-        else
+        if (opInfo.ownedOperator == null) 
         {
             Logger.LogError("오퍼레이터의 ownedOperator 정보가 없음!");
+            return;
         }
+
+        OwnedOp = opInfo.ownedOperator;
+        if (_operatorData == null) _operatorData = OwnedOp.OperatorData;
+        base.Initialize();
     }
 
     // base.Initialize 템플릿 메서드 1
-    protected override void InitializeUnitData()
+    protected override void ApplyUnitData()
     {
-        if (_operatorData == null)
-        {
-            _operatorData = OwnedOp.OperatorData;
-        }
-
         // 데이터를 이용해 스탯 초기화
-        _stat.Initialize(_operatorData);
+        _stat.Initialize(OwnedOp);
+        _health.Initialize();
+
     }
 
     // base.Initialize 템플릿 메서드 2
+    protected override void SpecificVisualLogic()
+    {
+        _visual.AssignColorToRenderers(OperatorData.PrimaryColor, OperatorData.SecondaryColor);
+    }
+
+    // base.Initialize 템플릿 메서드 3
     protected override void OnInitialized()
     {
         CurrentSP = OperatorData.InitialSP;
 
         // 현재 상태 반영
-        currentOperatorStats = OwnedOp.CurrentStats;
+        // currentOperatorStats = OwnedOp.CurrentStats;
 
         // 회전 반영
         baseOffsets = new List<Vector2Int>(OwnedOp.CurrentAttackableGridPos); // 왼쪽 방향 기준
@@ -237,15 +179,18 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
         FacingDirection = direction;
     }
 
+    // Awake에서 동작, 미리 OperatorUI를 만들어둠
     protected void CreateOperatorUI()
     {
         operatorUIInstance = Instantiate(StageUIManager.Instance.OperatorUIPrefab);
         operatorUI = operatorUIInstance.GetComponent<OperatorUI>();
+
         DisableOperatorUI();
     }
     
     protected void InitializeOperatorUI()
     {
+        Logger.Log($"IntializeOperatorUI 동작, opereatorUI : {operatorUI}");
         if (operatorUI != null)
         {
             operatorUI.gameObject.SetActive(true);
@@ -436,7 +381,7 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
             float oldSP = CurrentSP;
 
             // 최대 SP 초과 방지 (이벤트는 자체 발생)
-            CurrentSP = Mathf.Min(CurrentSP + currentOperatorStats.SPRecoveryRate * Time.deltaTime, MaxSP);
+            CurrentSP = Mathf.Min(CurrentSP + SPRecoveryRate * Time.deltaTime, MaxSP);
         }
         
         // 수동회복 스킬은 공격 시에 회복되므로 여기서 처리하지 않음
@@ -538,7 +483,8 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
         StatisticsManager.Instance!.UpdateDamageTaken(OperatorData, actualDamage);
     }
 
-    protected override void Die()
+    // Despawn의 템플릿 메서드
+    protected override void HandleBeforeDisabled()
     {
         // 배치되어야 Die가 가능
         if (!IsDeployed) return;
@@ -556,19 +502,13 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
         // 사망 후 동작 로직
         UnblockAllEnemies();
 
+        _directionIndicator.gameObject.SetActive(false);
+
         // UI 파괴
         DisableOperatorUI();
 
-        // 방향 표시기 비활성화
-        _directionIndicator.gameObject.SetActive(false);
-
-        // 오퍼레이터 사망 이벤트 발생
-        OnOperatorDied?.Invoke(this);
-
         // 이벤트 구독 해제
         Enemy.OnEnemyDespawned -= HandleEnemyDespawn;
-
-        base.Die();
     }
 
     protected override void SetPoolTag()
@@ -712,7 +652,7 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
     }
 
     // 적 디스폰 이벤트를 받았을 때의 처리
-    protected void HandleEnemyDespawn(Enemy enemy, DespawnReason reason)
+    protected void HandleEnemyDespawn(Enemy enemy, EnemyDespawnReason reason)
     {
         // 1. 현재 타겟이라면 타겟 해제
         if (CurrentTarget == enemy)
@@ -737,47 +677,6 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
                 TryBlockNextEnemy();
             }
         }
-    }
-
-    public override void Retreat()
-    {
-        RecoverInitialCost();
-
-        // 배치되어야 Die가 가능
-        if (!IsDeployed) return;
-
-        // 공격 범위 타일 해제
-        UnregisterTiles();
-
-        // 스킬 유지 중이었다면 코루틴 취소 
-        if (_activeSkillCoroutine != null)
-        {
-            StopCoroutine(_activeSkillCoroutine);
-            _activeSkillCoroutine = null;
-        }
-
-        // 사망 후 동작 로직
-        UnblockAllEnemies();
-
-        _directionIndicator.gameObject.SetActive(false);
-
-        // UI 파괴
-        DisableOperatorUI();
-
-        // 오퍼레이터 사망 이벤트 발생
-        OnOperatorDied?.Invoke(this);
-
-        // 이벤트 구독 해제
-        Enemy.OnEnemyDespawned -= HandleEnemyDespawn;
-
-        base.Retreat();
-    }
-
-    // 수동 퇴각 시 최초 배치 코스트의 절반 회복
-    protected void RecoverInitialCost()
-    {
-        int recoverCost = (int)Mathf.Round(currentOperatorStats.DeploymentCost / 2f);
-        StageManager.Instance!.RecoverDeploymentCost(recoverCost);
     }
 
     // ISkill 메서드
@@ -1064,7 +963,7 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
         }
     }
 
-    protected override void OnDestroy()
+    protected override void OnDisable()
     {
         // Die 메서드에도 만들어놨지만 안전하게
         Enemy.OnEnemyDespawned -= HandleEnemyDespawn;
@@ -1081,11 +980,11 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
             UnregisterTiles();
         }
 
-        if (operatorUIInstance != null)
+        if (operatorUI != null)
         {
-            Destroy(operatorUIInstance);
+            operatorUI.gameObject.SetActive(false);
         }
 
-        base.OnDestroy();
+        base.OnDisable();
     }
 }

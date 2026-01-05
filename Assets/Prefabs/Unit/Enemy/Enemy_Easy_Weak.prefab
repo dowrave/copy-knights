@@ -126,6 +126,7 @@ GameObject:
   - component: {fileID: 2433151250140729493}
   - component: {fileID: -459074500346364602}
   - component: {fileID: 4453517253650712713}
+  - component: {fileID: 8867966816027132168}
   m_Layer: 0
   m_Name: Enemy_Easy_Weak
   m_TagString: Untagged
@@ -164,8 +165,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   bodyColliderController: {fileID: 4274625080422114615}
-  renderers:
-  - {fileID: 6530312810487747474}
+  _visual: {fileID: 8867966816027132168}
   _enemyData: {fileID: 11400000, guid: 9e345838c12dc3045bdded27abbf3cb1, type: 2}
   enemyBarUIPrefab: {fileID: 4850112300594543659, guid: f855a11e7f642eb4481495480ef1a6e8, type: 3}
   modelContainer: {fileID: 6805184333466730360}
@@ -215,6 +215,23 @@ MonoBehaviour:
   unitLayer:
     serializedVersion: 2
     m_Bits: 64
+--- !u!114 &8867966816027132168
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5757678546452218239}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7a063c9d1fd294849af3ec8d3e61baed, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::VisualController
+  renderers:
+  - {fileID: 6530312810487747474}
+  flashDuration: 0.15
+  flashColor: {r: 0.3, g: 0.3, b: 0.3, a: 1}
+  fadeDuration: 0.3
 --- !u!1 &6805184333466730360
 GameObject:
   m_ObjectHideFlags: 0

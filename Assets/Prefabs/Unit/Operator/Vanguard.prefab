@@ -179,6 +179,7 @@ GameObject:
   - component: {fileID: 8846747372839674758}
   - component: {fileID: 6773057061778364063}
   - component: {fileID: -8646696770229502329}
+  - component: {fileID: 4647304369219179873}
   m_Layer: 6
   m_Name: Vanguard
   m_TagString: Untagged
@@ -217,29 +218,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   bodyColliderController: {fileID: 4548167353770906771}
-  renderers:
-  - {fileID: 1776861606506173852}
+  _visual: {fileID: 4647304369219179873}
   _deployableData: {fileID: 0}
-  currentDeployableStats:
-    _baseStats:
-      _health: 0
-      _defense: 0
-      _magicResistance: 0
-    _deploymentCost: 0
-    _redeployTime: 0
   _operatorData: {fileID: 11400000, guid: 63da6f9593ceb004a9d47e09da76144c, type: 2}
-  currentOperatorStats:
-    _deployableUnitStats:
-      _baseStats:
-        _health: 0
-        _defense: 0
-        _magicResistance: 0
-      _deploymentCost: 0
-      _redeployTime: 0
-    _attackPower: 0
-    _attackSpeed: 0
-    _maxBlockableEnemies: 0
-    _spRecoveryRate: 0
 --- !u!54 &6773057061778364063
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -285,6 +266,23 @@ MonoBehaviour:
   unitLayer:
     serializedVersion: 2
     m_Bits: 64
+--- !u!114 &4647304369219179873
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5185628148525671535}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7a063c9d1fd294849af3ec8d3e61baed, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::VisualController
+  renderers:
+  - {fileID: 1776861606506173852}
+  flashDuration: 0.15
+  flashColor: {r: 0.3, g: 0.3, b: 0.3, a: 1}
+  fadeDuration: 0.3
 --- !u!1 &8204645837215541162
 GameObject:
   m_ObjectHideFlags: 0
