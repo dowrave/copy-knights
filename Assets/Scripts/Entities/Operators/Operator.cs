@@ -171,7 +171,7 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
         ElitePhase = OwnedOp.CurrentPhase;
         Level = OwnedOp.CurrentLevel;
 
-        SetDeployState(false);
+        _deployment.SetDeployState(false);
     }
 
     public void SetDirection(Vector3 direction)

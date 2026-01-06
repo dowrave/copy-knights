@@ -60,13 +60,12 @@
     <Compile Include="Assets\Scripts\Core\Systems\Skills\VFXController\ShieldVFXController.cs" />
     <Compile Include="Assets\Scripts\Interfaces\IFactionMember.cs" />
     <Compile Include="Assets\Scripts\SO_Scripts\OperatorLevelData.cs" />
-    <Compile Include="Assets\Scripts\Interfaces\IReadableBuffController.cs" />
+    <Compile Include="Assets\Scripts\Core\Systems\Class\UnitController\Interface\IReadableColliderController.cs" />
     <Compile Include="Assets\Scripts\Core\Systems\Skills\OperatorSkills\MeteorSkill.cs" />
     <Compile Include="Assets\Scripts\Interfaces\ICombatData.cs" />
     <Compile Include="Assets\Scripts\UI\Components\SkillIconBox.cs" />
     <Compile Include="Assets\Scripts\Interfaces\IDeployable.cs" />
     <Compile Include="Assets\Scripts\Core\Systems\Skills\SkillController\Operator\ArcaneFieldController.cs" />
-    <Compile Include="Assets\Scripts\Interfaces\IReadableColliderController.cs" />
     <Compile Include="Assets\Scripts\Utils\OperatorIconHelper.cs" />
     <Compile Include="Assets\Scripts\SO_Scripts\TileData.cs" />
     <Compile Include="Assets\Scripts\UI\Components\GaugeBar\HealthBar.cs" />
@@ -84,6 +83,7 @@
     <Compile Include="Assets\Scripts\Core\Systems\Skills\OperatorSkills\SmashSkill.cs" />
     <Compile Include="Assets\Scripts\Core\Managers\GameManagement\GameManagement.cs" />
     <Compile Include="Assets\Scripts\SO_Scripts\ItemData.cs" />
+    <Compile Include="Assets\Scripts\Core\Systems\Class\UnitController\Interface\IReadableVisualController.cs" />
     <Compile Include="Assets\Scripts\Core\Systems\Skills\VFXController\CombatVFXController.cs" />
     <Compile Include="Assets\Scripts\UI\Components\DeployableActionUI.cs" />
     <Compile Include="Assets\Scripts\Core\Systems\Buff\SmashBuff.cs" />
@@ -110,6 +110,7 @@
     <Compile Include="Assets\Scripts\UI\Panels\OperatorInventoryPanel.cs" />
     <Compile Include="Assets\Scripts\SO_Scripts\BuffVFXDatabase.cs" />
     <Compile Include="Assets\Scripts\Core\Systems\Skills\OperatorSkills\SlashSkill.cs" />
+    <Compile Include="Assets\Scripts\Core\Systems\Class\UnitController\Interface\IReadableHealthController.cs" />
     <Compile Include="Assets\Scripts\Core\Systems\ShieldSystem.cs" />
     <Compile Include="Assets\Scripts\SO_Scripts\OperatorIconData.cs" />
     <Compile Include="Assets\Scripts\Core\Managers\GameManagement\UserSquadManager.cs" />
@@ -131,7 +132,6 @@
     <Compile Include="Assets\Scripts\Core\Systems\Skills\SkillController\Operator\SlashSkillController.cs" />
     <Compile Include="Assets\Scripts\Core\Systems\Skills\VFXController\SkillRangeVFXController.cs" />
     <Compile Include="Assets\Scripts\SO_Scripts\StageData.cs" />
-    <Compile Include="Assets\Scripts\Interfaces\IReadableHealthController.cs" />
     <Compile Include="Assets\Scripts\Interfaces\IUnitData.cs" />
     <Compile Include="Assets\Scripts\Interfaces\ICombatEntity.cs" />
     <Compile Include="Assets\Scripts\UI\Panels\ConfirmationReturnToLobbyPanel.cs" />
@@ -140,8 +140,8 @@
     <Compile Include="Assets\Scripts\Map\EnemySpawner.cs" />
     <Compile Include="Assets\Scripts\UI\Components\InGameTopButtonContainer.cs" />
     <Compile Include="Assets\Scripts\Core\Managers\StageScene\PathfindingManager.cs" />
-    <Compile Include="Assets\Scripts\Interfaces\IReadableVisualController.cs" />
     <Compile Include="Assets\Scripts\Core\Systems\PositionCalculationSystem.cs" />
+    <Compile Include="Assets\Scripts\Core\Systems\Class\UnitController\Interface\IReadableDeploymentController.cs" />
     <Compile Include="Assets\Scripts\Entities\Enemy\Enemy.cs" />
     <Compile Include="Assets\Scripts\Utils\InstanceValidator.cs" />
     <Compile Include="Assets\Scripts\UI\Components\OperatorUI.cs" />
@@ -152,7 +152,9 @@
     <Compile Include="Assets\Scripts\Core\Systems\Buff\StunBuff.cs" />
     <Compile Include="Assets\Scripts\Core\Enums\OperatorClass.cs" />
     <Compile Include="Assets\Scripts\Core\Systems\Class\UnitController\BuffController.cs" />
+    <Compile Include="Assets\Scripts\Interfaces\IDeployableData.cs" />
     <Compile Include="Assets\Scripts\Core\Systems\Skills\BossSkills\BossExplosionSkill.cs" />
+    <Compile Include="Assets\Scripts\Core\Systems\Class\UnitController\Interface\IReadableBuffController.cs" />
     <Compile Include="Assets\Scripts\Core\Systems\Skills\SkillController\Operator\MeteorController.cs" />
     <Compile Include="Assets\Scripts\UI\Panels\OperatorPromotionPanel.cs" />
     <Compile Include="Assets\Scripts\UI\Components\NotificationToast.cs" />
@@ -199,6 +201,7 @@
     <Compile Include="Assets\Scripts\Utils\SystemLogger.cs" />
     <Compile Include="Assets\Scripts\Core\Systems\Skills\Base(Abstract)\UnitSkill.cs" />
     <Compile Include="Assets\Scripts\Entities\Operators\DualBladeOperator.cs" />
+    <Compile Include="Assets\Scripts\Core\Systems\Class\UnitController\DeploymentController.cs" />
     <Compile Include="Assets\Scripts\Core\Managers\GameManagement\PlayerDataManager.cs" />
     <Compile Include="Assets\Scripts\Core\Systems\Class\AttackSource.cs" />
     <Compile Include="Assets\Scripts\Entities\Barricade.cs" />
@@ -220,11 +223,11 @@
     <Compile Include="Assets\Scripts\Core\Managers\StageScene\StatisticsManager.cs" />
     <Compile Include="Assets\Scripts\UI\Components\FloatingText.cs" />
     <Compile Include="Assets\Scripts\UI\Components\MaskedDiamondOverlay.cs" />
+    <Compile Include="Assets\Scripts\Core\Systems\Class\UnitController\Interface\IReadableStatController.cs" />
     <Compile Include="Assets\Scripts\Interfaces\IRotatable.cs" />
     <Compile Include="Assets\Scripts\SO_Scripts\Unit\OperatorData.cs" />
     <Compile Include="Assets\Scripts\Core\Managers\StageScene\StageUIManager.cs" />
     <Compile Include="Assets\Scripts\UI\Panels\ItemInventoryPanel.cs" />
-    <Compile Include="Assets\Scripts\Interfaces\IReadableStatController.cs" />
     <Compile Include="Assets\Scripts\Core\Managers\MainmenuScene\OperatorGrowthManager.cs" />
     <Compile Include="Assets\Scripts\UI\Panels\LoadingScreen.cs" />
     <Compile Include="Assets\Scripts\Interfaces\ICrowdControlTarget.cs" />

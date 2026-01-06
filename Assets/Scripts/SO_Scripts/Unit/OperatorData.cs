@@ -4,7 +4,7 @@ using Skills.Base;
 
 // 필수 필드는 ?이 없고, 선택 필드는 ?이 있다 
 [CreateAssetMenu(fileName = "New Operator Data", menuName = "Game/Operator Data")]
-public class OperatorData : ScriptableObject, ICombatData
+public class OperatorData : ScriptableObject, ICombatData, IDeployableData
 {
     // UnitData
     [SerializeField] protected string entityID = string.Empty; // 고유 식별자. 다른 에셋과 중복되면 안됨.

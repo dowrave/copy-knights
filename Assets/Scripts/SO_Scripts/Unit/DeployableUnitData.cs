@@ -2,7 +2,7 @@
 using UnityEngine;
 
 [CreateAssetMenu(fileName = "New Deployable Unit Data", menuName = "Game/Deployable Unit Data")]
-public class DeployableUnitData : ScriptableObject
+public class DeployableUnitData : ScriptableObject, IDeployableData
 {
     // UnitData
     [SerializeField] protected string entityID = string.Empty; // 고유 식별자. 다른 에셋과 중복되면 안됨.

@@ -209,12 +209,12 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity
 
     protected void OnEnable()
     {
-        DeployableUnitEntity.OnDeployableDied += HandleDeployableDied;
+        DeployableUnitEntity.OnUndeployed += HandleDeployableDied;
     }
 
     protected void OnDisable()
     {
-        DeployableUnitEntity.OnDeployableDied -= HandleDeployableDied;
+        DeployableUnitEntity.OnUndeployed -= HandleDeployableDied;
 
         if (navigator != null)
         {
