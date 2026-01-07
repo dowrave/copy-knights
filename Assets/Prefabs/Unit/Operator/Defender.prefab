@@ -285,7 +285,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6d95cb21862f15047b25fc339c35a4ec, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  bodyColliderController: {fileID: 6618990742490386334}
+  _collider: {fileID: 6618990742490386334}
   _visual: {fileID: 2359856852221873658}
   _deployableData: {fileID: 0}
   _operatorData: {fileID: 11400000, guid: fd7c511acd39574469c82a9d2c50281e, type: 2}

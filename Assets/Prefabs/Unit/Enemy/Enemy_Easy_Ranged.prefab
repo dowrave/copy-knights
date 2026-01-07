@@ -196,7 +196,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 31653864dac50a04d9beb172b8ac5b21, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  bodyColliderController: {fileID: 2291030982344432965}
+  _collider: {fileID: 2291030982344432965}
   _visual: {fileID: 323898257253082906}
   _enemyData: {fileID: 11400000, guid: f29e0c6041bad8a408813d1d901122f8, type: 2}
   enemyBarUIPrefab: {fileID: 4850112300594543659, guid: f855a11e7f642eb4481495480ef1a6e8, type: 3}

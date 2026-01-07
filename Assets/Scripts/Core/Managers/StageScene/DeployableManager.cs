@@ -84,6 +84,8 @@ public class DeployableManager : MonoBehaviour
         }
 
         OperatorIconHelper.OnIconDataInitialized += InitializeDeployableUI;
+        DeployableUnitEntity.OnDeployableSelected += HandleDeployableClicked;
+
     }
 
     public void Initialize(
@@ -397,8 +399,8 @@ public class DeployableManager : MonoBehaviour
         int cost = gameState.CurrentDeploymentCost;
 
         // 코스트 지불 가능 & 배치 가능 상태
-        // 실제 배치 진행
-        if (StageManager.Instance!.TryUseDeploymentCost(cost) && gameState.OnDeploy(CurrentDeployableEntity!))
+        if (StageManager.Instance!.TryUseDeploymentCost(cost) &&  // 배치 코스트 소비 시도
+            gameState.OnDeploy(CurrentDeployableEntity!)) // 배치 처리 진행
         {
             if (CurrentDeployableEntity is Operator op)
             {
@@ -406,6 +408,7 @@ public class DeployableManager : MonoBehaviour
                 op.SetDirection(placementDirection);
 
                 op.OnRetreat += HandleOperatorRetreat;
+                Logger.Log("op.OnRetreat 이벤트에 HandleOperatorRetreat 메서드 구독됨");
                 
                 CurrentOperatorDeploymentCount++;
                 if (CurrentDeployableBox != null)
@@ -430,10 +433,13 @@ public class DeployableManager : MonoBehaviour
 
     private void HandleOperatorRetreat(DeployableUnitEntity deployable)
     {
+        Logger.Log("HandleOperatorRetreat 동작");
         // Operator 퇴각 시에만 최초 배치 코스트의 절반 회복
         if (deployable is Operator op)
         {
             int recoverCost = (int)Mathf.Round(op.InitialDeploymentCost / 2f);
+            Logger.Log($"HandleOperatorRetreat - 조건문 통과, recoverCost : {recoverCost}");
+
             OnOperatorRetreat?.Invoke(recoverCost);
         }
     }
@@ -506,6 +512,12 @@ public class DeployableManager : MonoBehaviour
             CurrentDeployableEntity.transform.rotation = Quaternion.LookRotation(placementDirection);
         }
     }
+
+    public void HandleDeployableClicked(DeployableUnitEntity deployable)
+    {
+        ShowActionUI(deployable);
+    }
+
 
     // 배치된 요소가 제거되었을 때 동작함
     public void OnDeployableRemoved(DeployableUnitEntity deployable)
@@ -620,9 +632,9 @@ public class DeployableManager : MonoBehaviour
         return deployableInfoMap.TryGetValue(entityID, out var info) ? info : null;
     }
 
-
-    private void OnDestroy()
+    private void OnDisable()
     {
+        DeployableUnitEntity.OnDeployableSelected -= HandleDeployableClicked;
         OperatorIconHelper.OnIconDataInitialized -= InitializeDeployableUI;
     }
 }

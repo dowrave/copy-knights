@@ -48,6 +48,8 @@ public class DeploymentInputHandler: MonoBehaviour
         else Destroy(gameObject);
 
         minDirectionDistance = Screen.width * 0.1f;
+
+        DeployableUnitEntity.OnDeployableSelected += HandleDeployableClicked;
     }
 
     private void Start()
@@ -274,9 +276,9 @@ public class DeploymentInputHandler: MonoBehaviour
         return Vector3.back;
     } 
 
-    public void SetIsSelectingDeployedUnit(bool state)
+    public void HandleDeployableClicked(DeployableUnitEntity deployable)
     {
-        IsSelectingDeployedUnit = state;
+        IsSelectingDeployedUnit = true;
     }
 
     public void ResetState()
@@ -291,5 +293,10 @@ public class DeploymentInputHandler: MonoBehaviour
         placementDirection = Vector3.zero;
 
         CurrentState = InputState.None;
+    }
+
+    private void OnDisable()
+    {
+        DeployableUnitEntity.OnDeployableSelected -= HandleDeployableClicked;
     }
 }

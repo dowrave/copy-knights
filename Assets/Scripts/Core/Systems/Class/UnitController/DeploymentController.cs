@@ -7,8 +7,9 @@ public class DeploymentController: IReadableDeploymentController
     private IDeployableData _data;
 
     private float _lastDeployTime; // float네?
+    // private float preventInteractingTime = 0.1f;
 
-    public bool IsDeployed { get; private set; }
+    public bool IsDeployed { get; private set; } = false;
     public bool IsPreviewMode { get; private set; }
     public Tile CurrentTile { get; private set; }
 
@@ -51,6 +52,7 @@ public class DeploymentController: IReadableDeploymentController
         }
     }
 
+    // 배치 해제 관련 로직 담당
     public void Undeploy()
     {
         IsDeployed = false;
@@ -115,6 +117,36 @@ public class DeploymentController: IReadableDeploymentController
         return tile == null ||
         tile.TileData.IsStartPoint ||
         tile.TileData.IsEndPoint;
+    }
+
+    public void OnClick()
+    {
+        float preventInteractingTime = 0.1f;
+
+        // 커서를 뗀 시점에 다시 클릭되는 현상 방지
+        if (Time.time - _lastDeployTime < preventInteractingTime)
+        {
+            DeployableManager.Instance!.CancelPlacement();
+            return;
+        }
+
+        // 배치된 유닛 클릭
+        if (IsDeployed &&
+            !IsPreviewMode &&
+            StageManager.Instance!.CurrentGameState == GameState.Battle)
+        {
+            DeployableManager.Instance!.CancelPlacement();
+
+            if (IsPreviewMode == false)
+            {
+                _owner.NotifySelected();
+                // DeploymentInputHandler.Instance!.SetIsSelectingDeployedUnit(true);
+                // StageManager.Instance!.SlowState = true;
+                // StageUIManager.Instance!.ShowDeployedInfo(_owner);
+                // DeployableManager.Instance!.ShowActionUI(_owner);
+                // StageUIManager.Instance!.ShowDeployedInfo(_owner);
+            }
+        }
     }
 
 }

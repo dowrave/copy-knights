@@ -232,7 +232,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5f8299e99a141a0448816f20c17b1719, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  bodyColliderController: {fileID: 7884912121629269632}
+  _collider: {fileID: 7884912121629269632}
   _visual: {fileID: 329094640432030576}
   _deployableData: {fileID: 0}
   _operatorData: {fileID: 11400000, guid: 2a6e5dae95d0e4a4a86df911ec0573f4, type: 2}

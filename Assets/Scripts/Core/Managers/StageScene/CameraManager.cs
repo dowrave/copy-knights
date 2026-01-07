@@ -81,7 +81,7 @@ public class CameraManager : MonoBehaviour
     /// </summary>
     /// <param name="show">보여주는지 여부</param>
     /// <param name="deployable">배치된 deployable(배치되지 않은 경우는 null)</param>
-    public void AdjustForDeployableInfo(bool show, DeployableUnitEntity? deployable = null)
+    public void AdjustForDeployableInfo(bool show, DeployableUnitEntity? deployedDeployable = null)
     {
 
         if (_currentCoroutine != null)
@@ -102,9 +102,11 @@ public class CameraManager : MonoBehaviour
             float mapWidth = MapManager.Instance.GetCurrentMapWidth();
 
             // 배치된 Deployable 클릭
-            if (deployable != null && deployable.IsDeployed)
+            // 현재 이슈) 배치된 deployable이 아닌데 IsDeployed로 접근하려는 현상
+            
+            if (deployedDeployable != null && deployedDeployable.IsDeployed)
             {
-                Vector3 operatorPosition = deployable.transform.position;
+                Vector3 operatorPosition = deployedDeployable.transform.position;
 
                 float cameraOffset = mapWidth * (1 - 0.75f) * 0.5f;
 

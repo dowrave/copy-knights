@@ -176,6 +176,8 @@ public class StageManager : MonoBehaviour
 
         Enemy.OnEnemyDespawned += HandleEnemyDespawned;
         OnGameEnded += ClearStageObjectPools;
+        DeployableUnitEntity.OnDeployableSelected += HandleDeployableClicked;
+
     }
 
     private void Start()
@@ -538,6 +540,7 @@ public class StageManager : MonoBehaviour
 
     public void RecoverDeploymentCost(int amount)
     {
+        Logger.Log($"RecoverDeploymentCost 동작 : 회복량 : {amount}");
         CurrentDeploymentCost = Mathf.Min(CurrentDeploymentCost + amount, maxDeploymentCost);
     }
 
@@ -753,6 +756,12 @@ public class StageManager : MonoBehaviour
         }
     }
 
+    public void HandleDeployableClicked(DeployableUnitEntity deployable)
+    {
+        SlowState = true;
+    }
+
+
     private void HandleTimeScale()
     {
         if (_currentGameState == GameState.Battle)
@@ -772,13 +781,13 @@ public class StageManager : MonoBehaviour
         }
     }
 
-    private void OnDestroy()
+    private void OnDisable()
     {
+        DeployableUnitEntity.OnDeployableSelected -= HandleDeployableClicked;
         DeployableManager.Instance!.OnOperatorRetreat -= RecoverDeploymentCost;
         Enemy.OnEnemyDespawned -= HandleEnemyDespawned;
         OnGameEnded -= ClearStageObjectPools;
     }
-
 }
 
 public enum GameState

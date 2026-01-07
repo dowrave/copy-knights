@@ -227,7 +227,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e4ddd3916cba42244946c91dc817c193, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  bodyColliderController: {fileID: 7522053545672304391}
+  _collider: {fileID: 7522053545672304391}
   _visual: {fileID: 5883353096667241952}
   _deployableData: {fileID: 11400000, guid: 137922d0524493444ba9997d212523d8, type: 2}
 --- !u!114 &5883353096667241952

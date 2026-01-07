@@ -23,41 +23,19 @@ public abstract class DeployableUnitEntity : UnitEntity, IDeployable
     public bool IsPreviewMode => Deployment.IsPreviewMode;
     public Tile? CurrentTile => Deployment.CurrentTile;
 
-    // [HideInInspector]
-    // public DeployableUnitStats currentDeployableStats;
-
-    // public bool IsDeployed { get; protected set; }
     public int InitialDeploymentCost { get => (int)Stat.GetStat(StatType.DeploymentCost); }
-
-    // protected bool isPreviewMode = false;
-    // public bool IsPreviewMode
-    // {
-    //     get { return isPreviewMode; }
-    //     protected set
-    //     {
-    //         isPreviewMode = value;
-    //     }
-    // }
-
-    // protected Material originalMaterial = default!;
-    // protected Material previewMaterial = default!;
-
-    private float preventInteractingTime = 0.1f;
-    private float lastDeployTime;
-
-    // public Tile? CurrentTile { get; protected set; }
 
     public static event Action<DeployableUnitEntity> OnDeployed = delegate { };
     public static event Action<DeployableUnitEntity> OnUndeployed = delegate { };
     public event Action<DeployableUnitEntity> OnRetreat = delegate { };
+    public static event Action<DeployableUnitEntity> OnDeployableSelected = delegate { };
 
     protected override void Awake()
     {
-        Faction = Faction.Ally;
-
-        _deployment = new DeploymentController(this);
-
         base.Awake();
+
+        Faction = Faction.Ally;
+        _deployment = new DeploymentController(this);
     }
 
     public virtual void Initialize(DeployableInfo deployableInfo)
@@ -100,11 +78,6 @@ public abstract class DeployableUnitEntity : UnitEntity, IDeployable
     protected override void OnInitialized()
     {
         PoolTag = _deployableData.UnitTag;
-
-        // 배치 상태 관련
-        // SetDeployState(false); // Initialize에서는 배치되지 않은 상태로 초기화됨
-        // InitialDeploymentCost = currentDeployableStats.DeploymentCost;
-        // UpdateCurrentTile();
     }
 
     // DeploymentController.OnDeployed 이벤트를 받아서 처리함
@@ -117,8 +90,6 @@ public abstract class DeployableUnitEntity : UnitEntity, IDeployable
         }
     }
 
-
-
     public virtual void Deploy(Vector3 position)
     {
         if (!IsDeployed)
@@ -128,28 +99,12 @@ public abstract class DeployableUnitEntity : UnitEntity, IDeployable
         }
     }
 
-   
     protected void Undeploy()
     {
         _deployment.Undeploy();
         DeployableInfo.deployedDeployable = null;
         OnUndeployed?.Invoke(this);
     } 
-
-    // protected void SetPosition(Vector3 worldPosition)
-    // {
-    //     if (CurrentTile != null)
-    //     {
-    //         if (this is Operator)
-    //         {
-    //             transform.position = worldPosition + Vector3.up * (CurrentTile.GetHeightScale() / 2 + 0.5f);
-    //         }
-    //         else
-    //         {
-    //             transform.position = worldPosition + Vector3.up * (CurrentTile.GetHeightScale() / 2);
-    //         }
-    //     }
-    // }
 
 
     // 체력이 0 이하가 된 상황일 때 실행됨
@@ -168,7 +123,8 @@ public abstract class DeployableUnitEntity : UnitEntity, IDeployable
 
         if (reason == DeployableDespawnReason.Retreat)
         {
-            OnRetreat?.Invoke(this);
+            // Operator 퇴각 시에 이 이벤트를 구독하는 메서드가 동작하지 않는 이슈가 있음
+            OnRetreat?.Invoke(this); 
             DieInstantly();
         }
         else if (reason == DeployableDespawnReason.Defeated)
@@ -190,53 +146,14 @@ public abstract class DeployableUnitEntity : UnitEntity, IDeployable
 
     public virtual void OnClick()
     {
-        // 커서를 뗀 시점에 다시 클릭되는 현상 방지
-        if (Time.time - lastDeployTime < preventInteractingTime)
-        {
-            DeployableManager.Instance!.CancelPlacement();
-            return;
-        }
-
-        // 배치된 유닛 클릭
-        if (IsDeployed &&
-            !IsPreviewMode &&
-            StageManager.Instance!.CurrentGameState == GameState.Battle
-            )
-        {
-            DeployableManager.Instance!.CancelPlacement();
-
-            if (IsPreviewMode == false)
-            {
-                DeploymentInputHandler.Instance!.SetIsSelectingDeployedUnit(true);
-                StageManager.Instance!.SlowState = true;
-                StageUIManager.Instance!.ShowDeployedInfo(this);
-                ShowActionUI();
-            }
-        }
+        _deployment.OnClick();
     }
 
-    protected virtual void ShowActionUI()
+    // _deployment.OnClick()에 의해 클릭 동작이 가능한 경우 이벤트를 발생시킴
+    public void NotifySelected()
     {
-        DeployableManager.Instance!.ShowActionUI(this);
-        StageUIManager.Instance!.ShowDeployedInfo(this);
+        OnDeployableSelected?.Invoke(this);
     }
-
-    // protected void SetDeployState(bool isDeployed)
-    // {
-    //     IsDeployed = isDeployed;
-    //     IsPreviewMode = !isDeployed;
-    // }
-
-    // protected virtual void UpdateCurrentTile()
-    // {
-    //     Vector3 position = transform.position;
-    //     Tile? newTile = MapManager.Instance!.GetTileAtWorldPosition(position);
-
-    //     if (newTile != null && newTile != CurrentTile)
-    //     {
-    //         CurrentTile = newTile;
-    //     }
-    // }
 }
 
 #nullable restore

@@ -93,6 +93,8 @@ public class StageUIManager : MonoBehaviour
         // 스테이지 로딩 패널이 완료되고 캔버스가 나타나도록 수정
         mainCanvas.gameObject.SetActive(false);
 
+        DeployableUnitEntity.OnDeployableSelected += HandleDeployableClicked;
+
         HideItemPopup();
     }
 
@@ -179,8 +181,8 @@ public class StageUIManager : MonoBehaviour
 
         if (deployableInfo.prefab != null)
         {
-            DeployableUnitEntity deployable = deployableInfo.prefab.GetComponent<DeployableUnitEntity>();
-            CameraManager.Instance!.AdjustForDeployableInfo(true, deployable);
+            // deployableUnitEntity을 전달하지 않음(아직 배치되지 않았기 때문에)
+            CameraManager.Instance!.AdjustForDeployableInfo(true); 
         }
     }
 
@@ -312,6 +314,12 @@ public class StageUIManager : MonoBehaviour
         passedEnemiesText.text = $"-{passedEnemies}";
     }
 
+    public void HandleDeployableClicked(DeployableUnitEntity deployable)
+    {
+        ShowDeployedInfo(deployable);
+    }
+
+
     public void HideInfoPanelIfDisplaying(DeployableUnitEntity entity)
     {
         if (inStageInfoPanelScript.IsCurrentlyDisplaying(entity))
@@ -328,5 +336,8 @@ public class StageUIManager : MonoBehaviour
         {
             StageManager.Instance.OnSpeedChanged -= UpdateSpeedUpButtonVisual;
         }
+    
+        DeployableUnitEntity.OnDeployableSelected -= HandleDeployableClicked;
+    
     }
 }
