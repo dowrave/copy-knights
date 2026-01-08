@@ -45,7 +45,7 @@ namespace Skills.Base
             // 이전 스킬과 중심 위치가 달라진 경우에는 새로 범위를 계산함
             if (centerPos != caster.LastSkillCenter)
             {
-                HashSet<Vector2Int> skillRange = PositionCalculationSystem.CalculateRange(skillRangeOffset, centerPos, caster.FacingDirection);
+                HashSet<Vector2Int> skillRange = PositionCalculationSystem.CalculateRange(skillRangeOffset, centerPos, caster.FacingDirection.Value);
                 caster.SetCurrentSkillRange(skillRange);
                 caster.SetLastSkillCenter(centerPos);
             }

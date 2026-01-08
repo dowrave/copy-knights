@@ -224,7 +224,6 @@
     <Compile Include="Assets\Scripts\UI\Components\FloatingText.cs" />
     <Compile Include="Assets\Scripts\UI\Components\MaskedDiamondOverlay.cs" />
     <Compile Include="Assets\Scripts\Core\Systems\Class\UnitController\Interface\IReadableStatController.cs" />
-    <Compile Include="Assets\Scripts\Interfaces\IRotatable.cs" />
     <Compile Include="Assets\Scripts\SO_Scripts\Unit\OperatorData.cs" />
     <Compile Include="Assets\Scripts\Core\Managers\StageScene\StageUIManager.cs" />
     <Compile Include="Assets\Scripts\UI\Panels\ItemInventoryPanel.cs" />

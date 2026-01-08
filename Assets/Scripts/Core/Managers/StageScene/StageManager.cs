@@ -191,8 +191,6 @@ public class StageManager : MonoBehaviour
             // StageLoader에서 스테이지 시작을 처리함
             return;
         }
-
-        DeployableManager.Instance!.OnOperatorRetreat += RecoverDeploymentCost;
     }
 
     private void Update()

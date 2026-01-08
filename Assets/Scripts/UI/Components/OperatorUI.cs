@@ -28,8 +28,6 @@ public class OperatorUI : MonoBehaviour
     {
         this.op = op;
 
-        DeployableBarUI.Initialize(op);
-
         transform.position = op.transform.position;
 
         UnsubscribeEvents();

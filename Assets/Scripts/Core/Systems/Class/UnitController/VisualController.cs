@@ -132,7 +132,6 @@ public class VisualController: MonoBehaviour, IReadableVisualController
             .OnComplete(() =>
             {
                 OnDeathAnimationComplete?.Invoke();
-                Logger.Log("OnDeathAnimationComplete 이벤트 발생!!");
             }
         );
     }

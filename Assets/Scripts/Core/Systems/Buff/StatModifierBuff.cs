@@ -85,7 +85,7 @@ public class StatModificationBuff : Buff
                 {
                     Vector2Int rotatedTile = PositionCalculationSystem.RotateGridOffset(
                         additionalTile,
-                        op.FacingDirection
+                        op.FacingDirection.Value
                     );
 
                     if (!newRange.Contains(rotatedTile))

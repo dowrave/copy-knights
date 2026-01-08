@@ -50,10 +50,10 @@ public class DeployableManager : MonoBehaviour
     [SerializeField] private Camera mainCamera;
 
     [Header("Highlight Color")]
-    // 하이라이트 관련 변수 - 인스펙터에서 설정
-    public Color attackRangeTileColor;
+    public Color attackRangeTileColor; // 하이라이트 관련 변수 - 인스펙터에서 설정
 
-    public int CurrentDeploymentOrder { get; private set; } = 0;
+    // 게임 내내 올라감(퇴각/사망 등으로 내려가지 않음)
+    public int CurrentDeploymentOrder { get; private set; } = 0; 
 
     private Tile? currentHoverTile;
 
@@ -83,10 +83,17 @@ public class DeployableManager : MonoBehaviour
             mainCamera = Camera.main;
         }
 
+        SubscribeEvents();
+    }
+
+    private void SubscribeEvents()
+    {
         OperatorIconHelper.OnIconDataInitialized += InitializeDeployableUI;
         DeployableUnitEntity.OnDeployableSelected += HandleDeployableClicked;
-
-    }
+        DeployableUnitEntity.OnDeployed += HandleDeployableDeployed;
+        DeployableUnitEntity.OnUndeployed += HandleDeployableRemoved;
+        DeployableUnitEntity.OnRetreat += HandleDeployableRetreat;
+    }    
 
     public void Initialize(
         List<SquadOperatorInfo> squadData,
@@ -404,18 +411,16 @@ public class DeployableManager : MonoBehaviour
         {
             if (CurrentDeployableEntity is Operator op)
             {
-                op.Deploy(tile.transform.position);
+                op.Deploy(tile.transform.position, placementDirection);
                 op.SetDirection(placementDirection);
 
-                op.OnRetreat += HandleOperatorRetreat;
-                Logger.Log("op.OnRetreat 이벤트에 HandleOperatorRetreat 메서드 구독됨");
-                
                 CurrentOperatorDeploymentCount++;
                 if (CurrentDeployableBox != null)
                 {
                     CurrentDeployableBox.Deselect();
                     CurrentDeployableBox = null;
                 }
+                
             }
             else
             {
@@ -431,16 +436,13 @@ public class DeployableManager : MonoBehaviour
         // GameManagement.Instance.TimeManager.UpdateTimeScale();
     }
 
-    private void HandleOperatorRetreat(DeployableUnitEntity deployable)
+    private void HandleDeployableRetreat(DeployableUnitEntity deployable)
     {
-        Logger.Log("HandleOperatorRetreat 동작");
         // Operator 퇴각 시에만 최초 배치 코스트의 절반 회복
         if (deployable is Operator op)
         {
             int recoverCost = (int)Mathf.Round(op.InitialDeploymentCost / 2f);
-            Logger.Log($"HandleOperatorRetreat - 조건문 통과, recoverCost : {recoverCost}");
-
-            OnOperatorRetreat?.Invoke(recoverCost);
+            StageManager.Instance!.RecoverDeploymentCost(recoverCost); // 싱글턴끼리는 그냥 직접호출하자
         }
     }
     
@@ -520,7 +522,7 @@ public class DeployableManager : MonoBehaviour
 
 
     // 배치된 요소가 제거되었을 때 동작함
-    public void OnDeployableRemoved(DeployableUnitEntity deployable)
+    public void HandleDeployableRemoved(DeployableUnitEntity deployable)
     {
         deployedItems.Remove(deployable);
 
@@ -539,7 +541,6 @@ public class DeployableManager : MonoBehaviour
             {
                 CurrentOperatorDeploymentCount--;
                 InstanceValidator.ValidateInstance(op.OperatorData);
-                op.OnRetreat -= HandleOperatorRetreat;
                 info = GetDeployableInfoByName(op.OperatorData?.EntityID!);
             }
             else
@@ -622,19 +623,37 @@ public class DeployableManager : MonoBehaviour
         }
     }
 
-    public void UpdateDeploymentOrder()
+    public void HandleDeployableDeployed(DeployableUnitEntity deployable)
     {
-        CurrentDeploymentOrder += 1;
+        if (deployable is Operator op)
+        {
+            op.SetDeploymentOrder(CurrentDeploymentOrder);
+            CurrentDeploymentOrder += 1; 
+        }
+        // DeploymentOrder = DeployableManager.Instance!.CurrentDeploymentOrder;
+        // DeployableManager.Instance!.UpdateDeploymentOrder();
     }
+
+
 
     public DeployableInfo? GetDeployableInfoByName(string entityID)
     {
         return deployableInfoMap.TryGetValue(entityID, out var info) ? info : null;
     }
 
+
+
     private void OnDisable()
     {
-        DeployableUnitEntity.OnDeployableSelected -= HandleDeployableClicked;
-        OperatorIconHelper.OnIconDataInitialized -= InitializeDeployableUI;
+        UnSubscribeEvents();
     }
+
+     private void UnSubscribeEvents()
+    {
+        OperatorIconHelper.OnIconDataInitialized -= InitializeDeployableUI;
+        DeployableUnitEntity.OnDeployableSelected -= HandleDeployableClicked;
+        DeployableUnitEntity.OnRetreat -= HandleDeployableRetreat; 
+        DeployableUnitEntity.OnDeployed -= HandleDeployableDeployed;
+        DeployableUnitEntity.OnUndeployed -= HandleDeployableRemoved;
+    }   
 }

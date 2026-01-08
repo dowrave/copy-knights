@@ -31,10 +31,6 @@ public class DeployableBarUI : MonoBehaviour
         canvas.worldCamera = mainCamera;
     }
 
-    public void Initialize(IDeployable deployable)
-    {
-    }
-
     private void Update()
     {   
         UpdateRotation();

@@ -32,6 +32,8 @@ public class PathfindingManager : MonoBehaviour
         }
 
         StageManager.Instance.OnMapLoaded += OnMapLoaded;
+        Barricade.OnBarricadeDeployed += HandleBarricadeDeployed;
+        Barricade.OnBarricadeRemoved += HandleBarricadeRemoved;
     }
 
     private void OnMapLoaded(Map map)
@@ -246,7 +248,12 @@ public class PathfindingManager : MonoBehaviour
         return new List<Vector3>();
     }
 
-    public void AddBarricade(Barricade barricade)
+    public void HandleBarricadeDeployed(Barricade barricade)
+    {
+        AddBarricade(barricade);
+    }
+
+    private void AddBarricade(Barricade barricade)
     {
         if (!barricades.Contains(barricade))
         {
@@ -254,7 +261,12 @@ public class PathfindingManager : MonoBehaviour
         }
     }
 
-    public void RemoveBarricade(Barricade barricade)
+    public void HandleBarricadeRemoved(Barricade barricade)
+    {
+        RemoveBarricade(barricade);
+    }
+
+    private void RemoveBarricade(Barricade barricade)
     {
         barricades.Remove(barricade);
     }
@@ -379,5 +391,12 @@ public class PathfindingManager : MonoBehaviour
         }
 
         return tiles;
+    }
+
+    private void OnDisable()
+    {
+        StageManager.Instance.OnMapLoaded -= OnMapLoaded;
+        Barricade.OnBarricadeDeployed -= HandleBarricadeDeployed;
+        Barricade.OnBarricadeRemoved -= HandleBarricadeRemoved;
     }
 }

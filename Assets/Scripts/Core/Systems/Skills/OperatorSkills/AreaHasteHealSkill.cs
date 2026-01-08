@@ -32,7 +32,7 @@ namespace Skills.Base
             Vector2Int centerPos = GetCenterGridPos(caster);
             if (centerPos != caster.LastSkillCenter)
             {
-                HashSet<Vector2Int> skillRange = PositionCalculationSystem.CalculateRange(skillRangeOffset, centerPos, caster.FacingDirection);
+                HashSet<Vector2Int> skillRange = PositionCalculationSystem.CalculateRange(skillRangeOffset, centerPos, caster.FacingDirection.Value);
                 caster.SetCurrentSkillRange(skillRange);
             }
 

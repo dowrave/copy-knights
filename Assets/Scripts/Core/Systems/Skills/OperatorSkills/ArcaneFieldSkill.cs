@@ -42,7 +42,7 @@ namespace Skills.OperatorSkills
             Vector2Int centerPos = MapManager.Instance!.ConvertToGridPosition(target.transform.position);
             if (caster.LastSkillCenter != centerPos)
             {
-                HashSet<Vector2Int> skillRange = PositionCalculationSystem.CalculateRange(skillRangeOffset, centerPos, caster.FacingDirection);
+                HashSet<Vector2Int> skillRange = PositionCalculationSystem.CalculateRange(skillRangeOffset, centerPos, caster.FacingDirection.Value);
                 caster.SetCurrentSkillRange(skillRange);
                 caster.SetLastSkillCenter(centerPos);
             }

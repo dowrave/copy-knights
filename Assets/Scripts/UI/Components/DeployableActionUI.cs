@@ -125,6 +125,7 @@ public class DeployableActionUI : MonoBehaviour
         // 버튼 위치는 인스펙터에서 설정
         // 버튼 이벤트 설정
         retreatButton.onClick.AddListener(OnRetreatButtonClicked);
+        
         if (deployable is Operator)
         {
             skillButton.onClick.AddListener(OnSkillButtonClicked);

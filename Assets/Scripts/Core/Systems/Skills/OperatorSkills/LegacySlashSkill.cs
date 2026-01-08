@@ -25,13 +25,13 @@ namespace Skills.OperatorSkills
             if (slashEffectPrefab == null) return;
 
             Vector3 spawnPosition = op.transform.position + op.transform.forward * 0.5f;
-            Quaternion spawnRotation = Quaternion.LookRotation(op.FacingDirection);
+            Quaternion spawnRotation = Quaternion.LookRotation(op.FacingDirection.Value);
             GameObject effectObj = Instantiate(slashEffectPrefab, spawnPosition, spawnRotation);
 
             LegacySlashSkillController controller = effectObj.GetComponent<LegacySlashSkillController>();
             if (controller != null)
             {
-                controller.Initialize(op, op.FacingDirection, effectSpeed, effectLifetime, damageMultiplier, skillRangeOffset, op.OperatorData.HitEffectPrefab, op.HitEffectTag);
+                controller.Initialize(op, op.FacingDirection.Value, effectSpeed, effectLifetime, damageMultiplier, skillRangeOffset, op.OperatorData.HitEffectPrefab, op.HitEffectTag);
             }
         }
     }

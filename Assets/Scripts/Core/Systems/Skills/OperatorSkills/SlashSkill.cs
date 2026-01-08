@@ -90,7 +90,7 @@ namespace Skills.OperatorSkills
             // 오퍼레이터의 방향을 고려해 스킬 범위 추가
             foreach (Vector2Int baseOffset in skillRangeOffset)
             {
-                Vector2Int rotatedOffset = PositionCalculationSystem.RotateGridOffset(baseOffset, caster.FacingDirection);
+                Vector2Int rotatedOffset = PositionCalculationSystem.RotateGridOffset(baseOffset, caster.FacingDirection.Value);
                 Vector2Int targetPos = operatorGridPos + rotatedOffset;
                 skillRangeTiles.Add(targetPos);
             }

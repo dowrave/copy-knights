@@ -9,7 +9,7 @@ public enum DeployableDespawnReason
     Retreat // 퇴각
 }
 
-public abstract class DeployableUnitEntity : UnitEntity, IDeployable
+public abstract class DeployableUnitEntity : UnitEntity
 {
     public DeployableInfo DeployableInfo { get; protected set; } = default!;
 
@@ -21,14 +21,16 @@ public abstract class DeployableUnitEntity : UnitEntity, IDeployable
 
     public bool IsDeployed => Deployment.IsDeployed;
     public bool IsPreviewMode => Deployment.IsPreviewMode;
+    public int DeploymentOrder => Deployment.DeploymentOrder; 
     public Tile? CurrentTile => Deployment.CurrentTile;
 
     public int InitialDeploymentCost { get => (int)Stat.GetStat(StatType.DeploymentCost); }
+    public Vector3? FacingDirection { get; protected set; } // 컨테이너에서 관리
 
     public static event Action<DeployableUnitEntity> OnDeployed = delegate { };
     public static event Action<DeployableUnitEntity> OnUndeployed = delegate { };
-    public event Action<DeployableUnitEntity> OnRetreat = delegate { };
     public static event Action<DeployableUnitEntity> OnDeployableSelected = delegate { };
+    public static event Action<DeployableUnitEntity> OnRetreat = delegate { };
 
     protected override void Awake()
     {
@@ -65,7 +67,6 @@ public abstract class DeployableUnitEntity : UnitEntity, IDeployable
         _health.Initialize();
 
         _deployment.Initialize(_deployableData);
-        _deployment.OnDeployed += HandleDeploymentInternal;
     }
 
     // InitializeVisual 관련 템플릿 메서드
@@ -80,31 +81,35 @@ public abstract class DeployableUnitEntity : UnitEntity, IDeployable
         PoolTag = _deployableData.UnitTag;
     }
 
-    // DeploymentController.OnDeployed 이벤트를 받아서 처리함
-    // 여기의 OnDeployed가 static이므로 이렇게 구현해두면 외부 코드를 수정할 필요 없음
-    private void HandleDeploymentInternal(DeployableUnitEntity deployable)
-    {
-        if (deployable == this)
-        {
-            OnDeployed?.Invoke(this);
-        }
-    }
-
-    public virtual void Deploy(Vector3 position)
+    public virtual void Deploy(Vector3 position, Vector3? facingDirection = null)
     {
         if (!IsDeployed)
         {
-            _deployment.Deploy(position);
-            _collider.SetColliderState(true);
+            // 배치 시도 및 성공
+            if (_deployment.Deploy(position, facingDirection))
+            {
+                _collider.SetColliderState(true);
+                DeployAdditionalProcess(); // 자식 클래스에서 구현할 추가 로직들
+                OnDeployed?.Invoke(this);
+            }
         }
     }
 
-    protected void Undeploy()
+    protected virtual void DeployAdditionalProcess() { }
+
+    protected virtual void Undeploy()
     {
-        _deployment.Undeploy();
-        DeployableInfo.deployedDeployable = null;
-        OnUndeployed?.Invoke(this);
-    } 
+        if (_deployment.Undeploy()) // IsDeployed = false & 점유한 타일 비우기
+        {
+            DeployableInfo.deployedDeployable = null;
+
+            UndeployAdditionalProcess();
+
+            OnUndeployed?.Invoke(this);
+        }
+    }
+
+    protected virtual void UndeployAdditionalProcess() { }
 
 
     // 체력이 0 이하가 된 상황일 때 실행됨
@@ -118,13 +123,16 @@ public abstract class DeployableUnitEntity : UnitEntity, IDeployable
         if (reason == DeployableDespawnReason.Null) return;
         if (!IsDeployed) return; // 현재 배치되지 않았으면 Despawn되지 않음
 
-        HandleBeforeDisabled(); 
+        Logger.Log($"{gameObject.name} Despawn 동작");
+
         Undeploy();
+        HandleBeforeDisabled(); 
 
         if (reason == DeployableDespawnReason.Retreat)
         {
             // Operator 퇴각 시에 이 이벤트를 구독하는 메서드가 동작하지 않는 이슈가 있음
             OnRetreat?.Invoke(this); 
+            Logger.Log($"{gameObject.name} OnRetreat 이벤트 동작");
             DieInstantly();
         }
         else if (reason == DeployableDespawnReason.Defeated)
@@ -143,6 +151,17 @@ public abstract class DeployableUnitEntity : UnitEntity, IDeployable
             transform.position = position;
         }
     }
+
+    public void SetDeploymentOrder(int order)
+    {
+        _deployment.SetDeploymentOrder(order);
+    }
+
+    public void SetDirection(Vector3 direction)
+    {
+        FacingDirection = direction;
+    }
+
 
     public virtual void OnClick()
     {

@@ -7,7 +7,7 @@ using Skills.Base;
 using Unity.VisualScripting;
 
 
-public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
+public class Operator : DeployableUnitEntity, ICombatEntity, ISkill
 {
     [SerializeField] protected OperatorData _operatorData;
     public OperatorData OperatorData => _operatorData;
@@ -58,7 +58,6 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
     protected List<Vector2Int> rotatedOffsets = new List<Vector2Int>(); // 회전 반영 오프셋
     public Vector2Int OperatorGridPos => operatorGridPos;
     public List<Vector2Int> CurrentAttackableGridPos { get; set; } = new List<Vector2Int>(); // 회전 반영 공격 범위(gridPosition), public set은 스킬 때문에
-    public Vector3 FacingDirection { get; protected set; } = Vector3.left;
     
     // 공격 범위 내에 있는 적들 
     protected List<Enemy> enemiesInRange = new List<Enemy>();
@@ -71,7 +70,6 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
     public IReadOnlyList<Enemy> BlockableEnemies => blockableEnemies;
 
     // 배치 순서
-    public int DeploymentOrder { get; protected set; } = 0;
 
     // 현재 공격 대상
     public UnitEntity? CurrentTarget { get; protected set; }
@@ -137,6 +135,8 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
         _stat.Initialize(OwnedOp);
         _health.Initialize();
 
+        _currentAttackType = _operatorData.AttackType;
+
     }
 
     // base.Initialize 템플릿 메서드 2
@@ -174,10 +174,6 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
         _deployment.SetDeployState(false);
     }
 
-    public void SetDirection(Vector3 direction)
-    {
-        FacingDirection = direction;
-    }
 
     // Awake에서 동작, 미리 OperatorUI를 만들어둠
     protected void CreateOperatorUI()
@@ -190,7 +186,6 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
     
     protected void InitializeOperatorUI()
     {
-        Logger.Log($"IntializeOperatorUI 동작, opereatorUI : {operatorUI}");
         if (operatorUI != null)
         {
             operatorUI.gameObject.SetActive(true);
@@ -364,11 +359,7 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
         operatorGridPos = MapManager.Instance!.CurrentMap!.WorldToGridPosition(transform.position);
     }
 
-    public void SetDeploymentOrder()
-    {
-        DeploymentOrder = DeployableManager.Instance!.CurrentDeploymentOrder;
-        DeployableManager.Instance!.UpdateDeploymentOrder();
-    }
+
 
     // SP 자동회복 로직 추가
     protected void HandleSPRecovery()
@@ -484,31 +475,36 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
     }
 
     // Despawn의 템플릿 메서드
-    protected override void HandleBeforeDisabled()
+    // protected override void Undeploy()
+    // {
+    //     // 배치되어야 Die가 가능
+    //     if (!IsDeployed) return;
+
+    //     // 공격 범위 타일 해제
+    //     UnregisterTiles();
+
+    //     // 스킬 유지 중이었다면 코루틴 취소 
+    //     if (_activeSkillCoroutine != null)
+    //     {
+    //         StopCoroutine(_activeSkillCoroutine);
+    //         _activeSkillCoroutine = null;
+    //     }
+
+    //     // 사망 후 동작 로직
+    //     UnblockAllEnemies();
+
+    //     _directionIndicator.gameObject.SetActive(false);
+
+    //     // UI 파괴
+    //     DisableOperatorUI();
+
+    //     // 이벤트 구독 해제
+    //     Enemy.OnEnemyDespawned -= HandleEnemyDespawn;
+    // }
+
+    protected override void UndeployAdditionalProcess()
     {
-        // 배치되어야 Die가 가능
-        if (!IsDeployed) return;
-
-        // 공격 범위 타일 해제
-        UnregisterTiles();
-
-        // 스킬 유지 중이었다면 코루틴 취소 
-        if (_activeSkillCoroutine != null)
-        {
-            StopCoroutine(_activeSkillCoroutine);
-            _activeSkillCoroutine = null;
-        }
-
-        // 사망 후 동작 로직
-        UnblockAllEnemies();
-
-        _directionIndicator.gameObject.SetActive(false);
-
-        // UI 파괴
-        DisableOperatorUI();
-
-        // 이벤트 구독 해제
-        Enemy.OnEnemyDespawned -= HandleEnemyDespawn;
+        
     }
 
     protected override void SetPoolTag()
@@ -582,15 +578,17 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
         return false; 
     }
 
-    public override void Deploy(Vector3 position)
+    public override void Deploy(Vector3 position, Vector3? facingDirection = null)
     {
         ClearStates();
+        base.Deploy(position, facingDirection); // DeployAdditionalProcess 이후 OnDeploy?.Invoke 호출됨
+    }
 
-        base.Deploy(position);
-        SetDeploymentOrder();
-        _currentAttackType = _operatorData.AttackType;
+    // base.Deploy()에 들어가는 로직들
+    protected override void DeployAdditionalProcess()
+    {
         operatorGridPos = MapManager.Instance!.CurrentMap!.WorldToGridPosition(transform.position);
-        SetDirection(FacingDirection);
+        // SetDirection(FacingDirection);
         UpdateAttackableTiles(); // 방향에 따른 공격 범위 타일들 업데이트
         RegisterTiles(); // 타일들에 이 오퍼레이터가 공격 타일로 선정했음을 알림
 
@@ -611,6 +609,53 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
         // 적 사망 이벤트 구독
         Enemy.OnEnemyDespawned += HandleEnemyDespawn;
     }
+
+
+
+    // public void SetDeploymentOrder()
+    // {
+    //     DeploymentOrder = DeployableManager.Instance!.CurrentDeploymentOrder;
+    //     DeployableManager.Instance!.UpdateDeploymentOrder();
+    // }
+
+    // public override bool Deploy(Vector3 position)
+    // {
+    //     Logger.Log("Operator.Deploy 동작");
+    //     ClearStates();
+
+    //     if (base.Deploy(position))
+    //     {
+    //         Logger.Log("[Operator.Deploy] - base.Deploy() 동작");
+
+    //         SetDeploymentOrder();
+    //         _currentAttackType = _operatorData.AttackType;
+    //         operatorGridPos = MapManager.Instance!.CurrentMap!.WorldToGridPosition(transform.position);
+    //         SetDirection(FacingDirection);
+    //         UpdateAttackableTiles(); // 방향에 따른 공격 범위 타일들 업데이트
+    //         RegisterTiles(); // 타일들에 이 오퍼레이터가 공격 타일로 선정했음을 알림
+
+    //         if (_directionIndicator != null && !_directionIndicator.isActiveAndEnabled)
+    //         {
+    //             _directionIndicator.gameObject.SetActive(true);
+    //         }
+
+    //         // deployableInfo의 배치된 오퍼레이터를 이것으로 지정
+    //         DeployableInfo.deployedOperator = this;
+
+    //         InitializeOperatorUI();
+    //         InitializeDirectionIndicator();
+
+    //         // 배치 이펙트 실행
+    //         StartCoroutine(PlayDeployVFX());
+
+    //         // 적 사망 이벤트 구독
+    //         Enemy.OnEnemyDespawned += HandleEnemyDespawn;
+
+    //         return true;
+    //     }
+
+    //     return false;
+    // }
 
     protected IEnumerator PlayDeployVFX()
     {
@@ -831,7 +876,7 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill, IRotatable
     {
         // 초기화를 baseOffset의 깊은 복사로 했음.
         rotatedOffsets = new List<Vector2Int>(baseOffsets
-            .Select(tile => PositionCalculationSystem.RotateGridOffset(tile, FacingDirection))
+            .Select(tile => PositionCalculationSystem.RotateGridOffset(tile, FacingDirection.Value))
             .ToList());
         CurrentAttackableGridPos = new List<Vector2Int>();
 
