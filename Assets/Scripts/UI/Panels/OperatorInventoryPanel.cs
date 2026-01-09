@@ -662,7 +662,7 @@ public class OperatorInventoryPanel : MonoBehaviour
                 attackSpeedText.text = opStats.AttackSpeed.ToString("F2");
 
                 // 공격 범위 시각화
-                attackRangeHelper.ShowBasicRange(op.CurrentAttackableGridPos);
+                attackRangeHelper.ShowBasicRange(op.BaseActionableOffsets);
 
                 // 스킬 버튼 초기화 및 선택된 스킬 설정
                 UpdateSkillButtons(SelectedSlot);

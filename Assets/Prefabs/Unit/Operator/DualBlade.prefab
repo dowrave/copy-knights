@@ -66,7 +66,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5539b6735cc37a848be732cf20a90369, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  owner: {fileID: 8846747372839674758}
+  owner: {fileID: 0}
   bodyCollider: {fileID: 4468448840556170626}
 --- !u!1 &4139525383234703659
 GameObject:
@@ -191,10 +191,10 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 2122139728292691929}
-  - component: {fileID: 8846747372839674758}
   - component: {fileID: 9151259883352533866}
   - component: {fileID: 6589113466400880473}
   - component: {fileID: 329094640432030576}
+  - component: {fileID: 67926313695392360}
   m_Layer: 6
   m_Name: DualBlade
   m_TagString: Untagged
@@ -220,22 +220,6 @@ Transform:
   - {fileID: 684792552382033027}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &8846747372839674758
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5185628148525671535}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 5f8299e99a141a0448816f20c17b1719, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  _collider: {fileID: 7884912121629269632}
-  _visual: {fileID: 329094640432030576}
-  _deployableData: {fileID: 0}
-  _operatorData: {fileID: 11400000, guid: 2a6e5dae95d0e4a4a86df911ec0573f4, type: 2}
 --- !u!54 &9151259883352533866
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -298,6 +282,22 @@ MonoBehaviour:
   flashDuration: 0.15
   flashColor: {r: 0.3, g: 0.3, b: 0.3, a: 1}
   fadeDuration: 0.3
+--- !u!114 &67926313695392360
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5185628148525671535}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6d95cb21862f15047b25fc339c35a4ec, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Operator
+  _collider: {fileID: 7884912121629269632}
+  _visual: {fileID: 329094640432030576}
+  _deployableData: {fileID: 0}
+  _operatorData: {fileID: 11400000, guid: 2a6e5dae95d0e4a4a86df911ec0573f4, type: 2}
 --- !u!1 &6597149078555452310
 GameObject:
   m_ObjectHideFlags: 0

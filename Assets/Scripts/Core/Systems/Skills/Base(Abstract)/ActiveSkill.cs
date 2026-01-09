@@ -52,8 +52,8 @@ namespace Skills.Base
             PlayAdditionalVFX(caster);
 
             // 스킬 사용 직후에는 공격 속도 / 모션 초기화
-            caster.SetAttackDuration(0f);
-            caster.SetAttackCooldown(0f);
+            caster.SetActionDuration(0f);
+            caster.SetActionCooldown(0f);
 
             caster.SetSkillOnState(true);
         }
@@ -83,8 +83,8 @@ namespace Skills.Base
             caster.SetSkillOnState(false);
 
             // 스킬이 꺼질 때도 공격 쿨다운 초기화 - 바로 때릴 수 있게끔
-            caster.SetAttackDuration(0f);
-            caster.SetAttackCooldown(0f);
+            caster.SetActionDuration(0f);
+            caster.SetActionCooldown(0f);
 
             // 버프 해제는 여기서 구현하지 않겠음 - 자식에서 각자!
 

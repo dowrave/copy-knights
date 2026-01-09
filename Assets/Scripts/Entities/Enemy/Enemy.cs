@@ -21,8 +21,8 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity
     // 수정 필요할지도?
     public override AttackType AttackType => BaseData.AttackType; // 수정 필요
     public AttackRangeType AttackRangeType => BaseData.AttackRangeType;
-    public float AttackCooldown { get; set; } // 다음 공격까지의 대기 시간
-    public float AttackDuration { get; set; } // 공격 모션 시간. Animator가 추가될 때 수정 필요할 듯. 항상 Cooldown보다 짧아야 함.
+    public float ActionCooldown { get; set; } // 다음 공격까지의 대기 시간
+    public float ActionDuration { get; set; } // 공격 모션 시간. Animator가 추가될 때 수정 필요할 듯. 항상 Cooldown보다 짧아야 함.
 
     public override float AttackPower { get => Stat.GetStat(StatType.AttackPower);}
     public override float AttackSpeed { get => Stat.GetStat(StatType.AttackSpeed);}
@@ -271,8 +271,8 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity
 
     protected virtual void UpdateAllCooldowns()
     {
-        UpdateAttackDuration();
-        UpdateAttackCooldown();
+        UpdateActionDuration();
+        UpdateActionCooldown();
     }
 
     // 행동 규칙.
@@ -280,7 +280,7 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity
     {
         if (CurrentPathIndex < currentPathPositions.Count)
         {
-            if (AttackDuration > 0) return;  // 공격 모션 중
+            if (ActionDuration > 0) return;  // 공격 모션 중
 
             // 공격 범위 내의 적 리스트 & 현재 공격 대상 갱신
             SetCurrentTarget();
@@ -623,19 +623,19 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity
     }
 
     // 인터페이스 때문에 구현
-    public void UpdateAttackDuration()
+    public void UpdateActionDuration()
     {
-        if (AttackDuration > 0f)
+        if (ActionDuration > 0f)
         {
-            AttackDuration -= Time.deltaTime;
+            ActionDuration -= Time.deltaTime;
         }
     }
 
-    public void UpdateAttackCooldown()
+    public void UpdateActionCooldown()
     {
-        if (AttackCooldown > 0f)
+        if (ActionCooldown > 0f)
         {
-            AttackCooldown -= Time.deltaTime;
+            ActionCooldown -= Time.deltaTime;
         }
     }
 
@@ -643,31 +643,31 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity
     // 공격 모션 시간, 공격 쿨타임 시간 설정
     public void SetAttackTimings()
     {
-        if (AttackDuration <= 0f)
+        if (ActionDuration <= 0f)
         {
-            SetAttackDuration();
+            SetActionDuration();
         }
-        if (AttackCooldown <= 0f)
+        if (ActionCooldown <= 0f)
         {
-            SetAttackCooldown();
+            SetActionCooldown();
         }
     }
 
-    public void SetAttackDuration(float? intentionalDuration = null)
+    public void SetActionDuration(float? intentionalDuration = null)
     {
-        AttackDuration = AttackSpeed / 3f;
+        ActionDuration = AttackSpeed / 3f;
     }
 
-    public void SetAttackCooldown(float? intentionalCooldown = null)
+    public void SetActionCooldown(float? intentionalCooldown = null)
     {
-        AttackCooldown = AttackSpeed;
+        ActionCooldown = AttackSpeed;
     }
 
     public bool CanAttack()
     {
         return CurrentTarget != null &&
-            AttackCooldown <= 0 &&
-            AttackDuration <= 0 &&
+            ActionCooldown <= 0 &&
+            ActionDuration <= 0 &&
             !stopAttacking; 
     }
 

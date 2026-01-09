@@ -34,7 +34,8 @@ public class OwnedOperator
     public List<OperatorSkill> UnlockedSkills => unlockedSkills;
     public OperatorSkill DefaultSelectedSkill => defaultSelectedSkill;
     public int DefaultSelectedSkillIndex => UnlockedSkills.IndexOf(defaultSelectedSkill);
-    public List<Vector2Int> CurrentAttackableGridPos => currentAttackableGridPos;
+    // 기준 위치 (0, 0) 및 기준 방향 왼쪽을 기준으로 한 행동 가능 범위
+    public List<Vector2Int> BaseActionableOffsets => currentAttackableGridPos; 
     public OperatorData OperatorData
     {
         get

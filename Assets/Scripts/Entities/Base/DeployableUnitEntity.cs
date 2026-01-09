@@ -11,14 +11,15 @@ public enum DeployableDespawnReason
 
 public abstract class DeployableUnitEntity : UnitEntity
 {
+    [SerializeField] protected DeployableUnitData _deployableData;
+    public DeployableUnitData DeployableData => _deployableData;
+
     public DeployableInfo DeployableInfo { get; protected set; } = default!;
 
     protected DeploymentController _deployment;
     public IReadableDeploymentController Deployment => _deployment;
 
-    [SerializeField] protected DeployableUnitData _deployableData;
-    public DeployableUnitData DeployableData => _deployableData;
-
+    public Vector2Int GridPos => Deployment.GridPos;
     public bool IsDeployed => Deployment.IsDeployed;
     public bool IsPreviewMode => Deployment.IsPreviewMode;
     public int DeploymentOrder => Deployment.DeploymentOrder; 
@@ -65,7 +66,6 @@ public abstract class DeployableUnitEntity : UnitEntity
         // 데이터를 이용해 스탯 초기화
         _stat.Initialize(_deployableData);
         _health.Initialize();
-
         _deployment.Initialize(_deployableData);
     }
 
@@ -162,6 +162,10 @@ public abstract class DeployableUnitEntity : UnitEntity
         FacingDirection = direction;
     }
 
+    public void SetGridPosition()
+    {
+        _deployment.SetGridPosition();
+    }
 
     public virtual void OnClick()
     {

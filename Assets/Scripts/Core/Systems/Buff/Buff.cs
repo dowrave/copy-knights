@@ -96,8 +96,8 @@ public abstract class Buff
     {
         if (owner is Operator op)
         {
-            op.SetAttackDuration();
-            op.SetAttackCooldown();
+            op.SetActionDuration();
+            op.SetActionCooldown();
         }
     }
 

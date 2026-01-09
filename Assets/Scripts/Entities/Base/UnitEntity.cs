@@ -174,8 +174,7 @@ public abstract class UnitEntity : MonoBehaviour, ITargettable, IFactionMember
             _visual.PlayHitFeedback(source, this);
         }
 
-        // 대미지 팝업
-        // 얘가 직접 알린다? 이벤트로 발생시킨다? 
+        // 대미지 팝업 
         if (source.ShowDamagePopup && damageTaken > 0)
         {
             ObjectPoolManager.Instance.ShowFloatingText(transform.position, damageTaken, false);

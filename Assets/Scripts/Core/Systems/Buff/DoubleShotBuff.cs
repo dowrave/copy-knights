@@ -32,12 +32,12 @@ public class DoubleShotBuff : Buff
 
             float modifiedDamage = op.AttackPower * damageMultiplier;
 
-            op.PerformAttack(target, modifiedDamage, false);
+            op.PerformAction(target, modifiedDamage);
             yield return new WaitForSeconds(this.delayBetweenShots);
 
             if (target != null && target.Health.CurrentHealth >= 0)
             {
-                op.PerformAttack(target, modifiedDamage, false);
+                op.PerformAction(target, modifiedDamage);
             }
         }
     }

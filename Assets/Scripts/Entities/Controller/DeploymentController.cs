@@ -6,6 +6,9 @@ public class DeploymentController: IReadableDeploymentController
     private readonly DeployableUnitEntity _owner; 
     private IDeployableData _data;
 
+    private Vector2Int _gridPos;
+    public Vector2Int GridPos => _gridPos;
+
     private float _lastDeployTime; // float네?
     // private float preventInteractingTime = 0.1f;
 
@@ -91,6 +94,8 @@ public class DeploymentController: IReadableDeploymentController
 
     }
 
+
+    // 월드 포지션을 설정하고 그리드 포지션도 함께 설정함
     private void SetPosition(Vector3 worldPosition)
     {
         if (CurrentTile != null)
@@ -103,10 +108,16 @@ public class DeploymentController: IReadableDeploymentController
             {
                 _owner.transform.position = worldPosition + Vector3.up * (CurrentTile.GetHeightScale() / 2);
             }
+
+            SetGridPosition();
         }
     }
 
-    
+    // 현재 위치에 대응하는 gridPosition을 설정
+    public void SetGridPosition()
+    {
+        _gridPos = MapManager.Instance!.CurrentMap!.WorldToGridPosition(_owner.transform.position);
+    }
 
     private void UpdateCurrentTile()
     {

@@ -163,7 +163,7 @@ public class OperatorPromotionPanel : MonoBehaviour
         attackRangeContents.SetActive(true);
 
         // 정예화 이전 기본 공격 범위
-        List<Vector2Int> baseTiles = new List<Vector2Int>(op.CurrentAttackableGridPos);
+        List<Vector2Int> baseTiles = new List<Vector2Int>(op.BaseActionableOffsets);
 
         // 기본 범위와 추가 범위를 다른 색상으로 표시
         if (additionalTiles.Count > 0)

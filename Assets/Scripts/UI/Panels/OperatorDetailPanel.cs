@@ -165,7 +165,7 @@ public class OperatorDetailPanel : MonoBehaviour
         // 공격 범위 설정
         if (currentOperator != null)
         {
-            attackRangeHelper.ShowBasicRange(currentOperator.CurrentAttackableGridPos);
+            attackRangeHelper.ShowBasicRange(currentOperator.BaseActionableOffsets);
 
         }
     }

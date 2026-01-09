@@ -77,10 +77,10 @@ public class StatModificationBuff : Buff
             // 공격 범위
             if (modifiers.attackRangeModifier != null && modifiers.attackRangeModifier.Count > 0)
             {
-                originalAttackableGridPos = op.CurrentAttackableGridPos;
+                // 나중에 원래대로 되돌리기 위해 원본 값을 저장
+                originalAttackableGridPos = new List<Vector2Int>(op.CurrentActionableGridPos);
                 
-                List<Vector2Int> newRange = new List<Vector2Int>(op.CurrentAttackableGridPos);
-
+                List<Vector2Int> newRange = new List<Vector2Int>(op.CurrentActionableGridPos);
                 foreach (Vector2Int additionalTile in modifiers.attackRangeModifier)
                 {
                     Vector2Int rotatedTile = PositionCalculationSystem.RotateGridOffset(
@@ -93,7 +93,11 @@ public class StatModificationBuff : Buff
                         newRange.Add(rotatedTile);
                     }
                 }
-                op.CurrentAttackableGridPos = newRange;
+
+                // 이 로직은 그냥 유지할지 따로 처리할지 생각해봄
+                // BuffController로 처리하는 방법도 있을까?
+                op.SetActionableGridPos(newRange);
+                // op.CurrentAttackableGridPos = newRange;
             }
         }
     }
@@ -142,7 +146,9 @@ public class StatModificationBuff : Buff
         owner.AttackType = originalAttackType;
         if (owner is Operator op)
         {
-            op.CurrentAttackableGridPos = originalAttackableGridPos;
+            op.SetActionableGridPos(originalAttackableGridPos);
+
+            // op.CurrentAttackableGridPos = originalAttackableGridPos;
         }
 
 

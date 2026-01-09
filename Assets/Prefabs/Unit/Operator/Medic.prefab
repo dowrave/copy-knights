@@ -176,10 +176,10 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 2886673081674858546}
-  - component: {fileID: 517033730910062632}
   - component: {fileID: 5088326549069652315}
   - component: {fileID: -6054720960652680684}
   - component: {fileID: 8695853689407355706}
+  - component: {fileID: 3561911197184927019}
   m_Layer: 6
   m_Name: Medic
   m_TagString: Untagged
@@ -205,22 +205,6 @@ Transform:
   - {fileID: 6198639253778781507}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &517033730910062632
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4844663318455565301}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 139c068f82afd114e8061129ff42214c, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  _collider: {fileID: 131847971135151132}
-  _visual: {fileID: 8695853689407355706}
-  _deployableData: {fileID: 0}
-  _operatorData: {fileID: 11400000, guid: 4ca9aabe2b7e1d74aa7dc882e7800ba7, type: 2}
 --- !u!54 &5088326549069652315
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -283,6 +267,22 @@ MonoBehaviour:
   flashDuration: 0.15
   flashColor: {r: 0.3, g: 0.3, b: 0.3, a: 1}
   fadeDuration: 0.3
+--- !u!114 &3561911197184927019
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4844663318455565301}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6d95cb21862f15047b25fc339c35a4ec, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Operator
+  _collider: {fileID: 131847971135151132}
+  _visual: {fileID: 8695853689407355706}
+  _deployableData: {fileID: 0}
+  _operatorData: {fileID: 11400000, guid: 4ca9aabe2b7e1d74aa7dc882e7800ba7, type: 2}
 --- !u!1 &7714523018844886595
 GameObject:
   m_ObjectHideFlags: 0
@@ -349,5 +349,5 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5539b6735cc37a848be732cf20a90369, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  owner: {fileID: 517033730910062632}
+  owner: {fileID: 0}
   bodyCollider: {fileID: 5324806227013018812}

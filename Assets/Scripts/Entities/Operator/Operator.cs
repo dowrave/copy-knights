@@ -4,17 +4,16 @@ using System.Linq;
 using UnityEngine;
 using UnityEngine.VFX;
 using Skills.Base;
-using Unity.VisualScripting;
 
 
 public class Operator : DeployableUnitEntity, ICombatEntity, ISkill
 {
     [SerializeField] protected OperatorData _operatorData;
     public OperatorData OperatorData => _operatorData;
-    // [HideInInspector] 
-    // public OperatorStats currentOperatorStats; // 일단 public으로 구현
-    // [SerializeField] protected GameObject operatorUIPrefab = default!;
 
+    private OperatorActionController _action;
+
+    
     public OwnedOperator OwnedOp {get; protected set;} 
 
     // ICombatEntity 필드
@@ -37,6 +36,10 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill
     public int MaxBlockableEnemies { get => (int)Stat.GetStat(StatType.MaxBlockCount); }
     public float SPRecoveryRate { get => Stat.GetStat(StatType.SPRecoveryRate); }
 
+    public float ActionCooldown => _action.ActionCooldown;
+    public float ActionDuration => _action.ActionDuration;
+
+    public IReadOnlyList<Vector2Int> CurrentActionableGridPos => _action.CurrentActionableGridPos;
 
     protected float currentSP;
     public float CurrentSP 
@@ -49,16 +52,16 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill
         }
     }
     public float MaxSP { get; protected set; }
-    public float AttackCooldown { get; protected set; } // 공격 쿨다운
-    public float AttackDuration { get; protected set; } // 공격 모션 시간
+
 
     // 위치와 회전
-    protected Vector2Int operatorGridPos;
-    protected List<Vector2Int> baseOffsets = new List<Vector2Int>(); // 기본 오프셋
-    protected List<Vector2Int> rotatedOffsets = new List<Vector2Int>(); // 회전 반영 오프셋
-    public Vector2Int OperatorGridPos => operatorGridPos;
-    public List<Vector2Int> CurrentAttackableGridPos { get; set; } = new List<Vector2Int>(); // 회전 반영 공격 범위(gridPosition), public set은 스킬 때문에
-    
+    // protected Vector2Int operatorGridPos;
+    // protected List<Vector2Int> baseOffsets = new List<Vector2Int>(); // 기본 오프셋
+    // protected List<Vector2Int> rotatedOffsets = new List<Vector2Int>(); // 회전 반영 오프셋
+    // public Vector2Int OperatorGridPos => operatorGridPos;
+    // public List<Vector2Int> CurrentAttackableGridPos { get; set; } = new List<Vector2Int>(); // 회전 반영 공격 범위(gridPosition), public set은 스킬 때문에
+
+
     // 공격 범위 내에 있는 적들 
     protected List<Enemy> enemiesInRange = new List<Enemy>();
 
@@ -72,7 +75,7 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill
     // 배치 순서
 
     // 현재 공격 대상
-    public UnitEntity? CurrentTarget { get; protected set; }
+    public UnitEntity? CurrentTarget => _action.CurrentTarget;
 
     // UI 필드
     protected GameObject operatorUIInstance = default!;
@@ -109,6 +112,22 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill
     protected override void Awake()
     {
         base.Awake();
+
+        if (OperatorData.OperatorClass == OperatorClass.Medic)
+        {
+            _action = new OperatorHealController();
+        }
+        else if (OperatorData.OperatorClass == OperatorClass.DualBlade)
+        {
+            _action = new DualBladeAttackController();
+        }
+        else
+        {
+            _action = new OperatorAttackController();
+        }
+
+        // _attack = new OperatorAttackController();
+
         CreateDirectionIndicator();
         CreateOperatorUI();
     }
@@ -134,6 +153,8 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill
         // 데이터를 이용해 스탯 초기화
         _stat.Initialize(OwnedOp);
         _health.Initialize();
+        _deployment.Initialize(_operatorData); // _attack보다 먼저 와야 함(GridPosition 때문에)
+        _action.Initialize(this);
 
         _currentAttackType = _operatorData.AttackType;
 
@@ -149,12 +170,6 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill
     protected override void OnInitialized()
     {
         CurrentSP = OperatorData.InitialSP;
-
-        // 현재 상태 반영
-        // currentOperatorStats = OwnedOp.CurrentStats;
-
-        // 회전 반영
-        baseOffsets = new List<Vector2Int>(OwnedOp.CurrentAttackableGridPos); // 왼쪽 방향 기준
 
         // 스킬 설정
         if (DeployableInfo.skillIndex.HasValue)
@@ -203,12 +218,11 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill
         if (IsDeployed && StageManager.Instance!.CurrentGameState == GameState.Battle)
         {
             // ----- 상태 갱신 로직. 행동 제약과 무관 -----
-            UpdateAttackDuration();
-            UpdateAttackCooldown();
-
             HandleSPRecovery(); // SP 회복
 
             base.Update(); // 버프 효과의 갱신
+            _action.OnUpdate();
+
             CurrentSkill.OnUpdate(this); // 스킬에서도 감시
 
             // 행동 불능 상태 체크
@@ -217,129 +231,14 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill
             // ----- 행동 가능 상태의 로직 -----
             // 동작을 아예 못하는 상황과 구분한다. 예를 들면 기절 상태인데 스킬을 자동으로 켤 수는 없음.
             HandleSkillAutoActivate();
-
-            if (AttackDuration > 0) return; // 공격 모션 중에는 타겟 변경/공격 불가능
-            // 참고) 공격 모션이 아니지만 쿨다운일 때도 타겟은 계속 설정한다. 그래서 AttackCooldown 조건은 달지 않음.
-
-            SetCurrentTarget(); // CurrentTarget 설정
-            ValidateCurrentTarget();
-
-            if (CanAttack())
-            {
-                // 공격 방식을 바꾸는 버프가 있는지 찾는다 
-                Buff? attackModifierBuff = ActiveBuffs.FirstOrDefault(b => b.ModifiesAttackAction);
-
-                // 공격 형식을 바꿔야 하는 경우 스킬의 동작을 따라감
-                if (attackModifierBuff != null)
-                {
-                    attackModifierBuff.PerformChangedAttackAction(this);
-                }
-                // 아니라면 평타
-                else
-                {
-                    Attack(CurrentTarget!, AttackPower);
-                }
-            }
         }
     }
 
     protected virtual void HandleSkillAutoActivate()
     {
         if (CurrentSkill != null && CurrentSkill.autoActivate && CanUseSkill())
-            {
-                UseSkill();
-            }
-    }
-
-
-    // 인터페이스만 계승, PerformAttack으로 전달
-    public virtual void Attack(UnitEntity target, float damage)
-    {
-        bool showDamagePopup = false;
-        float polishedDamage = Mathf.Floor(damage);
-
-        // 공격이 나가는 시점에 쿨타임이 돌게 수정
-        // 실제 공격을 수행할 때 어떻게 수행되는지가 다르므로 PerformAttack 밖에서 구현한다.
-        // 예시) DoubleShot의 경우 PerformAttack 안에서 구현하면 쿨타임이 있는데 스킬이 나가는 이상한 구현이 됨
-        SetAttackDuration();
-        SetAttackCooldown();
-
-        PerformAttack(target, polishedDamage, showDamagePopup);
-    }
-
-    public virtual void PerformAttack(UnitEntity target, float damage, bool showDamagePopup)
-    {
-        float spBeforeAttack = CurrentSP;
-        AttackType finalAttackType = _currentAttackType;
-
-        // 스킬 시스템에서 버프로 변환 중
-        // 공격에만 적용되는 버프 적용
-        foreach (var buff in ActiveBuffs)
         {
-            buff.OnBeforeAttack(this, ref damage, ref finalAttackType, ref showDamagePopup);
-        }
-
-        // 실제 공격 수행
-        switch (OperatorData.AttackRangeType)
-        {
-            case AttackRangeType.Melee:
-                PerformMeleeAttack(target, damage, finalAttackType, showDamagePopup);
-                break;
-            case AttackRangeType.Ranged:
-                PerformRangedAttack(target, damage, finalAttackType, showDamagePopup);
-                break;
-        }
-
-        // 공격 후 SP 회복 로직
-        if (!CurrentSkill.autoRecover && // 자동회복이 아니면서
-            !IsSkillOn &&
-            spBeforeAttack != MaxSP) // 스킬이 실려서 나간 공격일 때는 SP 회복 X 
-        {
-            CurrentSP += 1;
-        }
-
-        // 공격 후 동작
-        foreach (var buff in ActiveBuffs.ToList()) // buff가 제거될 수 있기 때문에 복사본으로 안전하게 진행
-        {
-            buff.OnAfterAttack(this, target);
-        }
-
-    }
-
-    protected virtual void PerformMeleeAttack(UnitEntity target, float damage, AttackType attackType, bool showDamagePopup = false)
-    {
-        AttackSource attackSource = new AttackSource(
-            attacker: this,
-            position: transform.position,
-            damage: damage,
-            type: attackType,
-            isProjectile: false,
-            hitEffectTag: OperatorData.HitVFXTag,
-            showDamagePopup: showDamagePopup
-        );
-
-        PlayMeleeAttackEffect(target, attackSource);
-        target.TakeDamage(attackSource);
-    }
-
-    protected virtual void PerformRangedAttack(UnitEntity target, float damage, AttackType attackType, bool showDamagePopup = false)
-    {
-        if (_operatorData.ProjectilePrefab != null)
-        {
-            // 투사체 생성 위치
-            Vector3 spawnPosition = transform.position + transform.forward * 0.25f;
-
-            GameObject? projectileObj = ObjectPoolManager.Instance!.SpawnFromPool(_operatorData.ProjectileTag, spawnPosition, Quaternion.identity);
-            if (projectileObj != null)
-            {
-                Projectile? projectile = projectileObj.GetComponent<Projectile>();
-                if (projectile != null)
-                {
-                    PlayMuzzleVFX();
-                    projectile.Initialize(this, target, damage, showDamagePopup, _operatorData.ProjectileTag, _operatorData.HitVFXTag, AttackType);
-                }
-            }
-            
+            UseSkill();
         }
     }
 
@@ -354,14 +253,7 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill
         }
     }
 
-    public void SetGridPosition()
-    {
-        operatorGridPos = MapManager.Instance!.CurrentMap!.WorldToGridPosition(transform.position);
-    }
-
-
-
-    // SP 자동회복 로직 추가
+    // SP 자동회복 로직
     protected void HandleSPRecovery()
     {
         if (IsDeployed == false || CurrentSkill == null) { return; }
@@ -474,34 +366,6 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill
         StatisticsManager.Instance!.UpdateDamageTaken(OperatorData, actualDamage);
     }
 
-    // Despawn의 템플릿 메서드
-    // protected override void Undeploy()
-    // {
-    //     // 배치되어야 Die가 가능
-    //     if (!IsDeployed) return;
-
-    //     // 공격 범위 타일 해제
-    //     UnregisterTiles();
-
-    //     // 스킬 유지 중이었다면 코루틴 취소 
-    //     if (_activeSkillCoroutine != null)
-    //     {
-    //         StopCoroutine(_activeSkillCoroutine);
-    //         _activeSkillCoroutine = null;
-    //     }
-
-    //     // 사망 후 동작 로직
-    //     UnblockAllEnemies();
-
-    //     _directionIndicator.gameObject.SetActive(false);
-
-    //     // UI 파괴
-    //     DisableOperatorUI();
-
-    //     // 이벤트 구독 해제
-    //     Enemy.OnEnemyDespawned -= HandleEnemyDespawn;
-    // }
-
     protected override void UndeployAdditionalProcess()
     {
         
@@ -522,18 +386,23 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill
         }
     }
 
+    // 시각화 기능 - 일단 컨테이너에서 유지
     public void HighlightAttackRange()
     {
+        List<Vector2Int> gridPosToHighlight;
         List<Tile> tilesToHighlight = new List<Tile>();
 
+        // 배치되지 않은 경우는 현재 위치 / 방향을 계산해서 받음
         if (!IsDeployed)
         {
-            Vector2Int operatorGridPos = MapManager.Instance!.CurrentMap!.WorldToGridPosition(transform.position);
-            UpdateAttackableTiles();
+            gridPosToHighlight = _action.GetActionableGridPos();
+        }
+        else
+        {
+            gridPosToHighlight = new List<Vector2Int>(CurrentActionableGridPos);
         }
 
-
-        foreach (Vector2Int eachPos in CurrentAttackableGridPos)
+        foreach (Vector2Int eachPos in gridPosToHighlight)
         {
             Tile? targetTile = MapManager.Instance!.CurrentMap!.GetTile(eachPos.x, eachPos.y);
             if (targetTile != null)
@@ -542,40 +411,13 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill
             }
         }
 
+        // 템플릿 메서드
         HighlightAttackRanges(tilesToHighlight);
     }
 
     protected virtual void HighlightAttackRanges(List<Tile> tiles)
     {
         DeployableManager.Instance!.HighlightAttackRanges(tiles, false);
-    }
-
-    /// 현재 타겟의 유효성 검사
-    protected virtual void ValidateCurrentTarget()
-    {
-        if (CurrentTarget == null) return;
-        if (blockedEnemies.Contains(CurrentTarget)) return;
-
-        // 범위에서 벗어난 경우
-        if (!IsCurrentTargetInRange())
-        {
-            CurrentTarget.RemoveAttackingEntity(this);
-            CurrentTarget = null;
-        }
-    }
-    
-    // Target이 공격 범위 내의 타일에 있는지 체크
-    protected bool IsCurrentTargetInRange()
-    {
-        foreach (Vector2Int eachPos in CurrentAttackableGridPos)
-        {
-            Tile? eachTile = MapManager.Instance!.GetTile(eachPos.x, eachPos.y);
-            if (eachTile != null && eachTile.EnemiesOnTile.Contains(CurrentTarget))
-            {
-                return true;
-            }
-        }
-        return false; 
     }
 
     public override void Deploy(Vector3 position, Vector3? facingDirection = null)
@@ -585,12 +427,10 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill
     }
 
     // base.Deploy()에 들어가는 로직들
+    // _deployment.Deploy() 동작 후 실행됨
     protected override void DeployAdditionalProcess()
     {
-        operatorGridPos = MapManager.Instance!.CurrentMap!.WorldToGridPosition(transform.position);
-        // SetDirection(FacingDirection);
-        UpdateAttackableTiles(); // 방향에 따른 공격 범위 타일들 업데이트
-        RegisterTiles(); // 타일들에 이 오퍼레이터가 공격 타일로 선정했음을 알림
+        _action.OnDeploy();
 
         if (_directionIndicator != null && !_directionIndicator.isActiveAndEnabled)
         {
@@ -609,53 +449,6 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill
         // 적 사망 이벤트 구독
         Enemy.OnEnemyDespawned += HandleEnemyDespawn;
     }
-
-
-
-    // public void SetDeploymentOrder()
-    // {
-    //     DeploymentOrder = DeployableManager.Instance!.CurrentDeploymentOrder;
-    //     DeployableManager.Instance!.UpdateDeploymentOrder();
-    // }
-
-    // public override bool Deploy(Vector3 position)
-    // {
-    //     Logger.Log("Operator.Deploy 동작");
-    //     ClearStates();
-
-    //     if (base.Deploy(position))
-    //     {
-    //         Logger.Log("[Operator.Deploy] - base.Deploy() 동작");
-
-    //         SetDeploymentOrder();
-    //         _currentAttackType = _operatorData.AttackType;
-    //         operatorGridPos = MapManager.Instance!.CurrentMap!.WorldToGridPosition(transform.position);
-    //         SetDirection(FacingDirection);
-    //         UpdateAttackableTiles(); // 방향에 따른 공격 범위 타일들 업데이트
-    //         RegisterTiles(); // 타일들에 이 오퍼레이터가 공격 타일로 선정했음을 알림
-
-    //         if (_directionIndicator != null && !_directionIndicator.isActiveAndEnabled)
-    //         {
-    //             _directionIndicator.gameObject.SetActive(true);
-    //         }
-
-    //         // deployableInfo의 배치된 오퍼레이터를 이것으로 지정
-    //         DeployableInfo.deployedOperator = this;
-
-    //         InitializeOperatorUI();
-    //         InitializeDirectionIndicator();
-
-    //         // 배치 이펙트 실행
-    //         StartCoroutine(PlayDeployVFX());
-
-    //         // 적 사망 이벤트 구독
-    //         Enemy.OnEnemyDespawned += HandleEnemyDespawn;
-
-    //         return true;
-    //     }
-
-    //     return false;
-    // }
 
     protected IEnumerator PlayDeployVFX()
     {
@@ -689,26 +482,20 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill
 
     protected void ClearStates()
     {
-        enemiesInRange.Clear();
+        _action.ResetState();
+
         blockedEnemies.Clear();
         blockableEnemies.Clear();
         currentBlockCount = 0;
-        CurrentTarget = null;
+        
     }
 
     // 적 디스폰 이벤트를 받았을 때의 처리
     protected void HandleEnemyDespawn(Enemy enemy, EnemyDespawnReason reason)
     {
-        // 1. 현재 타겟이라면 타겟 해제
         if (CurrentTarget == enemy)
         {
-            CurrentTarget = null;
-        }
-
-        // 2. 공격 범위 내에 해당 대상이 있다면 범위 내에서 제외
-        if (enemiesInRange.Contains(enemy))
-        {
-            enemiesInRange.Remove(enemy);
+            _action.OnTargetDespawn(enemy);
         }
 
         // 3. 저지 가능 대상, 저지 중인 대상일 때 제외
@@ -728,120 +515,6 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill
     public bool CanUseSkill()
     {
         return IsDeployed && CurrentSP >= MaxSP && !IsSkillOn;
-    }
-
-    // 공격 대상 설정 로직
-    public virtual void SetCurrentTarget()
-    {
-        // 1. 저지 중일 때 -> 저지 중인 적
-        if (blockedEnemies.Count > 0)
-        {
-            for (int i = 0; i < blockedEnemies.Count; i++)
-            {
-                if (blockedEnemies[i])
-                {
-                    CurrentTarget = blockedEnemies[i];
-                    break;
-                }
-            }
-            NotifyTarget();
-            return;
-        }
-
-        // 2. 저지 중이 아닐 때에는 공격 범위 내의 적 중에서 공격함
-        if (enemiesInRange.Count > 0)
-        {
-            CurrentTarget = enemiesInRange
-                .Where(e => e != null && e.gameObject != null) // 파괴 검사 & null 검사 함께 수행
-                .OrderBy(E => E.Navigator.GetRemainingPathDistance(E.CurrentPathIndex)) // 살아있는 객체 중 남은 거리가 짧은 순서로 정렬
-                .FirstOrDefault(); // 가장 짧은 거리의 객체를 가져옴
-
-            // Logger.Log($"");
-
-            if (CurrentTarget != null)
-            {
-                NotifyTarget();
-            }
-            return;
-        }
-
-        // 저지 중인 적도 없고, 공격 범위 내의 적도 없다면 현재 타겟은 없음
-        CurrentTarget = null;
-    }
-
-
-    // 공격 대상 제거 로직
-    public void RemoveCurrentTarget()
-    {
-        if (CurrentTarget != null)
-        {
-            CurrentTarget.RemoveAttackingEntity(this);
-            CurrentTarget = null;
-        }
-    }
-
-    // ICombatEntity 메서드들
-    public void NotifyTarget()
-    {
-        if (CurrentTarget != null)
-        {
-            CurrentTarget.AddAttackingEntity(this);
-        }
-    }
-
-    // 공격 모션 
-    public void UpdateAttackDuration()
-    {
-        if (AttackDuration > 0f)
-        {
-            AttackDuration -= Time.deltaTime;
-        }
-    }
-
-    // 다음 공격 가능 시간
-    public void UpdateAttackCooldown()
-    {
-        if (AttackCooldown > 0f)
-        {
-            AttackCooldown -= Time.deltaTime;
-        }
-    }
-
-    // 공격 모션
-    public void SetAttackDuration(float? intentionalCooldown = null)
-    {
-        if (intentionalCooldown.HasValue)
-        {
-            AttackDuration = intentionalCooldown.Value;
-        }
-        else
-        {
-             AttackDuration = AttackSpeed / 3f;
-        }
-       
-    }
-
-    // 다음 공격까지의 대기 시간
-    public void SetAttackCooldown(float? intentionalCooldown = null)
-    {
-        if (intentionalCooldown.HasValue)
-        {
-            AttackCooldown = intentionalCooldown.Value;
-        }
-        else
-        {
-            AttackCooldown = AttackSpeed;
-        }
-    }
-
-    public bool CanAttack()
-    {
-        if (HasRestriction(ActionRestriction.CannotAttack)) return false;
-
-        return IsDeployed &&
-            CurrentTarget != null &&
-            AttackCooldown <= 0 &&
-            AttackDuration <= 0;
     }
 
     public void UseSkill()
@@ -871,30 +544,13 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill
         _activeSkillCoroutine = null;
     }
 
-    // 배치 위치와 회전을 고려한 공격 범위의 gridPos을 설정함
-    protected void UpdateAttackableTiles()
-    {
-        // 초기화를 baseOffset의 깊은 복사로 했음.
-        rotatedOffsets = new List<Vector2Int>(baseOffsets
-            .Select(tile => PositionCalculationSystem.RotateGridOffset(tile, FacingDirection.Value))
-            .ToList());
-        CurrentAttackableGridPos = new List<Vector2Int>();
-
-        // 현재 오퍼레이터의 위치를 기반으로 한 공격 범위
-        foreach (Vector2Int offset in rotatedOffsets)
-        {
-            Vector2Int inRangeGridPosition = operatorGridPos + offset;
-            CurrentAttackableGridPos.Add(inRangeGridPosition);
-        }
-    }
-
-    protected virtual void PlayMeleeAttackEffect(UnitEntity target, AttackSource attackSource)
+    public virtual void PlayMeleeAttackEffect(UnitEntity target, AttackSource attackSource)
     {
         Vector3 targetPosition = target.transform.position;
         PlayMeleeAttackEffect(targetPosition, attackSource);
     }
 
-    protected virtual void PlayMeleeAttackEffect(Vector3 targetPosition, AttackSource attackSource)
+    public virtual void PlayMeleeAttackEffect(Vector3 targetPosition, AttackSource attackSource)
     {
         // 공격 이펙트(명중 이펙트가 아님 유의!!)
         string effectTag = _operatorData.MeleeAttackVFXTag;
@@ -949,64 +605,65 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill
 
     public void OnEnemyEnteredAttackRange(Enemy enemy)
     {
-        if (!enemiesInRange.Contains(enemy))
-        {
-            enemiesInRange.Add(enemy);
-        }   
+        _action.OnEnemyEnteredActionRange(enemy);
     }
 
     public void OnEnemyExitedAttackRange(Enemy enemy)
     {
-        // 여전히 공격 범위 내에 해당 적이 있는가를 검사
-        foreach (var gridPos in CurrentAttackableGridPos)
-        {
-            Tile? targetTile = MapManager.Instance!.GetTile(gridPos.x, gridPos.y);
-            if (targetTile != null && targetTile.EnemiesOnTile.Contains(enemy))
-            {
-                return;
-            }
-        }
+        _action.OnEnemyExitedActionRange(enemy);
+    }
 
-        // 공격 범위에서 완전히 이탈한 경우에 제거
-        enemiesInRange.Remove(enemy);
-        if (CurrentTarget == enemy)
-        {
-            CurrentTarget = null; // 현재 타겟이 나간 경우 null로 설정
-        }
+    public void SetActionDuration(float? intentionalCooldown = null)
+    {
+        _action.SetActionDuration(intentionalCooldown);
+    }
+
+    public void SetActionCooldown(float? intentionalCooldown = null)
+    {
+        _action.SetActionCooldown(intentionalCooldown);
+    }
+
+    public void PerformAction(UnitEntity target, float value)
+    {
+        _action.PerformAction(target, value);
+    }
+
+    public void SetActionableGridPos(List<Vector2Int> newGridPositions)
+    {
+        _action.SetActionableGridPos(newGridPositions);
     }
 
     // 공격 범위 타일들에 이 오퍼레이터를 등록
-    protected void RegisterTiles()
-    {
-        foreach (Vector2Int eachPos in CurrentAttackableGridPos)
-        {
-            Tile? targetTile = MapManager.Instance!.GetTile(eachPos.x, eachPos.y);
-            if (targetTile != null)
-            {
-                targetTile.RegisterOperator(this);
+    // protected void RegisterTiles()
+    // {
+    //     foreach (Vector2Int eachPos in CurrentAttackableGridPos)
+    //     {
+    //         Tile? targetTile = MapManager.Instance!.GetTile(eachPos.x, eachPos.y);
+    //         if (targetTile != null)
+    //         {
+    //             targetTile.RegisterOperator(this);
 
-                // 타일 등록 시점에 그 타일에 있는 적의 정보도 Operator에게 전달함
-                foreach (Enemy enemy in targetTile.EnemiesOnTile)
-                {
-                    OnEnemyEnteredAttackRange(enemy);
-                }
-            }
-        }
-    }
+    //             // 타일 등록 시점에 그 타일에 있는 적의 정보도 Operator에게 전달함
+    //             foreach (Enemy enemy in targetTile.EnemiesOnTile)
+    //             {
+    //                 OnEnemyEnteredAttackRange(enemy);
+    //             }
+    //         }
+    //     }
+    // }
 
     // 공격 범위 타일들에 이 오퍼레이터를 등록 해제
-    protected void UnregisterTiles()
-    {
-        foreach (Vector2Int eachPos in CurrentAttackableGridPos)
-        {
-            Tile? targetTile = MapManager.Instance!.GetTile(eachPos.x, eachPos.y);
-            if (targetTile != null)
-            {
-                targetTile.UnregisterOperator(this);
-
-            }
-        }
-    }
+    // protected void UnregisterTiles()
+    // {
+    //     foreach (Vector2Int eachPos in CurrentAttackableGridPos)
+    //     {
+    //         Tile? targetTile = MapManager.Instance!.GetTile(eachPos.x, eachPos.y);
+    //         if (targetTile != null)
+    //         {
+    //             targetTile.UnregisterOperator(this);
+    //         }
+    //     }
+    // }
 
     protected override void OnDisable()
     {
@@ -1022,7 +679,7 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill
 
         if (IsDeployed && MapManager.Instance != null)
         {
-            UnregisterTiles();
+            _action.OnDisabled();
         }
 
         if (operatorUI != null)
