@@ -2,7 +2,7 @@ using UnityEngine;
 using System.Collections.Generic;
 using System.Linq;
 
-public abstract class OperatorActionController
+public abstract class OpActionController: IOperatorActionReadOnly
 {
     protected Operator _owner;
     public Operator Owner => _owner;
@@ -94,7 +94,7 @@ public abstract class OperatorActionController
     protected virtual void SetCurrentTarget() { }
     protected virtual void ValidateCurrentTarget() { }
     public virtual void PerformAction(UnitEntity target, float value) { }
-    public abstract void ResetState();
+    public abstract void ResetStates();
     public abstract void OnTargetDespawn(UnitEntity target);
 
     protected bool CanAction()
@@ -131,7 +131,7 @@ public abstract class OperatorActionController
         }
     }
 
-    public virtual void OnEnemyEnteredActionRange(Enemy enemy) { }
-    public virtual void OnEnemyExitedActionRange(Enemy enemy) { }
+    public virtual void OnEnemyEnteredRange(Enemy enemy) { }
+    public virtual void OnEnemyExitedRange(Enemy enemy) { }
     public virtual void OnDisabled() { }
 }

@@ -1,7 +1,7 @@
 using UnityEngine; 
 using System; 
 
-public class DeploymentController: IReadableDeploymentController
+public class DeploymentController: IDeploymentReadOnly
 {
     private readonly DeployableUnitEntity _owner; 
     private IDeployableData _data;

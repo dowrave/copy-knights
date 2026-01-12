@@ -11,9 +11,9 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill
     [SerializeField] protected OperatorData _operatorData;
     public OperatorData OperatorData => _operatorData;
 
-    private OperatorActionController _action;
+    private OpActionController _action;
+    private OpBlockController _block;
 
-    
     public OwnedOperator OwnedOp {get; protected set;} 
 
     // ICombatEntity 필드
@@ -53,24 +53,12 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill
     }
     public float MaxSP { get; protected set; }
 
-
-    // 위치와 회전
-    // protected Vector2Int operatorGridPos;
-    // protected List<Vector2Int> baseOffsets = new List<Vector2Int>(); // 기본 오프셋
-    // protected List<Vector2Int> rotatedOffsets = new List<Vector2Int>(); // 회전 반영 오프셋
-    // public Vector2Int OperatorGridPos => operatorGridPos;
-    // public List<Vector2Int> CurrentAttackableGridPos { get; set; } = new List<Vector2Int>(); // 회전 반영 공격 범위(gridPosition), public set은 스킬 때문에
-
+    // 저지 관련
+    public IReadOnlyList<Enemy> BlockableEnemies => _block.BlockableEnemies;
+    public IReadOnlyList<Enemy> BlockedEnemies => _block.BlockedEnemies;
 
     // 공격 범위 내에 있는 적들 
     protected List<Enemy> enemiesInRange = new List<Enemy>();
-
-    // 저지 관련
-    protected List<Enemy> blockedEnemies = new List<Enemy>(); // 실제로 저지 중인 적들
-    public IReadOnlyList<Enemy> BlockedEnemies => blockedEnemies;
-    protected int currentBlockCount; // 현재 저지 수
-    protected List<Enemy> blockableEnemies = new List<Enemy>(); // 콜라이더가 겹쳐서 저지가 가능한 적들
-    public IReadOnlyList<Enemy> BlockableEnemies => blockableEnemies;
 
     // 배치 순서
 
@@ -115,7 +103,7 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill
 
         if (OperatorData.OperatorClass == OperatorClass.Medic)
         {
-            _action = new OperatorHealController();
+            _action = new OpHealController();
         }
         else if (OperatorData.OperatorClass == OperatorClass.DualBlade)
         {
@@ -123,10 +111,10 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill
         }
         else
         {
-            _action = new OperatorAttackController();
+            _action = new OpAttackController();
         }
 
-        // _attack = new OperatorAttackController();
+        _block = new OpBlockController();
 
         CreateDirectionIndicator();
         CreateOperatorUI();
@@ -153,11 +141,11 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill
         // 데이터를 이용해 스탯 초기화
         _stat.Initialize(OwnedOp);
         _health.Initialize();
-        _deployment.Initialize(_operatorData); // _attack보다 먼저 와야 함(GridPosition 때문에)
+        _deployment.Initialize(_operatorData); // _action보다 먼저
+        _block.Initialize(this); // _action보다 먼저
         _action.Initialize(this);
 
         _currentAttackType = _operatorData.AttackType;
-
     }
 
     // base.Initialize 템플릿 메서드 2
@@ -278,32 +266,9 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill
         // Enemy일 때만 저지 로직 동작
         if (body != null && body.ParentUnit is Enemy enemy)
         {
-            if (!blockableEnemies.Contains(enemy))
-            {
-                blockableEnemies.Add(enemy);
-                TryBlockNextEnemy();
-            }
+            _block.OnEnemyEnteredBlockRange(enemy);
         }
     }
-
-    // 저지 가능한 슬롯이 있을 때 blockableEnemies에서 다음 적을 찾아 저지한다.
-    protected void TryBlockNextEnemy()
-    {
-        // 여유가 없다면 리턴
-        if (currentBlockCount >= MaxBlockableEnemies) return;
-
-        // 저지 가능한 적 목록을 순회, 리스트 앞쪽 = 먼저 들어온 적
-        foreach (Enemy candidateEnemy in blockableEnemies)
-        {
-            // 이 적을 저지할 수 있는지 확인
-            if (CanBlockEnemy(candidateEnemy))
-            {
-                BlockEnemy(candidateEnemy);
-                candidateEnemy.UpdateBlockingOperator(this);
-            }
-        }
-    }
-
 
     public override void OnBodyTriggerExit(Collider other)
     {
@@ -314,49 +279,7 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill
         // 적의 body일 때만 저지 로직 동작
         if (body != null && body.ParentUnit is Enemy enemy)
         {
-            blockableEnemies.Remove(enemy);
-
-            // 실제 저지 중이었다면 저지 해제
-            if (blockedEnemies.Contains(enemy))
-            {
-                UnblockEnemy(enemy);
-                enemy.UpdateBlockingOperator(null);
-            }
-
-            // 다른 적 저지 시도
-            TryBlockNextEnemy();
-        }
-    }
-
-    // 해당 적을 저지할 수 있는가
-    protected bool CanBlockEnemy(Enemy enemy)
-    {
-        return enemy != null && 
-            IsDeployed &&
-            !blockedEnemies.Contains(enemy) && // 이미 저지 중인 적이 아님
-            enemy.BlockingOperator == null &&  // 적을 저지하고 있는 오퍼레이터가 없음
-            currentBlockCount + enemy.BlockSize <= MaxBlockableEnemies; // 이 적을 저지했을 때 최대 저지 수를 초과하지 않음
-    }
-
-    public void BlockEnemy(Enemy enemy)
-    {
-        blockedEnemies.Add(enemy);
-        currentBlockCount += enemy.BlockSize;
-    }
-
-    public void UnblockEnemy(Enemy enemy)
-    {
-        blockedEnemies.Remove(enemy);
-        currentBlockCount -= enemy.BlockSize;
-    }
-
-    public void UnblockAllEnemies()
-    {
-        // ToList를 쓰는 이유 : 반복문 안에서 리스트를 수정하면 오류가 발생할 수 있다 - 복사본을 순회하는 게 안전하다.
-        foreach (Enemy enemy in blockedEnemies.ToList())
-        {
-            enemy.UpdateBlockingOperator(null);
-            UnblockEnemy(enemy);
+            _block.OnEnemyExitedBlockRange(enemy);
         }
     }
 
@@ -482,12 +405,8 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill
 
     protected void ClearStates()
     {
-        _action.ResetState();
-
-        blockedEnemies.Clear();
-        blockableEnemies.Clear();
-        currentBlockCount = 0;
-        
+        _action.ResetStates();
+        _block.ResetStates();
     }
 
     // 적 디스폰 이벤트를 받았을 때의 처리
@@ -498,17 +417,8 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill
             _action.OnTargetDespawn(enemy);
         }
 
-        // 3. 저지 가능 대상, 저지 중인 대상일 때 제외
-        // OnTriggerExit은 겹친 상태에서의 파괴를 감지하지 못하므로 별도의 처리가 필요함
-        if (blockableEnemies.Contains(enemy))
-        {
-            blockableEnemies.Remove(enemy);
-            if (blockedEnemies.Contains(enemy))
-            {
-                UnblockEnemy(enemy);
-                TryBlockNextEnemy();
-            }
-        }
+        // 저지 처리
+        _block.OnEnemyExitedBlockRange(enemy);
     }
 
     // ISkill 메서드
@@ -603,14 +513,26 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill
         _directionIndicator.Initialize(this);
     }
 
+    // 컨트롤러 public 세터 프로퍼티
+
     public void OnEnemyEnteredAttackRange(Enemy enemy)
     {
-        _action.OnEnemyEnteredActionRange(enemy);
+        _action.OnEnemyEnteredRange(enemy);
     }
 
     public void OnEnemyExitedAttackRange(Enemy enemy)
     {
-        _action.OnEnemyExitedActionRange(enemy);
+        _action.OnEnemyExitedRange(enemy);
+    }
+
+    public void OnEnemyEnteredBlockRange(Enemy enemy)
+    {
+        _block.OnEnemyEnteredBlockRange(enemy);
+    }
+
+    public void OnEnemyExitedBlockRange(Enemy enemy)
+    {
+        _block.OnEnemyExitedBlockRange(enemy);
     }
 
     public void SetActionDuration(float? intentionalCooldown = null)
@@ -632,38 +554,6 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill
     {
         _action.SetActionableGridPos(newGridPositions);
     }
-
-    // 공격 범위 타일들에 이 오퍼레이터를 등록
-    // protected void RegisterTiles()
-    // {
-    //     foreach (Vector2Int eachPos in CurrentAttackableGridPos)
-    //     {
-    //         Tile? targetTile = MapManager.Instance!.GetTile(eachPos.x, eachPos.y);
-    //         if (targetTile != null)
-    //         {
-    //             targetTile.RegisterOperator(this);
-
-    //             // 타일 등록 시점에 그 타일에 있는 적의 정보도 Operator에게 전달함
-    //             foreach (Enemy enemy in targetTile.EnemiesOnTile)
-    //             {
-    //                 OnEnemyEnteredAttackRange(enemy);
-    //             }
-    //         }
-    //     }
-    // }
-
-    // 공격 범위 타일들에 이 오퍼레이터를 등록 해제
-    // protected void UnregisterTiles()
-    // {
-    //     foreach (Vector2Int eachPos in CurrentAttackableGridPos)
-    //     {
-    //         Tile? targetTile = MapManager.Instance!.GetTile(eachPos.x, eachPos.y);
-    //         if (targetTile != null)
-    //         {
-    //             targetTile.UnregisterOperator(this);
-    //         }
-    //     }
-    // }
 
     protected override void OnDisable()
     {

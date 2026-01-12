@@ -5,7 +5,7 @@ using System;
 // 능력치(즉 소모되지 않는 값이나 규칙)를 다루는 컨트롤러
 // - currentHP는 "상태"라서 여기서 관리하지 않지만, MaxHP는 "능력치"라서 여기서 관리한다.
 // - 상태와 능력치의 차이 : 상태는 소모되고 누적된다. 능력치는 소모되지 않는다.
-public class StatController: IReadableStatController
+public class StatController: IStatReadOnly
 {
     // 기본 값(데이터) <스탯 종류, 실제 값>
     private Dictionary<StatType, float> _baseStats = new Dictionary<StatType, float>();

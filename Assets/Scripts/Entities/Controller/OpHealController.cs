@@ -2,7 +2,7 @@ using UnityEngine;
 using System.Collections.Generic;
 using System.Linq;
 
-public class OperatorHealController: OperatorActionController
+public class OpHealController: OpActionController
 {
     private List<Operator> _targetsInRange = new List<Operator>();
     public IReadOnlyList<Operator> TargetsInRange => _targetsInRange;
@@ -59,7 +59,7 @@ public class OperatorHealController: OperatorActionController
         SetActionCooldown(); // 공격 쿨다운 설정
     }
 
-    public override void ResetState()
+    public override void ResetStates()
     {
         _targetsInRange.Clear();
         CurrentTarget = null;

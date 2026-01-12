@@ -2,13 +2,13 @@ using UnityEngine;
 using System.Collections.Generic;
 using System.Linq;
 
-public class OperatorAttackController: OperatorActionController
+public class OpAttackController: OpActionController
 {
     // 공격 범위 내의 적들
     private List<Enemy> _enemiesInRange = new List<Enemy>();
     public IReadOnlyList<Enemy> EnemiesInRange => _enemiesInRange;
 
-    public OperatorAttackController() { }
+    public OpAttackController() { }
 
     public override void OnDeploy()
     {
@@ -29,7 +29,7 @@ public class OperatorAttackController: OperatorActionController
                 // 타일 등록 시점에 그 타일에 있는 적의 정보도 Operator에게 전달함
                 foreach (Enemy enemy in targetTile.EnemiesOnTile)
                 {
-                    OnEnemyEnteredActionRange(enemy);
+                    OnEnemyEnteredRange(enemy);
                 }
             }
         }
@@ -37,21 +37,22 @@ public class OperatorAttackController: OperatorActionController
 
     protected override void SetCurrentTarget()
     {
-        // 1. 저지 중일 때 -> 저지 중인 적
-        // blockController.cs을 구현한 다음에 구현해야 할 듯
-        // if (blockedEnemies.Count > 0)
-        // {
-        //     for (int i = 0; i < blockedEnemies.Count; i++)
-        //     {
-        //         if (blockedEnemies[i])
-        //         {
-        //             CurrentTarget = blockedEnemies[i];
-        //             break;
-        //         }
-        //     }
-        //     NotifyTarget();
-        //     return;
-        // }
+        // 1. 저지 중일 때 -> 저지 중인 적을 우선 순위로 공격
+        IReadOnlyList<Enemy> blockedEnemies = _owner.BlockedEnemies;
+
+        if (blockedEnemies.Count > 0)
+        {
+            for (int i = 0; i < blockedEnemies.Count; i++)
+            {
+                if (blockedEnemies[i])
+                {
+                    CurrentTarget = blockedEnemies[i];
+                    break;
+                }
+            }
+            NotifyTarget();
+            return;
+        }
 
         // 2. 저지 중이 아닐 때에는 공격 범위 내의 적 중에서 공격함
         if (_enemiesInRange.Count > 0)
@@ -60,8 +61,6 @@ public class OperatorAttackController: OperatorActionController
                 .Where(e => e != null && e.gameObject != null) // 파괴 검사 & null 검사 함께 수행
                 .OrderBy(E => E.Navigator.GetRemainingPathDistance(E.CurrentPathIndex)) // 살아있는 객체 중 남은 거리가 짧은 순서로 정렬
                 .FirstOrDefault(); // 가장 짧은 거리의 객체를 가져옴
-
-            // Logger.Log($"");
 
             if (CurrentTarget != null)
             {
@@ -208,7 +207,7 @@ public class OperatorAttackController: OperatorActionController
         }
     }
 
-    public override void ResetState()
+    public override void ResetStates()
     {
         _enemiesInRange.Clear();
         CurrentTarget = null;
@@ -250,7 +249,7 @@ public class OperatorAttackController: OperatorActionController
         }
     }
 
-    public override void OnEnemyEnteredActionRange(Enemy enemy)
+    public override void OnEnemyEnteredRange(Enemy enemy)
     {
         if (!_enemiesInRange.Contains(enemy))
         {
@@ -258,7 +257,7 @@ public class OperatorAttackController: OperatorActionController
         }   
     }
 
-    public override void OnEnemyExitedActionRange(Enemy enemy)
+    public override void OnEnemyExitedRange(Enemy enemy)
     {
         // 여전히 공격 범위 내에 해당 적이 있는가를 검사
         foreach (var gridPos in _currentActionableGridPos)

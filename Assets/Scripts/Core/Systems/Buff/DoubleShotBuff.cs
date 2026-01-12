@@ -35,7 +35,7 @@ public class DoubleShotBuff : Buff
             op.PerformAction(target, modifiedDamage);
             yield return new WaitForSeconds(this.delayBetweenShots);
 
-            if (target != null && target.Health.CurrentHealth >= 0)
+            if (target != null && target.CurrentHealth >= 0)
             {
                 op.PerformAction(target, modifiedDamage);
             }

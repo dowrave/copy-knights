@@ -1,7 +1,7 @@
 using UnityEngine;
 using System.Collections;
 
-public class DualBladeAttackController : OperatorAttackController
+public class DualBladeAttackController : OpAttackController
 {
     private float _delayBetweenAttacks = 0.15f;
 

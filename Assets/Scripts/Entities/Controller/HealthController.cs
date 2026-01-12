@@ -3,7 +3,7 @@ using System;
 
 // UnitEntity의 방어적인 요소들
 // 체력, 방어력, 마법 저항력, 쉴드에 관한 처리를 다룬다.
-public class HealthController: IReadableHealthController
+public class HealthController: IHealthReadOnly
 {
     private StatController _statController; 
     public ShieldSystem Shield { get; private set; } // 내부 로직용

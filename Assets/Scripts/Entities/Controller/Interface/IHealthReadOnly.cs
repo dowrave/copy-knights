@@ -1,7 +1,7 @@
 using System;
 
 // UnitEntity 외부에서 접근할 수 있는 프로퍼티 / 메서드 정의
-public interface IReadableHealthController
+public interface IHealthReadOnly
 {
     float CurrentHealth { get; }
 

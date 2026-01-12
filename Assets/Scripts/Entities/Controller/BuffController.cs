@@ -5,7 +5,7 @@ using System;
 using System.Linq;
 using Skills.Base;
 
-public class BuffController: IReadableBuffController
+public class BuffController: IBuffReadOnly
 {
     private UnitEntity _owner;
     private List<Buff> _activeBuffs = new List<Buff>();

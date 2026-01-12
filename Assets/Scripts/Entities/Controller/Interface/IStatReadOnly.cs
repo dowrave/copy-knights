@@ -1,4 +1,4 @@
-public interface IReadableStatController
+public interface IStatReadOnly
 {
     public float GetStat(StatType type);
 }

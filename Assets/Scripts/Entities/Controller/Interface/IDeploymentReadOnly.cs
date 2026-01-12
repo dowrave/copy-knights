@@ -1,7 +1,7 @@
 using System;
 using UnityEngine;
 
-public interface IReadableDeploymentController
+public interface IDeploymentReadOnly
 {
     bool IsDeployed { get; }
     bool IsPreviewMode { get; }

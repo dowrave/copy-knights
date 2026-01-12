@@ -22,11 +22,9 @@ public abstract class UnitEntity : MonoBehaviour, ITargettable, IFactionMember
     [SerializeField] protected VisualController _visual;
 
     // 컨트롤러 프로퍼티
-    public IReadableHealthController Health => _health;
-    public IReadableStatController Stat => _stat;
-    public IReadableBuffController Buff => _buff; 
-    public IReadableVisualController Visual => _visual;
-    public IReadableColliderController Collider => _collider; 
+    public IHealthReadOnly Health => _health;
+    public IStatReadOnly Stat => _stat;
+    public IBuffReadOnly Buff => _buff; 
 
     // 이 개체를 공격하는 엔티티 목록
     protected List<ICombatEntity> attackingEntities = new List<ICombatEntity>();
@@ -190,7 +188,7 @@ public abstract class UnitEntity : MonoBehaviour, ITargettable, IFactionMember
     // 콜라이더의 활성화 여부 결정
     protected virtual void SetColliderState(bool enabled)
     {
-        if (_collider != null) _collider.SetColliderState(enabled);
+        if (_collider != null) _collider.SetState(enabled);
     }
 
     // 해쉬 셋으로 받겠다는 약속이 있다면 굳이 인터페이스로 인풋을 받을 필요는 없다

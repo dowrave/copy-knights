@@ -17,7 +17,7 @@ public abstract class DeployableUnitEntity : UnitEntity
     public DeployableInfo DeployableInfo { get; protected set; } = default!;
 
     protected DeploymentController _deployment;
-    public IReadableDeploymentController Deployment => _deployment;
+    public IDeploymentReadOnly Deployment => _deployment;
 
     public Vector2Int GridPos => Deployment.GridPos;
     public bool IsDeployed => Deployment.IsDeployed;
@@ -88,7 +88,7 @@ public abstract class DeployableUnitEntity : UnitEntity
             // 배치 시도 및 성공
             if (_deployment.Deploy(position, facingDirection))
             {
-                _collider.SetColliderState(true);
+                _collider.SetState(true);
                 DeployAdditionalProcess(); // 자식 클래스에서 구현할 추가 로직들
                 OnDeployed?.Invoke(this);
             }

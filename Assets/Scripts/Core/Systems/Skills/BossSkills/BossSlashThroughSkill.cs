@@ -98,7 +98,7 @@ namespace Skills.Base
             caster.UpdateBlockingOperator(null);
             if (target.BlockableEnemies.Contains(caster))
             {
-                target.UnblockEnemy(caster);
+                target.OnEnemyExitedBlockRange(caster);
             }
         }
 

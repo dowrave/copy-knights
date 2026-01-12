@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Collections;
 using DG.Tweening;
 
-public class VisualController: MonoBehaviour, IReadableVisualController
+public class VisualController: MonoBehaviour
 {
     // 이 객체가 갖고 있는 메쉬 렌더러들
     [SerializeField] protected List<Renderer> renderers;
