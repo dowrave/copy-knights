@@ -195,6 +195,7 @@ public class OpSkillController: IOpSkillReadOnly
     #region VFX Methods
     private void PlayDurationVFX(ActiveSkill skill)
     {
+        if (skill.DurationVFXPrefab == null) return;
         if (skill.DurationVFXTag == null || skill.DurationVFXTag == string.Empty) return;
 
         _durationVFXTag = skill.DurationVFXTag;

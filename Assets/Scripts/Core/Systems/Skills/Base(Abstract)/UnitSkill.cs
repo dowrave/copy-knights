@@ -9,7 +9,6 @@ namespace Skills.Base
         [SerializeField] protected string skillName = string.Empty;
         public string SkillName => skillName;
 
-
         // 스킬 시작 시에 적용되는 효과
         public virtual void OnSkillActivated(Tcaster caster)
         {
@@ -31,15 +30,6 @@ namespace Skills.Base
 
         // 스킬 사용 가능한지를 판단
         public virtual bool CanActivate(Tcaster caster) { return true; }
-
-        // 매 프레임 호출, 스킬 상태를 업데이트함
-        // public virtual void OnUpdate(UnitEntity caster) { }
-
-        // 시전자가 공격하기 전에 호출
-        // public virtual void OnBeforeAttack(UnitEntity caster, UnitEntity target, ref float damage, ref AttackType attackType) { }
-
-        // 시전자가 공격한 후에 호출
-        // public virtual void OnAfterAttack(UnitEntity caster, UnitEntity target) { }
 
         // RegisterPool할 요소들을 이것저것 넣는 메서드
         public virtual void PreloadObjectPools() { }

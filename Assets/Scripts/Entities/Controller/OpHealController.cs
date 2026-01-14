@@ -50,22 +50,24 @@ public class OpHealController: OpActionController
         }
     }
 
-    public override void PerformAction(UnitEntity target, float value)
-    {
-        float polishedDamage = Mathf.Floor(value);
-        Heal(target, polishedDamage);
-
-        SetActionDuration(); // 공격 모션 시간 설정
-        SetActionCooldown(); // 공격 쿨다운 설정
-    }
-
     public override void ResetStates()
     {
         _targetsInRange.Clear();
         CurrentTarget = null;
     }
 
-    private void Heal(UnitEntity target,  float healValue)
+    public override bool PerformAction(UnitEntity target, float value, bool showPopup = false)
+    {
+        // 쿨다운 수정 및 다른 모션이 나갈 경우 종료
+        if (!base.PerformAction(target, value)) return false;
+
+        float polishedDamage = Mathf.Floor(value);
+        PerformActualAction(target, polishedDamage, showPopup);
+        return true;
+    }
+
+
+    public override void PerformActualAction(UnitEntity target, float healValue, bool showPopup = false)
     {
         // 여기서 Ranged 여부가 결정하는 건 투사체의 유무임
         // 즉 Melee여도 원거리를 가질 수 있음 -- 사정거리랑 공격 타입을 별도로 구현했기 때문에 이런 현상이 발생했다.

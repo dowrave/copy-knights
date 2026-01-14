@@ -430,7 +430,8 @@ public class Operator : DeployableUnitEntity, ICombatEntity
     public void OnEnemyExitedAttackRange(Enemy enemy) => _action.OnEnemyExitedRange(enemy);
     public void SetActionDuration(float? intentionalCooldown = null) => _action.SetActionDuration(intentionalCooldown);
     public void SetActionCooldown(float? intentionalCooldown = null) => _action.SetActionCooldown(intentionalCooldown);
-    public void PerformAction(UnitEntity target, float value) => _action.PerformAction(target, value);
+    public void PerformAction(UnitEntity target, float value, bool showPopup = false) => _action.PerformAction(target, value, showPopup);
+    public void PerformActualAction(UnitEntity target, float value, bool showPopup = false) => _action.PerformActualAction(target, value, showPopup);
     public void SetActionableGridPos(List<Vector2Int> newGridPositions) => _action.SetActionableGridPos(newGridPositions);
     #endregion
 

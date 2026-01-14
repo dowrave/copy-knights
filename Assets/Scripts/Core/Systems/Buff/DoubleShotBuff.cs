@@ -15,11 +15,8 @@ public class DoubleShotBuff : Buff
         this.delayBetweenShots = delayBetweenShots;
     }
 
-    public override void PerformChangedAttackAction(UnitEntity owner)
+    public override void PerformChangedAction(UnitEntity owner, UnitEntity target)
     {
-        // 쿨타임 돌리기
-        base.PerformChangedAttackAction(owner);
-
         owner.StartCoroutine(PerformDoubleAttack(owner));
     }
 
@@ -33,7 +30,7 @@ public class DoubleShotBuff : Buff
             float modifiedDamage = op.AttackPower * damageMultiplier;
 
             op.PerformAction(target, modifiedDamage);
-            yield return new WaitForSeconds(this.delayBetweenShots);
+            yield return new WaitForSeconds(delayBetweenShots);
 
             if (target != null && target.CurrentHealth >= 0)
             {

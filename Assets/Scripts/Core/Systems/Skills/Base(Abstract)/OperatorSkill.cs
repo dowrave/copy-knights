@@ -27,12 +27,6 @@ namespace Skills.Base
         protected virtual void SetDefaults() { }
         protected void Reset() => SetDefaults();
 
-        // 액티브 스킬을 켰을 때의 동작
-        // public virtual void Activate(Operator op) { }
-
-        // modifiesAttackAction가 true일 때, 공격을 변경하는 액션
-        public virtual void PerformChangedAttackAction(Operator op) { }
-
         // 스킬에서 사용되는 오브젝트 풀 생성
         public virtual void PreloadObjectPools(OperatorData ownerData)
         {
@@ -55,18 +49,5 @@ namespace Skills.Base
                 return _meleeAttackVFXTag;
             }
         }
-
-
-
-        // UnitSkill로 타입이 오더라도 안전하게 실행시키기 위한 메서드들
-        // sealed는 하위 클래스의 오버라이드를 방지함 
-        // public sealed override void Activate(UnitEntity caster)
-        // {
-        //     if (caster is Operator op)
-        //     {
-        //         Activate(op);
-        //     }
-        // }
     }
-
-    }
+}

@@ -27,7 +27,8 @@ namespace Skills.Base
         {
             get
             {
-                if (string.IsNullOrEmpty(_durationVFXTag))
+                // durationVFXPrefab이 있을 때에만 생성됨
+                if (durationVFXPrefab != null && string.IsNullOrEmpty(_durationVFXTag))
                 {
                     _durationVFXTag = $"{skillName}_DurationVFX";
                 }
@@ -38,6 +39,7 @@ namespace Skills.Base
         public float Duration => duration;
         public IReadOnlyList<Vector2Int> SkillRangeOffset => skillRangeOffset;
         public bool ActiveFromOperatorPosition => activeFromOperatorPosition;
+        public GameObject DurationVFXPrefab => durationVFXPrefab; 
         public float RectOffset => rectOffset;
 
         public override void PreloadObjectPools(OperatorData opData)

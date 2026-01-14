@@ -94,7 +94,28 @@ public abstract class OpActionController: IOperatorActionReadOnly
     protected virtual void SetCurrentTarget() { }
     protected virtual void ValidateCurrentTarget() { }
 
-    public virtual void PerformAction(UnitEntity target, float value) { }
+    // 쿨타임 돌리기 + 다른 로직을 실행해야 하는 버프 체크
+    // 실제 동작은 PerformActualAction으로 실행(템플릿 메서드)
+    public virtual bool PerformAction(UnitEntity target, float value, bool showPopup = false)
+    {
+        // Action 관련 쿨다운 설정
+        SetActionDuration();
+        SetActionCooldown();
+
+        // 공격 로직을 수정하는 Buff가 있다면 해당 동작을 수행
+        // 예시) 평타 중단
+        var modifyBuff = _owner.ActiveBuffs.FirstOrDefault(b => b.ModifiesAttackAction);
+        if (modifyBuff != null)
+        {
+            modifyBuff.PerformChangedAction(_owner, target);
+            return false; // 여기까지만 진행한다는 의미로 false
+        }
+
+        return true; // 더 진행할 수 있으면 true
+    }
+
+    public virtual void PerformActualAction(UnitEntity target, float value, bool showPopup = false) { }
+
     public abstract void ResetStates();
     public abstract void OnTargetDespawn(UnitEntity target);
 

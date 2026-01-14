@@ -97,21 +97,18 @@ public class OpAttackController: OpActionController
         return false; 
     }
 
-    public override void PerformAction(UnitEntity target, float damage)
+    public override bool PerformAction(UnitEntity target, float value, bool showPopup = false)
     {
-        bool showDamagePopup = false;
-        float polishedDamage = Mathf.Floor(damage);
+        // 쿨다운 수정 및 다른 모션이 나갈 경우 종료
+        if (!base.PerformAction(target, value)) return false;
 
-        // 공격이 나가는 시점에 쿨타임이 돌게 수정
-        // 실제 공격을 수행할 때 어떻게 수행되는지가 다르므로 PerformAttack 밖에서 구현한다.
-        // 예시) DoubleShot의 경우 PerformAttack 안에서 구현하면 쿨타임이 있는데 스킬이 나가는 이상한 구현이 됨
-        SetActionDuration();
-        SetActionCooldown();
-
-        PerformAttack(target, polishedDamage, showDamagePopup);
+        float polishedDamage = Mathf.Floor(value);
+        PerformActualAction(target, polishedDamage, showPopup);
+    
+        return true;
     }
 
-    private void PerformAttack(UnitEntity target, float damage, bool showDamagePopup)
+    public override void PerformActualAction(UnitEntity target, float damage, bool showPopup = false)
     {
         float spBeforeAttack = _owner.CurrentSP;
         AttackType finalAttackType = _owner.AttackType;
@@ -120,17 +117,17 @@ public class OpAttackController: OpActionController
         // 공격에만 적용되는 버프 적용
         foreach (var buff in _owner.ActiveBuffs)
         {
-            buff.OnBeforeAttack(_owner, ref damage, ref finalAttackType, ref showDamagePopup);
+            buff.OnBeforeAttack(_owner, ref damage, ref finalAttackType, ref showPopup);
         }
 
         // 실제 공격 수행
         switch (_owner.OperatorData.AttackRangeType)
         {
             case AttackRangeType.Melee:
-                PerformMeleeAttack(target, damage, finalAttackType, showDamagePopup);
+                PerformMeleeAttack(target, damage, finalAttackType, showPopup);
                 break;
             case AttackRangeType.Ranged:
-                PerformRangedAttack(target, damage, finalAttackType, showDamagePopup);
+                PerformRangedAttack(target, damage, finalAttackType, showPopup);
                 break;
         }
 
@@ -149,7 +146,7 @@ public class OpAttackController: OpActionController
         }
     }
 
-    private void PerformMeleeAttack(UnitEntity target, float damage, AttackType attackType, bool showDamagePopup = false)
+    private void PerformMeleeAttack(UnitEntity target, float damage, AttackType attackType, bool showPopup = false)
     {
         AttackSource attackSource = new AttackSource(
             attacker: _owner,
@@ -158,7 +155,7 @@ public class OpAttackController: OpActionController
             type: attackType,
             isProjectile: false,
             hitEffectTag: _owner.OperatorData.HitVFXTag,
-            showDamagePopup: showDamagePopup
+            showDamagePopup: showPopup
         );
 
         _owner.PlayMeleeAttackEffect(target, attackSource);
