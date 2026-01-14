@@ -72,7 +72,7 @@ public class DeployableActionUI : MonoBehaviour
                 InitializeColors();
 
                 // SP 변화에 따른 이벤트 등록
-                currentOperator.OnSPChanged += HandleSPChange;
+                currentOperator.SkillController.OnSPChanged += HandleSPChange;
             }
         }
         else
@@ -134,12 +134,13 @@ public class DeployableActionUI : MonoBehaviour
 
     private void OnSkillButtonClicked()
     {
-        Logger.Log("[DeployableActionUI]스킬 버튼 클릭 감지");
         if (deployable is Operator op)
         {
-            if (op.CurrentSkill is AmmoBasedActiveSkill ammoSkill && op.IsSkillOn)
+            // 수동으로 끄는게 AmmoBasedActiveSkill밖에 없음 - 필드로 구현하는 게 낫겠지만 일단 유지
+            if (op.CurrentSkill is AmmoBasedActiveSkill && op.IsSkillOn)
             {
-                ammoSkill.TerminateSkill(op);
+                op.TerminateSkill();
+                // ammoSkill.TerminateSkill(op);
             } 
             else if (op.CurrentSkill.autoActivate == false)
             {
@@ -306,7 +307,7 @@ public class DeployableActionUI : MonoBehaviour
         if (currentOperator != null)
         {
             skillButton.onClick.RemoveAllListeners();
-            currentOperator.OnSPChanged -= HandleSPChange;
+            currentOperator.SkillController.OnSPChanged -= HandleSPChange;
             currentOperator = null;
         }
 

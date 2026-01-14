@@ -546,6 +546,9 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity
         // 현재 타겟이 나를 저지 중인 오퍼레이터라면 변경할 필요 X
         if (blockingOperator != null && CurrentTarget == blockingOperator) return;
 
+        // 현재 타겟이 비활성화라면 null 처리
+        if (!CheckCurrentTargetValidation()) CurrentTarget = null;
+
         // 1. 자신을 저지하는 오퍼레이터를 타겟으로 설정
         if (blockingOperator != null)
         {
@@ -581,7 +584,11 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity
         if (targetsInRange.Contains(disabledEntity))
         {
             targetsInRange.Remove(disabledEntity);
+        }
 
+        if (blockingOperator == disabledEntity)
+        {
+            blockingOperator = null;
         }
 
         // 타겟이 범위에서 벗어났어도 현재 타겟으로 지정되는 상황이 있을 수 있으니 위 조건과는 별도로 구현했음
@@ -665,7 +672,7 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity
 
     public bool CanAttack()
     {
-        return CurrentTarget != null &&
+        return CheckCurrentTargetValidation() &&
             ActionCooldown <= 0 &&
             ActionDuration <= 0 &&
             !stopAttacking; 
@@ -738,6 +745,11 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity
             tile.EnemyExited(this);
             contactedTiles.Remove(tile);
         }
+    }
+
+    protected bool CheckCurrentTargetValidation()
+    {
+        return (CurrentTarget != null && CurrentTarget.gameObject.activeInHierarchy);
     }
 
     // 모델을 이동 방향으로 회전시킴

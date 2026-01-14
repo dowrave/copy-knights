@@ -3,23 +3,27 @@ using System.Collections.Generic;
 using System.Collections;
 using DG.Tweening;
 
+// 코루틴만 필요하다면 MonoBehaviour을 쓸 필요는 없다.  : _owner.StartCoroutine(_coroutine); 은 C# 클래스만으로 충분함
+// 여기선 세부 설정값들도 쓰고 있기 때문에 MonoBehaviour을 유지하고 참조하는 것으로 진행.
 public class VisualController: MonoBehaviour
 {
+    private UnitEntity _owner;
+
     // 이 객체가 갖고 있는 메쉬 렌더러들
-    [SerializeField] protected List<Renderer> renderers;
+    [SerializeField] private List<Renderer> renderers;
 
     [Header("Settings")]
     [SerializeField] private float flashDuration = 0.15f;
     [SerializeField] private Color flashColor = new Color(0.3f, 0.3f, 0.3f, 1);
     [SerializeField] private float fadeDuration = 0.3f;
 
-    protected MaterialPropertyBlock _propBlock; // 1개만 정의해도 모든 렌더러에 사용 가능
-    protected Dictionary<Renderer, Color> _originalEmissionColors = new Dictionary<Renderer, Color>();
-    protected List<Material> materialInstances = new List<Material>();
+    private MaterialPropertyBlock _propBlock; // 1개만 정의해도 모든 렌더러에 사용 가능
+    private Dictionary<Renderer, Color> _originalEmissionColors = new Dictionary<Renderer, Color>();
+    private List<Material> materialInstances = new List<Material>();
 
-    protected static readonly int EmissionColorID = Shader.PropertyToID("_EmissionColor"); 
-    protected static readonly int FadeAmountID = Shader.PropertyToID("_FadeAmount"); 
-    protected static readonly int BaseColorID = Shader.PropertyToID("_BaseColor"); 
+    private static readonly int EmissionColorID = Shader.PropertyToID("_EmissionColor"); 
+    private static readonly int FadeAmountID = Shader.PropertyToID("_FadeAmount"); 
+    private static readonly int BaseColorID = Shader.PropertyToID("_BaseColor"); 
 
     private Coroutine _flashCoroutine; // 피격 시 머티리얼 색 변하는 코루틴
     
@@ -61,8 +65,10 @@ public class VisualController: MonoBehaviour
         }
     }
 
-    public void Initialize()
+    public void Initialize(UnitEntity owner)
     {
+        _owner = owner;
+
         foreach (Renderer renderer in renderers)
         {
             renderer.GetPropertyBlock(_propBlock);
@@ -77,11 +83,11 @@ public class VisualController: MonoBehaviour
         // 1. 유닛 자체가 깜빡이는 현상
         if (_flashCoroutine != null)
         {
-            StopCoroutine(_flashCoroutine);
+            _owner.StopCoroutine(_flashCoroutine);
             _flashCoroutine = null;
         }
 
-        _flashCoroutine = StartCoroutine(PlayModelFlashVFX());
+        _flashCoroutine = _owner.StartCoroutine(PlayModelFlashVFX());
 
         // 2. attackSource에 의한 GetHit 이펙트 재생
         PlayGetHitVFX(attackSource, owner);

@@ -3,29 +3,43 @@ using System.Collections.Generic;
 
 namespace Skills.Base
 {
-    public abstract class UnitSkill : ScriptableObject
+    public abstract class UnitSkill<Tcaster>: ScriptableObject where Tcaster: UnitEntity 
     {
         [Header("Unit Skill Properties")]
         [SerializeField] protected string skillName = string.Empty;
         public string SkillName => skillName;
 
-        // 스킬 활성화 시에 호출
-        public virtual void Activate(UnitEntity caster) { }
 
-        // 스킬 사용 가능한지를 판단
-        public virtual bool CanActivate(UnitEntity caster)
+        // 스킬 시작 시에 적용되는 효과
+        public virtual void OnSkillActivated(Tcaster caster)
         {
-            return false;
+            // 예: 버프 적용, 공격력 증가, 특수 공격 등
         }
 
+        // 매 프레임 호출되어서 지속 효과를 구현
+        public virtual void OnUpdate(Tcaster caster)
+        {
+            // 예 : 지속 힐, 지속 대미지 등
+            // 내 경우는 장판을 따로 구현해서 상관은 없을 듯?
+        }
+
+        // 스킬 종료 시 정리 작업
+        public virtual void OnSkillEnd(Tcaster caster)
+        {
+            // 예 : 버프 해제, 상태 복원 등
+        }
+
+        // 스킬 사용 가능한지를 판단
+        public virtual bool CanActivate(Tcaster caster) { return true; }
+
         // 매 프레임 호출, 스킬 상태를 업데이트함
-        public virtual void OnUpdate(UnitEntity caster) { }
+        // public virtual void OnUpdate(UnitEntity caster) { }
 
         // 시전자가 공격하기 전에 호출
-        public virtual void OnBeforeAttack(UnitEntity caster, UnitEntity target, ref float damage, ref AttackType attackType) { }
+        // public virtual void OnBeforeAttack(UnitEntity caster, UnitEntity target, ref float damage, ref AttackType attackType) { }
 
         // 시전자가 공격한 후에 호출
-        public virtual void OnAfterAttack(UnitEntity caster, UnitEntity target) { }
+        // public virtual void OnAfterAttack(UnitEntity caster, UnitEntity target) { }
 
         // RegisterPool할 요소들을 이것저것 넣는 메서드
         public virtual void PreloadObjectPools() { }

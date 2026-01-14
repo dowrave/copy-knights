@@ -19,14 +19,14 @@ namespace Skills.OperatorSkills
             autoRecover = true;
         }
 
-        protected override void PlaySkillEffect(Operator op)
+        public override void OnSkillActivated(Operator op)
         {
             // 스킬이 시작될 때 적용되는 효과
             _doubleShotBuff = new DoubleShotBuff(delayBetweenShots, damageMultiplier);
             op.AddBuff(_doubleShotBuff);
         }
 
-        protected override void OnSkillEnd(Operator op)
+        public override void OnSkillEnd(Operator op)
         {
             if (_doubleShotBuff != null)
             {

@@ -80,7 +80,7 @@ public class SelfReturnVFXController : MonoBehaviour, IPooledObject
         ObjectPoolManager.Instance?.ReturnToPool(poolTag, gameObject);
     }
 
-    public void ForceRemove()
+    public void ForceReturn()
     {
         if (_lifeCycleCoroutine != null)
         {

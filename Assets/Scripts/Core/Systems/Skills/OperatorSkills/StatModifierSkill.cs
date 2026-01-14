@@ -35,7 +35,7 @@ namespace Skills.OperatorSkills
             autoRecover = true;
         }
 
-        protected override void PlaySkillEffect(Operator op)
+        public override void OnSkillActivated(Operator op)
         {
             // 스탯 강화 버프 생성 및 적용
             statBuffInstance = new StatModificationBuff(duration, modifiers);
@@ -43,7 +43,7 @@ namespace Skills.OperatorSkills
             op.AddBuff(statBuffInstance);
         }
 
-        protected override void OnSkillEnd(Operator op)
+        public override void OnSkillEnd(Operator op)
         {
             if (statBuffInstance != null)
             {

@@ -28,7 +28,7 @@ namespace Skills.OperatorSkills
             autoRecover = true;
         }
 
-        protected override void PlaySkillEffect(Operator caster)
+        public override void OnSkillActivated(Operator caster)
         {
             // 1. 자신에게 공격 불가 버프 적용
             CannotAttackBuff _cannotAttackBuff = new CannotAttackBuff(duration, this);
@@ -53,16 +53,13 @@ namespace Skills.OperatorSkills
             // 장판 시각적 효과 생성
             VisualizeSkillRange(caster, caster.GetCurrentSkillRange());
 
-            base.PlaySkillEffect(caster);
+            // base.PlaySkillEffect(caster);
         }
 
-        protected override void OnSkillEnd(Operator caster)
+        public override void OnSkillEnd(Operator caster)
         {
             caster.RemoveBuffFromSourceSkill(this);
-
-            base.OnSkillEnd(caster);
         }
-
 
         protected void CreateEffectField(Operator caster)
         {

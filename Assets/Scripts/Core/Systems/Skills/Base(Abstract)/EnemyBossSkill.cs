@@ -1,7 +1,7 @@
 using UnityEngine;
 using Skills.Base;
 
-public class EnemyBossSkill : UnitSkill
+public class EnemyBossSkill : UnitSkill<EnemyBoss>
 {
     [Header("Boss Skill Configs")]
     [SerializeField] protected float coolTime;
@@ -34,23 +34,7 @@ public class EnemyBossSkill : UnitSkill
 
     public virtual void PreloadObjectPools(EnemyBossData ownerData){ }
 
-    public override bool CanActivate(UnitEntity caster)
-    {
-        if (caster is EnemyBoss boss)
-        {
-            return boss.OperatorsInSkillRange.Count > 0;
-        }
-        
-        return false;
-    }
-
-    public sealed override void Activate(UnitEntity caster)
-    {
-        if (caster is EnemyBoss boss)
-        {
-            Activate(boss);
-        }
-    }
+    public override bool CanActivate(EnemyBoss caster) => caster.OperatorsInSkillRange.Count > 0;
 }
 
 public enum EnemyBossSkillType

@@ -18,14 +18,14 @@ namespace SKills.OperatorSkills
             autoActivate = true;
         }
 
-        public override void Activate(Operator op)
+        public override void OnSkillActivated(Operator op)
         {
             if (op == null) return;
 
-            RecoverCost(costRecoveryAmount); // 기능
-            PlayEffect(op); // 이펙트
+            RecoverCost(costRecoveryAmount);
+            PlayEffect(op); 
 
-            op.CurrentSP = 0; // SP 초기화
+            op.SetCurrentSP(0f);
         }
 
         private void PlayEffect(Operator op)
@@ -55,7 +55,6 @@ namespace SKills.OperatorSkills
             }
         }
 
-        // public string CostVFXTag => _costVFXTag ??= $"{skillName}_costVFX";
         public string CostVFXTag
         {
             get

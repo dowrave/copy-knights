@@ -52,8 +52,8 @@ public class OperatorUI : MonoBehaviour
         if (op == null) return;
 
         op.Health.OnHealthChanged += HandleHealthChanged;
-        op.OnSPChanged += HandleSPChanged;
-        op.OnSkillStateChanged += HandleSkillStateChanged;
+        op.SkillController.OnSPChanged += HandleSPChanged;
+        op.SkillController.OnSkillStateChanged += HandleSkillStateChanged;
         op.Buff.OnBuffChanged += HandleBuffChanged;
     }
 
@@ -62,8 +62,8 @@ public class OperatorUI : MonoBehaviour
         if (op == null) return;
 
         op.Health.OnHealthChanged -= HandleHealthChanged;
-        op.OnSPChanged -= HandleSPChanged;
-        op.OnSkillStateChanged -= HandleSkillStateChanged;
+        op.SkillController.OnSPChanged -= HandleSPChanged;
+        op.SkillController.OnSkillStateChanged -= HandleSkillStateChanged;
         op.Buff.OnBuffChanged -= HandleBuffChanged;
     }
 

@@ -42,7 +42,7 @@
     <UnityVersion>6000.3.0f1</UnityVersion>
   </PropertyGroup>
   <ItemGroup>
-    <Analyzer Include="C:\Users\HyeonTae Lee\.vscode\extensions\visualstudiotoolsforunity.vstuc-1.2.0\Analyzers\Microsoft.Unity.Analyzers.dll" />
+    <Analyzer Include="C:\Users\HyeonTae Lee\.vscode\extensions\visualstudiotoolsforunity.vstuc-1.2.1\Analyzers\Microsoft.Unity.Analyzers.dll" />
     <Analyzer Include="E:\Unity\6000.3.0f1\Editor\Data\Tools\BuildPipeline\Unity.SourceGenerators\Unity.SourceGenerators.dll" />
     <Analyzer Include="E:\Unity\6000.3.0f1\Editor\Data\Tools\BuildPipeline\Unity.SourceGenerators\Unity.Properties.SourceGenerator.dll" />
     <Analyzer Include="E:\Unity\6000.3.0f1\Editor\Data\Tools\BuildPipeline\Unity.SourceGenerators\Unity.UIToolkit.SourceGenerator.dll" />
@@ -60,7 +60,6 @@
     <Compile Include="Assets\Scripts\UI\Components\DeployableBox.cs" />
     <Compile Include="Assets\Scripts\Core\Systems\Skills\VFXController\ShieldVFXController.cs" />
     <Compile Include="Assets\Scripts\Interfaces\IFactionMember.cs" />
-    <Compile Include="Assets\Scripts\Entities\Operator\Operator.cs" />
     <Compile Include="Assets\Scripts\SO_Scripts\OperatorLevelData.cs" />
     <Compile Include="Assets\Scripts\Core\Systems\Skills\OperatorSkills\MeteorSkill.cs" />
     <Compile Include="Assets\Scripts\Interfaces\ICombatData.cs" />
@@ -76,7 +75,6 @@
     <Compile Include="Assets\Scripts\UI\Components\DiamondOutline.cs" />
     <Compile Include="Assets\Scripts\Core\Managers\MainmenuScene\PopupManager.cs" />
     <Compile Include="Assets\Scripts\Entities\Controller\Interface\IStatReadOnly.cs" />
-    <Compile Include="Assets\Scripts\Entities\Base\DeployableUnitEntity.cs" />
     <Compile Include="Assets\Scripts\Entities\Controller\Interface\IHealthReadOnly.cs" />
     <Compile Include="Assets\Scripts\Utils\ClickDetectionSystem.cs" />
     <Compile Include="Assets\Scripts\Core\Systems\Skills\SkillController\Enemy\BossExplosionSkillController.cs" />
@@ -104,11 +102,11 @@
     <Compile Include="Assets\Scripts\UI\Components\GaugeBar\SPBar.cs" />
     <Compile Include="Assets\Scripts\Core\Managers\StageScene\StageManager.cs" />
     <Compile Include="Assets\Scripts\Core\Class\ObjectPool.cs" />
-    <Compile Include="Assets\Scripts\Interfaces\ITargettable.cs" />
     <Compile Include="Assets\Scripts\Core\Systems\Skills\SkillController\Operator\LegacySlashSkillController.cs" />
     <Compile Include="Assets\Scripts\Entities\Enemy\EnemyBossSkillRangeController.cs" />
     <Compile Include="Assets\Scripts\SO_Scripts\LocalizationTable.cs" />
     <Compile Include="Assets\Scripts\Entities\Controller\OpAttackController.cs" />
+    <Compile Include="Assets\Scripts\Entities\Operator.cs" />
     <Compile Include="Assets\Scripts\Core\Systems\Skills\OperatorSkills\StatModifierSkill.cs" />
     <Compile Include="Assets\Scripts\UI\Panels\OperatorInventoryPanel.cs" />
     <Compile Include="Assets\Scripts\SO_Scripts\BuffVFXDatabase.cs" />
@@ -123,11 +121,9 @@
     <Compile Include="Assets\Scripts\Core\Managers\GameManagement\StageDatabase.cs" />
     <Compile Include="Assets\Scripts\Core\Systems\Buff\AttackCounterBuff.cs" />
     <Compile Include="Assets\Scripts\UI\Panels\GameWinPanel.cs" />
-    <Compile Include="Assets\Scripts\Entities\Player\OwnedOperator.cs" />
     <Compile Include="Assets\Scripts\SO_Scripts\Unit\MapDeployableData.cs" />
     <Compile Include="Assets\Scripts\Core\Systems\Skills\OperatorSkills\DoubleShotSkill.cs" />
     <Compile Include="Assets\Scripts\UI\Components\DirectionIndicator.cs" />
-    <Compile Include="Assets\Scripts\Entities\Combat\Projectile\Projectile.cs" />
     <Compile Include="Assets\Scripts\UI\Components\EnemyBarUI.cs" />
     <Compile Include="Assets\Scripts\Core\Systems\Attributes.cs" />
     <Compile Include="Assets\Scripts\Core\Systems\Skills\SkillController\Operator\SlashSkillController.cs" />
@@ -152,12 +148,15 @@
     <Compile Include="Assets\Scripts\Entities\Controller\MuzzleVFXController.cs" />
     <Compile Include="Assets\Scripts\Entities\Enemy\EnemyBoss.cs" />
     <Compile Include="Assets\Scripts\SO_Scripts\Unit\UnitData.cs" />
+    <Compile Include="Assets\Scripts\Entities\Projectile.cs" />
     <Compile Include="Assets\Scripts\Core\Systems\Buff\StunBuff.cs" />
     <Compile Include="Assets\Scripts\Core\Enums\OperatorClass.cs" />
     <Compile Include="Assets\Scripts\Interfaces\IDeployableData.cs" />
     <Compile Include="Assets\Scripts\Core\Systems\Skills\BossSkills\BossExplosionSkill.cs" />
     <Compile Include="Assets\Scripts\Core\Systems\Skills\SkillController\Operator\MeteorController.cs" />
     <Compile Include="Assets\Scripts\UI\Panels\OperatorPromotionPanel.cs" />
+    <Compile Include="Assets\Scripts\Entities\UnitEntity.cs" />
+    <Compile Include="Assets\Scripts\Entities\DeployableUnitEntity.cs" />
     <Compile Include="Assets\Scripts\UI\Components\NotificationToast.cs" />
     <Compile Include="Assets\Scripts\SO_Scripts\PathData.cs" />
     <Compile Include="Assets\Scripts\Core\Systems\Skills\BossSkills\BossSlashThroughSkill.cs" />
@@ -165,7 +164,6 @@
     <Compile Include="Assets\Scripts\Core\Systems\Skills\SkillController\Operator\FieldEffectController.cs" />
     <Compile Include="Assets\Scripts\UI\Panels\OperatorLevelUpPanel.cs" />
     <Compile Include="Assets\Scripts\UI\Components\MainmenuItemInfoPopup.cs" />
-    <Compile Include="Assets\Scripts\Entities\Base\UnitEntity.cs" />
     <Compile Include="Assets\Scripts\Core\Systems\Skills\OperatorSkills\CostRecoverySkill.cs" />
     <Compile Include="Assets\Scripts\Core\Class\DeployableUnitState.cs" />
     <Compile Include="Assets\Scripts\Core\Systems\Buff\SlowBuff.cs" />
@@ -191,6 +189,7 @@
     <Compile Include="Assets\Scripts\UI\Components\StatisticItem.cs" />
     <Compile Include="Assets\Scripts\Utils\UIHelper.cs" />
     <Compile Include="Assets\Scripts\UI\Components\OperatorSlot.cs" />
+    <Compile Include="Assets\Scripts\Entities\Controller\Interface\IOpSkillReadOnly.cs" />
     <Compile Include="Assets\Scripts\UI\Panels\SquadEditPanel.cs" />
     <Compile Include="Assets\Scripts\Core\Systems\Physics\UnitOverlapSolver.cs" />
     <Compile Include="Assets\Scripts\UI\Panels\ToLobbyPanel.cs" />
@@ -213,6 +212,7 @@
     <Compile Include="Assets\Scripts\Map\Tile.cs" />
     <Compile Include="Assets\Scripts\Core\Systems\Skills\Base(Abstract)\EnemyBossSkill.cs" />
     <Compile Include="Assets\Scripts\Entities\Enemy\EnemyAttackRangeController.cs" />
+    <Compile Include="Assets\Scripts\Entities\ProgressData\OwnedOperator.cs" />
     <Compile Include="Assets\Scripts\UI\Components\DeployableBarUI.cs" />
     <Compile Include="Assets\Scripts\Entities\Controller\Interface\IOperatorActionReadOnly.cs" />
     <Compile Include="Assets\Scripts\Core\Systems\Skills\OperatorSkills\SixBulletSkill.cs" />
@@ -235,6 +235,7 @@
     <Compile Include="Assets\Scripts\Interfaces\ICrowdControlTarget.cs" />
     <Compile Include="Assets\Scripts\UI\Panels\OperatorDetailPanel.cs" />
     <Compile Include="Assets\Scripts\Utils\Language\LocalizationItem.cs" />
+    <Compile Include="Assets\Scripts\Entities\Controller\OpSkillController.cs" />
     <Compile Include="Assets\Scripts\UI\Panels\StatsPanel.cs" />
     <Compile Include="Assets\Scripts\UI\Components\ExpandableButton.cs" />
     <Compile Include="Assets\Scripts\UI\Panels\StageResultPanel.cs" />

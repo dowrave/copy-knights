@@ -124,22 +124,7 @@ namespace Skills.Base
         }
 
 
-        public bool CanActivate(Enemy caster)
-        {
-            return caster.BlockingOperator != null ? true : false;
-        }
-
-
-        // 단순한 연결 역할
-        public override bool CanActivate(UnitEntity caster)
-        {
-            if (caster is Enemy enemy)
-            {
-                return CanActivate(enemy);
-            }
-
-            return false;
-        }
+        public override bool CanActivate(EnemyBoss caster) => caster.BlockingOperator != null ? true : false;
 
         public override void PreloadObjectPools(EnemyBossData ownerData)
         {

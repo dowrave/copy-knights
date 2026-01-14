@@ -152,25 +152,15 @@ public abstract class DeployableUnitEntity : UnitEntity
         }
     }
 
-    public void SetDeploymentOrder(int order)
-    {
-        _deployment.SetDeploymentOrder(order);
-    }
+    public void SetDirection(Vector3 direction) => FacingDirection = direction;
 
-    public void SetDirection(Vector3 direction)
-    {
-        FacingDirection = direction;
-    }
+    #region deployable API
+    public void SetDeploymentOrder(int order) => _deployment.SetDeploymentOrder(order);
+    public virtual void OnClick() => _deployment.OnClick();
+    public void SetGridPosition() => _deployment.SetGridPosition();
+    #endregion
 
-    public void SetGridPosition()
-    {
-        _deployment.SetGridPosition();
-    }
 
-    public virtual void OnClick()
-    {
-        _deployment.OnClick();
-    }
 
     // _deployment.OnClick()에 의해 클릭 동작이 가능한 경우 이벤트를 발생시킴
     public void NotifySelected()

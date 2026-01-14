@@ -93,6 +93,7 @@ public abstract class OpActionController: IOperatorActionReadOnly
 
     protected virtual void SetCurrentTarget() { }
     protected virtual void ValidateCurrentTarget() { }
+
     public virtual void PerformAction(UnitEntity target, float value) { }
     public abstract void ResetStates();
     public abstract void OnTargetDespawn(UnitEntity target);

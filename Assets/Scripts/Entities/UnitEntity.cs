@@ -5,7 +5,7 @@ using System;
 using Skills.Base;
 
 // Operator, Enemy, Barricade 등의 타일 위의 유닛들과 관련된 엔티티
-public abstract class UnitEntity : MonoBehaviour, ITargettable, IFactionMember
+public abstract class UnitEntity : MonoBehaviour, IFactionMember
 {
     public Faction Faction { get; protected set; }
 
@@ -54,6 +54,11 @@ public abstract class UnitEntity : MonoBehaviour, ITargettable, IFactionMember
         _health = new HealthController(_stat);
         _buff = new BuffController(this);
 
+        _collider ??= GetComponentInChildren<BodyColliderController>();
+        if (_collider == null) Logger.LogError($"{gameObject.name}의 _collider가 설정되지 않음");
+        _visual ??= GetComponentInChildren<VisualController>();
+        if (_visual == null) Logger.LogError($"{gameObject.name}의 _visual이 설정되지 않음");
+
         // 사망 로직 연결
         _health.OnDeath += HandleOnDeath;
 
@@ -81,7 +86,7 @@ public abstract class UnitEntity : MonoBehaviour, ITargettable, IFactionMember
 
 
 
-    // ----------------- 비주얼 관련 ---------------------
+    #region Visual API
     protected void InitializeVisual()
     {
         CommonVisualLogic();
@@ -90,14 +95,15 @@ public abstract class UnitEntity : MonoBehaviour, ITargettable, IFactionMember
 
     protected void CommonVisualLogic()
     {
-        _visual.Initialize();
+        _visual.Initialize(this);
         _visual.OnDeathAnimationComplete += ReturnToPool;
     }
 
     protected virtual void SpecificVisualLogic(){ }
+    #endregion
 
-    // ----------------- 사망 로직 관련 ---------------------
 
+    #region Death Logic
     // 사망 시 처리할 로직
     protected virtual void HandleOnDeath() { }
 
@@ -114,10 +120,8 @@ public abstract class UnitEntity : MonoBehaviour, ITargettable, IFactionMember
         OnDeathStarted?.Invoke(this);
         ReturnToPool();
     }
+    #endregion
 
-    // -----------------------------------------------------
-
-    
     protected virtual void Update()
     {
         _buff.UpdateBuffs();
@@ -185,11 +189,7 @@ public abstract class UnitEntity : MonoBehaviour, ITargettable, IFactionMember
     // 피격 시에 추가로 실행할 게 있을 때 사용할 메서드 
     protected virtual void OnDamageTaken(UnitEntity attacker, float actualDamage) { } 
 
-    // 콜라이더의 활성화 여부 결정
-    protected virtual void SetColliderState(bool enabled)
-    {
-        if (_collider != null) _collider.SetState(enabled);
-    }
+
 
     // 해쉬 셋으로 받겠다는 약속이 있다면 굳이 인터페이스로 인풋을 받을 필요는 없다
     public void SetCurrentSkillRange(HashSet<Vector2Int> range)
@@ -202,16 +202,14 @@ public abstract class UnitEntity : MonoBehaviour, ITargettable, IFactionMember
         LastSkillCenter = center;
     }
 
-    public IReadOnlyCollection<Vector2Int> GetCurrentSkillRange()
-    {
-        return currentSkillRange;
-    }
-
+    // 이거는 생각좀 해봅시다
+    // 보스 스킬에서 사용하는 로직 - 스킬을 시전하는 중에 멈추게 하기
     public void ExecuteSkillSequence(IEnumerator skillCoroutine)
     {
         StartCoroutine(skillCoroutine);
     }
 
+    // 자신을 공격하는 적 추가
     public virtual void AddAttackingEntity(ICombatEntity attacker)
     {
         if (!attackingEntities.Contains(attacker))
@@ -219,8 +217,8 @@ public abstract class UnitEntity : MonoBehaviour, ITargettable, IFactionMember
             attackingEntities.Add(attacker);
         }
     }
-    
-    // 이 개체를 공격하는 적을 제거
+
+    // 자신을 공격하는 적 제거
     public virtual void RemoveAttackingEntity(ICombatEntity attacker)
     {
         attackingEntities.Remove(attacker);
@@ -253,6 +251,11 @@ public abstract class UnitEntity : MonoBehaviour, ITargettable, IFactionMember
     public void RemoveBuff(Buff buff) => _buff.RemoveBuff(buff);
     protected void RemoveAllBuffs() => _buff.RemoveAllBuffs();
     public void RemoveBuffFromSourceSkill(OperatorSkill sourceSkill) => _buff.RemoveBuffFromSourceSkill(sourceSkill);
+
+    // 콜라이더의 활성화 여부 결정
+    protected virtual void SetColliderState(bool enabled) => _collider.SetState(enabled);
+
+    public IReadOnlyCollection<Vector2Int> GetCurrentSkillRange() => currentSkillRange;
 
     protected virtual void OnDisable()
     {

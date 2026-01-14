@@ -29,7 +29,7 @@ public class SmashBuff : Buff
         {
             if (removeBuffAfterAttack)
             {
-                op.CurrentSP = 0;
+                op.SetCurrentSP(0f);
                 op.RemoveBuff(this);
             }
         }

@@ -29,7 +29,7 @@ namespace Skills.Base
             duration = 0f; // 즉발성 스킬 명시
         }
 
-        protected override void PlaySkillEffect(Operator caster)
+        public override void OnSkillActivated(Operator caster)
         {
             if (hitVFXPrefab == null)
             {

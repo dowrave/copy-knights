@@ -13,10 +13,8 @@ namespace Skills.Base
         [Header("Attack Modifications")]
         [SerializeField] StatModifierSkill.StatModifiers statModifier;
 
-        public override void Activate(Operator op)
+        public override void OnSkillActivated(Operator op)
         {
-            CommonActivation(op);
-
             // 스탯 변경 버프 생성
             StatModificationBuff statBuff = new StatModificationBuff(float.PositiveInfinity, statModifier);
 
@@ -35,12 +33,6 @@ namespace Skills.Base
             op.AddBuff(attackCounterBuff);
 
             // 지속시간이 무한인 스킬이기 때문에 이런 식으로 구현했음. 만약 있다면 부모 클래스를 따르는 게 낫다.
-        }
-
-        public virtual void TerminateSkill(Operator op)
-        {
-            OnSkillEnd(op);
-        }
-
+        } 
     }
 }

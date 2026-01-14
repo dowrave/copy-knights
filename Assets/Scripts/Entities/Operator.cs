@@ -6,14 +6,19 @@ using UnityEngine.VFX;
 using Skills.Base;
 
 
-public class Operator : DeployableUnitEntity, ICombatEntity, ISkill
+public class Operator : DeployableUnitEntity, ICombatEntity
 {
     [SerializeField] protected OperatorData _operatorData;
     public OperatorData OperatorData => _operatorData;
 
-    private OpActionController _action;
-    private OpBlockController _block;
+    protected OpActionController _action;
+    protected OpBlockController _block;
+    protected OpSkillController _skill;
 
+    // CurrentSkill이랑 헷갈릴 수 있어서 Controller을 붙임
+    public IOpSkillReadOnly SkillController => _skill;
+
+    // 성장이 반영된 데이터
     public OwnedOperator OwnedOp {get; protected set;} 
 
     // ICombatEntity 필드
@@ -36,22 +41,16 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill
     public int MaxBlockableEnemies { get => (int)Stat.GetStat(StatType.MaxBlockCount); }
     public float SPRecoveryRate { get => Stat.GetStat(StatType.SPRecoveryRate); }
 
+    // Action 관련
     public float ActionCooldown => _action.ActionCooldown;
     public float ActionDuration => _action.ActionDuration;
-
     public IReadOnlyList<Vector2Int> CurrentActionableGridPos => _action.CurrentActionableGridPos;
 
-    protected float currentSP;
-    public float CurrentSP 
-    {
-        get { return currentSP; }
-        set 
-        { 
-            currentSP = Mathf.Clamp(value, 0f, MaxSP);
-            OnSPChanged?.Invoke(CurrentSP, MaxSP);
-        }
-    }
-    public float MaxSP { get; protected set; }
+    // 스킬, SP 관련
+    public float CurrentSP => _skill.CurrentSP;
+    public float MaxSP => _skill.MaxSP;
+    public OperatorSkill CurrentSkill => _skill.CurrentSkill;
+    public bool IsSkillOn => _skill.IsSkillOn;
 
     // 저지 관련
     public IReadOnlyList<Enemy> BlockableEnemies => _block.BlockableEnemies;
@@ -71,31 +70,12 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill
     public OperatorUI? OperatorUI => operatorUI;
     protected DirectionIndicator _directionIndicator;
 
-    // 스킬 관련
-    public OperatorSkill CurrentSkill { get; protected set; } = default!;
-    protected bool _isSkillOn;
-    public bool IsSkillOn
-    {
-        get => _isSkillOn;
-        protected set
-        {
-            if (_isSkillOn != value)
-            {
-                _isSkillOn = value;
-                OnSkillStateChanged?.Invoke();
-            }
-        }
-    }
-    protected Coroutine _activeSkillCoroutine; // 지속시간이 있는 스킬에 해당하는 코루틴
-
     // 현재 오퍼레이터의 육성 상태 - Current를 별도로 붙이지는 않겠음
     public OperatorElitePhase ElitePhase { get; protected set; }
     public int Level { get; protected set; }
 
     // 이벤트들
-    public event System.Action<float, float> OnSPChanged = delegate { };
     public event System.Action OnStatsChanged = delegate { };
-    public event System.Action OnSkillStateChanged = delegate { };
 
     protected override void Awake()
     {
@@ -115,6 +95,7 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill
         }
 
         _block = new OpBlockController();
+        _skill = new OpSkillController(this);
 
         CreateDirectionIndicator();
         CreateOperatorUI();
@@ -141,9 +122,22 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill
         // 데이터를 이용해 스탯 초기화
         _stat.Initialize(OwnedOp);
         _health.Initialize();
-        _deployment.Initialize(_operatorData); // _action보다 먼저
-        _block.Initialize(this); // _action보다 먼저
+
+        // 순서 중요 : _action보다 먼저 실행
+        // action에는 배치 여부, 타일 정보 필요
+        _deployment.Initialize(_operatorData); 
+
+        // 순서 중요 : _deployment 이후, _action보다 먼저 실행
+        // 배치된 후에 동작해야 함, 저지 로직은 block 정보 필요
+        _block.Initialize(this); 
+        
+        // _action : _deployment, _block 초기화 이후에 오게 하기
         _action.Initialize(this);
+
+        // Skill 관련, 순서는 상관 없을 듯
+        OperatorSkill currentSkill = OwnedOp.UnlockedSkills[DeployableInfo.skillIndex.Value];
+        _skill.Initialize(currentSkill);
+        _skill.OpActionTimeReset += HandleSkillDurationEnded;
 
         _currentAttackType = _operatorData.AttackType;
     }
@@ -157,20 +151,6 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill
     // base.Initialize 템플릿 메서드 3
     protected override void OnInitialized()
     {
-        CurrentSP = OperatorData.InitialSP;
-
-        // 스킬 설정
-        if (DeployableInfo.skillIndex.HasValue)
-        {
-            CurrentSkill = OwnedOp.UnlockedSkills[DeployableInfo.skillIndex.Value];
-        }
-        else
-        {
-            throw new System.InvalidOperationException("인덱스가 없어서 CurrentSkill이 지정되지 않음");
-        }
-
-        MaxSP = CurrentSkill?.SPCost ?? 0f;
-
         ElitePhase = OwnedOp.CurrentPhase;
         Level = OwnedOp.CurrentLevel;
 
@@ -196,37 +176,17 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill
         }
     }
     
-    protected void DisableOperatorUI()
-    {
-        operatorUI.gameObject.SetActive(false);
-    }
 
     protected override void Update()
     {
         if (IsDeployed && StageManager.Instance!.CurrentGameState == GameState.Battle)
         {
-            // ----- 상태 갱신 로직. 행동 제약과 무관 -----
-            HandleSPRecovery(); // SP 회복
+            // 행동 제약은 각각의 컨트롤러에서 체크함
 
             base.Update(); // 버프 효과의 갱신
             _action.OnUpdate();
+            _skill.OnUpdate();
 
-            CurrentSkill.OnUpdate(this); // 스킬에서도 감시
-
-            // 행동 불능 상태 체크
-            if (HasRestriction(ActionRestriction.CannotAction)) return;
-
-            // ----- 행동 가능 상태의 로직 -----
-            // 동작을 아예 못하는 상황과 구분한다. 예를 들면 기절 상태인데 스킬을 자동으로 켤 수는 없음.
-            HandleSkillAutoActivate();
-        }
-    }
-
-    protected virtual void HandleSkillAutoActivate()
-    {
-        if (CurrentSkill != null && CurrentSkill.autoActivate && CanUseSkill())
-        {
-            UseSkill();
         }
     }
 
@@ -239,23 +199,6 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill
             MuzzleVFXController muzzleVFXController = muzzleVFXObject.GetComponentInChildren<MuzzleVFXController>();
             muzzleVFXController.Initialize(muzzleTag);
         }
-    }
-
-    // SP 자동회복 로직
-    protected void HandleSPRecovery()
-    {
-        if (IsDeployed == false || CurrentSkill == null) { return; }
-
-        // 자동회복일 때만 처리
-        if (CurrentSkill.autoRecover)
-        {
-            float oldSP = CurrentSP;
-
-            // 최대 SP 초과 방지 (이벤트는 자체 발생)
-            CurrentSP = Mathf.Min(CurrentSP + SPRecoveryRate * Time.deltaTime, MaxSP);
-        }
-        
-        // 수동회복 스킬은 공격 시에 회복되므로 여기서 처리하지 않음
     }
 
     public override void OnBodyTriggerEnter(Collider other)
@@ -289,16 +232,7 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill
         StatisticsManager.Instance!.UpdateDamageTaken(OperatorData, actualDamage);
     }
 
-    protected override void UndeployAdditionalProcess()
-    {
-        
-    }
-
-    protected override void SetPoolTag()
-    {
-        PoolTag = _operatorData.UnitTag;
-        // Logger.Log($"Pooltag : {PoolTag}로 할당됨");
-    }
+    protected override void UndeployAdditionalProcess() { }
 
     public override void OnClick()
     {
@@ -421,39 +355,6 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill
         _block.OnEnemyExitedBlockRange(enemy);
     }
 
-    // ISkill 메서드
-    public bool CanUseSkill()
-    {
-        return IsDeployed && CurrentSP >= MaxSP && !IsSkillOn;
-    }
-
-    public void UseSkill()
-    {
-        if (CanUseSkill() && CurrentSkill != null)
-        {
-            // 스킬 활성화 로직은 CurrentSkill에 위임한다.
-            // 지속 시간이 있는 스킬은 CurrentSkill에서 StartSkillCoroutine을 실행시킬 것이다.
-            CurrentSkill.Activate(this);
-        }
-    }
-
-    public void StartSkillCoroutine(IEnumerator skillCoroutine)
-    {
-        // 기존 코루틴 종료
-        if (_activeSkillCoroutine != null)
-        {
-            StopCoroutine(_activeSkillCoroutine);
-        }
-
-        _activeSkillCoroutine = StartCoroutine(skillCoroutine);
-    }
-
-    public void EndSkillCoroutine()
-    {
-        // 코루틴이 정상적으로 끝났다면 StopCoroutine은 실행될 필요 없음
-        _activeSkillCoroutine = null;
-    }
-
     public virtual void PlayMeleeAttackEffect(UnitEntity target, AttackSource attackSource)
     {
         Vector3 targetPosition = target.transform.position;
@@ -494,12 +395,6 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill
         }
     }
 
-    // 지속 시간이 있는 스킬을 켜거나 끌 때 호출됨
-    public void SetSkillOnState(bool skillOnState)
-    {
-        IsSkillOn = skillOnState;
-    }
-
     // 방향 표시 UI 생성
     protected void CreateDirectionIndicator()
     {
@@ -508,64 +403,65 @@ public class Operator : DeployableUnitEntity, ICombatEntity, ISkill
         _directionIndicator.gameObject.SetActive(false);
     }
 
-    protected void InitializeDirectionIndicator()
+    protected void DisableOperatorUI() => operatorUI.gameObject.SetActive(false);
+
+    protected override void SetPoolTag() => PoolTag = _operatorData.UnitTag;
+
+    protected void InitializeDirectionIndicator() => _directionIndicator.Initialize(this);
+
+    // ActionDuration, ActionCooldown을 0으로 초기화
+    public void ResetActionTimes()
     {
-        _directionIndicator.Initialize(this);
+        _action.SetActionDuration(0f);
+        _action.SetActionCooldown(0f);
+    }
+
+    protected void HandleSkillDurationEnded(Operator op)
+    {
+        if (op == this)
+        {
+            ResetActionTimes();
+        }
     }
 
     // 컨트롤러 public 세터 프로퍼티
+    #region action API
+    public void OnEnemyEnteredAttackRange(Enemy enemy) => _action.OnEnemyEnteredRange(enemy);
+    public void OnEnemyExitedAttackRange(Enemy enemy) => _action.OnEnemyExitedRange(enemy);
+    public void SetActionDuration(float? intentionalCooldown = null) => _action.SetActionDuration(intentionalCooldown);
+    public void SetActionCooldown(float? intentionalCooldown = null) => _action.SetActionCooldown(intentionalCooldown);
+    public void PerformAction(UnitEntity target, float value) => _action.PerformAction(target, value);
+    public void SetActionableGridPos(List<Vector2Int> newGridPositions) => _action.SetActionableGridPos(newGridPositions);
+    #endregion
 
-    public void OnEnemyEnteredAttackRange(Enemy enemy)
-    {
-        _action.OnEnemyEnteredRange(enemy);
-    }
 
-    public void OnEnemyExitedAttackRange(Enemy enemy)
-    {
-        _action.OnEnemyExitedRange(enemy);
-    }
+    #region block API
 
-    public void OnEnemyEnteredBlockRange(Enemy enemy)
-    {
-        _block.OnEnemyEnteredBlockRange(enemy);
-    }
+    public void OnEnemyEnteredBlockRange(Enemy enemy) => _block.OnEnemyEnteredBlockRange(enemy);
+    public void OnEnemyExitedBlockRange(Enemy enemy) => _block.OnEnemyExitedBlockRange(enemy);
 
-    public void OnEnemyExitedBlockRange(Enemy enemy)
-    {
-        _block.OnEnemyExitedBlockRange(enemy);
-    }
+    #endregion
 
-    public void SetActionDuration(float? intentionalCooldown = null)
-    {
-        _action.SetActionDuration(intentionalCooldown);
-    }
+    // 지속 시간이 있는 스킬을 켜거나 끌 때 호출됨
+    #region skill API
 
-    public void SetActionCooldown(float? intentionalCooldown = null)
-    {
-        _action.SetActionCooldown(intentionalCooldown);
-    }
+    public void SetSkillOnState(bool skillOnState) => _skill.SetState(skillOnState);
+    public void SetCurrentSP(float newValue) => _skill.SetCurrentSP(newValue);
+    // public void StartSkillCoroutine(IEnumerator coroutine) => _skill.StartSkillCoroutine(coroutine);
+    // public void EndSkillCoroutine() => _skill.EndSkillCoroutine();
+    public void UseSkill() => _skill.ActivateSkill();
+    public bool CanUseSkill() => _skill.CanUseSkill();
+    public void TerminateSkill() => _skill.CleanupSkill();
 
-    public void PerformAction(UnitEntity target, float value)
-    {
-        _action.PerformAction(target, value);
-    }
-
-    public void SetActionableGridPos(List<Vector2Int> newGridPositions)
-    {
-        _action.SetActionableGridPos(newGridPositions);
-    }
+    #endregion
 
     protected override void OnDisable()
     {
         // Die 메서드에도 만들어놨지만 안전하게
         Enemy.OnEnemyDespawned -= HandleEnemyDespawn;
 
-        if (_activeSkillCoroutine != null)
-        {
-            // 오브젝트 파괴 시 실행 중이던 스킬 코루틴을 중지시킨다
-            StopCoroutine(_activeSkillCoroutine);
-            _activeSkillCoroutine = null;
-        }
+        _skill.OpActionTimeReset -= HandleSkillDurationEnded;
+        _skill.OnDisabled();
 
         if (IsDeployed && MapManager.Instance != null)
         {

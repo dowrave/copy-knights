@@ -20,7 +20,7 @@ namespace Skills.Base
         private string _skillRangeVFXTag;
         private string _hitVFXTag;
 
-        protected override void PlaySkillEffect(Operator caster)
+        public override void OnSkillActivated(Operator caster)
         {
             if (hitVFXPrefab == null)
             {
@@ -41,11 +41,9 @@ namespace Skills.Base
             VisualizeSkillRange(caster, caster.GetCurrentSkillRange());
         }
 
-        protected override void OnSkillEnd(Operator caster)
+        public override void OnSkillEnd(Operator caster)
         {
             caster.RemoveBuffFromSourceSkill(this);
-        
-            base.OnSkillEnd(caster);
         }
 
         // 공격 영역을 만듦

@@ -129,10 +129,6 @@ public class TestManager : MonoBehaviour
         {
             StageClearAndGetRewards(allStages[i].stageId, 3);
         }
-
-        // Gemini가 던져준 코드에는
-        // List.TakeWhile로 targetStageId에 해당하지 않는 스테이지들의 리스트를 만들어서 클리어 처리하는 방법도 있음
-        // 하지만 저 방식은 나중에 봤을 때 직관적이진 않고 targetStageId에 오타가 있다면 모든 스테이지를 클리어 처리한다는 단점이 있음
     }
 
     // 스테이지 클리어 및 보상 지급

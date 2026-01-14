@@ -37,6 +37,9 @@ public class OpAttackController: OpActionController
 
     protected override void SetCurrentTarget()
     {
+        // 현재의 target이 비활성화됐다면 null로 전환함. 조건문의 null 체크는 필수
+        if (CurrentTarget != null && !CurrentTarget.gameObject.activeInHierarchy) CurrentTarget = null;
+
         // 1. 저지 중일 때 -> 저지 중인 적을 우선 순위로 공격
         IReadOnlyList<Enemy> blockedEnemies = _owner.BlockedEnemies;
 
@@ -50,7 +53,6 @@ public class OpAttackController: OpActionController
                     break;
                 }
             }
-            NotifyTarget();
             return;
         }
 
@@ -61,11 +63,7 @@ public class OpAttackController: OpActionController
                 .Where(e => e != null && e.gameObject != null) // 파괴 검사 & null 검사 함께 수행
                 .OrderBy(E => E.Navigator.GetRemainingPathDistance(E.CurrentPathIndex)) // 살아있는 객체 중 남은 거리가 짧은 순서로 정렬
                 .FirstOrDefault(); // 가장 짧은 거리의 객체를 가져옴
-
-            if (CurrentTarget != null)
-            {
-                NotifyTarget();
-            }
+            
             return;
         }
 
@@ -82,17 +80,7 @@ public class OpAttackController: OpActionController
         // 범위에서 벗어난 경우
         if (!IsCurrentTargetInRange())
         {
-            CurrentTarget.RemoveAttackingEntity(_owner);
             CurrentTarget = null;
-        }
-    }
-
-    // 적에게 _owner가 공격하고 있음을 알림
-    public void NotifyTarget()
-    {
-        if (CurrentTarget != null)
-        {
-            CurrentTarget.AddAttackingEntity(_owner);
         }
     }
 
@@ -151,7 +139,7 @@ public class OpAttackController: OpActionController
             _owner.IsSkillOn &&
             spBeforeAttack != _owner.MaxSP) // 스킬이 실려서 나간 공격일 때는 SP 회복 X 
         {
-            _owner.CurrentSP += 1;
+            _owner.SetCurrentSP(_owner.CurrentSP + 1);
         }
 
         // 공격 후 동작
@@ -194,16 +182,6 @@ public class OpAttackController: OpActionController
                     projectile.Initialize(_owner, target, damage, showDamagePopup, _owner.OperatorData.ProjectileTag, _owner.OperatorData.HitVFXTag, _owner.AttackType);
                 }
             }
-        }
-    }
-
-    // 옮기긴 했는데 안 쓰는 듯??
-    public void RemoveCurrentTarget()
-    {
-        if (CurrentTarget != null)
-        {
-            CurrentTarget.RemoveAttackingEntity(_owner);
-            CurrentTarget = null;
         }
     }
 
