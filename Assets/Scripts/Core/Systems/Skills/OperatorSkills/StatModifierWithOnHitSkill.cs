@@ -15,10 +15,10 @@ namespace Skills.OperatorSkills
         // 스킬이 부여하는 버프를 저장하는 필드
         private StunOnHitBuff stunBuffInstance;
 
-        public override void OnSkillActivated(Operator op)
+        public override void OnActivated(Operator op)
         {
             // 스탯 강화 효과
-            base.OnSkillActivated(op);
+            base.OnActivated(op);
 
             // 스턴 효과 추가
             if (stunChance > 0)
@@ -28,12 +28,12 @@ namespace Skills.OperatorSkills
             }
         }
 
-        public override void OnSkillEnd(Operator op)
+        public override void OnEnd(Operator op)
         {
             op.RemoveBuff(stunBuffInstance);
             stunBuffInstance = null;
             
-            base.OnSkillEnd(op);
+            base.OnEnd(op);
         }
     }
 }

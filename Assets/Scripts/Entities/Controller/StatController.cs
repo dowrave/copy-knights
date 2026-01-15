@@ -85,7 +85,7 @@ public class StatController: IStatReadOnly
     // 요청이 들어올 때마다 modifier에 곱해서 계산된다.
     public float GetStat(StatType type)
     {
-        // 오버라이드에 있는 값이라면 최우선으로 나감(덮어쓰기 값)
+        // 1. 오버라이드에 있는 값이라면 최우선으로 나감(덮어쓰기 값)
         if (_overrides.TryGetValue(type, out float overrideValue))
         {
             return overrideValue;
@@ -103,8 +103,6 @@ public class StatController: IStatReadOnly
     // 예시) value = 1.5라면 +50%을 의미함 - modifiers는 여기서 1을 뺀 0.5를 저장한다
     public void AddModifier(StatType type, float value)
     {
-        float actualValue = value - 1.0f;
-
         // 키가 없다면 0으로 초기화
         if (!_modifiers.ContainsKey(type))
         {
@@ -112,7 +110,7 @@ public class StatController: IStatReadOnly
         }
 
         // 값 더하기
-        _modifiers[type] += actualValue;
+        _modifiers[type] += value;
 
         // 변경 알림
         OnStatChanged?.Invoke(type);
@@ -121,8 +119,6 @@ public class StatController: IStatReadOnly
 
     public void RemoveModifier(StatType type, float value)
     {
-        float actualValue = value - 1.0f;
-
         if (_modifiers.ContainsKey(type))
         {
             _modifiers[type] -= value;

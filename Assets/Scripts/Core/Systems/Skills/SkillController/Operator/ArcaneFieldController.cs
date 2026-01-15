@@ -6,7 +6,7 @@ using UnityEngine;
 // 실제 ArcaneField에 들어오고 나가는 처리를 담당. VFX는 여기서 처리하지 않음.
 public class ArcaneFieldController : FieldEffectController
 {
-    private float slowAmount;
+    private float movementModifier;
 
     public virtual void Initialize(
         Operator caster,
@@ -16,12 +16,12 @@ public class ArcaneFieldController : FieldEffectController
         float interval,
         GameObject hitEffectPrefab,
         string hitEffectTag,
-        float slowAmount
+        float movementModifier
         )
     {
         // base.Initialize(caster, affectedTiles, fieldDuration, amountPerTick, interval, hitEffectPrefab, hitEffectTag);
         InitializeFields(caster, affectedTiles, fieldDuration, amountPerTick, interval, hitEffectPrefab, hitEffectTag);
-        this.slowAmount = slowAmount;
+        this.movementModifier = movementModifier;
 
         // _currentCoroutine = StartCoroutine(FieldRoutine(fieldDuration, interval));
         InitializeCoroutine();
@@ -70,7 +70,7 @@ public class ArcaneFieldController : FieldEffectController
         if (target is Enemy enemy && caster != null)
         {
             // 슬로우 지속 시간은 장판이 사라지거나 벗어날 때까지
-            var slowBuff = new SlowBuff(float.PositiveInfinity, slowAmount);
+            var slowBuff = new SlowBuff(float.PositiveInfinity, movementModifier);
             enemy.AddBuff(slowBuff);
   
             affectedTargets[enemy] = new List<Buff> { slowBuff };

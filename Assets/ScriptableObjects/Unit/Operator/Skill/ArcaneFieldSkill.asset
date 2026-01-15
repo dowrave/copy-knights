@@ -48,5 +48,5 @@ MonoBehaviour:
   skillRangeVFXPrefab: {fileID: 4360018886635934139, guid: 9ff6fcecb6f1c76469c6c95092aaeb21, type: 3}
   hitVFXPrefab: {fileID: 2509783916205190540, guid: 369d8688afce7f745a382edaefbd9fbd, type: 3}
   damagePerTickRatio: 0.5
-  slowAmount: 0.3
+  movementModifier: 0.3
   damageInterval: 0.5

@@ -20,7 +20,7 @@ namespace Skills.OperatorSkills
             duration = 0f;
         }
 
-        public override void OnSkillActivated(Operator op)
+        public override void OnActivated(Operator op)
         {
             if (slashEffectPrefab == null) return;
 

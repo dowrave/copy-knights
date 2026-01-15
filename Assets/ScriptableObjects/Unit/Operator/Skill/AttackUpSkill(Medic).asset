@@ -20,17 +20,17 @@ MonoBehaviour:
   autoRecover: 1
   autoActivate: 0
   isOnTest: 0
-  meleeAttackEffectOverride: {fileID: 0}
+  meleeAttackVFXOverride: {fileID: 0}
   duration: 10
   durationVFXPrefab: {fileID: 8208081831452339212, guid: bdab0786a6096ac4fab652b9c1626eb6, type: 3}
   activeFromOperatorPosition: 1
   skillRangeOffset: []
   rectOffset: 0
   modifiers:
-    healthModifier: 1
-    attackPowerModifier: 1.5
-    attackSpeedModifier: 1
-    defenseModifier: 1
-    magicResistanceModifier: 1
+    healthModifier: 0
+    attackPowerModifier: 0.5
+    attackSpeedModifier: 0
+    defenseModifier: 0
+    magicResistanceModifier: 0
     attackType: 0
     attackRangeModifier: []

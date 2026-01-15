@@ -48,7 +48,7 @@ namespace Skills.OperatorSkills
             }
         }        
 
-        public override void OnSkillActivated(Operator caster)
+        public override void OnActivated(Operator caster)
         {
             if (slashControllerPrefab == null) return;
 

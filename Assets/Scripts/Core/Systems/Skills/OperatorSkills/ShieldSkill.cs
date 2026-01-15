@@ -21,7 +21,7 @@ namespace Skills.OperatorSkills
         private ShieldBuff? _shieldBuff;
         private StatModificationBuff _statBuff;
 
-        public override void OnSkillActivated(Operator op)
+        public override void OnActivated(Operator op)
         {
             _statBuff = new StatModificationBuff(this.duration, statMods);
             op.AddBuff(_statBuff);
@@ -47,7 +47,7 @@ namespace Skills.OperatorSkills
         }
 
 
-        public override void OnSkillEnd(Operator op)
+        public override void OnEnd(Operator op)
         {
             // 지속시간이 다 되어서 끝나는 경우 - 적용된 버프들을 제거함
             if (_statBuff != null) op.RemoveBuff(_statBuff);
@@ -55,7 +55,7 @@ namespace Skills.OperatorSkills
             _statBuff = null;
             _shieldBuff = null;
 
-            base.OnSkillEnd(op);
+            base.OnEnd(op);
         }
 
         public override void PreloadObjectPools(OperatorData ownerData)

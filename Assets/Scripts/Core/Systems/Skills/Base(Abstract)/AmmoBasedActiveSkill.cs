@@ -13,7 +13,7 @@ namespace Skills.Base
         [Header("Attack Modifications")]
         [SerializeField] StatModifierSkill.StatModifiers statModifier;
 
-        public override void OnSkillActivated(Operator op)
+        public override void OnActivated(Operator op)
         {
             // 스탯 변경 버프 생성
             StatModificationBuff statBuff = new StatModificationBuff(float.PositiveInfinity, statModifier);
@@ -25,8 +25,8 @@ namespace Skills.Base
             attackCounterBuff.LinkBuff(statBuff);
 
             // 공격 횟수 세는 버프 종료 시 실행될 함수 지정
-            // OnSkillEnd는 Operator를 받고 콜백은 인자가 없으므로 람다식으로 감싸서 호출한다.
-            attackCounterBuff.OnRemovedCallback += () => OnSkillEnd(op);
+            // OnEnd는 Operator를 받고 콜백은 인자가 없으므로 람다식으로 감싸서 호출한다.
+            attackCounterBuff.OnRemovedCallback += () => OnEnd(op);
 
             // 실제 버프 추가
             op.AddBuff(statBuff);

@@ -20,7 +20,7 @@ namespace Skills.Base
         private string _skillRangeVFXTag;
         private string _hitVFXTag;
 
-        public override void OnSkillActivated(Operator caster)
+        public override void OnActivated(Operator caster)
         {
             if (hitVFXPrefab == null)
             {
@@ -41,7 +41,7 @@ namespace Skills.Base
             VisualizeSkillRange(caster, caster.GetCurrentSkillRange());
         }
 
-        public override void OnSkillEnd(Operator caster)
+        public override void OnEnd(Operator caster)
         {
             caster.RemoveBuffFromSourceSkill(this);
         }

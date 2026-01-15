@@ -10,7 +10,7 @@ namespace Skills.Base
         public string SkillName => skillName;
 
         // 스킬 시작 시에 적용되는 효과
-        public virtual void OnSkillActivated(Tcaster caster)
+        public virtual void OnActivated(Tcaster caster)
         {
             // 예: 버프 적용, 공격력 증가, 특수 공격 등
         }
@@ -23,7 +23,7 @@ namespace Skills.Base
         }
 
         // 스킬 종료 시 정리 작업
-        public virtual void OnSkillEnd(Tcaster caster)
+        public virtual void OnEnd(Tcaster caster)
         {
             // 예 : 버프 해제, 상태 복원 등
         }

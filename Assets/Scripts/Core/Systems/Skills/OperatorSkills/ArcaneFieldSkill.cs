@@ -28,7 +28,7 @@ namespace Skills.OperatorSkills
             autoRecover = true;
         }
 
-        public override void OnSkillActivated(Operator caster)
+        public override void OnActivated(Operator caster)
         {
             // 1. 자신에게 공격 불가 버프 적용
             CannotAttackBuff _cannotAttackBuff = new CannotAttackBuff(duration, this);
@@ -56,7 +56,7 @@ namespace Skills.OperatorSkills
             // base.PlaySkillEffect(caster);
         }
 
-        public override void OnSkillEnd(Operator caster)
+        public override void OnEnd(Operator caster)
         {
             caster.RemoveBuffFromSourceSkill(this);
         }

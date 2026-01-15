@@ -93,9 +93,10 @@ public class OpSkillController: IOpSkillReadOnly
 
     private void ExecuteInstantSkill(ActiveSkill skill)
     {
-        skill.OnSkillActivated(_owner);
+        skill.OnActivated(_owner);
         skill.OnUpdate(_owner);
-        skill.OnSkillEnd(_owner);
+        skill.OnEnd(_owner);
+        CompleteActiveSkill(skill);
     }
 
     private void PrepareSkillActivation()
@@ -119,12 +120,13 @@ public class OpSkillController: IOpSkillReadOnly
             _owner.StopCoroutine(_activeSkillCoroutine);
         }
 
+        
         _activeSkillCoroutine = _owner.StartCoroutine(Co_HandleDurationSkill(skill));
     }
 
     private IEnumerator Co_HandleDurationSkill(ActiveSkill skill)
     {
-        skill.OnSkillActivated(_owner);
+        skill.OnActivated(_owner);
 
         float elapsed = 0f;
         float duration = skill.Duration; 
@@ -151,12 +153,12 @@ public class OpSkillController: IOpSkillReadOnly
         }
 
         // 정상 종료
+        skill.OnEnd(_owner);
         CompleteActiveSkill(skill);
     }
 
     private void CompleteActiveSkill(ActiveSkill skill)
     {
-        skill.OnSkillEnd(_owner);
         CleanupSkill();
         OpActionTimeReset?.Invoke(_owner);
     }

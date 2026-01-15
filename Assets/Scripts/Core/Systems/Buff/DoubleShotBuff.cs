@@ -27,14 +27,14 @@ public class DoubleShotBuff : Buff
             UnitEntity? target = op.CurrentTarget;
             if (target == null) yield break;
 
-            float modifiedDamage = op.AttackPower * damageMultiplier;
+            float modifiedDamage = op.GetStat(StatType.AttackPower) * damageMultiplier;
 
-            op.PerformAction(target, modifiedDamage);
+            op.PerformActualAction(target, modifiedDamage);
             yield return new WaitForSeconds(delayBetweenShots);
 
             if (target != null && target.CurrentHealth >= 0)
             {
-                op.PerformAction(target, modifiedDamage);
+                op.PerformActualAction(target, modifiedDamage);
             }
         }
     }

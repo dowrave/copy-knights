@@ -27,10 +27,10 @@ MonoBehaviour:
   skillRangeOffset: []
   rectOffset: 0
   modifiers:
-    healthModifier: 1
-    attackPowerModifier: 1.5
-    attackSpeedModifier: 1
-    defenseModifier: 1
-    magicResistanceModifier: 1
+    healthModifier: 0
+    attackPowerModifier: 0.5
+    attackSpeedModifier: 0
+    defenseModifier: 0
+    magicResistanceModifier: 0
     attackType: 0
     attackRangeModifier: []

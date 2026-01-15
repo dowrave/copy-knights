@@ -18,7 +18,7 @@ namespace SKills.OperatorSkills
             autoActivate = true;
         }
 
-        public override void OnSkillActivated(Operator op)
+        public override void OnActivated(Operator op)
         {
             if (op == null) return;
 
