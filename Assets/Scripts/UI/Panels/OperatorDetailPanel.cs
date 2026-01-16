@@ -183,7 +183,7 @@ public class OperatorDetailPanel : MonoBehaviour
             deploymentCostText.text = Mathf.FloorToInt(currentStats.DeploymentCost).ToString();
             redeployTimeText.text = Mathf.FloorToInt(currentStats.RedeployTime).ToString();
             blockCountText.text = Mathf.FloorToInt(currentStats.MaxBlockableEnemies).ToString();
-            attackSpeedText.text = currentStats.AttackSpeed.ToString("F2");
+            attackSpeedText.text = currentStats.BaseAttackCooldown.ToString("F2");
         }
     }
 

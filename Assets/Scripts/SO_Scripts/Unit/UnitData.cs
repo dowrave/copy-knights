@@ -20,29 +20,3 @@ public class UnitData : ScriptableObject, IUnitData
     // IUnitData 인터페이스 관련
     public UnitStats GetUnitStats() { return stats; }
 }
-
-[System.Serializable]
-public struct UnitStats
-{
-    [SerializeField] private float _health;
-    [SerializeField] private float _defense;
-    [SerializeField] private float _magicResistance;
-
-    public float Health
-    {
-        get => _health;
-        set => _health = value;
-    }
-
-    public float Defense
-    {
-        get => _defense;
-        set => _defense = value;
-    }
-
-    public float MagicResistance
-    {
-        get => _magicResistance;
-        set => _magicResistance = value;
-    }
-}

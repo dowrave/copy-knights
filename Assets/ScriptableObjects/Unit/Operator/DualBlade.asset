@@ -23,6 +23,7 @@ MonoBehaviour:
       _deploymentCost: 18
       _redeployTime: 40
     _attackPower: 245
+    _baseAttackCooldown: 1.3
     _attackSpeed: 1.3
     _maxBlockableEnemies: 2
     _spRecoveryRate: 1

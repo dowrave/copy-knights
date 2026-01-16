@@ -71,10 +71,6 @@ public class EnemyData : ScriptableObject, ICombatData
     public GameObject HitEffectPrefab => hitEffectPrefab;
 
     // 오브젝트 풀 태그 프로퍼티
-    // public string UnitTag => _unitTag ??= $"Opereator_{entityID}";
-    // public string ProjectileTag => _projectileTag ??= $"{entityID}_Projectile";
-    // public string MeleeAttackVFXTag => _meleeAttackVFXTag ??= $"{entityID}_MeleeAttackVFX";
-    // public string HitVFXTag => _hitVFXTag ??= $"{entityID}_HitVFX";
     public string UnitTag
     {
         get
@@ -118,73 +114,6 @@ public class EnemyData : ScriptableObject, ICombatData
             }
             return _hitVFXTag;
         }
-    }
-}
-
-
-
-[System.Serializable]
-public struct EnemyStats
-{
-    [SerializeField] private UnitStats _baseStats;
-    [SerializeField] private float _movementSpeed;
-    [SerializeField] private float _attackPower;
-    [SerializeField] private float _attackSpeed;
-    [SerializeField] private float _attackRange;
-    [SerializeField] private int _blockSize; // 자신이 차지하는 저지 수
-
-    public UnitStats BaseStats
-    {
-        get => _baseStats;
-        set => _baseStats = value;
-    }
-
-    public float MovementSpeed
-    {
-        get => _movementSpeed;
-        set => _movementSpeed = value;
-    }
-
-    public float AttackPower
-    {
-        get => _attackPower;
-        set => _attackPower = value;
-    }
-
-    public float AttackSpeed
-    {
-        get => _attackSpeed;
-        set => _attackSpeed = value;
-    }
-
-    public float AttackRange
-    {
-        get => _attackRange;
-        set => _attackRange = value;
-    }
-    public int BlockSize
-    {
-        get => _blockSize;
-        set => _blockSize = value;
-    }
-
-    // Convenience properties for nested access
-    public float Health
-    {
-        get => _baseStats.Health;
-        set => _baseStats.Health = value;
-    }
-
-    public float Defense
-    {
-        get => _baseStats.Defense;
-        set => _baseStats.Defense = value;
-    }
-
-    public float MagicResistance
-    {
-        get => _baseStats.MagicResistance;
-        set => _baseStats.MagicResistance = value;
     }
 }
 #nullable restore

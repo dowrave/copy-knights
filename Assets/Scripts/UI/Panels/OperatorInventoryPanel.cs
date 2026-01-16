@@ -659,7 +659,7 @@ public class OperatorInventoryPanel : MonoBehaviour
                 defenseText.text = Mathf.FloorToInt(opStats.Defense).ToString();
                 magicResistanceText.text = Mathf.FloorToInt(opStats.MagicResistance).ToString();
                 blockCountText.text = Mathf.FloorToInt(opStats.MaxBlockableEnemies).ToString();
-                attackSpeedText.text = opStats.AttackSpeed.ToString("F2");
+                attackSpeedText.text = opStats.BaseAttackCooldown.ToString("F2");
 
                 // 공격 범위 시각화
                 attackRangeHelper.ShowBasicRange(op.BaseActionableOffsets);

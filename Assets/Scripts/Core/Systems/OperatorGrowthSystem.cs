@@ -144,20 +144,29 @@ public static class OperatorGrowthSystem
         int baseLevel = CalculateActualLevel(OperatorElitePhase.Elite0, 1);
         int levelDifference = actualTargetLevel - baseLevel;
 
-        // 레벨 차이만큼 스탯 증가 적용
-        return new OperatorStats
-        {
-            Health = baseStats.Health + (levelUpStats.healthPerLevel * levelDifference),
-            AttackPower = baseStats.AttackPower + (levelUpStats.attackPowerPerLevel * levelDifference),
-            Defense = baseStats.Defense + (levelUpStats.defensePerLevel * levelDifference),
-            MagicResistance = baseStats.MagicResistance + (levelUpStats.magicResistancePerLevel * levelDifference),
+        float health = baseStats.Health + (levelUpStats.healthPerLevel * levelDifference);
+        float defense = baseStats.Defense + (levelUpStats.defensePerLevel * levelDifference);
+        float magicResistance = baseStats.MagicResistance + (levelUpStats.magicResistancePerLevel * levelDifference);
+        int deploymentCost = baseStats.DeploymentCost;
+        float redeployTime = baseStats.RedeployTime;
 
-            AttackSpeed = baseStats.AttackSpeed,
-            DeploymentCost = baseStats.DeploymentCost,
-            MaxBlockableEnemies = baseStats.MaxBlockableEnemies,
-            RedeployTime = baseStats.RedeployTime,
-            SPRecoveryRate = baseStats.SPRecoveryRate
-        };
+        float attackPower = baseStats.AttackPower + (levelUpStats.attackPowerPerLevel * levelDifference);
+        float baseAttackCooldown = baseStats.BaseAttackCooldown;
+        int maxBlockableEnemies = baseStats.MaxBlockableEnemies;
+        float spRecoveryRate = baseStats.SPRecoveryRate;
+
+        // 레벨 차이만큼 스탯 증가 적용
+        return new OperatorStats(
+            health, 
+            defense, 
+            magicResistance, 
+            deploymentCost, 
+            redeployTime, 
+            attackPower, 
+            baseAttackCooldown, 
+            maxBlockableEnemies, 
+            spRecoveryRate
+        );
     }
 
 

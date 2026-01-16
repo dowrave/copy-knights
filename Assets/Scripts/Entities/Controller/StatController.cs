@@ -40,7 +40,7 @@ public class StatController: IStatReadOnly
         _baseStats[StatType.DeploymentCost] = stats.DeploymentCost;
         _baseStats[StatType.RedeployTime] = stats.RedeployTime;
         _baseStats[StatType.AttackPower] = stats.AttackPower;
-        _baseStats[StatType.AttackSpeed] = stats.AttackSpeed;
+        _baseStats[StatType.AttackSpeed] = stats.BaseAttackCooldown;
         _baseStats[StatType.MaxBlockCount] = stats.MaxBlockableEnemies;
         _baseStats[StatType.SPRecoveryRate] = stats.SPRecoveryRate;
     }
@@ -61,7 +61,7 @@ public class StatController: IStatReadOnly
         _baseStats[StatType.MovementSpeed] = stats.MovementSpeed;
         _baseStats[StatType.AttackRange] = stats.AttackRange;
         _baseStats[StatType.AttackPower] = stats.AttackPower;
-        _baseStats[StatType.AttackSpeed] = stats.AttackSpeed;
+        _baseStats[StatType.AttackSpeed] = stats.BaseAttackCooldown;
         _baseStats[StatType.BlockSize] = stats.BlockSize;
     }
 
@@ -86,6 +86,7 @@ public class StatController: IStatReadOnly
     public float GetStat(StatType type)
     {
         // 1. 오버라이드에 있는 값이라면 최우선으로 나감(덮어쓰기 값)
+        // 공격속도 관련해서 생각할 게 있
         if (_overrides.TryGetValue(type, out float overrideValue))
         {
             return overrideValue;
@@ -93,8 +94,22 @@ public class StatController: IStatReadOnly
 
         float baseValue = _baseStats.TryGetValue(type, out float val) ? val : 0f;
         float modifierValue = _modifiers.TryGetValue(type, out float mod) ? mod : 0f;
+        float calculatedValue;
 
-        float calculatedValue = baseValue * (1 + modifierValue);
+        if (type == StatType.AttackSpeed)
+        {
+            // 공격 속도 : 기본 1
+            float attackSpeed = (1 + modifierValue);
+
+            // 최종 공격 쿨다운 : 기본 공격 쿨다운 / 공격 속도
+            // 공격 속도가 빨라진다 = attackSpeed가 올라간다 = 공격 쿨다운이 줄어든다
+            calculatedValue = baseValue / attackSpeed;
+        }
+        else
+        {
+            calculatedValue = baseValue * (1 + modifierValue);
+        }
+
 
         return calculatedValue;
     }

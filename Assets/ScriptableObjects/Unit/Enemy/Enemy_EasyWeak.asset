@@ -21,6 +21,7 @@ MonoBehaviour:
       _magicResistance: 0
     _movementSpeed: 0.7
     _attackPower: 185
+    _baseAttackCooldown: 1.1
     _attackSpeed: 1.1
     _attackRange: 0
     _blockSize: 1
