@@ -22,6 +22,8 @@ public class BuffVFXDatabase : ScriptableObject
     // 런타임용 Dict
     private Dictionary<System.Type, BuffVFXMapping> vfxDataMap; // 타입에 따른 vfx 데이터 저장 딕셔너리
 
+    private const int BASE_POOL_SIZE = 5;
+
     public void Initialize()
     {
         vfxDataMap = new Dictionary<System.Type, BuffVFXMapping>();
@@ -53,7 +55,7 @@ public class BuffVFXDatabase : ScriptableObject
             if (ObjectPoolManager.Instance != null)
             {
                 string poolTag = mapping.exactBuffClassName;
-                int poolSize = mapping.initialPoolSize > 0 ? mapping.initialPoolSize : 5;
+                int poolSize = mapping.initialPoolSize > 0 ? mapping.initialPoolSize : BASE_POOL_SIZE;
                 ObjectPoolManager.Instance.CreatePool(poolTag, mapping.vfxPrefab, poolSize);
             }
             else
@@ -74,5 +76,26 @@ public class BuffVFXDatabase : ScriptableObject
         }
 
         return vfxDataMap.TryGetValue(buffType, out data);
+    }
+
+    // StageManager에서 전체 생성해야 하는 오브젝트 풀 갯수를 셀 때 사용
+    public int GetAllVFXObjectPoolCounts()
+    {
+        int totalCounts = 0; // 값 설정까지 필요
+
+        foreach (var eachMap in vfxMappings) 
+        {
+            if (eachMap.initialPoolSize > 0)
+            {
+                totalCounts += eachMap.initialPoolSize;
+            }
+            else
+            {
+                // 값이 없는 경우의 처리는 BASE_POOL_SIZE로 처리 중
+                totalCounts += BASE_POOL_SIZE;
+            }
+        }
+
+        return totalCounts;
     }
 }

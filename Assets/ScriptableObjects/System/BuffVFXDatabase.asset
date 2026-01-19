@@ -17,3 +17,7 @@ MonoBehaviour:
     vfxPrefab: {fileID: 4972023296895345739, guid: 8454c4e68a23d804d9e1df5e128781c1, type: 3}
     initialPoolSize: 10
     vfxOffset: {x: 0, y: 0.2, z: 0}
+  - exactBuffClassName: SlowBuff
+    vfxPrefab: {fileID: 3419486622306201429, guid: 69d8821f3bf209148a283fa91f25af6b, type: 3}
+    initialPoolSize: 10
+    vfxOffset: {x: 0, y: 0.2, z: 0}

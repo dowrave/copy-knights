@@ -213,6 +213,7 @@ public class StageManager : MonoBehaviour
     }
 
     // StageLoader에서의 동작이 끝난 후에 호출됨
+    // !!! StageScene의 Awake, OnEnable이 호출된 후에 실행되는 로직임 !!!
     public IEnumerator InitializeStageCoroutine(StageData stageData, List<SquadOperatorInfo> squadData, LoadingScreen stageLoadingScreen, Action<float> onProgress)
     {
         this.stageData = stageData;
@@ -660,8 +661,13 @@ public class StageManager : MonoBehaviour
             }
         }
 
-        // 풀링할 전체 작업량 계산
-        float totalTasks = enemyCountDict.Count + squadData.Count + (stageData?.mapDeployables?.Count ?? 0);
+        float buffVFXTasks = BuffVFXManager.Instance.GetAllVFXPoolCounts();
+
+        // 풀에 들어가는 전체 오브젝트 갯수
+        float totalTasks = enemyCountDict.Count + 
+            squadData.Count + 
+            (stageData?.mapDeployables?.Count ?? 0) + 
+            buffVFXTasks;
         float completedTasks = 0f;
 
         // PathFinder는 1개 생성해둠 - 모든 스테이지에서 사용하므로
@@ -752,6 +758,10 @@ public class StageManager : MonoBehaviour
                 yield return null;
             }
         }
+
+        // 3. Buff의 오브젝트 풀들 생성
+        // 이 메서드가 Awake, OnEnable 후에 실행되므로 사용 가능함
+        BuffVFXManager.Instance.CreateBuffVFXPools();
     }
 
     public void HandleDeployableClicked(DeployableUnitEntity deployable)

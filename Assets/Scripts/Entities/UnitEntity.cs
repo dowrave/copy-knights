@@ -203,7 +203,7 @@ public abstract class UnitEntity : MonoBehaviour, IFactionMember
     }
 
     // 이거는 생각좀 해봅시다
-    // 보스 스킬에서 사용하는 로직 - 스킬을 시전하는 중에 멈추게 하기
+    // 보스 스킬 :  사용하는 로직 - 스킬을 시전하는 중에 멈추게 하기 에서 사용 중
     public void ExecuteSkillSequence(IEnumerator skillCoroutine)
     {
         StartCoroutine(skillCoroutine);

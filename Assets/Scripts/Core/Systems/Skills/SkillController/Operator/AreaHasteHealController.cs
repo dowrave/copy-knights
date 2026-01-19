@@ -64,7 +64,7 @@ public class AreaHasteHealController: FieldEffectController
     {
         foreach (var target in affectedTargets.Keys)
         {
-            if (target != null && caster != null)
+            if (target is Operator && target != null &&  caster != null)
             {
                 AttackSource healSource = new AttackSource(
                     attacker: caster,

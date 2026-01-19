@@ -8,20 +8,26 @@ public class BuffVFXManager : MonoBehaviour
 
     [SerializeField] private BuffVFXDatabase? VFXDatabase;
 
-    // ObjectPoolManager보다 늦게 초기화되어야 하므로 Start로 구현해둠
+    // ObjectPoolManager보다 늦게 초기화되어야 하므로 Start로 구현
     private void Start()
     {
         if (Instance == null)
         {
             Instance = this;
-            if (VFXDatabase != null)
-            {
-                VFXDatabase.Initialize();
-            }
+
         }
         else
         {
             Destroy(gameObject);
+        }
+    }
+
+    // 스테이지 시작 과정에 추가해줌
+    public void CreateBuffVFXPools()
+    {
+        if (VFXDatabase != null)
+        {
+            VFXDatabase.Initialize();
         }
     }
 
@@ -62,6 +68,11 @@ public class BuffVFXManager : MonoBehaviour
             VFXObj.transform.SetParent(null); // 부모-자식 관계 해제
             ObjectPoolManager.Instance.ReturnToPool(poolTag, VFXObj);
         }
+    }
 
+    // 생성해야 하는 VFX 오브젝트 갯수를 반환
+    public int GetAllVFXPoolCounts()
+    {
+        return VFXDatabase.GetAllVFXObjectPoolCounts();
     }
 }

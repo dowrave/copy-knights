@@ -19,9 +19,10 @@ public abstract class Buff
     public virtual bool ModifiesAttackAction => false; // 공격 방법이 바뀌는가?
     public virtual ActionRestriction Restriction => ActionRestriction.None; // 제약
 
-    // protected GameObject? vfxInstance;
-    // protected ParticleSystem? vfxParticleSystem;
-    // protected VisualEffect? vfxGraph;
+    // 디버프 효과 등을 위한 VFX 인스턴스
+    protected GameObject? vfxInstance;
+    protected ParticleSystem? vfxParticleSystem;
+    protected VisualEffect? vfxGraph;
 
     public System.Action OnRemovedCallback; // 버프 종료 시에 호출되는 콜백 함수
 
@@ -45,7 +46,7 @@ public abstract class Buff
         elapsedTime = 0f;
 
         // 적용될 때 VFX 재생
-        // PlayVFX();
+        PlayVFX();
     }
 
     // 버프 제거 효과
@@ -62,7 +63,7 @@ public abstract class Buff
         RemoveLinkedBuffs();
 
         // 이펙트 제거
-        // RemoveVFX();
+        RemoveVFX();
 
         // 스킬의 후처리 콜백 호출
         OnRemovedCallback?.Invoke();
@@ -104,35 +105,35 @@ public abstract class Buff
 
     // 버프에 포함된 VFX 이펙트를 재생한다.
     // 일단은 스턴 같은 효과에만 사용된다. 스킬의 VFX는 스킬에서 구현함.
-    // protected virtual void PlayVFX()
-    // {
-    //     // 이미 활성화된 VFX가 있다면 실행되지 않음
-    //     if (vfxInstance != null) return; 
+    protected virtual void PlayVFX()
+    {
+        // 이미 활성화된 VFX가 있다면 실행되지 않음
+        if (vfxInstance != null) return; 
 
-    //     // 필요한 인스턴스 확인
-    //     if (BuffVFXManager.Instance == null || owner == null) return;
+        // 필요한 인스턴스 확인
+        if (BuffVFXManager.Instance == null || owner == null) return;
 
-    //     vfxInstance = BuffVFXManager.Instance.GetBuffVFXObject(this, owner.transform);
+        vfxInstance = BuffVFXManager.Instance.GetBuffVFXObject(this, owner.transform);
 
-    //     if (vfxInstance != null)
-    //     {
-    //         vfxParticleSystem = vfxInstance.GetComponent<ParticleSystem>();
-    //         if (vfxParticleSystem != null)
-    //         {
-    //             vfxParticleSystem.Play();
-    //         }
-    //         else
-    //         {
-    //             vfxGraph = vfxInstance.GetComponent<VisualEffect>();
-    //             if (vfxGraph != null)
-    //             {
-    //                 vfxGraph.Play();
-    //             }
-    //         }
+        if (vfxInstance != null)
+        {
+            vfxParticleSystem = vfxInstance.GetComponent<ParticleSystem>();
+            if (vfxParticleSystem != null)
+            {
+                vfxParticleSystem.Play();
+            }
+            else
+            {
+                vfxGraph = vfxInstance.GetComponent<VisualEffect>();
+                if (vfxGraph != null)
+                {
+                    vfxGraph.Play();
+                }
+            }
 
-    //         owner.OnDisabled += HandleOwnerTermination;
-    //     }
-    // }
+            owner.OnDisabled += HandleOwnerTermination;
+        }
+    }
 
     // 이벤트 구독용 래퍼 함수
     protected void HandleOwnerTermination(UnitEntity owner)
@@ -140,28 +141,28 @@ public abstract class Buff
         OnRemove();
     }
 
-    // protected virtual void RemoveVFX()
-    // {
-    //     // Buff의 VFX가 없는 경우도 있을 수 있으니 조용히 종료함
-    //     if (vfxInstance == null) return;
+    protected virtual void RemoveVFX()
+    {
+        // Buff의 VFX가 없는 경우도 있을 수 있으니 조용히 종료함
+        if (vfxInstance == null) return;
 
-    //     if (vfxParticleSystem != null)
-    //     {
-    //         vfxParticleSystem.Stop();// 새로운 파티클 생성 중지
-    //         vfxParticleSystem.Clear(); // 기존 파티클 제거
-    //     }
-    //     if (vfxGraph != null)
-    //     {
-    //         vfxGraph.Stop(); // 새로운 파티클 생성 중지
-    //         vfxGraph.Reinit(); // 이펙트 초기 상태로 리셋 - 현재 활성화된 모든 파티클 제거
-    //     }
+        if (vfxParticleSystem != null)
+        {
+            vfxParticleSystem.Stop();// 새로운 파티클 생성 중지
+            vfxParticleSystem.Clear(); // 기존 파티클 제거
+        }
+        if (vfxGraph != null)
+        {
+            vfxGraph.Stop(); // 새로운 파티클 생성 중지
+            vfxGraph.Reinit(); // 이펙트 초기 상태로 리셋 - 현재 활성화된 모든 파티클 제거
+        }
 
-    //     BuffVFXManager.Instance.ReleaseBuffVFXObject(this, vfxInstance);
+        BuffVFXManager.Instance.ReleaseBuffVFXObject(this, vfxInstance);
 
-    //     vfxParticleSystem = null;
-    //     vfxGraph = null;
-    //     vfxInstance = null;
-    // }
+        vfxParticleSystem = null;
+        vfxGraph = null;
+        vfxInstance = null;
+    }
 
     // 이 버프가 해제될 때 함께 해제되는 버프를 여기에 포함시킨다.
     // 다른 버프들을 다 
