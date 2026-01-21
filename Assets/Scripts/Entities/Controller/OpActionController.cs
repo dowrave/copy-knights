@@ -75,7 +75,7 @@ public abstract class OpActionController: IOperatorActionReadOnly
         }
     }
 
-    // 공격 모션 
+    // 공격 모션 & 쿨다운
     public void UpdateActionTimes()
     {
         // 공격 모션 지속 시간

@@ -33,9 +33,13 @@ public class DeployableActionUI : MonoBehaviour
     [SerializeField] private GameObject manualStopUI = default!; // 수동 종료가 가능한 스킬에만 나타남
 
     private Canvas canvas = default!;
-
     private float darkPanelAlpha = 0f;
     
+    // 스킬 버튼에 설정하는 상호작용 가능 여부에 대한 색상
+    private Color turnOnColor = new Color(255, 255, 255, 1);
+    private Color turnOffColor = new Color(128, 128, 128, 1);
+
+
     private Operator? currentOperator;
     private bool isSPImageActive;
 
@@ -270,25 +274,33 @@ public class DeployableActionUI : MonoBehaviour
     {
         if (currentOperator == null) return;
 
-        // 지속시간이 있는 액티브 스킬이 켜진 상태
+        // 스킬 On, 지속시간이 있는 스킬
         if (currentOperator.IsSkillOn)
         {
             SetSPImageActive(true);
             skillSPImage.color = skillOnColorWithAlpha;
             skillSPImage.fillAmount = currentOperator.CurrentSP / currentOperator.MaxSP;
+            return;
         }
-        // 스킬이 켜지지 않았고, 스킬 사용 가능한 상태
-        else if (currentOperator.CanUseSkill())
+
+        // 스킬 Off이면서 SP가 가득찬 상황
+        if (currentOperator.CurrentSP == currentOperator.MaxSP)
         {
-            SetSPImageActive(false);
+            // 게이지가 가득 찼을 때는 SP Image를 꺼둠
+            SetSPImageActive(false);  
+
+            // 스킬 자체의 조건을 체크해서 사용 가능할 때만 밝게 처리
+            skillButton.interactable = currentOperator.CanUseSkill() ? true : false;
+            // skillImage.color = currentOperator.CanUseSkill() ? turnOnColor : turnOffColor;
+
+            return;
         }
-        // 스킬이 켜지지 않았고, SP가 차오르는 상태
-        else
-        {
-            SetSPImageActive(true);
-            skillSPImage.color = skillOffColorWithAlpha;
-            skillSPImage.fillAmount = currentOperator.CurrentSP / currentOperator.MaxSP;
-        }
+
+        // 스킬 Off, SP가 차오르고 있는 상황
+        SetSPImageActive(true);
+        skillSPImage.color = skillOffColorWithAlpha;
+        skillSPImage.fillAmount = currentOperator.CurrentSP / currentOperator.MaxSP;
+
     }
 
     // 스킬 버튼 위의 SP를 나타내는 게이지 이미지를 표시할지 여부를 결정합니다.

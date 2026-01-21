@@ -267,7 +267,8 @@ public class OpSkillController: IOpSkillReadOnly
         return _owner.IsDeployed && 
             CurrentSP >= MaxSP && 
             !IsSkillOn && 
-            CurrentSkill != null;
+            CurrentSkill != null &&
+            CurrentSkill.CanActivate(_owner);
     }
 
     public void SetCurrentSP(float newValue) 

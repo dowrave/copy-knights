@@ -28,6 +28,17 @@ namespace Skills.OperatorSkills
             autoRecover = true;
         }
 
+        public override bool CanActivate(Operator caster)
+        {
+            // 조건이 추가로 필요할 수도 있음
+            if (caster.CurrentTarget != null)
+            {
+                return true;
+            } 
+
+            return false;
+        }
+
         public override void OnActivated(Operator caster)
         {
             // 1. 자신에게 공격 불가 버프 적용

@@ -18,8 +18,11 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity
 
     protected EnemyStats currentStats;
 
+    protected EnemyAttackController _attack;
+    public EnemyAttackController Attack => _attack;
+
     // 수정 필요할지도?
-    public override AttackType AttackType => BaseData.AttackType; // 수정 필요
+    public new AttackType AttackType;
     public AttackRangeType AttackRangeType => BaseData.AttackRangeType;
     public float ActionCooldown { get; set; } // 다음 공격까지의 대기 시간
     public float ActionDuration { get; set; } // 공격 모션 시간. Animator가 추가될 때 수정 필요할 듯. 항상 Cooldown보다 짧아야 함.
@@ -30,6 +33,12 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity
     public int BlockSize { get => (int)Stat.GetStat(StatType.BlockSize); } // Enemy가 차지하는 저지 수, 저지 수 자체가 변하는 로직은 없으니 게터만 구현
     public float AttackRange { get => BaseData.AttackRangeType == AttackRangeType.Melee ? 0f : Stat.GetStat(StatType.AttackRange); }
 
+    public float AttackCooldown => _attack.AttackCooldown;
+    public float AttackDuration => _attack.AttackDuration;
+    public UnitEntity CurrentTarget => _attack.CurrentTarget;
+    public IReadOnlyList<UnitEntity> TargetsInRange => _attack.TargetsInRange;
+    public Operator BlockingOperator => _attack.BlockingOperator;
+
     // 경로 관련
     protected PathNavigator navigator;
     protected Barricade? targetBarricade;
@@ -38,7 +47,7 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity
     protected Vector3 currentDestination; // 현재 향하는 위치
     protected int _currentPathIndex;
     protected bool isWaiting = false; // 단순히 위치에서 기다리는 상태
-    protected bool stopAttacking = false; // 인위적으로 넣은 공격 가능 / 불가능 상태
+    // protected bool stopAttacking = false; // 인위적으로 넣은 공격 가능 / 불가능 상태
     protected PathData _pathData;
 
     public PathNavigator Navigator => navigator;
@@ -61,34 +70,6 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity
         }
     }
 
-    // 저지, 공격 대상 관련
-    protected Operator? blockingOperator; // 자신을 저지 중인 오퍼레이터
-    public Operator? BlockingOperator => blockingOperator;
-    protected UnitEntity? _currentTarget;
-    public UnitEntity? CurrentTarget
-    {
-        get => _currentTarget;
-        protected set
-        {
-            // 타겟이 기존 값과 동일하다면 세터 실행 X
-            if (_currentTarget == value) return;
-
-            // 기존 타겟의 이벤트 구독 해제
-            if (_currentTarget != null)
-            {
-                _currentTarget.RemoveAttackingEntity(this);
-            }
-
-            _currentTarget = value;
-
-            if (_currentTarget != null)
-            {
-                NotifyTarget();
-            }
-        }
-    } // 공격 대상
-    
-    protected List<UnitEntity> targetsInRange = new List<UnitEntity>();
     protected int initialPoolSize = 5;
 
     [SerializeField] protected GameObject enemyBarUIPrefab = default!;
@@ -108,7 +89,6 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity
     public Vector3 Position => transform.position;
 
     protected EnemyDespawnReason currentEnemyDespawnReason = EnemyDespawnReason.Null;
-
     protected bool isInitialized = false;
 
     // 스태틱 이벤트 테스트
@@ -130,6 +110,9 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity
         base.Awake();
 
         SetColliderState(true); // base.Awake에서 false로 지정되므로 바꿔줌
+
+        // 세부 컨트롤러 생성자
+        _attack = new EnemyAttackController(this);
 
         // OnDeathAnimationCompleted += HandleDeathAnimationCompleted;
     }
@@ -175,6 +158,9 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity
         // 스탯 시스템 초기화
         _stat.Initialize(_enemyData); 
         _health.Initialize();
+
+        // 공격 범위 콜라이더 설정
+        attackRangeController.Initialize(this);
     }
 
     // InitializeVisual 관련 템플릿 메서드
@@ -194,11 +180,11 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity
         navigator.Initialize(); // HandlePathUpdated에 의해 currentPath도 설정됨
         SetupInitialPosition();
 
-        // 공격 범위 콜라이더 설정
-        attackRangeController.Initialize(this);
+        // 초기화는 데이터에 있는 타입을 가져옴
+        AttackType = BaseData.AttackType; 
 
         // 스킬 설정 
-        SetSkills();
+        // SetSkills();
 
         // 재사용할 일이 없어보이긴 하지만 일단 초기화에서도 구현 
         currentEnemyDespawnReason = EnemyDespawnReason.Null;
@@ -212,18 +198,6 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity
         DeployableUnitEntity.OnUndeployed += HandleDeployableDied;
     }
 
-    protected void OnDisable()
-    {
-        DeployableUnitEntity.OnUndeployed -= HandleDeployableDied;
-
-        if (navigator != null)
-        {
-            navigator.OnPathUpdated -= HandlePathUpdated;
-            navigator.Cleanup();
-        }
-        // Barricade.OnBarricadeDeployed -= OnBarricadePlaced;
-        // Barricade.OnBarricadeRemoved -= OnBarricadeRemovedWithDelay;
-    }
 
     // 새로운 경로 설정 시 설정됨
     protected void HandlePathUpdated(IReadOnlyList<PathNode> newPathNodes, IReadOnlyList<Vector3> newPathPositions)
@@ -252,72 +226,40 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity
     protected override void Update()
     {
         // update 동작 조건 : 전투 중 & 디스폰되지 않음 && 초기화됨 
-        bool updateCondition = StageManager.Instance!.CurrentGameState == GameState.Battle && 
-                currentEnemyDespawnReason == EnemyDespawnReason.Null && 
-                isInitialized;
+        if (!IsUpdateValid()) return; 
 
-        if (updateCondition)
-        {
-            // 행동이 불가능해도 동작해야 하는 효과
-            UpdateAllCooldowns();
-            base.Update(); // 버프 효과 갱신
 
-            if (HasRestriction(ActionRestriction.CannotAction)) return;
+        base.Update(); // 버프 효과 갱신
 
-            // 이동, 공격 등 상황에 따른 판단
-            DecideAndPerformAction();
-        }
+        // 행동 제약에 관계 없이 업데이트되어야 하는 요소들 처리
+        // 예시) 스킬 쿨다운, 공격 쿨다운
+        UpdateAllCooldowns();
+
+        // 공격 시도
+        OnUpdateAction();
+    }
+
+    protected bool IsUpdateValid()
+    {
+        return StageManager.Instance!.CurrentGameState == GameState.Battle && 
+            currentEnemyDespawnReason == EnemyDespawnReason.Null && 
+            isInitialized;
     }
 
     protected virtual void UpdateAllCooldowns()
     {
-        UpdateActionDuration();
-        UpdateActionCooldown();
+        _attack.UpdateAllCooldowns();
     }
 
-    // 행동 규칙.
-    protected virtual void DecideAndPerformAction()
+    protected virtual void OnUpdateAction()
     {
-        if (CurrentPathIndex < currentPathPositions.Count)
-        {
-            if (ActionDuration > 0) return;  // 공격 모션 중
+        // 공격을 시도함
+        bool attacked = _attack.OnUpdate();
+        if (attacked) return;
 
-            // 공격 범위 내의 적 리스트 & 현재 공격 대상 갱신
-            SetCurrentTarget();
-
-            if (TryUseSkill()) return;
-
-            // 저지당함 - 근거리 공격
-            if (blockingOperator != null && CurrentTarget == blockingOperator)
-            {
-                if (CanAttack())
-                {
-                    PerformMeleeAttack(CurrentTarget!, AttackPower);
-                }
-            }
-            else
-            {
-                // 바리케이트가 타겟일 경우
-                if (targetBarricade != null && Vector3.Distance(transform.position, targetBarricade.transform.position) < 0.5f)
-                {
-                    PerformMeleeAttack(targetBarricade, AttackPower);
-                }
-
-                // 타겟이 있고, 공격이 가능한 상태
-                if (CanAttack())
-                {
-                    Attack(CurrentTarget!, AttackPower);
-                }
-
-                // 이동 관련 로직.
-                else if (!isWaiting)
-                {
-                    MoveAlongPath(); // 이동
-                }
-            }
-        }
+        // 공격을 하지 않았다면 이동
+        MoveAlongPath();
     }
-
 
     // 경로를 따라 이동
     protected void MoveAlongPath()
@@ -396,104 +338,14 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity
         }
     }
 
-    public virtual void OnTargetEnteredRange(DeployableUnitEntity target)
-    {
-        if (target == null ||
-        target.Faction != Faction.Ally || // Ally만 공격함
-        !target.IsDeployed || // 배치된 요소만 공격함
-        targetsInRange.Contains(target)) return; // 이미 지정한 요소는 공격하지 않음
-
-        targetsInRange.Add(target);
-    }
-
-    public virtual void OnTargetExitedRange(DeployableUnitEntity target)
-    {
-        if (targetsInRange.Contains(target))
-        {
-            targetsInRange.Remove(target);
-        }
-    }
-
-    public void Attack(UnitEntity target, float damage)
-    {
-        float polishedDamage = Mathf.Floor(damage);
-        PerformAttack(target, polishedDamage);
-    }
-
-    protected void PerformAttack(UnitEntity target, float damage)
-    {
-        AttackType finalAttackType = AttackType;
-        bool showDamagePopup = false;
-
-        foreach (var buff in ActiveBuffs)
-        {
-            buff.OnBeforeAttack(this, ref damage, ref finalAttackType, ref showDamagePopup);
-        }
-
-        switch (AttackRangeType)
-        {
-            case AttackRangeType.Melee:
-                PerformMeleeAttack(target, damage);
-                break;
-            case AttackRangeType.Ranged:
-                PerformRangedAttack(target, damage);
-                break;
-        }
-        
-        foreach (var buff in ActiveBuffs)
-        {
-            buff.OnAfterAttack(this, target);
-        }
-    }
-
-    protected void PerformMeleeAttack(UnitEntity target, float damage)
-    {
-        SetAttackTimings(); // 이걸 따로 호출하는 경우가 있어서 여기서 다시 설정
-
-        AttackSource attackSource = new AttackSource(
-            attacker: this,
-            position: transform.position,
-            damage: damage,
-            type: AttackType,
-            isProjectile: false,
-            hitEffectTag: _enemyData.HitVFXTag,
-            showDamagePopup: false
-        );
-
-        PlayMeleeAttackEffect(target, attackSource);
-        target.TakeDamage(attackSource);
-    }
-
-    protected void PerformRangedAttack(UnitEntity target, float damage)
-    {
-        SetAttackTimings();
-        
-        if (_enemyData.ProjectilePrefab != null)
-        {
-            // 투사체 생성 위치
-            Vector3 spawnPosition = transform.position;
-            GameObject? projectileObj = ObjectPoolManager.Instance!.SpawnFromPool(_enemyData.ProjectileTag, spawnPosition, Quaternion.identity);
-
-            if (projectileObj != null)
-            {
-                Projectile? projectile = projectileObj.GetComponent<Projectile>();
-                if (projectile != null)
-                {
-                    projectile.Initialize(this, target, damage, false, _enemyData.ProjectileTag, _enemyData.HitVFXTag, AttackType);
-                }
-            }
-        }
-    }
-
-    protected override void HandleOnDeath()
-    {
-        Despawn(EnemyDespawnReason.Defeated);
-    }
-
-    protected bool IsTargetInRange(UnitEntity target)
-    {
-        return Vector3.Distance(target.transform.position, transform.position) <= AttackRange;
-    }
+    // Enemy가 공격 대상으로 삼은 적이 죽었을 때 동작
+    public void HandleDeployableDied(DeployableUnitEntity disabledEntity) => _attack.HandleDeployableDied(disabledEntity); 
+    public void OnTargetEnteredAttackRange(DeployableUnitEntity target) => _attack.OnTargetEnteredAttackRange(target);
+    public void OnTargetExitedAttackRange(DeployableUnitEntity target) => _attack.OnTargetExitedAttackRange(target);
+    public void SetStopAttacking(bool isAttacking) => _attack.SetStopAttacking(isAttacking);
+    public void SetCurrentBarricade(Barricade barricade) => _attack.SetCurrentBarricade(barricade);
+    
+    protected override void HandleOnDeath() => Despawn(EnemyDespawnReason.Defeated);
 
     // 사라지는 로직 관리
     protected void Despawn(EnemyDespawnReason reason)
@@ -540,70 +392,7 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity
         return Vector3.Distance(transform.position, lastPathPosition) < 0.05f;
     }
 
-    // Enemy가 공격할 대상 지정. Update에서 계속 돌아갈 필요가 있다.
-    public void SetCurrentTarget()
-    {
-        // 현재 타겟이 나를 저지 중인 오퍼레이터라면 변경할 필요 X
-        if (blockingOperator != null && CurrentTarget == blockingOperator) return;
 
-        // 현재 타겟이 비활성화라면 null 처리
-        if (!CheckCurrentTargetValidation()) CurrentTarget = null;
-
-        // 1. 자신을 저지하는 오퍼레이터를 타겟으로 설정
-        if (blockingOperator != null)
-        {
-            CurrentTarget = blockingOperator;
-            return;
-        }
-
-        // 2. 공격 범위 내의 타겟
-        if (targetsInRange.Count > 0)
-        {
-            // 타겟 선정
-            UnitEntity? newTarget = targetsInRange
-                .OfType<Operator>() // 오퍼레이터
-                .OrderByDescending(o => o.DeploymentOrder) // 가장 나중에 배치된 오퍼레이터 
-                .FirstOrDefault();
-
-            // 타겟의 유효성 검사 : 공격 범위 내에 있고 null이 아닐 때
-            if (newTarget != null || targetsInRange.Contains(newTarget))
-            {
-                CurrentTarget = newTarget;
-            }
-
-            return;
-        }
-
-        // 3. 위의 두 조건에 해당하지 않는다면 타겟을 제거한다.
-        CurrentTarget = null;
-    }
-
-    // Enemy가 공격 대상으로 삼은 적이 죽었을 때 동작
-    public void HandleDeployableDied(DeployableUnitEntity disabledEntity)
-    {
-        if (targetsInRange.Contains(disabledEntity))
-        {
-            targetsInRange.Remove(disabledEntity);
-        }
-
-        if (blockingOperator == disabledEntity)
-        {
-            blockingOperator = null;
-        }
-
-        // 타겟이 범위에서 벗어났어도 현재 타겟으로 지정되는 상황이 있을 수 있으니 위 조건과는 별도로 구현했음
-        if (CurrentTarget == disabledEntity)
-        {
-            CurrentTarget = null;
-        }
-    }
-
-
-    // CurrentTarget에게 자신이 공격하고 있음을 알림
-    public void NotifyTarget()
-    {
-        CurrentTarget?.AddAttackingEntity(this);
-    }
 
     // 현재 경로상에서 목적지까지 남은 거리 계산
     public float GetRemainingPathDistance()
@@ -629,55 +418,6 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity
         return distance;
     }
 
-    // 인터페이스 때문에 구현
-    public void UpdateActionDuration()
-    {
-        if (ActionDuration > 0f)
-        {
-            ActionDuration -= Time.deltaTime;
-        }
-    }
-
-    public void UpdateActionCooldown()
-    {
-        if (ActionCooldown > 0f)
-        {
-            ActionCooldown -= Time.deltaTime;
-        }
-    }
-
-
-    // 공격 모션 시간, 공격 쿨타임 시간 설정
-    public void SetAttackTimings()
-    {
-        if (ActionDuration <= 0f)
-        {
-            SetActionDuration();
-        }
-        if (ActionCooldown <= 0f)
-        {
-            SetActionCooldown();
-        }
-    }
-
-    public void SetActionDuration(float? intentionalDuration = null)
-    {
-        ActionDuration = AttackSpeed / 3f;
-    }
-
-    public void SetActionCooldown(float? intentionalCooldown = null)
-    {
-        ActionCooldown = AttackSpeed;
-    }
-
-    public bool CanAttack()
-    {
-        return CheckCurrentTargetValidation() &&
-            ActionCooldown <= 0 &&
-            ActionDuration <= 0 &&
-            !stopAttacking; 
-    }
-
     protected void PlayMeleeAttackEffect(UnitEntity target, AttackSource attackSource)
     {
         // 이펙트 처리
@@ -701,14 +441,6 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity
         }
     }
     
-    protected void RemoveTargetFromInRange(DeployableUnitEntity deployable)
-    {
-        if (targetsInRange.Contains(deployable))
-        {
-            targetsInRange.Remove(deployable);
-        }
-    }
-
     protected void CreateEnemyBarUI()
     {
         if (enemyBarUIPrefab != null)
@@ -722,10 +454,7 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity
         }
     }
 
-    public void UpdateBlockingOperator(Operator? op)
-    {
-        blockingOperator = op;
-    }
+    public void UpdateBlockingOperator(Operator op) => _attack.UpdateBlockingOperator(op);
 
     public override void OnBodyTriggerEnter(Collider other)
     {
@@ -745,11 +474,6 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity
             tile.EnemyExited(this);
             contactedTiles.Remove(tile);
         }
-    }
-
-    protected bool CheckCurrentTargetValidation()
-    {
-        return (CurrentTarget != null && CurrentTarget.gameObject.activeInHierarchy);
     }
 
     // 모델을 이동 방향으로 회전시킴
@@ -774,19 +498,23 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity
         this.isWaiting = isWaiting;
     }
 
-    public void SetStopAttacking(bool isAttacking)
-    {
-        this.stopAttacking = isAttacking;
-    }
-
-    public void SetCurrentBarricade(Barricade? barricade)
-    {
-        targetBarricade = barricade;
-    } 
-
     protected virtual void SetSkills() { }
     
     // 보스에서 사용
     protected virtual bool TryUseSkill() { return false; }
+
+    protected override void OnDisable()
+    {
+        DeployableUnitEntity.OnUndeployed -= HandleDeployableDied;
+
+        if (navigator != null)
+        {
+            navigator.OnPathUpdated -= HandlePathUpdated;
+            navigator.Cleanup();
+        }
+
+        base.OnDisable();
+    }
+
 }
 

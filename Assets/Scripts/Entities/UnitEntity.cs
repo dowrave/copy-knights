@@ -189,8 +189,6 @@ public abstract class UnitEntity : MonoBehaviour, IFactionMember
     // 피격 시에 추가로 실행할 게 있을 때 사용할 메서드 
     protected virtual void OnDamageTaken(UnitEntity attacker, float actualDamage) { } 
 
-
-
     // 해쉬 셋으로 받겠다는 약속이 있다면 굳이 인터페이스로 인풋을 받을 필요는 없다
     public void SetCurrentSkillRange(HashSet<Vector2Int> range)
     {

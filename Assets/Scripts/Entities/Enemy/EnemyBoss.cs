@@ -12,18 +12,26 @@ public class EnemyBoss : Enemy
     public override EnemyData BaseData => _bossData;
     public EnemyBossData BossData => _bossData;
 
+    private EnemySkillController _skillController;
+    public IEnemySkillReadOnly SkillController => _skillController;  
+
     private List<EnemyBossSkill> meleeSkills = new List<EnemyBossSkill>();
     private List<EnemyBossSkill> rangedSkills = new List<EnemyBossSkill>();
 
     private Dictionary<EnemyBossSkill, float> skillCooldowns = new Dictionary<EnemyBossSkill, float>();
     // 여러 스킬을 한꺼번에 사용하는 걸 방지하기 위해 모든 스킬이 체크하는 쿨타임. 
-    private float globalSkillCooldownDuration = 5f;
-    private float currentGlobalCooldown = 0f;
-
+ 
     private HashSet<Operator> operatorsInSkillRange = new HashSet<Operator>();
     public IReadOnlyCollection<Operator> OperatorsInSkillRange => operatorsInSkillRange;
 
 
+    protected override void Awake()
+    {
+        base.Awake();
+        _skillController = new EnemySkillController(this);
+    }
+
+    // 오버라이드하지 않고 별도로 구현
     public void Initialize(EnemyBossData bossData, PathData pathData)
     {
         if (_bossData == null)
@@ -50,14 +58,8 @@ public class EnemyBoss : Enemy
 
         // 데이터를 이용해 스탯 초기화
         _stat.Initialize(_bossData);
-    }
 
-    // base.Initialize 템플릿 메서드 2
-    protected override void OnInitialized()
-    {
-        // Enemy.OnInitialized
-        base.OnInitialized();
-
+        _skillController.Initialize();
         skillRangeController.Initialize(this);
     }
 
@@ -95,85 +97,21 @@ public class EnemyBoss : Enemy
         }
     }
 
-    // protected override void CreateObjectPool()
-    // {
-    //     base.CreateObjectPool();
+    // Update에 들어가는 템플릿 메서드. 스킬 처리를 추가했다. 
+    protected override void OnUpdateAction()
+    {
+        bool skillUsed = _skillController.OnUpdate();
+        if (skillUsed) return;  
 
-    //     // 스킬 오브젝트 풀 생성 - 전체 스킬이 skillCooldowns에 들어간 상태이므로 반복문을 2번 쓰지 않기 위해 이런 식으로 구현
-    //     foreach (var skill in skillCooldowns.Keys)
-    //     {
-    //         skill.InitializeSkillObjectPool(this);
-    //     }
-    // }
+        base.OnUpdateAction();
+    }
 
-    // 쿨다운이 돌고 있는 상황이라면 쿨다운을 업데이트한다.
     protected override void UpdateAllCooldowns()
     {
         base.UpdateAllCooldowns();
-
-        if (currentGlobalCooldown > 0)
-        {
-            currentGlobalCooldown -= Time.deltaTime;
-        }
-
-        // Dict의 Value만 바꿔도 되기에 이렇게 안 해도 되지만 습관 들여놓기
-        var skillKeys = new List<EnemyBossSkill>(skillCooldowns.Keys);
-        foreach (var skill in skillKeys)
-        {
-            if (skillCooldowns[skill] > 0)
-            {
-                skillCooldowns[skill] -= Time.deltaTime;
-            }
-        }
+        _skillController.UpdateAllCooldowns();
     }
 
-    // Enemy.DecideAndPerformAction에서 사용
-    protected override bool TryUseSkill()
-    {
-        // 공통 쿨다운일 때는 실행되지 않음
-        if (currentGlobalCooldown > 0f) return false;
-
-        // 저지를 당할 때는 근거리 스킬 중에서 설정, 아니라면 원거리 중에서 설정
-        // 이 경우는 참조 데이터를 "읽기"만 하므로 별도의 리스트를 사용할 필요는 없다.
-        List<EnemyBossSkill> skillsToCheck = (BlockingOperator != null) ? meleeSkills : rangedSkills;
-
-        // 스킬에 넣은 스킬 순서대로 돌아감
-        foreach (EnemyBossSkill bossSkill in skillsToCheck)
-        {
-            Operator mainTarget = skillsToCheck == rangedSkills ?
-                operatorsInSkillRange.OrderByDescending(op => op.DeploymentOrder).FirstOrDefault() : // 원거리 : 사거리 내에 가장 나중에 배치된 오퍼레이터
-                BlockingOperator; // 근거리 : 자신을 저지 중인 오퍼레이터
-
-            if (skillCooldowns[bossSkill] <= 0 && bossSkill.CanActivate(this))
-            {
-                bossSkill.Activate(this, mainTarget);
-
-                // 쿨다운 설정
-                currentGlobalCooldown = globalSkillCooldownDuration;
-                skillCooldowns[bossSkill] = bossSkill.CoolTime;
-
-                return true;
-            }
-        }
-
-        return false;
-    }
-
-    public override void OnTargetEnteredRange(DeployableUnitEntity target)
-    {
-        if (target is Operator op && op.IsDeployed)
-        {
-            operatorsInSkillRange.Add(op);
-        }
-    }
-
-    public override void OnTargetExitedRange(DeployableUnitEntity target)
-    {
-        if (target is Operator op && op.IsDeployed)
-        {
-            operatorsInSkillRange.Remove(op);
-        }
-    }
-
-
+    public void OnTargetEnteredSkillRange(DeployableUnitEntity target) => _skillController.OnTargetEnteredSkillRange(target);
+    public void OnTargetExitedSkillRange(DeployableUnitEntity target) => _skillController.OnTargetExitedSkillRange(target);
 }

@@ -96,6 +96,7 @@
     <Compile Include="Assets\Scripts\UI\Components\DiamondMask.cs" />
     <Compile Include="Assets\Scripts\Core\Managers\StageScene\MapManager.cs" />
     <Compile Include="Assets\Scripts\Entities\PathIndicator.cs" />
+    <Compile Include="Assets\Scripts\Entities\EnemySkillController.cs" />
     <Compile Include="Assets\Scripts\Core\Systems\Class\PathNavigator.cs" />
     <Compile Include="Assets\Scripts\Core\Managers\StageScene\CameraManager.cs" />
     <Compile Include="Assets\Scripts\Core\Managers\GameManagement\RewardManager.cs" />
@@ -124,6 +125,7 @@
     <Compile Include="Assets\Scripts\SO_Scripts\Unit\MapDeployableData.cs" />
     <Compile Include="Assets\Scripts\Core\Systems\Skills\OperatorSkills\DoubleShotSkill.cs" />
     <Compile Include="Assets\Scripts\UI\Components\DirectionIndicator.cs" />
+    <Compile Include="Assets\Scripts\Entities\Controller\Interface\IEnemySkillReadOnly.cs" />
     <Compile Include="Assets\Scripts\UI\Components\EnemyBarUI.cs" />
     <Compile Include="Assets\Scripts\Core\Systems\Attributes.cs" />
     <Compile Include="Assets\Scripts\Core\Systems\Skills\SkillController\Operator\SlashSkillController.cs" />
@@ -192,6 +194,7 @@
     <Compile Include="Assets\Scripts\UI\Components\StatisticItem.cs" />
     <Compile Include="Assets\Scripts\Utils\UIHelper.cs" />
     <Compile Include="Assets\Scripts\UI\Components\OperatorSlot.cs" />
+    <Compile Include="Assets\Scripts\Entities\Controller\Interface\IEnemyAttackReadOnly.cs" />
     <Compile Include="Assets\Scripts\Entities\Controller\Interface\IOpSkillReadOnly.cs" />
     <Compile Include="Assets\Scripts\UI\Panels\SquadEditPanel.cs" />
     <Compile Include="Assets\Scripts\Entities\Stats\UnitStats.cs" />
@@ -242,6 +245,7 @@
     <Compile Include="Assets\Scripts\Entities\Controller\OpSkillController.cs" />
     <Compile Include="Assets\Scripts\UI\Panels\StatsPanel.cs" />
     <Compile Include="Assets\Scripts\UI\Components\ExpandableButton.cs" />
+    <Compile Include="Assets\Scripts\Entities\Controller\EnemyAttackController.cs" />
     <Compile Include="Assets\Scripts\UI\Panels\StageResultPanel.cs" />
     <Compile Include="Assets\Scripts\Core\Managers\MainmenuScene\MainMenuManager.cs" />
   </ItemGroup>

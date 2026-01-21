@@ -437,10 +437,8 @@ public class Operator : DeployableUnitEntity, ICombatEntity
 
 
     #region block API
-
     public void OnEnemyEnteredBlockRange(Enemy enemy) => _block.OnEnemyEnteredBlockRange(enemy);
     public void OnEnemyExitedBlockRange(Enemy enemy) => _block.OnEnemyExitedBlockRange(enemy);
-
     #endregion
 
     // 지속 시간이 있는 스킬을 켜거나 끌 때 호출됨

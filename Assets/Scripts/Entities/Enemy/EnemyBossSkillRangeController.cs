@@ -27,7 +27,7 @@ public class EnemyBossSkillRangeController : MonoBehaviour
         {
             if (deployable != null && deployable.IsDeployed)
             {
-                owner.OnTargetEnteredRange(deployable);
+                owner.OnTargetEnteredSkillRange(deployable);
             }
         }
     }
@@ -40,7 +40,7 @@ public class EnemyBossSkillRangeController : MonoBehaviour
         {
             if (deployable != null)
             {
-                owner.OnTargetExitedRange(deployable);
+                owner.OnTargetExitedSkillRange(deployable);
             }
         }
     }
@@ -66,7 +66,7 @@ public class EnemyBossSkillRangeController : MonoBehaviour
 
                 if (isOverlapping)
                 {
-                    owner.OnTargetEnteredRange(target);
+                    owner.OnTargetEnteredSkillRange(target);
                 }
             }
         }

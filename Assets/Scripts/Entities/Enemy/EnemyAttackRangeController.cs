@@ -39,7 +39,7 @@ public class EnemyAttackRangeController : MonoBehaviour
         {
             if (deployable != null && deployable.IsDeployed)
             {
-                owner.OnTargetEnteredRange(deployable);
+                owner.OnTargetEnteredAttackRange(deployable);
             }
         }
     }
@@ -52,7 +52,7 @@ public class EnemyAttackRangeController : MonoBehaviour
         {
             if (deployable != null)
             {
-                owner.OnTargetExitedRange(deployable);
+                owner.OnTargetExitedAttackRange(deployable);
             }
         }
     }
@@ -78,7 +78,7 @@ public class EnemyAttackRangeController : MonoBehaviour
 
                 if (isOverlapping)
                 {
-                    owner.OnTargetEnteredRange(target);
+                    owner.OnTargetEnteredAttackRange(target);
                 }
             }
         }
