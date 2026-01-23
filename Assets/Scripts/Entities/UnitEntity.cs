@@ -37,9 +37,11 @@ public abstract class UnitEntity : MonoBehaviour, IFactionMember
     public string PoolTag {get; protected set;}
 
     // 이펙트 태그
-    protected string? meleeAttackEffectTag;
-    protected string hitEffectTag = string.Empty;
+    protected string meleeAttackEffectTag = string.Empty; // 공격 이펙트(실행 주체 -> 적 방향으로 진행)
+    protected string hitEffectTag = string.Empty; // 타격 이펙트(적에게 나타남)
     protected string muzzleTag = string.Empty;
+    
+    public string MeleeAttackEffectTag => meleeAttackEffectTag;
     public string HitEffectTag => hitEffectTag;
 
     // 이벤트

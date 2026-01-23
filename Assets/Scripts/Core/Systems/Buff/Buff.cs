@@ -45,6 +45,9 @@ public abstract class Buff
         this.caster = caster;
         elapsedTime = 0f;
 
+
+        owner.OnDeathStarted += HandleOwnerTermination;
+
         // 적용될 때 VFX 재생
         PlayVFX();
     }
@@ -57,7 +60,7 @@ public abstract class Buff
         isBeingRemoved = true;
 
         // 재진입 방지 : 메서드 동작 중 재호출을 방지하기 위해, 구독 해제는 시작 지점에 넣어두는 게 좋다.
-        owner.OnDisabled -= HandleOwnerTermination;
+        owner.OnDeathStarted -= HandleOwnerTermination;
 
         // 연결된 버프들이 있다면 우선 제거함
         RemoveLinkedBuffs();
@@ -130,12 +133,11 @@ public abstract class Buff
                     vfxGraph.Play();
                 }
             }
-
-            owner.OnDisabled += HandleOwnerTermination;
         }
     }
 
     // 이벤트 구독용 래퍼 함수
+    // OnDisabled에 구독했을 때 "사라지는 중 부모를 변경하는 오류"가 나타났기 때문에 OnDeathStarted에 구독해뒀음
     protected void HandleOwnerTermination(UnitEntity owner)
     {
         OnRemove();

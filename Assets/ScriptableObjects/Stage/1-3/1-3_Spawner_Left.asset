@@ -31,7 +31,7 @@ MonoBehaviour:
     enemyData: {fileID: 11400000, guid: 9edfea3de3a432d4bb9347cfe328c2af, type: 2}
   - spawnType: 1
     spawnTime: 30
-    pathData: {fileID: 11400000, guid: 8df70199d3bd17340b202b5fbe5eb9ed, type: 2}
+    pathData: {fileID: 11400000, guid: 12f511564a2ab9b48b60e39c9dbc2c00, type: 2}
     enemyData: {fileID: 11400000, guid: 9edfea3de3a432d4bb9347cfe328c2af, type: 2}
   - spawnType: 1
     spawnTime: 33

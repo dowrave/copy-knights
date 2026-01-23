@@ -64,6 +64,9 @@ public class EnemySpawner : MonoBehaviour
 
     private void Spawn(SpawnData spawnData)
     {
+        // 전투 중일 때에만 동작
+        if (StageManager.Instance.CurrentGameState != GameState.Battle) return;
+
         if (spawnData.SpawnType == SpawnType.None)
         {
             throw new InvalidOperationException("스포너 : spawnData에 할당된 스폰 타입이 None임");

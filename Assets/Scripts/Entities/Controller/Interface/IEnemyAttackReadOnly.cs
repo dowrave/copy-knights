@@ -5,6 +5,7 @@ public interface IEnemyAttackReadOnly
 {
     float AttackCooldown { get; }
     float AttackDuration { get; }
+    AttackType CurrentAttackType { get; }
     
     Barricade TargetBarricade { get; }
     Operator BlockingOperator { get; }

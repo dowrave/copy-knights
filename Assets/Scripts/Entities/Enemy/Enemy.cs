@@ -22,7 +22,7 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity
     public EnemyAttackController Attack => _attack;
 
     // 수정 필요할지도?
-    public new AttackType AttackType;
+    public override AttackType AttackType => _attack.CurrentAttackType;
     public AttackRangeType AttackRangeType => BaseData.AttackRangeType;
     public float ActionCooldown { get; set; } // 다음 공격까지의 대기 시간
     public float ActionDuration { get; set; } // 공격 모션 시간. Animator가 추가될 때 수정 필요할 듯. 항상 Cooldown보다 짧아야 함.
@@ -77,6 +77,8 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity
 
     // 접촉 중인 타일 관리
     protected List<Tile> contactedTiles = new List<Tile>();
+
+    protected Coroutine _adjustmentCoroutine;
 
     // 메쉬의 회전 관련해서 모델 관리
     [Header("Model Components")]
@@ -158,6 +160,7 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity
         // 스탯 시스템 초기화
         _stat.Initialize(_enemyData); 
         _health.Initialize();
+        _attack.Initialize();
 
         // 공격 범위 콜라이더 설정
         attackRangeController.Initialize(this);
@@ -179,9 +182,6 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity
         navigator.OnPathUpdated += HandlePathUpdated;
         navigator.Initialize(); // HandlePathUpdated에 의해 currentPath도 설정됨
         SetupInitialPosition();
-
-        // 초기화는 데이터에 있는 타입을 가져옴
-        AttackType = BaseData.AttackType; 
 
         // 스킬 설정 
         // SetSkills();
@@ -228,14 +228,16 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity
         // update 동작 조건 : 전투 중 & 디스폰되지 않음 && 초기화됨 
         if (!IsUpdateValid()) return; 
 
-
         base.Update(); // 버프 효과 갱신
 
         // 행동 제약에 관계 없이 업데이트되어야 하는 요소들 처리
         // 예시) 스킬 쿨다운, 공격 쿨다운
         UpdateAllCooldowns();
 
-        // 공격 시도
+        if (HasRestriction(ActionRestriction.CannotAction)) return; // 제약 중에는 행동 X(효과만 갱신)
+        if (AttackDuration > 0) return; // 공격 모션 중에는 별도 행동 X
+
+        // 스킬 사용, 공격, 행동 등 처리
         OnUpdateAction();
     }
 
@@ -246,10 +248,7 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity
             isInitialized;
     }
 
-    protected virtual void UpdateAllCooldowns()
-    {
-        _attack.UpdateAllCooldowns();
-    }
+    protected virtual void UpdateAllCooldowns() => _attack.UpdateAllCooldowns();
 
     protected virtual void OnUpdateAction()
     {
@@ -266,6 +265,9 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity
     {
         if (currentDestination == null) throw new InvalidOperationException("다음 노드가 설정되어있지 않음");
         if (navigator == null || navigator.FinalDestination == null) throw new InvalidOperationException("navigator나 최종 목적지가 설정되지 않음");
+
+        // 이동 경로 중 도달해야 할 곳이 없다면 false 반환 (갈 곳이 없으니 이동이 불가능)
+        if (CurrentPathIndex >= CurrentPathPositions.Count) return;
 
         if (CheckIfReachedDestination())
         {
@@ -392,8 +394,6 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity
         return Vector3.Distance(transform.position, lastPathPosition) < 0.05f;
     }
 
-
-
     // 현재 경로상에서 목적지까지 남은 거리 계산
     public float GetRemainingPathDistance()
     {
@@ -418,29 +418,6 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity
         return distance;
     }
 
-    protected void PlayMeleeAttackEffect(UnitEntity target, AttackSource attackSource)
-    {
-        // 이펙트 처리
-        if (meleeAttackEffectTag != null && BaseData.MeleeAttackEffectPrefab != null)
-        {
-
-            GameObject? effectObj = ObjectPoolManager.Instance!.SpawnFromPool(
-                   meleeAttackEffectTag,
-                   transform.position,
-                   Quaternion.identity
-            );
-
-            if (effectObj != null)
-            {
-                CombatVFXController? combatVFXController = effectObj.GetComponent<CombatVFXController>();
-                if (combatVFXController != null)
-                {
-                    combatVFXController.Initialize(attackSource, target, meleeAttackEffectTag);
-                }
-            }
-        }
-    }
-    
     protected void CreateEnemyBarUI()
     {
         if (enemyBarUIPrefab != null)
@@ -454,7 +431,62 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity
         }
     }
 
-    public void UpdateBlockingOperator(Operator op) => _attack.UpdateBlockingOperator(op);
+    // 저지 및 저지 해제 시에 동작
+    public void UpdateBlockingOperator(Operator op)
+    {
+        _attack.UpdateBlockingOperator(op);
+    } 
+
+    public void SmoothAvoidance(Operator op)
+    {
+        // 저지 시에만 동작
+        if (op != null)
+        {
+            // 겹쳤을 때를 고려한 위치 이동
+            if (_adjustmentCoroutine != null)
+            {
+                StopCoroutine(_adjustmentCoroutine);
+            }
+
+            _adjustmentCoroutine = StartCoroutine(SmoothAvoidanceCoroutine(op.transform.position));
+        }
+    }
+
+    // Enemy 끼리 겹쳤을 때 살짝의 이동
+    protected IEnumerator SmoothAvoidanceCoroutine(Vector3 targetPos)
+    {
+        float duration = 0.1f;
+        float elapsed = 0f;   
+
+        Vector3 startPos = transform.position;
+        
+        // 방향, 수직 벡터
+        Vector3 direction = startPos - targetPos;
+        direction.y = 0f;
+
+        // 수직 벡터 : (x, z)에 수직인 벡터는 (-z, x) 또는 (z, -x)
+        Vector3 perpendicular = new Vector3(-direction.z, 0, direction.x).normalized;
+
+        // 최종 목적지
+        float randomSide = UnityEngine.Random.Range(0, 2) == 0 ? 1f : -1f;
+        float randomDistance = UnityEngine.Random.Range(0.03f, 0.05f);
+        Vector3 targetOffset = perpendicular * randomSide * randomDistance;
+        Vector3 finalDestination = startPos + targetOffset;
+
+        // 시간 동안 부드럽게 이동
+        while (elapsed < duration)
+        {
+            elapsed += Time.deltaTime;
+            float t = elapsed / duration;
+
+            transform.position = Vector3.Lerp(startPos, finalDestination, t);
+            yield return null;
+        }
+
+        transform.position = finalDestination;
+        _adjustmentCoroutine = null;
+    }
+        
 
     public override void OnBodyTriggerEnter(Collider other)
     {
@@ -515,6 +547,5 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity
 
         base.OnDisable();
     }
-
 }
 

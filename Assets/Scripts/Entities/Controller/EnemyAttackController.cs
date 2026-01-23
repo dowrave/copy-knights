@@ -2,15 +2,15 @@ using UnityEngine;
 using System.Collections.Generic;
 using System.Linq;
 
-// Enemy의 "공격과 스킬 사용 로직"을 처리함
-// 260120 : 스킬은 따로 뺄 수 있을 것 같다.
-// CC 걸렸을 때 업데이트되어야 하는 부분 때문에 합쳐놓은 건데, 별도의 메서드로 빼두면 될 것 같은데?
+// Enemy의 공격 로직을 처리함
+// 저지당했을 경우도 여기서 처리
 public class EnemyAttackController: IEnemyAttackReadOnly
 {
     private Enemy _owner;
 
     public float AttackCooldown { get; protected set; } // 공격 쿨다운
     public float AttackDuration { get; protected set; } // 공격 모션 시간
+    public AttackType CurrentAttackType { get; protected set; }
 
     private Barricade _targetBarricade;
     private Operator _blockingOperator; // 자신을 저지 중인 오퍼레이터
@@ -45,11 +45,14 @@ public class EnemyAttackController: IEnemyAttackReadOnly
         }
     } // 공격 대상
 
-
-
     public EnemyAttackController(Enemy owner)
     {
         _owner = owner;
+    }
+
+    public void Initialize()
+    {
+        CurrentAttackType = _owner.BaseData.AttackType;
     }
 
     // 행동 제약에 관계없이 업데이트되어야 하는 요소들
@@ -61,26 +64,20 @@ public class EnemyAttackController: IEnemyAttackReadOnly
     // 공격을 했으면 true, 하지 않았으면 false 반환
     public bool OnUpdate()
     {
-        if (_owner.HasRestriction(ActionRestriction.CannotAction)) return false;
-
-        // 이동 경로 중 도달해야 할 곳이 없다면 false 반환 (갈 곳이 없으니 이동이 불가능)
-        if (_owner.CurrentPathIndex >= _owner.CurrentPathPositions.Count) return false;
-
-        // 공격 모션 시간 중에는 추가 액션 X
-        if (AttackDuration > 0) return false;  
-
         // 공격 범위 내의 적 리스트 & 현재 공격 대상 갱신
         SetCurrentTarget();
 
-
         // 저지당함 - 근거리 공격
-        if (_blockingOperator != null && CurrentTarget == _blockingOperator)
+        if (_blockingOperator != null)
         {
             if (CanAttack())
             {
                 PerformMeleeAttack(CurrentTarget!, _owner.AttackPower);
-                return false;
             }
+
+            // 저지 당한 상태라면 공격 여부에 관계 없이 추가 동작을 막기 위해 true 반환
+            // 저지 관련 로직이 복잡해진다면 저지 부분은 별도의 컴포넌트로 분리 ㄱㄱ
+            return true; 
         }
         // 저지당하지 않음
         else
@@ -89,20 +86,20 @@ public class EnemyAttackController: IEnemyAttackReadOnly
             if (_targetBarricade != null && Vector3.Distance(_owner.transform.position, _targetBarricade.transform.position) < 0.5f)
             {
                 PerformMeleeAttack(_targetBarricade, _owner.AttackPower);
-                return false;
+                return true;
             }
 
             // 타겟이 있고, 공격이 가능한 상태
             if (CanAttack())
             {
                 Attack(CurrentTarget!, _owner.AttackPower);
-                return false;
+                return true;
             }
         }
         
         // 이동할 수 없는 상황을 모두 처리했음
         // 나머지 상황은 이동 가능
-        return true;
+        return false;
     }
 
     public void UpdateAttackTimes()
@@ -218,7 +215,7 @@ public class EnemyAttackController: IEnemyAttackReadOnly
             showDamagePopup: false
         );
 
-        // PlayMeleeAttackEffect(target, attackSource);
+        PlayMeleeAttackEffect(target, attackSource);
         target.TakeDamage(attackSource);
     }
 
@@ -319,6 +316,29 @@ public class EnemyAttackController: IEnemyAttackReadOnly
     {
         _blockingOperator = op;
     }
+
+    protected void PlayMeleeAttackEffect(UnitEntity target, AttackSource attackSource)
+    {
+        // 이펙트 처리
+        if (_owner.MeleeAttackEffectTag != null && _owner.BaseData.MeleeAttackEffectPrefab != null)
+        {
+            GameObject? effectObj = ObjectPoolManager.Instance!.SpawnFromPool(
+                   _owner.MeleeAttackEffectTag,
+                   _owner.transform.position,
+                   Quaternion.identity
+            );
+
+            if (effectObj != null)
+            {
+                CombatVFXController? combatVFXController = effectObj.GetComponent<CombatVFXController>();
+                if (combatVFXController != null)
+                {
+                    combatVFXController.Initialize(attackSource, target, _owner.MeleeAttackEffectTag);
+                }
+            }
+        }
+    }
+    
 
     public void SetStopAttacking(bool isAttacking)
     {

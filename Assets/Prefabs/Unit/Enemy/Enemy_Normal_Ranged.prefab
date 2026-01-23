@@ -334,6 +334,7 @@ MonoBehaviour:
   _collider: {fileID: 3904506192168564925}
   _visual: {fileID: 7857128627509721375}
   _enemyData: {fileID: 11400000, guid: 4b9012c74dd69c34fac054d7dd1804d8, type: 2}
+  AttackType: 0
   enemyBarUIPrefab: {fileID: 4850112300594543659, guid: f855a11e7f642eb4481495480ef1a6e8, type: 3}
   modelContainer: {fileID: 2184119730245777175}
   attackRangeController: {fileID: 8244667719667595265}

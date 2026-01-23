@@ -63,6 +63,12 @@ public class OpBlockController
             {
                 BlockEnemy(candidateEnemy);
                 candidateEnemy.UpdateBlockingOperator(_owner);
+
+                // 저지 중인 적이 2명 이상일 때, 2번째 적부터는 약간의 사이드 이동(완전히 겹치는 현상 방지)
+                if (blockedEnemies.Count >= 2)
+                {
+                    candidateEnemy.SmoothAvoidance(_owner);
+                }
             }
         }
     }

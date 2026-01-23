@@ -222,6 +222,7 @@ public class Operator : DeployableUnitEntity, ICombatEntity
         // 적의 body일 때만 저지 로직 동작
         if (body != null && body.ParentUnit is Enemy enemy)
         {
+            Logger.Log($"{enemy.gameObject.name}의 콜라이더가 {gameObject.name}으로부터 이탈");
             _block.OnEnemyExitedBlockRange(enemy);
         }
     }

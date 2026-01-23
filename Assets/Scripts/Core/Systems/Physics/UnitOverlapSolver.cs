@@ -6,7 +6,7 @@ public class UnitOverlapSolver: MonoBehaviour
 {
     [Header("Settings")]
     [SerializeField] protected bool isStaticUnit = false; // true시 밀려나지 않음
-    [SerializeField] protected float bodyRadius = 0.01f; // 충돌 반경
+    [SerializeField] protected float bodyRadius = 0.25f; // 충돌 반경
     [SerializeField] protected float separationSpeed = 5f; // 밀어내는 힘의 세기
     [SerializeField] protected LayerMask unitLayer; // 감지할 레이어 - 각 유닛의 메인 콜라이더 Unit 레이어 지정했음
 
@@ -90,11 +90,11 @@ public class UnitOverlapSolver: MonoBehaviour
                     // 상대가 고정 유닛이면 나만 100% 힘으로 밀려남
                     separationVector += direction * (combinedRadius - distance) * 2f;
                 }
-                else
-                {
-                    // 상대가 이동 유닛이면 서로 밀려남(상대도 나에 대한 밀어내는 동작이 실행됨)
-                    separationVector += direction;
-                }
+                // else
+                // {
+                //     // 상대가 이동 유닛이면 서로 밀려남(상대도 나에 대한 밀어내는 동작이 실행됨)
+                //     separationVector += direction;
+                // }
 
                 separationCount++;
             }
@@ -129,17 +129,15 @@ public class UnitOverlapSolver: MonoBehaviour
             // 미리보기 모드일 때는 처리하지 않음
             // if (otherDeployable.IsPreviewMode) return false; 
 
-            return false; 
         }
 
         // 2. 상대가 Enemy일 때의 처리
-        Enemy otherEnemy = otherUnit.SelfEnemy;
-        if (otherEnemy != null)
-        {
-            // 두 Enemy가 모두 저지당할 때에만 동작함
-            if (selfEnemy.BlockingOperator != null && otherEnemy.BlockingOperator != null) return true;
-            return false;
-        } 
+        // Enemy otherEnemy = otherUnit.SelfEnemy;
+        // if (otherEnemy != null)
+        // {
+        //     // 두 Enemy가 모두 저지당할 때에만 동작함
+        //     if (selfEnemy.BlockingOperator != null && otherEnemy.BlockingOperator != null) return true;
+        // } 
 
         return false; 
     }
