@@ -9,8 +9,8 @@ public interface ICombatEntity
     float AttackPower { get; }
     float AttackSpeed { get; }
 
-    float ActionCooldown { get; }
-    float ActionDuration { get; } // 공격 모션 시간
+    float AttackCooldown { get; }
+    float AttackDuration { get; } // 공격 모션 시간
     UnitEntity? CurrentTarget { get; }
 
     // void Attack(UnitEntity target, float damage);

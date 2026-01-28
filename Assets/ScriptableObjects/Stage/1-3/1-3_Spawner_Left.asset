@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::EnemySpawnerConfig
   spawnedEnemies:
   - spawnType: 2
-    spawnTime: 8
+    spawnTime: 5
     pathData: {fileID: 11400000, guid: 12f511564a2ab9b48b60e39c9dbc2c00, type: 2}
     enemyData: {fileID: 0}
   - spawnType: 1

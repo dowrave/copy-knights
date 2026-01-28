@@ -83,6 +83,7 @@ public class EnemySpawner : MonoBehaviour
                 spawnedObject = ObjectPoolManager.Instance!.SpawnFromPool(tag, transform.position, Quaternion.identity);
                 if (spawnedObject.TryGetComponent(out PathIndicator pathIndicator))
                 {
+                    Logger.LogFieldStatus(spawnData.PathData.Nodes.Count);
                     pathIndicator.Initialize(spawnData.PathData);
                 }
             }

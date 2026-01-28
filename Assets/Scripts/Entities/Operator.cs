@@ -46,6 +46,11 @@ public class Operator : DeployableUnitEntity, ICombatEntity
     public float ActionDuration => _action.ActionDuration;
     public IReadOnlyList<Vector2Int> CurrentActionableGridPos => _action.CurrentActionableGridPos;
 
+    // ICombatEntity 인터페이스 때문에 구현
+    public float AttackCooldown => _action.ActionCooldown;
+    public float AttackDuration => _action.ActionDuration;
+
+
     // 스킬, SP 관련
     public float CurrentSP => _skill.CurrentSP;
     public float MaxSP => _skill.MaxSP;

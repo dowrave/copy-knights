@@ -83,6 +83,7 @@
     <Compile Include="Assets\Scripts\Interfaces\IMovable.cs" />
     <Compile Include="Assets\Scripts\Core\Systems\Skills\OperatorSkills\SmashSkill.cs" />
     <Compile Include="Assets\Scripts\Core\Managers\GameManagement\GameManagement.cs" />
+    <Compile Include="Assets\Scripts\Entities\Controller\PathController.cs" />
     <Compile Include="Assets\Scripts\SO_Scripts\ItemData.cs" />
     <Compile Include="Assets\Scripts\Core\Systems\Skills\VFXController\CombatVFXController.cs" />
     <Compile Include="Assets\Scripts\UI\Components\DeployableActionUI.cs" />
@@ -95,9 +96,6 @@
     <Compile Include="Assets\Scripts\Entities\Controller\Interface\IActionReadOnly.cs" />
     <Compile Include="Assets\Scripts\UI\Components\DiamondMask.cs" />
     <Compile Include="Assets\Scripts\Core\Managers\StageScene\MapManager.cs" />
-    <Compile Include="Assets\Scripts\Entities\PathIndicator.cs" />
-    <Compile Include="Assets\Scripts\Entities\EnemySkillController.cs" />
-    <Compile Include="Assets\Scripts\Core\Systems\Class\PathNavigator.cs" />
     <Compile Include="Assets\Scripts\Core\Managers\StageScene\CameraManager.cs" />
     <Compile Include="Assets\Scripts\Core\Managers\GameManagement\RewardManager.cs" />
     <Compile Include="Assets\Scripts\UI\Components\GaugeBar\SPBar.cs" />
@@ -210,13 +208,16 @@
     <Compile Include="Assets\Scripts\Core\Systems\Skills\Base(Abstract)\UnitSkill.cs" />
     <Compile Include="Assets\Scripts\Core\Managers\GameManagement\PlayerDataManager.cs" />
     <Compile Include="Assets\Scripts\Core\Systems\Class\AttackSource.cs" />
+    <Compile Include="Assets\Scripts\Entities\Controller\MovementController.cs" />
     <Compile Include="Assets\Scripts\Entities\Barricade.cs" />
     <Compile Include="Assets\Scripts\Map\Map.cs" />
     <Compile Include="Assets\Scripts\Utils\SceneLoader.cs" />
     <Compile Include="Assets\Scripts\UI\Components\ItemUIElement.cs" />
     <Compile Include="Assets\Scripts\Interfaces\IPooledObject.cs" />
+    <Compile Include="Assets\Scripts\Entities\Controller\PathIndicator.cs" />
     <Compile Include="Assets\Scripts\Core\Systems\OperatorGrowthSystem.cs" />
     <Compile Include="Assets\Scripts\Map\Tile.cs" />
+    <Compile Include="Assets\Scripts\Entities\Controller\EnemySkillController.cs" />
     <Compile Include="Assets\Scripts\Core\Systems\Skills\Base(Abstract)\EnemyBossSkill.cs" />
     <Compile Include="Assets\Scripts\Entities\Enemy\EnemyAttackRangeController.cs" />
     <Compile Include="Assets\Scripts\Entities\ProgressData\OwnedOperator.cs" />

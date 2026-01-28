@@ -61,7 +61,7 @@ public class OpAttackController: OpActionController
         {
             CurrentTarget = _enemiesInRange
                 .Where(e => e != null && e.gameObject != null) // 파괴 검사 & null 검사 함께 수행
-                .OrderBy(E => E.Navigator.GetRemainingPathDistance(E.CurrentPathIndex)) // 살아있는 객체 중 남은 거리가 짧은 순서로 정렬
+                .OrderBy(E => E.Path.GetRemainingPathDistance()) // 살아있는 객체 중 남은 거리가 짧은 순서로 정렬
                 .FirstOrDefault(); // 가장 짧은 거리의 객체를 가져옴
             
             return;

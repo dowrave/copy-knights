@@ -123,10 +123,7 @@ public class PathDataEditor : Editor
         if (pathData == null) return; // Add null check
 
         Undo.RecordObject(pathData, "Add Path Node");
-
-        Debug.Log($"{tile.gameObject.name}");
-        Debug.Log($"{tile.GridPosition}");
-
+        
         pathData.Nodes.Add(new PathNode
         {
             tileName = tile.name,
