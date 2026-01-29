@@ -12,10 +12,13 @@ public class PathDataEditor : Editor
     //private int controlID; // 이벤트 처리 관리하는 컨트롤 ID
     private Tool lastTool; // 편집 모드 진입 전의 툴 상태
 
+    private SerializedProperty nodesProperty; 
+
 
     private void OnEnable()
     {
         pathData = (PathData)target;
+        nodesProperty = serializedObject.FindProperty("nodes"); // PathData의 변수 이름 nodes
     }
 
     public override void OnInspectorGUI()
@@ -54,7 +57,6 @@ public class PathDataEditor : Editor
         // 마우스 클릭 - 씬 뷰에서 기본 컨트롤을 강제로 소비, 선택 변경을 방지함
         HandleUtility.AddDefaultControl(GUIUtility.GetControlID(FocusType.Passive));
 
-
         // 이벤트 처리
         Event e = Event.current;
         if (e.type == EventType.MouseDown && e.button == 0 && !e.alt)
@@ -80,11 +82,9 @@ public class PathDataEditor : Editor
             // 클릭된 타일을 얻음
             if (pickedObject != null)
             {
-                Debug.Log($"picked Object : {pickedObject.name}");
                 Tile? clickedTile = FindTileComponent(pickedObject);
                 if (clickedTile != null)
                 {
-                    Debug.Log($"Found Tile : {clickedTile.name}, Grid Position : {clickedTile.GridPosition}");
                     // shift 누르면 취소
                     if (e.shift)
                     {
@@ -122,17 +122,21 @@ public class PathDataEditor : Editor
     {
         if (pathData == null) return; // Add null check
 
-        Undo.RecordObject(pathData, "Add Path Node");
-        
-        pathData.Nodes.Add(new PathNode
-        {
-            tileName = tile.name,
-            gridPosition = tile.GridPosition,
-            waitTime = 0f
-        }
-        );
+        serializedObject.Update();
 
-        EditorUtility.SetDirty(pathData);
+        // 배열 끝에 새 요소 추가
+        int newIndex = nodesProperty.arraySize;
+        nodesProperty.InsertArrayElementAtIndex(newIndex);
+
+        // 새로 추가된 요소 가져오기
+        SerializedProperty newElement = nodesProperty.GetArrayElementAtIndex(newIndex);
+
+        // PathNodes의 각 필드 설정
+        newElement.FindPropertyRelative("tileName").stringValue = tile.name;
+        newElement.FindPropertyRelative("gridPosition").vector2IntValue = tile.GridPosition;
+        newElement.FindPropertyRelative("waitTime").floatValue = 0f;
+
+        serializedObject.ApplyModifiedProperties();
     }
 
     private void RemoveNearestNode(Vector2Int position)
@@ -141,53 +145,19 @@ public class PathDataEditor : Editor
 
         if (pathData!.Nodes.Count == 0) return;
 
+        // 가장 가까운 노드의 인덱스 찾기
         int nearestIndex = pathData.Nodes
             .Select((node, index) => new { Node = node, Index = index })
             .OrderBy(x => Vector2Int.Distance(x.Node.gridPosition, position))
             .First().Index;
 
-        Undo.RecordObject(pathData, "Remove Path Node");
-        pathData.Nodes.RemoveAt(nearestIndex);
-        EditorUtility.SetDirty(pathData);
+        serializedObject.Update();
+
+        // 해당 인덱스의 요소 제거
+        nodesProperty.DeleteArrayElementAtIndex(nearestIndex);
+        serializedObject.ApplyModifiedProperties();
     }
-
-    //private void DrawPath()
-    //{
-    //    if (pathData == null || pathData.nodes == null)
-    //    {
-    //        Debug.LogWarning("PathData나 노드가 null이라 DrawPath 생략");
-    //        return;
-    //    }
-        
-    //    try
-    //    {
-    //        for (int i = 0; i < pathData!.nodes.Count; i++)
-    //        {
-    //            PathNode node = pathData!.nodes[i];
-    //            Vector3 nodePosition = MapManager.Instance!.ConvertToWorldPosition(node.gridPosition);
-    //            Handles.color = Color.yellow;
-    //            Handles.SphereHandleCap(0, nodePosition, Quaternion.identity, 0.2f, EventType.Repaint);
-        
-    //            if (i < pathData.nodes.Count - 1)
-    //            {
-    //                Vector3 nextPosition = MapManager.Instance.ConvertToWorldPosition(pathData!.nodes[i + 1].gridPosition);
-    //                Handles.DrawLine(nodePosition, nextPosition);
-    //            }
-
-    //            Handles.Label(nodePosition + Vector3.up, $"$Node {i}: Wait {pathData!.nodes[i].waitTime}s");
-    //        }
-    //    }
-    //    catch (Exception ex)
-    //    {
-    //        Debug.LogError($"Error in DrawPath : {ex.Message}");
-    //    }
-    //    finally
-    //    {
-    //        // GUI 상태 정리
-    //        Handles.EndGUI();
-    //    }
-    //}
-
+    
     private void OnDisable()
     {
         if (isEditing)

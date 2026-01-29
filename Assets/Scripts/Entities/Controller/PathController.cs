@@ -17,8 +17,8 @@ public class PathController
     private MonoBehaviour _owner; // 코루틴 실행을 위한 주체
     private Vector3 _currentDestination; // currentPath[nextNodeIndex]
     private Vector3 _finalDestination; // 최종 목적지
-    private List<PathNode> _currentPathNodes; // 경로 노드
-    private List<Vector3> _currentPathPositions; // 경로 노드의 실제 위치
+    private List<PathNode> _currentPathNodes = new List<PathNode>(); // 경로 노드
+    private List<Vector3> _currentPathPositions = new List<Vector3>(); // 경로 노드의 실제 위치
     private int _currentPathIndex;
     private Barricade? _targetBarricade; 
 
@@ -32,10 +32,9 @@ public class PathController
     public bool IsInitialized { get; private set;} = false;
 
     // 생성자에서 초기화
-    public PathController(MonoBehaviour owner, List<PathNode> initialPathNodes)
+    public PathController(MonoBehaviour owner)
     {
         _owner = owner;
-        _currentPathNodes = initialPathNodes;
 
         // 이벤트 구독
         Barricade.OnBarricadeDeployed += OnBarricadePlaced;
@@ -44,9 +43,9 @@ public class PathController
 
     // OnPathUpdate를 구독하는 부모 클래스의 메서드가 있기 때문에
     // 생성자와 실제 실행 메서드는 별도로 구분하는 게 좋다.
-    public void Initialize()
+    public void Initialize(IReadOnlyList<PathNode> initialPathNodes)
     {
-        SetNewPath(_currentPathNodes);
+        SetNewPath(initialPathNodes);
 
         _finalDestination = _currentPathPositions[_currentPathPositions.Count - 1]; // 최초 경로의 마지막 값
 
@@ -185,32 +184,47 @@ public class PathController
         return nodes;
     }
 
-    protected void SetNewPath(List<PathNode> newPathNodes)
+    protected void SetNewPath(IReadOnlyList<PathNode> newPathNodes)
     {
         // Logger.Log("SetNewPath 동작");
-        foreach (var pathNode in newPathNodes)
-        {
-            Logger.LogFieldStatus(pathNode);
-        }
+        // foreach (var pathNode in newPathNodes)
+        // {
+        //     Logger.LogFieldStatus(pathNode);
+        // }
 
         if (newPathNodes != null && newPathNodes.Count > 0)
         {
-            _currentPathNodes = newPathNodes;
+            // ========= _currentPathNodes 수정 =========
+            _currentPathNodes.Clear();
+            _currentPathNodes.AddRange(newPathNodes);
 
-            // Enemy의 경우 종류마다 y값이 다를 수 있어서 설정
-            float floatY = _owner is Enemy enemy ? enemy.BaseData.DefaultYPosition : 0.5f; 
-            _currentPathPositions = _currentPathNodes.Select(node => MapManager.Instance!.ConvertToWorldPosition(node.gridPosition) + Vector3.up * floatY).ToList();
+            //=========  _currentPathPositions 수정 ============
 
-            // foreach (var pathPosition in currentPathPositions)
-            // {
-            //     Logger.LogFieldStatus(pathPosition);
-            // }
+            // 현재 경로(실제 Vector3 위치) 수정
+            float floatY = _owner is Enemy enemy ? enemy.BaseData.DefaultYPosition : 0.3f; // Enemy마다 y 위치가 다름
 
-            HandlePathUpdated(_currentPathNodes, _currentPathPositions);
+            _currentPathPositions.Clear();
+
+            // Capacity 미리 확보 : 요소가 Capacity를 초과할 때 List는 배열을 2배로 재할당함
+            // 미리 맞춰놓으면 재할당 없이 한꺼번에 추가할 수 있음
+            if (_currentPathPositions.Capacity < _currentPathNodes.Count)
+            {
+                _currentPathPositions.Capacity = _currentPathNodes.Count; 
+            }
+
+            // 반복문으로 요소를 _currentPathPositions으로 옮김
+            for (int i = 0; i < _currentPathNodes.Count; i++)
+            {
+                Vector3 worldPos = MapManager.Instance!.ConvertToWorldPosition(_currentPathNodes[i].gridPosition);
+                _currentPathPositions.Add(worldPos + Vector3.up * floatY);
+            }
+
+            // ============= 인덱스 및 목적지 수정 ==============
+            _currentPathIndex = _currentPathNodes.Count > 1 ? 1 : 0; // [테스트] 뒤로 가는 현상을 방지하기 위해 1로 놔 봄
+            _currentDestination = _currentPathPositions[_currentPathIndex];
+
             return;
-            // OnPathUpdated?.Invoke(_currentPathNodes, _currentPathPositions);
         }
-        Logger.Log("SetNewPath 제대로 실행 안 됨");
     }
 
     public void SetTargetBarricade(Barricade? barricade)

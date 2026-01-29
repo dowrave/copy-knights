@@ -13,6 +13,37 @@ MonoBehaviour:
   m_Name: 1-1_Path_Top
   m_EditorClassIdentifier: 
   targetMapId: 1-1
+  nodes:
+  - tileName: Tile_0_3_start
+    gridPosition: {x: 0, y: 3}
+    waitTime: 0
+  - tileName: Tile_1_3
+    gridPosition: {x: 1, y: 3}
+    waitTime: 0
+  - tileName: Tile_1_2
+    gridPosition: {x: 1, y: 2}
+    waitTime: 0
+  - tileName: Tile_2_2
+    gridPosition: {x: 2, y: 2}
+    waitTime: 0
+  - tileName: Tile_2_1
+    gridPosition: {x: 2, y: 1}
+    waitTime: 0
+  - tileName: Tile_5_1
+    gridPosition: {x: 5, y: 1}
+    waitTime: 0
+  - tileName: Tile_5_2
+    gridPosition: {x: 5, y: 2}
+    waitTime: 0
+  - tileName: Tile_6_2
+    gridPosition: {x: 6, y: 2}
+    waitTime: 0
+  - tileName: Tile_6_3
+    gridPosition: {x: 6, y: 3}
+    waitTime: 0
+  - tileName: Tile_7_3_end
+    gridPosition: {x: 7, y: 3}
+    waitTime: 0
   Nodes:
   - tileName: Tile_0_3_start
     gridPosition: {x: 0, y: 3}

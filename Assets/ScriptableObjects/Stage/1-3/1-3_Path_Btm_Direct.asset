@@ -13,15 +13,12 @@ MonoBehaviour:
   m_Name: 1-3_Path_Btm_Direct
   m_EditorClassIdentifier: Assembly-CSharp::PathData
   targetMapId: 1-3
-  Nodes:
+  nodes:
   - tileName: Tile_2_5_start
     gridPosition: {x: 2, y: 5}
     waitTime: 0
   - tileName: Tile_2_4
     gridPosition: {x: 2, y: 4}
-    waitTime: 0
-  - tileName: Tile_3_4
-    gridPosition: {x: 3, y: 4}
     waitTime: 0
   - tileName: Tile_4_4
     gridPosition: {x: 4, y: 4}
@@ -29,29 +26,8 @@ MonoBehaviour:
   - tileName: Tile_4_5
     gridPosition: {x: 4, y: 5}
     waitTime: 0
-  - tileName: Tile_5_5
-    gridPosition: {x: 5, y: 5}
-    waitTime: 0
-  - tileName: Tile_6_5
-    gridPosition: {x: 6, y: 5}
-    waitTime: 0
-  - tileName: Tile_7_5
-    gridPosition: {x: 7, y: 5}
-    waitTime: 0
   - tileName: Tile_8_5
     gridPosition: {x: 8, y: 5}
-    waitTime: 0
-  - tileName: Tile_8_4
-    gridPosition: {x: 8, y: 4}
-    waitTime: 0
-  - tileName: Tile_8_3
-    gridPosition: {x: 8, y: 3}
-    waitTime: 0
-  - tileName: Tile_8_2
-    gridPosition: {x: 8, y: 2}
-    waitTime: 0
-  - tileName: Tile_8_1
-    gridPosition: {x: 8, y: 1}
     waitTime: 0
   - tileName: Tile_8_0_end
     gridPosition: {x: 8, y: 0}

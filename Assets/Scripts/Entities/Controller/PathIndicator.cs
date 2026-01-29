@@ -31,6 +31,7 @@ public class PathIndicator : MonoBehaviour, IMovable
     private void Awake()
     {
         _movement = new MovementController(this);
+        _path = new PathController(this);
     }
 
     public void Initialize(PathData pathData)
@@ -40,29 +41,13 @@ public class PathIndicator : MonoBehaviour, IMovable
         Logger.LogFieldStatus(pathData.Nodes.Count);
 
         // pathData를 받아서 초기화해야 하므로 Awake가 아닌 여기에 구현
-        _path = new PathController(this, pathData.Nodes);
 
         // _path.OnPathUpdated += HandlePathUpdated;
         _path.OnDisabled += ReturnToPool;
-        _path.Initialize();
+        _path.Initialize(pathData.Nodes);
+
         SetupInitialPosition();
     }
-
-
-    // protected void HandlePathUpdated(IReadOnlyList<PathNode> newPathNodes, IReadOnlyList<Vector3> newPathPositions)
-    // {
-    //     // new List<>()는 리스트가 메모리에 계속 할당되어 GC 부하가 발생하므로 자주 실행되는 메서드는 이 방식이 더 좋다
-    //     currentPathNodes.Clear();
-    //     currentPathNodes.AddRange(newPathNodes);
-
-    //     currentPathPositions.Clear();
-    //     currentPathPositions.AddRange(newPathPositions);
-
-    //     // 인덱스 할당
-    //     // CurrentPathIndex = 0;
-    //     CurrentPathIndex = currentPathNodes.Count > 1 ? 1 : 0; // [테스트] 뒤로 가는 현상을 방지하기 위해 1로 놔 봄
-    //     currentDestination = currentPathPositions[CurrentPathIndex];
-    // }
 
     protected void SetupInitialPosition()
     {
@@ -83,75 +68,10 @@ public class PathIndicator : MonoBehaviour, IMovable
 
     public void RotateModel() {}
 
-    // private void MoveAlongPath()
-    // {
-    //     // 대기 중일 때는 이동하지 않음
-    //     if (isWaiting)
-    //     {
-    //         return;
-    //     }
-
-    //     if (CheckIfReachedDestination())
-    //     {
-    //         ReachDestination();
-    //         return;
-    //     }
-
-    //     Move(CurrentDestination);
-
-    //     if (Vector3.Distance(transform.position, CurrentDestination) < 0.05f)
-    //     {
-    //         if (Vector3.Distance(transform.position, _path.FinalDestination) < 0.05f)
-    //         {
-    //             ReachDestination();
-    //         }
-    //         else if (CurrentPathNodes[CurrentPathIndex] != null && CurrentPathNodes[CurrentPathIndex].waitTime > 0)
-    //         {
-    //             StartCoroutine(WaitAtNode(CurrentPathNodes[CurrentPathIndex].waitTime));
-    //         }
-    //         else
-    //         {
-    //             UpdateNextNode();
-    //         }
-    //     }
-    // }
-
-    // 마지막 타일의 월드 좌표 기준
-    // private bool CheckIfReachedDestination()
-    // {
-    //     if (currentPathNodes.Count == 0) return false;
-
-    //     Vector2Int lastNodeGridPos = currentPathNodes[currentPathNodes.Count - 1].gridPosition;
-    //     Vector3 lastNodePosition = MapManager.Instance!.ConvertToWorldPosition(lastNodeGridPos) + Vector3.up * height;
-
-    //     return Vector3.Distance(transform.position, lastNodePosition) < 0.05f;
-    // }
-
-    // private void ReachDestination()
-    // {
-    //     ReturnToPool();
-    // }
-
     public void ReturnToPool()
     {
         ObjectPoolManager.Instance.ReturnToPool(ObjectPoolManager.PathIndicatorTag, gameObject);
     }
-
-    // public void Move(Vector3 destination)
-    // {
-    //     transform.position = Vector3.MoveTowards(transform.position, destination, speed * Time.deltaTime);
-    // }
-
-    // private void UpdateNextNode()
-    // {
-    //     CurrentPathIndex++;
-
-    //     if (CurrentPathIndex < currentPathPositions.Count)
-    //     {
-    //         currentDestination = currentPathPositions[CurrentPathIndex];
-    //     }
-    // }
-
 
     public void UpdateNextNode() => _path.UpdateNextNode();
     public void SetIsWaiting(bool isWaiting) => _movement.SetIsWaiting(isWaiting);

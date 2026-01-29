@@ -13,6 +13,22 @@ MonoBehaviour:
   m_Name: 1-2_Path_BtmToRight
   m_EditorClassIdentifier: 
   targetMapId: 1-2
+  nodes:
+  - tileName: Tile_2_6_start
+    gridPosition: {x: 2, y: 6}
+    waitTime: 0
+  - tileName: Tile_2_5
+    gridPosition: {x: 2, y: 5}
+    waitTime: 0
+  - tileName: Tile_4_5
+    gridPosition: {x: 4, y: 5}
+    waitTime: 0
+  - tileName: Tile_4_3
+    gridPosition: {x: 4, y: 3}
+    waitTime: 0
+  - tileName: Tile_6_3_end
+    gridPosition: {x: 6, y: 3}
+    waitTime: 0
   Nodes:
   - tileName: Tile_2_6_start
     gridPosition: {x: 2, y: 6}

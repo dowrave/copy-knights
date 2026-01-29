@@ -57,35 +57,6 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity
     // ==== movement 관련 ======
     public bool IsWaiting => _movement.IsWaiting;
 
-
-    // 경로 관련
-    // protected Barricade? targetBarricade;
-    // protected List<PathNode> currentPathNodes = new List<PathNode>();
-    // protected List<Vector3> currentPathPositions = new List<Vector3>();
-    // protected Vector3 currentDestination; // 현재 향하는 위치
-    // protected int _currentPathIndex;
-    // protected bool isWaiting = false; // 단순히 위치에서 기다리는 상태
-    // protected bool stopAttacking = false; // 인위적으로 넣은 공격 가능 / 불가능 상태
-
-    // public IReadOnlyList<Vector3> CurrentPathPositions => currentPathPositions;
-    // public IReadOnlyList<PathNode> CurrentPathNodes => currentPathNodes;
-    // public int CurrentPathIndex
-    // {
-    //     get => _currentPathIndex;
-    //     protected set
-    //     {
-    //         _currentPathIndex = value;
-    //         if (_path != null)
-    //         {
-    //             _path.SetCurrentPathIndex(_currentPathIndex);
-    //         }
-    //         else
-    //         {
-    //             Logger.LogWarning($"navigator가 null이라 navigator의 _currentPathIndex가 업데이트되지 않음");
-    //         }
-    //     }
-    // }
-
     protected int initialPoolSize = 5;
 
     [SerializeField] protected GameObject enemyBarUIPrefab = default!;
@@ -132,8 +103,7 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity
         // 세부 컨트롤러 생성자
         _attack = new EnemyAttackController(this);
         _movement = new MovementController(this);
-
-        // OnDeathAnimationCompleted += HandleDeathAnimationCompleted;
+        _path = new PathController(this);
     }
 
     protected virtual void Start()
@@ -178,6 +148,7 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity
         _stat.Initialize(_enemyData); 
         _health.Initialize();
         _attack.Initialize();
+        _path.Initialize(_pathData.Nodes);
 
         // 공격 범위 콜라이더 설정
         attackRangeController.Initialize(this);
@@ -194,11 +165,6 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity
     {
         CreateEnemyBarUI();
         
-        // navigator 초기화 및 경로 설정
-        _path = new PathController(this, _pathData.Nodes);
-        // _path.OnPathUpdated += HandlePathUpdated;
-        _path.Initialize(); // HandlePathUpdated에 의해 currentPath도 설정됨
-        
         // 경로의 0번 위치에 이 객체가 오도록 설정
         SetupInitialPosition();
 
@@ -213,23 +179,6 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity
     {
         DeployableUnitEntity.OnUndeployed += HandleDeployableDied;
     }
-
-
-    // 새로운 경로 설정 시 설정됨
-    // protected void HandlePathUpdated(IReadOnlyList<PathNode> newPathNodes, IReadOnlyList<Vector3> newPathPositions)
-    // {
-    //     // new List<>()는 리스트가 메모리에 계속 할당되어 GC 부하가 발생하므로 자주 실행되는 메서드는 이 방식이 더 좋다
-    //     currentPathNodes.Clear();
-    //     currentPathNodes.AddRange(newPathNodes);
-
-    //     currentPathPositions.Clear();
-    //     currentPathPositions.AddRange(newPathPositions);
-
-    //     // 인덱스 할당
-    //     // CurrentPathIndex = 0; 
-    //     CurrentPathIndex = currentPathNodes.Count > 1 ? 1 : 0; // [테스트] 뒤로 가는 현상을 방지하기 위해 1로 놔 봄
-    //     currentDestination = currentPathPositions[CurrentPathIndex];
-    // }
 
     protected void SetupInitialPosition()
     {
@@ -274,52 +223,7 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity
 
         // 공격을 하지 않았다면 이동
         _movement.OnUpdate();
-        // MoveAlongPath();
     }
-
-    // // 경로를 따라 이동
-    // protected void MoveAlongPath()
-    // {
-    //     if (currentDestination == null) throw new InvalidOperationException("다음 노드가 설정되어있지 않음");
-    //     if (_path == null || _path.FinalDestination == null) throw new InvalidOperationException("navigator나 최종 목적지가 설정되지 않음");
-
-    //     // 이동 경로 중 도달해야 할 곳이 없다면 false 반환 (갈 곳이 없으니 이동이 불가능)
-    //     if (CurrentPathIndex >= CurrentPathPositions.Count) return;
-
-    //     if (CheckIfReachedDestination())
-    //     {
-    //         Despawn(EnemyDespawnReason.ReachedGoal);
-    //         return;
-    //     }
-
-    //     Move(currentDestination);
-    //     RotateModelTowardsMovementDirection();
-
-    //     // 노드 도달 확인
-    //     if (Vector3.Distance(transform.position, currentDestination) < 0.05f)
-    //     {
-    //         // 목적지 도달
-    //         if (Vector3.Distance(transform.position, _path.FinalDestination) < 0.05f)
-    //         {
-    //             Despawn(EnemyDespawnReason.ReachedGoal);
-    //         }
-    //         // 기다려야 하는 경우
-    //         else if (currentPathNodes[CurrentPathIndex].waitTime > 0)
-    //         {
-    //             StartCoroutine(WaitAtNode(currentPathNodes[CurrentPathIndex].waitTime));
-    //         }
-    //         // 노드 업데이트
-    //         else
-    //         {
-    //             UpdateNextNode();
-    //         }
-    //     }
-    // }
-
-    // public void Move(Vector3 destination)
-    // {
-    //     transform.position = Vector3.MoveTowards(transform.position, destination, MovementSpeed * Time.deltaTime);
-    // }
 
     // 대기 중일 때 실행
     public IEnumerator WaitAtNode(float waitTime)
@@ -334,28 +238,6 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity
     // 다음 노드 인덱스를 설정하고 현재 목적지로 지정함
     // 스킬에서 접근할 수 있게 public으로 변경
     public void UpdateNextNode() => _path.UpdateNextNode();
-    // {
-        // _path.UpdateNextNode();
-        // // pathData 관련 데이터 항목이 없거나, 도달할 노드가 마지막 노드인 경우는 실행되지 않음
-        // if (_currentPathPositions == null || CurrentPathIndex >= _currentPathPositions.Count - 1)
-        // {
-        //     Logger.LogError("오류 발생");
-        //     return;
-        // }
-
-        // if (_path == null)
-        // {
-        //     Logger.LogError("navigator가 없음");
-        //     return;
-        // }
-
-        // CurrentPathIndex++;
-
-        // if (CurrentPathIndex < currentPathPositions.Count)
-        // {
-        //     currentDestination = currentPathPositions[CurrentPathIndex];
-        // }
-    // }
 
     // Enemy가 공격 대상으로 삼은 적이 죽었을 때 동작
     public void HandleDeployableDied(DeployableUnitEntity disabledEntity) => _attack.HandleDeployableDied(disabledEntity); 
@@ -399,42 +281,9 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity
             }
         }
     }
-    // 마지막 타일의 월드 좌표 기준
-    // protected bool CheckIfReachedDestination()
-    // {
-    //     if (currentPathPositions == null) throw new InvalidOperationException("currentPathPositions가 할당되지 않음");
-
-    //     if (currentPathPositions.Count == 0) return false;
-
-    //     Vector3 lastPathPosition = currentPathPositions[currentPathPositions.Count - 1];
-
-    //     return Vector3.Distance(transform.position, lastPathPosition) < 0.05f;
-    // }
 
     // 현재 경로상에서 목적지까지 남은 거리 계산
     public float GetRemainingPathDistance() => _path.GetRemainingPathDistance();
-    // {
-        // return _path.GetRemainingPathDistance();
-        // if (currentPathPositions.Count == 0 || CurrentPathIndex > currentPathPositions.Count - 1)
-        // {
-        //     return float.MaxValue;
-        // }
-
-        // float distance = 0f;
-        // for (int i = CurrentPathIndex; i < currentPathPositions.Count - 1; i++)
-        // {
-        //     // 첫 타일에 한해서만 현재 위치를 기반으로 계산(여러 Enemy가 같은 타일에 있을 수 있기 때문)
-        //     if (i == CurrentPathIndex)
-        //     {
-        //         Vector3 nowPosition = new Vector3(transform.position.x, transform.position.y, transform.position.z);
-        //         distance += Vector3.Distance(nowPosition, currentPathPositions[i + 1]);
-        //     }
-
-        //     distance += Vector3.Distance(currentPathPositions[i], currentPathPositions[i + 1]);
-        // }
-
-        // return distance;
-    // }
 
     protected void CreateEnemyBarUI()
     {
@@ -554,7 +403,6 @@ public class Enemy : UnitEntity, IMovable, ICombatEntity
 
         if (_path != null)
         {
-            // _path.OnPathUpdated -= HandlePathUpdated;
             _path.Cleanup();
         }
 

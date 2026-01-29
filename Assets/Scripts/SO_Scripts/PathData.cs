@@ -18,6 +18,6 @@ public class PathData: ScriptableObject
     public string TargetMapId => targetMapId;
 
     [Header("Path Nodes")]
-    public List<PathNode> Nodes = new List<PathNode>(); // Editor에서 값을 넣어야 해서 일단 public으로 구현
-    // public IReadOnlyList<PathNode> Nodes => nodes;
+    [SerializeField] private List<PathNode> nodes = new List<PathNode>(); 
+    public IReadOnlyList<PathNode> Nodes => nodes;
 }
